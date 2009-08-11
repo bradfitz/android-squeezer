@@ -29,59 +29,58 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class SqueezeRemoteActivity extends Activity {
-	private static final int DIALOG_CHOOSE_PLAYER = 0;
+    private static final int DIALOG_CHOOSE_PLAYER = 0;
     private static final String TAG = "SqueezeRemoteActivity";
-	private static final String DISCONNECTED_TEXT = "Disconnected.";
+    private static final String DISCONNECTED_TEXT = "Disconnected.";
 
-	private ISqueezeService serviceStub = null;
-	private AtomicBoolean isConnected = new AtomicBoolean(false);
-	private AtomicBoolean isPlaying = new AtomicBoolean(false);
+    private ISqueezeService serviceStub = null;
+    private AtomicBoolean isConnected = new AtomicBoolean(false);
+    private AtomicBoolean isPlaying = new AtomicBoolean(false);
 
-	private TextView albumText;
-	private TextView artistText;
-	private TextView trackText;   
-	private ImageButton playPauseButton;
+    private TextView albumText;
+    private TextView artistText;
+    private TextView trackText;   
+    private ImageButton playPauseButton;
 
-	private Handler uiThreadHandler = new Handler();
+    private Handler uiThreadHandler = new Handler();
 	
     private ServiceConnection serviceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName name, IBinder service) {
+            public void onServiceConnected(ComponentName name, IBinder service) {
         	serviceStub = ISqueezeService.Stub.asInterface(service);
         	Log.v(TAG, "Service bound");
         	try {
-        		serviceStub.registerCallback(serviceCallback);
+                    serviceStub.registerCallback(serviceCallback);
         	} catch (RemoteException e) {
-        		e.printStackTrace();
+                    e.printStackTrace();
         	}
-        }
+            }
 
-        public void onServiceDisconnected(ComponentName name) {
+            public void onServiceDisconnected(ComponentName name) {
         	serviceStub = null;
+            };
         };
-      };
 	
     /** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-	    super.onCreate(savedInstanceState);
-	    setContentView(R.layout.main);
-	    
-	    albumText = (TextView) findViewById(R.id.albumname);
-	    artistText = (TextView) findViewById(R.id.artistname);
-	    trackText = (TextView) findViewById(R.id.trackname);
-	    playPauseButton = (ImageButton) findViewById(R.id.pause);
+    @Override public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        
+        albumText = (TextView) findViewById(R.id.albumname);
+        artistText = (TextView) findViewById(R.id.artistname);
+        trackText = (TextView) findViewById(R.id.trackname);
+        playPauseButton = (ImageButton) findViewById(R.id.pause);
 		
-	    playPauseButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				if (serviceStub == null) return;
-				try {
-					Log.v(TAG, "Pause...");
-					serviceStub.togglePausePlay();
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+        playPauseButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    if (serviceStub == null) return;
+                    try {
+                        Log.v(TAG, "Pause...");
+                        serviceStub.togglePausePlay();
+                    } catch (RemoteException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
 	    });
     }
     
@@ -92,56 +91,56 @@ public class SqueezeRemoteActivity extends Activity {
     	((ImageButton) findViewById(R.id.next)).setEnabled(connected);
     	((ImageButton) findViewById(R.id.prev)).setEnabled(connected);
     	if (!connected) {
-    		artistText.setText(DISCONNECTED_TEXT);
-    		albumText.setText("");
-    		trackText.setText("");
+            artistText.setText(DISCONNECTED_TEXT);
+            albumText.setText("");
+            trackText.setText("");
     	} else {
-    		if (DISCONNECTED_TEXT.equals(artistText.getText())) {
-    			artistText.setText("");
-    		}
+            if (DISCONNECTED_TEXT.equals(artistText.getText())) {
+                artistText.setText("");
+            }
     	}
     }
 
-	private void updatePlayPauseIcon() {
-		if (isPlaying.get()) {
-			playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
-		} else {
-			playPauseButton.setImageResource(android.R.drawable.ic_media_play);
-		}
-	}
-
-    @Override
-    public void onResume() {
-      super.onResume();
-      Log.d(TAG, "onResume...");
-      bindService(new Intent(this, SqueezeService.class),
-          serviceConnection, Context.BIND_AUTO_CREATE);
-      Log.d(TAG, "did bindService");
+    private void updatePlayPauseIcon() {
+        if (isPlaying.get()) {
+            playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
+        } else {
+            playPauseButton.setImageResource(android.R.drawable.ic_media_play);
+        }
     }
 
     @Override
-    public void onPause() {
-      super.onPause();
-      if (serviceStub != null) {
-    	  try {
-    		  serviceStub.unregisterCallback(serviceCallback);
-    	  } catch (RemoteException e) {
-    		  e.printStackTrace();
-    	  }
-      }
-      if (serviceConnection != null) {
-        unbindService(serviceConnection);
-      }
+        public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume...");
+        bindService(new Intent(this, SqueezeService.class),
+                    serviceConnection, Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "did bindService");
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+        public void onPause() {
+        super.onPause();
+        if (serviceStub != null) {
+            try {
+                serviceStub.unregisterCallback(serviceCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        if (serviceConnection != null) {
+            unbindService(serviceConnection);
+        }
+    }
+
+    @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.squeezeremote, menu);
         return super.onCreateOptionsMenu(menu);
     }
     
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+        public boolean onPrepareOptionsMenu(Menu menu) {
     	super.onPrepareOptionsMenu(menu);
     	boolean connected = isConnected.get();
     	MenuItem connect = menu.findItem(R.id.menu_item_connect);
@@ -152,7 +151,7 @@ public class SqueezeRemoteActivity extends Activity {
     }
 
     @Override
-    protected Dialog onCreateDialog(int id) {
+        protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_CHOOSE_PLAYER:
             final List<String> playerIds = new ArrayList<String>();
@@ -173,121 +172,126 @@ public class SqueezeRemoteActivity extends Activity {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Choose Player");
             builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int indexSelected) {
-                    String playerId = playerIds.get(indexSelected);
-                    try {
-                        serviceStub.setActivePlayer(playerId);
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "Error setting active player: " + e);
+                    public void onClick(DialogInterface dialog, int indexSelected) {
+                        String playerId = playerIds.get(indexSelected);
+                        try {
+                            serviceStub.setActivePlayer(playerId);
+                        } catch (RemoteException e) {
+                            Log.e(TAG, "Error setting active player: " + e);
+                        }
+                        dialog.dismiss();
                     }
-                    dialog.dismiss();
-                }
-            });
+                });
             return builder.create();
         }
         return null;
     }
     
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-      switch (item.getItemId()) {
+        public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        switch (item.getItemId()) {
       	case R.id.menu_item_settings:
-      		SettingsActivity.show(this);
-      		return true;
+            SettingsActivity.show(this);
+            return true;
       	case R.id.menu_item_connect:
             final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
             final String ipPort = preferences.getString(Preferences.KEY_SERVERADDR, null);
             if (ipPort == null || ipPort.length() == 0) {
-          		SettingsActivity.show(this);
-          		return true;
+                SettingsActivity.show(this);
+                return true;
             }
             startConnecting(ipPort);
-      		return true;
+            return true;
       	case R.id.menu_item_disconnect:
             try {
                 serviceStub.disconnect();
             } catch (RemoteException e) {
             	AlertDialog alert = new AlertDialog.Builder(this)
-            	.setMessage("Error: " + e)
-            	.create();
+                    .setMessage("Error: " + e)
+                    .create();
             	alert.show();
             }
             return true;
       	case R.id.menu_item_players:
       	    showDialog(DIALOG_CHOOSE_PLAYER);
       	    return true;
-      }
-      return super.onMenuItemSelected(featureId, item);
+        }
+        return super.onMenuItemSelected(featureId, item);
     }
     
     private void startConnecting(String ipPort) {
-		if (serviceStub == null) {
-			Log.e(TAG, "serviceStub is null.");
-			return;
-		}
+        if (serviceStub == null) {
+            Log.e(TAG, "serviceStub is null.");
+            return;
+        }
         try {
             serviceStub.startConnect(ipPort);
         } catch (RemoteException e) {
-        	AlertDialog alert = new AlertDialog.Builder(this)
+            AlertDialog alert = new AlertDialog.Builder(this)
         	.setMessage("Error: " + e)
         	.create();
-        	alert.show();
+            alert.show();
         }
-	}
+    }
 	
-	private IServiceCallback serviceCallback = new IServiceCallback.Stub() {
-		public void onConnectionChanged(final boolean isConnected)
-				throws RemoteException {
-			// TODO Auto-generated method stub
-			Log.v(TAG, "Connected == " + isConnected);
-			uiThreadHandler.post(new Runnable() {
-				public void run() {
-					setConnected(isConnected);
-				}
-			});
-		}
+    private IServiceCallback serviceCallback = new IServiceCallback.Stub() {
+            public void onConnectionChanged(final boolean isConnected)
+                throws RemoteException {
+                // TODO Auto-generated method stub
+                Log.v(TAG, "Connected == " + isConnected);
+                uiThreadHandler.post(new Runnable() {
+                        public void run() {
+                            setConnected(isConnected);
+                        }
+                    });
+            }
 
-		public void onMusicChanged(final String artist,
-				final String album,
-				final String track,
-				String coverArtUrl) throws RemoteException {
-			// TODO Auto-generated method stub
-			uiThreadHandler.post(new Runnable() {
-				public void run() {
-					artistText.setText(artist);
-					albumText.setText(album);
-					trackText.setText(track);
-				}
-			});
-		}
+            public void onPlayersDiscovered() throws RemoteException {
+                List<String> playerIds = new ArrayList<String>();
+                List<String> playerNames = new ArrayList<String>();
+                if (!serviceStub.getPlayers(playerIds, playerNames)) {
+                    Log.e(TAG, "No players in onPlayersDiscovered?");
+                    return;
+                }
+                int n = 0;
+                for (String playerId : playerIds) {
+                    String playerName = playerNames.get(n++);
+                    Log.v(TAG, "player: " + playerId + ", " + playerName);
+                }
+            }
 
-		public void onVolumeChange(int newVolume) throws RemoteException {
-			// TODO Auto-generated method stub
-			Log.v(TAG, "Volume = " + newVolume);
-		}
+            public void onPlayerChanged(final String playerId,
+                                        final String playerName) throws RemoteException {
+                Log.v(TAG, "player now " + playerId + ": " + playerName);
+            }
 
-		public void onPlayStatusChanged(boolean newStatus)
-				throws RemoteException {
-			isPlaying.set(newStatus);
-			uiThreadHandler.post(new Runnable() {
-				public void run() {
-					updatePlayPauseIcon();
-				}
-			});
-		}
+            public void onMusicChanged(final String artist,
+                                       final String album,
+                                       final String track,
+                                       String coverArtUrl) throws RemoteException {
+                // TODO Auto-generated method stub
+                uiThreadHandler.post(new Runnable() {
+                        public void run() {
+                            artistText.setText(artist);
+                            albumText.setText(album);
+                            trackText.setText(track);
+                        }
+                    });
+            }
 
-		public void onPlayersDiscovered() throws RemoteException {
-			List<String> playerIds = new ArrayList<String>();
-			List<String> playerNames = new ArrayList<String>();
-			if (!serviceStub.getPlayers(playerIds, playerNames)) {
-				Log.e(TAG, "No players in onPlayersDiscovered?");
-				return;
-			}
-			int n = 0;
-			for (String playerId : playerIds) {
-				String playerName = playerNames.get(n++);
-				Log.v(TAG, "player: " + playerId + ", " + playerName);
-			}
-		}
+            public void onVolumeChange(int newVolume) throws RemoteException {
+                // TODO Auto-generated method stub
+                Log.v(TAG, "Volume = " + newVolume);
+            }
+
+            public void onPlayStatusChanged(boolean newStatus)
+                throws RemoteException {
+                isPlaying.set(newStatus);
+                uiThreadHandler.post(new Runnable() {
+                        public void run() {
+                            updatePlayPauseIcon();
+                        }
+                    });
+            }
 	};
 }
