@@ -3,15 +3,36 @@ package com.danga.squeezeremote;
 import com.danga.squeezeremote.IServiceCallback;
 
 interface ISqueezeService {
-		void startConnect(String hostPort);
-		void disconnect();
-
-        boolean isConnected();
-        boolean isPlaying();
+	    // For the activity to get callbacks on interesting events:
 	    void registerCallback(IServiceCallback callback);
         void unregisterCallback(IServiceCallback callback);
+
+	    // Instructing the service to connect to the SqueezeCenter server:
+	    // hostPort is the port of the CLI interface.
+		void startConnect(String hostPort);
+		void disconnect();
+        boolean isConnected();
+
+	    // Returns true if players are known.  You should wait for the
+	    // onPlayersDiscovered() callback before calling this.
+		boolean getPlayers(out List<String> playerId,
+   					       out List<String> playerName);
+
+	    // Returns true if the player is known.					    
+	    boolean setActivePlayer(in String playerId);
+		// Returns the empty string (not null) if no player is set. 
+        String getActivePlayer();
+
+	    ////////////////////
+  	    // Depends on active player:
+  	    
+        boolean isPlaying();
         boolean togglePausePlay();
         boolean play();
         boolean stop();
+
+        // Returns new (predicted) volume.  Typical deltas are +10 or -10.
+        // Note the volume changed callback will also still be run with
+        // the correct value as returned by the server later.
         int adjustVolumeBy(int delta);
 }

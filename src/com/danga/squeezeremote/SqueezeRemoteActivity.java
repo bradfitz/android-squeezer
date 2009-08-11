@@ -1,11 +1,15 @@
 package com.danga.squeezeremote;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -22,10 +26,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SqueezeRemoteActivity extends Activity {
-	private final String TAG = "SqueezeRemoteActivity";
-	private final String DISCONNECTED_TEXT = "Disconnected.";
+	private static final int DIALOG_CHOOSE_PLAYER = 0;
+    private static final String TAG = "SqueezeRemoteActivity";
+	private static final String DISCONNECTED_TEXT = "Disconnected.";
 
 	private ISqueezeService serviceStub = null;
 	private AtomicBoolean isConnected = new AtomicBoolean(false);
@@ -146,6 +152,43 @@ public class SqueezeRemoteActivity extends Activity {
     }
 
     @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+        case DIALOG_CHOOSE_PLAYER:
+            final List<String> playerIds = new ArrayList<String>();
+            final List<String> playerNames = new ArrayList<String>();
+            try {
+                if (!serviceStub.getPlayers(playerIds, playerNames)) {
+                    Log.e(TAG, "No players in onPlayersDiscovered?");
+                    return null;
+                }
+            } catch (RemoteException e) {
+                return null;
+            }
+            final CharSequence[] items = new CharSequence[playerNames.size()];
+            int n = 0;
+            for (String playerName : playerNames) {
+                items[n++] = playerName;
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Choose Player");
+            builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int indexSelected) {
+                    String playerId = playerIds.get(indexSelected);
+                    try {
+                        serviceStub.setActivePlayer(playerId);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "Error setting active player: " + e);
+                    }
+                    dialog.dismiss();
+                }
+            });
+            return builder.create();
+        }
+        return null;
+    }
+    
+    @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
       switch (item.getItemId()) {
       	case R.id.menu_item_settings:
@@ -169,13 +212,15 @@ public class SqueezeRemoteActivity extends Activity {
             	.create();
             	alert.show();
             }
-
-      		
+            return true;
+      	case R.id.menu_item_players:
+      	    showDialog(DIALOG_CHOOSE_PLAYER);
+      	    return true;
       }
       return super.onMenuItemSelected(featureId, item);
     }
     
-	private void startConnecting(String ipPort) {
+    private void startConnecting(String ipPort) {
 		if (serviceStub == null) {
 			Log.e(TAG, "serviceStub is null.");
 			return;
@@ -229,6 +274,20 @@ public class SqueezeRemoteActivity extends Activity {
 					updatePlayPauseIcon();
 				}
 			});
+		}
+
+		public void onPlayersDiscovered() throws RemoteException {
+			List<String> playerIds = new ArrayList<String>();
+			List<String> playerNames = new ArrayList<String>();
+			if (!serviceStub.getPlayers(playerIds, playerNames)) {
+				Log.e(TAG, "No players in onPlayersDiscovered?");
+				return;
+			}
+			int n = 0;
+			for (String playerId : playerIds) {
+				String playerName = playerNames.get(n++);
+				Log.v(TAG, "player: " + playerId + ", " + playerName);
+			}
 		}
 	};
 }
