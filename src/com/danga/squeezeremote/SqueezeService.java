@@ -44,8 +44,7 @@ public class SqueezeService extends Service {
     private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
     private final AtomicReference<IServiceCallback> callback = new AtomicReference<IServiceCallback>();
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
-    private String activePlayerId = null;
-    private Thread listeningThread = null;
+    private final AtomicReference<String> activePlayerId = new AtomicReference<String>();
 	
     @Override
         public void onCreate() {
@@ -123,6 +122,7 @@ public class SqueezeService extends Service {
         if (callback.get() != null) {
             try {
                 callback.get().onPlayersDiscovered();
+                callback.get().onPlayerChanged("00:04:20:17:04:7f", "Office");
             } catch (RemoteException e) {
             }
         }
@@ -137,8 +137,8 @@ public class SqueezeService extends Service {
     }
 
     private void startListeningThread() {
-        listeningThread = new ListeningThread(socketRef.get(),
-                                              currentConnectionGeneration.incrementAndGet());
+        Thread listeningThread = new ListeningThread(socketRef.get(),
+                                                     currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
 
         sendCommand("listen 1");
@@ -294,12 +294,13 @@ public class SqueezeService extends Service {
             }
 
             public boolean setActivePlayer(String playerId) throws RemoteException {
-                activePlayerId = playerId;
+                activePlayerId.set(playerId);
                 return true;
             }
 
             public String getActivePlayer() throws RemoteException {
-                return activePlayerId == null ? "" : activePlayerId;
+                String playerId = activePlayerId.get();
+                return playerId == null ? "" : playerId;
             }
 	};
 
