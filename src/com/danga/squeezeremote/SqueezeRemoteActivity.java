@@ -102,11 +102,27 @@ public class SqueezeRemoteActivity extends Activity {
     }
 
     private void updatePlayPauseIcon() {
-        if (isPlaying.get()) {
-            playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
-        } else {
-            playPauseButton.setImageResource(android.R.drawable.ic_media_play);
-        }
+        uiThreadHandler.post(new Runnable() {
+                public void run() {
+                    if (isPlaying.get()) {
+                        playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
+                    } else {
+                        playPauseButton.setImageResource(android.R.drawable.ic_media_play);
+                    }
+                }
+            });
+    }
+
+    private void setTitleForPlayer(final String playerName) {
+        uiThreadHandler.post(new Runnable() {
+                public void run() {
+                    if (playerName != null && !"".equals(playerName)) {
+                        setTitle("Squeeze Remote: " + playerName);
+                    } else {
+                        setTitle("Squeeze Remote");
+                    }
+                }
+            });
     }
 
     @Override
@@ -263,6 +279,7 @@ public class SqueezeRemoteActivity extends Activity {
             public void onPlayerChanged(final String playerId,
                                         final String playerName) throws RemoteException {
                 Log.v(TAG, "player now " + playerId + ": " + playerName);
+                setTitleForPlayer(playerName);
             }
 
             public void onMusicChanged(final String artist,
@@ -287,11 +304,7 @@ public class SqueezeRemoteActivity extends Activity {
             public void onPlayStatusChanged(boolean newStatus)
                 throws RemoteException {
                 isPlaying.set(newStatus);
-                uiThreadHandler.post(new Runnable() {
-                        public void run() {
-                            updatePlayPauseIcon();
-                        }
-                    });
+                updatePlayPauseIcon();
             }
-	};
+        };
 }
