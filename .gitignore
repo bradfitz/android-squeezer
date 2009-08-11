@@ -2,6 +2,6 @@
 bin
 gen
 local.properties
-src/com/danga/squeezeremote/IServiceCallback.java
-src/com/danga/squeezeremote/ISqueezeService.java
-src/com/danga/squeezeremote/R.java
+src/com/danga/squeezer/IServiceCallback.java
+src/com/danga/squeezer/ISqueezeService.java
+src/com/danga/squeezer/R.java

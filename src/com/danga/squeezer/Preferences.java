@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.danga.squeezeremote;
+package com.danga.squeezer;
 
 public final class Preferences {
-	public static final String NAME = "SqueezeRemote";
-	public static final String KEY_SERVERADDR = "squeezeremote.serveraddr";
+	public static final String NAME = "Squeezer";
+	public static final String KEY_SERVERADDR = "squeezer.serveraddr";
 
 	Preferences() {
 	}

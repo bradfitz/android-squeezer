@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.danga.squeezeremote;
+package com.danga.squeezer;
 
 import android.content.Context;
 import android.os.SystemClock;

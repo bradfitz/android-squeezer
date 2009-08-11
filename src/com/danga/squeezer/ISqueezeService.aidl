@@ -1,6 +1,6 @@
-package com.danga.squeezeremote;
+package com.danga.squeezer;
 
-import com.danga.squeezeremote.IServiceCallback;
+import com.danga.squeezer.IServiceCallback;
 
 interface ISqueezeService {
 	    // For the activity to get callbacks on interesting events:

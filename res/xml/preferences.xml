@@ -18,16 +18,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                  android:key="first_preferencescreen">
 
-	<CheckBoxPreference
-	    android:key="squeezeremote.autoconnect"
-	    android:title="Auto-discover SqueezeCenter"
-	    android:summary="On Wifi connect, scan for the squeeze server."
-	    android:persistent="true" />
+  <CheckBoxPreference
+     android:key="squeezer.autoconnect"
+     android:title="Auto-discover SqueezeCenter"
+     android:summary="On Wifi connect, scan for the squeeze server."
+     android:persistent="true" />
 	    
-    <EditTextPreference
-         android:key="squeezeremote.serveraddr"
-         android:title="@string/settings_serveraddr_title"
-         android:summary="@string/settings_serveraddr_summary"
-         android:persistent="true" />
+  <EditTextPreference
+     android:key="squeezer.serveraddr"
+     android:title="@string/settings_serveraddr_title"
+     android:summary="@string/settings_serveraddr_summary"
+     android:persistent="true" />
 
 </PreferenceScreen>

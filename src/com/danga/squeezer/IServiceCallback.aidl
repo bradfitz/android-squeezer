@@ -1,4 +1,4 @@
-package com.danga.squeezeremote;
+package com.danga.squeezer;
 
 oneway interface IServiceCallback {
   void onMusicChanged(String artist, String album, String song, String coverArtUrl);

@@ -1,4 +1,4 @@
-package com.danga.squeezeremote;
+package com.danga.squeezer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +28,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SqueezeRemoteActivity extends Activity {
+public class SqueezerActivity extends Activity {
     private static final int DIALOG_CHOOSE_PLAYER = 0;
-    private static final String TAG = "SqueezeRemoteActivity";
+    private static final String TAG = "SqueezerActivity";
     private static final String DISCONNECTED_TEXT = "Disconnected.";
 
     private ISqueezeService serviceStub = null;
@@ -151,7 +151,7 @@ public class SqueezeRemoteActivity extends Activity {
 
     @Override
         public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.squeezeremote, menu);
+        getMenuInflater().inflate(R.menu.squeezer, menu);
         return super.onCreateOptionsMenu(menu);
     }
     

@@ -1,4 +1,4 @@
-package com.danga.squeezeremote;
+package com.danga.squeezer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -167,12 +167,12 @@ public class SqueezeService extends Service {
             Notification status = new Notification();
             //status.contentView = views;
             PendingIntent pIntent = PendingIntent.getActivity(this, 0,
-                                                              new Intent(this, SqueezeRemoteActivity.class), 0);
+                                                              new Intent(this, SqueezerActivity.class), 0);
             status.setLatestEventInfo(this, "Music Playing", "Content Text", pIntent);
             status.flags |= Notification.FLAG_ONGOING_EVENT;
             status.icon = R.drawable.stat_notify_musicplayer;
             //status.contentIntent = PendingIntent.getActivity(this, 0,
-            //        new Intent(this, SqueezeRemoteActivity.class), 0);
+            //        new Intent(this, SqueezerActivity.class), 0);
             nm.notify(PLAYBACKSERVICE_STATUS, status);
         } else {
             nm.cancel(PLAYBACKSERVICE_STATUS);

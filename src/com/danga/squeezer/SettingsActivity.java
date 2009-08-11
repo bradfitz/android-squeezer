@@ -1,4 +1,4 @@
-package com.danga.squeezeremote;
+package com.danga.squeezer;
 
 import android.content.Context;
 import android.content.Intent;

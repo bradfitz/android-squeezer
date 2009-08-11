@@ -52,11 +52,11 @@
             android:layout_marginBottom="2px"
             android:gravity="center">
 
-            <com.danga.squeezeremote.RepeatingImageButton android:id="@+id/prev" style="@android:style/MediaButton.Previous" />
+            <com.danga.squeezer.RepeatingImageButton android:id="@+id/prev" style="@android:style/MediaButton.Previous" />
 
             <ImageButton android:id="@+id/pause" style="@android:style/MediaButton.Play" />
 
-            <com.danga.squeezeremote.RepeatingImageButton android:id="@+id/next" style="@android:style/MediaButton.Next" />
+            <com.danga.squeezer.RepeatingImageButton android:id="@+id/next" style="@android:style/MediaButton.Next" />
 
         </LinearLayout>
 
