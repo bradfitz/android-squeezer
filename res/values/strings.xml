@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Squeeze Remote</string>
+    <string name="menu_item_players">Players</string>
+    <string name="menu_item_search_label">Search</string>
+    <string name="menu_item_settings_label">Settings</string>
+    <string name="activity_settings_name">Settings</string>
+    <string name="settings_serveraddr_title">Server Adress</string>
+    <string name="settings_serveraddr_summary">In format host:port</string>
+    <string name="menu_item_disconnect">Disconnect</string>
+    <string name="menu_item_connect">Connect</string>
+</resources>
