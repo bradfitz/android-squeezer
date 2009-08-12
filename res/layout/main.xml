@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:id="@+id/root_layout"
+    >
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -33,12 +35,16 @@
                 android:layout_height="54dip"
                 android:layout_marginTop="14dip" />
 
+<!-- faking as a volume up button for now... -->
            <ImageButton android:id="@+id/shuffle"
+                android:src="@android:drawable/btn_plus"
                 android:layout_width="85dip"
                 android:layout_height="54dip"
                 android:layout_marginTop="20dip" />
 
+<!-- faking as a volume down button for now... -->
            <ImageButton android:id="@+id/repeat"
+                android:src="@android:drawable/btn_minus"
                 android:layout_width="85dip"
                 android:layout_height="54dip"
                 android:layout_marginTop="20dip" />

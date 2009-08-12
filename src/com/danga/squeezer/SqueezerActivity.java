@@ -18,13 +18,16 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,7 +59,6 @@ public class SqueezerActivity extends Activity {
         	        updateUIFromServiceState();
         	    }
         	});
-        
         	try {
         	    serviceStub.registerCallback(serviceCallback);
         	} catch (RemoteException e) {
@@ -73,6 +75,26 @@ public class SqueezerActivity extends Activity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        // Intercept volume keys to control SqueezeCenter volume.
+        // TODO: make this actually work.  It's something like this, but not quite.
+        // Other apps do it, so should be possible somehow.
+        LinearLayout mainLayout = (LinearLayout) findViewById(R.id.root_layout);
+        mainLayout.setOnKeyListener(new OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                    // TODO: notify user somehow. Toast?
+                    changeVolumeBy(+5);
+                    return true;
+                }
+                if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                    // TODO: notify user somehow. Toast?
+                    changeVolumeBy(-5);
+                    return true;
+                }
+                return false;
+            }
+        });
         
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
@@ -118,8 +140,37 @@ public class SqueezerActivity extends Activity {
             }
         });
         
+        // Hacks for now, making shuffle & repeat do volume up & down, until
+        // these do something & volume is fixed to use the side keys.
+        ((ImageButton) this.findViewById(R.id.shuffle)).setOnClickListener(
+                new OnClickListener() {
+                    public void onClick(View v) {
+                        changeVolumeBy(+5);
+                    }
+                });
+        ((ImageButton) this.findViewById(R.id.repeat)).setOnClickListener(
+                new OnClickListener() {
+                    public void onClick(View v) {
+                        changeVolumeBy(-5);
+                    }
+                });
+        
+        
     }
     
+    private boolean changeVolumeBy(int delta) {
+        Log.v(TAG, "Adjust volume by: " + delta);
+        if (serviceStub == null) {
+            return false;
+        }
+        try {
+            serviceStub.adjustVolumeBy(delta);
+            return true;
+        } catch (RemoteException e) {
+        }
+        return false;
+    }
+
     // Should only be called the UI thread.
     private void setConnected(boolean connected) {
     	isConnected.set(connected);
@@ -247,7 +298,7 @@ public class SqueezerActivity extends Activity {
             unbindService(serviceConnection);
         }
     }
-
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.squeezer, menu);

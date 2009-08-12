@@ -107,6 +107,13 @@ public class SqueezeService extends Service {
             parsePlayerList(tokens);
             return;
         }
+        if (serverLine.contains("prefset server volume")) {
+            String player = decode(tokens.get(0));
+            if (player.equals(activePlayerId.get())) {
+                String newVolume = tokens.get(4);
+                Log.v(TAG, "New volume is: " + newVolume);
+            }
+        }
     }
 
     private void parsePlayerList(List<String> tokens) {
@@ -281,7 +288,12 @@ public class SqueezeService extends Service {
 	    }
 
             public int adjustVolumeBy(int delta) throws RemoteException {
-                return 0;
+                if (delta > 0) {
+                    sendPlayerCommand("mixer volume %2B" + delta);
+                } else if (delta < 0) {
+                    sendPlayerCommand("mixer volume " + delta);
+                }
+                return 50 + delta;  // TODO: return non-blocking dead-reckoning value
             }
 
             public boolean isConnected() throws RemoteException {
