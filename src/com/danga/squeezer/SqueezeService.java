@@ -107,12 +107,41 @@ public class SqueezeService extends Service {
             parsePlayerList(tokens);
             return;
         }
+        if (tokens.size() < 2) {
+            return;
+        }
+        if (!decode(tokens.get(0)).equals(activePlayerId.get())) {
+            // Different player that we're not interested in.   
+            // (yet? maybe later.)
+            return;
+        }
+        String command = tokens.get(1);
+        if (command == null) return;
         if (serverLine.contains("prefset server volume")) {
-            String player = decode(tokens.get(0));
-            if (player.equals(activePlayerId.get())) {
-                String newVolume = tokens.get(4);
-                Log.v(TAG, "New volume is: " + newVolume);
+            String newVolume = tokens.get(4);
+            Log.v(TAG, "New volume is: " + newVolume);
+            return;
+        }
+        if (command.equals("play")) {
+            setPlayingState(true);
+            return;
+        }
+        if (command.equals("stop")) {
+            setPlayingState(false);
+            return;
+        }
+        if (command.equals("pause")) {
+            boolean newState = !isPlaying.get();
+            if (tokens.size() >= 3) {
+                String explicitPause = tokens.get(2); 
+                if ("0".equals(explicitPause)) {
+                    newState = true;  // playing.  (unpaused)
+                } else if ("1".equals(explicitPause)) {
+                    newState = false;  // explicitly paused.
+                }
             }
+            setPlayingState(newState);
+            return;
         }
     }
 
