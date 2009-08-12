@@ -20,8 +20,10 @@ interface ISqueezeService {
 
 	    // Returns true if the player is known.					    
 	    boolean setActivePlayer(in String playerId);
+
 		// Returns the empty string (not null) if no player is set. 
-        String getActivePlayer();
+        String getActivePlayerId();
+        String getActivePlayerName();
 
 	    ////////////////////
   	    // Depends on active player:

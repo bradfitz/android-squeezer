@@ -49,6 +49,12 @@ public class SqueezerActivity extends Activity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             serviceStub = ISqueezeService.Stub.asInterface(service);
         	Log.v(TAG, "Service bound");
+        	uiThreadHandler.post(new Runnable() {
+        	    public void run() {
+        	        updateUIFromServiceState();
+        	    }
+        	});
+        
         	try {
         	    serviceStub.registerCallback(serviceCallback);
         	} catch (RemoteException e) {
@@ -91,7 +97,7 @@ public class SqueezerActivity extends Activity {
 	    });
     }
     
-    // Called only from the UI thread.
+    // Should only be called the UI thread.
     private void setConnected(boolean connected) {
     	isConnected.set(connected);
         ImageButton nextButton = (ImageButton) findViewById(R.id.next);
@@ -128,6 +134,7 @@ public class SqueezerActivity extends Activity {
             });
     }
 
+    // May be called from any thread.
     private void setTitleForPlayer(final String playerName) {
         uiThreadHandler.post(new Runnable() {
                 public void run() {
@@ -144,14 +151,47 @@ public class SqueezerActivity extends Activity {
         public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume...");
+
+        // Start it and have it run forever (until it shuts itself down).
+        // This is required so swapping out the activity (and unbinding the
+        // service connection in onPause) doesn't cause the service to be
+        // killed due to zero refcount.  This is our signal that we want
+        // it running in the background.
+        startService(new Intent(this, SqueezeService.class));
+        
         bindService(new Intent(this, SqueezeService.class),
                     serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService");
+        Log.d(TAG, "did bindService; serviceStub = " + serviceStub);
+        
+        if (serviceStub != null) {
+            updateUIFromServiceState();
+            try {
+                serviceStub.registerCallback(serviceCallback);
+            } catch (RemoteException e) {
+                Log.e(TAG, "error registering callback: " + e);
+            }
+        }
+    }
 
+    // Should only be called from the UI thread.
+    private void updateUIFromServiceState() {
+        if (serviceStub == null) {
+            Log.e(TAG, "Can't update UI with null serviceStub");
+            return;
+        }
         // Update the UI to reflect connection state.  Basically just for
         // the initial display, as changing the prev/next buttons to empty
         // doesn't seem to work in onCreate.  (LayoutInflator still running?)
-        setConnected(isConnected.get());
+        try {
+            boolean connected = serviceStub.isConnected();
+            setConnected(connected);
+            setTitleForPlayer(serviceStub.getActivePlayerName());
+            isPlaying.set(serviceStub.isPlaying());
+            updatePlayPauseIcon();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception: " + e);
+        }
+       
     }
 
     @Override

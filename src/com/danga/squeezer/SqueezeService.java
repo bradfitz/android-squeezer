@@ -382,11 +382,20 @@ public class SqueezeService extends Service {
                 return changeActivePlayer(playerId);
             }
 
-            public String getActivePlayer() throws RemoteException {
+            public String getActivePlayerId() throws RemoteException {
                 String playerId = activePlayerId.get();
                 return playerId == null ? "" : playerId;
             }
-	};
+
+            public String getActivePlayerName() throws RemoteException {
+                String playerId = activePlayerId.get();
+                Map<String, String> players = knownPlayers.get();
+                if (players == null) {
+                    return null;
+                }
+                return players.get(playerId);
+            }
+};
 
     private class ListeningThread extends Thread {
         private final Socket socket;
