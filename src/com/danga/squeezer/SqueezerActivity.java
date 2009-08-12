@@ -29,9 +29,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class SqueezerActivity extends Activity {
-    private static final int DIALOG_CHOOSE_PLAYER = 0;
     private static final String TAG = "SqueezerActivity";
     private static final String DISCONNECTED_TEXT = "Disconnected.";
+    private static final int DIALOG_CHOOSE_PLAYER = 0;
+    private static final int DIALOG_ABOUT = 1;
 
     private ISqueezeService serviceStub = null;
     private AtomicBoolean isConnected = new AtomicBoolean(false);
@@ -45,20 +46,20 @@ public class SqueezerActivity extends Activity {
     private Handler uiThreadHandler = new Handler();
 	
     private ServiceConnection serviceConnection = new ServiceConnection() {
-            public void onServiceConnected(ComponentName name, IBinder service) {
-        	serviceStub = ISqueezeService.Stub.asInterface(service);
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            serviceStub = ISqueezeService.Stub.asInterface(service);
         	Log.v(TAG, "Service bound");
         	try {
-                    serviceStub.registerCallback(serviceCallback);
+        	    serviceStub.registerCallback(serviceCallback);
         	} catch (RemoteException e) {
-                    e.printStackTrace();
+        	    e.printStackTrace();
         	}
-            }
+        }
 
-            public void onServiceDisconnected(ComponentName name) {
-        	serviceStub = null;
-            };
+        public void onServiceDisconnected(ComponentName name) {
+            serviceStub = null;
         };
+    };
 	
     /** Called when the activity is first created. */
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -196,6 +197,8 @@ public class SqueezerActivity extends Activity {
 
     @Override
         protected Dialog onCreateDialog(int id) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
         switch (id) {
         case DIALOG_CHOOSE_PLAYER:
             final List<String> playerIds = new ArrayList<String>();
@@ -213,7 +216,6 @@ public class SqueezerActivity extends Activity {
             for (String playerName : playerNames) {
                 items[n++] = playerName;
             }
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Choose Player");
             builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int indexSelected) {
@@ -226,6 +228,10 @@ public class SqueezerActivity extends Activity {
                         dialog.dismiss();
                     }
                 });
+            return builder.create();
+        case DIALOG_ABOUT:
+            builder.setTitle("About");
+            builder.setMessage(R.string.about_text);
             return builder.create();
         }
         return null;
@@ -253,6 +259,9 @@ public class SqueezerActivity extends Activity {
       	case R.id.menu_item_players:
       	    showDialog(DIALOG_CHOOSE_PLAYER);
       	    return true;
+        case R.id.menu_item_about:
+            showDialog(DIALOG_ABOUT);
+            return true;
         }
         return super.onMenuItemSelected(featureId, item);
     }

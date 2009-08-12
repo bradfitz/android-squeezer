@@ -83,6 +83,7 @@ public class SqueezeService extends Service {
         isPlaying.set(false);
         knownPlayers.set(null);
         setConnectionState(false);
+        clearOngoingNotification();
     }
 
     private synchronized void sendCommand(String command) {
@@ -235,9 +236,9 @@ public class SqueezeService extends Service {
 	
     private void setPlayingState(boolean state) {
         isPlaying.set(state);
-        NotificationManager nm =
-            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (state) {
+            NotificationManager nm =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             Notification status = new Notification();
             //status.contentView = views;
             PendingIntent pIntent = PendingIntent.getActivity(this, 0,
@@ -249,7 +250,7 @@ public class SqueezeService extends Service {
             //        new Intent(this, SqueezerActivity.class), 0);
             nm.notify(PLAYBACKSERVICE_STATUS, status);
         } else {
-            nm.cancel(PLAYBACKSERVICE_STATUS);
+            clearOngoingNotification();
         }
 		
         if (callback.get() == null) {
@@ -260,6 +261,12 @@ public class SqueezeService extends Service {
         } catch (RemoteException e) {
         }
 
+    }
+
+    private void clearOngoingNotification() {
+        NotificationManager nm =
+            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancel(PLAYBACKSERVICE_STATUS);
     }
 
     private final ISqueezeService.Stub squeezeService = new ISqueezeService.Stub() {

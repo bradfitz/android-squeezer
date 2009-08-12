@@ -4,9 +4,18 @@
     <string name="menu_item_players">Players</string>
     <string name="menu_item_search_label">Search</string>
     <string name="menu_item_settings_label">Settings</string>
+    <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
     <string name="settings_serveraddr_title">Server Adress</string>
     <string name="settings_serveraddr_summary">In format host:port</string>
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
+    <string name="about_text"><b>Squeezer v0.1 (C) Brad Fitzpatrick</b>
+    
+<p><a href="http://code.google.com/p/android-squeezer/">http://code.google.com/p/android-squeezer/</a><br/>
+android-squeezer@googlegroups.com</p>
+
+<p>Welcome to Squeezer!  This project is very new and is undergoing active development.  Patches and feature requests welcome!
+</p>    
+    </string>
 </resources>
