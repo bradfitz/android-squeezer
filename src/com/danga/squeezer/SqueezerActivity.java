@@ -186,11 +186,7 @@ public class SqueezerActivity extends Activity {
     	} else {
             nextButton.setImageResource(android.R.drawable.ic_media_next);
             prevButton.setImageResource(android.R.drawable.ic_media_previous);
-            if (DISCONNECTED_TEXT.equals(artistText.getText())) {
-                artistText.setText("Connected.");
-            }
-            albumText.setText("(album not yet implemented)");
-            trackText.setText("(track not yet implemented)");
+            updateSongInfoFromService();
     	}
     	updatePlayPauseIcon();
     }

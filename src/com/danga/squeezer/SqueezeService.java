@@ -152,6 +152,7 @@ public class SqueezeService extends Service {
             if (tokens.size() >= 4 && "newsong".equals(tokens.get(2))) {
                 String newSong = decode(tokens.get(3));
                 currentSong.set(newSong);
+                updateOngoingNotification();
                 sendMusicChangedCallback();
             }
         }
@@ -317,22 +318,7 @@ public class SqueezeService extends Service {
 	
     private void setPlayingState(boolean state) {
         isPlaying.set(state);
-        if (state) {
-            NotificationManager nm =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification status = new Notification();
-            //status.contentView = views;
-            PendingIntent pIntent = PendingIntent.getActivity(this, 0,
-                                                              new Intent(this, SqueezerActivity.class), 0);
-            status.setLatestEventInfo(this, "Music Playing", "Content Text", pIntent);
-            status.flags |= Notification.FLAG_ONGOING_EVENT;
-            status.icon = R.drawable.stat_notify_musicplayer;
-            //status.contentIntent = PendingIntent.getActivity(this, 0,
-            //        new Intent(this, SqueezerActivity.class), 0);
-            nm.notify(PLAYBACKSERVICE_STATUS, status);
-        } else {
-            clearOngoingNotification();
-        }
+        updateOngoingNotification();
 		
         if (callback.get() == null) {
             return;
@@ -342,6 +328,27 @@ public class SqueezeService extends Service {
         } catch (RemoteException e) {
         }
 
+    }
+
+    private void updateOngoingNotification() {
+        if (!isPlaying.get()) {
+            clearOngoingNotification();
+            return;
+        }
+        NotificationManager nm =
+            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification status = new Notification();
+        //status.contentView = views;
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0,
+                                                          new Intent(this, SqueezerActivity.class), 0);
+        String song = currentSong.get();
+        if (song == null) song = "";
+        status.setLatestEventInfo(this, "Music Playing", song, pIntent);
+        status.flags |= Notification.FLAG_ONGOING_EVENT;
+        status.icon = R.drawable.stat_notify_musicplayer;
+        //status.contentIntent = PendingIntent.getActivity(this, 0,
+        //        new Intent(this, SqueezerActivity.class), 0);
+        nm.notify(PLAYBACKSERVICE_STATUS, status);
     }
 
     private void sendMusicChangedCallback() {
