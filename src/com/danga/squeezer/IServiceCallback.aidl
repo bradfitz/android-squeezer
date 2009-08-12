@@ -1,7 +1,7 @@
 package com.danga.squeezer;
 
 oneway interface IServiceCallback {
-  void onMusicChanged(String artist, String album, String song, String coverArtUrl);
+  void onMusicChanged();
   void onPlayersDiscovered();
 
   // Empty strings to denote no default player.

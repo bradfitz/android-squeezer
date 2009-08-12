@@ -34,6 +34,9 @@ interface ISqueezeService {
         boolean stop();
         boolean nextTrack();
         boolean previousTrack();
+        String currentArtist();
+        String currentAlbum();
+        String currentSong();
 
         // Returns new (predicted) volume.  Typical deltas are +10 or -10.
         // Note the volume changed callback will also still be run with

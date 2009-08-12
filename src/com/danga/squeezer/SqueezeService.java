@@ -47,6 +47,7 @@ public class SqueezeService extends Service {
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
     private final AtomicReference<String> activePlayerId = new AtomicReference<String>();
     private final AtomicReference<Map<String, String>> knownPlayers = new AtomicReference<Map<String, String>>();
+    private final AtomicReference<String> currentSong = new AtomicReference<String>();
     
     @Override
         public void onCreate() {
@@ -147,6 +148,14 @@ public class SqueezeService extends Service {
             parseStatusLine(tokens);
             return;
         }
+        if (command.equals("playlist")) {
+            if (tokens.size() >= 4 && "newsong".equals(tokens.get(2))) {
+                String newSong = decode(tokens.get(3));
+                currentSong.set(newSong);
+                sendMusicChangedCallback();
+            }
+        }
+
     }
 
     private void parseStatusLine(List<String> tokens) {
@@ -335,6 +344,16 @@ public class SqueezeService extends Service {
 
     }
 
+    private void sendMusicChangedCallback() {
+        if (callback.get() == null) {
+            return;
+        }
+        try {
+            callback.get().onMusicChanged();
+        } catch (RemoteException e) {
+        }
+    }
+
     private void clearOngoingNotification() {
         NotificationManager nm =
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -491,6 +510,19 @@ public class SqueezeService extends Service {
                     return null;
                 }
                 return players.get(playerId);
+            }
+
+            public String currentAlbum() throws RemoteException {
+                return "TODO: current album";
+            }
+
+            public String currentArtist() throws RemoteException {
+                return "TODO: current artist";
+            }
+
+            public String currentSong() throws RemoteException {
+                String song = currentSong.get();
+                return (song != null) ? song : "";
             }
 };
 

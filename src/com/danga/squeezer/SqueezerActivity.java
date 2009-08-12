@@ -272,6 +272,51 @@ public class SqueezerActivity extends Activity {
        
     }
     
+    // Shoudl only be called from the UI thread.
+    private void updateSongInfoFromService() {
+        artistText.setText("TODO");
+        albumText.setText("TODO");
+        trackText.setText(getServiceCurrentSong());
+    }
+
+    
+    private String getServiceCurrentSong() {
+        if (serviceStub == null) {
+            return "";
+        }
+        try {
+            return serviceStub.currentSong();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnected(): " + e);
+        }
+        return "";
+    }
+    
+    private String getServiceCurrentAlbum() {
+        if (serviceStub == null) {
+            return "";
+        }
+        try {
+            return serviceStub.currentAlbum();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnected(): " + e);
+        }
+        return "";
+    }
+    
+    private String getServiceCurrentArtist() {
+        if (serviceStub == null) {
+            return "";
+        }
+        try {
+            return serviceStub.currentArtist();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnected(): " + e);
+        }
+        return "";
+    }
+
+
     private boolean isConnected() {
         if (serviceStub == null) {
             return false;
@@ -474,16 +519,10 @@ public class SqueezerActivity extends Activity {
                 setTitleForPlayer(playerName);
             }
 
-            public void onMusicChanged(final String artist,
-                                       final String album,
-                                       final String track,
-                                       String coverArtUrl) throws RemoteException {
-                // TODO Auto-generated method stub
+            public void onMusicChanged() throws RemoteException {
                 uiThreadHandler.post(new Runnable() {
                         public void run() {
-                            artistText.setText(artist);
-                            albumText.setText(album);
-                            trackText.setText(track);
+                            updateSongInfoFromService();
                         }
                     });
             }
