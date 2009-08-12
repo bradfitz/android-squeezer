@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -36,6 +38,7 @@ public class SqueezerActivity extends Activity {
     private static final String DISCONNECTED_TEXT = "Disconnected.";
     private static final int DIALOG_CHOOSE_PLAYER = 0;
     private static final int DIALOG_ABOUT = 1;
+    private static final int DIALOG_CONNECTING = 2;
 
     private ISqueezeService serviceStub = null;
     private AtomicBoolean isConnected = new AtomicBoolean(false);
@@ -47,6 +50,7 @@ public class SqueezerActivity extends Activity {
     private ImageButton playPauseButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
+    private Toast activeToast;
 
     private Handler uiThreadHandler = new Handler();
 	
@@ -70,6 +74,11 @@ public class SqueezerActivity extends Activity {
             serviceStub = null;
         };
     };
+    
+    // Where we're connecting to.
+    private boolean connectInProgress = false;
+    private String connectingTo = null;
+    private ProgressDialog connectingDialog = null;
 	
     /** Called when the activity is first created. */
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -172,7 +181,22 @@ public class SqueezerActivity extends Activity {
     }
 
     // Should only be called the UI thread.
-    private void setConnected(boolean connected) {
+    private void setConnected(boolean connected, boolean postConnect) {
+        Log.v(TAG, "setConnected(" + connected + ", " + postConnect + ")");
+        if (postConnect) {
+            connectInProgress = false;
+            Log.v(TAG, "Post-connect; connectingDialog == " + connectingDialog);
+            if (connectingDialog != null) {
+                Log.v(TAG, "Dismissing...");
+                connectingDialog.dismiss();
+                connectInProgress = false;
+                if (!connected) {
+                  Toast.makeText(this, "Connection failed.  Check settings.", Toast.LENGTH_LONG).show();
+                  return;
+                }
+            }
+        }
+
     	isConnected.set(connected);
     	nextButton.setEnabled(connected);
     	prevButton.setEnabled(connected);
@@ -249,7 +273,7 @@ public class SqueezerActivity extends Activity {
         // Update the UI to reflect connection state.  Basically just for
         // the initial display, as changing the prev/next buttons to empty
         // doesn't seem to work in onCreate.  (LayoutInflator still running?)
-        setConnected(isConnected());
+        setConnected(isConnected(), false);
 
         // TODO(bradfitz): remove this check once everything is converted into
         // safe accessors like isConnected() already is.
@@ -410,8 +434,34 @@ public class SqueezerActivity extends Activity {
             builder.setTitle("About");
             builder.setMessage(R.string.about_text);
             return builder.create();
+        case DIALOG_CONNECTING:
+            // Note: this only happens the first time.  onPrepareDialog is called on each connect.
+            connectingDialog = new ProgressDialog(this);
+            connectingDialog.setTitle("Connecting");
+            connectingDialog.setIndeterminate(true);
+            return connectingDialog;
         }
         return null;
+    }
+    
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+        case DIALOG_CHOOSE_PLAYER:
+            // TODO(bradfitz): move most the code above for CHOOSE_PLAYER into here,
+            // where it'll actually re-query the server every time.  This only really
+            // matters if players change while the Service is still running.
+            return;
+        case DIALOG_CONNECTING:
+            ProgressDialog connectingDialog = (ProgressDialog) dialog;
+            connectingDialog.setMessage(
+                    "Connecting to SqueezeBox CLI at " + connectingTo);
+            if (!connectInProgress) {
+                // Lose the race?  If Service/network is very fast.
+                connectingDialog.dismiss();
+            }
+            return;
+        }
     }
     
     /**
@@ -459,38 +509,37 @@ public class SqueezerActivity extends Activity {
     }
     
     private void onUserInitiatesConnect() {
+        if (serviceStub == null) {
+            Log.e(TAG, "serviceStub is null.");
+            return;
+        }
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
         final String ipPort = preferences.getString(Preferences.KEY_SERVERADDR, null);
         if (ipPort == null || ipPort.length() == 0) {
             SettingsActivity.show(this);
             return;
         }
-        startConnecting(ipPort);
-    }
+        connectInProgress = true;
+        connectingTo = ipPort;
+        Log.v(TAG, "User-initiated connect to: " + ipPort);
 
-    private void startConnecting(String ipPort) {
-        if (serviceStub == null) {
-            Log.e(TAG, "serviceStub is null.");
-            return;
-        }
+        showDialog(DIALOG_CONNECTING);
         try {
             serviceStub.startConnect(ipPort);
         } catch (RemoteException e) {
-            AlertDialog alert = new AlertDialog.Builder(this)
-        	.setMessage("Error: " + e)
-        	.create();
-            alert.show();
+            Log.e(TAG, "exception starting to connect: " + e);
         }
     }
 	
     private IServiceCallback serviceCallback = new IServiceCallback.Stub() {
-        public void onConnectionChanged(final boolean isConnected)
+        public void onConnectionChanged(final boolean isConnected,
+                                        final boolean postConnect)
                        throws RemoteException {
                 // TODO Auto-generated method stub
-                Log.v(TAG, "Connected == " + isConnected);
+                Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
                 uiThreadHandler.post(new Runnable() {
                         public void run() {
-                            setConnected(isConnected);
+                            setConnected(isConnected, postConnect);
                         }
                     });
             }
@@ -523,9 +572,18 @@ public class SqueezerActivity extends Activity {
                     });
             }
 
-            public void onVolumeChange(int newVolume) throws RemoteException {
-                // TODO Auto-generated method stub
+            public void onVolumeChange(final int newVolume) throws RemoteException {
                 Log.v(TAG, "Volume = " + newVolume);
+                uiThreadHandler.post(new Runnable() {
+                    public void run() {
+                        if (activeToast != null) {
+                            activeToast.setText("Volume: " + newVolume);
+                        } else {
+                            activeToast = Toast.makeText(SqueezerActivity.this, "Volume: " + newVolume, Toast.LENGTH_SHORT);
+                        }
+                        activeToast.show();
+                    }
+                });
             }
 
             public void onPlayStatusChanged(boolean newStatus)

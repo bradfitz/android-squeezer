@@ -83,7 +83,7 @@ public class SqueezeService extends Service {
         isConnected.set(false);
         isPlaying.set(false);
         knownPlayers.set(null);
-        setConnectionState(false);
+        setConnectionState(false, false);
         clearOngoingNotification();
     }
 
@@ -121,6 +121,7 @@ public class SqueezeService extends Service {
         if (serverLine.contains("prefset server volume")) {
             String newVolume = tokens.get(4);
             Log.v(TAG, "New volume is: " + newVolume);
+            sendNewVolumeCallback(Integer.parseInt(newVolume));
             return;
         }
         if (command.equals("play")) {
@@ -157,6 +158,16 @@ public class SqueezeService extends Service {
             }
         }
 
+    }
+
+    private void sendNewVolumeCallback(int newVolume) {
+        if (callback.get() == null) {
+            return;
+        }
+        try {
+            callback.get().onVolumeChange(newVolume);
+        } catch (RemoteException e) {
+        }
     }
 
     private void parseStatusLine(List<String> tokens) {
@@ -303,14 +314,14 @@ public class SqueezeService extends Service {
         sendCommand("players 0 100");
     }
 
-    private void setConnectionState(boolean currentState) {
+    private void setConnectionState(boolean currentState, boolean postConnect) {
         isConnected.set(currentState);
         if (callback.get() == null) {
             return;
         }
         try {
             Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
-            callback.get().onConnectionChanged(currentState);
+            callback.get().onConnectionChanged(currentState, postConnect);
             Log.d(TAG, "post-call setting callback connection state.");
         } catch (RemoteException e) {
         }
@@ -371,7 +382,7 @@ public class SqueezeService extends Service {
 
 	    public void registerCallback(IServiceCallback callback) throws RemoteException {
 	    	SqueezeService.this.callback.set(callback);
-	    	callback.onConnectionChanged(isConnected.get());
+	    	callback.onConnectionChanged(isConnected.get(), false);
 	    }
 	    
 	    public void unregisterCallback(IServiceCallback callback) throws RemoteException {
@@ -403,18 +414,20 @@ public class SqueezeService extends Service {
                             try {
                                 socket.connect(
                                                new InetSocketAddress(host, port),
-                                               1500 /* ms timeout */);
+                                               4000 /* ms timeout */);
                                 socketRef.set(socket);
                                 Log.d(TAG, "Connected to: " + hostPort);
                                 socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                                 Log.d(TAG, "writer == " + socketWriter.get());
-                                setConnectionState(true);
+                                setConnectionState(true, true);
                                 Log.d(TAG, "connection state broadcasted true.");
                                 startListeningThread();
                             } catch (SocketTimeoutException e) {
                                 Log.e(TAG, "Socket timeout connecting to: " + hostPort);
+                                setConnectionState(false, true);
                             } catch (IOException e) {
                                 Log.e(TAG, "IOException connecting to: " + hostPort);
+                                setConnectionState(false, true);
                             }
                         }
 
