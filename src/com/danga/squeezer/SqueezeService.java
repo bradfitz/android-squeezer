@@ -143,8 +143,41 @@ public class SqueezeService extends Service {
             setPlayingState(newState);
             return;
         }
+        if (command.equals("status")) {
+            parseStatusLine(tokens);
+            return;
+        }
     }
 
+    private void parseStatusLine(List<String> tokens) {
+        int n = 0;
+        for (String token : tokens) {
+            if (n++ <= 1) continue;
+            if (token == null || token.length() == 0) continue;
+            int colonPos = token.indexOf("%3A");
+            if (colonPos == -1) {
+                Log.e(TAG, "Expected colon in status line token: " + token);
+                return;
+            }
+            String key = decode(token.substring(0, colonPos));
+            String value = decode(token.substring(colonPos + 3));
+            if (key == null || value == null) continue;
+            if (key.equals("mixer volume")) {
+                continue;
+            }
+            if (key.equals("mode")) {
+                if (value.equals("pause")) {
+                    setPlayingState(false);
+                } else if (value.equals("play")) {
+                    setPlayingState(true);
+                }
+                continue;
+            }
+            // TODO: the rest ....
+            // 00%3A04%3A20%3A17%3A04%3A7f status   player_name%3AOffice player_connected%3A1 player_ip%3A10.0.0.73%3A42648 power%3A1 signalstrength%3A0 mode%3Aplay time%3A99.803 rate%3A1 duration%3A224.705 can_seek%3A1 mixer%20volume%3A25 playlist%20repeat%3A0 playlist%20shuffle%3A0 playlist%20mode%3Adisabled playlist_cur_index%3A5 playlist_timestamp%3A1250053991.01067 playlist_tracks%3A46
+        }
+    }
+    
     private void parsePlayerList(List<String> tokens) {
         Log.v(TAG, "Parsing player list.");
         // TODO: can this block (sqlite lookup via binder call?)  Might want to move it elsewhere.
@@ -207,6 +240,9 @@ public class SqueezeService extends Service {
         Log.v(TAG, "Active player now: " + playerId + ", " + players.get(playerId));
         activePlayerId.set(playerId);
 
+        // Start an async fetch of its status.
+        sendPlayerCommand("status");
+        
         // TODO: this involves a write and can block (sqlite lookup via binder call), so
         // should be done in an AsyncTask or other thread.
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
@@ -371,6 +407,10 @@ public class SqueezeService extends Service {
                 Log.v(TAG, "pause...");
                 if (isPlaying.get()) {
                     setPlayingState(false);
+                    // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
+                    // because then we'd get confused when they came back in to us, not being
+                    // able to differentiate ours coming back on the listen channel vs. those
+                    // of those idiots at the dinner party messing around.
                     sendPlayerCommand("pause 1");
                 } else {
                     setPlayingState(true);

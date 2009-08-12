@@ -190,7 +190,7 @@ public class SqueezerActivity extends Activity {
                 artistText.setText("Connected.");
             }
             albumText.setText("(album not yet implemented)");
-            trackText.setText("(track not yte implemented)");
+            trackText.setText("(track not yet implemented)");
     	}
     	updatePlayPauseIcon();
     }
