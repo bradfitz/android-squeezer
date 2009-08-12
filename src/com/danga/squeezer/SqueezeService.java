@@ -24,6 +24,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -45,7 +46,8 @@ public class SqueezeService extends Service {
     private final AtomicReference<IServiceCallback> callback = new AtomicReference<IServiceCallback>();
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
     private final AtomicReference<String> activePlayerId = new AtomicReference<String>();
-	
+    private final AtomicReference<Map<String, String>> knownPlayers = new AtomicReference<Map<String, String>>();
+    
     @Override
         public void onCreate() {
     	super.onCreate();
@@ -79,6 +81,7 @@ public class SqueezeService extends Service {
         socketWriter.set(null);
         isConnected.set(false);
         isPlaying.set(false);
+        knownPlayers.set(null);
         setConnectionState(false);
     }
 
@@ -106,8 +109,19 @@ public class SqueezeService extends Service {
     }
 
     private void parsePlayerList(List<String> tokens) {
+        Log.v(TAG, "Parsing player list.");
+        // TODO: can this block (sqlite lookup via binder call?)  Might want to move it elsewhere.
+        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
+    	final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
+    	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
         Map<String, String> players = new HashMap<String, String>();
+                
         int n = 0;
+        int currentPlayerIndex = -1;
+        String currentPlayerId = null;
+        String currentPlayerName = null;
+        String defaultPlayerId = null;
+        
         for (String token : tokens) {
             if (++n <= 3) continue;
             int colonPos = token.indexOf("%3A");
@@ -118,16 +132,76 @@ public class SqueezeService extends Service {
             String key = token.substring(0, colonPos);
             String value = decode(token.substring(colonPos + 3));
             Log.v(TAG, "key=" + key + ", value: " + value);
+            if ("playerindex".equals(key)) {
+                maybeAddPlayerToMap(currentPlayerId, currentPlayerName, players);
+                currentPlayerId = null;
+                currentPlayerName = null;
+                currentPlayerIndex = Integer.parseInt(value);
+            } else if ("playerid".equals(key)) {
+                currentPlayerId = value;
+                if (value.equals(lastConnectedPlayer)) {
+                    defaultPlayerId = value;  // Still around, so let's use it.
+                }
+            } else if ("name".equals(key)) {
+                currentPlayerName = value;
+            }
         }
+        maybeAddPlayerToMap(currentPlayerId, currentPlayerName, players);
+
+        if (defaultPlayerId == null || !players.containsKey(defaultPlayerId)) {
+            defaultPlayerId = currentPlayerId;  // arbitrary; last one in list.
+        }
+
+        knownPlayers.set(players);
+        changeActivePlayer(defaultPlayerId);
+    }
+
+    private boolean changeActivePlayer(String playerId) {
+        Map<String, String> players = knownPlayers.get();
+        if (players == null) {
+            Log.v(TAG, "Can't set player; none known.");
+            return false;
+        }
+        if (!players.containsKey(playerId)) {
+            Log.v(TAG, "Player " + playerId + " not known.");
+            return false;
+        }
+
+        Log.v(TAG, "Active player now: " + playerId + ", " + players.get(playerId));
+        activePlayerId.set(playerId);
+
+        // TODO: this involves a write and can block (sqlite lookup via binder call), so
+        // should be done in an AsyncTask or other thread.
+        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();              
+        editor.putString(Preferences.KEY_LASTPLAYER, playerId);
+        editor.commit();
+       
         if (callback.get() != null) {
             try {
                 callback.get().onPlayersDiscovered();
-                callback.get().onPlayerChanged("00:04:20:17:04:7f", "Office");
+                if (playerId != null && players.containsKey(playerId)) {
+                    callback.get().onPlayerChanged(
+                            playerId, players.get(playerId));
+                } else {
+                    callback.get().onPlayerChanged("", "");
+                }
             } catch (RemoteException e) {
             }
         }
+        return true;
     }
-	
+
+    // Add String pair to map if both are non-null and non-empty.    
+    private static void maybeAddPlayerToMap(String currentPlayerId,
+            String currentPlayerName, Map<String, String> players) {
+        if (currentPlayerId != null && !currentPlayerId.equals("") && 
+            currentPlayerName != null && !currentPlayerName.equals("")) {
+            Log.v(TAG, "Adding player: " + currentPlayerId + ", " + currentPlayerName);
+            players.put(currentPlayerId, currentPlayerName);
+        }
+    }
+
     private String decode(String substring) {
         try {
             return URLDecoder.decode(substring, "UTF-8");
@@ -284,18 +358,21 @@ public class SqueezeService extends Service {
                 return isPlaying.get();
             }
 
-            public boolean getPlayers(List<String> playerId, List<String> playerName)
+            public boolean getPlayers(List<String> playerIds, List<String> playerNames)
                 throws RemoteException {
-                playerId.add("00:04:20:17:04:7f");
-                playerName.add("Office");
-                playerId.add("00:04:20:05:09:36");
-                playerName.add("House");
+                Map<String, String> players = knownPlayers.get();
+                if (players == null) {
+                    return false;
+                }
+                for (String playerId : players.keySet()) {
+                    playerIds.add(playerId);
+                    playerNames.add(players.get(playerId));
+                }
                 return true;
             }
 
             public boolean setActivePlayer(String playerId) throws RemoteException {
-                activePlayerId.set(playerId);
-                return true;
+                return changeActivePlayer(playerId);
             }
 
             public String getActivePlayer() throws RemoteException {
@@ -324,21 +401,21 @@ public class SqueezeService extends Service {
                 SqueezeService.this.disconnect();
                 return;
             }
+            IOException exception = null;
             while (true) {
                 String line;
                 try {
                     line = in.readLine();
                 } catch (IOException e) {
-                    Log.v(TAG, "IOException while reading from server: " + e);
-                    SqueezeService.this.disconnect();
-                    return;
+                    line = null;
+                    exception = e;
                 }
                 if (line == null) {
                     // Socket disconnected.  This is expected
                     // if we're not the main connection generation anymore,
                     // else we should notify about it.
                     if (currentConnectionGeneration.get() == generationNumber) {
-                        Log.v(TAG, "Server disconnected.");
+                        Log.v(TAG, "Server disconnected; exception=" + exception);
                         SqueezeService.this.disconnect();
                     } else {
                         // Who cares.

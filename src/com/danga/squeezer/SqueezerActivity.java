@@ -74,8 +74,14 @@ public class SqueezerActivity extends Activity {
                 public void onClick(View v) {
                     if (serviceStub == null) return;
                     try {
-                        Log.v(TAG, "Pause...");
-                        serviceStub.togglePausePlay();
+                        if (isConnected.get()) {
+                            Log.v(TAG, "Pause...");
+                            serviceStub.togglePausePlay();
+                        } else {
+                            // When we're not connected, the play/pause
+                            // button turns into a green connect button.
+                            onUserInitiatesConnect();
+                        }
                     } catch (RemoteException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -87,14 +93,22 @@ public class SqueezerActivity extends Activity {
     // Called only from the UI thread.
     private void setConnected(boolean connected) {
     	isConnected.set(connected);
-    	((ImageButton) findViewById(R.id.pause)).setEnabled(connected);
-    	((ImageButton) findViewById(R.id.next)).setEnabled(connected);
-    	((ImageButton) findViewById(R.id.prev)).setEnabled(connected);
+        ImageButton nextButton = (ImageButton) findViewById(R.id.next);
+        ImageButton prevButton = (ImageButton) findViewById(R.id.prev);
+    	nextButton.setEnabled(connected);
+    	prevButton.setEnabled(connected);
     	if (!connected) {
+    	    playPauseButton.setImageResource(android.R.drawable.presence_online);  // green circle
+            nextButton.setImageResource(0);
+            prevButton.setImageResource(0);
             artistText.setText(DISCONNECTED_TEXT);
             albumText.setText("");
             trackText.setText("");
+            setTitleForPlayer(null);
     	} else {
+    	    playPauseButton.setImageResource(android.R.drawable.ic_media_play);
+            nextButton.setImageResource(android.R.drawable.ic_media_next);
+            prevButton.setImageResource(android.R.drawable.ic_media_previous);
             if (DISCONNECTED_TEXT.equals(artistText.getText())) {
                 artistText.setText("");
             }
@@ -132,6 +146,11 @@ public class SqueezerActivity extends Activity {
         bindService(new Intent(this, SqueezeService.class),
                     serviceConnection, Context.BIND_AUTO_CREATE);
         Log.d(TAG, "did bindService");
+
+        // Update the UI to reflect connection state.  Basically just for
+        // the initial display, as changing the prev/next buttons to empty
+        // doesn't seem to work in onCreate.  (LayoutInflator still running?)
+        setConnected(isConnected.get());
     }
 
     @Override
@@ -159,10 +178,19 @@ public class SqueezerActivity extends Activity {
         public boolean onPrepareOptionsMenu(Menu menu) {
     	super.onPrepareOptionsMenu(menu);
     	boolean connected = isConnected.get();
+
+    	// Only show one of connect and disconnect:
     	MenuItem connect = menu.findItem(R.id.menu_item_connect);
     	connect.setVisible(!connected);
     	MenuItem disconnect = menu.findItem(R.id.menu_item_disconnect);
     	disconnect.setVisible(connected);
+
+    	// Disable things that don't work when not connected.
+        MenuItem players = menu.findItem(R.id.menu_item_players);
+        players.setEnabled(connected);
+        MenuItem search = menu.findItem(R.id.menu_item_search);
+        search.setEnabled(connected);
+
     	return true;	
     }
 
@@ -210,13 +238,7 @@ public class SqueezerActivity extends Activity {
             SettingsActivity.show(this);
             return true;
       	case R.id.menu_item_connect:
-            final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
-            final String ipPort = preferences.getString(Preferences.KEY_SERVERADDR, null);
-            if (ipPort == null || ipPort.length() == 0) {
-                SettingsActivity.show(this);
-                return true;
-            }
-            startConnecting(ipPort);
+      	    onUserInitiatesConnect();
             return true;
       	case R.id.menu_item_disconnect:
             try {
@@ -235,6 +257,16 @@ public class SqueezerActivity extends Activity {
         return super.onMenuItemSelected(featureId, item);
     }
     
+    private void onUserInitiatesConnect() {
+        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+        final String ipPort = preferences.getString(Preferences.KEY_SERVERADDR, null);
+        if (ipPort == null || ipPort.length() == 0) {
+            SettingsActivity.show(this);
+            return;
+        }
+        startConnecting(ipPort);
+    }
+
     private void startConnecting(String ipPort) {
         if (serviceStub == null) {
             Log.e(TAG, "serviceStub is null.");

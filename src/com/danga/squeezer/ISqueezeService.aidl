@@ -35,4 +35,5 @@ interface ISqueezeService {
         // Note the volume changed callback will also still be run with
         // the correct value as returned by the server later.
         int adjustVolumeBy(int delta);
+
 }

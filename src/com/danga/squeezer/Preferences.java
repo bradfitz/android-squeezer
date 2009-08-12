@@ -18,8 +18,13 @@ package com.danga.squeezer;
 
 public final class Preferences {
 	public static final String NAME = "Squeezer";
+	
+	// e.g. "10.0.0.81:9090"
 	public static final String KEY_SERVERADDR = "squeezer.serveraddr";
+	
+	// The playerId that we were last connected to. e.g. "00:04:20:17:04:7f"
+    public static final String KEY_LASTPLAYER = "squeezer.lastplayer";
 
-	Preferences() {
+	private Preferences() {
 	}
 }
