@@ -32,6 +32,8 @@ interface ISqueezeService {
         boolean togglePausePlay();
         boolean play();
         boolean stop();
+        boolean nextTrack();
+        boolean previousTrack();
 
         // Returns new (predicted) volume.  Typical deltas are +10 or -10.
         // Note the volume changed callback will also still be run with

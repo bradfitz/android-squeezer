@@ -25,6 +25,9 @@ public final class Preferences {
 	// The playerId that we were last connected to. e.g. "00:04:20:17:04:7f"
     public static final String KEY_LASTPLAYER = "squeezer.lastplayer";
 
+    public static final String KEY_AUTO_DISCOVER = "squeezer.autodiscover";
+    public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
+    
 	private Preferences() {
 	}
 }

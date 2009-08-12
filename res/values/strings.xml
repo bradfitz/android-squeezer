@@ -6,7 +6,7 @@
     <string name="menu_item_settings_label">Settings</string>
     <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
-    <string name="settings_serveraddr_title">Server Adress</string>
+    <string name="settings_serveraddr_title">Server Address</string>
     <string name="settings_serveraddr_summary">In format host:port</string>
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>

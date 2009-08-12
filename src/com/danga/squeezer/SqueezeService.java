@@ -361,6 +361,22 @@ public class SqueezeService extends Service {
                 return true;
             }
 
+            public boolean nextTrack() throws RemoteException {
+                if (!isConnected() || !isPlaying()) {
+                    return false;
+                }
+                sendPlayerCommand("button jump_fwd");
+                return true;
+            }
+            
+            public boolean previousTrack() throws RemoteException {
+                if (!isConnected() || !isPlaying()) {
+                    return false;
+                }
+                sendPlayerCommand("button jump_rew");
+                return true;
+            }
+            
             public boolean isPlaying() throws RemoteException {
                 return isPlaying.get();
             }

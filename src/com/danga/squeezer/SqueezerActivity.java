@@ -42,6 +42,8 @@ public class SqueezerActivity extends Activity {
     private TextView artistText;
     private TextView trackText;   
     private ImageButton playPauseButton;
+    private ImageButton nextButton;
+    private ImageButton prevButton;
 
     private Handler uiThreadHandler = new Handler();
 	
@@ -76,6 +78,8 @@ public class SqueezerActivity extends Activity {
         artistText = (TextView) findViewById(R.id.artistname);
         trackText = (TextView) findViewById(R.id.trackname);
         playPauseButton = (ImageButton) findViewById(R.id.pause);
+        nextButton = (ImageButton) findViewById(R.id.next);
+        prevButton = (ImageButton) findViewById(R.id.prev);
 		
         playPauseButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
@@ -95,17 +99,33 @@ public class SqueezerActivity extends Activity {
                     }
                 }
 	    });
+        
+        nextButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                if (serviceStub == null) return;
+                try {
+                    serviceStub.nextTrack();
+                } catch (RemoteException e) { }
+            }
+        });
+
+        prevButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                if (serviceStub == null) return;
+                try {
+                    serviceStub.previousTrack();
+                } catch (RemoteException e) { }
+            }
+        });
+        
     }
     
     // Should only be called the UI thread.
     private void setConnected(boolean connected) {
     	isConnected.set(connected);
-        ImageButton nextButton = (ImageButton) findViewById(R.id.next);
-        ImageButton prevButton = (ImageButton) findViewById(R.id.prev);
     	nextButton.setEnabled(connected);
     	prevButton.setEnabled(connected);
     	if (!connected) {
-    	    playPauseButton.setImageResource(android.R.drawable.presence_online);  // green circle
             nextButton.setImageResource(0);
             prevButton.setImageResource(0);
             artistText.setText(DISCONNECTED_TEXT);
@@ -113,42 +133,46 @@ public class SqueezerActivity extends Activity {
             trackText.setText("");
             setTitleForPlayer(null);
     	} else {
-    	    playPauseButton.setImageResource(android.R.drawable.ic_media_play);
             nextButton.setImageResource(android.R.drawable.ic_media_next);
             prevButton.setImageResource(android.R.drawable.ic_media_previous);
             if (DISCONNECTED_TEXT.equals(artistText.getText())) {
-                artistText.setText("");
+                artistText.setText("Connected.");
             }
+            albumText.setText("(album not yet implemented)");
+            trackText.setText("(track not yte implemented)");
     	}
+    	updatePlayPauseIcon();
     }
 
     private void updatePlayPauseIcon() {
         uiThreadHandler.post(new Runnable() {
-                public void run() {
-                    if (isPlaying.get()) {
-                        playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
-                    } else {
-                        playPauseButton.setImageResource(android.R.drawable.ic_media_play);
-                    }
+            public void run() {
+                if (!isConnected.get()) {
+                    playPauseButton.setImageResource(android.R.drawable.presence_online);  // green circle
+                } else if (isPlaying.get()) {
+                    playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
+                } else {
+                    playPauseButton.setImageResource(android.R.drawable.ic_media_play);
                 }
-            });
+            }
+        });
     }
 
     // May be called from any thread.
     private void setTitleForPlayer(final String playerName) {
         uiThreadHandler.post(new Runnable() {
-                public void run() {
-                    if (playerName != null && !"".equals(playerName)) {
-                        setTitle("Squeezer: " + playerName);
-                    } else {
-                        setTitle("Squeezer");
-                    }
+            public void run() {
+                if (playerName != null && !"".equals(playerName)) {
+                    setTitle("Squeezer: " + playerName);
+                } else {
+                    setTitle("Squeezer");
                 }
-            });
+            }
+        });
     }
 
     @Override
-        public void onResume() {
+    public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume...");
 
@@ -175,16 +199,19 @@ public class SqueezerActivity extends Activity {
 
     // Should only be called from the UI thread.
     private void updateUIFromServiceState() {
+        // Update the UI to reflect connection state.  Basically just for
+        // the initial display, as changing the prev/next buttons to empty
+        // doesn't seem to work in onCreate.  (LayoutInflator still running?)
+        setConnected(isConnected());
+
+        // TODO(bradfitz): remove this check once everything is converted into
+        // safe accessors like isConnected() already is.
         if (serviceStub == null) {
             Log.e(TAG, "Can't update UI with null serviceStub");
             return;
         }
-        // Update the UI to reflect connection state.  Basically just for
-        // the initial display, as changing the prev/next buttons to empty
-        // doesn't seem to work in onCreate.  (LayoutInflator still running?)
+
         try {
-            boolean connected = serviceStub.isConnected();
-            setConnected(connected);
             setTitleForPlayer(serviceStub.getActivePlayerName());
             isPlaying.set(serviceStub.isPlaying());
             updatePlayPauseIcon();
@@ -193,9 +220,21 @@ public class SqueezerActivity extends Activity {
         }
        
     }
+    
+    private boolean isConnected() {
+        if (serviceStub == null) {
+            return false;
+        }
+        try {
+            return serviceStub.isConnected(); 
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnected(): " + e);
+        }
+        return false;
+    }
 
     @Override
-        public void onPause() {
+    public void onPause() {
         super.onPause();
         if (serviceStub != null) {
             try {
@@ -210,13 +249,13 @@ public class SqueezerActivity extends Activity {
     }
 
     @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.squeezer, menu);
         return super.onCreateOptionsMenu(menu);
     }
     
     @Override
-        public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
     	super.onPrepareOptionsMenu(menu);
     	boolean connected = isConnected.get();
 
@@ -236,7 +275,7 @@ public class SqueezerActivity extends Activity {
     }
 
     @Override
-        protected Dialog onCreateDialog(int id) {
+    protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         switch (id) {
@@ -253,11 +292,17 @@ public class SqueezerActivity extends Activity {
             }
             final CharSequence[] items = new CharSequence[playerNames.size()];
             int n = 0;
+            int checkedItem = -1;
+            String currentPlayerId = currentPlayerId();
             for (String playerName : playerNames) {
-                items[n++] = playerName;
+                items[n] = playerName;
+                if (playerIds.get(n).equals(currentPlayerId)) {
+                    checkedItem = n;
+                }
+                n++;
             }
             builder.setTitle("Choose Player");
-            builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+            builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int indexSelected) {
                         String playerId = playerIds.get(indexSelected);
                         try {
@@ -277,8 +322,23 @@ public class SqueezerActivity extends Activity {
         return null;
     }
     
+    /**
+     * Returns current player id (the mac address) or null/empty.
+     */
+    private String currentPlayerId() {
+        if (serviceStub == null) {
+            return null;
+        }
+        try {
+            return serviceStub.getActivePlayerId(); 
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnected(): " + e);
+        }
+        return null;
+    }
+
     @Override
-        public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
       	case R.id.menu_item_settings:
             SettingsActivity.show(this);
@@ -332,8 +392,8 @@ public class SqueezerActivity extends Activity {
     }
 	
     private IServiceCallback serviceCallback = new IServiceCallback.Stub() {
-            public void onConnectionChanged(final boolean isConnected)
-                throws RemoteException {
+        public void onConnectionChanged(final boolean isConnected)
+                       throws RemoteException {
                 // TODO Auto-generated method stub
                 Log.v(TAG, "Connected == " + isConnected);
                 uiThreadHandler.post(new Runnable() {
