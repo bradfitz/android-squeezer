@@ -117,9 +117,9 @@ public class SqueezerActivity extends Activity {
         uiThreadHandler.post(new Runnable() {
                 public void run() {
                     if (playerName != null && !"".equals(playerName)) {
-                        setTitle("Squeeze Remote: " + playerName);
+                        setTitle("Squeezer: " + playerName);
                     } else {
-                        setTitle("Squeeze Remote");
+                        setTitle("Squeezer");
                     }
                 }
             });
