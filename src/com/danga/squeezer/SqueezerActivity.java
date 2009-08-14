@@ -298,24 +298,32 @@ public class SqueezerActivity extends Activity {
        
     }
     
-    // Shoudl only be called from the UI thread.
+    // Should only be called from the UI thread.
     private void updateSongInfoFromService() {
         artistText.setText("TODO");
         albumText.setText("TODO");
         trackText.setText(getServiceCurrentSong());
         
+        // TODO: BLOCKING: this is blocking in the GUI thread.
         ImageView albumArt = (ImageView) findViewById(R.id.album);
-        URL url;
+        boolean imageSet = false;
         try {
-            url = new URL("http://10.0.0.81:9000/music/current/cover.jpg?player=" + getActivePlayerId());
-            InputStream inputStream;
-            inputStream = (InputStream) url.getContent();
-            Drawable d = Drawable.createFromStream(inputStream, "src");
-            albumArt.setImageDrawable(d);
+            String albumArtUrl = serviceStub.currentAlbumArtUrl();
+            Log.v(TAG, "Album art URL: " + albumArtUrl);
+            if (albumArtUrl != null && albumArtUrl.length() > 0) {
+                URL url = new URL(albumArtUrl); 
+                InputStream inputStream;    
+                inputStream = (InputStream) url.getContent();
+                Drawable d = Drawable.createFromStream(inputStream, "src");
+                albumArt.setImageDrawable(d);
+                imageSet = true;
+            }
         } catch (MalformedURLException e) {
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (RemoteException e) {
+        }
+        if (!imageSet) {
+            albumArt.setImageDrawable(null);
         }
     }
     

@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,11 +44,17 @@ public class SqueezeService extends Service {
     private final AtomicBoolean isPlaying = new AtomicBoolean(false);
     private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
-    private final AtomicReference<IServiceCallback> callback = new AtomicReference<IServiceCallback>();
+    private final AtomicReference<IServiceCallback> callback =
+        new AtomicReference<IServiceCallback>();
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
     private final AtomicReference<String> activePlayerId = new AtomicReference<String>();
-    private final AtomicReference<Map<String, String>> knownPlayers = new AtomicReference<Map<String, String>>();
+    private final AtomicReference<Map<String, String>> knownPlayers = 
+        new AtomicReference<Map<String, String>>();
     private final AtomicReference<String> currentSong = new AtomicReference<String>();
+    // Where we connected (or are connecting) to:
+    private final AtomicReference<String> currentHost = new AtomicReference<String>();
+    private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
+    private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
     
     @Override
         public void onCreate() {
@@ -85,13 +92,24 @@ public class SqueezeService extends Service {
         knownPlayers.set(null);
         setConnectionState(false, false);
         clearOngoingNotification();
+        currentSong.set(null);
+        httpPort.set(null);
     }
 
-    private synchronized void sendCommand(String command) {
+    private synchronized void sendCommand(String... commands) {
+        if (commands.length == 0) return;
         PrintWriter writer = socketWriter.get();
         if (writer == null) return;
-        Log.v(TAG, "SENDING: " + command);
-        writer.println(command);
+        if (commands.length == 1) {
+            Log.v(TAG, "SENDING: " + commands[0]);
+            writer.println(commands[0]);
+        } else {
+            // Get it into one packet by deferring flushing...
+            for (String command : commands) {
+                writer.print(command + "\n");
+            }
+            writer.flush();
+        }
     }
 	
     private void sendPlayerCommand(String command) {
@@ -104,14 +122,26 @@ public class SqueezeService extends Service {
     private void onLineReceived(String serverLine) {
         Log.v(TAG, "LINE: " + serverLine);
         List<String> tokens = Arrays.asList(serverLine.split(" "));
+        if (tokens.size() < 2) {
+            return;
+        }
         if (serverLine.startsWith("players 0 100 count")) {
             parsePlayerList(tokens);
             return;
         }
-        if (tokens.size() < 2) {
+        if ("pref".equals(tokens.get(0)) &&
+            "httpport".equals(tokens.get(1)) &&
+            tokens.size() >= 3) {
+            httpPort.set(Integer.parseInt(tokens.get(2)));
+            Log.v(TAG, "HTTP port is now: " + httpPort);
             return;
         }
-        if (!decode(tokens.get(0)).equals(activePlayerId.get())) {
+        
+        // Player-specific commands follow.  But we ignore all that aren't for our
+        // active player.
+        String activePlayer = activePlayerId.get();
+        if (activePlayer == null || activePlayer.length() == 0 ||
+            !decode(tokens.get(0)).equals(activePlayerId.get())) {
             // Different player that we're not interested in.   
             // (yet? maybe later.)
             return;
@@ -304,14 +334,15 @@ public class SqueezeService extends Service {
         }
     }
 
-    private void startListeningThread() {
+    private void onCliPortConnectionEstablished() {
         Thread listeningThread = new ListeningThread(socketRef.get(),
                                                      currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
 
-        sendCommand("listen 1");
-        // Get info on the first 100 players.
-        sendCommand("players 0 100");
+        sendCommand("listen 1",
+                "players 0 100",   // get first 100 players
+                "pref httpport ?"  // learn the HTTP port (needed for images)
+        );
     }
 
     private void setConnectionState(boolean currentState, boolean postConnect) {
@@ -407,6 +438,11 @@ public class SqueezeService extends Service {
                 boolean noPort = colonPos == -1;
                 final int port = noPort? 9090 : Integer.parseInt(hostPort.substring(colonPos + 1));
                 final String host = noPort ? hostPort : hostPort.substring(0, colonPos);
+                currentHost.set(host);
+                cliPort.set(port);
+                httpPort.set(null);  // not known until later, after connect.
+                
+                // Start the off-thread connect.
                 executor.execute(new Runnable() {
                         public void run() {
                             SqueezeService.this.disconnect();
@@ -421,7 +457,7 @@ public class SqueezeService extends Service {
                                 Log.d(TAG, "writer == " + socketWriter.get());
                                 setConnectionState(true, true);
                                 Log.d(TAG, "connection state broadcasted true.");
-                                startListeningThread();
+                                onCliPortConnectionEstablished();
                             } catch (SocketTimeoutException e) {
                                 Log.e(TAG, "Socket timeout connecting to: " + hostPort);
                                 setConnectionState(false, true);
@@ -543,6 +579,13 @@ public class SqueezeService extends Service {
             public String currentSong() throws RemoteException {
                 String song = currentSong.get();
                 return (song != null) ? song : "";
+            }
+
+            public String currentAlbumArtUrl() throws RemoteException {
+                Integer port = httpPort.get();
+                if (port == null || port == 0) return null;
+                return "http://" + currentHost.get() + ":" + port
+                   + "/music/current/cover?player=" + activePlayerId.get();
             }
 };
 
