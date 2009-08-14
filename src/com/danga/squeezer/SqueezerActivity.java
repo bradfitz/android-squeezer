@@ -1,5 +1,9 @@
 package com.danga.squeezer;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -14,6 +18,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -29,6 +34,7 @@ import android.view.View.OnKeyListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -297,8 +303,33 @@ public class SqueezerActivity extends Activity {
         artistText.setText("TODO");
         albumText.setText("TODO");
         trackText.setText(getServiceCurrentSong());
+        
+        ImageView albumArt = (ImageView) findViewById(R.id.album);
+        URL url;
+        try {
+            url = new URL("http://10.0.0.81:9000/music/current/cover.jpg?player=" + getActivePlayerId());
+            InputStream inputStream;
+            inputStream = (InputStream) url.getContent();
+            Drawable d = Drawable.createFromStream(inputStream, "src");
+            albumArt.setImageDrawable(d);
+        } catch (MalformedURLException e) {
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
-
+    
+    private String getActivePlayerId() {
+        if (serviceStub == null) {
+            return "";
+        }
+        try {
+            return serviceStub.getActivePlayerId();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnected(): " + e);
+        }
+        return "";
+    }
     
     private String getServiceCurrentSong() {
         if (serviceStub == null) {
