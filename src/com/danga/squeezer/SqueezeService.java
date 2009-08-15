@@ -265,6 +265,7 @@ public class SqueezeService extends Service {
                 // in which case we'd use the current cover.jpg URL.
                 currentArtworkTrackId.set(null);
             }
+            updateOngoingNotification();
             sendMusicChangedCallback();
         }
     }
@@ -426,15 +427,14 @@ public class SqueezeService extends Service {
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Notification status = new Notification();
         //status.contentView = views;
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0,
-                                                          new Intent(this, SqueezerActivity.class), 0);
+        Intent showNowPlaying = new Intent(this, SqueezerActivity.class)
+            .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
         String song = currentSong.get();
         if (song == null) song = "";
         status.setLatestEventInfo(this, "Music Playing", song, pIntent);
         status.flags |= Notification.FLAG_ONGOING_EVENT;
         status.icon = R.drawable.stat_notify_musicplayer;
-        //status.contentIntent = PendingIntent.getActivity(this, 0,
-        //        new Intent(this, SqueezerActivity.class), 0);
         nm.notify(PLAYBACKSERVICE_STATUS, status);
     }
 
