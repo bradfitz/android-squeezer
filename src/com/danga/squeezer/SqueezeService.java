@@ -57,6 +57,7 @@ public class SqueezeService extends Service {
     private final AtomicReference<String> currentSong = new AtomicReference<String>();
     private final AtomicReference<String> currentArtist = new AtomicReference<String>();
     private final AtomicReference<String> currentAlbum = new AtomicReference<String>();
+    private final AtomicReference<String> currentArtworkTrackId = new AtomicReference<String>();
 
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
@@ -213,6 +214,7 @@ public class SqueezeService extends Service {
     private void parseStatusLine(List<String> tokens) {
         int n = 0;
         boolean musicHasChanged = false;
+        boolean sawArtworkId = false;
         for (String token : tokens) {
             n++;
             if (n <= 2) continue;
@@ -249,10 +251,20 @@ public class SqueezeService extends Service {
                 if (Util.atomicStringUpdated(currentAlbum, value)) musicHasChanged = true;
                 continue;
             }
+            if (key.equals("artwork_track_id")) {
+                currentArtworkTrackId.set(value);
+                sawArtworkId = true;
+            }
             // TODO: the rest ....
             // 00%3A04%3A20%3A17%3A04%3A7f status   player_name%3AOffice player_connected%3A1 player_ip%3A10.0.0.73%3A42648 power%3A1 signalstrength%3A0 mode%3Aplay time%3A99.803 rate%3A1 duration%3A224.705 can_seek%3A1 mixer%20volume%3A25 playlist%20repeat%3A0 playlist%20shuffle%3A0 playlist%20mode%3Adisabled playlist_cur_index%3A5 playlist_timestamp%3A1250053991.01067 playlist_tracks%3A46
         }
         if (musicHasChanged) {
+            if (!sawArtworkId) {
+                // TODO: we should disambiguate between no artwork because there is no
+                // artwork (explicitly known) and no artwork because it's e.g. Pandora,
+                // in which case we'd use the current cover.jpg URL.
+                currentArtworkTrackId.set(null);
+            }
             sendMusicChangedCallback();
         }
     }
@@ -616,9 +628,11 @@ public class SqueezeService extends Service {
             public String currentAlbumArtUrl() throws RemoteException {
                 Integer port = httpPort.get();
                 if (port == null || port == 0) return "";
-                if (false) {
-                    // TODO: return album-art-specific URL
-                    return "";                    
+                String artworkTrackId = currentArtworkTrackId.get();
+                if (artworkTrackId != null) {
+                    Log.v(TAG, "artwork track ID = " + artworkTrackId);
+                    return "http://" + currentHost.get() + ":" + port
+                        + "/music/" + artworkTrackId + "/cover.jpg";
                 } else {
                     // Return the "current album art" URL instead, with the cache-buster
                     // of the song name in it, to force the activity to reload when

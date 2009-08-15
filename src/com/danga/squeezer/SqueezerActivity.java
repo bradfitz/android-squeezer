@@ -215,7 +215,7 @@ public class SqueezerActivity extends Activity {
     	if (!connected) {
             nextButton.setImageResource(0);
             prevButton.setImageResource(0);
-            albumArt.setImageResource(0);
+            albumArt.setImageDrawable(null);
             artistText.setText(DISCONNECTED_TEXT);
             albumText.setText("");
             trackText.setText("");
