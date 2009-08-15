@@ -6,7 +6,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -49,7 +51,8 @@ public class SqueezerActivity extends Activity {
     private ISqueezeService serviceStub = null;
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private AtomicBoolean isPlaying = new AtomicBoolean(false);
-
+    private AtomicReference<String> currentAlbumArtUrl = new AtomicReference<String>();
+    
     private TextView albumText;
     private TextView artistText;
     private TextView trackText;   
@@ -57,8 +60,10 @@ public class SqueezerActivity extends Activity {
     private ImageButton nextButton;
     private ImageButton prevButton;
     private Toast activeToast;
+    private ImageView albumArt;
 
     private Handler uiThreadHandler = new Handler();
+    private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
 	
     private ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -117,6 +122,7 @@ public class SqueezerActivity extends Activity {
         playPauseButton = (ImageButton) findViewById(R.id.pause);
         nextButton = (ImageButton) findViewById(R.id.next);
         prevButton = (ImageButton) findViewById(R.id.prev);
+        albumArt = (ImageView) findViewById(R.id.album);
 		
         playPauseButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
@@ -209,6 +215,7 @@ public class SqueezerActivity extends Activity {
     	if (!connected) {
             nextButton.setImageResource(0);
             prevButton.setImageResource(0);
+            albumArt.setImageResource(0);
             artistText.setText(DISCONNECTED_TEXT);
             albumText.setText("");
             trackText.setText("");
@@ -300,30 +307,49 @@ public class SqueezerActivity extends Activity {
     
     // Should only be called from the UI thread.
     private void updateSongInfoFromService() {
-        artistText.setText("TODO");
-        albumText.setText("TODO");
+        artistText.setText(getServiceCurrentArtist());
+        albumText.setText(getServiceCurrentAlbum());
         trackText.setText(getServiceCurrentSong());
         
-        // TODO: BLOCKING: this is blocking in the GUI thread.
-        ImageView albumArt = (ImageView) findViewById(R.id.album);
-        boolean imageSet = false;
-        try {
-            String albumArtUrl = serviceStub.currentAlbumArtUrl();
-            Log.v(TAG, "Album art URL: " + albumArtUrl);
-            if (albumArtUrl != null && albumArtUrl.length() > 0) {
-                URL url = new URL(albumArtUrl); 
-                InputStream inputStream;    
-                inputStream = (InputStream) url.getContent();
-                Drawable d = Drawable.createFromStream(inputStream, "src");
-                albumArt.setImageDrawable(d);
-                imageSet = true;
-            }
-        } catch (MalformedURLException e) {
-        } catch (IOException e) {
-        } catch (RemoteException e) {
-        }
-        if (!imageSet) {
+        final String albumArtUrl = getCurrentAlbumArtUrl();
+        if (Util.atomicStringUpdated(currentAlbumArtUrl, albumArtUrl)) {
             albumArt.setImageDrawable(null);
+            if (albumArtUrl != null && albumArtUrl.length() > 0) {
+                backgroundExecutor.execute(new Runnable() { 
+                    public void run() {
+                        if (!albumArtUrl.equals(currentAlbumArtUrl.get())) {
+                            // Bail out before fetch the resource if the song
+                            // album art has changed since this Runnable got
+                            // scheduled.
+                            return;
+                        }
+                        URL url;
+                        InputStream inputStream = null;
+                        boolean gotContent = false;
+                        try {
+                            url = new URL(albumArtUrl);
+                            inputStream = (InputStream) url.getContent();
+                            gotContent = true;
+                        } catch (MalformedURLException e) {
+                        } catch (IOException e) {
+                        } 
+                        if (!gotContent) {
+                            return;
+                        }
+                        final Drawable drawable = Drawable.createFromStream(inputStream, "src");
+                        uiThreadHandler.post(new Runnable() {
+                            public void run() {
+                                if (albumArtUrl.equals(currentAlbumArtUrl.get())) {
+                                    // Only set the image if the song art hasn't changed since we
+                                    // started and finally fetched the image over the network
+                                    // and decoded it.
+                                    albumArt.setImageDrawable(drawable);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
         }
     }
     
@@ -350,7 +376,19 @@ public class SqueezerActivity extends Activity {
         }
         return "";
     }
-    
+
+    private String getCurrentAlbumArtUrl() {
+        if (serviceStub == null) {
+            return "";
+        }
+        try {
+            return serviceStub.currentAlbumArtUrl();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnected(): " + e);
+        }
+        return "";
+    }
+
     private String getServiceCurrentAlbum() {
         if (serviceStub == null) {
             return "";
@@ -531,10 +569,7 @@ public class SqueezerActivity extends Activity {
             try {
                 serviceStub.disconnect();
             } catch (RemoteException e) {
-            	AlertDialog alert = new AlertDialog.Builder(this)
-                    .setMessage("Error: " + e)
-                    .create();
-            	alert.show();
+                Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
             }
             return true;
       	case R.id.menu_item_players:

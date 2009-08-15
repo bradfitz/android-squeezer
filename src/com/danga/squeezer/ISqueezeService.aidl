@@ -34,6 +34,8 @@ interface ISqueezeService {
         boolean stop();
         boolean nextTrack();
         boolean previousTrack();
+        
+        // Never return null:  (always empty string when unknown)
         String currentArtist();
         String currentAlbum();
         String currentSong();

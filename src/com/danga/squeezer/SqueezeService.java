@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.http.util.EncodingUtils;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -50,7 +53,11 @@ public class SqueezeService extends Service {
     private final AtomicReference<String> activePlayerId = new AtomicReference<String>();
     private final AtomicReference<Map<String, String>> knownPlayers = 
         new AtomicReference<Map<String, String>>();
+
     private final AtomicReference<String> currentSong = new AtomicReference<String>();
+    private final AtomicReference<String> currentArtist = new AtomicReference<String>();
+    private final AtomicReference<String> currentAlbum = new AtomicReference<String>();
+
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
     private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
@@ -185,6 +192,9 @@ public class SqueezeService extends Service {
                 currentSong.set(newSong);
                 updateOngoingNotification();
                 sendMusicChangedCallback();
+                
+                // Now also ask for the rest of the status.
+                sendPlayerCommand("status - 1 tags:ylqwaJ");
             }
         }
 
@@ -202,11 +212,14 @@ public class SqueezeService extends Service {
 
     private void parseStatusLine(List<String> tokens) {
         int n = 0;
+        boolean musicHasChanged = false;
         for (String token : tokens) {
-            if (n++ <= 1) continue;
+            n++;
+            if (n <= 2) continue;
             if (token == null || token.length() == 0) continue;
             int colonPos = token.indexOf("%3A");
             if (colonPos == -1) {
+                if (n <= 4) continue;  // e.g. "00%3A04%3A20%3A05%3A09%3A36 status - 1 ...."
                 Log.e(TAG, "Expected colon in status line token: " + token);
                 return;
             }
@@ -224,8 +237,23 @@ public class SqueezeService extends Service {
                 }
                 continue;
             }
+            if (key.equals("artist")) {
+                if (Util.atomicStringUpdated(currentArtist, value)) musicHasChanged = true;
+                continue;
+            }
+            if (key.equals("title")) {
+                if (Util.atomicStringUpdated(currentSong, value)) musicHasChanged = true;
+                continue;
+            }
+            if (key.equals("album")) {
+                if (Util.atomicStringUpdated(currentAlbum, value)) musicHasChanged = true;
+                continue;
+            }
             // TODO: the rest ....
             // 00%3A04%3A20%3A17%3A04%3A7f status   player_name%3AOffice player_connected%3A1 player_ip%3A10.0.0.73%3A42648 power%3A1 signalstrength%3A0 mode%3Aplay time%3A99.803 rate%3A1 duration%3A224.705 can_seek%3A1 mixer%20volume%3A25 playlist%20repeat%3A0 playlist%20shuffle%3A0 playlist%20mode%3Adisabled playlist_cur_index%3A5 playlist_timestamp%3A1250053991.01067 playlist_tracks%3A46
+        }
+        if (musicHasChanged) {
+            sendMusicChangedCallback();
         }
     }
     
@@ -274,6 +302,13 @@ public class SqueezeService extends Service {
         }
 
         knownPlayers.set(players);
+        
+        if (callback.get() != null) {
+            try {
+                callback.get().onPlayersDiscovered();
+            } catch (RemoteException e) {}
+        }
+        
         changeActivePlayer(defaultPlayerId);
     }
 
@@ -292,7 +327,7 @@ public class SqueezeService extends Service {
         activePlayerId.set(playerId);
 
         // Start an async fetch of its status.
-        sendPlayerCommand("status");
+        sendPlayerCommand("status - 1 tags:jylqwaJ");
         
         // TODO: this involves a write and can block (sqlite lookup via binder call), so
         // should be done in an AsyncTask or other thread.
@@ -303,15 +338,13 @@ public class SqueezeService extends Service {
        
         if (callback.get() != null) {
             try {
-                callback.get().onPlayersDiscovered();
                 if (playerId != null && players.containsKey(playerId)) {
                     callback.get().onPlayerChanged(
                             playerId, players.get(playerId));
                 } else {
                     callback.get().onPlayerChanged("", "");
                 }
-            } catch (RemoteException e) {
-            }
+            } catch (RemoteException e) {}
         }
         return true;
     }
@@ -569,23 +602,32 @@ public class SqueezeService extends Service {
             }
 
             public String currentAlbum() throws RemoteException {
-                return "TODO: current album";
+                return Util.nonNullString(currentAlbum);
             }
 
             public String currentArtist() throws RemoteException {
-                return "TODO: current artist";
+                return Util.nonNullString(currentArtist);
             }
 
             public String currentSong() throws RemoteException {
-                String song = currentSong.get();
-                return (song != null) ? song : "";
+                return Util.nonNullString(currentSong);
             }
 
             public String currentAlbumArtUrl() throws RemoteException {
                 Integer port = httpPort.get();
-                if (port == null || port == 0) return null;
-                return "http://" + currentHost.get() + ":" + port
-                   + "/music/current/cover?player=" + activePlayerId.get();
+                if (port == null || port == 0) return "";
+                if (false) {
+                    // TODO: return album-art-specific URL
+                    return "";                    
+                } else {
+                    // Return the "current album art" URL instead, with the cache-buster
+                    // of the song name in it, to force the activity to reload when
+                    // listening to e.g. Pandora, where there is no artwork_track_id (tag J)
+                    // in the status.
+                    return "http://" + currentHost.get() + ":" + port
+                        + "/music/current/cover?player=" + activePlayerId.get()
+                        + "&song=" + URLEncoder.encode(currentSong());
+                }
             }
 };
 
@@ -635,4 +677,4 @@ public class SqueezeService extends Service {
             }
         }
     }
-}
+ }
