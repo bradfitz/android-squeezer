@@ -456,7 +456,7 @@ public class SqueezeService extends Service {
 
     private final ISqueezeService.Stub squeezeService = new ISqueezeService.Stub() {
 
-	    public void registerCallback(IServiceCallback callback) throws RemoteException {
+        public void registerCallback(IServiceCallback callback) throws RemoteException {
 	    	SqueezeService.this.callback.set(callback);
 	    	callback.onConnectionChanged(isConnected.get(), false);
 	    }
@@ -465,185 +465,184 @@ public class SqueezeService extends Service {
 	    	SqueezeService.this.callback.compareAndSet(callback, null);
 	    }
 
-            public int adjustVolumeBy(int delta) throws RemoteException {
-                if (delta > 0) {
-                    sendPlayerCommand("mixer volume %2B" + delta);
-                } else if (delta < 0) {
-                    sendPlayerCommand("mixer volume " + delta);
+	    public int adjustVolumeBy(int delta) throws RemoteException {
+            if (delta > 0) {
+                sendPlayerCommand("mixer volume %2B" + delta);
+            } else if (delta < 0) {
+                sendPlayerCommand("mixer volume " + delta);
+            }
+            return 50 + delta;  // TODO: return non-blocking dead-reckoning value
+        }
+
+        public boolean isConnected() throws RemoteException {
+            return isConnected.get();
+        }
+
+        public void startConnect(final String hostPort) throws RemoteException {
+            int colonPos = hostPort.indexOf(":");
+            boolean noPort = colonPos == -1;
+            final int port = noPort? 9090 : Integer.parseInt(hostPort.substring(colonPos + 1));
+            final String host = noPort ? hostPort : hostPort.substring(0, colonPos);
+            currentHost.set(host);
+            cliPort.set(port);
+            httpPort.set(null);  // not known until later, after connect.
+            
+            // Start the off-thread connect.
+            executor.execute(new Runnable() {
+                public void run() {
+                    SqueezeService.this.disconnect();
+                    Socket socket = new Socket();
+                    try {
+                        socket.connect(new InetSocketAddress(host, port),
+                                       4000 /* ms timeout */);
+                        socketRef.set(socket);
+                        Log.d(TAG, "Connected to: " + hostPort);
+                        socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
+                        Log.d(TAG, "writer == " + socketWriter.get());
+                        setConnectionState(true, true);
+                        Log.d(TAG, "connection state broadcasted true.");
+                        onCliPortConnectionEstablished();
+                    } catch (SocketTimeoutException e) {
+                        Log.e(TAG, "Socket timeout connecting to: " + hostPort);
+                        setConnectionState(false, true);
+                    } catch (IOException e) {
+                        Log.e(TAG, "IOException connecting to: " + hostPort);
+                        setConnectionState(false, true);
+                    }
                 }
-                return 50 + delta;  // TODO: return non-blocking dead-reckoning value
-            }
 
-            public boolean isConnected() throws RemoteException {
-                return isConnected.get();
-            }
+            });
+        }
 
-            public void startConnect(final String hostPort) throws RemoteException {
-                int colonPos = hostPort.indexOf(":");
-                boolean noPort = colonPos == -1;
-                final int port = noPort? 9090 : Integer.parseInt(hostPort.substring(colonPos + 1));
-                final String host = noPort ? hostPort : hostPort.substring(0, colonPos);
-                currentHost.set(host);
-                cliPort.set(port);
-                httpPort.set(null);  // not known until later, after connect.
-                
-                // Start the off-thread connect.
-                executor.execute(new Runnable() {
-                        public void run() {
-                            SqueezeService.this.disconnect();
-                            Socket socket = new Socket();
-                            try {
-                                socket.connect(
-                                               new InetSocketAddress(host, port),
-                                               4000 /* ms timeout */);
-                                socketRef.set(socket);
-                                Log.d(TAG, "Connected to: " + hostPort);
-                                socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
-                                Log.d(TAG, "writer == " + socketWriter.get());
-                                setConnectionState(true, true);
-                                Log.d(TAG, "connection state broadcasted true.");
-                                onCliPortConnectionEstablished();
-                            } catch (SocketTimeoutException e) {
-                                Log.e(TAG, "Socket timeout connecting to: " + hostPort);
-                                setConnectionState(false, true);
-                            } catch (IOException e) {
-                                Log.e(TAG, "IOException connecting to: " + hostPort);
-                                setConnectionState(false, true);
-                            }
-                        }
-
-                    });
-            }
-
-            public void disconnect() throws RemoteException {
-                if (!isConnected()) return;
-                SqueezeService.this.disconnect();
-            }
+        public void disconnect() throws RemoteException {
+            if (!isConnected()) return;
+            SqueezeService.this.disconnect();
+        }
 		
-            public boolean togglePausePlay() throws RemoteException {
-                if (!isConnected()) {
-                    return false;
-                }
-                Log.v(TAG, "pause...");
-                if (isPlaying.get()) {
-                    setPlayingState(false);
-                    // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
-                    // because then we'd get confused when they came back in to us, not being
-                    // able to differentiate ours coming back on the listen channel vs. those
-                    // of those idiots at the dinner party messing around.
-                    sendPlayerCommand("pause 1");
-                } else {
-                    setPlayingState(true);
-                    // TODO: use 'pause 0 <fade_in_secs>' to fade-in if we knew it was
-                    // actually paused (as opposed to not playing at all) 
-                    sendPlayerCommand("play");
-                }
-                Log.v(TAG, "paused.");
-                return true;
+        public boolean togglePausePlay() throws RemoteException {
+            if (!isConnected()) {
+                return false;
             }
-
-            public boolean play() throws RemoteException {
-                if (!isConnected()) {
-                    return false;
-                }
-                Log.v(TAG, "play..");
-                isPlaying.set(true);
+            Log.v(TAG, "pause...");
+            if (isPlaying.get()) {
+                setPlayingState(false);
+                // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
+                // because then we'd get confused when they came back in to us, not being
+                // able to differentiate ours coming back on the listen channel vs. those
+                // of those idiots at the dinner party messing around.
+                sendPlayerCommand("pause 1");
+            } else {
+                setPlayingState(true);
+                // TODO: use 'pause 0 <fade_in_secs>' to fade-in if we knew it was
+                // actually paused (as opposed to not playing at all) 
                 sendPlayerCommand("play");
-                Log.v(TAG, "played.");
-                return true;
             }
+            Log.v(TAG, "paused.");
+            return true;
+        }
 
-            public boolean stop() throws RemoteException {
-                if (!isConnected()) {
-                    return false;
-                }
-                isPlaying.set(false);
-                sendPlayerCommand("stop");
-                return true;
+        public boolean play() throws RemoteException {
+            if (!isConnected()) {
+                return false;
             }
+            Log.v(TAG, "play..");
+            isPlaying.set(true);
+            sendPlayerCommand("play");
+            Log.v(TAG, "played.");
+            return true;
+        }
 
-            public boolean nextTrack() throws RemoteException {
-                if (!isConnected() || !isPlaying()) {
-                    return false;
-                }
-                sendPlayerCommand("button jump_fwd");
-                return true;
+        public boolean stop() throws RemoteException {
+            if (!isConnected()) {
+                return false;
             }
-            
-            public boolean previousTrack() throws RemoteException {
-                if (!isConnected() || !isPlaying()) {
-                    return false;
-                }
-                sendPlayerCommand("button jump_rew");
-                return true;
-            }
-            
-            public boolean isPlaying() throws RemoteException {
-                return isPlaying.get();
-            }
+            isPlaying.set(false);
+            sendPlayerCommand("stop");
+            return true;
+        }
 
-            public boolean getPlayers(List<String> playerIds, List<String> playerNames)
-                throws RemoteException {
-                Map<String, String> players = knownPlayers.get();
-                if (players == null) {
-                    return false;
-                }
-                for (String playerId : players.keySet()) {
-                    playerIds.add(playerId);
-                    playerNames.add(players.get(playerId));
-                }
-                return true;
+        public boolean nextTrack() throws RemoteException {
+            if (!isConnected() || !isPlaying()) {
+                return false;
             }
+            sendPlayerCommand("button jump_fwd");
+            return true;
+        }
+        
+        public boolean previousTrack() throws RemoteException {
+            if (!isConnected() || !isPlaying()) {
+                return false;
+            }
+            sendPlayerCommand("button jump_rew");
+            return true;
+        }
+        
+        public boolean isPlaying() throws RemoteException {
+            return isPlaying.get();
+        }
 
-            public boolean setActivePlayer(String playerId) throws RemoteException {
-                return changeActivePlayer(playerId);
+        public boolean getPlayers(List<String> playerIds, List<String> playerNames)
+            throws RemoteException {
+            Map<String, String> players = knownPlayers.get();
+            if (players == null) {
+                return false;
             }
+            for (String playerId : players.keySet()) {
+                playerIds.add(playerId);
+                playerNames.add(players.get(playerId));
+            }
+            return true;
+        }
 
-            public String getActivePlayerId() throws RemoteException {
-                String playerId = activePlayerId.get();
-                return playerId == null ? "" : playerId;
-            }
+        public boolean setActivePlayer(String playerId) throws RemoteException {
+            return changeActivePlayer(playerId);
+        }
 
-            public String getActivePlayerName() throws RemoteException {
-                String playerId = activePlayerId.get();
-                Map<String, String> players = knownPlayers.get();
-                if (players == null) {
-                    return null;
-                }
-                return players.get(playerId);
-            }
+        public String getActivePlayerId() throws RemoteException {
+            String playerId = activePlayerId.get();
+            return playerId == null ? "" : playerId;
+        }
 
-            public String currentAlbum() throws RemoteException {
-                return Util.nonNullString(currentAlbum);
+        public String getActivePlayerName() throws RemoteException {
+            String playerId = activePlayerId.get();
+            Map<String, String> players = knownPlayers.get();
+            if (players == null) {
+                return null;
             }
+            return players.get(playerId);
+        }
 
-            public String currentArtist() throws RemoteException {
-                return Util.nonNullString(currentArtist);
-            }
+        public String currentAlbum() throws RemoteException {
+            return Util.nonNullString(currentAlbum);
+        }
 
-            public String currentSong() throws RemoteException {
-                return Util.nonNullString(currentSong);
-            }
+        public String currentArtist() throws RemoteException {
+            return Util.nonNullString(currentArtist);
+        }
 
-            public String currentAlbumArtUrl() throws RemoteException {
-                Integer port = httpPort.get();
-                if (port == null || port == 0) return "";
-                String artworkTrackId = currentArtworkTrackId.get();
-                if (artworkTrackId != null) {
-                    Log.v(TAG, "artwork track ID = " + artworkTrackId);
-                    return "http://" + currentHost.get() + ":" + port
-                        + "/music/" + artworkTrackId + "/cover.jpg";
-                } else {
-                    // Return the "current album art" URL instead, with the cache-buster
-                    // of the song name in it, to force the activity to reload when
-                    // listening to e.g. Pandora, where there is no artwork_track_id (tag J)
-                    // in the status.
-                    return "http://" + currentHost.get() + ":" + port
-                        + "/music/current/cover?player=" + activePlayerId.get()
-                        + "&song=" + URLEncoder.encode(currentSong());
-                }
+        public String currentSong() throws RemoteException {
+            return Util.nonNullString(currentSong);
+        }
+
+        public String currentAlbumArtUrl() throws RemoteException {
+            Integer port = httpPort.get();
+            if (port == null || port == 0) return "";
+            String artworkTrackId = currentArtworkTrackId.get();
+            if (artworkTrackId != null) {
+                Log.v(TAG, "artwork track ID = " + artworkTrackId);
+                return "http://" + currentHost.get() + ":" + port
+                    + "/music/" + artworkTrackId + "/cover.jpg";
+            } else {
+                // Return the "current album art" URL instead, with the cache-buster
+                // of the song name in it, to force the activity to reload when
+                // listening to e.g. Pandora, where there is no artwork_track_id (tag J)
+                // in the status.
+                return "http://" + currentHost.get() + ":" + port
+                    + "/music/current/cover?player=" + activePlayerId.get()
+                    + "&song=" + URLEncoder.encode(currentSong());
             }
-};
+        }
+    };
 
     private class ListeningThread extends Thread {
         private final Socket socket;
