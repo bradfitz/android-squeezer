@@ -72,6 +72,14 @@ public class SqueezerActivity extends Activity {
         	uiThreadHandler.post(new Runnable() {
         	    public void run() {
         	        updateUIFromServiceState();
+
+        	        // Assume they want to connect...
+        	        if (!isConnected()) {
+        	            String ipPort = getConfiguredCliIpPort();
+        	            if (ipPort != null) {
+        	                startVisibleConnectionTo(ipPort);
+        	            }
+        	        }
         	    }
         	});
         	try {
@@ -277,6 +285,17 @@ public class SqueezerActivity extends Activity {
                 serviceStub.registerCallback(serviceCallback);
             } catch (RemoteException e) {
                 Log.e(TAG, "error registering callback: " + e);
+            }
+            
+            // If they've already set this up in the past, what they probably
+            // want to do at this point is connect to the server, so do it
+            // automatically.  (Requires a serviceStub.  Else we'll do this
+            // on the service connection callback.)
+            if (!isConnected()) {
+                String ipPort = getConfiguredCliIpPort();
+                if (ipPort != null) {
+                    startVisibleConnectionTo(ipPort);
+                }
             }
         }
     }
@@ -581,27 +600,40 @@ public class SqueezerActivity extends Activity {
         }
         return super.onMenuItemSelected(featureId, item);
     }
+
+    // Returns null if not configured.
+    private String getConfiguredCliIpPort() {
+        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+        final String ipPort = preferences.getString(Preferences.KEY_SERVERADDR, null);
+        if (ipPort == null || ipPort.length() == 0) {
+            return null;
+        }
+        return ipPort;
+    }
     
     private void onUserInitiatesConnect() {
         if (serviceStub == null) {
             Log.e(TAG, "serviceStub is null.");
             return;
         }
-        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
-        final String ipPort = preferences.getString(Preferences.KEY_SERVERADDR, null);
-        if (ipPort == null || ipPort.length() == 0) {
+        String ipPort = getConfiguredCliIpPort();
+        if (ipPort == null) {
             SettingsActivity.show(this);
             return;
         }
+        Log.v(TAG, "User-initiated connect to: " + ipPort);
+        startVisibleConnectionTo(ipPort);
+    }
+    
+    private void startVisibleConnectionTo(String ipPort) {
         connectInProgress = true;
         connectingTo = ipPort;
-        Log.v(TAG, "User-initiated connect to: " + ipPort);
-
         showDialog(DIALOG_CONNECTING);
         try {
             serviceStub.startConnect(ipPort);
         } catch (RemoteException e) {
-            Log.e(TAG, "exception starting to connect: " + e);
+            Toast.makeText(this, "startConnection error: " + e,
+                    Toast.LENGTH_LONG).show();
         }
     }
 	

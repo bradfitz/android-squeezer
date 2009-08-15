@@ -10,7 +10,7 @@
     <string name="settings_serveraddr_summary">In format host:port</string>
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
-    <string name="about_text"><b>Squeezer v0.1 (C) Brad Fitzpatrick</b>
+    <string name="about_text"><b>Squeezer v0.2 (C) Brad Fitzpatrick</b>
     
 <p><a href="http://code.google.com/p/android-squeezer/">http://code.google.com/p/android-squeezer/</a><br/>
 android-squeezer@googlegroups.com</p>
