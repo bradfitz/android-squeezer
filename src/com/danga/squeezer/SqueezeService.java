@@ -39,10 +39,13 @@ public class SqueezeService extends Service {
     // most recent version, then it's expected.  Else it should notify
     // the server of the disconnection.
     private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
-	
+
+    private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+
+    // Connection state:
+    // TODO: this is getting ridiculous. Move this into ConnectionState class.
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private final AtomicBoolean isPlaying = new AtomicBoolean(false);
-    private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
     private final AtomicReference<IServiceCallback> callback =
         new AtomicReference<IServiceCallback>();
@@ -100,7 +103,13 @@ public class SqueezeService extends Service {
         setConnectionState(false, false);
         clearOngoingNotification();
         currentSong.set(null);
+        currentArtist.set(null);
+        currentAlbum.set(null);
+        currentArtworkTrackId.set(null);
         httpPort.set(null);
+        activePlayerId.set(null);
+        currentTimeSecond.set(null);
+        currentSongDuration.set(null);
     }
 
     private synchronized void sendCommand(String... commands) {

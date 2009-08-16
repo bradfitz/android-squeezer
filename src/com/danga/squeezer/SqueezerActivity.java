@@ -237,10 +237,13 @@ public class SqueezerActivity extends Activity {
             setTitleForPlayer(null);
             currentTime.setText("--:--");
             totalTime.setText("--:--");
+            seekBar.setEnabled(false);
+            seekBar.setProgress(0);
     	} else {
             nextButton.setImageResource(android.R.drawable.ic_media_next);
             prevButton.setImageResource(android.R.drawable.ic_media_previous);
             updateSongInfoFromService();
+            seekBar.setEnabled(true);
     	}
     	updatePlayPauseIcon();
     }
