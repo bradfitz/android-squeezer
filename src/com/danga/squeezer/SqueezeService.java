@@ -14,13 +14,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.apache.http.util.EncodingUtils;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -58,6 +55,8 @@ public class SqueezeService extends Service {
     private final AtomicReference<String> currentArtist = new AtomicReference<String>();
     private final AtomicReference<String> currentAlbum = new AtomicReference<String>();
     private final AtomicReference<String> currentArtworkTrackId = new AtomicReference<String>();
+    private final AtomicReference<Integer> currentTimeSecond = new AtomicReference<Integer>();
+    private final AtomicReference<Integer> currentSongDuration = new AtomicReference<Integer>();
 
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
@@ -159,7 +158,7 @@ public class SqueezeService extends Service {
         if (serverLine.contains("prefset server volume")) {
             String newVolume = tokens.get(4);
             Log.v(TAG, "New volume is: " + newVolume);
-            sendNewVolumeCallback(Integer.parseInt(newVolume));
+            sendNewVolumeCallback(Util.parseDecimalIntOrZero(newVolume));
             return;
         }
         if (command.equals("play")) {
@@ -202,19 +201,28 @@ public class SqueezeService extends Service {
     }
 
     private void sendNewVolumeCallback(int newVolume) {
-        if (callback.get() == null) {
-            return;
-        }
+        if (callback.get() == null) return;
         try {
             callback.get().onVolumeChange(newVolume);
         } catch (RemoteException e) {
         }
     }
 
+    private void sendNewTimeCallback(int secondsIn, int secondsTotal) {
+        if (callback.get() == null) return;
+        try {
+            callback.get().onTimeInSongChange(secondsIn, secondsTotal);
+        } catch (RemoteException e) {
+        }
+    }
+    
     private void parseStatusLine(List<String> tokens) {
         int n = 0;
         boolean musicHasChanged = false;
         boolean sawArtworkId = false;
+        int time = 0;
+        int duration = 0;
+
         for (String token : tokens) {
             n++;
             if (n <= 2) continue;
@@ -254,6 +262,15 @@ public class SqueezeService extends Service {
             if (key.equals("artwork_track_id")) {
                 currentArtworkTrackId.set(value);
                 sawArtworkId = true;
+                continue;
+            }
+            if (key.equals("time")) {
+                time = Util.parseDecimalIntOrZero(value);
+                continue;
+            }
+            if (key.equals("duration")) {
+                duration = Util.parseDecimalIntOrZero(value);
+                continue;
             }
             // TODO: the rest ....
             // 00%3A04%3A20%3A17%3A04%3A7f status   player_name%3AOffice player_connected%3A1 player_ip%3A10.0.0.73%3A42648 power%3A1 signalstrength%3A0 mode%3Aplay time%3A99.803 rate%3A1 duration%3A224.705 can_seek%3A1 mixer%20volume%3A25 playlist%20repeat%3A0 playlist%20shuffle%3A0 playlist%20mode%3Adisabled playlist_cur_index%3A5 playlist_timestamp%3A1250053991.01067 playlist_tracks%3A46
@@ -267,6 +284,13 @@ public class SqueezeService extends Service {
             }
             updateOngoingNotification();
             sendMusicChangedCallback();
+        }
+        Integer lastTimeInteger = currentTimeSecond.get();
+        int lastTime = lastTimeInteger == null ? 0 : lastTimeInteger.intValue();
+        if (musicHasChanged || time != lastTime) {
+            currentTimeSecond.set(time);
+            currentSongDuration.set(duration);
+            sendNewTimeCallback(time, duration);
         }
     }
     
@@ -325,7 +349,7 @@ public class SqueezeService extends Service {
         changeActivePlayer(defaultPlayerId);
     }
 
-    private boolean changeActivePlayer(String playerId) {
+    private boolean changeActivePlayer(final String playerId) {
         Map<String, String> players = knownPlayers.get();
         if (players == null) {
             Log.v(TAG, "Can't set player; none known.");
@@ -337,17 +361,33 @@ public class SqueezeService extends Service {
         }
 
         Log.v(TAG, "Active player now: " + playerId + ", " + players.get(playerId));
-        activePlayerId.set(playerId);
+        String oldPlayerId =  activePlayerId.get();
+        boolean changed = Util.atomicStringUpdated(activePlayerId, playerId);
 
+        if (oldPlayerId != null && !oldPlayerId.equals(playerId)) {
+            // Unsubscribe from the old player's status.  (despite what
+            // the docs say, multiple subscribes can be active and flood us.)
+            sendCommand(URLEncoder.encode(oldPlayerId) + " status - 1 subscribe:0");
+        }
+        
         // Start an async fetch of its status.
         sendPlayerCommand("status - 1 tags:jylqwaJ");
+
+        if (changed) {
+            updatePlayerSubscriptionState();
         
-        // TODO: this involves a write and can block (sqlite lookup via binder call), so
-        // should be done in an AsyncTask or other thread.
-        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();              
-        editor.putString(Preferences.KEY_LASTPLAYER, playerId);
-        editor.commit();
+            // NOTE: this involves a write and can block (sqlite lookup via binder call), so
+            // should be done off-thread, so we can process service requests & send our callback
+            // as quickly as possible.
+            executor.execute(new Runnable() {
+                public void run() {
+                    final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();              
+                    editor.putString(Preferences.KEY_LASTPLAYER, playerId);
+                    editor.commit();
+                }
+            });
+        }
        
         if (callback.get() != null) {
             try {
@@ -360,6 +400,17 @@ public class SqueezeService extends Service {
             } catch (RemoteException e) {}
         }
         return true;
+    }
+
+    private void updatePlayerSubscriptionState() {
+        // Subscribe or unsubscribe to the player's realtime status updates
+        // depending on whether we have an Activity or some sort of client
+        // that cares about second-to-second updates.
+        if (callback.get() != null) {
+            sendPlayerCommand("status - 1 subscribe:1");
+        } else {
+            sendPlayerCommand("status - 1 subscribe:0");
+        }
     }
 
     // Add String pair to map if both are non-null and non-empty.    
@@ -457,12 +508,15 @@ public class SqueezeService extends Service {
     private final ISqueezeService.Stub squeezeService = new ISqueezeService.Stub() {
 
         public void registerCallback(IServiceCallback callback) throws RemoteException {
+            Log.v(TAG, "Callback attached.");
 	    	SqueezeService.this.callback.set(callback);
-	    	callback.onConnectionChanged(isConnected.get(), false);
+	    	updatePlayerSubscriptionState();
 	    }
 	    
 	    public void unregisterCallback(IServiceCallback callback) throws RemoteException {
+            Log.v(TAG, "Callback detached.");
 	    	SqueezeService.this.callback.compareAndSet(callback, null);
+            updatePlayerSubscriptionState();
 	    }
 
 	    public int adjustVolumeBy(int delta) throws RemoteException {
@@ -641,6 +695,16 @@ public class SqueezeService extends Service {
                     + "/music/current/cover?player=" + activePlayerId.get()
                     + "&song=" + URLEncoder.encode(currentSong());
             }
+        }
+
+        public int getSecondsElapsed() throws RemoteException {
+            Integer seconds = currentTimeSecond.get();
+            return seconds == null ? 0 : seconds.intValue();
+        }
+
+        public int getSecondsTotal() throws RemoteException {
+            Integer seconds = currentSongDuration.get();
+            return seconds == null ? 0 : seconds.intValue();
         }
     };
 

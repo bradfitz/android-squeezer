@@ -16,11 +16,11 @@
         <ImageView
             android:id="@+id/album"
             android:background="@drawable/album_border_large"
-            android:layout_width="200dip"
-            android:layout_height="200dip"
+            android:layout_width="210dip"
+            android:layout_height="210dip"
             android:layout_marginLeft="4dip"
             android:layout_marginRight="2dip"
-            android:layout_marginTop="8dip" />
+            android:layout_marginTop="4dip" />
 
         <LinearLayout
             android:layout_width="0dip"
@@ -31,6 +31,7 @@
 
            <ImageButton android:id="@+id/curplaylist"
                 android:src="@drawable/ic_mp_current_playlist_btn"
+                android:clickable="false"
                 android:layout_width="85dip"
                 android:layout_height="54dip"
                 android:layout_marginTop="14dip" />
@@ -42,16 +43,16 @@
             android:orientation="horizontal"
             android:gravity="center_horizontal">
 
-<!-- faking as a volume up button for now... -->
            <ImageButton android:id="@+id/volume_down"
                 android:src="@drawable/volume_down"
+                android:padding="15dip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:scaleType="center"
                 android:layout_marginTop="20dip" />
 
-<!-- faking as a volume down button for now... -->
            <ImageButton android:id="@+id/volume_up"
+                android:padding="15dip"
                 android:src="@drawable/volume_up"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -35,6 +35,10 @@ interface ISqueezeService {
         boolean nextTrack();
         boolean previousTrack();
         
+        // Return 0 if unknown:
+        int getSecondsTotal();
+        int getSecondsElapsed();
+        
         // Never return null:  (always empty string when unknown)
         String currentArtist();
         String currentAlbum();

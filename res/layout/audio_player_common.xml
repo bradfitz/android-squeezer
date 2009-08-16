@@ -76,7 +76,7 @@
 
     </LinearLayout>
 
-    <SeekBar android:id="@android:id/progress"
+    <SeekBar android:id="@+id/seekbar"
         android:background="#ff5a5a5a"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="fill_parent"

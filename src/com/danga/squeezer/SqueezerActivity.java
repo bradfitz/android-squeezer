@@ -38,6 +38,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,11 +57,14 @@ public class SqueezerActivity extends Activity {
     private TextView albumText;
     private TextView artistText;
     private TextView trackText;   
+    private TextView currentTime;   
+    private TextView totalTime;   
     private ImageButton playPauseButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
     private Toast activeToast;
     private ImageView albumArt;
+    private SeekBar seekBar;
 
     private Handler uiThreadHandler = new Handler();
     private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
@@ -131,6 +135,9 @@ public class SqueezerActivity extends Activity {
         nextButton = (ImageButton) findViewById(R.id.next);
         prevButton = (ImageButton) findViewById(R.id.prev);
         albumArt = (ImageView) findViewById(R.id.album);
+        currentTime = (TextView) findViewById(R.id.currenttime);
+        totalTime = (TextView) findViewById(R.id.totaltime);
+        seekBar = (SeekBar) findViewById(R.id.seekbar);
 		
         playPauseButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
@@ -228,6 +235,8 @@ public class SqueezerActivity extends Activity {
             albumText.setText("");
             trackText.setText("");
             setTitleForPlayer(null);
+            currentTime.setText("--:--");
+            totalTime.setText("--:--");
     	} else {
             nextButton.setImageResource(android.R.drawable.ic_media_next);
             prevButton.setImageResource(android.R.drawable.ic_media_previous);
@@ -324,12 +333,26 @@ public class SqueezerActivity extends Activity {
        
     }
     
+    private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
+        if (seekBar.getMax() != secondsTotal) {
+            seekBar.setMax(secondsTotal);
+            totalTime.setText(Util.makeTimeString(secondsTotal));
+        }
+        seekBar.setProgress(secondsIn);
+        currentTime.setText(Util.makeTimeString(secondsIn));
+    }
+    
     // Should only be called from the UI thread.
     private void updateSongInfoFromService() {
         artistText.setText(getServiceCurrentArtist());
         albumText.setText(getServiceCurrentAlbum());
         trackText.setText(getServiceCurrentSong());
-        
+        updateTimeDisplayTo(getSecondsElapsed(), getSecondsTotal());
+        updateAlbumArtIfNeeded();
+    }
+
+    // Should only be called from the UI thread.
+    private void updateAlbumArtIfNeeded() {
         final String albumArtUrl = getCurrentAlbumArtUrl();
         if (Util.atomicStringUpdated(currentAlbumArtUrl, albumArtUrl)) {
             albumArt.setImageDrawable(null);
@@ -382,6 +405,30 @@ public class SqueezerActivity extends Activity {
             Log.e(TAG, "Service exception in isConnected(): " + e);
         }
         return "";
+    }
+    
+    private int getSecondsElapsed() {
+        if (serviceStub == null) {
+            return 0;
+        }
+        try {
+            return serviceStub.getSecondsElapsed();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnected(): " + e);
+        }
+        return 0;
+    }
+    
+    private int getSecondsTotal() {
+        if (serviceStub == null) {
+            return 0;
+        }
+        try {
+            return serviceStub.getSecondsTotal();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnected(): " + e);
+        }
+        return 0;
     }
     
     private String getServiceCurrentSong() {
@@ -696,6 +743,15 @@ public class SqueezerActivity extends Activity {
                 throws RemoteException {
                 isPlaying.set(newStatus);
                 updatePlayPauseIcon();
+            }
+
+            public void onTimeInSongChange(final int secondsIn, final int secondsTotal)
+                    throws RemoteException {
+                uiThreadHandler.post(new Runnable() {
+                    public void run() {
+                        updateTimeDisplayTo(secondsIn, secondsTotal);
+                    }
+                });
             }
         };
 }
