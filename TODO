@@ -28,3 +28,13 @@
     D/dalvikvm( 1162): GC freed 12113 objects / 524216 bytes in 222ms
     D/dalvikvm( 1162): GC freed 12104 objects / 524696 bytes in 240ms
 
+* When switching from SqueezerActivity to settings, we disconnect from
+  the service, so the service unsubscribes from the server, which
+  means we don't get song position updates anymore.  Then when switching
+  back to the SqueezerActivity, the time is behind for a second.
+  Possible Solutions:
+
+     -- dead-reckoning calculation by service?
+     -- easier: have SqueezerActivity tell Service not to unsubscribe
+        for 'n' seconds?
+
