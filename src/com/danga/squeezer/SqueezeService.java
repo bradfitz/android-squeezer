@@ -26,6 +26,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -66,6 +67,11 @@ public class SqueezeService extends Service {
     private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
     private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
     
+    private boolean debugLogging = false;
+    
+    private WifiManager.WifiLock wifiLock;
+    private SharedPreferences preferences;
+
     @Override
         public void onCreate() {
     	super.onCreate();
@@ -73,6 +79,12 @@ public class SqueezeService extends Service {
         // Clear leftover notification in case this service previously got killed while playing                                                
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(PLAYBACKSERVICE_STATUS);
+        
+        wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(
+                WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
+        
+        preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
+        debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
     }
 	
     @Override
@@ -136,7 +148,7 @@ public class SqueezeService extends Service {
     }
 	
     private void onLineReceived(String serverLine) {
-        Log.v(TAG, "LINE: " + serverLine);
+        if (debugLogging) Log.v(TAG, "LINE: " + serverLine);
         List<String> tokens = Arrays.asList(serverLine.split(" "));
         if (tokens.size() < 2) {
             return;
@@ -306,7 +318,6 @@ public class SqueezeService extends Service {
     private void parsePlayerList(List<String> tokens) {
         Log.v(TAG, "Parsing player list.");
         // TODO: can this block (sqlite lookup via binder call?)  Might want to move it elsewhere.
-        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
     	final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
     	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
         Map<String, String> players = new HashMap<String, String>();
@@ -326,7 +337,7 @@ public class SqueezeService extends Service {
             }
             String key = token.substring(0, colonPos);
             String value = decode(token.substring(colonPos + 3));
-            Log.v(TAG, "key=" + key + ", value: " + value);
+            if (debugLogging) Log.v(TAG, "key=" + key + ", value: " + value);
             if ("playerindex".equals(key)) {
                 maybeAddPlayerToMap(currentPlayerId, currentPlayerName, players);
                 currentPlayerId = null;
@@ -465,6 +476,16 @@ public class SqueezeService extends Service {
     }
 	
     private void setPlayingState(boolean state) {
+        // TODO: this might be running in the wrong thread.  Is wifiLock thread-safe?
+        if (state && !wifiLock.isHeld()) {
+            Log.v(TAG, "Locking wifi while playing.");
+            wifiLock.acquire();
+        }
+        if (!state && wifiLock.isHeld()) {
+            Log.v(TAG, "Unlocking wifi.");
+            wifiLock.release();
+        }
+        
         isPlaying.set(state);
         updateOngoingNotification();
 		
@@ -479,9 +500,12 @@ public class SqueezeService extends Service {
     }
 
     private void updateOngoingNotification() {
-        if (!isPlaying.get()) {
-            clearOngoingNotification();
-            return;
+        boolean playing = isPlaying.get();  
+        if (!playing) {
+            if (!preferences.getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false)) {
+                clearOngoingNotification();
+                return;
+            }
         }
         NotificationManager nm =
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -492,9 +516,15 @@ public class SqueezeService extends Service {
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
         String song = currentSong.get();
         if (song == null) song = "";
-        status.setLatestEventInfo(this, "Music Playing", song, pIntent);
-        status.flags |= Notification.FLAG_ONGOING_EVENT;
-        status.icon = R.drawable.stat_notify_musicplayer;
+        if (playing) {
+            status.setLatestEventInfo(this, "Music Playing", song, pIntent);
+            status.flags |= Notification.FLAG_ONGOING_EVENT;
+            status.icon = R.drawable.stat_notify_musicplayer;
+        } else {
+            status.setLatestEventInfo(this, "Squeezer's Connected", "No music is playing.", pIntent);
+            status.flags |= Notification.FLAG_ONGOING_EVENT;
+            status.icon = R.drawable.logo;
+        }
         nm.notify(PLAYBACKSERVICE_STATUS, status);
     }
 
@@ -714,6 +744,18 @@ public class SqueezeService extends Service {
         public int getSecondsTotal() throws RemoteException {
             Integer seconds = currentSongDuration.get();
             return seconds == null ? 0 : seconds.intValue();
+        }
+
+        public void preferenceChanged(String key) throws RemoteException {
+            Log.v(TAG, "Preference changed: " + key);
+            if (Preferences.KEY_NOTIFY_OF_CONNECTION.equals(key)) {
+                updateOngoingNotification();
+                return;
+            }
+            if (Preferences.KEY_DEBUG_LOGGING.equals(key)) {
+                debugLogging = preferences.getBoolean(key, false);
+                return;
+            }
         }
     };
 

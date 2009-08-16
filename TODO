@@ -14,4 +14,17 @@
 
 * Auto-connect when Wifi state becomes available.
 
-* wifi/sleep locks?  when on power?
+* screen/sleep lock option? "party remote mode"
+
+* use NIO for parsing input and allocate less big Strings objects in
+  the service.
+
+  Currently, every few seconds:
+    D/dalvikvm( 1162): GC freed 10472 objects / 470048 bytes in 213ms
+    D/dalvikvm( 1162): GC freed 12934 objects / 576488 bytes in 222ms
+    D/dalvikvm( 1162): GC freed 12095 objects / 524416 bytes in 207ms
+    D/dalvikvm( 1162): GC freed 12094 objects / 524496 bytes in 464ms
+    D/dalvikvm(  567): GC freed 20179 objects / 810328 bytes in 297ms
+    D/dalvikvm( 1162): GC freed 12113 objects / 524216 bytes in 222ms
+    D/dalvikvm( 1162): GC freed 12104 objects / 524696 bytes in 240ms
+

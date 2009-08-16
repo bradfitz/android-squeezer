@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
@@ -66,7 +67,6 @@ public class SqueezerActivity extends Activity {
     private ImageView albumArt;
     private SeekBar seekBar;
 
-    private Handler uiThreadHandler = new Handler();
     private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
 	
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -102,7 +102,24 @@ public class SqueezerActivity extends Activity {
     private boolean connectInProgress = false;
     private String connectingTo = null;
     private ProgressDialog connectingDialog = null;
-	
+
+    private volatile int secondsIn;
+    private volatile int secondsTotal;
+    private final static int UPDATE_TIME = 1;
+    
+    private Handler uiThreadHandler = new Handler() {
+        // Normally I'm lazy and just post Runnables to the uiThreadHandler
+        // but time updating is special enough (it happens every second) to
+        // take care not to allocate so much memory which forces Dalvik to GC
+        // all the time.
+        @Override
+        public void handleMessage (Message msg) {
+            if (msg.what == UPDATE_TIME) {
+                updateTimeDisplayTo(secondsIn, secondsTotal);
+            }
+        }
+    };
+
     /** Called when the activity is first created. */
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -750,11 +767,9 @@ public class SqueezerActivity extends Activity {
 
             public void onTimeInSongChange(final int secondsIn, final int secondsTotal)
                     throws RemoteException {
-                uiThreadHandler.post(new Runnable() {
-                    public void run() {
-                        updateTimeDisplayTo(secondsIn, secondsTotal);
-                    }
-                });
+                SqueezerActivity.this.secondsIn = secondsIn;
+                SqueezerActivity.this.secondsTotal = secondsTotal;
+                uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
             }
         };
 }

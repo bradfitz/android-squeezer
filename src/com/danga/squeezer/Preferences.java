@@ -28,6 +28,11 @@ public final class Preferences {
     public static final String KEY_AUTO_DISCOVER = "squeezer.autodiscover";
     public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
     
+    // Do we keep the notification going at top, even when we're not connected?
+    public static final String KEY_NOTIFY_OF_CONNECTION = "squeezer.notifyofconnection";
+    
+    public static final String KEY_DEBUG_LOGGING = "squeezer.debuglogging";
+    
 	private Preferences() {
 	}
 }

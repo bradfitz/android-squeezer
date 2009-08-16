@@ -12,6 +12,9 @@ interface ISqueezeService {
 		void startConnect(String hostPort);
 		void disconnect();
         boolean isConnected();
+        
+        // For the SettingsActivity to notify the Service that a setting changed.
+        void preferenceChanged(String key);
 
 	    // Returns true if players are known.  You should wait for the
 	    // onPlayersDiscovered() callback before calling this.

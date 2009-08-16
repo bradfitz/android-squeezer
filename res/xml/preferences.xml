@@ -33,7 +33,18 @@
   <CheckBoxPreference
      android:key="squeezer.autoconnect"
      android:title="Auto-connect"
-     android:summary="NOTDONE On Wifi availability, try to connect."
+     android:summary="On Wifi availability, try to connect."
      android:persistent="true" />
 
+  <CheckBoxPreference
+     android:key="squeezer.notifyofconnection"
+     android:title="Notify of Connection"
+     android:summary="Show notification while connected, even when not playing music."
+     android:persistent="true" />
+
+  <CheckBoxPreference
+     android:key="squeezer.debuglogging"
+     android:title="Debug Logging"
+     android:summary="Keep this off, unless you're debugging something."
+     android:persistent="true" />
 </PreferenceScreen>
