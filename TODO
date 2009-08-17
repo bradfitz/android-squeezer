@@ -38,3 +38,8 @@
      -- easier: have SqueezerActivity tell Service not to unsubscribe
         for 'n' seconds?
 
+* When pressing pause, an in-flight "playing" status update can come in
+  and then the status flip-flops between playing & paused a couple times.
+  We should keep track of our own pause events and suppress any play
+  events from the network for 1-2 seconds.
+

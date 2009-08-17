@@ -20,6 +20,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,6 +30,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -595,7 +599,16 @@ public class SqueezerActivity extends Activity {
             return builder.create();
         case DIALOG_ABOUT:
             builder.setTitle("About");
-            builder.setMessage(R.string.about_text);
+            PackageManager pm = getPackageManager();
+            PackageInfo info;
+            String aboutText;
+            try {
+                info = pm.getPackageInfo("com.danga.squeezer", 0);
+                aboutText = getString(R.string.about_text, info.versionName);
+            } catch (NameNotFoundException e) {
+                aboutText = "Package not found.";
+            }
+            builder.setMessage(Html.fromHtml(aboutText));
             return builder.create();
         case DIALOG_CONNECTING:
             // Note: this only happens the first time.  onPrepareDialog is called on each connect.
