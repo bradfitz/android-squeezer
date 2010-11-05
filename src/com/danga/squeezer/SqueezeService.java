@@ -34,6 +34,8 @@ import android.util.Log;
 public class SqueezeService extends Service {
     private static final String TAG = "SqueezeService";
     private static final int PLAYBACKSERVICE_STATUS = 1;
+
+    private static final int DEFAULT_PORT = 9090;
 	
     // Incremented once per new connection and given to the Thread
     // that's listening on the socket.  So if it dies and it's not the
@@ -576,11 +578,21 @@ public class SqueezeService extends Service {
             return isConnected.get();
         }
 
-        public void startConnect(final String hostPort) throws RemoteException {
-            int colonPos = hostPort.indexOf(":");
-            boolean noPort = colonPos == -1;
-            final int port = noPort? 9090 : Integer.parseInt(hostPort.substring(colonPos + 1));
-            final String host = noPort ? hostPort : hostPort.substring(0, colonPos);
+        public void startConnect(String hostPort) throws RemoteException {
+            // Common mistakes, based on crash reports...
+            if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
+                hostPort = hostPort.substring(7);
+            }
+
+            // Ending in whitespace?  From LatinIME, probably?
+            while (hostPort.endsWith(" ")) {
+                hostPort = hostPort.substring(0, hostPort.length() - 1);
+            }
+
+            final int port = parsePort(hostPort);
+            final String host = parseHost(hostPort);
+            final String cleanHostPort = host + ":" + port;
+
             currentHost.set(host);
             cliPort.set(port);
             httpPort.set(null);  // not known until later, after connect.
@@ -594,17 +606,17 @@ public class SqueezeService extends Service {
                         socket.connect(new InetSocketAddress(host, port),
                                        4000 /* ms timeout */);
                         socketRef.set(socket);
-                        Log.d(TAG, "Connected to: " + hostPort);
+                        Log.d(TAG, "Connected to: " + cleanHostPort);
                         socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                         Log.d(TAG, "writer == " + socketWriter.get());
                         setConnectionState(true, true);
                         Log.d(TAG, "connection state broadcasted true.");
                         onCliPortConnectionEstablished();
                     } catch (SocketTimeoutException e) {
-                        Log.e(TAG, "Socket timeout connecting to: " + hostPort);
+                        Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
                         setConnectionState(false, true);
                     } catch (IOException e) {
-                        Log.e(TAG, "IOException connecting to: " + hostPort);
+                        Log.e(TAG, "IOException connecting to: " + cleanHostPort);
                         setConnectionState(false, true);
                     }
                 }
@@ -841,4 +853,31 @@ public class SqueezeService extends Service {
             }
         }
     }
- }
+
+    private static String parseHost(String hostPort) {
+        if (hostPort == null) {
+            return "";
+        }
+        int colonPos = hostPort.indexOf(":");
+        if (colonPos == -1) {
+            return hostPort;
+        }
+        return hostPort.substring(0, colonPos);
+    }
+
+    private static int parsePort(String hostPort) {
+        if (hostPort == null) {
+            return DEFAULT_PORT;
+        }
+        int colonPos = hostPort.indexOf(":");
+        if (colonPos == -1) {
+            return DEFAULT_PORT;
+        }
+        try {
+            return Integer.parseInt(hostPort.substring(colonPos + 1));
+        } catch (NumberFormatException unused) {
+            Log.d(TAG, "Can't parse port out of " + hostPort);
+            return DEFAULT_PORT;
+        }
+    }
+}

@@ -593,6 +593,10 @@ public class SqueezerActivity extends Activity {
             final List<String> playerIds = new ArrayList<String>();
             final List<String> playerNames = new ArrayList<String>();
             try {
+                if (serviceStub == null) {
+                    Log.d(TAG, "No serviceStub in DIALOG_CHOOSE_PLAYER");
+                    return null;
+                }
                 if (!serviceStub.getPlayers(playerIds, playerNames)) {
                     Log.e(TAG, "No players in onPlayersDiscovered?");
                     return null;
