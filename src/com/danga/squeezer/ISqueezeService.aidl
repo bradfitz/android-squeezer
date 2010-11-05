@@ -31,6 +31,10 @@ interface ISqueezeService {
 	    ////////////////////
   	    // Depends on active player:
   	    
+  	    boolean canPowerOn();
+  	    boolean canPowerOff();
+        boolean powerOn();
+        boolean powerOff();
         boolean isPlaying();
         boolean togglePausePlay();
         boolean play();

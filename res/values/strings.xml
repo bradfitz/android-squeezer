@@ -10,10 +10,13 @@
     <string name="settings_serveraddr_summary">In format host:port</string>
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
+    <string name="menu_item_poweron">Power on</string>
+    <string name="menu_item_poweroff">Power off</string>
     <string name="about_text">&lt;b&gt;Squeezer v%s (C) Brad Fitzpatrick&lt;/b&gt;
    
 &lt;p&gt;http://code.google.com/p/android-squeezer/&lt;/p&gt;
 &lt;p&gt;android-squeezer@googlegroups.com&lt;/p&gt;
 
-Welcome to Squeezer!  This project is very new and is undergoing active development.  Patches and feature requests welcome!</string>
+&lt;p&gt;Welcome to Squeezer!&lt;br/&gt;
+This project is very new and is undergoing active development. Patches and feature requests are welcome!&lt;/p&gt;</string>
 </resources>

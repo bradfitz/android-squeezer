@@ -11,7 +11,7 @@ import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -47,13 +47,14 @@ public class SqueezeService extends Service {
     // TODO: this is getting ridiculous. Move this into ConnectionState class.
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private final AtomicBoolean isPlaying = new AtomicBoolean(false);
+    private final AtomicBoolean isPoweredOn = new AtomicBoolean(false);
     private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
     private final AtomicReference<IServiceCallback> callback =
         new AtomicReference<IServiceCallback>();
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
     private final AtomicReference<String> activePlayerId = new AtomicReference<String>();
-    private final AtomicReference<Map<String, String>> knownPlayers = 
-        new AtomicReference<Map<String, String>>();
+    private final AtomicReference<Map<String, SqueezePlayer>> knownPlayers = 
+        new AtomicReference<Map<String, SqueezePlayer>>();
 
     private final AtomicReference<String> currentSong = new AtomicReference<String>();
     private final AtomicReference<String> currentArtist = new AtomicReference<String>();
@@ -259,7 +260,7 @@ public class SqueezeService extends Service {
             if (key == null || value == null) continue;
             if (key.equals("mixer volume")) {
                 continue;
-            }
+            } else
             if (key.equals("mode")) {
                 if (value.equals("pause")) {
                     setPlayingState(false);
@@ -267,30 +268,34 @@ public class SqueezeService extends Service {
                     setPlayingState(true);
                 }
                 continue;
-            }
+            } else
             if (key.equals("artist")) {
                 if (Util.atomicStringUpdated(currentArtist, value)) musicHasChanged = true;
                 continue;
-            }
+            } else
             if (key.equals("title")) {
                 if (Util.atomicStringUpdated(currentSong, value)) musicHasChanged = true;
                 continue;
-            }
+            } else
             if (key.equals("album")) {
                 if (Util.atomicStringUpdated(currentAlbum, value)) musicHasChanged = true;
                 continue;
-            }
+            } else
             if (key.equals("artwork_track_id")) {
                 currentArtworkTrackId.set(value);
                 sawArtworkId = true;
                 continue;
-            }
+            } else
             if (key.equals("time")) {
                 time = Util.parseDecimalIntOrZero(value);
                 continue;
-            }
+            } else
             if (key.equals("duration")) {
                 duration = Util.parseDecimalIntOrZero(value);
+                continue;
+            } else
+            if (key.equals("power")) {
+            	isPoweredOn.set(Util.parseDecimalIntOrZero(value) == 1);
                 continue;
             }
             // TODO: the rest ....
@@ -320,15 +325,13 @@ public class SqueezeService extends Service {
         // TODO: can this block (sqlite lookup via binder call?)  Might want to move it elsewhere.
     	final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
     	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
-        Map<String, String> players = new HashMap<String, String>();
+        Map<String, SqueezePlayer> players = new LinkedHashMap<String, SqueezePlayer>();
                 
         int n = 0;
-        int currentPlayerIndex = -1;
-        String currentPlayerId = null;
-        String currentPlayerName = null;
+        SqueezePlayer player = new SqueezePlayer();
         String defaultPlayerId = null;
         
-        for (String token : tokens) {
+		for (String token : tokens) {
             if (++n <= 3) continue;
             int colonPos = token.indexOf("%3A");
             if (colonPos == -1) {
@@ -339,23 +342,27 @@ public class SqueezeService extends Service {
             String value = decode(token.substring(colonPos + 3));
             if (debugLogging) Log.v(TAG, "key=" + key + ", value: " + value);
             if ("playerindex".equals(key)) {
-                maybeAddPlayerToMap(currentPlayerId, currentPlayerName, players);
-                currentPlayerId = null;
-                currentPlayerName = null;
-                currentPlayerIndex = Integer.parseInt(value);
+                maybeAddPlayerToMap(player, players);
+                player = new SqueezePlayer();
             } else if ("playerid".equals(key)) {
-                currentPlayerId = value;
+                player.setPlayerId(value);
                 if (value.equals(lastConnectedPlayer)) {
                     defaultPlayerId = value;  // Still around, so let's use it.
                 }
+            } else if ("ip".equals(key)) {
+                player.setIp(value);
             } else if ("name".equals(key)) {
-                currentPlayerName = value;
+                player.setName(value);
+            } else if ("model".equals(key)) {
+                player.setModel(value);
+            } else if ("canpoweroff".equals(key)) {
+                player.setCanpoweroff(Util.parseDecimalIntOrZero(value) == 1);
             }
         }
-        maybeAddPlayerToMap(currentPlayerId, currentPlayerName, players);
+        maybeAddPlayerToMap(player, players);
 
         if (defaultPlayerId == null || !players.containsKey(defaultPlayerId)) {
-            defaultPlayerId = currentPlayerId;  // arbitrary; last one in list.
+            defaultPlayerId = player.getPlayerId();  // arbitrary; last one in list.
         }
 
         knownPlayers.set(players);
@@ -370,7 +377,7 @@ public class SqueezeService extends Service {
     }
 
     private boolean changeActivePlayer(final String playerId) {
-        Map<String, String> players = knownPlayers.get();
+        Map<String, SqueezePlayer> players = knownPlayers.get();
         if (players == null) {
             Log.v(TAG, "Can't set player; none known.");
             return false;
@@ -380,7 +387,7 @@ public class SqueezeService extends Service {
             return false;
         }
 
-        Log.v(TAG, "Active player now: " + playerId + ", " + players.get(playerId));
+        Log.v(TAG, "Active player now: " + players.get(playerId));
         String oldPlayerId =  activePlayerId.get();
         boolean changed = Util.atomicStringUpdated(activePlayerId, playerId);
 
@@ -412,8 +419,7 @@ public class SqueezeService extends Service {
         if (callback.get() != null) {
             try {
                 if (playerId != null && players.containsKey(playerId)) {
-                    callback.get().onPlayerChanged(
-                            playerId, players.get(playerId));
+                    callback.get().onPlayerChanged(playerId, players.get(playerId).getName());
                 } else {
                     callback.get().onPlayerChanged("", "");
                 }
@@ -434,12 +440,11 @@ public class SqueezeService extends Service {
     }
 
     // Add String pair to map if both are non-null and non-empty.    
-    private static void maybeAddPlayerToMap(String currentPlayerId,
-            String currentPlayerName, Map<String, String> players) {
-        if (currentPlayerId != null && !currentPlayerId.equals("") && 
-            currentPlayerName != null && !currentPlayerName.equals("")) {
-            Log.v(TAG, "Adding player: " + currentPlayerId + ", " + currentPlayerName);
-            players.put(currentPlayerId, currentPlayerName);
+    private static void maybeAddPlayerToMap(SqueezePlayer player, Map<String, SqueezePlayer> players) {
+        if (player.getPlayerId() != null && !player.getPlayerId().equals("") && 
+            player.getName() != null && !player.getName().equals("")) {
+            Log.v(TAG, "Adding player: " + player);
+            players.put(player.getPlayerId(), player);
         }
     }
 
@@ -611,6 +616,37 @@ public class SqueezeService extends Service {
             if (!isConnected()) return;
             SqueezeService.this.disconnect();
         }
+
+        public boolean powerOn() throws RemoteException {
+            if (!isConnected()) {
+                return false;
+            }
+            sendPlayerCommand("power 1");
+            Log.v(TAG, "played.");
+            return true;
+        }
+
+        public boolean powerOff() throws RemoteException {
+            if (!isConnected()) {
+                return false;
+            }
+            sendPlayerCommand("power 0");
+            return true;
+        }
+        
+        public boolean canPowerOn() {
+        	return canPower() && !isPoweredOn.get();
+        }
+        
+        public boolean canPowerOff() {
+        	return canPower() && isPoweredOn.get();
+        }
+        
+        private boolean canPower() {
+            Map<String, SqueezePlayer> players = knownPlayers.get();
+        	SqueezePlayer activePlayer = (players == null ? null : players.get(activePlayerId.get()));
+        	return isConnected.get() && activePlayer != null && activePlayer.isCanpoweroff();
+        }
 		
         public boolean togglePausePlay() throws RemoteException {
             if (!isConnected()) {
@@ -676,13 +712,13 @@ public class SqueezeService extends Service {
 
         public boolean getPlayers(List<String> playerIds, List<String> playerNames)
             throws RemoteException {
-            Map<String, String> players = knownPlayers.get();
+            Map<String, SqueezePlayer> players = knownPlayers.get();
             if (players == null) {
                 return false;
             }
-            for (String playerId : players.keySet()) {
-                playerIds.add(playerId);
-                playerNames.add(players.get(playerId));
+            for (SqueezePlayer player : players.values()) {
+                playerIds.add(player.getPlayerId());
+                playerNames.add(player.getName());
             }
             return true;
         }
@@ -698,11 +734,11 @@ public class SqueezeService extends Service {
 
         public String getActivePlayerName() throws RemoteException {
             String playerId = activePlayerId.get();
-            Map<String, String> players = knownPlayers.get();
+            Map<String, SqueezePlayer> players = knownPlayers.get();
             if (players == null) {
                 return null;
             }
-            return players.get(playerId);
+            return players.get(playerId).getName();
         }
 
         public String currentAlbum() throws RemoteException {

@@ -29,7 +29,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -38,8 +37,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -516,6 +513,30 @@ public class SqueezerActivity extends Activity {
         return false;
     }
 
+    private boolean canPowerOn() {
+        if (serviceStub == null) {
+            return false;
+        }
+        try {
+            return serviceStub.canPowerOn(); 
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in canPowerOn(): " + e);
+        }
+        return false;
+    }
+
+    private boolean canPowerOff() {
+        if (serviceStub == null) {
+            return false;
+        }
+        try {
+            return serviceStub.canPowerOff(); 
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in canPowerOff(): " + e);
+        }
+        return false;
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -547,6 +568,12 @@ public class SqueezerActivity extends Activity {
     	connect.setVisible(!connected);
     	MenuItem disconnect = menu.findItem(R.id.menu_item_disconnect);
     	disconnect.setVisible(connected);
+
+    	// Only show power on/off, according to playerstate
+    	MenuItem powerOn = menu.findItem(R.id.menu_item_poweron);
+    	powerOn.setVisible(canPowerOn());
+    	MenuItem powerOff = menu.findItem(R.id.menu_item_poweroff);
+    	powerOff.setVisible(canPowerOff());
 
     	// Disable things that don't work when not connected.
         MenuItem players = menu.findItem(R.id.menu_item_players);
@@ -667,6 +694,20 @@ public class SqueezerActivity extends Activity {
       	case R.id.menu_item_disconnect:
             try {
                 serviceStub.disconnect();
+            } catch (RemoteException e) {
+                Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+            }
+            return true;
+      	case R.id.menu_item_poweron:
+            try {
+                serviceStub.powerOn();
+            } catch (RemoteException e) {
+                Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+            }
+            return true;
+      	case R.id.menu_item_poweroff:
+            try {
+                serviceStub.powerOff();
             } catch (RemoteException e) {
                 Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
             }

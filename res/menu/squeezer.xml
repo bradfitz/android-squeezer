@@ -26,6 +26,12 @@
         android:title="@string/menu_item_disconnect"
         android:alphabeticShortcut="d" />
     <item
+     	android:id="@+id/menu_item_poweron"
+     	android:title="@string/menu_item_poweron" android:icon="@android:drawable/ic_lock_power_off"/>
+    <item 
+    	android:id="@+id/menu_item_poweroff"
+    	android:title="@string/menu_item_poweroff" android:icon="@android:drawable/ic_lock_power_off"/>
+    <item
         android:id="@+id/menu_item_players"
         android:title="@string/menu_item_players"
         android:alphabeticShortcut="z" />
@@ -44,4 +50,5 @@
         android:id="@+id/menu_item_settings"
         android:title="@string/menu_item_settings_label"
         android:alphabeticShortcut="p" />
+
 </menu>
