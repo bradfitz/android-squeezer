@@ -43,11 +43,30 @@ public class SqueezeService extends Service {
 
     private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
-    private final AtomicReference<ConnectionState> connectionState = new AtomicReference<ConnectionState>();
-    
+    // Connection state:
+    // TODO: this is getting ridiculous. Move this into ConnectionState class.
+    private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    private final AtomicBoolean isPlaying = new AtomicBoolean(false);
+    private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
     private final AtomicReference<IServiceCallback> callback =
         new AtomicReference<IServiceCallback>();
-  
+    private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
+    private final AtomicReference<String> activePlayerId = new AtomicReference<String>();
+    private final AtomicReference<Map<String, String>> knownPlayers = 
+        new AtomicReference<Map<String, String>>();
+
+    private final AtomicReference<String> currentSong = new AtomicReference<String>();
+    private final AtomicReference<String> currentArtist = new AtomicReference<String>();
+    private final AtomicReference<String> currentAlbum = new AtomicReference<String>();
+    private final AtomicReference<String> currentArtworkTrackId = new AtomicReference<String>();
+    private final AtomicReference<Integer> currentTimeSecond = new AtomicReference<Integer>();
+    private final AtomicReference<Integer> currentSongDuration = new AtomicReference<Integer>();
+
+    // Where we connected (or are connecting) to:
+    private final AtomicReference<String> currentHost = new AtomicReference<String>();
+    private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
+    private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
+    
     private boolean debugLogging = false;
     
     private WifiManager.WifiLock wifiLock;
@@ -82,11 +101,27 @@ public class SqueezeService extends Service {
 
     private void disconnect() {
         currentConnectionGeneration.incrementAndGet();
-        ConnectionState connection = connectionState.get();
-        if (connection != null) {
-            connection.disconnect();
-            connectionState.set(null);
+        Socket socket = socketRef.get();
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException e) {}
         }
+        socketRef.set(null);
+        socketWriter.set(null);
+        isConnected.set(false);
+        isPlaying.set(false);
+        knownPlayers.set(null);
+        setConnectionState(false, false);
+        clearOngoingNotification();
+        currentSong.set(null);
+        currentArtist.set(null);
+        currentAlbum.set(null);
+        currentArtworkTrackId.set(null);
+        httpPort.set(null);
+        activePlayerId.set(null);
+        currentTimeSecond.set(null);
+        currentSongDuration.set(null);
     }
 
     private synchronized void sendCommand(String... commands) {
@@ -106,10 +141,10 @@ public class SqueezeService extends Service {
     }
 	
     private void sendPlayerCommand(String command) {
-        ConnectionState connection = connectionState.get();
-        if (connection != null) {
-            connection.sendPlayerCommand(command);
+        if (activePlayerId == null) {
+            return;
         }
+        sendCommand(activePlayerId + " " + command);
     }
 	
     private void onLineReceived(String serverLine) {
@@ -132,9 +167,9 @@ public class SqueezeService extends Service {
         
         // Player-specific commands follow.  But we ignore all that aren't for our
         // active player.
-        String activePlayer = activePlayerId();
+        String activePlayer = activePlayerId.get();
         if (activePlayer == null || activePlayer.length() == 0 ||
-            !decode(tokens.get(0)).equals(activePlayer)) {
+            !decode(tokens.get(0)).equals(activePlayerId.get())) {
             // Different player that we're not interested in.   
             // (yet? maybe later.)
             return;
@@ -184,12 +219,6 @@ public class SqueezeService extends Service {
             }
         }
 
-    }
-
-    private String activePlayerId() {
-        ConnectionState connection = connectionState.get();
-        if (connection == null) return null;
-        return connection.getActivePlayerId();
     }
 
     private void sendNewVolumeCallback(int newVolume) {
@@ -341,13 +370,58 @@ public class SqueezeService extends Service {
     }
 
     private boolean changeActivePlayer(final String playerId) {
-        ConnectionState connection = connectionState.get();
-        if (connection == null) {
+        Map<String, String> players = knownPlayers.get();
+        if (players == null) {
+            Log.v(TAG, "Can't set player; none known.");
             return false;
         }
-        return connection.changeActivePlayer(playerId);
+        if (!players.containsKey(playerId)) {
+            Log.v(TAG, "Player " + playerId + " not known.");
+            return false;
+        }
+
+        Log.v(TAG, "Active player now: " + playerId + ", " + players.get(playerId));
+        String oldPlayerId =  activePlayerId.get();
+        boolean changed = Util.atomicStringUpdated(activePlayerId, playerId);
+
+        if (oldPlayerId != null && !oldPlayerId.equals(playerId)) {
+            // Unsubscribe from the old player's status.  (despite what
+            // the docs say, multiple subscribes can be active and flood us.)
+            sendCommand(URLEncoder.encode(oldPlayerId) + " status - 1 subscribe:0");
+        }
+        
+        // Start an async fetch of its status.
+        sendPlayerCommand("status - 1 tags:jylqwaJ");
+
+        if (changed) {
+            updatePlayerSubscriptionState();
+        
+            // NOTE: this involves a write and can block (sqlite lookup via binder call), so
+            // should be done off-thread, so we can process service requests & send our callback
+            // as quickly as possible.
+            executor.execute(new Runnable() {
+                public void run() {
+                    final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();              
+                    editor.putString(Preferences.KEY_LASTPLAYER, playerId);
+                    editor.commit();
+                }
+            });
+        }
+       
+        if (callback.get() != null) {
+            try {
+                if (playerId != null && players.containsKey(playerId)) {
+                    callback.get().onPlayerChanged(
+                            playerId, players.get(playerId));
+                } else {
+                    callback.get().onPlayerChanged("", "");
+                }
+            } catch (RemoteException e) {}
+        }
+        return true;
     }
-    
+
     private void updatePlayerSubscriptionState() {
         // Subscribe or unsubscribe to the player's realtime status updates
         // depending on whether we have an Activity or some sort of client
@@ -485,28 +559,26 @@ public class SqueezeService extends Service {
 	    }
 
 	    public int adjustVolumeBy(int delta) throws RemoteException {
-	        if (isConnected()) {
-	            return connectionState.get().adjustVolumeBy(delta);
-	        }
+            if (delta > 0) {
+                sendPlayerCommand("mixer volume %2B" + delta);
+            } else if (delta < 0) {
+                sendPlayerCommand("mixer volume " + delta);
+            }
+            return 50 + delta;  // TODO: return non-blocking dead-reckoning value
         }
 
         public boolean isConnected() throws RemoteException {
-            ConnectionState connection = connectionState.get();
-            return connection == null ? false : connection.isConnected();
+            return isConnected.get();
         }
 
         public void startConnect(final String hostPort) throws RemoteException {
-            disconnect();  // if we're already connected to something
             int colonPos = hostPort.indexOf(":");
             boolean noPort = colonPos == -1;
             final int port = noPort? 9090 : Integer.parseInt(hostPort.substring(colonPos + 1));
             final String host = noPort ? hostPort : hostPort.substring(0, colonPos);
-            
-            ConnectionState newConnection = new ConnnectionState(
-                    currentConnectionGeneration.incrementAndGet(),
-                    host,
-                    port);
-            currentConnectionGeneration.set(newConnection);
+            currentHost.set(host);
+            cliPort.set(port);
+            httpPort.set(null);  // not known until later, after connect.
             
             // Start the off-thread connect.
             executor.execute(new Runnable() {
@@ -541,27 +613,45 @@ public class SqueezeService extends Service {
         }
 		
         public boolean togglePausePlay() throws RemoteException {
-            ConnectionState connection = connectionState.get();
-            if (connection != null) {
-                return connection.togglePlayPause();
+            if (!isConnected()) {
+                return false;
             }
-            return false;
+            Log.v(TAG, "pause...");
+            if (isPlaying.get()) {
+                setPlayingState(false);
+                // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
+                // because then we'd get confused when they came back in to us, not being
+                // able to differentiate ours coming back on the listen channel vs. those
+                // of those idiots at the dinner party messing around.
+                sendPlayerCommand("pause 1");
+            } else {
+                setPlayingState(true);
+                // TODO: use 'pause 0 <fade_in_secs>' to fade-in if we knew it was
+                // actually paused (as opposed to not playing at all) 
+                sendPlayerCommand("play");
+            }
+            Log.v(TAG, "paused.");
+            return true;
         }
 
         public boolean play() throws RemoteException {
-            ConnectionState connection = connectionState.get();
-            if (connection != null) {
-                return connection.play();
+            if (!isConnected()) {
+                return false;
             }
-            return false;
+            Log.v(TAG, "play..");
+            isPlaying.set(true);
+            sendPlayerCommand("play");
+            Log.v(TAG, "played.");
+            return true;
         }
 
         public boolean stop() throws RemoteException {
-            ConnectionState connection = connectionState.get();
-            if (connection != null) {
-                return connection.stop();
+            if (!isConnected()) {
+                return false;
             }
-            return false;
+            isPlaying.set(false);
+            sendPlayerCommand("stop");
+            return true;
         }
 
         public boolean nextTrack() throws RemoteException {
