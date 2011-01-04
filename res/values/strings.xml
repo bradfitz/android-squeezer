@@ -7,11 +7,19 @@
     <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
     <string name="settings_serveraddr_title">Server Address</string>
-    <string name="settings_serveraddr_summary">In format host:port</string>
+    <string name="settings_serveraddr_format">In format host:port</string>
+    <string name="settings_serveraddr_summary">IP address of SqueezeCenter server, e.g. 10.0.0.5</string>
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
     <string name="menu_item_poweron">Power on</string>
     <string name="menu_item_poweroff">Power off</string>
+    <string name="about_title">About</string>
+    <string name="choose_player_title">Choose Player</string>
+    <string name="connecting_text">Connecting</string>
+    <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
+    <string name="connection_failed_text">Connection failed.  Check settings.</string>
+    <string name="disconnected_text">Disconnected.</string>
+    <string name="loading_text">Loading...</string>
     <string name="about_text">&lt;b&gt;Squeezer v%s (C) Brad Fitzpatrick&lt;/b&gt;
    
 &lt;p&gt;http://code.google.com/p/android-squeezer/&lt;/p&gt;
@@ -19,4 +27,32 @@
 
 &lt;p&gt;Welcome to Squeezer!&lt;br/&gt;
 This project is very new and is undergoing active development. Patches and feature requests are welcome!&lt;/p&gt;</string>
+
+    <string-array name="home_items">
+        <item>Now playing</item>
+        <item>My Music</item>
+        <item>Internet Radio</item>
+        <item>Favorites</item>
+    </string-array>
+
+    <string-array name="music_items">
+        <item>Artists</item>
+        <item>Albums</item>
+        <item>Genres</item>
+        <item>Years</item>
+        <item>New Music</item>
+        <item>Random mix</item>
+        <item>Music Folder</item>
+        <item>Playlists</item>
+        <item>Search</item>
+    </string-array>
+
+    <string-array name="random_mix_items">
+        <item>Song mix</item>
+        <item>Album mix</item>
+        <item>Artist mix</item>
+        <item>Year mix</item>
+        <item>Choose genres</item>
+    </string-array>
+
 </resources>

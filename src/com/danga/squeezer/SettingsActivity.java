@@ -82,7 +82,7 @@ public class SettingsActivity extends PreferenceActivity implements
         if (addr.length() > 0) {
             addrPref.setSummary(addr);
         } else {
-            addrPref.setSummary("IP address of SqueezeCenter server, e.g. 10.0.0.5");
+            addrPref.setSummary(getText(R.string.settings_serveraddr_summary));
         }
     }
 

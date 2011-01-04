@@ -34,6 +34,10 @@ public class Util {
             return 0;
         }
     }
+
+    public static int parseDecimalIntOrZero(String value, int defaultValue) {
+    	return (value != null ? parseDecimalIntOrZero(value) : defaultValue);
+    }
     
     private static StringBuilder sFormatBuilder = new StringBuilder();
     private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());

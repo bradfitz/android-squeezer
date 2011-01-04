@@ -34,7 +34,7 @@
     <item
         android:id="@+id/menu_item_players"
         android:title="@string/menu_item_players"
-        android:alphabeticShortcut="z" />
+        android:alphabeticShortcut="z" android:icon="@+drawable/icon_choose_player"/>
     <item
         android:icon="@android:drawable/ic_menu_search"
         android:id="@+id/menu_item_search"

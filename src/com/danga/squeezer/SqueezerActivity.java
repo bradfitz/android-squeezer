@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,7 +14,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -46,11 +43,11 @@ import android.widget.Toast;
 
 public class SqueezerActivity extends Activity {
     private static final String TAG = "SqueezerActivity";
-    private static final String DISCONNECTED_TEXT = "Disconnected.";
-    private static final int DIALOG_CHOOSE_PLAYER = 0;
-    private static final int DIALOG_ABOUT = 1;
-    private static final int DIALOG_CONNECTING = 2;
+    private static final int DIALOG_ABOUT = 0;
+    private static final int DIALOG_CONNECTING = 1;
 
+    protected static final int HOME_REQUESTCODE = 0;
+    
     private ISqueezeService serviceStub = null;
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private AtomicBoolean isPlaying = new AtomicBoolean(false);
@@ -61,6 +58,8 @@ public class SqueezerActivity extends Activity {
     private TextView trackText;   
     private TextView currentTime;   
     private TextView totalTime;   
+    private ImageButton homeButton;
+    private ImageButton curPlayListButton;
     private ImageButton playPauseButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
@@ -149,6 +148,8 @@ public class SqueezerActivity extends Activity {
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
         trackText = (TextView) findViewById(R.id.trackname);
+        homeButton = (ImageButton) findViewById(R.id.ic_mp_Home_btn);
+        curPlayListButton = (ImageButton) findViewById(R.id.curplaylist);
         playPauseButton = (ImageButton) findViewById(R.id.pause);
         nextButton = (ImageButton) findViewById(R.id.next);
         prevButton = (ImageButton) findViewById(R.id.prev);
@@ -156,6 +157,20 @@ public class SqueezerActivity extends Activity {
         currentTime = (TextView) findViewById(R.id.currenttime);
         totalTime = (TextView) findViewById(R.id.totaltime);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
+		
+		homeButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+                if (!isConnected()) return;
+				SqueezerHomeActivity.show(SqueezerActivity.this);
+			}
+		});
+		
+		curPlayListButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+                if (!isConnected()) return;
+				SqueezerSongListActivity.show(SqueezerActivity.this);
+			}
+		});
 		
         playPauseButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
@@ -236,7 +251,7 @@ public class SqueezerActivity extends Activity {
                 connectingDialog.dismiss();
                 connectInProgress = false;
                 if (!connected) {
-                  Toast.makeText(this, "Connection failed.  Check settings.", Toast.LENGTH_LONG).show();
+                  Toast.makeText(this, getText(R.string.connection_failed_text), Toast.LENGTH_LONG).show();
                   return;
                 }
             }
@@ -249,7 +264,7 @@ public class SqueezerActivity extends Activity {
             nextButton.setImageResource(0);
             prevButton.setImageResource(0);
             albumArt.setImageDrawable(null);
-            artistText.setText(DISCONNECTED_TEXT);
+            artistText.setText(getText(R.string.disconnected_text));
             albumText.setText("");
             trackText.setText("");
             setTitleForPlayer(null);
@@ -285,9 +300,9 @@ public class SqueezerActivity extends Activity {
         uiThreadHandler.post(new Runnable() {
             public void run() {
                 if (playerName != null && !"".equals(playerName)) {
-                    setTitle("Squeezer: " + playerName);
+                    setTitle(getText(R.string.app_name) + ": " + playerName);
                 } else {
-                    setTitle("Squeezer");
+                    setTitle(getText(R.string.app_name));
                 }
             }
         });
@@ -414,18 +429,6 @@ public class SqueezerActivity extends Activity {
                 });
             }
         }
-    }
-    
-    private String getActivePlayerId() {
-        if (serviceStub == null) {
-            return "";
-        }
-        try {
-            return serviceStub.getActivePlayerId();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
-        }
-        return "";
     }
     
     private int getSecondsElapsed() {
@@ -589,47 +592,8 @@ public class SqueezerActivity extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         switch (id) {
-        case DIALOG_CHOOSE_PLAYER:
-            final List<String> playerIds = new ArrayList<String>();
-            final List<String> playerNames = new ArrayList<String>();
-            try {
-                if (serviceStub == null) {
-                    Log.d(TAG, "No serviceStub in DIALOG_CHOOSE_PLAYER");
-                    return null;
-                }
-                if (!serviceStub.getPlayers(playerIds, playerNames)) {
-                    Log.e(TAG, "No players in onPlayersDiscovered?");
-                    return null;
-                }
-            } catch (RemoteException e) {
-                return null;
-            }
-            final CharSequence[] items = new CharSequence[playerNames.size()];
-            int n = 0;
-            int checkedItem = -1;
-            String currentPlayerId = currentPlayerId();
-            for (String playerName : playerNames) {
-                items[n] = playerName;
-                if (playerIds.get(n).equals(currentPlayerId)) {
-                    checkedItem = n;
-                }
-                n++;
-            }
-            builder.setTitle("Choose Player");
-            builder.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int indexSelected) {
-                        String playerId = playerIds.get(indexSelected);
-                        try {
-                            serviceStub.setActivePlayer(playerId);
-                        } catch (RemoteException e) {
-                            Log.e(TAG, "Error setting active player: " + e);
-                        }
-                        dialog.dismiss();
-                    }
-                });
-            return builder.create();
         case DIALOG_ABOUT:
-            builder.setTitle("About");
+            builder.setTitle(getText(R.string.about_title));
             PackageManager pm = getPackageManager();
             PackageInfo info;
             String aboutText;
@@ -644,7 +608,7 @@ public class SqueezerActivity extends Activity {
         case DIALOG_CONNECTING:
             // Note: this only happens the first time.  onPrepareDialog is called on each connect.
             connectingDialog = new ProgressDialog(this);
-            connectingDialog.setTitle("Connecting");
+            connectingDialog.setTitle(getText(R.string.connecting_text));
             connectingDialog.setIndeterminate(true);
             return connectingDialog;
         }
@@ -654,15 +618,9 @@ public class SqueezerActivity extends Activity {
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
         switch (id) {
-        case DIALOG_CHOOSE_PLAYER:
-            // TODO(bradfitz): move most the code above for CHOOSE_PLAYER into here,
-            // where it'll actually re-query the server every time.  This only really
-            // matters if players change while the Service is still running.
-            return;
         case DIALOG_CONNECTING:
             ProgressDialog connectingDialog = (ProgressDialog) dialog;
-            connectingDialog.setMessage(
-                    "Connecting to SqueezeBox CLI at " + connectingTo);
+            connectingDialog.setMessage(getString(R.string.connecting_to_text, connectingTo));
             if (!connectInProgress) {
                 // Lose the race?  If Service/network is very fast.
                 connectingDialog.dismiss();
@@ -671,21 +629,6 @@ public class SqueezerActivity extends Activity {
         }
     }
     
-    /**
-     * Returns current player id (the mac address) or null/empty.
-     */
-    private String currentPlayerId() {
-        if (serviceStub == null) {
-            return null;
-        }
-        try {
-            return serviceStub.getActivePlayerId(); 
-        } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
-        }
-        return null;
-    }
-
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
@@ -717,7 +660,7 @@ public class SqueezerActivity extends Activity {
             }
             return true;
       	case R.id.menu_item_players:
-      	    showDialog(DIALOG_CHOOSE_PLAYER);
+      		SqueezerPlayerListActivity.show(this);
       	    return true;
         case R.id.menu_item_about:
             showDialog(DIALOG_ABOUT);
@@ -761,6 +704,11 @@ public class SqueezerActivity extends Activity {
                     Toast.LENGTH_LONG).show();
         }
     }
+
+	static void show(Context context) {
+        final Intent intent = new Intent(context, SqueezerActivity.class);
+        context.startActivity(intent);
+    }
 	
     private IServiceCallback serviceCallback = new IServiceCallback.Stub() {
         public void onConnectionChanged(final boolean isConnected,
@@ -773,20 +721,6 @@ public class SqueezerActivity extends Activity {
                             setConnected(isConnected, postConnect);
                         }
                     });
-            }
-
-            public void onPlayersDiscovered() throws RemoteException {
-                List<String> playerIds = new ArrayList<String>();
-                List<String> playerNames = new ArrayList<String>();
-                if (!serviceStub.getPlayers(playerIds, playerNames)) {
-                    Log.e(TAG, "No players in onPlayersDiscovered?");
-                    return;
-                }
-                int n = 0;
-                for (String playerId : playerIds) {
-                    String playerName = playerNames.get(n++);
-                    Log.v(TAG, "player: " + playerId + ", " + playerName);
-                }
             }
 
             public void onPlayerChanged(final String playerId,
@@ -830,4 +764,5 @@ public class SqueezerActivity extends Activity {
                 uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
             }
         };
+
 }

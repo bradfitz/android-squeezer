@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Squeezer</string>
+    <string name="menu_item_players">Afspillere</string>
+    <string name="menu_item_search_label">Søg</string>
+    <string name="menu_item_settings_label">Indstillinger</string>
+    <string name="menu_item_about_label">Om</string>
+    <string name="activity_settings_name">Indstillinger</string>
+    <string name="settings_serveraddr_title">Server adresse</string>
+    <string name="settings_serveraddr_format">I formatet host:port</string>
+    <string name="settings_serveraddr_summary">IP addresse på SqueezeCenter serveren, f.eks. 10.0.0.5</string>
+    <string name="menu_item_disconnect">Afbryd</string>
+    <string name="menu_item_connect">Forbind</string>
+    <string name="menu_item_poweron">Tænd</string>
+    <string name="menu_item_poweroff">Sluk</string>
+    <string name="about_title">Om squeezer</string>
+    <string name="choose_player_title">Vælg afspiller</string>
+    <string name="connecting_text">Forbinder</string>
+    <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
+    <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
+    <string name="disconnected_text">Afbrudt.</string>
+    <string name="loading_text">Henter...</string>
+
+    <string-array name="home_items">
+        <item>Nu spiller</item>
+        <item>Musik</item>
+        <item>Internetradio</item>
+        <item>Favoritter</item>
+    </string-array>
+
+    <string-array name="music_items">
+        <item>Kunstnere</item>
+        <item>Albums</item>
+        <item>Genrer</item>
+        <item>År</item>
+        <item>Nye numre</item>
+        <item>Tilfældigt miks</item>
+        <item>Musikmappe</item>
+        <item>Afspilningslister</item>
+        <item>Søg</item>
+    </string-array>
+
+    <string-array name="random_mix_items">
+        <item>Miks baseret på tilfældige numre</item>
+        <item>Miks baseret på tilfældigt album</item>
+        <item>Miks baseret på tilfældig kunster</item>
+        <item>Miks baseret på tilfældigt årstal</item>
+        <item>Vælg genrer</item>
+    </string-array>
+
+</resources>

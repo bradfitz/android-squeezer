@@ -29,9 +29,13 @@
             android:orientation="vertical"
             android:gravity="center_horizontal">
 
+			<ImageButton android:id="@+id/ic_mp_Home_btn"
+                android:src="@drawable/icon_home"
+                android:layout_width="85dip"
+                android:layout_height="54dip"
+                android:layout_marginTop="14dip" />
            <ImageButton android:id="@+id/curplaylist"
                 android:src="@drawable/ic_mp_current_playlist_btn"
-                android:clickable="false"
                 android:layout_width="85dip"
                 android:layout_height="54dip"
                 android:layout_marginTop="14dip" />
@@ -61,7 +65,8 @@
                 
                 </LinearLayout>
 
-        </LinearLayout>
+        
+</LinearLayout>
 
     </LinearLayout>
     <LinearLayout

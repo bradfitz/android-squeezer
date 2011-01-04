@@ -10,8 +10,9 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -31,10 +32,19 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.danga.squeezer.model.SqueezeAlbum;
+import com.danga.squeezer.model.SqueezeArtist;
+import com.danga.squeezer.model.SqueezePlayer;
+import com.danga.squeezer.model.SqueezeSong;
+
 public class SqueezeService extends Service {
     private static final String TAG = "SqueezeService";
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
+	private static final int PAGESIZE = 20;
+	private static final String ALBUMTAGS = "alyj";
+    private static final String SONGTAGS = "alyJ";
+	private static final String SONGTAGS_STATUS = SONGTAGS + "qw";
     private static final int DEFAULT_PORT = 9090;
 	
     // Incremented once per new connection and given to the Thread
@@ -53,10 +63,17 @@ public class SqueezeService extends Service {
     private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
     private final AtomicReference<IServiceCallback> callback =
         new AtomicReference<IServiceCallback>();
+    private final AtomicReference<IServicePlayerListCallback> playerListCallback =
+        new AtomicReference<IServicePlayerListCallback>();
+    private final AtomicReference<IServiceAlbumListCallback> albumListCallback =
+        new AtomicReference<IServiceAlbumListCallback>();
+    private final AtomicReference<IServiceArtistListCallback> artistListCallback =
+        new AtomicReference<IServiceArtistListCallback>();
+    private final AtomicReference<IServiceSongListCallback> songListCallback =
+        new AtomicReference<IServiceSongListCallback>();
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
-    private final AtomicReference<String> activePlayerId = new AtomicReference<String>();
-    private final AtomicReference<Map<String, SqueezePlayer>> knownPlayers = 
-        new AtomicReference<Map<String, SqueezePlayer>>();
+    private final AtomicReference<SqueezePlayer> activePlayer = new AtomicReference<SqueezePlayer>();
+    private final AtomicReference<SqueezePlayer> defaultPlayer = new AtomicReference<SqueezePlayer>();
 
     private final AtomicReference<String> currentSong = new AtomicReference<String>();
     private final AtomicReference<String> currentArtist = new AtomicReference<String>();
@@ -114,7 +131,6 @@ public class SqueezeService extends Service {
         socketWriter.set(null);
         isConnected.set(false);
         isPlaying.set(false);
-        knownPlayers.set(null);
         setConnectionState(false, false);
         clearOngoingNotification();
         currentSong.set(null);
@@ -122,7 +138,7 @@ public class SqueezeService extends Service {
         currentAlbum.set(null);
         currentArtworkTrackId.set(null);
         httpPort.set(null);
-        activePlayerId.set(null);
+        activePlayer.set(null);
         currentTimeSecond.set(null);
         currentSongDuration.set(null);
     }
@@ -144,10 +160,10 @@ public class SqueezeService extends Service {
     }
 	
     private void sendPlayerCommand(String command) {
-        if (activePlayerId == null) {
+        if (activePlayer.get() == null) {
             return;
         }
-        sendCommand(activePlayerId + " " + command);
+        sendCommand(activePlayer.get().getId() + " " + command);
     }
 	
     private void onLineReceived(String serverLine) {
@@ -156,9 +172,83 @@ public class SqueezeService extends Service {
         if (tokens.size() < 2) {
             return;
         }
-        if (serverLine.startsWith("players 0 100 count")) {
-            parsePlayerList(tokens);
+        if (serverLine.startsWith("players ")) {
+            // TODO: can this block (sqlite lookup via binder call?)  Might want to move it elsewhere.
+        	final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
+        	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
+        	parseSqueezerList("playerindex", tokens, new SqueezeListHandler() {
+                List<SqueezePlayer> players = new ArrayList<SqueezePlayer>();
+				
+				public void add(Map<String, String> record) {
+					SqueezePlayer player = new SqueezePlayer(record);
+					// Discover the last connected player (if any, otherwise just pixh the first one)
+					if (defaultPlayer.get() == null || player.getId().equals(lastConnectedPlayer))
+						defaultPlayer.set(player);
+	                players.add(player);
+				}
+				
+				public boolean processList(int count, int start) {
+					if (playerListCallback.get() != null) {
+						// If the player list activity is active, pass the discovered players to it
+						try {
+							playerListCallback.get().onPlayersReceived(count, start, players);
+						} catch (RemoteException e) {
+							Log.e(TAG, e.toString());
+							return false;
+						}
+					} else
+					if (start + players.size() >= count) {
+						// Otherwise set the last connected player as the active player
+			        	if (defaultPlayer.get() != null) changeActivePlayer(defaultPlayer.get());
+					}
+					return true;
+				}
+			});
             return;
+        }
+        if (serverLine.startsWith("albums ")) {
+        	parseSqueezerList(tokens, new SqueezeListHandler() {
+				List<SqueezeAlbum> albums = new ArrayList<SqueezeAlbum>();
+				
+				public void add(Map<String, String> record) {
+					albums.add(new SqueezeAlbum(record));
+				}
+				
+				public boolean processList(int count, int start) {
+					if (albumListCallback.get() != null) {
+						try {
+							albumListCallback.get().onAlbumsReceived(count, start, albums);
+							return true;
+						} catch (RemoteException e) {
+							Log.e(TAG, e.toString());
+						}
+					}
+					return false;
+				}
+			});
+        	return;
+        }
+        if (serverLine.startsWith("artists ")) {
+        	parseSqueezerList(tokens, new SqueezeListHandler() {
+				List<SqueezeArtist> artists = new ArrayList<SqueezeArtist>();
+				
+				public void add(Map<String, String> record) {
+					artists.add(new SqueezeArtist(record));
+				}
+				
+				public boolean processList(int count, int start) {
+					if (artistListCallback.get() != null) {
+						try {
+							artistListCallback.get().onArtistsReceived(count, start, artists);
+							return true;
+						} catch (RemoteException e) {
+							Log.e(TAG, e.toString());
+						}
+					}
+					return false;
+				}
+			});
+        	return;
         }
         if ("pref".equals(tokens.get(0)) &&
             "httpport".equals(tokens.get(1)) &&
@@ -170,9 +260,9 @@ public class SqueezeService extends Service {
         
         // Player-specific commands follow.  But we ignore all that aren't for our
         // active player.
-        String activePlayer = activePlayerId.get();
-        if (activePlayer == null || activePlayer.length() == 0 ||
-            !decode(tokens.get(0)).equals(activePlayerId.get())) {
+        String activePlayerId = (activePlayer.get() != null ? activePlayer.get().getId() : null);
+        if (activePlayerId == null || activePlayerId.length() == 0 ||
+            !decode(tokens.get(0)).equals(activePlayerId)) {
             // Different player that we're not interested in.   
             // (yet? maybe later.)
             return;
@@ -207,7 +297,29 @@ public class SqueezeService extends Service {
             return;
         }
         if (command.equals("status")) {
-            parseStatusLine(tokens);
+        	if (tokens.size() >= 3 && "-".equals(tokens.get(2)))
+        		parseStatusLine(tokens);
+        	else {
+            	parseSqueezerList(1, "playlist index", "playlist_tracks", tokens, new SqueezeListHandler() {
+    				List<SqueezeSong> songs = new ArrayList<SqueezeSong>();
+    				
+    				public void add(Map<String, String> record) {
+    					songs.add(new SqueezeSong(record));
+    				}
+    				
+    				public boolean processList(int count, int start) {
+    					if (songListCallback.get() != null) {
+    						try {
+    							songListCallback.get().onSongsReceived(count, start, songs);
+    							return true;
+    						} catch (RemoteException e) {
+    							Log.e(TAG, e.toString());
+    						}
+    					}
+    					return false;
+    				}
+    			});
+        	}
             return;
         }
         if (command.equals("playlist")) {
@@ -218,13 +330,14 @@ public class SqueezeService extends Service {
                 sendMusicChangedCallback();
                 
                 // Now also ask for the rest of the status.
-                sendPlayerCommand("status - 1 tags:ylqwaJ");
+                sendPlayerCommand("status - 1 tags:" + SONGTAGS_STATUS);
             }
+            return;
         }
 
     }
 
-    private void sendNewVolumeCallback(int newVolume) {
+	private void sendNewVolumeCallback(int newVolume) {
         if (callback.get() == null) return;
         try {
             callback.get().onVolumeChange(newVolume);
@@ -322,85 +435,28 @@ public class SqueezeService extends Service {
         }
     }
     
-    private void parsePlayerList(List<String> tokens) {
-        Log.v(TAG, "Parsing player list.");
-        // TODO: can this block (sqlite lookup via binder call?)  Might want to move it elsewhere.
-    	final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
-    	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
-        Map<String, SqueezePlayer> players = new LinkedHashMap<String, SqueezePlayer>();
-                
-        int n = 0;
-        SqueezePlayer player = new SqueezePlayer();
-        String defaultPlayerId = null;
-        
-		for (String token : tokens) {
-            if (++n <= 3) continue;
-            int colonPos = token.indexOf("%3A");
-            if (colonPos == -1) {
-                Log.e(TAG, "Expected colon in playerlist token.");
-                return;
-            }
-            String key = token.substring(0, colonPos);
-            String value = decode(token.substring(colonPos + 3));
-            if (debugLogging) Log.v(TAG, "key=" + key + ", value: " + value);
-            if ("playerindex".equals(key)) {
-                maybeAddPlayerToMap(player, players);
-                player = new SqueezePlayer();
-            } else if ("playerid".equals(key)) {
-                player.setPlayerId(value);
-                if (value.equals(lastConnectedPlayer)) {
-                    defaultPlayerId = value;  // Still around, so let's use it.
-                }
-            } else if ("ip".equals(key)) {
-                player.setIp(value);
-            } else if ("name".equals(key)) {
-                player.setName(value);
-            } else if ("model".equals(key)) {
-                player.setModel(value);
-            } else if ("canpoweroff".equals(key)) {
-                player.setCanpoweroff(Util.parseDecimalIntOrZero(value) == 1);
-            }
-        }
-        maybeAddPlayerToMap(player, players);
-
-        if (defaultPlayerId == null || !players.containsKey(defaultPlayerId)) {
-            defaultPlayerId = player.getPlayerId();  // arbitrary; last one in list.
+    private void changeActivePlayer(SqueezePlayer newPlayer) {
+		if (newPlayer == null) {
+            return;
         }
 
-        knownPlayers.set(players);
-        
-        if (callback.get() != null) {
-            try {
-                callback.get().onPlayersDiscovered();
-            } catch (RemoteException e) {}
-        }
-        
-        changeActivePlayer(defaultPlayerId);
-    }
+        Log.v(TAG, "Active player now: " + newPlayer);
+        final String playerId = newPlayer.getId();
+        String oldPlayerId =  (activePlayer.get() != null ? activePlayer.get().getId() : null);
+        boolean changed = false;
+        if (oldPlayerId == null || !oldPlayerId.equals(playerId)) {
+        	if (oldPlayerId != null) {
+	            // Unsubscribe from the old player's status.  (despite what
+	            // the docs say, multiple subscribes can be active and flood us.)
+	            sendCommand(URLEncoder.encode(oldPlayerId) + " status - 1 subscribe:0");
+        	}
 
-    private boolean changeActivePlayer(final String playerId) {
-        Map<String, SqueezePlayer> players = knownPlayers.get();
-        if (players == null) {
-            Log.v(TAG, "Can't set player; none known.");
-            return false;
-        }
-        if (!players.containsKey(playerId)) {
-            Log.v(TAG, "Player " + playerId + " not known.");
-            return false;
-        }
-
-        Log.v(TAG, "Active player now: " + players.get(playerId));
-        String oldPlayerId =  activePlayerId.get();
-        boolean changed = Util.atomicStringUpdated(activePlayerId, playerId);
-
-        if (oldPlayerId != null && !oldPlayerId.equals(playerId)) {
-            // Unsubscribe from the old player's status.  (despite what
-            // the docs say, multiple subscribes can be active and flood us.)
-            sendCommand(URLEncoder.encode(oldPlayerId) + " status - 1 subscribe:0");
+            activePlayer.set(newPlayer);
+            changed = true;
         }
         
         // Start an async fetch of its status.
-        sendPlayerCommand("status - 1 tags:jylqwaJ");
+        sendPlayerCommand("status - 1 tags:" + SONGTAGS_STATUS);
 
         if (changed) {
             updatePlayerSubscriptionState();
@@ -410,8 +466,9 @@ public class SqueezeService extends Service {
             // as quickly as possible.
             executor.execute(new Runnable() {
                 public void run() {
+                    Log.v(TAG, "Saving " + Preferences.KEY_LASTPLAYER + "=" + playerId);
                     final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
-                    SharedPreferences.Editor editor = preferences.edit();              
+                    SharedPreferences.Editor editor = preferences.edit();
                     editor.putString(Preferences.KEY_LASTPLAYER, playerId);
                     editor.commit();
                 }
@@ -420,16 +477,88 @@ public class SqueezeService extends Service {
        
         if (callback.get() != null) {
             try {
-                if (playerId != null && players.containsKey(playerId)) {
-                    callback.get().onPlayerChanged(playerId, players.get(playerId).getName());
-                } else {
-                    callback.get().onPlayerChanged("", "");
-                }
+                callback.get().onPlayerChanged(playerId, newPlayer.getName());
             } catch (RemoteException e) {}
         }
-        return true;
     }
 
+
+	private interface SqueezeListHandler {
+		void add(Map<String, String> record);
+		boolean processList(int count, int start);
+	}
+
+	private void parseSqueezerList(int offset, String item_delimiter, String count_id, List<String> tokens, SqueezeListHandler handler) {
+		Log.v(TAG, "Parsing list: " + tokens);
+		int n = -offset;
+		Map<String, String> record = null;
+		StringBuilder cmd = new StringBuilder();
+		String tags = null, artist_id = null;
+		int start = 0, itemsPerResponse = 0, count = 0;
+		for (String token : tokens) {
+			if (n < 0) { n++; continue; }
+			switch (n) {
+			case 0:
+				cmd.append(token);
+				break;
+			case 1:
+				start = Util.parseDecimalIntOrZero(token);
+				break;
+			case 2:
+				itemsPerResponse = Util.parseDecimalIntOrZero(token);
+				break;
+			default:
+				int colonPos = token.indexOf("%3A");
+				if (colonPos == -1) {
+					Log.e(TAG, "Expected colon in list token. '" + token + "'");
+					return;
+				}
+				String key = decode(token.substring(0, colonPos));
+				String value = decode(token.substring(colonPos + 3));
+				if (debugLogging)
+					Log.v(TAG, "key=" + key + ", value: " + value);
+				if (key.equals(count_id))
+					count = Util.parseDecimalIntOrZero(value);
+				else if (key.equals("tags"))
+					tags = value;
+				else if (key.equals("artist_id"))
+					artist_id = value;
+				else if (key.equals(item_delimiter)) {
+					if (record != null)
+						handler.add(record);
+					record = new HashMap<String, String>();
+				}
+				if (record != null)
+					record.put(key, value);
+				break;
+			}
+			n++;
+		}
+		
+		if (record != null) {
+			handler.add(record);
+		}
+
+		if (handler.processList(count, start)) {
+			if (start + itemsPerResponse < count) {
+				cmd.append(" " + (start + itemsPerResponse) + " " + PAGESIZE);
+				if (tags != null)
+					cmd.append(" tags:" + tags);
+				if (artist_id != null)
+					cmd.append(" artist_id:" + artist_id);
+				sendCommand(cmd.toString());
+			}
+		}
+	}
+
+	private void parseSqueezerList(String item_delimiter, List<String> tokens, SqueezeListHandler handler) {
+		parseSqueezerList(0, item_delimiter, "count", tokens, handler);
+	}
+
+	private void parseSqueezerList(List<String> tokens, SqueezeListHandler handler) {
+		parseSqueezerList("id", tokens, handler);
+	}
+	
     private void updatePlayerSubscriptionState() {
         // Subscribe or unsubscribe to the player's realtime status updates
         // depending on whether we have an Activity or some sort of client
@@ -437,16 +566,7 @@ public class SqueezeService extends Service {
         if (callback.get() != null) {
             sendPlayerCommand("status - 1 subscribe:1");
         } else {
-            sendPlayerCommand("status - 1 subscribe:0");
-        }
-    }
-
-    // Add String pair to map if both are non-null and non-empty.    
-    private static void maybeAddPlayerToMap(SqueezePlayer player, Map<String, SqueezePlayer> players) {
-        if (player.getPlayerId() != null && !player.getPlayerId().equals("") && 
-            player.getName() != null && !player.getName().equals("")) {
-            Log.v(TAG, "Adding player: " + player);
-            players.put(player.getPlayerId(), player);
+            sendPlayerCommand("status - 1 subscribe:-");
         }
     }
 
@@ -463,8 +583,9 @@ public class SqueezeService extends Service {
                                                      currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
 
+        defaultPlayer.set(null);
         sendCommand("listen 1",
-                "players 0 100",   // get first 100 players
+                "players 0 1",   // initiate an async player fetch
                 "pref httpport ?"  // learn the HTTP port (needed for images)
         );
     }
@@ -634,7 +755,6 @@ public class SqueezeService extends Service {
                 return false;
             }
             sendPlayerCommand("power 1");
-            Log.v(TAG, "played.");
             return true;
         }
 
@@ -655,9 +775,8 @@ public class SqueezeService extends Service {
         }
         
         private boolean canPower() {
-            Map<String, SqueezePlayer> players = knownPlayers.get();
-        	SqueezePlayer activePlayer = (players == null ? null : players.get(activePlayerId.get()));
-        	return isConnected.get() && activePlayer != null && activePlayer.isCanpoweroff();
+            SqueezePlayer player = activePlayer.get();
+        	return isConnected.get() && player != null && player.isCanpoweroff();
         }
 		
         public boolean togglePausePlay() throws RemoteException {
@@ -718,39 +837,38 @@ public class SqueezeService extends Service {
             return true;
         }
         
+        public boolean playAlbum(SqueezeAlbum album) throws RemoteException {
+            if (!isConnected()) {
+                return false;
+            }
+            sendPlayerCommand("playlistcontrol cmd:load album_id:" + album.getId());
+            return true;
+        }
+        
+        public boolean playlistIndex(int index) throws RemoteException {
+            if (!isConnected()) {
+                return false;
+            }
+            sendPlayerCommand("playlist index " + index);
+            return true;
+        }
+        
         public boolean isPlaying() throws RemoteException {
             return isPlaying.get();
         }
 
-        public boolean getPlayers(List<String> playerIds, List<String> playerNames)
-            throws RemoteException {
-            Map<String, SqueezePlayer> players = knownPlayers.get();
-            if (players == null) {
-                return false;
-            }
-            for (SqueezePlayer player : players.values()) {
-                playerIds.add(player.getPlayerId());
-                playerNames.add(player.getName());
-            }
-            return true;
-        }
-
-        public boolean setActivePlayer(String playerId) throws RemoteException {
-            return changeActivePlayer(playerId);
+        public void setActivePlayer(SqueezePlayer player) throws RemoteException {
+            changeActivePlayer(player);
         }
 
         public String getActivePlayerId() throws RemoteException {
-            String playerId = activePlayerId.get();
-            return playerId == null ? "" : playerId;
+            SqueezePlayer player = activePlayer.get();
+            return player == null ? "" : player.getId();
         }
 
         public String getActivePlayerName() throws RemoteException {
-            String playerId = activePlayerId.get();
-            Map<String, SqueezePlayer> players = knownPlayers.get();
-            if (players == null) {
-                return null;
-            }
-            return players.get(playerId).getName();
+            SqueezePlayer player = activePlayer.get();
+            return (player != null ? player.getName() : null);
         }
 
         public String currentAlbum() throws RemoteException {
@@ -778,8 +896,10 @@ public class SqueezeService extends Service {
                 // of the song name in it, to force the activity to reload when
                 // listening to e.g. Pandora, where there is no artwork_track_id (tag J)
                 // in the status.
+            	SqueezePlayer player = activePlayer.get();
+            	if (player == null) return "";
                 return "http://" + currentHost.get() + ":" + port
-                    + "/music/current/cover?player=" + activePlayerId.get()
+                    + "/music/current/cover?player=" + player.getId()
                     + "&song=" + URLEncoder.encode(currentSong());
             }
         }
@@ -805,6 +925,80 @@ public class SqueezeService extends Service {
                 return;
             }
         }
+        
+        /* Start and async fetch of the squeezeservers players */
+        public boolean players() throws RemoteException {
+            if (!isConnected()) return false;
+            sendCommand("players 0 1");
+            return true;
+        }
+
+		public void registerPlayerListCallback(IServicePlayerListCallback callback)
+				throws RemoteException {
+            Log.v(TAG, "PlayerListCallback attached.");
+	    	SqueezeService.this.playerListCallback.set(callback);
+		}
+
+		public void unregisterPlayerListCallback(IServicePlayerListCallback callback)
+				throws RemoteException {
+            Log.v(TAG, "PlayerListCallback detached.");
+	    	SqueezeService.this.playerListCallback.compareAndSet(callback, null);
+		}
+        
+        /* Start an async fetch of the squeezeservers albums, which are matching the given parameters */
+        public boolean albums(SqueezeArtist artist) throws RemoteException {
+            if (!isConnected()) return false;
+            StringBuilder sb = new StringBuilder("albums 0 1 tags:" + ALBUMTAGS);
+            if (artist != null)
+            	sb.append(" artist_id:"+ artist.getId());
+            sendCommand(sb.toString());
+            return true;
+        }
+        
+		public void registerAlbumListCallback(IServiceAlbumListCallback callback) throws RemoteException {
+            Log.v(TAG, "AlbumListCallback attached.");
+	    	SqueezeService.this.albumListCallback.set(callback);
+		}
+
+		public void unregisterAlbumListCallback(IServiceAlbumListCallback callback) throws RemoteException {
+            Log.v(TAG, "AlbumListCallback detached.");
+	    	SqueezeService.this.albumListCallback.compareAndSet(callback, null);
+		}
+        
+        /* Start and async fetch of the squeezeservers artists */
+        public boolean artists() throws RemoteException {
+            if (!isConnected()) return false;
+            sendCommand("artists 0 1");
+            return true;
+        }
+
+		public void registerArtistListCallback(IServiceArtistListCallback callback) throws RemoteException {
+            Log.v(TAG, "ArtistListCallback attached.");
+	    	SqueezeService.this.artistListCallback.set(callback);
+		}
+
+		public void unregisterArtistListCallback(IServiceArtistListCallback callback) throws RemoteException {
+            Log.v(TAG, "ArtistListCallback detached.");
+	    	SqueezeService.this.artistListCallback.compareAndSet(callback, null);
+		}
+        
+        /* Start and async fetch of the squeezeservers current playlist */
+        public boolean songs() throws RemoteException {
+            if (!isConnected()) return false;
+            sendCommand("status 0 1 tags:" + SONGTAGS);
+            return true;
+        }
+
+		public void registerSongListCallback(IServiceSongListCallback callback) throws RemoteException {
+            Log.v(TAG, "SongListCallback attached.");
+	    	SqueezeService.this.songListCallback.set(callback);
+		}
+
+		public void unregisterSongListCallback(IServiceSongListCallback callback) throws RemoteException {
+            Log.v(TAG, "SongListCallback detached.");
+	    	SqueezeService.this.songListCallback.compareAndSet(callback, null);
+		}
+        
     };
 
     private class ListeningThread extends Thread {
