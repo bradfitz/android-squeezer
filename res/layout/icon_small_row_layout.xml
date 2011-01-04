@@ -10,12 +10,12 @@
 >
    <ImageView
       android:id="@+id/icon"
-      android:layout_width="24px"
-      android:layout_height="24px"
-      android:maxWidth="24px"
-      android:minWidth="24px"
-      android:maxHeight="24px"
-      android:minHeight="24px"
+      android:layout_width="32px"
+      android:layout_height="32px"
+      android:maxWidth="32px"
+      android:minWidth="32px"
+      android:maxHeight="32px"
+      android:minHeight="32px"
    />
    <TextView
       android:id="@+id/label"

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+    android:id="@+id/menu_item_main"
+   	android:title="@string/menu_item_main" android:icon="@drawable/icon_music"
+  />
+  <item
+    android:id="@+id/menu_item_home"
+   	android:title="@string/menu_item_home"	android:icon="@drawable/icon_home"
+  />
+  <item
+   	android:id="@+id/menu_item_fetch_all"
+   	android:title="@string/menu_item_fetch_all" android:icon="@android:drawable/stat_sys_download"
+  />
+  <item
+   	android:id="@+id/menu_item_filter"
+   	android:title="@string/menu_item_filter" android:icon="@drawable/icon_filter"
+  />
+  <item
+   	android:id="@+id/menu_item_sort"
+   	android:title="@string/menu_item_sort" android:icon="@android:drawable/ic_menu_sort_alphabetically"
+  />
+</menu>

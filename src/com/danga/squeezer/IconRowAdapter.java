@@ -3,16 +3,12 @@
  */
 package com.danga.squeezer;
 
-import java.util.Arrays;
-
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.danga.squeezer.R;
 
 /**
  * Simple list adapter to display corresponding lists of images and labels.
@@ -63,21 +59,6 @@ public class IconRowAdapter extends BaseAdapter {
 
 	public Activity getActivity() {
 		return activity;
-	}
-	
-	/**
-	 * Setup a list to be used while waiting for data.
-	 * 
-	 * @param activity Activity 
-	 * @return An adapter with 
-	 */
-	public static IconRowAdapter loadingAdapter(Activity activity) {
-		String[] items = new String[1];
-		int[] icons = new int[1];
-		
-		Arrays.fill(items, activity.getString(R.string.loading_text));
-		Arrays.fill(icons, R.drawable.icon_loading);
-		return new IconRowAdapter(activity, items, icons);
 	}
 
 }

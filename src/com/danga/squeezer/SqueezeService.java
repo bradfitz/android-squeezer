@@ -13,8 +13,11 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,10 +35,18 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.danga.squeezer.model.SqueezeAlbum;
-import com.danga.squeezer.model.SqueezeArtist;
-import com.danga.squeezer.model.SqueezePlayer;
-import com.danga.squeezer.model.SqueezeSong;
+import com.danga.squeezer.itemlists.IServiceAlbumListCallback;
+import com.danga.squeezer.itemlists.IServiceArtistListCallback;
+import com.danga.squeezer.itemlists.IServiceGenreListCallback;
+import com.danga.squeezer.itemlists.IServicePlayerListCallback;
+import com.danga.squeezer.itemlists.IServiceSongListCallback;
+import com.danga.squeezer.itemlists.IServiceYearListCallback;
+import com.danga.squeezer.model.SqueezerAlbum;
+import com.danga.squeezer.model.SqueezerArtist;
+import com.danga.squeezer.model.SqueezerGenre;
+import com.danga.squeezer.model.SqueezerPlayer;
+import com.danga.squeezer.model.SqueezerSong;
+import com.danga.squeezer.model.SqueezerYear;
 
 public class SqueezeService extends Service {
     private static final String TAG = "SqueezeService";
@@ -44,8 +55,29 @@ public class SqueezeService extends Service {
 	private static final int PAGESIZE = 20;
 	private static final String ALBUMTAGS = "alyj";
     private static final String SONGTAGS = "alyJ";
-	private static final String SONGTAGS_STATUS = SONGTAGS + "qw";
+	private static final String SONGTAGS_STATUS = SONGTAGS + "K";
     private static final int DEFAULT_PORT = 9090;
+
+    private static final Map<String, Set<String>> acceptedTaggedParameters = initializeTaggedParameters();
+	
+    private static Map<String, Set<String>> initializeTaggedParameters() {
+		Map<String, Set<String>> acceptedTaggedParameters = new HashMap<String, Set<String>>();
+		acceptedTaggedParameters.put("players", new HashSet<String>(Arrays
+				.asList("playerprefs", "charset")));
+		acceptedTaggedParameters.put("artists", new HashSet<String>(Arrays
+				.asList("search", "genre_id", "album_id", "tags", "charset")));
+		acceptedTaggedParameters.put("albums", new HashSet<String>(Arrays
+				.asList("search", "genre_id", "artist_id", "track_id", "year",
+						"compilation", "sort", "tags", "charset")));
+		acceptedTaggedParameters.put("years", new HashSet<String>(Arrays
+				.asList("charset")));
+		acceptedTaggedParameters.put("genres", new HashSet<String>(Arrays
+				.asList("search", "artist_id", "album_id", "track_id", "year",
+						"tags", "charset")));
+		acceptedTaggedParameters.put("status", new HashSet<String>(Arrays
+				.asList("tags", "charset", "subscribe")));
+		return acceptedTaggedParameters;
+	}
 	
     // Incremented once per new connection and given to the Thread
     // that's listening on the socket.  So if it dies and it's not the
@@ -58,8 +90,7 @@ public class SqueezeService extends Service {
     // Connection state:
     // TODO: this is getting ridiculous. Move this into ConnectionState class.
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
-    private final AtomicBoolean isPlaying = new AtomicBoolean(false);
-    private final AtomicBoolean isPoweredOn = new AtomicBoolean(false);
+    private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
     private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
     private final AtomicReference<IServiceCallback> callback =
         new AtomicReference<IServiceCallback>();
@@ -69,31 +100,31 @@ public class SqueezeService extends Service {
         new AtomicReference<IServiceAlbumListCallback>();
     private final AtomicReference<IServiceArtistListCallback> artistListCallback =
         new AtomicReference<IServiceArtistListCallback>();
+    private final AtomicReference<IServiceYearListCallback> yearListCallback =
+        new AtomicReference<IServiceYearListCallback>();
+    private final AtomicReference<IServiceGenreListCallback> genreListCallback =
+        new AtomicReference<IServiceGenreListCallback>();
     private final AtomicReference<IServiceSongListCallback> songListCallback =
         new AtomicReference<IServiceSongListCallback>();
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
-    private final AtomicReference<SqueezePlayer> activePlayer = new AtomicReference<SqueezePlayer>();
-    private final AtomicReference<SqueezePlayer> defaultPlayer = new AtomicReference<SqueezePlayer>();
-
-    private final AtomicReference<String> currentSong = new AtomicReference<String>();
-    private final AtomicReference<String> currentArtist = new AtomicReference<String>();
-    private final AtomicReference<String> currentAlbum = new AtomicReference<String>();
-    private final AtomicReference<String> currentArtworkTrackId = new AtomicReference<String>();
-    private final AtomicReference<Integer> currentTimeSecond = new AtomicReference<Integer>();
-    private final AtomicReference<Integer> currentSongDuration = new AtomicReference<Integer>();
-
+    private final AtomicReference<SqueezerPlayer> activePlayer = new AtomicReference<SqueezerPlayer>();
+    private final AtomicReference<SqueezerPlayer> defaultPlayer = new AtomicReference<SqueezerPlayer>();
+    
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
     private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
     private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
+
+    PlayerState playerState = new PlayerState();
     
     private boolean debugLogging = false;
+	private int maxListSize;
     
     private WifiManager.WifiLock wifiLock;
     private SharedPreferences preferences;
 
     @Override
-        public void onCreate() {
+    public void onCreate() {
     	super.onCreate();
     	
         // Clear leftover notification in case this service previously got killed while playing                                                
@@ -104,10 +135,15 @@ public class SqueezeService extends Service {
                 WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock");
         
         preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
-        debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
+        getPreferences();
     }
-	
-    @Override
+
+	private void getPreferences() {
+		debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
+        maxListSize = preferences.getInt(Preferences.KEY_MAX_ROWS, 100);
+	}
+
+	@Override
 	public IBinder onBind(Intent intent) {
         return squeezeService;
     }
@@ -130,26 +166,69 @@ public class SqueezeService extends Service {
         socketRef.set(null);
         socketWriter.set(null);
         isConnected.set(false);
-        isPlaying.set(false);
         setConnectionState(false, false);
         clearOngoingNotification();
-        currentSong.set(null);
-        currentArtist.set(null);
-        currentAlbum.set(null);
-        currentArtworkTrackId.set(null);
+        playerState.clear();
         httpPort.set(null);
         activePlayer.set(null);
-        currentTimeSecond.set(null);
-        currentSongDuration.set(null);
     }
 
+    int _correlationid = 0;
+    Map<String, Integer> cmdCorrelationIds = new HashMap<String, Integer>();
+    
+    private boolean checkCorrelation(String cmd, int correlationid) {
+    	Integer cmdCorr = cmdCorrelationIds.get(cmd);
+    	if (cmdCorr == null) return true;
+    	return (correlationid >= cmdCorr);
+    }
+
+    /**
+     * Send an asynchronous request to SqueezeboxServer for the specified items.
+     * <p>
+     * If start is zero, it means the the list is being reordered, which will make any pending
+     * replies, for the given items, obsolete.
+     * <p>
+     * This will always order one item, to learn the number of items from the server. Remaining
+     * items will then be automatically ordered when the response arrives. See
+     * {@link #parseSqueezerList(boolean, String, String, List, SqueezeListHandler)} for details.
+     * 
+     * @param playerid Id of the current player or null
+     * @param cmd Identifies the 
+     * @param start
+     * @param parameters
+     */
+	private void requestItems(String playerid, String cmd, int start, List<String> parameters) {
+		if (start == 0) cmdCorrelationIds.put(cmd, _correlationid);
+		StringBuilder sb = new StringBuilder(cmd + " " + start + " "  + 1);
+		if (playerid != null) sb.insert(0, playerid + " ");
+		if (parameters != null)
+			for (String parameter: parameters)
+				sb.append(" " + parameter);
+		sendCommand(sb.toString());
+	}
+
+	private void requestItems(String cmd, int start, List<String> parameters) {
+		requestItems(null, cmd, start, parameters);
+	}
+
+	private void requestItems(String cmd, int start) {
+		requestItems(cmd, start, null);
+	}
+
+	private void requestPlayerItems(String cmd, int start, List<String> parameters) {
+        if (activePlayer.get() == null) {
+            return;
+        }
+        requestItems(activePlayer.get().getId(), cmd, start, parameters);
+	}
+   
     private synchronized void sendCommand(String... commands) {
         if (commands.length == 0) return;
         PrintWriter writer = socketWriter.get();
         if (writer == null) return;
         if (commands.length == 1) {
             Log.v(TAG, "SENDING: " + commands[0]);
-            writer.println(commands[0]);
+			writer.println(commands[0] + " correlationid:" + _correlationid++);
         } else {
             // Get it into one packet by deferring flushing...
             for (String command : commands) {
@@ -177,21 +256,21 @@ public class SqueezeService extends Service {
         	final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
         	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
         	parseSqueezerList("playerindex", tokens, new SqueezeListHandler() {
-                List<SqueezePlayer> players = new ArrayList<SqueezePlayer>();
+                List<SqueezerPlayer> players = new ArrayList<SqueezerPlayer>();
 				
 				public void add(Map<String, String> record) {
-					SqueezePlayer player = new SqueezePlayer(record);
-					// Discover the last connected player (if any, otherwise just pixh the first one)
+					SqueezerPlayer player = new SqueezerPlayer(record);
+					// Discover the last connected player (if any, otherwise just pick the first one)
 					if (defaultPlayer.get() == null || player.getId().equals(lastConnectedPlayer))
 						defaultPlayer.set(player);
 	                players.add(player);
 				}
 				
-				public boolean processList(int count, int start) {
+				public boolean processList(boolean rescan, int count, int max, int start) {
 					if (playerListCallback.get() != null) {
 						// If the player list activity is active, pass the discovered players to it
 						try {
-							playerListCallback.get().onPlayersReceived(count, start, players);
+							playerListCallback.get().onPlayersReceived(count, max, start, players);
 						} catch (RemoteException e) {
 							Log.e(TAG, e.toString());
 							return false;
@@ -208,16 +287,16 @@ public class SqueezeService extends Service {
         }
         if (serverLine.startsWith("albums ")) {
         	parseSqueezerList(tokens, new SqueezeListHandler() {
-				List<SqueezeAlbum> albums = new ArrayList<SqueezeAlbum>();
+				List<SqueezerAlbum> albums = new ArrayList<SqueezerAlbum>();
 				
 				public void add(Map<String, String> record) {
-					albums.add(new SqueezeAlbum(record));
+					albums.add(new SqueezerAlbum(record));
 				}
 				
-				public boolean processList(int count, int start) {
+				public boolean processList(boolean rescan, int count, int max, int start) {
 					if (albumListCallback.get() != null) {
 						try {
-							albumListCallback.get().onAlbumsReceived(count, start, albums);
+							albumListCallback.get().onAlbumsReceived(count, max, start, albums);
 							return true;
 						} catch (RemoteException e) {
 							Log.e(TAG, e.toString());
@@ -230,16 +309,16 @@ public class SqueezeService extends Service {
         }
         if (serverLine.startsWith("artists ")) {
         	parseSqueezerList(tokens, new SqueezeListHandler() {
-				List<SqueezeArtist> artists = new ArrayList<SqueezeArtist>();
+				List<SqueezerArtist> artists = new ArrayList<SqueezerArtist>();
 				
 				public void add(Map<String, String> record) {
-					artists.add(new SqueezeArtist(record));
+					artists.add(new SqueezerArtist(record));
 				}
 				
-				public boolean processList(int count, int start) {
+				public boolean processList(boolean rescan, int count, int max, int start) {
 					if (artistListCallback.get() != null) {
 						try {
-							artistListCallback.get().onArtistsReceived(count, start, artists);
+							artistListCallback.get().onArtistsReceived(count, max, start, artists);
 							return true;
 						} catch (RemoteException e) {
 							Log.e(TAG, e.toString());
@@ -250,13 +329,64 @@ public class SqueezeService extends Service {
 			});
         	return;
         }
-        if ("pref".equals(tokens.get(0)) &&
-            "httpport".equals(tokens.get(1)) &&
-            tokens.size() >= 3) {
-            httpPort.set(Integer.parseInt(tokens.get(2)));
-            Log.v(TAG, "HTTP port is now: " + httpPort);
-            return;
+        if (serverLine.startsWith("years ")) {
+        	parseSqueezerList("year", tokens, new SqueezeListHandler() {
+				List<SqueezerYear> years = new ArrayList<SqueezerYear>();
+				
+				public void add(Map<String, String> record) {
+					years.add(new SqueezerYear(record));
+				}
+				
+				public boolean processList(boolean rescan, int count, int max, int start) {
+					if (yearListCallback.get() != null) {
+						try {
+							yearListCallback.get().onYearsReceived(count, max, start, years);
+							return true;
+						} catch (RemoteException e) {
+							Log.e(TAG, e.toString());
+						}
+					}
+					return false;
+				}
+			});
+        	return;
         }
+        if (serverLine.startsWith("genres ")) {
+        	parseSqueezerList(tokens, new SqueezeListHandler() {
+				List<SqueezerGenre> genres = new ArrayList<SqueezerGenre>();
+				
+				public void add(Map<String, String> record) {
+					genres.add(new SqueezerGenre(record));
+				}
+				
+				public boolean processList(boolean rescan, int count, int max, int start) {
+					if (genreListCallback.get() != null) {
+						try {
+							genreListCallback.get().onGenresReceived(count, max, start, genres);
+							return true;
+						} catch (RemoteException e) {
+							Log.e(TAG, e.toString());
+						}
+					}
+					return false;
+				}
+			});
+        	return;
+        }
+		if (serverLine.startsWith("pref ")) {
+			if ("httpport".equals(tokens.get(1)) && tokens.size() >= 3) {
+				httpPort.set(Integer.parseInt(tokens.get(2)));
+				Log.v(TAG, "HTTP port is now: " + httpPort);
+			}
+			return;
+		}
+		if (serverLine.startsWith("can ")) {
+			if ("randomplay".equals(tokens.get(1)) && tokens.size() >= 3) {
+				canRandomplay.set(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
+				Log.v(TAG, "HTTP port is now: " + httpPort);
+			}
+			return;
+		}
         
         // Player-specific commands follow.  But we ignore all that aren't for our
         // active player.
@@ -284,33 +414,24 @@ public class SqueezeService extends Service {
             return;
         }
         if (command.equals("pause")) {
-            boolean newState = !isPlaying.get();
-            if (tokens.size() >= 3) {
-                String explicitPause = tokens.get(2); 
-                if ("0".equals(explicitPause)) {
-                    newState = true;  // playing.  (unpaused)
-                } else if ("1".equals(explicitPause)) {
-                    newState = false;  // explicitly paused.
-                }
-            }
-            setPlayingState(newState);
+        	parsePause(tokens.size() >= 3 ? tokens.get(2) : null);
             return;
         }
         if (command.equals("status")) {
         	if (tokens.size() >= 3 && "-".equals(tokens.get(2)))
         		parseStatusLine(tokens);
         	else {
-            	parseSqueezerList(1, "playlist index", "playlist_tracks", tokens, new SqueezeListHandler() {
-    				List<SqueezeSong> songs = new ArrayList<SqueezeSong>();
+            	parseSqueezerList(true, "playlist index", "playlist_tracks", tokens, new SqueezeListHandler() {
+    				List<SqueezerSong> songs = new ArrayList<SqueezerSong>();
     				
     				public void add(Map<String, String> record) {
-    					songs.add(new SqueezeSong(record));
+    					songs.add(new SqueezerSong(record));
     				}
     				
-    				public boolean processList(int count, int start) {
+    				public boolean processList(boolean rescan, int count, int max, int start) {
     					if (songListCallback.get() != null) {
     						try {
-    							songListCallback.get().onSongsReceived(count, start, songs);
+    							songListCallback.get().onSongsReceived(count, max, start, songs);
     							return true;
     						} catch (RemoteException e) {
     							Log.e(TAG, e.toString());
@@ -323,15 +444,7 @@ public class SqueezeService extends Service {
             return;
         }
         if (command.equals("playlist")) {
-            if (tokens.size() >= 4 && "newsong".equals(tokens.get(2))) {
-                String newSong = decode(tokens.get(3));
-                currentSong.set(newSong);
-                updateOngoingNotification();
-                sendMusicChangedCallback();
-                
-                // Now also ask for the rest of the status.
-                sendPlayerCommand("status - 1 tags:" + SONGTAGS_STATUS);
-            }
+            parsePlaylistNotification(tokens);
             return;
         }
 
@@ -352,90 +465,89 @@ public class SqueezeService extends Service {
         } catch (RemoteException e) {
         }
     }
-    
-    private void parseStatusLine(List<String> tokens) {
-        int n = 0;
-        boolean musicHasChanged = false;
-        boolean sawArtworkId = false;
-        int time = 0;
-        int duration = 0;
 
-        for (String token : tokens) {
-            n++;
-            if (n <= 2) continue;
+	private void parsePlaylistNotification(List<String> tokens) {
+		String notification = tokens.get(2);
+		if ("newsong".equals(notification)) {
+			if (tokens.size() >= 4) {
+				String newSong = decode(tokens.get(3));
+				playerState.setCurrentSong(newSong);
+				updateOngoingNotification();
+				sendMusicChangedCallback();
+
+				// Now also ask for the rest of the status.
+				sendPlayerCommand("status - 1 tags:" + SONGTAGS_STATUS);
+			}
+		} else if ("stop".equals(notification)) {
+			setPlayingState(false);
+		} else if ("pause".equals(notification)) {
+			parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
+		}
+	}
+    
+	private void parsePause(String explicitPause) {
+		boolean playing = playerState.isPlaying();
+		if ("0".equals(explicitPause)) {
+			if (playing) setPlayingState(false);
+		} else if ("1".equals(explicitPause)) {
+			if (!playing) setPlayingState(true);
+		}
+	}
+	
+	private void parseMode(String newMode) {
+		boolean playing = playerState.isPlaying();
+		if ("pause".equals(newMode)) {
+			if (playing) setPlayingState(false);
+		} else if ("stop".equals(newMode)) {
+			if (playing) setPlayingState(false);
+		} else if ("play".equals(newMode)) {
+			if (!playing) setPlayingState(true);
+		}
+	}
+	
+    private void parseStatusLine(List<String> tokens) {
+		HashMap<String, String> tokenMap = new HashMap<String, String>();
+        String key, value;
+		for (String token : tokens) {
             if (token == null || token.length() == 0) continue;
             int colonPos = token.indexOf("%3A");
             if (colonPos == -1) {
-                if (n <= 4) continue;  // e.g. "00%3A04%3A20%3A05%3A09%3A36 status - 1 ...."
-                Log.e(TAG, "Expected colon in status line token: " + token);
-                return;
+	            key = decode(token);
+	            value = null;
+            } else {
+	            key = decode(token.substring(0, colonPos));
+	            value = decode(token.substring(colonPos + 3));
             }
-            String key = decode(token.substring(0, colonPos));
-            String value = decode(token.substring(colonPos + 3));
-            if (key == null || value == null) continue;
-            if (key.equals("mixer volume")) {
-                continue;
-            } else
-            if (key.equals("mode")) {
-                if (value.equals("pause")) {
-                    setPlayingState(false);
-                } else if (value.equals("play")) {
-                    setPlayingState(true);
-                }
-                continue;
-            } else
-            if (key.equals("artist")) {
-                if (Util.atomicStringUpdated(currentArtist, value)) musicHasChanged = true;
-                continue;
-            } else
-            if (key.equals("title")) {
-                if (Util.atomicStringUpdated(currentSong, value)) musicHasChanged = true;
-                continue;
-            } else
-            if (key.equals("album")) {
-                if (Util.atomicStringUpdated(currentAlbum, value)) musicHasChanged = true;
-                continue;
-            } else
-            if (key.equals("artwork_track_id")) {
-                currentArtworkTrackId.set(value);
-                sawArtworkId = true;
-                continue;
-            } else
-            if (key.equals("time")) {
-                time = Util.parseDecimalIntOrZero(value);
-                continue;
-            } else
-            if (key.equals("duration")) {
-                duration = Util.parseDecimalIntOrZero(value);
-                continue;
-            } else
-            if (key.equals("power")) {
-            	isPoweredOn.set(Util.parseDecimalIntOrZero(value) == 1);
-                continue;
-            }
-            // TODO: the rest ....
-            // 00%3A04%3A20%3A17%3A04%3A7f status   player_name%3AOffice player_connected%3A1 player_ip%3A10.0.0.73%3A42648 power%3A1 signalstrength%3A0 mode%3Aplay time%3A99.803 rate%3A1 duration%3A224.705 can_seek%3A1 mixer%20volume%3A25 playlist%20repeat%3A0 playlist%20shuffle%3A0 playlist%20mode%3Adisabled playlist_cur_index%3A5 playlist_timestamp%3A1250053991.01067 playlist_tracks%3A46
-        }
+			tokenMap.put(key, value);
+		}
+        
+	    boolean musicHasChanged = false;
+	    musicHasChanged |= playerState.currentAlbumUpdated(tokenMap.get("album"));
+	    musicHasChanged |= playerState.currentArtistUpdated(tokenMap.get("artist"));
+	    musicHasChanged |= playerState.currentSongUpdated(tokenMap.get("title"));
+	    musicHasChanged |= playerState.currentArtworkTrackIdUpdated(tokenMap.get("artwork_track_id"));
+        musicHasChanged |= playerState.currentArtworkUrlUpdated(tokenMap.get("artwork_url"));
+
+        playerState.setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
+	    
+        parseMode(tokenMap.get("mode"));
+	    
         if (musicHasChanged) {
-            if (!sawArtworkId) {
-                // TODO: we should disambiguate between no artwork because there is no
-                // artwork (explicitly known) and no artwork because it's e.g. Pandora,
-                // in which case we'd use the current cover.jpg URL.
-                currentArtworkTrackId.set(null);
-            }
             updateOngoingNotification();
             sendMusicChangedCallback();
         }
-        Integer lastTimeInteger = currentTimeSecond.get();
-        int lastTime = lastTimeInteger == null ? 0 : lastTimeInteger.intValue();
+
+	    int time = Util.parseDecimalIntOrZero(tokenMap.get("time"));
+	    int duration = Util.parseDecimalIntOrZero(tokenMap.get("duration"));
+        int lastTime = playerState.getCurrentTimeSecond(0);
         if (musicHasChanged || time != lastTime) {
-            currentTimeSecond.set(time);
-            currentSongDuration.set(duration);
+            playerState.setCurrentTimeSecond(time);
+            playerState.setCurrentSongDuration(duration);
             sendNewTimeCallback(time, duration);
         }
     }
     
-    private void changeActivePlayer(SqueezePlayer newPlayer) {
+    private void changeActivePlayer(SqueezerPlayer newPlayer) {
 		if (newPlayer == null) {
             return;
         }
@@ -448,7 +560,7 @@ public class SqueezeService extends Service {
         	if (oldPlayerId != null) {
 	            // Unsubscribe from the old player's status.  (despite what
 	            // the docs say, multiple subscribes can be active and flood us.)
-	            sendCommand(URLEncoder.encode(oldPlayerId) + " status - 1 subscribe:0");
+	            sendCommand(URLEncoder.encode(oldPlayerId) + " status - 1 subscribe:-");
         	}
 
             activePlayer.set(newPlayer);
@@ -483,23 +595,63 @@ public class SqueezeService extends Service {
     }
 
 
+    /**
+     * <p>
+     * Implement this and give it to {@link SqueezeService#parseSqueezerList(List, SqueezeListHandler)} for each
+     * extended query format command you which to support.
+     * </p>
+     * @author Kurt Aaholst
+     */
 	private interface SqueezeListHandler {
+		/**
+		 * Called for each item received in the current reply. Just store this internally.
+		 * @param record
+		 */
 		void add(Map<String, String> record);
-		boolean processList(int count, int start);
+		
+		/**
+		 * Called when the current reply is completely parsed. Pass the information on to your activity now. If there are
+		 * any more data, it is automatically ordered by {@link SqueezeService#parseSqueezerList(List, SqueezeListHandler)}
+		 * @param rescan Set if SqueezeServer is currently doing a scan of the music library.
+		 * @param count Total number of result for the current query.
+		 * @param max The current configured default maximum list size.
+		 * @param start Offset for the current list in total results.
+		 * @return
+		 */
+		boolean processList(boolean rescan, int count, int max, int start);
 	}
 
-	private void parseSqueezerList(int offset, String item_delimiter, String count_id, List<String> tokens, SqueezeListHandler handler) {
+	/**
+	 * <h1>Generic method to parse replies for queries in extended query format</h1>
+	 * <p>
+	 * This is the control center for asynchronous and paging receiving of data from SqueezeServer.<br/>
+	 * Transfer of each data type are started by an asynchronous request by one of the public method in this module.
+	 * This method will forward the data using the supplied {@link SqueezeListHandler}, and and order the next page if necessary,
+	 * repeating the current query parameters.<br/>
+	 * Activities should just initiate the request, and supply a callback to receive a page of data.
+	 * <p>
+	 * @param playercmd Set this for replies for the current player, to skip the playerid
+	 * @param item_delimiter As defined for each extended query format command in the squeezeserver CLI documentation.
+	 * @param count_id The label for the tag which contains the total number of results, normally "count". 
+	 * @param tokens List of tokens with value or key:value.
+	 * @param handler Callback to receive the parsed data.
+	 */
+	private void parseSqueezerList(boolean playercmd, String item_delimiter, String count_id, List<String> tokens, SqueezeListHandler handler) {
 		Log.v(TAG, "Parsing list: " + tokens);
-		int n = -offset;
+		int n = (playercmd ? -1 : 0);
 		Map<String, String> record = null;
-		StringBuilder cmd = new StringBuilder();
-		String tags = null, artist_id = null;
+		Map<String, String> taggedParameters = new HashMap<String, String>();
+		String playerid = "", cmd = null;
 		int start = 0, itemsPerResponse = 0, count = 0;
+		int correlationid = 0;
+		boolean rescan = false;
 		for (String token : tokens) {
-			if (n < 0) { n++; continue; }
 			switch (n) {
+			case -1:
+				playerid = decode(token) + " ";
+				break;
 			case 0:
-				cmd.append(token);
+				cmd = token;
 				break;
 			case 1:
 				start = Util.parseDecimalIntOrZero(token);
@@ -519,17 +671,27 @@ public class SqueezeService extends Service {
 					Log.v(TAG, "key=" + key + ", value: " + value);
 				if (key.equals(count_id))
 					count = Util.parseDecimalIntOrZero(value);
-				else if (key.equals("tags"))
-					tags = value;
-				else if (key.equals("artist_id"))
-					artist_id = value;
-				else if (key.equals(item_delimiter)) {
+				else if (key.equals("rescan"))
+					rescan = (Util.parseDecimalIntOrZero(value) == 1);
+				else if (key.equals("correlationid"))
+					correlationid = Util.parseDecimalIntOrZero(value);
+				else {
+					if (key.equals(item_delimiter)) {
+						if (record != null) {
+							handler.add(record);
+							if (debugLogging)
+								Log.v(TAG, "record=" + record);
+						}
+						record = new HashMap<String, String>();
+					}
 					if (record != null)
-						handler.add(record);
-					record = new HashMap<String, String>();
+						record.put(key, value);
+					else {
+						Set<String> acceptedTaggedParameterSet = acceptedTaggedParameters.get(cmd);
+						if (acceptedTaggedParameterSet != null && acceptedTaggedParameterSet.contains(key))
+							taggedParameters.put(key, value);
+					}
 				}
-				if (record != null)
-					record.put(key, value);
 				break;
 			}
 			n++;
@@ -539,22 +701,35 @@ public class SqueezeService extends Service {
 			handler.add(record);
 		}
 
-		if (handler.processList(count, start)) {
-			if (start + itemsPerResponse < count) {
-				cmd.append(" " + (start + itemsPerResponse) + " " + PAGESIZE);
-				if (tags != null)
-					cmd.append(" tags:" + tags);
-				if (artist_id != null)
-					cmd.append(" artist_id:" + artist_id);
-				sendCommand(cmd.toString());
+		if (checkCorrelation(cmd, correlationid)) {
+			if (handler.processList(rescan, count, maxListSize, start)) {
+				int max = (count < maxListSize || start + itemsPerResponse > maxListSize ) ? count : maxListSize;
+				if (start + itemsPerResponse < max) {
+					int pageSize = (start + itemsPerResponse + PAGESIZE > max ? pageSize = max - (start + itemsPerResponse) : PAGESIZE);
+					StringBuilder cmdline = new StringBuilder(cmd + " " + (start + itemsPerResponse) + " " + pageSize);
+					for (Entry<String,String> entry: taggedParameters.entrySet())
+						cmdline.append(" " + entry.getKey() + ":" + entry.getValue());
+					sendCommand(playerid + cmdline.toString());
+				}
 			}
 		}
 	}
 
+	/**
+	 * Shortcut for {@link #parseSqueezerList(int, String, String, List, SqueezeListHandler)}, with offset=0.
+	 * @param item_delimiter
+	 * @param tokens
+	 * @param handler
+	 */
 	private void parseSqueezerList(String item_delimiter, List<String> tokens, SqueezeListHandler handler) {
-		parseSqueezerList(0, item_delimiter, "count", tokens, handler);
+		parseSqueezerList(false, item_delimiter, "count", tokens, handler);
 	}
 
+	/**
+	 * Shortcut for {@link #parseSqueezerList(String, List, SqueezeListHandler)}, with item_delimeter = "id".
+	 * @param tokens
+	 * @param handler
+	 */
 	private void parseSqueezerList(List<String> tokens, SqueezeListHandler handler) {
 		parseSqueezerList("id", tokens, handler);
 	}
@@ -564,7 +739,7 @@ public class SqueezeService extends Service {
         // depending on whether we have an Activity or some sort of client
         // that cares about second-to-second updates.
         if (callback.get() != null) {
-            sendPlayerCommand("status - 1 subscribe:1");
+            sendPlayerCommand("status - 1 subscribe:1 tags:" + SONGTAGS_STATUS);
         } else {
             sendPlayerCommand("status - 1 subscribe:-");
         }
@@ -586,6 +761,7 @@ public class SqueezeService extends Service {
         defaultPlayer.set(null);
         sendCommand("listen 1",
                 "players 0 1",   // initiate an async player fetch
+                "can randomplay ?",   // learn random play function functionality
                 "pref httpport ?"  // learn the HTTP port (needed for images)
         );
     }
@@ -614,7 +790,7 @@ public class SqueezeService extends Service {
             wifiLock.release();
         }
         
-        isPlaying.set(state);
+        playerState.setPlaying(state);
         updateOngoingNotification();
 		
         if (callback.get() == null) {
@@ -628,7 +804,7 @@ public class SqueezeService extends Service {
     }
 
     private void updateOngoingNotification() {
-        boolean playing = isPlaying.get();  
+        boolean playing = playerState.isPlaying();  
         if (!playing) {
             if (!preferences.getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false)) {
                 clearOngoingNotification();
@@ -642,8 +818,7 @@ public class SqueezeService extends Service {
         Intent showNowPlaying = new Intent(this, SqueezerActivity.class)
             .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
-        String song = currentSong.get();
-        if (song == null) song = "";
+        String song = playerState.getCurrentSongNonNull();
         if (playing) {
             status.setLatestEventInfo(this, "Music Playing", song, pIntent);
             status.flags |= Notification.FLAG_ONGOING_EVENT;
@@ -767,16 +942,20 @@ public class SqueezeService extends Service {
         }
         
         public boolean canPowerOn() {
-        	return canPower() && !isPoweredOn.get();
+        	return canPower() && !playerState.isPoweredOn();
         }
         
         public boolean canPowerOff() {
-        	return canPower() && isPoweredOn.get();
+        	return canPower() && playerState.isPoweredOn();
         }
         
         private boolean canPower() {
-            SqueezePlayer player = activePlayer.get();
+            SqueezerPlayer player = activePlayer.get();
         	return isConnected.get() && player != null && player.isCanpoweroff();
+        }
+        
+        public boolean canRandomplay() {
+        	return canRandomplay.get();
         }
 		
         public boolean togglePausePlay() throws RemoteException {
@@ -784,15 +963,13 @@ public class SqueezeService extends Service {
                 return false;
             }
             Log.v(TAG, "pause...");
-            if (isPlaying.get()) {
-                setPlayingState(false);
+            if (playerState.isPlaying()) {
                 // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
                 // because then we'd get confused when they came back in to us, not being
                 // able to differentiate ours coming back on the listen channel vs. those
                 // of those idiots at the dinner party messing around.
                 sendPlayerCommand("pause 1");
             } else {
-                setPlayingState(true);
                 // TODO: use 'pause 0 <fade_in_secs>' to fade-in if we knew it was
                 // actually paused (as opposed to not playing at all) 
                 sendPlayerCommand("play");
@@ -806,7 +983,7 @@ public class SqueezeService extends Service {
                 return false;
             }
             Log.v(TAG, "play..");
-            isPlaying.set(true);
+            playerState.setPlaying(true);
             sendPlayerCommand("play");
             Log.v(TAG, "played.");
             return true;
@@ -816,7 +993,7 @@ public class SqueezeService extends Service {
             if (!isConnected()) {
                 return false;
             }
-            isPlaying.set(false);
+            playerState.setPlaying(false);
             sendPlayerCommand("stop");
             return true;
         }
@@ -837,11 +1014,19 @@ public class SqueezeService extends Service {
             return true;
         }
         
-        public boolean playAlbum(SqueezeAlbum album) throws RemoteException {
+        public boolean playAlbum(SqueezerAlbum album) throws RemoteException {
             if (!isConnected()) {
                 return false;
             }
             sendPlayerCommand("playlistcontrol cmd:load album_id:" + album.getId());
+            return true;
+        }
+        
+        public boolean randomPlay(String type) throws RemoteException {
+            if (!isConnected()) {
+                return false;
+            }
+            sendPlayerCommand("randomplay " + type);
             return true;
         }
         
@@ -854,64 +1039,65 @@ public class SqueezeService extends Service {
         }
         
         public boolean isPlaying() throws RemoteException {
-            return isPlaying.get();
+            return playerState.isPlaying();
         }
 
-        public void setActivePlayer(SqueezePlayer player) throws RemoteException {
+        public void setActivePlayer(SqueezerPlayer player) throws RemoteException {
             changeActivePlayer(player);
         }
 
         public String getActivePlayerId() throws RemoteException {
-            SqueezePlayer player = activePlayer.get();
+            SqueezerPlayer player = activePlayer.get();
             return player == null ? "" : player.getId();
         }
 
         public String getActivePlayerName() throws RemoteException {
-            SqueezePlayer player = activePlayer.get();
+            SqueezerPlayer player = activePlayer.get();
             return (player != null ? player.getName() : null);
         }
 
         public String currentAlbum() throws RemoteException {
-            return Util.nonNullString(currentAlbum);
+            return playerState.getCurrentAlbumNonNull();
         }
 
         public String currentArtist() throws RemoteException {
-            return Util.nonNullString(currentArtist);
+            return playerState.getCurrentArtistNonNull();
         }
 
         public String currentSong() throws RemoteException {
-            return Util.nonNullString(currentSong);
+            return playerState.getCurrentSongNonNull();
         }
 
         public String currentAlbumArtUrl() throws RemoteException {
             Integer port = httpPort.get();
             if (port == null || port == 0) return "";
-            String artworkTrackId = currentArtworkTrackId.get();
+            String artworkTrackId = playerState.getCurrentArtworkTrackId();
+            String artworkUrl = playerState.getCurrentArtworkUrl();
             if (artworkTrackId != null) {
-                Log.v(TAG, "artwork track ID = " + artworkTrackId);
-                return "http://" + currentHost.get() + ":" + port
-                    + "/music/" + artworkTrackId + "/cover.jpg";
-            } else {
-                // Return the "current album art" URL instead, with the cache-buster
-                // of the song name in it, to force the activity to reload when
-                // listening to e.g. Pandora, where there is no artwork_track_id (tag J)
-                // in the status.
-            	SqueezePlayer player = activePlayer.get();
-            	if (player == null) return "";
-                return "http://" + currentHost.get() + ":" + port
-                    + "/music/current/cover?player=" + player.getId()
-                    + "&song=" + URLEncoder.encode(currentSong());
-            }
+				return "http://" + currentHost.get() + ":" + port
+						+ artworkTrackIdUrl(artworkTrackId);
+            } else 
+            if (artworkUrl != null) 
+                return artworkUrl;
+            return "";
+        }
+
+        public String getAlbumArtUrl(String artworkTrackId) throws RemoteException {
+            Integer port = httpPort.get();
+            if (port == null || port == 0) return "";
+			return "http://" + currentHost.get() + ":" + port + artworkTrackIdUrl(artworkTrackId);
+        }
+
+        private String artworkTrackIdUrl(String artworkTrackId) {
+			return "/music/" + artworkTrackId + "/cover.jpg";
         }
 
         public int getSecondsElapsed() throws RemoteException {
-            Integer seconds = currentTimeSecond.get();
-            return seconds == null ? 0 : seconds.intValue();
+        	return playerState.getCurrentTimeSecond(0);
         }
 
         public int getSecondsTotal() throws RemoteException {
-            Integer seconds = currentSongDuration.get();
-            return seconds == null ? 0 : seconds.intValue();
+            return playerState.getCurrentSongDuration(0);
         }
 
         public void preferenceChanged(String key) throws RemoteException {
@@ -920,16 +1106,13 @@ public class SqueezeService extends Service {
                 updateOngoingNotification();
                 return;
             }
-            if (Preferences.KEY_DEBUG_LOGGING.equals(key)) {
-                debugLogging = preferences.getBoolean(key, false);
-                return;
-            }
+            getPreferences();
         }
         
-        /* Start and async fetch of the squeezeservers players */
-        public boolean players() throws RemoteException {
+        /* Start an async fetch of the SqueezeboxServer's players */
+        public boolean players(int start) throws RemoteException {
             if (!isConnected()) return false;
-            sendCommand("players 0 1");
+            requestItems("players", start);
             return true;
         }
 
@@ -945,13 +1128,23 @@ public class SqueezeService extends Service {
 	    	SqueezeService.this.playerListCallback.compareAndSet(callback, null);
 		}
         
-        /* Start an async fetch of the squeezeservers albums, which are matching the given parameters */
-        public boolean albums(SqueezeArtist artist) throws RemoteException {
+        /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
+		public boolean albums(int start, String sortOrder, String searchString,
+				SqueezerArtist artist, SqueezerYear year, SqueezerGenre genre)
+				throws RemoteException {
             if (!isConnected()) return false;
-            StringBuilder sb = new StringBuilder("albums 0 1 tags:" + ALBUMTAGS);
-            if (artist != null)
-            	sb.append(" artist_id:"+ artist.getId());
-            sendCommand(sb.toString());
+            List<String> parameters = new ArrayList<String>();
+            parameters.add("tags:" + ALBUMTAGS);
+     		parameters.add("sort:" + sortOrder);
+			if (searchString != null && searchString.length() > 0)
+				parameters.add("search:" + searchString);
+			if (artist != null)
+				parameters.add("artist_id:" + artist.getId());
+			if (year != null)
+				parameters.add("year:" + year.getId());
+			if (genre != null)
+				parameters.add("genre_id:" + genre.getId());
+            requestItems("albums", start, parameters);
             return true;
         }
         
@@ -965,10 +1158,15 @@ public class SqueezeService extends Service {
 	    	SqueezeService.this.albumListCallback.compareAndSet(callback, null);
 		}
         
-        /* Start and async fetch of the squeezeservers artists */
-        public boolean artists() throws RemoteException {
+        /* Start an async fetch of the SqueezeboxServer's artists */
+   		public boolean artists(int start, String searchString, SqueezerGenre genre) throws RemoteException {
             if (!isConnected()) return false;
-            sendCommand("artists 0 1");
+            List<String> parameters = new ArrayList<String>();
+			if (searchString != null && searchString.length() > 0)
+				parameters.add("search:" + searchString);
+			if (genre != null)
+				parameters.add("genre_id:" + genre.getId());
+			requestItems("artists", start, parameters);
             return true;
         }
 
@@ -982,10 +1180,44 @@ public class SqueezeService extends Service {
 	    	SqueezeService.this.artistListCallback.compareAndSet(callback, null);
 		}
         
-        /* Start and async fetch of the squeezeservers current playlist */
-        public boolean songs() throws RemoteException {
+        /* Start an async fetch of the SqueezeboxServer's years */
+        public boolean years(int start) throws RemoteException {
             if (!isConnected()) return false;
-            sendCommand("status 0 1 tags:" + SONGTAGS);
+            requestItems("years", start);
+            return true;
+        }
+
+		public void registerYearListCallback(IServiceYearListCallback callback) throws RemoteException {
+            Log.v(TAG, "YearListCallback attached.");
+	    	SqueezeService.this.yearListCallback.set(callback);
+		}
+
+		public void unregisterYearListCallback(IServiceYearListCallback callback) throws RemoteException {
+            Log.v(TAG, "YearListCallback detached.");
+	    	SqueezeService.this.yearListCallback.compareAndSet(callback, null);
+		}
+        
+        /* Start an async fetch of the SqueezeboxServer's genres */
+        public boolean genres(int start) throws RemoteException {
+            if (!isConnected()) return false;
+            requestItems("genres", start);
+            return true;
+        }
+
+		public void registerGenreListCallback(IServiceGenreListCallback callback) throws RemoteException {
+            Log.v(TAG, "GenreListCallback attached.");
+	    	SqueezeService.this.genreListCallback.set(callback);
+		}
+
+		public void unregisterGenreListCallback(IServiceGenreListCallback callback) throws RemoteException {
+            Log.v(TAG, "GenreListCallback detached.");
+	    	SqueezeService.this.genreListCallback.compareAndSet(callback, null);
+		}
+        
+        /* Start an async fetch of the SqueezeboxServer's current playlist */
+        public boolean currentPlaylist(int start) throws RemoteException {
+            if (!isConnected()) return false;
+            requestPlayerItems("status", start, Arrays.asList("tags:" + SONGTAGS));
             return true;
         }
 

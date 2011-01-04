@@ -32,6 +32,9 @@ public final class Preferences {
     public static final String KEY_NOTIFY_OF_CONNECTION = "squeezer.notifyofconnection";
     
     public static final String KEY_DEBUG_LOGGING = "squeezer.debuglogging";
+
+    // The initial maximum number of items displayed in a list
+    public static final String KEY_MAX_ROWS = "squeezer.maxrows";
     
 	private Preferences() {
 	}

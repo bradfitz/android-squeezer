@@ -1,13 +1,17 @@
 package com.danga.squeezer;
 
 import com.danga.squeezer.IServiceCallback;
-import com.danga.squeezer.IServicePlayerListCallback;
-import com.danga.squeezer.IServiceAlbumListCallback;
-import com.danga.squeezer.IServiceArtistListCallback;
-import com.danga.squeezer.IServiceSongListCallback;
-import com.danga.squeezer.model.SqueezePlayer;
-import com.danga.squeezer.model.SqueezeAlbum;
-import com.danga.squeezer.model.SqueezeArtist;
+import com.danga.squeezer.itemlists.IServicePlayerListCallback;
+import com.danga.squeezer.itemlists.IServiceAlbumListCallback;
+import com.danga.squeezer.itemlists.IServiceArtistListCallback;
+import com.danga.squeezer.itemlists.IServiceYearListCallback;
+import com.danga.squeezer.itemlists.IServiceGenreListCallback;
+import com.danga.squeezer.itemlists.IServiceSongListCallback;
+import com.danga.squeezer.model.SqueezerPlayer;
+import com.danga.squeezer.model.SqueezerAlbum;
+import com.danga.squeezer.model.SqueezerArtist;
+import com.danga.squeezer.model.SqueezerYear;
+import com.danga.squeezer.model.SqueezerGenre;
 
 interface ISqueezeService {
 	    // For the activity to get callbacks on interesting events:
@@ -24,7 +28,7 @@ interface ISqueezeService {
         void preferenceChanged(String key);
 
 		// Call this to change the player we are controlling
-	    void setActivePlayer(in SqueezePlayer player);
+	    void setActivePlayer(in SqueezerPlayer player);
 
 		// Returns the empty string (not null) if no player is set. 
         String getActivePlayerId();
@@ -37,13 +41,15 @@ interface ISqueezeService {
   	    boolean canPowerOff();
         boolean powerOn();
         boolean powerOff();
+        boolean canRandomplay();
         boolean isPlaying();
         boolean togglePausePlay();
         boolean play();
         boolean stop();
         boolean nextTrack();
         boolean previousTrack();
-        boolean playAlbum(in SqueezeAlbum album);
+        boolean playAlbum(in SqueezerAlbum album);
+        boolean randomPlay(String type);
         boolean playlistIndex(int index);
         
         // Return 0 if unknown:
@@ -55,6 +61,7 @@ interface ISqueezeService {
         String currentAlbum();
         String currentSong();
         String currentAlbumArtUrl();
+        String getAlbumArtUrl(String artworkTrackId);
 
         // Returns new (predicted) volume.  Typical deltas are +10 or -10.
         // Note the volume changed callback will also still be run with
@@ -62,22 +69,32 @@ interface ISqueezeService {
         int adjustVolumeBy(int delta);
         
         // Player list activity
-        boolean players();
+        boolean players(int start);
 	    void registerPlayerListCallback(IServicePlayerListCallback callback);
         void unregisterPlayerListCallback(IServicePlayerListCallback callback);
         
         // Album list activity
-        boolean albums(in SqueezeArtist artist);
+        boolean albums(int start, String sortOrder, String searchString, in SqueezerArtist artist, in SqueezerYear year, in SqueezerGenre genre);
 	    void registerAlbumListCallback(IServiceAlbumListCallback callback);
         void unregisterAlbumListCallback(IServiceAlbumListCallback callback);
         
         // Artist list activity
-        boolean artists();
+        boolean artists(int start, String searchString, in SqueezerGenre genre);
 	    void registerArtistListCallback(IServiceArtistListCallback callback);
         void unregisterArtistListCallback(IServiceArtistListCallback callback);
         
+        // Year list activity
+        boolean years(int start);
+	    void registerYearListCallback(IServiceYearListCallback callback);
+        void unregisterYearListCallback(IServiceYearListCallback callback);
+        
+        // Year list activity
+        boolean genres(int start);
+	    void registerGenreListCallback(IServiceGenreListCallback callback);
+        void unregisterGenreListCallback(IServiceGenreListCallback callback);
+        
         // Song list activity
-        boolean songs();
+        boolean currentPlaylist(int start);
 	    void registerSongListCallback(IServiceSongListCallback callback);
         void unregisterSongListCallback(IServiceSongListCallback callback);
 }

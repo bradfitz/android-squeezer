@@ -8,6 +8,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.danga.squeezer.itemlists.SqueezerPlayerListActivity;
+import com.danga.squeezer.itemlists.SqueezerSongListActivity;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -326,11 +329,6 @@ public class SqueezerActivity extends Activity {
         
         if (serviceStub != null) {
             updateUIFromServiceState();
-            try {
-                serviceStub.registerCallback(serviceCallback);
-            } catch (RemoteException e) {
-                Log.e(TAG, "error registering callback: " + e);
-            }
             
             // If they've already set this up in the past, what they probably
             // want to do at this point is connect to the server, so do it
@@ -391,7 +389,7 @@ public class SqueezerActivity extends Activity {
     private void updateAlbumArtIfNeeded() {
         final String albumArtUrl = getCurrentAlbumArtUrl();
         if (Util.atomicStringUpdated(currentAlbumArtUrl, albumArtUrl)) {
-            albumArt.setImageDrawable(null);
+            albumArt.setImageResource(R.drawable.icon_album_noart_143);
             if (albumArtUrl != null && albumArtUrl.length() > 0) {
                 backgroundExecutor.execute(new Runnable() { 
                     public void run() {
@@ -438,7 +436,7 @@ public class SqueezerActivity extends Activity {
         try {
             return serviceStub.getSecondsElapsed();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
+            Log.e(TAG, "Service exception in getSecondsElapsed(): " + e);
         }
         return 0;
     }
@@ -450,7 +448,7 @@ public class SqueezerActivity extends Activity {
         try {
             return serviceStub.getSecondsTotal();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
+            Log.e(TAG, "Service exception in getSecondsTotal(): " + e);
         }
         return 0;
     }
@@ -462,7 +460,7 @@ public class SqueezerActivity extends Activity {
         try {
             return serviceStub.currentSong();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
+            Log.e(TAG, "Service exception in getServiceCurrentSong(): " + e);
         }
         return "";
     }
@@ -474,7 +472,7 @@ public class SqueezerActivity extends Activity {
         try {
             return serviceStub.currentAlbumArtUrl();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
+            Log.e(TAG, "Service exception in getCurrentAlbumArtUrl(): " + e);
         }
         return "";
     }
@@ -486,7 +484,7 @@ public class SqueezerActivity extends Activity {
         try {
             return serviceStub.currentAlbum();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
+            Log.e(TAG, "Service exception in getServiceCurrentAlbum(): " + e);
         }
         return "";
     }
@@ -498,7 +496,7 @@ public class SqueezerActivity extends Activity {
         try {
             return serviceStub.currentArtist();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
+            Log.e(TAG, "Service exception in getServiceCurrentArtist(): " + e);
         }
         return "";
     }
@@ -589,10 +587,9 @@ public class SqueezerActivity extends Activity {
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
         switch (id) {
         case DIALOG_ABOUT:
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(getText(R.string.about_title));
             PackageManager pm = getPackageManager();
             PackageInfo info;
@@ -705,8 +702,10 @@ public class SqueezerActivity extends Activity {
         }
     }
 
-	static void show(Context context) {
-        final Intent intent = new Intent(context, SqueezerActivity.class);
+	public static void show(Context context) {
+		final Intent intent = new Intent(context, SqueezerActivity.class)
+				.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+				.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
     }
 	

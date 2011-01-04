@@ -10,28 +10,28 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class SqueezerHomeActivity extends ListActivity {
-	private static final int NOW_PLAYING = 0;
-	private static final int MUSIC = 1;
-	private static final int INTERNET_RADIO = 2;
-	private static final int FAVORITES = 3;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHomeMenu();
+	}
 
-		String[] values = getResources().getStringArray(R.array.home_items);
+	private void setHomeMenu() {
 		int[] icons = new int[] { R.drawable.icon_nowplaying,
 				R.drawable.icon_mymusic, R.drawable.icon_internet_radio,
 				R.drawable.icon_favorites };
-		setListAdapter(new IconRowAdapter(this, values, icons));
-
-		getListView().setOnItemClickListener(onItemClick);
+		setListAdapter(new IconRowAdapter(this, getResources().getStringArray(R.array.home_items), icons));
+		getListView().setOnItemClickListener(onHomeItemClick);
 	}
 
-	private OnItemClickListener onItemClick = new OnItemClickListener() {
+	private OnItemClickListener onHomeItemClick = new OnItemClickListener() {
+		private static final int NOW_PLAYING = 0;
+		private static final int MUSIC = 1;
+		private static final int INTERNET_RADIO = 2;
+		private static final int FAVORITES = 3;
 
-		public void onItemClick(AdapterView<?> parent, View view, int position,
-				long id) {
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			switch (position) {
 			case NOW_PLAYING:
 				SqueezerActivity.show(SqueezerHomeActivity.this);
@@ -48,7 +48,9 @@ public class SqueezerHomeActivity extends ListActivity {
 	};
 
 	static void show(Context context) {
-        final Intent intent = new Intent(context, SqueezerHomeActivity.class);
+        final Intent intent = new Intent(context, SqueezerHomeActivity.class)
+        		.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        		.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
     }
 

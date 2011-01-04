@@ -9,17 +9,64 @@
     <string name="settings_serveraddr_title">Server adresse</string>
     <string name="settings_serveraddr_format">I formatet host:port</string>
     <string name="settings_serveraddr_summary">IP addresse på SqueezeCenter serveren, f.eks. 10.0.0.5</string>
+    <string name="settings_maxrows_title">Maximum listelængde</string>
+    <string name="settings_maxrows_summary">Det maksimale antal elementer der automatisk hentes fra SqueezeServer</string>
     <string name="menu_item_disconnect">Afbryd</string>
     <string name="menu_item_connect">Forbind</string>
     <string name="menu_item_poweron">Tænd</string>
     <string name="menu_item_poweroff">Sluk</string>
+    <string name="menu_item_main">Nu spiller</string>
+    <string name="menu_item_home">Hovedmenu</string>
+    <string name="menu_item_fetch_all">Hent resten</string>
+    <string name="menu_item_filter">Filter</string>
+    <string name="menu_item_sort">Sortér</string>
     <string name="about_title">Om squeezer</string>
-    <string name="choose_player_title">Vælg afspiller</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
     <string name="disconnected_text">Afbrudt.</string>
     <string name="loading_text">Henter...</string>
+    <string name="browse_items_text">Viser %d %s</string>
+    <string name="browse_max_items_text">Viser %d ud af i alt %d %s</string>
+    <string name="choose_albums_sort_order">Vælg rækkefølge af album</string>
+    <string name="genre_prompt">Vælg genre</string>
+    <string name="year_prompt">Vælg år</string>
+
+    <plurals name="artist">
+        <item quantity="one">kunstner</item>
+        <item quantity="other">kunstnere</item>
+    </plurals>
+
+    <plurals name="album">
+        <item quantity="one">album</item>
+        <item quantity="other">album</item>
+    </plurals>
+
+    <plurals name="genre">
+        <item quantity="one">genre</item>
+        <item quantity="other">genrer</item>
+    </plurals>
+
+    <plurals name="year">
+        <item quantity="one">år</item>
+        <item quantity="other">år</item>
+    </plurals>
+
+    <plurals name="song">
+        <item quantity="one">sang</item>
+        <item quantity="other">sange</item>
+    </plurals>
+
+    <plurals name="player">
+        <item quantity="one">afspiller</item>
+        <item quantity="other">afspillere</item>
+    </plurals>
+
+
+    <string-array name="albums_sort_order_items">
+	    <item>Album</item>
+	    <item>Kunstner, År, Album</item>
+    </string-array>
 
     <string-array name="home_items">
         <item>Nu spiller</item>
@@ -30,7 +77,7 @@
 
     <string-array name="music_items">
         <item>Kunstnere</item>
-        <item>Albums</item>
+        <item>Album</item>
         <item>Genrer</item>
         <item>År</item>
         <item>Nye numre</item>
@@ -40,7 +87,7 @@
         <item>Søg</item>
     </string-array>
 
-    <string-array name="random_mix_items">
+    <string-array name="randomplay_items">
         <item>Miks baseret på tilfældige numre</item>
         <item>Miks baseret på tilfældigt album</item>
         <item>Miks baseret på tilfældig kunster</item>

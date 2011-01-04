@@ -9,17 +9,28 @@
     <string name="settings_serveraddr_title">Server Address</string>
     <string name="settings_serveraddr_format">In format host:port</string>
     <string name="settings_serveraddr_summary">IP address of SqueezeCenter server, e.g. 10.0.0.5</string>
+    <string name="settings_maxrows_title">Maximum list size</string>
+    <string name="settings_maxrows_summary">Maximum number of items, which is automatically fetched from SqueezeServer</string>
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
     <string name="menu_item_poweron">Power on</string>
     <string name="menu_item_poweroff">Power off</string>
+    <string name="menu_item_main">Now playing</string>
+    <string name="menu_item_home">Main Menu</string>
+    <string name="menu_item_fetch_all">Fetch remaining</string>
+    <string name="menu_item_filter">Filter</string>
+    <string name="menu_item_sort">Sort order</string>
     <string name="about_title">About</string>
-    <string name="choose_player_title">Choose Player</string>
     <string name="connecting_text">Connecting</string>
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
     <string name="connection_failed_text">Connection failed.  Check settings.</string>
     <string name="disconnected_text">Disconnected.</string>
     <string name="loading_text">Loading...</string>
+    <string name="browse_items_text">Browse %2d %1s</string>
+    <string name="browse_max_items_text">Browse %2d of a total %3d %1s</string>
+    <string name="choose_albums_sort_order">Choose ordering of albums</string>
+    <string name="genre_prompt">Choose genre</string>
+    <string name="year_prompt">Choose year</string>
     <string name="about_text">&lt;b&gt;Squeezer v%s (C) Brad Fitzpatrick&lt;/b&gt;
    
 &lt;p&gt;http://code.google.com/p/android-squeezer/&lt;/p&gt;
@@ -27,6 +38,42 @@
 
 &lt;p&gt;Welcome to Squeezer!&lt;br/&gt;
 This project is very new and is undergoing active development. Patches and feature requests are welcome!&lt;/p&gt;</string>
+
+    <plurals name="artist">
+        <item quantity="one">artist</item>
+        <item quantity="other">artists</item>
+    </plurals>
+
+    <plurals name="album">
+        <item quantity="one">album</item>
+        <item quantity="other">albums</item>
+    </plurals>
+
+    <plurals name="genre">
+        <item quantity="one">genre</item>
+        <item quantity="other">genres</item>
+    </plurals>
+
+    <plurals name="year">
+        <item quantity="one">year</item>
+        <item quantity="other">years</item>
+    </plurals>
+
+    <plurals name="song">
+        <item quantity="one">song</item>
+        <item quantity="other">songs</item>
+    </plurals>
+
+    <plurals name="player">
+        <item quantity="one">player</item>
+        <item quantity="other">players</item>
+    </plurals>
+
+
+    <string-array name="albums_sort_order_items">
+	    <item>Album</item>
+	    <item>Artist, Year, Album</item>
+    </string-array>
 
     <string-array name="home_items">
         <item>Now playing</item>
@@ -47,7 +94,7 @@ This project is very new and is undergoing active development. Patches and featu
         <item>Search</item>
     </string-array>
 
-    <string-array name="random_mix_items">
+    <string-array name="randomplay_items">
         <item>Song mix</item>
         <item>Album mix</item>
         <item>Artist mix</item>

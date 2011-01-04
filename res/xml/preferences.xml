@@ -30,6 +30,13 @@
      android:summary="@string/settings_serveraddr_summary"
      android:persistent="true" />
 
+   <com.danga.squeezer.IntEditTextPreference
+     android:key="squeezer.maxrows"
+     android:title="@string/settings_maxrows_title"
+     android:summary="@string/settings_maxrows_summary"
+     android:numeric="integer"
+     android:maxLength="4" />
+
   <CheckBoxPreference
      android:key="squeezer.autoconnect"
      android:title="Auto-connect"

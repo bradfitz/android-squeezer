@@ -11,32 +11,47 @@ public class Util {
         String string = ref.get();
         return string == null ? "" : string;
     }
-    
-    // Update target and return true iff it's null or different from newValue. 
-    public static boolean atomicStringUpdated(AtomicReference<String> target,
-            String newValue) {
-        String currentValue = target.get();
-        if (currentValue == null || !currentValue.equals(newValue)) {
-            target.set(newValue);
-            return true;
-        }
-        return false;
+
+    public static int getAtomicInteger(AtomicReference<Integer> ref, int defaultValue) {
+    	Integer integer = ref.get();
+    	return integer == null ? 0 : integer;
     }
 
-    public static int parseDecimalIntOrZero(String value) {
+    /**
+     * Update target, if it's different from newValue. 
+     * @param target
+     * @param newValue
+     * @return true if target is updated. Otherwise return false. 
+     */
+    // Return true and update target, if it's different from newValue. Otherwise return false. 
+	public static boolean atomicStringUpdated(AtomicReference<String> target,
+			String newValue) {
+		String currentValue = target.get();
+		if (currentValue == null && newValue == null)
+			return false;
+		if (currentValue == null || !currentValue.equals(newValue)) {
+			target.set(newValue);
+			return true;
+		}
+		return false;
+	}
+
+    public static int parseDecimalInt(String value, int defaultValue) {
+    	if (value == null)
+   			return defaultValue;
         int decimalPoint = value.indexOf('.');
         if (decimalPoint != -1) value = value.substring(0, decimalPoint);
-        if (value.length() == 0) return 0;
+        if (value.length() == 0) return defaultValue;
         try {
             int intValue = Integer.parseInt(value);
             return intValue;
         } catch (NumberFormatException e) {
-            return 0;
+            return defaultValue;
         }
     }
 
-    public static int parseDecimalIntOrZero(String value, int defaultValue) {
-    	return (value != null ? parseDecimalIntOrZero(value) : defaultValue);
+    public static int parseDecimalIntOrZero(String value) {
+    	return parseDecimalInt(value, 0);
     }
     
     private static StringBuilder sFormatBuilder = new StringBuilder();
