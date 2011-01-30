@@ -142,15 +142,9 @@ public class SqueezerArtistListActivity extends SqueezerBaseListActivity<Squeeze
     }
 
     private IServiceArtistListCallback artistsListCallback = new IServiceArtistListCallback.Stub() {
-
-		public void onArtistsReceived(final int count, final int max, final int start, final List<SqueezerArtist> artists) throws RemoteException {
-			getUIThreadHandler().post(new Runnable() {
-				public void run() {
-					getItemListAdapter().update(count, max, start, artists);
-				}
-			});
+		public void onArtistsReceived(int count, int max, int start, List<SqueezerArtist> items) throws RemoteException {
+			onItemsReceived(count, max, start, items);
 		}
-    	
     };
 
 }

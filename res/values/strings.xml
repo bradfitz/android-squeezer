@@ -25,9 +25,10 @@
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
     <string name="connection_failed_text">Connection failed.  Check settings.</string>
     <string name="disconnected_text">Disconnected.</string>
+    <string name="search_instructions_text">Enter artist, album, genre or song title.</string>
     <string name="loading_text">Loading...</string>
-    <string name="browse_items_text">Browse %2d %1s</string>
-    <string name="browse_max_items_text">Browse %2d of a total %3d %1s</string>
+    <string name="browse_items_text" >Browse %2$d %1$s</string>
+    <string name="browse_max_items_text">Browse %2$d of a total %3$d %1$s</string>
     <string name="choose_albums_sort_order">Choose ordering of albums</string>
     <string name="genre_prompt">Choose genre</string>
     <string name="year_prompt">Choose year</string>

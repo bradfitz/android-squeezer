@@ -43,15 +43,9 @@ public class SqueezerYearListActivity extends SqueezerBasicListActivity<Squeezer
     }
 
     private IServiceYearListCallback yearListCallback = new IServiceYearListCallback.Stub() {
-
-		public void onYearsReceived(final int count, final int max, final int pos, final List<SqueezerYear> years) throws RemoteException {
-			getUIThreadHandler().post(new Runnable() {
-				public void run() {
-					getItemListAdapter().update(count, max, pos, years);
-				}
-			});
+		public void onYearsReceived(int count, int max, int start, List<SqueezerYear> items) throws RemoteException {
+			onItemsReceived(count, max, start, items);
 		}
-    	
     };
 
 }

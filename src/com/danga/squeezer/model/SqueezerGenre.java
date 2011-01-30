@@ -8,9 +8,11 @@ import com.danga.squeezer.SqueezerItem;
 
 public class SqueezerGenre extends SqueezerItem {
 	private String name;
+	public String getName() { return name; }
+	public SqueezerGenre setName(String name) { this.name = name; return this; }
 
 	public SqueezerGenre(Map<String, String> record) {
-		setId(record.get("id"));
+		setId(record.containsKey("genre_id") ? record.get("genre_id") : record.get("id"));
 		name = record.get("genre");
 	}
 	
@@ -30,14 +32,6 @@ public class SqueezerGenre extends SqueezerItem {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(getId());
 		dest.writeString(name);
-	}
-	
-	public String getName() {
-		return name;
-	}
-	public SqueezerGenre setName(String name) {
-		this.name = name;
-		return this;
 	}
 	
 	@Override

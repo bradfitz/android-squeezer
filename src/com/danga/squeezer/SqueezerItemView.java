@@ -1,6 +1,5 @@
 package com.danga.squeezer;
 
-import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Parcelable.Creator;
 import android.view.View;
@@ -21,18 +20,22 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	/**
 	 * @return The activity associated with this view logic
 	 */
-	Activity getActivity();
+	SqueezerBaseActivity getActivity();
 
 	/**
 	 * @return {@link Resources#getQuantityString(int, int)}
 	 */
 	String getQuantityString(int quantity);
-	
+
 	/**
-	 * Called by {@link Adapter#getView(int, View, ViewGroup)}
+	 * <p>Called by {@link Adapter#getView(int, View, ViewGroup)}
+	 * 
+	 * @param convertView
+	 * @param item
+	 * @return
 	 */
 	View getAdapterView(View convertView, T item);
-	
+
 	/**
 	 * @return The generic argument of the implementation
 	 */

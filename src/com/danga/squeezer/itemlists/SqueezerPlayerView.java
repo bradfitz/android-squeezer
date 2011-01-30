@@ -3,35 +3,44 @@ package com.danga.squeezer.itemlists;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.app.Activity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.danga.squeezer.R;
+import com.danga.squeezer.SqueezerBaseActivity;
 import com.danga.squeezer.SqueezerBaseItemView;
 import com.danga.squeezer.model.SqueezerPlayer;
 
 public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
-	private int rowLayout = R.layout.icon_large_row_layout;
-	private int iconId = R.id.icon;
-	private int text1Id = R.id.label;
+	private LayoutInflater layoutInflater;
 	private static final Map<String, Integer> modelIcons = initializeModelIcons();
 
-	public SqueezerPlayerView(Activity activity) {
+	public SqueezerPlayerView(SqueezerBaseActivity activity) {
 		super(activity);
+		layoutInflater = activity.getLayoutInflater();
 	}
 
 	public View getAdapterView(View convertView, SqueezerPlayer item) {
-		View row = getActivity().getLayoutInflater().inflate(rowLayout, null);
+		ViewHolder viewHolder;
 
-		TextView label = (TextView) row.findViewById(text1Id);
-		label.setText((CharSequence) item.getName());
+		if (convertView == null || convertView.getTag() == null) {
+			convertView = layoutInflater.inflate(R.layout.icon_large_row_layout, null);
+			viewHolder = new ViewHolder();
+			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+			convertView.setTag(viewHolder);
+		} else
+			viewHolder = (ViewHolder) convertView.getTag();
 
-		ImageView icon = (ImageView) row.findViewById(iconId);
-		icon.setImageResource(getModelIcon(item.getModel()));
+		viewHolder.label.setText((CharSequence) item.getName());
+		viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
 
-		return (row);
+		return convertView;
+	}
+
+	public void updateAdapterView(View view, SqueezerPlayer item) {
 	}
 
 	public String getQuantityString(int quantity) {
@@ -57,6 +66,11 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 	private int getModelIcon(String model) {
 		Integer icon = modelIcons.get(model);
 		return (icon != null ? icon : R.drawable.icon_blank);
+	}
+
+	private static class ViewHolder {
+		TextView label;
+		ImageView icon;
 	}
 
 }

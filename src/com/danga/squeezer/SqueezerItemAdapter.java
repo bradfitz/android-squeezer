@@ -2,11 +2,9 @@ package com.danga.squeezer;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 
 /**
@@ -73,33 +71,50 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	}
 
 	/**
+	 * Removes all items from this adapter leaving it empty.
+	 */
+	public void clear() {
+		totalItems = (emptyItem ? 1 : 0);
+		setItems(setUpList(0));
+	}
+	
+	/**
 	 * Calls {@link #SqueezerBaseAdapter(SqueezerItemView, int, boolean)}, with emptyItem = false
 	 */
 	public SqueezerItemAdapter(SqueezerItemView<T> itemView, int count) {
 		this(itemView, count, false);
 	}
 
+	/**
+	 * Calls {@link #SqueezerBaseAdapter(SqueezerItemView, int, boolean)}, with emptyItem = false
+	 */
+	public SqueezerItemAdapter(SqueezerItemView<T> itemView) {
+		this(itemView, 0);
+	}
+
 	public View getView(int position, View convertView, ViewGroup parent) {
 		T item = items[position];
 		if (item != null)
 			return itemView.getAdapterView(convertView, item);
-		
-		TextView view;
-		view = (TextView)(convertView != null && TextView.class.isAssignableFrom(convertView.getClass())
-				? convertView
-				: getActivity().getLayoutInflater().inflate(R.layout.list_item, null));
-		view.setText((CharSequence) (position == 0 && emptyItem ? "" : loadingText));
-		return view;
+		return Util.getListItemView(getActivity(), convertView, (position == 0 && emptyItem ? "" : loadingText));
 	}
 	
 	public String getQuantityString(int size) {
 		return itemView.getQuantityString(size);
 	}
 	
-	public Activity getActivity() {
+	public SqueezerBaseActivity getActivity() {
 		return itemView.getActivity();
 	}
 	
+	public void setItemView(SqueezerItemView<T> itemView) {
+		this.itemView = itemView;
+	}
+
+	public SqueezerItemView<T> getItemView() {
+		return itemView;
+	}
+
 	private void setItems(T[] items) {
 		this.items = items;
 	}
@@ -124,6 +139,14 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		return (getTotalItems() <= getCount());
 	}
 
+	public String getHeader(int count) {
+		String item_text = getQuantityString(count);
+		String header = (getTotalItems() > count
+				? getActivity().getString(R.string.browse_max_items_text, item_text, count, getTotalItems())
+				: getActivity().getString(R.string.browse_items_text, item_text, count));
+		return header;
+	}
+
 
 	/**
 	 * Allocate a list of {@link T}, and possible an empty item at position 0.
@@ -136,7 +159,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 */
 	protected T[] setUpList(int max) {
 		int size = (getTotalItems() > max ? max : getTotalItems());
-		T[] items = ArrayInstance(size);
+		T[] items = arrayInstance(size);
 		return items;
 	}
 
@@ -150,25 +173,25 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 *            Number of items as reported by squeezeserver.
 	 * @param start
 	 *            The start position of items in this update.
-	 * @param list
+	 * @param items
 	 *            New items to insert in the main list
 	 */
-	public void update(int count, int max, int start, List<T> list) {
+	public void update(int count, int max, int start, List<T> items) {
 		int offset = (emptyItem ? 1 : 0);
 		count += offset;
 		start += offset;
 		max += offset;
-		if (count != getTotalItems() || start + list.size() > getCount()) {
+		if (count != getTotalItems() || start + items.size() > getCount()) {
 			totalItems = count;
-			T[] newItems = setUpList(start + list.size() > max ? count : max);
+			T[] newItems = setUpList(start + items.size() > max ? count : max);
 			for (int i = 0; i < getCount(); i++) {
 				if (i >= newItems.length) break;
 				newItems[i] = getItem(i);
 			}
 			setItems(newItems);
 		}
-		for (T t: list) {
-			items[start++] = t;
+		for (T t: items) {
+			this.items[start++] = t;
 		}
 
 		notifyDataSetChanged();
@@ -187,7 +210,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		return 0;
 	}
 
-	protected T[] ArrayInstance(int size) {
+	protected T[] arrayInstance(int size) {
 		return itemView.getCreator().newArray(size);
 	}
 

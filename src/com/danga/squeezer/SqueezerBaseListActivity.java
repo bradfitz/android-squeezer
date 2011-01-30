@@ -1,14 +1,9 @@
 package com.danga.squeezer;
 
 
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
+import java.util.List;
+
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
@@ -16,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
@@ -32,16 +28,11 @@ import android.widget.AdapterView.OnItemClickListener;
  * @param <T>	Denotes the class of the items this class should list
  * @author Kurt Aaholst
  */
-public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends Activity implements SqueezerListActivity<T> {
-    private ISqueezeService service = null;
+public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerBaseActivity implements SqueezerListActivity<T> {
 	private SqueezerItemListAdapter<T> itemListAdapter;
-	private Handler uiThreadHandler = new Handler() {};
 	private ListView listView;
+	private TextView loadingLabel;
 	private SqueezerItemView<T> itemView;
-    
-    protected String getTag() {
-    	return getClass().getSimpleName();
-	}
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,35 +40,32 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends A
 		prepareActivity(getIntent().getExtras());
 		setContentView(R.layout.item_list);
 		listView = (ListView) findViewById(R.id.item_list);
+		loadingLabel = (TextView) findViewById(R.id.loading_label);
 		itemView = createItemView();
-    	listView.setOnItemClickListener(onItemClick);
+    	listView.setOnItemClickListener(new OnItemClickListener() {
+    		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    			T item = getItemListAdapter().getItem(position);
+    			
+    			if (item == null || item.getId() != null) {
+    	   			try {
+    					onItemSelected(position, item);
+    	            } catch (RemoteException e) {
+    	                Log.e(getTag(), "Error from default action for '" + item + "': " + e);
+    	            }
+    			}
+    		}
+    	});
 	}
+	
 
-	private ServiceConnection serviceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            service = ISqueezeService.Stub.asInterface(binder);
-   			try {
-				registerCallback();
-				orderItems();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error registering list callback: " + e);
-            }
-        }
-        public void onServiceDisconnected(ComponentName name) {
-            service = null;
-        };
-    };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        bindService(new Intent(this, SqueezeService.class), serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(getTag(), "did bindService; serviceStub = " + getService());
-    }
+	@Override
+	protected void onServiceConnected() throws RemoteException {
+		registerCallback();
+		orderItems();
+	}
 
 	@Override
     public void onPause() {
-        super.onPause();
         if (getService() != null) {
         	try {
 				unregisterCallback();
@@ -85,30 +73,14 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends A
                 Log.e(getTag(), "Error unregistering list callback: " + e);
 			}
         }
-        if (serviceConnection != null) {
-        	unbindService(serviceConnection);
-        }
+        super.onPause();
     }    
-
-	/**
-	 * @return The squeezeservice, or null if not bound
-	 */
-	public ISqueezeService getService() {
-		return service;
-	}
 
 	/**
 	 * @return The current listadapter, or null if not set
 	 */
 	public SqueezerItemAdapter<T> getItemListAdapter() {
 		return itemListAdapter;
-	}
-
-	/**
-	 * Use this to post Runnables to work off thread
-	 */
-	public Handler getUIThreadHandler() {
-		return uiThreadHandler;
 	}
 
 	/**
@@ -121,15 +93,27 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends A
 		} catch (RemoteException e) {
 			Log.e(getTag(), "Error ordering items: " + e);
 		}
-		resetItemListAdapter();
+		listView.setVisibility(View.GONE);
+		loadingLabel.setVisibility(View.VISIBLE);
+		clearItemListAdapter();
+	}
+	
+	public void onItemsReceived(final int count, final int max, final int start, final List<T> items) {
+		getUIThreadHandler().post(new Runnable() {
+			public void run() {
+				listView.setVisibility(View.VISIBLE);
+				loadingLabel.setVisibility(View.GONE);
+				getItemListAdapter().update(count, max, start, items);
+			}
+		});
 	}
 	
 	/**
 	 * Set the adapter to handle the display of the items, see also {@link #setListAdapter(android.widget.ListAdapter)}
 	 * @param listAdapter
 	 */
-	public void resetItemListAdapter() {
-		itemListAdapter = new SqueezerItemListAdapter<T>(itemView, 0);
+	private void clearItemListAdapter() {
+		itemListAdapter = new SqueezerItemListAdapter<T>(itemView);
 		listView.setAdapter(itemListAdapter);
 	}
    
@@ -168,19 +152,4 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends A
         return super.onMenuItemSelected(featureId, item);
 	}
 	
-	private OnItemClickListener onItemClick = new OnItemClickListener() {
-
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			T item = getItemListAdapter().getItem(position);
-			
-			if (item == null || item.getId() != null) {
-	   			try {
-					onItemSelected(position, item);
-	            } catch (RemoteException e) {
-	                Log.e(getTag(), "Error from default action for '" + item + "': " + e);
-	            }
-			}
-		}
-	};
-
 }

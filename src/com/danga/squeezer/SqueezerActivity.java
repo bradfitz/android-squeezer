@@ -9,16 +9,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.danga.squeezer.itemlists.SqueezerPlayerListActivity;
-import com.danga.squeezer.itemlists.SqueezerSongListActivity;
+import com.danga.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -26,7 +23,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.text.Html;
@@ -44,14 +40,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SqueezerActivity extends Activity {
-    private static final String TAG = "SqueezerActivity";
+public class SqueezerActivity extends SqueezerBaseActivity {
     private static final int DIALOG_ABOUT = 0;
     private static final int DIALOG_CONNECTING = 1;
 
     protected static final int HOME_REQUESTCODE = 0;
     
-    private ISqueezeService serviceStub = null;
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private AtomicBoolean isPlaying = new AtomicBoolean(false);
     private AtomicReference<String> currentAlbumArtUrl = new AtomicReference<String>();
@@ -72,34 +66,6 @@ public class SqueezerActivity extends Activity {
 
     private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
 	
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            serviceStub = ISqueezeService.Stub.asInterface(service);
-        	Log.v(TAG, "Service bound");
-        	uiThreadHandler.post(new Runnable() {
-        	    public void run() {
-        	        updateUIFromServiceState();
-
-        	        // Assume they want to connect...
-        	        if (!isConnected()) {
-        	            String ipPort = getConfiguredCliIpPort();
-        	            if (ipPort != null) {
-        	                startVisibleConnectionTo(ipPort);
-        	            }
-        	        }
-        	    }
-        	});
-        	try {
-        	    serviceStub.registerCallback(serviceCallback);
-        	} catch (RemoteException e) {
-        	    e.printStackTrace();
-        	}
-        }
-
-        public void onServiceDisconnected(ComponentName name) {
-            serviceStub = null;
-        };
-    };
     
     // Where we're connecting to.
     private boolean connectInProgress = false;
@@ -122,6 +88,11 @@ public class SqueezerActivity extends Activity {
             }
         }
     };
+    
+    @Override
+	public Handler getUIThreadHandler() {
+    	return uiThreadHandler;
+    }
 
     /** Called when the activity is first created. */
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -171,17 +142,17 @@ public class SqueezerActivity extends Activity {
 		curPlayListButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
                 if (!isConnected()) return;
-				SqueezerSongListActivity.show(SqueezerActivity.this);
+				SqueezerCurrentPlaylistActivity.show(SqueezerActivity.this);
 			}
 		});
 		
         playPauseButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
-                    if (serviceStub == null) return;
+                    if (getService() == null) return;
                     try {
                         if (isConnected.get()) {
-                            Log.v(TAG, "Pause...");
-                            serviceStub.togglePausePlay();
+                            Log.v(getTag(), "Pause...");
+                            getService().togglePausePlay();
                         } else {
                             // When we're not connected, the play/pause
                             // button turns into a green connect button.
@@ -196,18 +167,18 @@ public class SqueezerActivity extends Activity {
         
         nextButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                if (serviceStub == null) return;
+                if (getService() == null) return;
                 try {
-                    serviceStub.nextTrack();
+                    getService().nextTrack();
                 } catch (RemoteException e) { }
             }
         });
 
         prevButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                if (serviceStub == null) return;
+                if (getService() == null) return;
                 try {
-                    serviceStub.previousTrack();
+                    getService().previousTrack();
                 } catch (RemoteException e) { }
             }
         });
@@ -231,12 +202,12 @@ public class SqueezerActivity extends Activity {
     }
     
     private boolean changeVolumeBy(int delta) {
-        Log.v(TAG, "Adjust volume by: " + delta);
-        if (serviceStub == null) {
+        Log.v(getTag(), "Adjust volume by: " + delta);
+        if (getService() == null) {
             return false;
         }
         try {
-            serviceStub.adjustVolumeBy(delta);
+            getService().adjustVolumeBy(delta);
             return true;
         } catch (RemoteException e) {
         }
@@ -245,12 +216,12 @@ public class SqueezerActivity extends Activity {
 
     // Should only be called the UI thread.
     private void setConnected(boolean connected, boolean postConnect) {
-        Log.v(TAG, "setConnected(" + connected + ", " + postConnect + ")");
+        Log.v(getTag(), "setConnected(" + connected + ", " + postConnect + ")");
         if (postConnect) {
             connectInProgress = false;
-            Log.v(TAG, "Post-connect; connectingDialog == " + connectingDialog);
+            Log.v(getTag(), "Post-connect; connectingDialog == " + connectingDialog);
             if (connectingDialog != null) {
-                Log.v(TAG, "Dismissing...");
+                Log.v(getTag(), "Dismissing...");
                 connectingDialog.dismiss();
                 connectInProgress = false;
                 if (!connected) {
@@ -311,10 +282,29 @@ public class SqueezerActivity extends Activity {
         });
     }
 
+	@Override
+	protected void onServiceConnected() throws RemoteException {
+    	Log.v(getTag(), "Service bound");
+    	uiThreadHandler.post(new Runnable() {
+    	    public void run() {
+    	        updateUIFromServiceState();
+
+    	        // Assume they want to connect...
+    	        if (!isConnected()) {
+    	            String ipPort = getConfiguredCliIpPort();
+    	            if (ipPort != null) {
+    	                startVisibleConnectionTo(ipPort);
+    	            }
+    	        }
+    	    }
+    	});
+   	    getService().registerCallback(serviceCallback);
+	}
+
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume...");
+        Log.d(getTag(), "onResume...");
 
         // Start it and have it run forever (until it shuts itself down).
         // This is required so swapping out the activity (and unbinding the
@@ -323,11 +313,7 @@ public class SqueezerActivity extends Activity {
         // it running in the background.
         startService(new Intent(this, SqueezeService.class));
         
-        bindService(new Intent(this, SqueezeService.class),
-                    serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService; serviceStub = " + serviceStub);
-        
-        if (serviceStub != null) {
+        if (getService() != null) {
             updateUIFromServiceState();
             
             // If they've already set this up in the past, what they probably
@@ -352,17 +338,17 @@ public class SqueezerActivity extends Activity {
 
         // TODO(bradfitz): remove this check once everything is converted into
         // safe accessors like isConnected() already is.
-        if (serviceStub == null) {
-            Log.e(TAG, "Can't update UI with null serviceStub");
+        if (getService() == null) {
+            Log.e(getTag(), "Can't update UI with null serviceStub");
             return;
         }
 
         try {
-            setTitleForPlayer(serviceStub.getActivePlayerName());
-            isPlaying.set(serviceStub.isPlaying());
+            setTitleForPlayer(getService().getActivePlayerName());
+            isPlaying.set(getService().isPlaying());
             updatePlayPauseIcon();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception: " + e);
+            Log.e(getTag(), "Service exception: " + e);
         }
        
     }
@@ -430,128 +416,131 @@ public class SqueezerActivity extends Activity {
     }
     
     private int getSecondsElapsed() {
-        if (serviceStub == null) {
+        if (getService() == null) {
             return 0;
         }
         try {
-            return serviceStub.getSecondsElapsed();
+            return getService().getSecondsElapsed();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in getSecondsElapsed(): " + e);
+            Log.e(getTag(), "Service exception in getSecondsElapsed(): " + e);
         }
         return 0;
     }
     
     private int getSecondsTotal() {
-        if (serviceStub == null) {
+        if (getService() == null) {
             return 0;
         }
         try {
-            return serviceStub.getSecondsTotal();
+            return getService().getSecondsTotal();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in getSecondsTotal(): " + e);
+            Log.e(getTag(), "Service exception in getSecondsTotal(): " + e);
         }
         return 0;
     }
     
     private String getServiceCurrentSong() {
-        if (serviceStub == null) {
+        if (getService() == null) {
             return "";
         }
         try {
-            return serviceStub.currentSong();
+            return getService().currentSong();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in getServiceCurrentSong(): " + e);
+            Log.e(getTag(), "Service exception in getServiceCurrentSong(): " + e);
         }
         return "";
     }
 
     private String getCurrentAlbumArtUrl() {
-        if (serviceStub == null) {
+        if (getService() == null) {
             return "";
         }
         try {
-            return serviceStub.currentAlbumArtUrl();
+            return getService().currentAlbumArtUrl();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in getCurrentAlbumArtUrl(): " + e);
+            Log.e(getTag(), "Service exception in getCurrentAlbumArtUrl(): " + e);
         }
         return "";
     }
 
     private String getServiceCurrentAlbum() {
-        if (serviceStub == null) {
+        if (getService() == null) {
             return "";
         }
         try {
-            return serviceStub.currentAlbum();
+            return getService().currentAlbum();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in getServiceCurrentAlbum(): " + e);
+            Log.e(getTag(), "Service exception in getServiceCurrentAlbum(): " + e);
         }
         return "";
     }
     
     private String getServiceCurrentArtist() {
-        if (serviceStub == null) {
+        if (getService() == null) {
             return "";
         }
         try {
-            return serviceStub.currentArtist();
+            return getService().currentArtist();
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in getServiceCurrentArtist(): " + e);
+            Log.e(getTag(), "Service exception in getServiceCurrentArtist(): " + e);
         }
         return "";
     }
 
 
     private boolean isConnected() {
-        if (serviceStub == null) {
+        if (getService() == null) {
             return false;
         }
         try {
-            return serviceStub.isConnected(); 
+            return getService().isConnected(); 
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
+            Log.e(getTag(), "Service exception in isConnected(): " + e);
         }
         return false;
     }
 
     private boolean canPowerOn() {
-        if (serviceStub == null) {
+        if (getService() == null) {
             return false;
         }
         try {
-            return serviceStub.canPowerOn(); 
+            return getService().canPowerOn(); 
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in canPowerOn(): " + e);
+            Log.e(getTag(), "Service exception in canPowerOn(): " + e);
         }
         return false;
     }
 
     private boolean canPowerOff() {
-        if (serviceStub == null) {
+        if (getService() == null) {
             return false;
         }
         try {
-            return serviceStub.canPowerOff(); 
+            return getService().canPowerOff(); 
         } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in canPowerOff(): " + e);
+            Log.e(getTag(), "Service exception in canPowerOff(): " + e);
         }
         return false;
     }
 
     @Override
     public void onPause() {
-        super.onPause();
-        if (serviceStub != null) {
+        if (getService() != null) {
             try {
-                serviceStub.unregisterCallback(serviceCallback);
+                getService().unregisterCallback(serviceCallback);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
         }
-        if (serviceConnection != null) {
-            unbindService(serviceConnection);
-        }
+        super.onPause();
     }
+	
+	@Override
+	public boolean onSearchRequested() {
+  		SqueezerSearchActivity.show(this);
+		return false;
+	}
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -632,26 +621,29 @@ public class SqueezerActivity extends Activity {
       	case R.id.menu_item_settings:
             SettingsActivity.show(this);
             return true;
+      	case R.id.menu_item_search:
+      		SqueezerSearchActivity.show(this);
+      		return true;
       	case R.id.menu_item_connect:
       	    onUserInitiatesConnect();
             return true;
       	case R.id.menu_item_disconnect:
             try {
-                serviceStub.disconnect();
+                getService().disconnect();
             } catch (RemoteException e) {
                 Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
             }
             return true;
       	case R.id.menu_item_poweron:
             try {
-                serviceStub.powerOn();
+                getService().powerOn();
             } catch (RemoteException e) {
                 Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
             }
             return true;
       	case R.id.menu_item_poweroff:
             try {
-                serviceStub.powerOff();
+                getService().powerOff();
             } catch (RemoteException e) {
                 Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
             }
@@ -677,8 +669,8 @@ public class SqueezerActivity extends Activity {
     }
     
     private void onUserInitiatesConnect() {
-        if (serviceStub == null) {
-            Log.e(TAG, "serviceStub is null.");
+        if (getService() == null) {
+            Log.e(getTag(), "serviceStub is null.");
             return;
         }
         String ipPort = getConfiguredCliIpPort();
@@ -686,7 +678,7 @@ public class SqueezerActivity extends Activity {
             SettingsActivity.show(this);
             return;
         }
-        Log.v(TAG, "User-initiated connect to: " + ipPort);
+        Log.v(getTag(), "User-initiated connect to: " + ipPort);
         startVisibleConnectionTo(ipPort);
     }
     
@@ -695,7 +687,7 @@ public class SqueezerActivity extends Activity {
         connectingTo = ipPort;
         showDialog(DIALOG_CONNECTING);
         try {
-            serviceStub.startConnect(ipPort);
+            getService().startConnect(ipPort);
         } catch (RemoteException e) {
             Toast.makeText(this, "startConnection error: " + e,
                     Toast.LENGTH_LONG).show();
@@ -714,7 +706,7 @@ public class SqueezerActivity extends Activity {
                                         final boolean postConnect)
                        throws RemoteException {
                 // TODO Auto-generated method stub
-                Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
+                Log.v(getTag(), "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
                 uiThreadHandler.post(new Runnable() {
                         public void run() {
                             setConnected(isConnected, postConnect);
@@ -724,7 +716,7 @@ public class SqueezerActivity extends Activity {
 
             public void onPlayerChanged(final String playerId,
                                         final String playerName) throws RemoteException {
-                Log.v(TAG, "player now " + playerId + ": " + playerName);
+                Log.v(getTag(), "player now " + playerId + ": " + playerName);
                 setTitleForPlayer(playerName);
             }
 
@@ -737,7 +729,7 @@ public class SqueezerActivity extends Activity {
             }
 
             public void onVolumeChange(final int newVolume) throws RemoteException {
-                Log.v(TAG, "Volume = " + newVolume);
+                Log.v(getTag(), "Volume = " + newVolume);
                 uiThreadHandler.post(new Runnable() {
                     public void run() {
                         if (activeToast != null) {

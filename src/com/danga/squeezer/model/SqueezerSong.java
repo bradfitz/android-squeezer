@@ -4,19 +4,30 @@ import java.util.Map;
 
 import android.os.Parcel;
 
-import com.danga.squeezer.SqueezerItem;
+import com.danga.squeezer.SqueezerArtworkItem;
 import com.danga.squeezer.Util;
 
-public class SqueezerSong extends SqueezerItem {
+public class SqueezerSong extends SqueezerArtworkItem {
+
 	private String name;
+	public String getName() { return name; }
+	public SqueezerSong setName(String name) { this.name = name; return this; }
+
 	private String artist;
+	public String getArtist() { return artist; }
+	public void setArtist(String model) { this.artist = model; }
+	
 	private String album;
+	public String getAlbum() { return album; }
+	public void setAlbum(String album) { this.album = album; }
+	
 	private int year;
-	private String artwork_track_id;
+	public int getYear() { return year; }
+	public void setYear(int year) { this.year = year; }
 	
 	public SqueezerSong(Map<String, String> record) {
-		setId(record.get("playlist index"));
-		setName(record.get("title"));
+		setId(record.containsKey("track_id") ? record.get("track_id") : record.get("playlist index"));
+		setName(record.containsKey("track") ? record.get("track") : record.get("title"));
 		setArtist(record.get("artist"));
 		setAlbum(record.get("album"));
 		setYear(Util.parseDecimalIntOrZero(record.get("year")));
@@ -38,7 +49,7 @@ public class SqueezerSong extends SqueezerItem {
 		artist = source.readString();
 		album = source.readString();
 		year = source.readInt();
-		artwork_track_id = source.readString();
+		setArtwork_track_id(source.readString());
 	}
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(getId());
@@ -46,40 +57,9 @@ public class SqueezerSong extends SqueezerItem {
 		dest.writeString(artist);
 		dest.writeString(album);
 		dest.writeInt(year);
-		dest.writeString(artwork_track_id);
+		dest.writeString(getArtwork_track_id());
 	}
 	
-	public String getName() {
-		return name;
-	}
-	public SqueezerSong setName(String name) {
-		this.name = name;
-		return this;
-	}
-	public String getArtist() {
-		return artist;
-	}
-	public void setArtist(String model) {
-		this.artist = model;
-	}
-	public String getAlbum() {
-		return album;
-	}
-	public void setAlbum(String album) {
-		this.album = album;
-	}
-	public int getYear() {
-		return year;
-	}
-	public void setYear(int year) {
-		this.year = year;
-	}
-	public String getArtwork_track_id() {
-		return artwork_track_id;
-	}
-	public void setArtwork_track_id(String artwork_track_id) {
-		this.artwork_track_id = artwork_track_id;
-	}
 	
 	@Override
 	public String toString() {

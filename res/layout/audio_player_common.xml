@@ -16,12 +16,12 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <View 
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="1px"
         android:background="#ffffffff" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#ff5a5a5a"
         android:paddingTop="1px"
@@ -79,7 +79,7 @@
     <SeekBar android:id="@+id/seekbar"
         android:background="#ff5a5a5a"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="36px"
         android:paddingLeft="5px"
         android:paddingRight="5px"

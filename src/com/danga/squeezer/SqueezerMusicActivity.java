@@ -126,6 +126,7 @@ public class SqueezerMusicActivity extends ListActivity {
 			case PLAYLISTS:
 				break;
 			case SEARCH:
+				SqueezerSearchActivity.show(SqueezerMusicActivity.this);
 				break;
 			}
 		}

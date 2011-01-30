@@ -8,6 +8,7 @@ import com.danga.squeezer.itemlists.IServiceYearListCallback;
 import com.danga.squeezer.itemlists.IServiceGenreListCallback;
 import com.danga.squeezer.itemlists.IServiceSongListCallback;
 import com.danga.squeezer.model.SqueezerPlayer;
+import com.danga.squeezer.model.SqueezerSong;
 import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerYear;
@@ -48,6 +49,7 @@ interface ISqueezeService {
         boolean stop();
         boolean nextTrack();
         boolean previousTrack();
+        boolean playSong(in SqueezerSong song);
         boolean playAlbum(in SqueezerAlbum album);
         boolean randomPlay(String type);
         boolean playlistIndex(int index);
@@ -68,33 +70,38 @@ interface ISqueezeService {
         // the correct value as returned by the server later.
         int adjustVolumeBy(int delta);
         
-        // Player list activity
+        // Player list
         boolean players(int start);
 	    void registerPlayerListCallback(IServicePlayerListCallback callback);
         void unregisterPlayerListCallback(IServicePlayerListCallback callback);
         
-        // Album list activity
+        // Album list
         boolean albums(int start, String sortOrder, String searchString, in SqueezerArtist artist, in SqueezerYear year, in SqueezerGenre genre);
 	    void registerAlbumListCallback(IServiceAlbumListCallback callback);
         void unregisterAlbumListCallback(IServiceAlbumListCallback callback);
         
-        // Artist list activity
+        // Artist list
         boolean artists(int start, String searchString, in SqueezerGenre genre);
 	    void registerArtistListCallback(IServiceArtistListCallback callback);
         void unregisterArtistListCallback(IServiceArtistListCallback callback);
         
-        // Year list activity
+        // Year list
         boolean years(int start);
 	    void registerYearListCallback(IServiceYearListCallback callback);
         void unregisterYearListCallback(IServiceYearListCallback callback);
         
-        // Year list activity
+        // Year list
         boolean genres(int start);
 	    void registerGenreListCallback(IServiceGenreListCallback callback);
         void unregisterGenreListCallback(IServiceGenreListCallback callback);
         
-        // Song list activity
+        // Song list
+        boolean songs(int start, String sortOrder, String searchString, in SqueezerAlbum album, in SqueezerArtist artist, in SqueezerYear year, in SqueezerGenre genre);
         boolean currentPlaylist(int start);
 	    void registerSongListCallback(IServiceSongListCallback callback);
         void unregisterSongListCallback(IServiceSongListCallback callback);
+        
+        // Search
+        boolean search(int start, String searchString);
+
 }

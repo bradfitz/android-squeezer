@@ -60,22 +60,21 @@ public class SqueezeService extends Service {
 
     private static final Map<String, Set<String>> acceptedTaggedParameters = initializeTaggedParameters();
 	
-    private static Map<String, Set<String>> initializeTaggedParameters() {
+	private static Map<String, Set<String>> initializeTaggedParameters() {
 		Map<String, Set<String>> acceptedTaggedParameters = new HashMap<String, Set<String>>();
-		acceptedTaggedParameters.put("players", new HashSet<String>(Arrays
-				.asList("playerprefs", "charset")));
-		acceptedTaggedParameters.put("artists", new HashSet<String>(Arrays
-				.asList("search", "genre_id", "album_id", "tags", "charset")));
+		acceptedTaggedParameters.put("players", new HashSet<String>(Arrays.asList("playerprefs",
+				"charset")));
+		acceptedTaggedParameters.put("artists", new HashSet<String>(Arrays.asList("search",
+				"genre_id", "album_id", "tags", "charset")));
 		acceptedTaggedParameters.put("albums", new HashSet<String>(Arrays
-				.asList("search", "genre_id", "artist_id", "track_id", "year",
-						"compilation", "sort", "tags", "charset")));
-		acceptedTaggedParameters.put("years", new HashSet<String>(Arrays
-				.asList("charset")));
-		acceptedTaggedParameters.put("genres", new HashSet<String>(Arrays
-				.asList("search", "artist_id", "album_id", "track_id", "year",
+				.asList("search", "genre_id", "artist_id", "track_id", "year", "compilation", "sort",
 						"tags", "charset")));
-		acceptedTaggedParameters.put("status", new HashSet<String>(Arrays
-				.asList("tags", "charset", "subscribe")));
+		acceptedTaggedParameters.put("years", new HashSet<String>(Arrays.asList("charset")));
+		acceptedTaggedParameters.put("genres", new HashSet<String>(Arrays.asList("search",
+				"artist_id", "album_id", "track_id", "year", "tags", "charset")));
+		acceptedTaggedParameters.put("status", new HashSet<String>(Arrays.asList("tags", "charset",
+				"subscribe")));
+		acceptedTaggedParameters.put("search", new HashSet<String>(Arrays.asList("term", "charset")));
 		return acceptedTaggedParameters;
 	}
 	
@@ -89,26 +88,19 @@ public class SqueezeService extends Service {
 
     // Connection state:
     // TODO: this is getting ridiculous. Move this into ConnectionState class.
-    private final AtomicBoolean isConnected = new AtomicBoolean(false);
-    private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
-    private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
-    private final AtomicReference<IServiceCallback> callback =
-        new AtomicReference<IServiceCallback>();
-    private final AtomicReference<IServicePlayerListCallback> playerListCallback =
-        new AtomicReference<IServicePlayerListCallback>();
-    private final AtomicReference<IServiceAlbumListCallback> albumListCallback =
-        new AtomicReference<IServiceAlbumListCallback>();
-    private final AtomicReference<IServiceArtistListCallback> artistListCallback =
-        new AtomicReference<IServiceArtistListCallback>();
-    private final AtomicReference<IServiceYearListCallback> yearListCallback =
-        new AtomicReference<IServiceYearListCallback>();
-    private final AtomicReference<IServiceGenreListCallback> genreListCallback =
-        new AtomicReference<IServiceGenreListCallback>();
-    private final AtomicReference<IServiceSongListCallback> songListCallback =
-        new AtomicReference<IServiceSongListCallback>();
-    private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
-    private final AtomicReference<SqueezerPlayer> activePlayer = new AtomicReference<SqueezerPlayer>();
-    private final AtomicReference<SqueezerPlayer> defaultPlayer = new AtomicReference<SqueezerPlayer>();
+	private final AtomicBoolean isConnected = new AtomicBoolean(false);
+	private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
+	private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
+	private final AtomicReference<IServiceCallback> callback = new AtomicReference<IServiceCallback>();
+	private final AtomicReference<IServicePlayerListCallback> playerListCallback = new AtomicReference<IServicePlayerListCallback>();
+	private final AtomicReference<IServiceAlbumListCallback> albumListCallback = new AtomicReference<IServiceAlbumListCallback>();
+	private final AtomicReference<IServiceArtistListCallback> artistListCallback = new AtomicReference<IServiceArtistListCallback>();
+	private final AtomicReference<IServiceYearListCallback> yearListCallback = new AtomicReference<IServiceYearListCallback>();
+	private final AtomicReference<IServiceGenreListCallback> genreListCallback = new AtomicReference<IServiceGenreListCallback>();
+	private final AtomicReference<IServiceSongListCallback> songListCallback = new AtomicReference<IServiceSongListCallback>();
+	private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
+	private final AtomicReference<SqueezerPlayer> activePlayer = new AtomicReference<SqueezerPlayer>();
+	private final AtomicReference<SqueezerPlayer> defaultPlayer = new AtomicReference<SqueezerPlayer>();
     
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
@@ -173,13 +165,23 @@ public class SqueezeService extends Service {
         activePlayer.set(null);
     }
 
+    // We register when asynchronous fetches are initiated, and when callbacks are unregistered
+    // because these events will make responses from pending requests obsolete
     int _correlationid = 0;
     Map<String, Integer> cmdCorrelationIds = new HashMap<String, Integer>();
+    Map<Class<?>, Integer> typeCorrelationIds = new HashMap<Class<?>, Integer>();
+    
+    private boolean checkCorrelation(Integer registeredCorralationId, int currentCorrelationId) {
+    	if (registeredCorralationId == null) return true;
+    	return (currentCorrelationId >= registeredCorralationId);
+    }
     
     private boolean checkCorrelation(String cmd, int correlationid) {
-    	Integer cmdCorr = cmdCorrelationIds.get(cmd);
-    	if (cmdCorr == null) return true;
-    	return (correlationid >= cmdCorr);
+    	return checkCorrelation(cmdCorrelationIds.get(cmd), correlationid);
+    }
+    
+    private boolean checkCorrelation(Class<? extends SqueezerItem> type, int correlationid) {
+    	return checkCorrelation(typeCorrelationIds.get(type), correlationid);
     }
 
     /**
@@ -190,7 +192,7 @@ public class SqueezeService extends Service {
      * <p>
      * This will always order one item, to learn the number of items from the server. Remaining
      * items will then be automatically ordered when the response arrives. See
-     * {@link #parseSqueezerList(boolean, String, String, List, SqueezeListHandler)} for details.
+     * {@link #parseSqueezerList(boolean, String, String, List, SqueezerListHandler)} for details.
      * 
      * @param playerid Id of the current player or null
      * @param cmd Identifies the 
@@ -255,8 +257,12 @@ public class SqueezeService extends Service {
             // TODO: can this block (sqlite lookup via binder call?)  Might want to move it elsewhere.
         	final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
         	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
-        	parseSqueezerList("playerindex", tokens, new SqueezeListHandler() {
+        	parseSqueezerList("playerindex", tokens, new SqueezerListHandler() {
                 List<SqueezerPlayer> players = new ArrayList<SqueezerPlayer>();
+
+        		public Class<? extends SqueezerItem> getDataType() {
+        			return SqueezerPlayer.class;
+        		}
 				
 				public void add(Map<String, String> record) {
 					SqueezerPlayer player = new SqueezerPlayer(record);
@@ -286,91 +292,27 @@ public class SqueezeService extends Service {
             return;
         }
         if (serverLine.startsWith("albums ")) {
-        	parseSqueezerList(tokens, new SqueezeListHandler() {
-				List<SqueezerAlbum> albums = new ArrayList<SqueezerAlbum>();
-				
-				public void add(Map<String, String> record) {
-					albums.add(new SqueezerAlbum(record));
-				}
-				
-				public boolean processList(boolean rescan, int count, int max, int start) {
-					if (albumListCallback.get() != null) {
-						try {
-							albumListCallback.get().onAlbumsReceived(count, max, start, albums);
-							return true;
-						} catch (RemoteException e) {
-							Log.e(TAG, e.toString());
-						}
-					}
-					return false;
-				}
-			});
+        	parseSqueezerList(tokens, new AlbumListHandler());
         	return;
         }
         if (serverLine.startsWith("artists ")) {
-        	parseSqueezerList(tokens, new SqueezeListHandler() {
-				List<SqueezerArtist> artists = new ArrayList<SqueezerArtist>();
-				
-				public void add(Map<String, String> record) {
-					artists.add(new SqueezerArtist(record));
-				}
-				
-				public boolean processList(boolean rescan, int count, int max, int start) {
-					if (artistListCallback.get() != null) {
-						try {
-							artistListCallback.get().onArtistsReceived(count, max, start, artists);
-							return true;
-						} catch (RemoteException e) {
-							Log.e(TAG, e.toString());
-						}
-					}
-					return false;
-				}
-			});
+        	parseSqueezerList(tokens, new ArtistListHandler());
         	return;
         }
         if (serverLine.startsWith("years ")) {
-        	parseSqueezerList("year", tokens, new SqueezeListHandler() {
-				List<SqueezerYear> years = new ArrayList<SqueezerYear>();
-				
-				public void add(Map<String, String> record) {
-					years.add(new SqueezerYear(record));
-				}
-				
-				public boolean processList(boolean rescan, int count, int max, int start) {
-					if (yearListCallback.get() != null) {
-						try {
-							yearListCallback.get().onYearsReceived(count, max, start, years);
-							return true;
-						} catch (RemoteException e) {
-							Log.e(TAG, e.toString());
-						}
-					}
-					return false;
-				}
-			});
+        	parseSqueezerList("year", tokens, new YearListHandler());
         	return;
         }
         if (serverLine.startsWith("genres ")) {
-        	parseSqueezerList(tokens, new SqueezeListHandler() {
-				List<SqueezerGenre> genres = new ArrayList<SqueezerGenre>();
-				
-				public void add(Map<String, String> record) {
-					genres.add(new SqueezerGenre(record));
-				}
-				
-				public boolean processList(boolean rescan, int count, int max, int start) {
-					if (genreListCallback.get() != null) {
-						try {
-							genreListCallback.get().onGenresReceived(count, max, start, genres);
-							return true;
-						} catch (RemoteException e) {
-							Log.e(TAG, e.toString());
-						}
-					}
-					return false;
-				}
-			});
+        	parseSqueezerList(tokens, new GenreListHandler());
+        	return;
+        }
+        if (serverLine.startsWith("search ")) {
+        	SqueezeParserInfo genreParserInfo = new SqueezeParserInfo("genres_count", "genre_id", new GenreListHandler());
+        	SqueezeParserInfo albumParserInfo = new SqueezeParserInfo("albums_count", "album_id", new AlbumListHandler());
+        	SqueezeParserInfo artistParserInfo = new SqueezeParserInfo("contributors_count", "contributor_id", new ArtistListHandler());
+        	SqueezeParserInfo songParserInfo = new SqueezeParserInfo("tracks_count", "track_id", new SongListHandler());
+        	parseSqueezerList(false, tokens, genreParserInfo, albumParserInfo, artistParserInfo, songParserInfo);
         	return;
         }
 		if (serverLine.startsWith("pref ")) {
@@ -421,25 +363,7 @@ public class SqueezeService extends Service {
         	if (tokens.size() >= 3 && "-".equals(tokens.get(2)))
         		parseStatusLine(tokens);
         	else {
-            	parseSqueezerList(true, "playlist index", "playlist_tracks", tokens, new SqueezeListHandler() {
-    				List<SqueezerSong> songs = new ArrayList<SqueezerSong>();
-    				
-    				public void add(Map<String, String> record) {
-    					songs.add(new SqueezerSong(record));
-    				}
-    				
-    				public boolean processList(boolean rescan, int count, int max, int start) {
-    					if (songListCallback.get() != null) {
-    						try {
-    							songListCallback.get().onSongsReceived(count, max, start, songs);
-    							return true;
-    						} catch (RemoteException e) {
-    							Log.e(TAG, e.toString());
-    						}
-    					}
-    					return false;
-    				}
-    			});
+            	parseSqueezerList(true, "playlist index", "playlist_tracks", tokens, new SongListHandler());
         	}
             return;
         }
@@ -594,15 +518,41 @@ public class SqueezeService extends Service {
         }
     }
 
+	/**
+     * Data for {@link SqueezeService#parseSqueezerList(boolean, List, SqueezeParserInfo...)}
+     * 
+     * @author kaa
+     */
+    private class SqueezeParserInfo {
+    	private String item_delimiter;
+    	private String count_id;
+    	private SqueezerListHandler handler;
+
+    	/**
+    	 * @param countId The label for the tag which contains the total number of results, normally "count".
+    	 * @param itemDelimiter As defined for each extended query format command in the squeezeserver CLI documentation.
+    	 * @param handler Callback to receive the parsed data.
+    	 */
+    	public SqueezeParserInfo(String countId, String itemDelimiter, SqueezerListHandler handler) {
+			count_id = countId;
+			item_delimiter = itemDelimiter;
+			this.handler = handler;
+		}
+    }
 
     /**
      * <p>
-     * Implement this and give it to {@link SqueezeService#parseSqueezerList(List, SqueezeListHandler)} for each
+     * Implement this and give it to {@link SqueezeService#parseSqueezerList(List, SqueezerListHandler)} for each
      * extended query format command you which to support.
      * </p>
      * @author Kurt Aaholst
      */
-	private interface SqueezeListHandler {
+	private interface SqueezerListHandler {
+		/**
+		 * @return The type of item this handler can handle
+		 */
+		Class<? extends SqueezerItem> getDataType();
+		
 		/**
 		 * Called for each item received in the current reply. Just store this internally.
 		 * @param record
@@ -611,7 +561,7 @@ public class SqueezeService extends Service {
 		
 		/**
 		 * Called when the current reply is completely parsed. Pass the information on to your activity now. If there are
-		 * any more data, it is automatically ordered by {@link SqueezeService#parseSqueezerList(List, SqueezeListHandler)}
+		 * any more data, it is automatically ordered by {@link SqueezeService#parseSqueezerList(List, SqueezerListHandler)}
 		 * @param rescan Set if SqueezeServer is currently doing a scan of the music library.
 		 * @param count Total number of result for the current query.
 		 * @param max The current configured default maximum list size.
@@ -621,30 +571,160 @@ public class SqueezeService extends Service {
 		boolean processList(boolean rescan, int count, int max, int start);
 	}
 
+    private class YearListHandler implements SqueezerListHandler {
+		List<SqueezerYear> years = new ArrayList<SqueezerYear>();
+
+		public Class<? extends SqueezerItem> getDataType() {
+			return SqueezerYear.class;
+		}
+
+		public void add(Map<String, String> record) {
+			years.add(new SqueezerYear(record));
+		}
+
+		public boolean processList(boolean rescan, int count, int max, int start) {
+			if (yearListCallback.get() != null) {
+				try {
+					yearListCallback.get().onYearsReceived(count, max, start, years);
+					return true;
+				} catch (RemoteException e) {
+					Log.e(TAG, e.toString());
+				}
+			}
+			return false;
+		}
+	}
+
+    private class GenreListHandler implements SqueezerListHandler {
+		List<SqueezerGenre> genres = new ArrayList<SqueezerGenre>();
+
+		public Class<? extends SqueezerItem> getDataType() {
+			return SqueezerYear.class;
+		}
+
+		public void add(Map<String, String> record) {
+			genres.add(new SqueezerGenre(record));
+		}
+
+		public boolean processList(boolean rescan, int count, int max, int start) {
+			if (genreListCallback.get() != null) {
+				try {
+					genreListCallback.get().onGenresReceived(count, max, start, genres);
+					return true;
+				} catch (RemoteException e) {
+					Log.e(TAG, e.toString());
+				}
+			}
+			return false;
+		}
+
+	}
+
+	private class ArtistListHandler implements SqueezerListHandler {
+		List<SqueezerArtist> artists = new ArrayList<SqueezerArtist>();
+
+		public Class<? extends SqueezerItem> getDataType() {
+			return SqueezerArtist.class;
+		}
+
+		public void add(Map<String, String> record) {
+			artists.add(new SqueezerArtist(record));
+		}
+
+		public boolean processList(boolean rescan, int count, int max, int start) {
+			if (artistListCallback.get() != null) {
+				try {
+					artistListCallback.get().onArtistsReceived(count, max, start, artists);
+					return true;
+				} catch (RemoteException e) {
+					Log.e(TAG, e.toString());
+				}
+			}
+			return false;
+		}
+	}
+
+	private class AlbumListHandler implements SqueezerListHandler {
+		List<SqueezerAlbum> albums = new ArrayList<SqueezerAlbum>();
+
+		public Class<? extends SqueezerItem> getDataType() {
+			return SqueezerAlbum.class;
+		}
+
+		public void add(Map<String, String> record) {
+			albums.add(new SqueezerAlbum(record));
+		}
+
+		public boolean processList(boolean rescan, int count, int max, int start) {
+			if (albumListCallback.get() != null) {
+				try {
+					albumListCallback.get().onAlbumsReceived(count, max, start, albums);
+					return true;
+				} catch (RemoteException e) {
+					Log.e(TAG, e.toString());
+				}
+			}
+			return false;
+		}
+	}
+
+	private class SongListHandler implements SqueezerListHandler {
+		List<SqueezerSong> songs = new ArrayList<SqueezerSong>();
+
+		public Class<? extends SqueezerItem> getDataType() {
+			return SqueezerSong.class;
+		}
+
+		public void add(Map<String, String> record) {
+			songs.add(new SqueezerSong(record));
+		}
+
+		public boolean processList(boolean rescan, int count, int max, int start) {
+			if (songListCallback.get() != null) {
+				try {
+					songListCallback.get().onSongsReceived(count, max, start, songs);
+					return true;
+				} catch (RemoteException e) {
+					Log.e(TAG, e.toString());
+				}
+			}
+			return false;
+		}
+	}
+
 	/**
 	 * <h1>Generic method to parse replies for queries in extended query format</h1>
 	 * <p>
 	 * This is the control center for asynchronous and paging receiving of data from SqueezeServer.<br/>
 	 * Transfer of each data type are started by an asynchronous request by one of the public method in this module.
-	 * This method will forward the data using the supplied {@link SqueezeListHandler}, and and order the next page if necessary,
+	 * This method will forward the data using the supplied {@link SqueezerListHandler}, and and order the next page if necessary,
 	 * repeating the current query parameters.<br/>
 	 * Activities should just initiate the request, and supply a callback to receive a page of data.
 	 * <p>
 	 * @param playercmd Set this for replies for the current player, to skip the playerid
-	 * @param item_delimiter As defined for each extended query format command in the squeezeserver CLI documentation.
-	 * @param count_id The label for the tag which contains the total number of results, normally "count". 
 	 * @param tokens List of tokens with value or key:value.
-	 * @param handler Callback to receive the parsed data.
+	 * @param parserInfos Data for each list you expect for the current repsonse
 	 */
-	private void parseSqueezerList(boolean playercmd, String item_delimiter, String count_id, List<String> tokens, SqueezeListHandler handler) {
+	private void parseSqueezerList(boolean playercmd, List<String> tokens, SqueezeParserInfo... parserInfos) {
 		Log.v(TAG, "Parsing list: " + tokens);
+
 		int n = (playercmd ? -1 : 0);
-		Map<String, String> record = null;
-		Map<String, String> taggedParameters = new HashMap<String, String>();
 		String playerid = "", cmd = null;
-		int start = 0, itemsPerResponse = 0, count = 0;
+		int start = 0, itemsPerResponse = 0;
 		int correlationid = 0;
 		boolean rescan = false;
+		Map<String, String> taggedParameters = new HashMap<String, String>();
+		Set<String> countIdSet = new HashSet<String>();
+		Map<String, SqueezeParserInfo> itemDelimeterMap = new HashMap<String, SqueezeParserInfo>();
+		Map<String, Integer> counts = new HashMap<String, Integer>();
+		Map<String, String> record = null;
+
+		for (SqueezeParserInfo parserInfo: parserInfos) {
+			countIdSet.add(parserInfo.count_id);
+			itemDelimeterMap.put(parserInfo.item_delimiter, parserInfo);
+		}
+		
+		SqueezeParserInfo parserInfo = null;
 		for (String token : tokens) {
 			switch (n) {
 			case -1:
@@ -669,19 +749,21 @@ public class SqueezeService extends Service {
 				String value = decode(token.substring(colonPos + 3));
 				if (debugLogging)
 					Log.v(TAG, "key=" + key + ", value: " + value);
-				if (key.equals(count_id))
-					count = Util.parseDecimalIntOrZero(value);
-				else if (key.equals("rescan"))
+				
+				if (key.equals("rescan"))
 					rescan = (Util.parseDecimalIntOrZero(value) == 1);
 				else if (key.equals("correlationid"))
 					correlationid = Util.parseDecimalIntOrZero(value);
+				if (countIdSet.contains(key))
+					counts.put(key, Util.parseDecimalIntOrZero(value));
 				else {
-					if (key.equals(item_delimiter)) {
+					if (itemDelimeterMap.get(key) != null) {
 						if (record != null) {
-							handler.add(record);
+							parserInfo.handler.add(record);
 							if (debugLogging)
 								Log.v(TAG, "record=" + record);
 						}
+						parserInfo = itemDelimeterMap.get(key);
 						record = new HashMap<String, String>();
 					}
 					if (record != null)
@@ -697,40 +779,59 @@ public class SqueezeService extends Service {
 			n++;
 		}
 		
-		if (record != null) {
-			handler.add(record);
-		}
+		if (record != null) parserInfo.handler.add(record);
 
-		if (checkCorrelation(cmd, correlationid)) {
-			if (handler.processList(rescan, count, maxListSize, start)) {
-				int max = (count < maxListSize || start + itemsPerResponse > maxListSize ) ? count : maxListSize;
-				if (start + itemsPerResponse < max) {
-					int pageSize = (start + itemsPerResponse + PAGESIZE > max ? pageSize = max - (start + itemsPerResponse) : PAGESIZE);
-					StringBuilder cmdline = new StringBuilder(cmd + " " + (start + itemsPerResponse) + " " + pageSize);
-					for (Entry<String,String> entry: taggedParameters.entrySet())
-						cmdline.append(" " + entry.getKey() + ":" + entry.getValue());
-					sendCommand(playerid + cmdline.toString());
+		processLists: if (checkCorrelation(cmd, correlationid)) {
+			int end = start + itemsPerResponse;
+			int max = 0;
+			for (SqueezeParserInfo parser: parserInfos) {
+				if (checkCorrelation(parser.handler.getDataType(), correlationid)) {
+				Integer count = counts.get(parser.count_id);
+				int countValue = count == null ? 0 : count;
+				if (count != null || start == 0) {
+					if (!parser.handler.processList(rescan, countValue, maxListSize, start))
+						break processLists;
+					if (countValue > max)
+						max = (count < maxListSize || end > maxListSize ) ? count : maxListSize;
 				}
+				}
+			}
+			if (end < max) {
+				int pageSize = (end + PAGESIZE > max ? pageSize = max - end : PAGESIZE);
+				StringBuilder cmdline = new StringBuilder(cmd + " "	+ end + " " + pageSize);
+				for (Entry<String, String> entry : taggedParameters.entrySet())
+					cmdline.append(" " + entry.getKey() + ":" + entry.getValue());
+				sendCommand(playerid + cmdline.toString());
 			}
 		}
 	}
 
 	/**
-	 * Shortcut for {@link #parseSqueezerList(int, String, String, List, SqueezeListHandler)}, with offset=0.
+	 * Shortcut for {@link #parseSqueezerList(int, String, String, List, SqueezerListHandler)}, with offset=0.
 	 * @param item_delimiter
 	 * @param tokens
 	 * @param handler
 	 */
-	private void parseSqueezerList(String item_delimiter, List<String> tokens, SqueezeListHandler handler) {
+	private void parseSqueezerList(boolean playerCmd, String item_delimiter, String count_id, List<String> tokens, SqueezerListHandler handler) {
+		SqueezeParserInfo parserInfo = new SqueezeParserInfo(count_id, item_delimiter, handler);
+		parseSqueezerList(playerCmd, tokens, parserInfo);
+	}
+
+	/**
+	 * Shortcut for {@link #parseSqueezerList(String, List, SqueezerListHandler)}, with item_delimeter = "id".
+	 * @param tokens
+	 * @param handler
+	 */
+	private void parseSqueezerList(String item_delimiter, List<String> tokens, SqueezerListHandler handler) {
 		parseSqueezerList(false, item_delimiter, "count", tokens, handler);
 	}
 
 	/**
-	 * Shortcut for {@link #parseSqueezerList(String, List, SqueezeListHandler)}, with item_delimeter = "id".
+	 * Shortcut for {@link #parseSqueezerList(String, List, SqueezerListHandler)}, with item_delimeter = "id".
 	 * @param tokens
 	 * @param handler
 	 */
-	private void parseSqueezerList(List<String> tokens, SqueezeListHandler handler) {
+	private void parseSqueezerList(List<String> tokens, SqueezerListHandler handler) {
 		parseSqueezerList("id", tokens, handler);
 	}
 	
@@ -1014,6 +1115,14 @@ public class SqueezeService extends Service {
             return true;
         }
         
+        public boolean playSong(SqueezerSong song) throws RemoteException {
+            if (!isConnected()) {
+                return false;
+            }
+            sendPlayerCommand("playlistcontrol cmd:load track_id:" + song.getId());
+            return true;
+        }
+        
         public boolean playAlbum(SqueezerAlbum album) throws RemoteException {
             if (!isConnected()) {
                 return false;
@@ -1122,10 +1231,10 @@ public class SqueezeService extends Service {
 	    	SqueezeService.this.playerListCallback.set(callback);
 		}
 
-		public void unregisterPlayerListCallback(IServicePlayerListCallback callback)
-				throws RemoteException {
+		public void unregisterPlayerListCallback(IServicePlayerListCallback callback) throws RemoteException {
             Log.v(TAG, "PlayerListCallback detached.");
 	    	SqueezeService.this.playerListCallback.compareAndSet(callback, null);
+			typeCorrelationIds.put(SqueezerPlayer.class, _correlationid);
 		}
         
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
@@ -1156,6 +1265,7 @@ public class SqueezeService extends Service {
 		public void unregisterAlbumListCallback(IServiceAlbumListCallback callback) throws RemoteException {
             Log.v(TAG, "AlbumListCallback detached.");
 	    	SqueezeService.this.albumListCallback.compareAndSet(callback, null);
+			typeCorrelationIds.put(SqueezerAlbum.class, _correlationid);
 		}
         
         /* Start an async fetch of the SqueezeboxServer's artists */
@@ -1178,6 +1288,7 @@ public class SqueezeService extends Service {
 		public void unregisterArtistListCallback(IServiceArtistListCallback callback) throws RemoteException {
             Log.v(TAG, "ArtistListCallback detached.");
 	    	SqueezeService.this.artistListCallback.compareAndSet(callback, null);
+			typeCorrelationIds.put(SqueezerArtist.class, _correlationid);
 		}
         
         /* Start an async fetch of the SqueezeboxServer's years */
@@ -1195,6 +1306,7 @@ public class SqueezeService extends Service {
 		public void unregisterYearListCallback(IServiceYearListCallback callback) throws RemoteException {
             Log.v(TAG, "YearListCallback detached.");
 	    	SqueezeService.this.yearListCallback.compareAndSet(callback, null);
+			typeCorrelationIds.put(SqueezerYear.class, _correlationid);
 		}
         
         /* Start an async fetch of the SqueezeboxServer's genres */
@@ -1212,6 +1324,29 @@ public class SqueezeService extends Service {
 		public void unregisterGenreListCallback(IServiceGenreListCallback callback) throws RemoteException {
             Log.v(TAG, "GenreListCallback detached.");
 	    	SqueezeService.this.genreListCallback.compareAndSet(callback, null);
+			typeCorrelationIds.put(SqueezerGenre.class, _correlationid);
+		}
+        
+		/* Start an async fetch of the SqueezeboxServer's songs */
+		public boolean songs(int start, String sortOrder, String searchString, SqueezerAlbum album,
+				SqueezerArtist artist, SqueezerYear year, SqueezerGenre genre) throws RemoteException {
+			if (!isConnected())
+				return false;
+			List<String> parameters = new ArrayList<String>();
+			parameters.add("tags:" + SONGTAGS);
+			parameters.add("sort:" + sortOrder);
+			if (searchString != null && searchString.length() > 0)
+				parameters.add("search:" + searchString);
+			if (album != null)
+				parameters.add("album_id:" + album.getId());
+			if (artist != null)
+				parameters.add("artist_id:" + artist.getId());
+			if (year != null)
+				parameters.add("year:" + year.getId());
+			if (genre != null)
+				parameters.add("genre_id:" + genre.getId());
+			requestItems("songs", start, parameters);
+			return true;
 		}
         
         /* Start an async fetch of the SqueezeboxServer's current playlist */
@@ -1229,7 +1364,18 @@ public class SqueezeService extends Service {
 		public void unregisterSongListCallback(IServiceSongListCallback callback) throws RemoteException {
             Log.v(TAG, "SongListCallback detached.");
 	    	SqueezeService.this.songListCallback.compareAndSet(callback, null);
+			typeCorrelationIds.put(SqueezerSong.class, _correlationid);
 		}
+        
+        /* Start an asynchronous search of the SqueezeboxServer's library */
+   		public boolean search(int start, String searchString) throws RemoteException {
+            if (!isConnected()) return false;
+            List<String> parameters = new ArrayList<String>();
+			if (searchString != null && searchString.length() > 0)
+				parameters.add("term:" + searchString);
+			requestItems("search", start, parameters);
+            return true;
+        }
         
     };
 

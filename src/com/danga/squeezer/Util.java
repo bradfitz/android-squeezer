@@ -4,9 +4,13 @@ import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
+import android.app.Activity;
+import android.view.View;
+import android.widget.TextView;
+
 public class Util {
     private Util() {}
-    
+
     public static String nonNullString(AtomicReference<String> ref) {
         String string = ref.get();
         return string == null ? "" : string;
@@ -72,5 +76,14 @@ public class Util {
         timeArgs[4] = secs % 60;
         return sFormatter.format("%2$d:%5$02d", timeArgs).toString();
     }
+
+    public static View getListItemView(Activity activity, View convertView, String label) {
+		TextView view;
+		view = (TextView)(convertView != null && TextView.class.isAssignableFrom(convertView.getClass())
+				? convertView
+				: activity.getLayoutInflater().inflate(R.layout.list_item, null));
+		view.setText(label);
+		return view;
+	}
        
 }

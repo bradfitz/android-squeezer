@@ -25,9 +25,10 @@
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
     <string name="disconnected_text">Afbrudt.</string>
+    <string name="search_instructions_text">Angiv kunster, album, genre eller titel.</string>
     <string name="loading_text">Henter...</string>
-    <string name="browse_items_text">Viser %d %s</string>
-    <string name="browse_max_items_text">Viser %d ud af i alt %d %s</string>
+    <string name="browse_items_text">Viser %2$d %1$s</string>
+    <string name="browse_max_items_text">Viser %2$d ud af i alt %3$d %1$s</string>
     <string name="choose_albums_sort_order">Vælg rækkefølge af album</string>
     <string name="genre_prompt">Vælg genre</string>
     <string name="year_prompt">Vælg år</string>

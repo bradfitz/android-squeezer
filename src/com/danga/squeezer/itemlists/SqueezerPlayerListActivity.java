@@ -43,15 +43,9 @@ public class SqueezerPlayerListActivity extends SqueezerBasicListActivity<Squeez
     }
 
     private IServicePlayerListCallback playerListCallback = new IServicePlayerListCallback.Stub() {
-    	
-		public void onPlayersReceived(final int count, final int max, final int pos, final List<SqueezerPlayer> players) throws RemoteException {
-			getUIThreadHandler().post(new Runnable() {
-				public void run() {
-					getItemListAdapter().update(count, max, pos, players);
-				}
-			});
+		public void onPlayersReceived(int count, int max, int start, List<SqueezerPlayer> items) throws RemoteException {
+			onItemsReceived(count, max, start, items);
 		}
-    	
     };
 
 }

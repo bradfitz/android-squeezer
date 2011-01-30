@@ -2,23 +2,23 @@ package com.danga.squeezer.itemlists;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Spinner;
 
 import com.danga.squeezer.ISqueezeService;
+import com.danga.squeezer.SqueezerBaseActivity;
 import com.danga.squeezer.SqueezerItemAdapter;
 import com.danga.squeezer.model.SqueezerYear;
 
 public class YearSpinner {
 	private static final String TAG = YearSpinner.class.getName();
 	YearSpinnerCallback callback;
-	private Activity activity;
+	private SqueezerBaseActivity activity;
 	private Spinner spinner;
 
-	public YearSpinner(YearSpinnerCallback callback, Activity activity, Spinner spinner) {
+	public YearSpinner(YearSpinnerCallback callback, SqueezerBaseActivity activity, Spinner spinner) {
 		this.callback = callback;
 		this.activity = activity;
 		this.spinner = spinner;

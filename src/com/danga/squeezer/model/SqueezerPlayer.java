@@ -8,36 +8,22 @@ import com.danga.squeezer.SqueezerItem;
 import com.danga.squeezer.Util;
 
 public class SqueezerPlayer extends SqueezerItem {
+
 	private String ip;
-	private String name;
-	private boolean canpoweroff;
-	private String model;
+	public String getIp() { return ip; }
+	public void setIp(String ip) { this.ip = ip; }
 	
-	public String getIp() {
-		return ip;
-	}
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
-	public String getName() {
-		return name;
-	}
-	public SqueezerPlayer setName(String name) {
-		this.name = name;
-		return this;
-	}
-	public boolean isCanpoweroff() {
-		return canpoweroff;
-	}
-	public void setCanpoweroff(boolean canpoweroff) {
-		this.canpoweroff = canpoweroff;
-	}
-	public String getModel() {
-		return model;
-	}
-	public void setModel(String model) {
-		this.model = model;
-	}
+	private String name;
+	public String getName() { return name; }
+	public SqueezerPlayer setName(String name) { this.name = name;  return this; }
+	
+	private boolean canpoweroff;
+	public boolean isCanpoweroff() { return canpoweroff; }
+	public void setCanpoweroff(boolean canpoweroff) { this.canpoweroff = canpoweroff; }
+
+	private String model;
+	public String getModel() { return model; }
+	public void setModel(String model) { this.model = model; }
 
 	public SqueezerPlayer(Map<String, String> record) {
 		setId(record.get("playerid"));

@@ -1,27 +1,25 @@
 package com.danga.squeezer.itemlists;
 
-import android.app.Activity;
 import android.view.View;
-import android.widget.TextView;
 
 import com.danga.squeezer.R;
+import com.danga.squeezer.SqueezerBaseActivity;
 import com.danga.squeezer.SqueezerBaseItemView;
+import com.danga.squeezer.Util;
 import com.danga.squeezer.model.SqueezerArtist;
 
 
 public class SqueezerArtistView extends SqueezerBaseItemView<SqueezerArtist> {
 
-	public SqueezerArtistView(Activity activity) {
+	public SqueezerArtistView(SqueezerBaseActivity activity) {
 		super(activity);
 	}
 
 	public View getAdapterView(View convertView, SqueezerArtist item) {
-		TextView view;
-		view = (TextView)(convertView != null && TextView.class.isAssignableFrom(convertView.getClass())
-				? convertView
-				: getActivity().getLayoutInflater().inflate(R.layout.list_item, null));
-		view.setText((CharSequence) item.getName());
-		return view;
+		return Util.getListItemView(getActivity(), convertView, item.getName());
+	}
+
+	public void updateAdapterView(View view, SqueezerArtist item) {
 	}
 
 	public String getQuantityString(int quantity) {

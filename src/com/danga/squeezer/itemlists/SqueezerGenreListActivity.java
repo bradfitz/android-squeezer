@@ -43,15 +43,9 @@ public class SqueezerGenreListActivity extends SqueezerBasicListActivity<Squeeze
     }
 
     private IServiceGenreListCallback genreListCallback = new IServiceGenreListCallback.Stub() {
-
-		public void onGenresReceived(final int count, final int max, final int pos, final List<SqueezerGenre> genres) throws RemoteException {
-			getUIThreadHandler().post(new Runnable() {
-				public void run() {
-					getItemListAdapter().update(count, max, pos, genres);
-				}
-			});
+		public void onGenresReceived(int count, int max, int start, List<SqueezerGenre> items) throws RemoteException {
+			onItemsReceived(count, max, start, items);
 		}
-    	
     };
 
 }

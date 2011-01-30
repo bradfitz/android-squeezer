@@ -48,7 +48,7 @@ public interface SqueezerListActivity<T extends SqueezerItem> {
     /**
      * Implementations must start an asynchronous fetch of items, when this is called.
      * @throws RemoteException
-     * @param start Position in list to start the fetch. Pass this on the {@link SqueezeService}
+     * @param start Position in list to start the fetch. Pass this on to {@link SqueezeService}
      */
 	public void orderItems(int start) throws RemoteException;
 	

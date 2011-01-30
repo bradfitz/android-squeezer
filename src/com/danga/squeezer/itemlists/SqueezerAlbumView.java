@@ -1,44 +1,55 @@
 package com.danga.squeezer.itemlists;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerBaseListActivity;
+import com.danga.squeezer.SqueezerBaseActivity;
 import com.danga.squeezer.model.SqueezerAlbum;
 
 public class SqueezerAlbumView extends SqueezerIconicItemView<SqueezerAlbum> {
-	private int rowLayout = R.layout.icon_two_line_layout;
-	private int iconId = R.id.icon;
-	private int text1Id = R.id.text1;
-	private int text2Id = R.id.text2;
+	private LayoutInflater layoutInflater;
 
-	public SqueezerAlbumView(SqueezerBaseListActivity<SqueezerAlbum> activity) {
+	public SqueezerAlbumView(SqueezerBaseActivity activity) {
 		super(activity);
+		layoutInflater = activity.getLayoutInflater();
 	}
 
 	public View getAdapterView(View convertView, SqueezerAlbum item) {
-		View row = getActivity().getLayoutInflater().inflate(rowLayout, null);
+		ViewHolder viewHolder;
+		
+		if (convertView == null || convertView.getTag() == null) {
+			convertView = layoutInflater.inflate(R.layout.icon_two_line_layout, null);
+			viewHolder = new ViewHolder();
+			viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
+			viewHolder.label2 = (TextView) convertView.findViewById(R.id.text2);
+			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+			convertView.setTag(viewHolder);
+		} else
+			viewHolder = (ViewHolder) convertView.getTag();
 
-		TextView label1 = (TextView) row.findViewById(text1Id);
-		label1.setText((CharSequence) item.getName());
-
+		viewHolder.label1.setText(item.getName());
+		String text2 = "";
 		if (item.getId() != null) {
-			TextView label2 = (TextView) row.findViewById(text2Id);
-			String text2 = item.getArtist();
+			text2 = item.getArtist();
 			if (item.getYear() != 0) text2 += " - " + item.getYear();
-			label2.setText((CharSequence) text2);
 		}
+		viewHolder.label2.setText(text2);
+		updateAlbumArt(viewHolder.icon, item);
 
-		ImageView icon = (ImageView) row.findViewById(iconId);
-		updateAlbumArt(icon, item.getArtwork_track_id());
-
-		return (row);
+		return convertView;
 	}
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.album, quantity);
+	}
+
+    private static class ViewHolder {
+		TextView label1;
+		TextView label2;
+		ImageView icon;
 	}
 
 }

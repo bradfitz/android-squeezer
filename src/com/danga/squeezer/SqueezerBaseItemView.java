@@ -3,19 +3,18 @@ package com.danga.squeezer;
 
 import java.lang.reflect.Field;
 
-import android.app.Activity;
 import android.os.Parcelable.Creator;
 
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
-	private Activity activity;
+	private SqueezerBaseActivity activity;
 	private Class<T> itemClass;
 	private Creator<T> creator;
 
-	public SqueezerBaseItemView(Activity activity) {
+	public SqueezerBaseItemView(SqueezerBaseActivity activity) {
 		this.activity = activity;
 	}
 
-	public Activity getActivity() {
+	public SqueezerBaseActivity getActivity() {
 		return activity;
 	}
 	
@@ -46,5 +45,5 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		}
 		return creator;
 	}
-	
+
 }

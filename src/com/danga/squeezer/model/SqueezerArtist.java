@@ -8,10 +8,12 @@ import com.danga.squeezer.SqueezerItem;
 
 public class SqueezerArtist extends SqueezerItem {
 	private String name;
+	public String getName() { return name; }
+	public SqueezerArtist setName(String name) { this.name = name; return this; }
 
 	public SqueezerArtist(Map<String, String> record) {
-		setId(record.get("id"));
-		name = record.get("artist");
+		setId(record.containsKey("contributor_id") ? record.get("contributor_id") : record.get("id"));
+		name = record.containsKey("contributor") ? record.get("contributor") : record.get("artist");
 	}
 	
 	public static final Creator<SqueezerArtist> CREATOR = new Creator<SqueezerArtist>() {
@@ -32,13 +34,6 @@ public class SqueezerArtist extends SqueezerItem {
 		dest.writeString(name);
 	}
 	
-	public String getName() {
-		return name;
-	}
-	public SqueezerArtist setName(String name) {
-		this.name = name;
-		return this;
-	}
 	
 	@Override
 	public String toString() {

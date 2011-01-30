@@ -189,15 +189,9 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
     }
 
     private IServiceAlbumListCallback albumListCallback = new IServiceAlbumListCallback.Stub() {
-    	
-		public void onAlbumsReceived(final int count, final int max, final int start, final List<SqueezerAlbum> albums) throws RemoteException {
-			getUIThreadHandler().post(new Runnable() {
-				public void run() {
-					getItemListAdapter().update(count, max, start, albums);
-				}
-			});
+		public void onAlbumsReceived(int count, int max, int start, List<SqueezerAlbum> items) throws RemoteException {
+			onItemsReceived(count, max, start, items);
 		}
-    	
     };
 
     public enum AlbumsSortOrder {
