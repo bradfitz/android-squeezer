@@ -2,6 +2,9 @@ package com.danga.squeezer;
 
 import java.util.List;
 
+import android.os.RemoteException;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -105,6 +108,17 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	
 	public SqueezerBaseActivity getActivity() {
 		return itemView.getActivity();
+	}
+	
+	public void setupContextMenu(ContextMenu menu, int position) {
+		final T selectedItem = getItem(position);
+		if (selectedItem != null && selectedItem.getId() != null) {
+			itemView.setupContextMenu(menu, selectedItem);
+		}
+	}
+	
+	public boolean doItemContext(MenuItem menuItem, int position) throws RemoteException {
+		return itemView.doItemContext(getItem(position), menuItem);
 	}
 	
 	public void setItemView(SqueezerItemView<T> itemView) {

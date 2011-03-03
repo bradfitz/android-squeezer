@@ -6,12 +6,15 @@ import java.util.List;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
@@ -29,6 +32,7 @@ import android.widget.AdapterView.OnItemClickListener;
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerBaseActivity implements SqueezerListActivity<T> {
+
 	private SqueezerItemListAdapter<T> itemListAdapter;
 	private ListView listView;
 	private TextView loadingLabel;
@@ -37,16 +41,15 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		prepareActivity(getIntent().getExtras());
 		setContentView(R.layout.item_list);
 		listView = (ListView) findViewById(R.id.item_list);
 		loadingLabel = (TextView) findViewById(R.id.loading_label);
 		itemView = createItemView();
+		
     	listView.setOnItemClickListener(new OnItemClickListener() {
     		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     			T item = getItemListAdapter().getItem(position);
-    			
-    			if (item == null || item.getId() != null) {
+    			if (item != null && item.getId() != null) {
     	   			try {
     					onItemSelected(position, item);
     	            } catch (RemoteException e) {
@@ -55,8 +58,35 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     			}
     		}
     	});
+    	
+		listView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+				AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
+				getItemListAdapter().setupContextMenu(menu, adapterMenuInfo.position);
+			}
+		});
+		prepareActivity(getIntent().getExtras());
 	}
-	
+
+	public void prepareActivity(Bundle extras) {
+	}
+
+	@Override
+	public final boolean onContextItemSelected(MenuItem menuItem) {
+
+		AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
+		final T selectedItem = getItemListAdapter().getItem(menuInfo.position);
+
+		if (getService() != null) {
+			try {
+				return itemView.doItemContext(selectedItem, menuItem);
+
+			} catch (RemoteException e) {
+                Log.e(getTag(), "Error context menu action '"+ menuInfo + "' for '" + selectedItem + "': " + e);
+			}
+		}
+		return false;
+	}
 
 	@Override
 	protected void onServiceConnected() throws RemoteException {
@@ -74,7 +104,16 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 			}
         }
         super.onPause();
-    }    
+    }
+	
+
+	/**
+	 * @return The list view of this activity
+	 */
+	protected ListView getListView() {
+		return listView;
+	}
+
 
 	/**
 	 * @return The current listadapter, or null if not set
@@ -133,8 +172,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     }
 
 	@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        switch (item.getItemId()) {
+    public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
         case R.id.menu_item_home:
         	SqueezerHomeActivity.show(this);
 			return true;
@@ -149,7 +188,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 			}
 			return true;
         }
-        return super.onMenuItemSelected(featureId, item);
+        return super.onMenuItemSelected(featureId, menuItem);
 	}
 	
 }

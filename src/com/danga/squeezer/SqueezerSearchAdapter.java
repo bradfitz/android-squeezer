@@ -4,16 +4,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.os.RemoteException;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.danga.squeezer.itemlists.SqueezerAlbumView;
 import com.danga.squeezer.itemlists.SqueezerArtistView;
 import com.danga.squeezer.itemlists.SqueezerGenreView;
-import com.danga.squeezer.itemlists.SqueezerSearchAlbumView;
-import com.danga.squeezer.itemlists.SqueezerSearchSongView;
+import com.danga.squeezer.itemlists.SqueezerSongView;
 import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerGenre;
@@ -25,14 +28,25 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 	private SqueezerSearchActivity activity;
 	
 	private SqueezerItemAdapter<? extends SqueezerItem>[] childAdapters;
-	private Map<Class<?>,  SqueezerItemAdapter<? extends SqueezerItem>> childAdapterMap = new HashMap<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>>();
+	private Map<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>> childAdapterMap = new HashMap<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>>();
 
 
 	public SqueezerSearchAdapter(SqueezerSearchActivity activity) {
 		this.activity = activity;
 		SqueezerItemAdapter<?>[] adapters = {
-			new SqueezerItemAdapter<SqueezerSong>(new SqueezerSearchSongView(activity)),
-			new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerSearchAlbumView(activity)),
+			new SqueezerItemAdapter<SqueezerSong>(new SqueezerSongView(activity) {
+				@Override
+				public View getAdapterView(View convertView, SqueezerSong item) {
+					return Util.getListItemView(getActivity(), convertView, item.getName());
+				}
+			}),
+			new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerAlbumView(activity) {
+				@Override
+				public View getAdapterView(View convertView, SqueezerAlbum item) {
+					return Util.getListItemView(getActivity(), convertView, item.getName());
+				}
+				
+			}),
 			new SqueezerItemAdapter<SqueezerArtist>(new SqueezerArtistView(activity)),
 			new SqueezerItemAdapter<SqueezerGenre>(new SqueezerGenreView(activity)),
 		};
@@ -47,8 +61,8 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends SqueezerItem> void updateItems(Class<T> clazz, int count, int max, int start, List<T> items) {
-		//TODO find the actual type based on runtime type of items
+	public <T extends SqueezerItem> void updateItems(int count, int max, int start, List<T> items) {
+		Class<T> clazz = (Class<T>) ReflectUtil.getGenericClass(items.getClass(), List.class, 0);
 		SqueezerItemAdapter<T> adapter = (SqueezerItemAdapter<T>)childAdapterMap.get(clazz);
 		adapter.update(count, max, start, items);
 		notifyDataSetChanged();
@@ -67,6 +81,13 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 		return count;
 	}
 
+	public void setupContextMenu(ContextMenu menu, int groupPosition, int childPosition) {
+		childAdapters[groupPosition].setupContextMenu(menu, childPosition);
+	}
+
+	public void doItemContext(MenuItem menuItem, int groupPosition, int childPosition) throws RemoteException {
+		childAdapters[groupPosition].doItemContext(menuItem, childPosition);
+	}
 
 	public SqueezerItem getChild(int groupPosition, int childPosition) {
 		return childAdapters[groupPosition].getItem(childPosition);

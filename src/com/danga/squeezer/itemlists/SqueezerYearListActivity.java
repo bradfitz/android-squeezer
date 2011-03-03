@@ -4,20 +4,16 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.RemoteException;
 
-import com.danga.squeezer.SqueezerItemView;
 import com.danga.squeezer.SqueezerBasicListActivity;
+import com.danga.squeezer.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerYear;
 
 public class SqueezerYearListActivity extends SqueezerBasicListActivity<SqueezerYear>{
 
 	public SqueezerItemView<SqueezerYear> createItemView() {
-		return new SqueezerYearView(SqueezerYearListActivity.this);
-	}
-
-	public void prepareActivity(Bundle extras) {
+		return new SqueezerYearView(this);
 	}
 
 	public void registerCallback() throws RemoteException {

@@ -159,8 +159,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                             onUserInitiatesConnect();
                         }
                     } catch (RemoteException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        Log.e(getTag(), "Service exception from togglePausePlay(): " + e);
                     }
                 }
 	    });
@@ -530,7 +529,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             try {
                 getService().unregisterCallback(serviceCallback);
             } catch (RemoteException e) {
-                e.printStackTrace();
+                Log.e(getTag(), "Service exception in onPause(): " + e);
             }
         }
         super.onPause();
@@ -705,7 +704,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         public void onConnectionChanged(final boolean isConnected,
                                         final boolean postConnect)
                        throws RemoteException {
-                // TODO Auto-generated method stub
                 Log.v(getTag(), "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
                 uiThreadHandler.post(new Runnable() {
                         public void run() {

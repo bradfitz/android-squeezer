@@ -17,19 +17,21 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.danga.squeezer.itemlists.SqueezerAlbumListActivity;
 import com.danga.squeezer.itemlists.SqueezerArtistListActivity;
 import com.danga.squeezer.itemlists.SqueezerGenreListActivity;
+import com.danga.squeezer.itemlists.SqueezerSongListActivity;
 import com.danga.squeezer.itemlists.SqueezerYearListActivity;
 
 public class SqueezerMusicActivity extends ListActivity {
 	private static final String TAG = SqueezerMusicActivity.class.getName();
 	private static final int ARTISTS = 0;
 	private static final int ALBUMS = 1;
-	private static final int GENRES = 2;
-	private static final int YEARS = 3;
-	private static final int NEW_MUSIC = 4;
-	private static final int RANDOM_MIX = 5;
-	private static final int MUSIC_FOLDER = 6;
-	private static final int PLAYLISTS = 7;
-	private static final int SEARCH = 8;
+	private static final int SONGS = 2;
+	private static final int GENRES = 3;
+	private static final int YEARS = 4;
+	private static final int NEW_MUSIC = 5;
+	private static final int RANDOM_MIX = 6;
+	private static final int MUSIC_FOLDER = 7;
+	private static final int PLAYLISTS = 8;
+	private static final int SEARCH = 9;
 
 	private ISqueezeService service;
 	private boolean canRandomplay = true;
@@ -68,10 +70,11 @@ public class SqueezerMusicActivity extends ListActivity {
 	private void setMusicMenu() {
 		final String[] musicItems = getResources().getStringArray(R.array.music_items);
 		final int[] musicIcons = new int[] { R.drawable.icon_ml_artist,
-				R.drawable.icon_ml_albums, R.drawable.icon_ml_genres,
-				R.drawable.icon_ml_years, R.drawable.icon_ml_new_music,
-				R.drawable.icon_ml_random, R.drawable.icon_ml_folder,
-				R.drawable.icon_ml_playlist, R.drawable.icon_ml_search };
+				R.drawable.icon_ml_albums, R.drawable.icon_ml_songs, 
+				R.drawable.icon_ml_genres, R.drawable.icon_ml_years,
+				R.drawable.icon_ml_new_music, R.drawable.icon_ml_random,
+				R.drawable.icon_ml_folder, R.drawable.icon_ml_playlist,
+				R.drawable.icon_ml_search };
 		String[] items = musicItems;
 		int[] icons = musicIcons;
 
@@ -109,6 +112,9 @@ public class SqueezerMusicActivity extends ListActivity {
 				break;
 			case ALBUMS:
 				SqueezerAlbumListActivity.show(SqueezerMusicActivity.this);
+				break;
+			case SONGS:
+				SqueezerSongListActivity.show(SqueezerMusicActivity.this);
 				break;
 			case GENRES:
 				SqueezerGenreListActivity.show(SqueezerMusicActivity.this);

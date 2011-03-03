@@ -1,7 +1,9 @@
 package com.danga.squeezer.itemlists;
 
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,6 +20,7 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 		layoutInflater = activity.getLayoutInflater();
 	}
 
+	@Override
 	public View getAdapterView(View convertView, SqueezerSong item) {
 		ViewHolder viewHolder;
 		
@@ -40,6 +43,13 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 
 		return convertView;
 	}
+
+	public void setupContextMenu(ContextMenu menu, SqueezerSong item) {
+		menu.setHeaderTitle(item.getName());
+		menu.add(Menu.NONE, CONTEXTMENU_PLAY_ITEM, 3, R.string.CONTEXTMENU_PLAY_ITEM);
+		menu.add(Menu.NONE, CONTEXTMENU_ADD_ITEM, 4, R.string.CONTEXTMENU_ADD_ITEM);
+		menu.add(Menu.NONE, CONTEXTMENU_INSERT_ITEM, 4, R.string.CONTEXTMENU_INSERT_ITEM);
+	};
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.song, quantity);

@@ -8,7 +8,7 @@ import com.danga.squeezer.SqueezerItem;
 
 public class SqueezerGenre extends SqueezerItem {
 	private String name;
-	public String getName() { return name; }
+	@Override public String getName() { return name; }
 	public SqueezerGenre setName(String name) { this.name = name; return this; }
 
 	public SqueezerGenre(Map<String, String> record) {

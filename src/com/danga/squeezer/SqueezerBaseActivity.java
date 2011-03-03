@@ -71,4 +71,34 @@ public abstract class SqueezerBaseActivity extends Activity {
 		return uiThreadHandler;
 	}
 
+	
+	// This section is just an easier way to call squeeze service
+    
+	protected boolean play(SqueezerItem item) throws RemoteException {
+		return playlistControl(PlaylistControlCmd.load, item);
+	}
+	
+	protected boolean add(SqueezerItem item) throws RemoteException {
+		return playlistControl(PlaylistControlCmd.add, item);
+	}
+	
+	protected boolean insert(SqueezerItem item) throws RemoteException {
+		return playlistControl(PlaylistControlCmd.insert, item);
+	}
+	
+    private boolean playlistControl(PlaylistControlCmd cmd, SqueezerItem item) throws RemoteException {
+        if (service == null) {
+            return false;
+        }
+        service.playlistControl(cmd.name(), item.getClass().getName(), item.getId());
+        return true;
+    	
+    }
+    
+    private enum PlaylistControlCmd {
+    	load,
+    	add,
+    	insert;
+    }
+	
 }

@@ -14,7 +14,7 @@ public class SqueezerPlayer extends SqueezerItem {
 	public void setIp(String ip) { this.ip = ip; }
 	
 	private String name;
-	public String getName() { return name; }
+	@Override public String getName() { return name; }
 	public SqueezerPlayer setName(String name) { this.name = name;  return this; }
 	
 	private boolean canpoweroff;

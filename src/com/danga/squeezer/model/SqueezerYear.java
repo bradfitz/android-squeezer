@@ -27,6 +27,11 @@ public class SqueezerYear extends SqueezerItem {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(getId());
 	}
+
+	@Override
+	public String getName() {
+		return getId();
+	}
 	
 	@Override
 	public String toString() {

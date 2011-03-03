@@ -62,20 +62,27 @@ public class SqueezeService extends Service {
 	
 	private static Map<String, Set<String>> initializeTaggedParameters() {
 		Map<String, Set<String>> acceptedTaggedParameters = new HashMap<String, Set<String>>();
-		acceptedTaggedParameters.put("players", new HashSet<String>(Arrays.asList("playerprefs",
-				"charset")));
-		acceptedTaggedParameters.put("artists", new HashSet<String>(Arrays.asList("search",
-				"genre_id", "album_id", "tags", "charset")));
-		acceptedTaggedParameters.put("albums", new HashSet<String>(Arrays
-				.asList("search", "genre_id", "artist_id", "track_id", "year", "compilation", "sort",
-						"tags", "charset")));
+		acceptedTaggedParameters.put("players", new HashSet<String>(Arrays.asList("playerprefs", "charset")));
+		acceptedTaggedParameters.put("artists", new HashSet<String>(Arrays.asList("search",	"genre_id", "album_id", "tags", "charset")));
+		acceptedTaggedParameters.put("albums", new HashSet<String>(Arrays.asList("search", "genre_id", "artist_id", "track_id", "year", "compilation", "sort", "tags", "charset")));
 		acceptedTaggedParameters.put("years", new HashSet<String>(Arrays.asList("charset")));
-		acceptedTaggedParameters.put("genres", new HashSet<String>(Arrays.asList("search",
-				"artist_id", "album_id", "track_id", "year", "tags", "charset")));
-		acceptedTaggedParameters.put("status", new HashSet<String>(Arrays.asList("tags", "charset",
-				"subscribe")));
+		acceptedTaggedParameters.put("genres", new HashSet<String>(Arrays.asList("search", "artist_id", "album_id", "track_id", "year", "tags", "charset")));
+		acceptedTaggedParameters.put("songs", new HashSet<String>(Arrays.asList("genre_id", "artist_id", "album_id", "year", "search", "tags", "sort", "charset")));
+		acceptedTaggedParameters.put("status", new HashSet<String>(Arrays.asList("tags", "charset", "subscribe")));
 		acceptedTaggedParameters.put("search", new HashSet<String>(Arrays.asList("term", "charset")));
 		return acceptedTaggedParameters;
+	}
+	
+	private static final Map<String,String> itemKeys = initializeItemKeys();
+
+	private static Map<String, String> initializeItemKeys() {
+		Map<String, String> itemKeys = new HashMap<String, String>();
+		itemKeys.put(SqueezerAlbum.class.getName(), "album_id");
+		itemKeys.put(SqueezerArtist.class.getName(), "artist_id");
+		itemKeys.put(SqueezerYear.class.getName(), "year");
+		itemKeys.put(SqueezerGenre.class.getName(), "genre_id");
+		itemKeys.put(SqueezerSong.class.getName(), "track_id");
+		return itemKeys;
 	}
 	
     // Incremented once per new connection and given to the Thread
@@ -258,7 +265,7 @@ public class SqueezeService extends Service {
         	final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
         	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
         	parseSqueezerList("playerindex", tokens, new SqueezerListHandler() {
-                List<SqueezerPlayer> players = new ArrayList<SqueezerPlayer>();
+                List<SqueezerPlayer> players = new ArrayList<SqueezerPlayer>(){private static final long serialVersionUID = 4283732322286492895L;};
 
         		public Class<? extends SqueezerItem> getDataType() {
         			return SqueezerPlayer.class;
@@ -305,6 +312,10 @@ public class SqueezeService extends Service {
         }
         if (serverLine.startsWith("genres ")) {
         	parseSqueezerList(tokens, new GenreListHandler());
+        	return;
+        }
+        if (serverLine.startsWith("songs ")) {
+        	parseSqueezerList(tokens, new SongListHandler());
         	return;
         }
         if (serverLine.startsWith("search ")) {
@@ -572,7 +583,7 @@ public class SqueezeService extends Service {
 	}
 
     private class YearListHandler implements SqueezerListHandler {
-		List<SqueezerYear> years = new ArrayList<SqueezerYear>();
+		List<SqueezerYear> years = new ArrayList<SqueezerYear>(){private static final long serialVersionUID = 1321113152942485275L;};
 
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerYear.class;
@@ -596,7 +607,7 @@ public class SqueezeService extends Service {
 	}
 
     private class GenreListHandler implements SqueezerListHandler {
-		List<SqueezerGenre> genres = new ArrayList<SqueezerGenre>();
+		List<SqueezerGenre> genres = new ArrayList<SqueezerGenre>(){private static final long serialVersionUID = 581979365656327794L;};
 
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerYear.class;
@@ -621,7 +632,7 @@ public class SqueezeService extends Service {
 	}
 
 	private class ArtistListHandler implements SqueezerListHandler {
-		List<SqueezerArtist> artists = new ArrayList<SqueezerArtist>();
+		List<SqueezerArtist> artists = new ArrayList<SqueezerArtist>(){private static final long serialVersionUID = 3995870292581536540L;};
 
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerArtist.class;
@@ -645,7 +656,7 @@ public class SqueezeService extends Service {
 	}
 
 	private class AlbumListHandler implements SqueezerListHandler {
-		List<SqueezerAlbum> albums = new ArrayList<SqueezerAlbum>();
+		List<SqueezerAlbum> albums = new ArrayList<SqueezerAlbum>(){private static final long serialVersionUID = 3702842875796811666L;};
 
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerAlbum.class;
@@ -669,7 +680,7 @@ public class SqueezeService extends Service {
 	}
 
 	private class SongListHandler implements SqueezerListHandler {
-		List<SqueezerSong> songs = new ArrayList<SqueezerSong>();
+		List<SqueezerSong> songs = new ArrayList<SqueezerSong>(){private static final long serialVersionUID = -6269354970999944842L;};
 
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerSong.class;
@@ -1115,20 +1126,13 @@ public class SqueezeService extends Service {
             return true;
         }
         
-        public boolean playSong(SqueezerSong song) throws RemoteException {
+        public boolean playlistControl(String cmd, String className, String itemId) throws RemoteException {
             if (!isConnected()) {
                 return false;
             }
-            sendPlayerCommand("playlistcontrol cmd:load track_id:" + song.getId());
+            sendPlayerCommand("playlistcontrol cmd:" + cmd + " " +  itemKeys.get(className) +":" + itemId);
             return true;
-        }
-        
-        public boolean playAlbum(SqueezerAlbum album) throws RemoteException {
-            if (!isConnected()) {
-                return false;
-            }
-            sendPlayerCommand("playlistcontrol cmd:load album_id:" + album.getId());
-            return true;
+        	
         }
         
         public boolean randomPlay(String type) throws RemoteException {
@@ -1269,11 +1273,14 @@ public class SqueezeService extends Service {
 		}
         
         /* Start an async fetch of the SqueezeboxServer's artists */
-   		public boolean artists(int start, String searchString, SqueezerGenre genre) throws RemoteException {
+		public boolean artists(int start, String searchString, SqueezerAlbum album,
+				SqueezerGenre genre) throws RemoteException {
             if (!isConnected()) return false;
             List<String> parameters = new ArrayList<String>();
 			if (searchString != null && searchString.length() > 0)
 				parameters.add("search:" + searchString);
+			if (album != null)
+				parameters.add("album_id:" + album.getId());
 			if (genre != null)
 				parameters.add("genre_id:" + genre.getId());
 			requestItems("artists", start, parameters);
@@ -1378,6 +1385,7 @@ public class SqueezeService extends Service {
         }
         
     };
+    
 
     private class ListeningThread extends Thread {
         private final Socket socket;

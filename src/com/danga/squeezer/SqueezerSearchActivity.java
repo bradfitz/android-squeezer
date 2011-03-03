@@ -7,16 +7,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
+import android.view.View.OnCreateContextMenuListener;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
 
 import com.danga.squeezer.itemlists.IServiceAlbumListCallback;
@@ -71,26 +75,53 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
 	    		SqueezerItem item = searchResultsAdapter.getChild(groupPosition, childPosition);
 				if (item != null && item.getId() != null) {
 					try {
-					if (item instanceof SqueezerSong) {
-						getService().playSong((SqueezerSong)item);
-						SqueezerActivity.show(SqueezerSearchActivity.this);
-					} else if (item instanceof SqueezerAlbum) {
-						getService().playAlbum((SqueezerAlbum) item);
-						SqueezerActivity.show(SqueezerSearchActivity.this);
-					} else if (item instanceof SqueezerArtist) {
-						SqueezerAlbumListActivity.show(SqueezerSearchActivity.this, item);
-					} else if (item instanceof SqueezerGenre) {
-						SqueezerAlbumListActivity.show(SqueezerSearchActivity.this, item);
-					}
+						if (item instanceof SqueezerAlbum) {
+							play(item);
+							SqueezerActivity.show(SqueezerSearchActivity.this);
+						} else
+							SqueezerAlbumListActivity.show(SqueezerSearchActivity.this, item);
 					} catch (RemoteException e) {
-		                Log.e(getTag(), "Error from default action for search result '" + item + "': " + e);
+						Log.e(getTag(), "Error from default action for search result '" + item
+								+ "': " + e);
 					}
 				}
 				return true;
 			}
 		});
+        
+        resultsExpandableListView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+			
+			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+				ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuInfo;
+				long packedPosition = contextMenuInfo.packedPosition;
+				if (ExpandableListView.getPackedPositionType(packedPosition) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+					int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+					int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+					searchResultsAdapter.setupContextMenu(menu, groupPosition, childPosition);
+				}
+			}
+		});
 
 	};
+
+	@Override
+	public final boolean onContextItemSelected(MenuItem menuItem) {
+		if (getService() != null) {
+			ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuItem.getMenuInfo();
+			long packedPosition = contextMenuInfo.packedPosition;
+			int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+			int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+			if (ExpandableListView.getPackedPositionType(packedPosition) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+				try {
+					searchResultsAdapter.doItemContext(menuItem, groupPosition, childPosition);
+				} catch (RemoteException e) {
+					SqueezerItem item = searchResultsAdapter.getChild(groupPosition, childPosition);
+					Log.e(getTag(), "Error context menu action '" + contextMenuInfo + "' for '"	+ item + "': " + e);
+				}
+			}
+		}
+		return false;
+	}
 
 	@Override
 	protected void onServiceConnected() throws RemoteException {
@@ -145,10 +176,10 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
 		doSearch(searchString);
 	}
 	
-	private <T extends SqueezerItem> void onItemsReceived(final Class<T> clazz, final int count, final int max, final int start, final List<T> items) {
+	private <T extends SqueezerItem> void onItemsReceived(final int count, final int max, final int start, final List<T> items) {
 		getUIThreadHandler().post(new Runnable() {
 			public void run() {
-				searchResultsAdapter.updateItems(clazz, count, max, start, items);
+				searchResultsAdapter.updateItems(count, max, start, items);
 				loadingLabel.setVisibility(View.GONE);
 				resultsExpandableListView.setVisibility(View.VISIBLE);
 			}
@@ -190,25 +221,25 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
 	
 	private IServiceArtistListCallback artistsCallback = new IServiceArtistListCallback.Stub() {
 		public void onArtistsReceived(int count, int max, int start, List<SqueezerArtist> items) throws RemoteException {
-			onItemsReceived(SqueezerArtist.class, count, max, start, items);
+			onItemsReceived(count, max, start, items);
 		}
 	};
 
 	private IServiceAlbumListCallback albumsCallback = new IServiceAlbumListCallback.Stub() {
 		public void onAlbumsReceived(int count, int max, int start, List<SqueezerAlbum> items) throws RemoteException {
-			onItemsReceived(SqueezerAlbum.class, count, max, start, items);
+			onItemsReceived(count, max, start, items);
 		}
 	};
 
 	private IServiceGenreListCallback genresCallback = new IServiceGenreListCallback.Stub() {
 		public void onGenresReceived(int count, int max, int start, List<SqueezerGenre> items) throws RemoteException {
-			onItemsReceived(SqueezerGenre.class, count, max, start, items);
+			onItemsReceived(count, max, start, items);
 		}
 	};
 
 	private IServiceSongListCallback songsCallback = new IServiceSongListCallback.Stub() {
 		public void onSongsReceived(int count, int max, int start, List<SqueezerSong> items) throws RemoteException {
-			onItemsReceived(SqueezerSong.class, count, max, start, items);
+			onItemsReceived(count, max, start, items);
 		}
 	};
 

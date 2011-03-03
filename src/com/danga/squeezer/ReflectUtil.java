@@ -12,87 +12,123 @@ import java.lang.reflect.TypeVariable;
 public class ReflectUtil {
 
 	/**
-	 * <p>
-	 * Return the type parameter at the given position for the given class in the given superclass as a Class.<br>
-	 * The method returns null if the class can't be resolved.
-	 * </p>
-	 * @param currentClass
-	 * @param base
-	 * @param genericArgumentNumber
-	 * @return The generic type parameter at the given position as a class or null.
+	 * <p>Return the actual type parameter of the supplied class for the type variable at the supplied
+	 * position in the supplied base class or interface.
+	 * <p>The method returns null if the class can't be resolved. See {@link #genericTypeResolver(Class, Class)}
+	 * for details on what can't be resolved, and how to work around it.
+	 * 
+	 * @param currentClass The current class which must extend or implement <code>base</code>
+	 * @param base Generic base class or interface which type variable we wish to resolve.
+	 * @param genericArgumentNumber The position of the type variable we are interested in.
+	 * @return The actual type parameter at the supplied position in <code>base</code> as a class or null.
+	 * @see #genericTypeResolver(Class, Class)
 	 */
 	public static Class<? extends Object> getGenericClass(Class<? extends Object> currentClass, Class<? extends Object> base, int genericArgumentNumber) {
 		Type[] genericTypes = genericTypeResolver(currentClass, base);
 		Type type = genericArgumentNumber < genericTypes.length ? genericTypes[genericArgumentNumber] : null;
 
 		if (type instanceof Class<?>)
-			return (Class<?>)type;
+			return (Class<?>) type;
 		return null;
 	}
 
 	/**
-	 * <p>
-	 * Resolve the types in the given generic superclass, the given class is declared with.<br>
-	 * If the types can't be resolved an empty array is returned.<br>
-	 * If any of the generic types from the parent can't be resolved it is set to null.
-	 * <p>
-	 * @param currentClass The current class that we should look for Generics in
-	 * @param base Search upwards in the hierarchy until we pass this parent Class (which may go up all the way until {@link Object})
-	 * @return List of types used in the declaration of currentClass.
+	 * <p>Resolve actual type arguments of the supplied class for the type variables in the supplied 
+	 * generic base class or interface.
+	 * <p>If the types can't be resolved an empty array is returned.<br>
+	 * <p><b>NOTE</b><br>This will only resolve generic parameters when they are declared in the class, it
+	 * wont resolve instances of generic types. So for example:
+	 * <pre>
+	 * <code>new LinkedList<String>()</code> cant'be resolved but
+	 * <code>new LinkedList<String>(){}</code> can. (Notice the subclassing of the generic collection)
+	 * </pre>
+	 * 
+	 * @param currentClass The current class which must extend or implement <code>base</code>
+	 * @param base Generic base class or interface which type variables we wish to resolve.
+	 * @return Actual type arguments for <code>base</code> used in <code>currentClass</code>.
+	 * @see #getGenericClass(Class, Class, int)
 	 */
 	public static Type[] genericTypeResolver(Class<? extends Object> currentClass, Class<? extends Object> base) {
 		Type[] actualTypeArguments = null;
-		int[] genericTypesMap = null;
 
-		while (!currentClass.isAssignableFrom(base)) {
-			if (base.isInterface())
-				for (Type iType : currentClass.getGenericInterfaces())
-					if (iType instanceof ParameterizedType) {
-						ParameterizedType pType = (ParameterizedType) iType;
-						if (base.equals(pType.getRawType())) {
-							if (actualTypeArguments == null)
-								return pType.getActualTypeArguments();
+		while (currentClass != Object.class) {
+			if (currentClass.isAssignableFrom(base))
+				return (actualTypeArguments == null ? currentClass.getTypeParameters() : actualTypeArguments);
 
-							Type[] actualTypes = new Type[genericTypesMap.length];
-							for (int i = 0; i < genericTypesMap.length; i++)
-								actualTypes[i] = (genericTypesMap[i] < actualTypeArguments.length) ? actualTypeArguments[genericTypesMap[i]] : null;
-							return actualTypes;
-						}
-					}
+			if (base.isInterface()) {
+				Type[] actualTypes = genericInterfaceResolver(currentClass, base, actualTypeArguments);
+				if (actualTypes != null)
+					return actualTypes;
+			}
 
-
-			Type type = currentClass.getGenericSuperclass();
-			if (type instanceof ParameterizedType) {
-				if (actualTypeArguments == null) {
-					actualTypeArguments = ((ParameterizedType)type).getActualTypeArguments();
-					genericTypesMap = new int[actualTypeArguments.length];
-					for (int i = 0; i < actualTypeArguments.length; i++)
-						genericTypesMap[i] = i;
-				}
-				else {
-					TypeVariable<?>[] typeParameters = currentClass.getTypeParameters();
-					Type[] actualTypes = ((ParameterizedType)type).getActualTypeArguments();
-					int[] newGenericTypesMap = new int[actualTypes.length];
-					for (int i = 0; i < actualTypes.length; i++) {
-						newGenericTypesMap[i] = actualTypeArguments.length;
-						for (int j = 0; j < typeParameters.length; j++) {
-							if (actualTypes[i].equals(typeParameters[genericTypesMap[j]])) {
-								newGenericTypesMap[i] = j;
-								break;
-							}
-						}
-					}
-					genericTypesMap = newGenericTypesMap;
-				}
-			} else
-				break;
+			actualTypeArguments = mapTypeArguments(currentClass, currentClass.getGenericSuperclass(), actualTypeArguments);
 			currentClass = currentClass.getSuperclass();
 		}
 
-		Type[] genericTypes = new Type[genericTypesMap.length];
-		for (int i = 0; i < genericTypesMap.length; i++)
-			genericTypes[i] = (genericTypesMap[i] < actualTypeArguments.length) ? actualTypeArguments[genericTypesMap[i]] : null;
-		return genericTypes;
+		return new Type[0];
+	}
+
+
+	/**
+	 * <p>Resolve actual type arguments of the supplied class for the type variables in the supplied 
+	 * generic interface.
+	 * 
+	 * @param currentClass The current class which may implement <code>base</code>
+	 * @param baseInterface Generic interface which type variables we wish to resolve.
+	 * @param actualTypeArguments Resolved type arguments from parent
+	 * @return Actual type arguments for <code>baseInterface</code> used in <code>currentClass</code> or null.
+	 * @see #getGenericClass(Class, Class, int)
+	 */
+	private static Type[] genericInterfaceResolver(Class<? extends Object> currentClass, Class<? extends Object> baseInterface, Type[] pActualTypeArguments) {
+		Class<?>[] interfaces = currentClass.getInterfaces();
+		Type[] genericInterfaces = currentClass.getGenericInterfaces();
+		for (int ifno = 0; ifno < genericInterfaces.length; ifno++) {
+			Type[] actualTypeArguments = mapTypeArguments(currentClass, genericInterfaces[ifno], pActualTypeArguments);
+			
+			if (genericInterfaces[ifno] instanceof ParameterizedType)
+				if (baseInterface.equals(((ParameterizedType)genericInterfaces[ifno]).getRawType()))
+					return actualTypeArguments;
+			
+			Type[] resolvedTypes = genericInterfaceResolver(interfaces[ifno], baseInterface, actualTypeArguments);
+			if (resolvedTypes != null)
+				return resolvedTypes;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Map the resolved type arguments of the given class to the type parameters of the supplied superclass
+	 * or direct interface.
+	 * 
+	 * @param currentClass The class with the supplied resolved type arguments
+	 * @param type Superclass or direct interface of <code>currentClass</code>
+	 * @param actualTypeArguments Resolved type arguments of of <code>currentClass</code>
+	 * @return The resolved type arguments mapped to the given superclass or direct interface
+	 */
+	private static Type[] mapTypeArguments(Class<? extends Object> currentClass, Type type, Type[] actualTypeArguments) {
+		if (type instanceof ParameterizedType) {
+			ParameterizedType pType = (ParameterizedType) type;
+
+			if (actualTypeArguments == null)
+				return pType.getActualTypeArguments();
+
+			TypeVariable<?>[] typeParameters = currentClass.getTypeParameters();
+			Type[] actualTypes = pType.getActualTypeArguments();
+			Type[] newActualTypeArguments = new Type[actualTypes.length];
+			for (int i = 0; i < actualTypes.length; i++) {
+				newActualTypeArguments[i] = null;
+				for (int j = 0; j < typeParameters.length; j++) {
+					if (actualTypes[i].equals(typeParameters[j])) {
+						newActualTypeArguments[i] = actualTypeArguments[j];
+						break;
+					}
+				}
+			}
+			return newActualTypeArguments;
+
+		} else
+			return null;
 	}
 
 }

@@ -10,7 +10,7 @@ import com.danga.squeezer.Util;
 public class SqueezerSong extends SqueezerArtworkItem {
 
 	private String name;
-	public String getName() { return name; }
+	@Override public String getName() { return name; }
 	public SqueezerSong setName(String name) { this.name = name; return this; }
 
 	private String artist;
@@ -26,7 +26,9 @@ public class SqueezerSong extends SqueezerArtworkItem {
 	public void setYear(int year) { this.year = year; }
 	
 	public SqueezerSong(Map<String, String> record) {
-		setId(record.containsKey("track_id") ? record.get("track_id") : record.get("playlist index"));
+		setId(record.get("playlist index"));
+		if (getId() == null) setId(record.get("track_id"));
+		if (getId() == null) setId(record.get("id"));
 		setName(record.containsKey("track") ? record.get("track") : record.get("title"));
 		setArtist(record.get("artist"));
 		setAlbum(record.get("album"));

@@ -35,6 +35,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 		implements GenreSpinnerCallback, YearSpinnerCallback {
 	private static final int DIALOG_SELECT_SORT_ORDER = 0;
 	private static final int DIALOG_FILTER = 1;
+
 	private AlbumsSortOrder sortOrder = AlbumsSortOrder.album;
 	private String searchString = null;
 	private SqueezerArtist artist;
@@ -53,9 +54,10 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 	}
 
 	public SqueezerItemView<SqueezerAlbum> createItemView() {
-		return new SqueezerAlbumView(SqueezerAlbumListActivity.this);
+		return new SqueezerAlbumView(this);
 	}
 	
+	@Override
 	public void prepareActivity(Bundle extras) {
 		if (extras != null)
 			for (String key : extras.keySet()) {
@@ -93,7 +95,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 	}
 
 	public void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
-		getService().playAlbum(item);
+		play(item);
 		SqueezerActivity.show(this);
 	}
 	
@@ -122,10 +124,11 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 
         switch (id) {
 		case DIALOG_SELECT_SORT_ORDER:
-			// TODO Create a unit test to check that strings is are defined properly for all languages
-		    String[] sortOrderStrings = getResources().getStringArray(R.array.albums_sort_order_items);
+		    String[] sortOrderStrings = new String[AlbumsSortOrder.values().length];
+		    sortOrderStrings[AlbumsSortOrder.album.ordinal()] = getString(R.string.albums_sort_order_album);
+		    sortOrderStrings[AlbumsSortOrder.artflow.ordinal()] = getString(R.string.albums_sort_order_artflow);
 		    int checkedItem = sortOrder.ordinal();
-		    builder.setTitle(R.string.choose_albums_sort_order);
+		    builder.setTitle(getString(R.string.choose_sort_order, getItemListAdapter().getQuantityString(2)));
 		    builder.setSingleChoiceItems(sortOrderStrings, checkedItem, new DialogInterface.OnClickListener() {
 		            public void onClick(DialogInterface dialog, int indexSelected) {
 		               	setSortOrder(AlbumsSortOrder.values()[indexSelected]);
@@ -137,19 +140,26 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 			View filterForm = getLayoutInflater().inflate(R.layout.filter_dialog, null);
 			builder.setTitle(R.string.menu_item_filter);
 			builder.setView(filterForm);
-	        final EditText edittext = (EditText) filterForm.findViewById(R.id.search_string);
+
+			final EditText editText = (EditText) filterForm.findViewById(R.id.search_string);
+	        editText.setHint(getString(R.string.filter_text_hint, getItemListAdapter().getQuantityString(2)));
 			final Spinner genreSpinnerView = (Spinner) filterForm.findViewById(R.id.genre_spinner);
 			final Spinner yearSpinnerView = (Spinner) filterForm.findViewById(R.id.year_spinner);
 	        ImageButton filterButton = (ImageButton) filterForm.findViewById(R.id.button_filter);
 	        ImageButton cancelButton = (ImageButton) filterForm.findViewById(R.id.button_cancel);
+	        
+	        if (artist != null) {
+	        	((EditText)filterForm.findViewById(R.id.artist)).setText(artist.getName());
+	        	filterForm.findViewById(R.id.artist_view).setVisibility(View.VISIBLE);
+	        }
 
 	        genreSpinner = new GenreSpinner(this, this, genreSpinnerView);
 	        yearSpinner = new YearSpinner(this, this, yearSpinnerView);
 
-	        edittext.setOnKeyListener(new OnKeyListener() {
+	        editText.setOnKeyListener(new OnKeyListener() {
 	            public boolean onKey(View v, int keyCode, KeyEvent event) {
 	                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-	                	searchString = edittext.getText().toString();
+	                	searchString = editText.getText().toString();
 						genre = (SqueezerGenre) genreSpinnerView.getSelectedItem();
 						year = (SqueezerYear) yearSpinnerView.getSelectedItem();
 						orderItems();
@@ -162,7 +172,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 	        
 	        filterButton.setOnClickListener(new OnClickListener() {
 				public void onClick(View v) {
-                	searchString = edittext.getText().toString();
+                	searchString = editText.getText().toString();
 					genre = (SqueezerGenre) genreSpinnerView.getSelectedItem();
 					year = (SqueezerYear) yearSpinnerView.getSelectedItem();
 					orderItems();
@@ -194,7 +204,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 		}
     };
 
-    public enum AlbumsSortOrder {
+    private enum AlbumsSortOrder {
     	album,
     	artflow;
     }

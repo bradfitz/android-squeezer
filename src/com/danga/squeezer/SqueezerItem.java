@@ -15,6 +15,8 @@ public abstract class SqueezerItem implements Parcelable {
 	public void setId(String id) { this.id = id; }
 	public String getId() { return id; }
 	
+	abstract public String getName();
+	
 	public int describeContents() {
 		return 0;
 	}

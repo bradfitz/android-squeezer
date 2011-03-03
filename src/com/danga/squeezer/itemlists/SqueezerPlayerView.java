@@ -3,6 +3,7 @@ package com.danga.squeezer.itemlists;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,6 +23,7 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		layoutInflater = activity.getLayoutInflater();
 	}
 
+	@Override
 	public View getAdapterView(View convertView, SqueezerPlayer item) {
 		ViewHolder viewHolder;
 
@@ -40,7 +42,7 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		return convertView;
 	}
 
-	public void updateAdapterView(View view, SqueezerPlayer item) {
+	public void setupContextMenu(ContextMenu menu, SqueezerPlayer item) {
 	}
 
 	public String getQuantityString(int quantity) {

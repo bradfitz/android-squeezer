@@ -10,7 +10,7 @@ import com.danga.squeezer.Util;
 public class SqueezerAlbum extends SqueezerArtworkItem {
 
 	private String name;
-	public String getName() { return name; }
+	@Override public String getName() { return name; }
 	public SqueezerAlbum setName(String name) { this.name = name; return this; }
 
 	private String artist;

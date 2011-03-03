@@ -1,11 +1,11 @@
 package com.danga.squeezer.itemlists;
 
-import android.view.View;
+import android.view.ContextMenu;
+import android.view.Menu;
 
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerBaseActivity;
 import com.danga.squeezer.SqueezerBaseItemView;
-import com.danga.squeezer.Util;
 import com.danga.squeezer.model.SqueezerArtist;
 
 
@@ -15,12 +15,13 @@ public class SqueezerArtistView extends SqueezerBaseItemView<SqueezerArtist> {
 		super(activity);
 	}
 
-	public View getAdapterView(View convertView, SqueezerArtist item) {
-		return Util.getListItemView(getActivity(), convertView, item.getName());
-	}
-
-	public void updateAdapterView(View view, SqueezerArtist item) {
-	}
+	public void setupContextMenu(ContextMenu menu, SqueezerArtist item) {
+		menu.setHeaderTitle(item.getName());
+		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_SONGS, 0, R.string.CONTEXTMENU_BROWSE_SONGS);
+		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ALBUMS, 1, R.string.CONTEXTMENU_BROWSE_ALBUMS);
+		menu.add(Menu.NONE, CONTEXTMENU_PLAY_ITEM, 3, R.string.CONTEXTMENU_PLAY_ITEM);
+		menu.add(Menu.NONE, CONTEXTMENU_ADD_ITEM, 4, R.string.CONTEXTMENU_ADD_ITEM);
+	};
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.artist, quantity);

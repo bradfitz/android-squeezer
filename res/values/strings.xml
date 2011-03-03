@@ -25,13 +25,20 @@
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
     <string name="connection_failed_text">Connection failed.  Check settings.</string>
     <string name="disconnected_text">Disconnected.</string>
-    <string name="search_instructions_text">Enter artist, album, genre or song title.</string>
+    <string name="filter_text_hint">Search for %s</string>
+    <string name="search_instructions_text">Search for artist, album, genre or song title.</string>
+    <string name="search_hint_text">Enter search text</string>
     <string name="loading_text">Loading...</string>
     <string name="browse_items_text" >Browse %2$d %1$s</string>
     <string name="browse_max_items_text">Browse %2$d of a total %3$d %1$s</string>
-    <string name="choose_albums_sort_order">Choose ordering of albums</string>
+    <string name="choose_sort_order">Choose ordering of %s</string>
     <string name="genre_prompt">Choose genre</string>
     <string name="year_prompt">Choose year</string>
+    <string name="artist_label">Artist</string>
+    <string name="album_label">Album</string>
+    <string name="genre_label">Genre</string>
+    <string name="year_label">Year</string>
+    <string name="filter_label">Search text</string>
     <string name="about_text">&lt;b&gt;Squeezer v%s (C) Brad Fitzpatrick&lt;/b&gt;
    
 &lt;p&gt;http://code.google.com/p/android-squeezer/&lt;/p&gt;
@@ -39,6 +46,23 @@
 
 &lt;p&gt;Welcome to Squeezer!&lt;br/&gt;
 This project is very new and is undergoing active development. Patches and feature requests are welcome!&lt;/p&gt;</string>
+
+	<string name="CONTEXTMENU_BROWSE_SONGS">Browse songs</string>
+	<string name="CONTEXTMENU_BROWSE_ALBUMS">Browse albums</string>
+	<string name="CONTEXTMENU_BROWSE_ARTISTS">Browse artists</string>
+	<string name="CONTEXTMENU_PLAY_ITEM">Play</string>
+	<string name="CONTEXTMENU_ADD_ITEM">Add to Playlist</string>
+	<string name="CONTEXTMENU_INSERT_ITEM">Play after the currently playing song</string>
+
+	<string name="ITEM_PLAYING">Now playing %s</string>
+	<string name="ITEM_ADDED">Added %s to the current playlist</string>
+	<string name="ITEM_INSERTED">%s is inserted to be played immediately after the current song in the current playlist</string>
+
+	<string name="albums_sort_order_album">Album</string>
+	<string name="albums_sort_order_artflow">Artist, Year, Album</string>
+
+	<string name="songs_sort_order_title">Title</string>
+	<string name="songs_sort_order_tracknum">Track</string>
 
     <plurals name="artist">
         <item quantity="one">artist</item>
@@ -71,11 +95,6 @@ This project is very new and is undergoing active development. Patches and featu
     </plurals>
 
 
-    <string-array name="albums_sort_order_items">
-	    <item>Album</item>
-	    <item>Artist, Year, Album</item>
-    </string-array>
-
     <string-array name="home_items">
         <item>Now playing</item>
         <item>My Music</item>
@@ -86,6 +105,7 @@ This project is very new and is undergoing active development. Patches and featu
     <string-array name="music_items">
         <item>Artists</item>
         <item>Albums</item>
+        <item>Songs</item>
         <item>Genres</item>
         <item>Years</item>
         <item>New Music</item>

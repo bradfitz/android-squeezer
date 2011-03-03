@@ -49,8 +49,7 @@ interface ISqueezeService {
         boolean stop();
         boolean nextTrack();
         boolean previousTrack();
-        boolean playSong(in SqueezerSong song);
-        boolean playAlbum(in SqueezerAlbum album);
+        boolean playlistControl(String cmd, String className, String id);
         boolean randomPlay(String type);
         boolean playlistIndex(int index);
         
@@ -81,7 +80,7 @@ interface ISqueezeService {
         void unregisterAlbumListCallback(IServiceAlbumListCallback callback);
         
         // Artist list
-        boolean artists(int start, String searchString, in SqueezerGenre genre);
+        boolean artists(int start, String searchString, in SqueezerAlbum album, in SqueezerGenre genre);
 	    void registerArtistListCallback(IServiceArtistListCallback callback);
         void unregisterArtistListCallback(IServiceArtistListCallback callback);
         
