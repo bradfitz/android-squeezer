@@ -15,7 +15,7 @@ public class SqueezerSong extends SqueezerArtworkItem {
 
 	private String artist;
 	public String getArtist() { return artist; }
-	public void setArtist(String model) { this.artist = model; }
+	public void setArtist(String artist) { this.artist = artist; }
 	
 	private String album;
 	public String getAlbum() { return album; }
@@ -24,15 +24,24 @@ public class SqueezerSong extends SqueezerArtworkItem {
 	private int year;
 	public int getYear() { return year; }
 	public void setYear(int year) { this.year = year; }
+
+	private String artist_id;
+	public String getArtist_id() { return artist_id; }
+	public void setArtist_id(String artist_id) { this.artist_id = artist_id; }
+	
+	private String album_id;
+	public String getAlbum_id() { return album_id; }
+	public void setAlbum_id(String album_id) { this.album_id = album_id; }
 	
 	public SqueezerSong(Map<String, String> record) {
-		setId(record.get("playlist index"));
 		if (getId() == null) setId(record.get("track_id"));
 		if (getId() == null) setId(record.get("id"));
 		setName(record.containsKey("track") ? record.get("track") : record.get("title"));
 		setArtist(record.get("artist"));
 		setAlbum(record.get("album"));
 		setYear(Util.parseDecimalIntOrZero(record.get("year")));
+		setArtist_id(record.get("artist_id"));
+		setAlbum_id(record.get("album_id"));
 		setArtwork_track_id(record.get("artwork_track_id"));
 	}
 	
@@ -51,6 +60,8 @@ public class SqueezerSong extends SqueezerArtworkItem {
 		artist = source.readString();
 		album = source.readString();
 		year = source.readInt();
+		artist_id = source.readString();
+		album_id = source.readString();
 		setArtwork_track_id(source.readString());
 	}
 	public void writeToParcel(Parcel dest, int flags) {
@@ -59,6 +70,8 @@ public class SqueezerSong extends SqueezerArtworkItem {
 		dest.writeString(artist);
 		dest.writeString(album);
 		dest.writeInt(year);
+		dest.writeString(artist_id);
+		dest.writeString(album_id);
 		dest.writeString(getArtwork_track_id());
 	}
 	

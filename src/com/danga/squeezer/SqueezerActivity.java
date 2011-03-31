@@ -8,9 +8,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.danga.squeezer.itemlists.SqueezerPlayerListActivity;
-import com.danga.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -39,6 +36,10 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.danga.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
+import com.danga.squeezer.itemlists.SqueezerPlayerListActivity;
+import com.danga.squeezer.service.SqueezeService;
 
 public class SqueezerActivity extends SqueezerBaseActivity {
     private static final int DIALOG_ABOUT = 0;

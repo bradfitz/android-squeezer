@@ -45,7 +45,7 @@ public class SqueezerAlbumView extends SqueezerIconicItemView<SqueezerAlbum> {
 		return convertView;
 	}
 
-	public void setupContextMenu(ContextMenu menu, SqueezerAlbum item) {
+	public void setupContextMenu(ContextMenu menu, int index, SqueezerAlbum item) {
 		menu.setHeaderTitle(item.getName());
 		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_SONGS, 0, R.string.CONTEXTMENU_BROWSE_SONGS);
 		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ARTISTS, 2, R.string.CONTEXTMENU_BROWSE_ARTISTS);

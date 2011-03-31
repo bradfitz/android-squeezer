@@ -5,22 +5,19 @@ import java.util.List;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerBaseListActivity;
+import com.danga.squeezer.SqueezerFilterableListActivity;
 import com.danga.squeezer.SqueezerItem;
 import com.danga.squeezer.SqueezerItemView;
 import com.danga.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
@@ -28,9 +25,7 @@ import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerGenre;
 
-public class SqueezerArtistListActivity extends SqueezerBaseListActivity<SqueezerArtist> implements GenreSpinnerCallback{
-	private static final int DIALOG_FILTER = 0;
-
+public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<SqueezerArtist> implements GenreSpinnerCallback{
 	private String searchString = null;
 	private SqueezerAlbum album;
 	private SqueezerGenre genre;
@@ -77,22 +72,6 @@ public class SqueezerArtistListActivity extends SqueezerBaseListActivity<Squeeze
 		SqueezerAlbumListActivity.show(this, item);
 	}
 	
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_item_filter:
-			showDialog(DIALOG_FILTER);
-			return true;
-		}
-		return super.onMenuItemSelected(featureId, item);
-	}
-	
-	@Override
-	public boolean onSearchRequested() {
-		showDialog(DIALOG_FILTER);
-		return false;
-	}
-	
     @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -108,8 +87,6 @@ public class SqueezerArtistListActivity extends SqueezerBaseListActivity<Squeeze
 	        editText.setHint(getString(R.string.filter_text_hint, getItemListAdapter().getQuantityString(2)));
 			filterForm.findViewById(R.id.year_view).setVisibility(View.GONE);
 			final Spinner genreSpinnerView = (Spinner) filterForm.findViewById(R.id.genre_spinner);
-	        ImageButton filterButton = (ImageButton) filterForm.findViewById(R.id.button_filter);
-	        ImageButton cancelButton = (ImageButton) filterForm.findViewById(R.id.button_cancel);
 	        genreSpinner = new GenreSpinner(this, this, genreSpinnerView);
 	        
 	        if (album != null) { 
@@ -130,32 +107,19 @@ public class SqueezerArtistListActivity extends SqueezerBaseListActivity<Squeeze
 	            }
 	        });
 	        
-	        filterButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
+	        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
                 	searchString = editText.getText().toString();
 					genre = (SqueezerGenre) genreSpinnerView.getSelectedItem();
 					orderItems();
-					dismissDialog(DIALOG_FILTER);
 				}
 			});
-	        cancelButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-					dismissDialog(DIALOG_FILTER);
-				}
-			});
+	        builder.setNegativeButton(android.R.string.cancel, null);
 	        
 			return builder.create();
         }
         return null;
     }
-    
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-    	super.onPrepareOptionsMenu(menu);
-    	menu.findItem(R.id.menu_item_sort).setVisible(false);
-    	return true;
-    }
-
     
 	public static void show(Context context, SqueezerItem... items) {
         final Intent intent = new Intent(context, SqueezerArtistListActivity.class);

@@ -21,12 +21,6 @@ import android.widget.Adapter;
  *            Denotes the class of the item this class implements view logic for
  */
 public interface SqueezerItemView<T extends SqueezerItem> {
-	public static final int CONTEXTMENU_BROWSE_SONGS = 0;
-	public static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
-	public static final int CONTEXTMENU_BROWSE_ARTISTS = 2;
-	public static final int CONTEXTMENU_PLAY_ITEM = 3;
-	public static final int CONTEXTMENU_ADD_ITEM = 4;
-	public static final int CONTEXTMENU_INSERT_ITEM = 5;
 
 	/**
 	 * @return The activity associated with this view logic
@@ -58,11 +52,17 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	Creator<T> getCreator();
 
 	/**
+	 * Set the adapter which uses this view logic
+	 * @param adapter
+	 */
+	void setAdapter(SqueezerItemAdapter<T> adapter);
+	
+	/**
 	 * <p>Setup the context menu for the current {@link SqueezerItem} implementation
 	 * <p>Leave this empty if there shall be no context menu.
 	 * @see OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, android.view.ContextMenu.ContextMenuInfo)
 	 */
-	void setupContextMenu(ContextMenu menu, T item);
+	void setupContextMenu(ContextMenu menu, int index, T item);
 
 	/**
 	 * Perform the selected action from the context menu for the selected item.
@@ -73,6 +73,6 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	 * @throws RemoteException
 	 * @see {@link Activity#onContextItemSelected(MenuItem)}
 	 */
-	public boolean doItemContext(T selectedItem, MenuItem menuItem) throws RemoteException;
+	public boolean doItemContext(MenuItem menuItem, int index, T selectedItems) throws RemoteException;
 
 }

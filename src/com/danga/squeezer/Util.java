@@ -1,5 +1,8 @@
 package com.danga.squeezer;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
@@ -75,6 +78,22 @@ public class Util {
         timeArgs[3] = secs;
         timeArgs[4] = secs % 60;
         return sFormatter.format("%2$d:%5$02d", timeArgs).toString();
+    }
+
+    public static String encode(String string) {
+        try {
+            return URLEncoder.encode(string, "UTF-8").replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            return "";
+        }
+    }
+
+    public static String decode(String string) {
+        try {
+            return URLDecoder.decode(string, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return "";
+        }
     }
 
     public static View getListItemView(Activity activity, View convertView, String label) {

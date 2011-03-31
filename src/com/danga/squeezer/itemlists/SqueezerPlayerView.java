@@ -42,7 +42,7 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		return convertView;
 	}
 
-	public void setupContextMenu(ContextMenu menu, SqueezerPlayer item) {
+	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlayer item) {
 	}
 
 	public String getQuantityString(int quantity) {

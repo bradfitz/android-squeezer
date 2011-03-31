@@ -15,7 +15,7 @@ public class SqueezerArtistView extends SqueezerBaseItemView<SqueezerArtist> {
 		super(activity);
 	}
 
-	public void setupContextMenu(ContextMenu menu, SqueezerArtist item) {
+	public void setupContextMenu(ContextMenu menu, int index, SqueezerArtist item) {
 		menu.setHeaderTitle(item.getName());
 		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_SONGS, 0, R.string.CONTEXTMENU_BROWSE_SONGS);
 		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ALBUMS, 1, R.string.CONTEXTMENU_BROWSE_ALBUMS);

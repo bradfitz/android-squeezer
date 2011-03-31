@@ -6,11 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
 
-import com.danga.squeezer.SqueezerBasicListActivity;
+import com.danga.squeezer.SqueezerBaseListActivity;
 import com.danga.squeezer.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerPlayer;
 
-public class SqueezerPlayerListActivity extends SqueezerBasicListActivity<SqueezerPlayer> {
+public class SqueezerPlayerListActivity extends SqueezerBaseListActivity<SqueezerPlayer> {
 
 	public SqueezerItemView<SqueezerPlayer> createItemView() {
 		return new SqueezerPlayerView(this);

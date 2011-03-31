@@ -7,10 +7,10 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Spinner;
 
-import com.danga.squeezer.ISqueezeService;
 import com.danga.squeezer.SqueezerBaseActivity;
 import com.danga.squeezer.SqueezerItemAdapter;
 import com.danga.squeezer.model.SqueezerYear;
+import com.danga.squeezer.service.ISqueezeService;
 
 public class YearSpinner {
 	private static final String TAG = YearSpinner.class.getName();

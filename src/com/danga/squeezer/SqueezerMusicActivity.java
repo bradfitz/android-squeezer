@@ -17,8 +17,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.danga.squeezer.itemlists.SqueezerAlbumListActivity;
 import com.danga.squeezer.itemlists.SqueezerArtistListActivity;
 import com.danga.squeezer.itemlists.SqueezerGenreListActivity;
+import com.danga.squeezer.itemlists.SqueezerPlaylistsActivity;
 import com.danga.squeezer.itemlists.SqueezerSongListActivity;
 import com.danga.squeezer.itemlists.SqueezerYearListActivity;
+import com.danga.squeezer.service.ISqueezeService;
+import com.danga.squeezer.service.SqueezeService;
 
 public class SqueezerMusicActivity extends ListActivity {
 	private static final String TAG = SqueezerMusicActivity.class.getName();
@@ -27,11 +30,10 @@ public class SqueezerMusicActivity extends ListActivity {
 	private static final int SONGS = 2;
 	private static final int GENRES = 3;
 	private static final int YEARS = 4;
-	private static final int NEW_MUSIC = 5;
-	private static final int RANDOM_MIX = 6;
-	private static final int MUSIC_FOLDER = 7;
-	private static final int PLAYLISTS = 8;
-	private static final int SEARCH = 9;
+	private static final int RANDOM_MIX = 5;
+	private static final int MUSIC_FOLDER = 6;
+	private static final int PLAYLISTS = 7;
+	private static final int SEARCH = 8;
 
 	private ISqueezeService service;
 	private boolean canRandomplay = true;
@@ -72,9 +74,8 @@ public class SqueezerMusicActivity extends ListActivity {
 		final int[] musicIcons = new int[] { R.drawable.icon_ml_artist,
 				R.drawable.icon_ml_albums, R.drawable.icon_ml_songs, 
 				R.drawable.icon_ml_genres, R.drawable.icon_ml_years,
-				R.drawable.icon_ml_new_music, R.drawable.icon_ml_random,
-				R.drawable.icon_ml_folder, R.drawable.icon_ml_playlist,
-				R.drawable.icon_ml_search };
+				R.drawable.icon_ml_random, R.drawable.icon_ml_folder,
+				R.drawable.icon_ml_playlist, R.drawable.icon_ml_search };
 		String[] items = musicItems;
 		int[] icons = musicIcons;
 
@@ -122,14 +123,13 @@ public class SqueezerMusicActivity extends ListActivity {
 			case YEARS:
 				SqueezerYearListActivity.show(SqueezerMusicActivity.this);
 				break;
-			case NEW_MUSIC:
-				break;
 			case RANDOM_MIX:
 				SqueezerRandomplayActivity.show(SqueezerMusicActivity.this);
 				break;
 			case MUSIC_FOLDER:
 				break;
 			case PLAYLISTS:
+				SqueezerPlaylistsActivity.show(SqueezerMusicActivity.this);
 				break;
 			case SEARCH:
 				SqueezerSearchActivity.show(SqueezerMusicActivity.this);

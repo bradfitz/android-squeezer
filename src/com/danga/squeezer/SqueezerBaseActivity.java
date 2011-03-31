@@ -1,5 +1,8 @@
 package com.danga.squeezer;
 
+import com.danga.squeezer.service.ISqueezeService;
+import com.danga.squeezer.service.SqueezeService;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -74,15 +77,15 @@ public abstract class SqueezerBaseActivity extends Activity {
 	
 	// This section is just an easier way to call squeeze service
     
-	protected boolean play(SqueezerItem item) throws RemoteException {
+	public boolean play(SqueezerItem item) throws RemoteException {
 		return playlistControl(PlaylistControlCmd.load, item);
 	}
 	
-	protected boolean add(SqueezerItem item) throws RemoteException {
+	public boolean add(SqueezerItem item) throws RemoteException {
 		return playlistControl(PlaylistControlCmd.add, item);
 	}
 	
-	protected boolean insert(SqueezerItem item) throws RemoteException {
+	public boolean insert(SqueezerItem item) throws RemoteException {
 		return playlistControl(PlaylistControlCmd.insert, item);
 	}
 	

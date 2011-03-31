@@ -1,9 +1,11 @@
-package com.danga.squeezer;
+package com.danga.squeezer.service;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class PlayerState {
+import com.danga.squeezer.Util;
+
+public class SqueezerPlayerState {
     private final AtomicBoolean isPlaying = new AtomicBoolean(false);
     private final AtomicBoolean isPoweredOn = new AtomicBoolean(false);
     
@@ -19,7 +21,7 @@ public class PlayerState {
 	public boolean isPlaying() {
 		return isPlaying.get();
 	}
-    public PlayerState setPlaying(boolean state) {
+    public SqueezerPlayerState setPlaying(boolean state) {
     	isPlaying.set(state);
     	return this;
     }
@@ -27,7 +29,7 @@ public class PlayerState {
     public boolean isPoweredOn() {
 		return isPoweredOn.get();
 	}
-    public PlayerState setPoweredOn(boolean state) {
+    public SqueezerPlayerState setPoweredOn(boolean state) {
     	isPoweredOn.set(state);
     	return this;
     }
@@ -42,7 +44,7 @@ public class PlayerState {
     public boolean currentSongUpdated(String value) {
     	return Util.atomicStringUpdated(currentSong, value);
     }
-    public PlayerState setCurrentSong(String value) {
+    public SqueezerPlayerState setCurrentSong(String value) {
     	currentSong.set(value);
     	return this;
     }
@@ -53,7 +55,7 @@ public class PlayerState {
 	public String getCurrentArtistNonNull() {
 		return Util.nonNullString(currentArtist);
 	}
-    public PlayerState setCurrentArtist(String value) {
+    public SqueezerPlayerState setCurrentArtist(String value) {
     	currentArtist.set(value);
     	return this;
     }
@@ -70,7 +72,7 @@ public class PlayerState {
 	public String getCurrentAlbumNonNull() {
 		return Util.nonNullString(currentAlbum);
 	}
-    public PlayerState setCurrentAlbum(String value) {
+    public SqueezerPlayerState setCurrentAlbum(String value) {
     	currentAlbum.set(value);
     	return this;
     }
@@ -78,7 +80,7 @@ public class PlayerState {
 	public String getCurrentArtworkTrackId() {
 		return currentArtworkTrackId.get();
 	}
-    public PlayerState setCurrentArtworkTrackId(String value) {
+    public SqueezerPlayerState setCurrentArtworkTrackId(String value) {
     	currentArtworkTrackId.set(value);
     	return this;
     }
@@ -89,7 +91,7 @@ public class PlayerState {
 	public String getCurrentArtworkUrl() {
 		return currentArtworkUrl.get();
 	}
-    public PlayerState setCurrentArtworkUrl(String value) {
+    public SqueezerPlayerState setCurrentArtworkUrl(String value) {
     	currentArtworkUrl.set(value);
     	return this;
     }
@@ -103,7 +105,7 @@ public class PlayerState {
 	public Integer getCurrentTimeSecond(int defaultValue) {
 		return Util.getAtomicInteger(currentTimeSecond, defaultValue);
 	}
-    public PlayerState setCurrentTimeSecond(Integer value) {
+    public SqueezerPlayerState setCurrentTimeSecond(Integer value) {
     	currentTimeSecond.set(value);
     	return this;
     }
@@ -114,7 +116,7 @@ public class PlayerState {
 	public Integer getCurrentSongDuration(int defaultValue) {
 		return Util.getAtomicInteger(currentSongDuration, defaultValue);
 	}
-    public PlayerState setCurrentSongDuration(Integer value) {
+    public SqueezerPlayerState setCurrentSongDuration(Integer value) {
     	currentSongDuration.set(value);
     	return this;
     }

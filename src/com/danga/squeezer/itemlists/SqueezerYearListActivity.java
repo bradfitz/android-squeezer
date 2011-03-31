@@ -6,11 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
 
-import com.danga.squeezer.SqueezerBasicListActivity;
+import com.danga.squeezer.SqueezerBaseListActivity;
 import com.danga.squeezer.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerYear;
 
-public class SqueezerYearListActivity extends SqueezerBasicListActivity<SqueezerYear>{
+public class SqueezerYearListActivity extends SqueezerBaseListActivity<SqueezerYear>{
 
 	public SqueezerItemView<SqueezerYear> createItemView() {
 		return new SqueezerYearView(this);

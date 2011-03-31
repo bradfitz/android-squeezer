@@ -3,6 +3,9 @@ package com.danga.squeezer;
 
 import java.util.Arrays;
 
+import com.danga.squeezer.service.ISqueezeService;
+import com.danga.squeezer.service.SqueezeService;
+
 import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;

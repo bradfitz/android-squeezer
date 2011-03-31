@@ -66,6 +66,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 */
 	public SqueezerItemAdapter(SqueezerItemView<T> itemView, int count, boolean emptyItem) {
 		this.itemView = itemView;
+		itemView.setAdapter(this);
 		this.emptyItem = emptyItem;
 		loadingText = itemView.getActivity().getString(R.string.loading_text);
 		count += (emptyItem ? 1 : 0);
@@ -113,12 +114,12 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	public void setupContextMenu(ContextMenu menu, int position) {
 		final T selectedItem = getItem(position);
 		if (selectedItem != null && selectedItem.getId() != null) {
-			itemView.setupContextMenu(menu, selectedItem);
+			itemView.setupContextMenu(menu, position, selectedItem);
 		}
 	}
 	
 	public boolean doItemContext(MenuItem menuItem, int position) throws RemoteException {
-		return itemView.doItemContext(getItem(position), menuItem);
+		return itemView.doItemContext(menuItem, position, getItem(position));
 	}
 	
 	public void setItemView(SqueezerItemView<T> itemView) {

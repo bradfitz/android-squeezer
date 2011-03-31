@@ -116,7 +116,7 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
 					searchResultsAdapter.doItemContext(menuItem, groupPosition, childPosition);
 				} catch (RemoteException e) {
 					SqueezerItem item = searchResultsAdapter.getChild(groupPosition, childPosition);
-					Log.e(getTag(), "Error context menu action '" + contextMenuInfo + "' for '"	+ item + "': " + e);
+					Log.e(getTag(), "Error executing context menu action '" + contextMenuInfo + "' for '"	+ item + "': " + e);
 				}
 			}
 		}
@@ -189,7 +189,7 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
 	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.searchmenu, menu);
+        getMenuInflater().inflate(R.menu.itemlistmenu, menu);
         return super.onCreateOptionsMenu(menu);
     }
     

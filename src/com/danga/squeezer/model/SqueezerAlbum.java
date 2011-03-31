@@ -20,6 +20,11 @@ public class SqueezerAlbum extends SqueezerArtworkItem {
 	private int year;
 	public int getYear() { return year; }
 	public void setYear(int year) { this.year = year; }
+	
+	public SqueezerAlbum(String albumId, String album) {
+		setId(albumId);
+		setName(album);
+	}
 
 	public SqueezerAlbum(Map<String, String> record) {
 		setId(record.containsKey("album_id") ? record.get("album_id") : record.get("id"));
@@ -45,6 +50,7 @@ public class SqueezerAlbum extends SqueezerArtworkItem {
 		year = source.readInt();
 		setArtwork_track_id(source.readString());
 	}
+	
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(getId());
 		dest.writeString(name);

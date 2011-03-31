@@ -11,19 +11,16 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerActivity;
-import com.danga.squeezer.SqueezerBaseListActivity;
 import com.danga.squeezer.SqueezerItem;
 import com.danga.squeezer.SqueezerItemView;
+import com.danga.squeezer.SqueezerOrderableListActivity;
 import com.danga.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import com.danga.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
 import com.danga.squeezer.model.SqueezerAlbum;
@@ -31,10 +28,8 @@ import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerGenre;
 import com.danga.squeezer.model.SqueezerYear;
 
-public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<SqueezerAlbum>
+public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<SqueezerAlbum>
 		implements GenreSpinnerCallback, YearSpinnerCallback {
-	private static final int DIALOG_SELECT_SORT_ORDER = 0;
-	private static final int DIALOG_FILTER = 1;
 
 	private AlbumsSortOrder sortOrder = AlbumsSortOrder.album;
 	private String searchString = null;
@@ -99,31 +94,12 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 		SqueezerActivity.show(this);
 	}
 	
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_item_sort:
-			showDialog(DIALOG_SELECT_SORT_ORDER);
-			return true;
-		case R.id.menu_item_filter:
-			showDialog(DIALOG_FILTER);
-			return true;
-		}
-		return super.onMenuItemSelected(featureId, item);
-	}
-	
-	@Override
-	public boolean onSearchRequested() {
-		showDialog(DIALOG_FILTER);
-		return false;
-	}
-	
     @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         switch (id) {
-		case DIALOG_SELECT_SORT_ORDER:
+		case DIALOG_ORDER:
 		    String[] sortOrderStrings = new String[AlbumsSortOrder.values().length];
 		    sortOrderStrings[AlbumsSortOrder.album.ordinal()] = getString(R.string.albums_sort_order_album);
 		    sortOrderStrings[AlbumsSortOrder.artflow.ordinal()] = getString(R.string.albums_sort_order_artflow);
@@ -145,8 +121,6 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 	        editText.setHint(getString(R.string.filter_text_hint, getItemListAdapter().getQuantityString(2)));
 			final Spinner genreSpinnerView = (Spinner) filterForm.findViewById(R.id.genre_spinner);
 			final Spinner yearSpinnerView = (Spinner) filterForm.findViewById(R.id.year_spinner);
-	        ImageButton filterButton = (ImageButton) filterForm.findViewById(R.id.button_filter);
-	        ImageButton cancelButton = (ImageButton) filterForm.findViewById(R.id.button_cancel);
 	        
 	        if (artist != null) {
 	        	((EditText)filterForm.findViewById(R.id.artist)).setText(artist.getName());
@@ -170,20 +144,15 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 	            }
 	        });
 	        
-	        filterButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
+	        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
                 	searchString = editText.getText().toString();
 					genre = (SqueezerGenre) genreSpinnerView.getSelectedItem();
 					year = (SqueezerYear) yearSpinnerView.getSelectedItem();
 					orderItems();
-					dismissDialog(DIALOG_FILTER);
 				}
 			});
-	        cancelButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-					dismissDialog(DIALOG_FILTER);
-				}
-			});
+	        builder.setNegativeButton(android.R.string.cancel, null);
 	        
 			return builder.create();
         }

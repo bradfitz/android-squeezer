@@ -20,6 +20,11 @@
     <string name="menu_item_fetch_all">Fetch remaining</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sort order</string>
+    <string name="menu_item_delete">Delete</string>
+    <string name="menu_item_rename">Rename</string>
+    <string name="menu_item_playlists_new">New playlist</string>
+    <string name="menu_item_playlist_clear">Clear current playlist</string>
+    <string name="menu_item_playlist_save">Save current playlist</string>
     <string name="about_title">About</string>
     <string name="connecting_text">Connecting</string>
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
@@ -28,6 +33,15 @@
     <string name="filter_text_hint">Search for %s</string>
     <string name="search_instructions_text">Search for artist, album, genre or song title.</string>
     <string name="search_hint_text">Enter search text</string>
+    <string name="move_to_dialog_title">Move song number %s</string>
+    <string name="move_to_index_hint">Enter new position for song</string>
+    <string name="save_playlist_title">Save playlist</string>
+    <string name="save_playlist_hint">Enter name of playlist</string>
+    <string name="new_playlist_title">New playlist</string>
+    <string name="new_playlist_hint">Enter name of playlist</string>
+    <string name="rename_title">Rename %s</string>
+    <string name="delete_title">Delete %s</string>
+    <string name="delete__message">Are you sure to delete?</string>
     <string name="loading_text">Loading...</string>
     <string name="browse_items_text" >Browse %2$d %1$s</string>
     <string name="browse_max_items_text">Browse %2$d of a total %3$d %1$s</string>
@@ -50,13 +64,23 @@ This project is very new and is undergoing active development. Patches and featu
 	<string name="CONTEXTMENU_BROWSE_SONGS">Browse songs</string>
 	<string name="CONTEXTMENU_BROWSE_ALBUMS">Browse albums</string>
 	<string name="CONTEXTMENU_BROWSE_ARTISTS">Browse artists</string>
+    <string name="CONTEXTMENU_BROWSE_ALBUM_SONGS">Browse songs on album</string>
+    <string name="CONTEXTMENU_BROWSE_ARTIST_ALBUMS">Browse albums with song by artist</string>
+    <string name="CONTEXTMENU_BROWSE_ARTIST_SONGS">Browse songs by artist</string>
 	<string name="CONTEXTMENU_PLAY_ITEM">Play</string>
 	<string name="CONTEXTMENU_ADD_ITEM">Add to Playlist</string>
 	<string name="CONTEXTMENU_INSERT_ITEM">Play after the currently playing song</string>
 
+    <string name="PLAYLIST_CONTEXTMENU_REMOVE_ITEM">Remove from playlist</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE_UP">Move up</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE_DOWN">Move down</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE">Move ...</string>
+
 	<string name="ITEM_PLAYING">Now playing %s</string>
 	<string name="ITEM_ADDED">Added %s to the current playlist</string>
 	<string name="ITEM_INSERTED">%s is inserted to be played immediately after the current song in the current playlist</string>
+  
+    <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s allready exists</string>
 
 	<string name="albums_sort_order_album">Album</string>
 	<string name="albums_sort_order_artflow">Artist, Year, Album</string>
@@ -94,6 +118,11 @@ This project is very new and is undergoing active development. Patches and featu
         <item quantity="other">players</item>
     </plurals>
 
+    <plurals name="playlist">
+        <item quantity="one">playlist</item>
+        <item quantity="other">playlists</item>
+    </plurals>
+
 
     <string-array name="home_items">
         <item>Now playing</item>
@@ -108,7 +137,6 @@ This project is very new and is undergoing active development. Patches and featu
         <item>Songs</item>
         <item>Genres</item>
         <item>Years</item>
-        <item>New Music</item>
         <item>Random mix</item>
         <item>Music Folder</item>
         <item>Playlists</item>

@@ -13,7 +13,18 @@ import com.danga.squeezer.itemlists.SqueezerArtistListActivity;
 import com.danga.squeezer.itemlists.SqueezerSongListActivity;
 
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
+	protected static final int CONTEXTMENU_BROWSE_SONGS = 0;
+	protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
+	protected static final int CONTEXTMENU_BROWSE_ARTISTS = 2;
+	protected static final int CONTEXTMENU_PLAY_ITEM = 3;
+	protected static final int CONTEXTMENU_ADD_ITEM = 4;
+	protected static final int CONTEXTMENU_INSERT_ITEM = 5;
+	protected static final int CONTEXTMENU_BROWSE_ALBUM_SONGS = 6;
+	protected static final int CONTEXTMENU_BROWSE_ARTIST_ALBUMS = 7;
+	protected static final int CONTEXTMENU_BROWSE_ARTIST_SONGS = 8;
+
 	private SqueezerBaseActivity activity;
+	private SqueezerItemAdapter<T> adapter;
 	private Class<T> itemClass;
 	private Creator<T> creator;
 
@@ -25,6 +36,14 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		return activity;
 	}
 	
+	public SqueezerItemAdapter<T> getAdapter() {
+		return adapter;
+	}
+
+	public void setAdapter(SqueezerItemAdapter<T> adapter) {
+		this.adapter = adapter;
+	}
+
 	@SuppressWarnings("unchecked")
 	public Class<T> getItemClass() {
 		if (itemClass  == null) {
@@ -57,7 +76,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		return Util.getListItemView(getActivity(), convertView, item.getName());
 	}
 	
-	public boolean doItemContext(T selectedItem, MenuItem menuItem) throws RemoteException {
+	public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) throws RemoteException {
 		switch (menuItem.getItemId()) {
 		case CONTEXTMENU_BROWSE_SONGS:
 			SqueezerSongListActivity.show(activity, selectedItem);

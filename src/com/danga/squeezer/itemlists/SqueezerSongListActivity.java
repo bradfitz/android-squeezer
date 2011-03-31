@@ -9,12 +9,11 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import com.danga.squeezer.R;
@@ -29,9 +28,6 @@ import com.danga.squeezer.model.SqueezerSong;
 import com.danga.squeezer.model.SqueezerYear;
 
 public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity implements GenreSpinnerCallback, YearSpinnerCallback {
-	private static final int DIALOG_SELECT_SORT_ORDER = 0;
-	private static final int DIALOG_FILTER = 1;
-
 	private String searchString;
 	private SqueezerAlbum album;
 	private SqueezerArtist artist;
@@ -41,6 +37,7 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 
 	private GenreSpinner genreSpinner;
 	private YearSpinner yearSpinner;
+	private SqueezerSongView songViewLogic;
 
 	public SqueezerGenre getGenre() {
 		return genre;
@@ -59,7 +56,8 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 
 
 	public SqueezerItemView<SqueezerSong> createItemView() {
-		return new SqueezerSongView(this);
+		songViewLogic = new SqueezerSongView(this);
+		return songViewLogic;
 	}
 
 	@Override
@@ -79,6 +77,8 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 					Log.e(getTag(), "Unexpected extra value: " + key + "("
 							+ extras.get(key).getClass().getName() + ")");
 			}
+		songViewLogic.setBrowseByAlbum(album != null);
+		songViewLogic.setBrowseByArtist(artist != null);
 	}
 
 	@Override
@@ -105,14 +105,21 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 	}
 
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
-		SqueezerAlbumListActivity.show(this, item);
+		SqueezerSongListActivity.show(this, new SqueezerAlbum(item.getAlbum_id(), item.getAlbum()));
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.filtermenuitem, menu);
+        getMenuInflater().inflate(R.menu.ordermenuitem, menu);
+		return super.onCreateOptionsMenu(menu);
 	}
 	
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_item_sort:
-			showDialog(DIALOG_SELECT_SORT_ORDER);
+			showDialog(DIALOG_ORDER);
 			return true;
 		case R.id.menu_item_filter:
 			showDialog(DIALOG_FILTER);
@@ -132,7 +139,7 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         switch (id) {
-		case DIALOG_SELECT_SORT_ORDER:
+		case DIALOG_ORDER:
 		    String[] sortOrderStrings = new String[SongsSortOrder.values().length];
 		    sortOrderStrings[SongsSortOrder.title.ordinal()] = getString(R.string.songs_sort_order_title);
 		    sortOrderStrings[SongsSortOrder.tracknum.ordinal()] = getString(R.string.songs_sort_order_tracknum);
@@ -153,8 +160,6 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 	        editText.setHint(getString(R.string.filter_text_hint, getItemListAdapter().getQuantityString(2)));
 			final Spinner genreSpinnerView = (Spinner) filterForm.findViewById(R.id.genre_spinner);
 			final Spinner yearSpinnerView = (Spinner) filterForm.findViewById(R.id.year_spinner);
-	        ImageButton filterButton = (ImageButton) filterForm.findViewById(R.id.button_filter);
-	        ImageButton cancelButton = (ImageButton) filterForm.findViewById(R.id.button_cancel);
 
 	        genreSpinner = new GenreSpinner(this, this, genreSpinnerView);
 	        yearSpinner = new YearSpinner(this, this, yearSpinnerView);
@@ -182,20 +187,15 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 	            }
 	        });
 	        
-	        filterButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
+	        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
                 	searchString = editText.getText().toString();
 					genre = (SqueezerGenre) genreSpinnerView.getSelectedItem();
 					year = (SqueezerYear) yearSpinnerView.getSelectedItem();
 					orderItems();
-					dismissDialog(DIALOG_FILTER);
 				}
 			});
-	        cancelButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-					dismissDialog(DIALOG_FILTER);
-				}
-			});
+	        builder.setNegativeButton(android.R.string.cancel, null);
 	        
 			return builder.create();
         }

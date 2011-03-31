@@ -3,6 +3,8 @@ package com.danga.squeezer;
 
 import java.util.List;
 
+import com.danga.squeezer.service.SqueezeService;
+
 import android.os.Bundle;
 import android.os.RemoteException;
 

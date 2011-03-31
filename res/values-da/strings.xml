@@ -20,6 +20,11 @@
     <string name="menu_item_fetch_all">Hent resten</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sortér</string>
+    <string name="menu_item_delete">Slet</string>
+    <string name="menu_item_rename">Omdøb</string>
+    <string name="menu_item_playlists_new">Ny afspilningsliste</string>
+    <string name="menu_item_playlist_clear">Ryd afspilningsliste</string>
+    <string name="menu_item_playlist_save">Gem afspilningsliste</string>
     <string name="about_title">Om squeezer</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
@@ -28,6 +33,15 @@
     <string name="filter_text_hint">Søg efter %s</string>
     <string name="search_instructions_text">Søg efter kunster, album, genre eller sang titel.</string>
     <string name="search_hint_text">Angiv søgetekst</string>
+    <string name="move_to_dialog_title">Flyt sang nr %s</string>
+    <string name="move_to_index_hint">Angiv ny position for sang</string>
+    <string name="save_playlist_title">Gem afspilningsliste</string>
+    <string name="save_playlist_hint">Angiv navn på afspilningsliste</string>
+    <string name="new_playlist_title">Ny afspilningsliste</string>
+    <string name="new_playlist_hint">Angiv navn på afspilningsliste</string>
+    <string name="rename_title">Omdøb %s</string>
+    <string name="delete_title">Slet %s</string>
+    <string name="delete__message">Er du sikker på at slette?</string>
     <string name="loading_text">Henter...</string>
     <string name="browse_items_text">Viser %2$d %1$s</string>
     <string name="browse_max_items_text">Viser %2$d ud af i alt %3$d %1$s</string>
@@ -43,13 +57,23 @@
 	<string name="CONTEXTMENU_BROWSE_SONGS">Vis sange</string>
 	<string name="CONTEXTMENU_BROWSE_ALBUMS">Vis album</string>
 	<string name="CONTEXTMENU_BROWSE_ARTISTS">Vis kunstnere</string>
+    <string name="CONTEXTMENU_BROWSE_ALBUM_SONGS">Vis sange på album</string>
+    <string name="CONTEXTMENU_BROWSE_ARTIST_ALBUMS">Vis album med sange af kunster</string>
+    <string name="CONTEXTMENU_BROWSE_ARTIST_SONGS">Vis sange af kunster</string>
 	<string name="CONTEXTMENU_PLAY_ITEM">Afspil</string>
 	<string name="CONTEXTMENU_ADD_ITEM">Tilføj til afspilningsliste</string>
 	<string name="CONTEXTMENU_INSERT_ITEM">Afspil efter den sang der spilles nu</string>
 
+    <string name="PLAYLIST_CONTEXTMENU_REMOVE_ITEM">Fjern fra afspilningsliste</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE_UP">Flyt op</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE_DOWN">Flyt ned</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE">Flyt ...</string>
+
 	<string name="ITEM_PLAYING">Spiller nu %s</string>
 	<string name="ITEM_ADDED">%s er tilføjet den nuværende afspilningsliste</string>
 	<string name="ITEM_INSERTED">%s er sat til at blive spillet umiddelbart efter den aktuelle sang i den nuværende afspilningsliste</string>
+  
+    <string name="PLAYLIST_EXISTS_MESSAGE">Afspilningsliste %s findes allerede</string>
 	
 	<string name="albums_sort_order_album">Album</string>
 	<string name="albums_sort_order_artflow">Kunstner, År, Album</string>
@@ -87,6 +111,11 @@
         <item quantity="other">afspillere</item>
     </plurals>
 
+    <plurals name="playlist">
+        <item quantity="one">afspilningsliste</item>
+        <item quantity="other">afspilningslister</item>
+    </plurals>
+
 
     <string-array name="home_items">
         <item>Nu spiller</item>
@@ -101,7 +130,6 @@
         <item>Alle Sange</item>
         <item>Genrer</item>
         <item>År</item>
-        <item>Nye numre</item>
         <item>Tilfældigt miks</item>
         <item>Musikmappe</item>
         <item>Afspilningslister</item>

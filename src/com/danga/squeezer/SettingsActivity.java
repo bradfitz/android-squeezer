@@ -1,5 +1,8 @@
 package com.danga.squeezer;
 
+import com.danga.squeezer.service.ISqueezeService;
+import com.danga.squeezer.service.SqueezeService;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;

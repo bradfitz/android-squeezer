@@ -11,7 +11,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.danga.squeezer.ISqueezeService;
+import com.danga.squeezer.service.ISqueezeService;
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerArtworkItem;
 import com.danga.squeezer.SqueezerBaseActivity;

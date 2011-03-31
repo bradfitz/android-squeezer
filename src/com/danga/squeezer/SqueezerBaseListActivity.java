@@ -32,7 +32,9 @@ import android.widget.AdapterView.OnItemClickListener;
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerBaseActivity implements SqueezerListActivity<T> {
-
+	protected static final int DIALOG_FILTER = 0;
+	protected static final int DIALOG_ORDER = 1;
+	
 	private SqueezerItemListAdapter<T> itemListAdapter;
 	private ListView listView;
 	private TextView loadingLabel;
@@ -79,8 +81,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
 		if (getService() != null) {
 			try {
-				return itemView.doItemContext(selectedItem, menuItem);
-
+				return itemView.doItemContext(menuItem, menuInfo.position, selectedItem);
 			} catch (RemoteException e) {
                 Log.e(getTag(), "Error context menu action '"+ menuInfo + "' for '" + selectedItem + "': " + e);
 			}
@@ -158,14 +159,13 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.itemlist, menu);
+        getMenuInflater().inflate(R.menu.itemlistmenu, menu);
         return super.onCreateOptionsMenu(menu);
     }
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
     	super.onPrepareOptionsMenu(menu);
-    	
     	MenuItem fetchAll = menu.findItem(R.id.menu_item_fetch_all);
     	fetchAll.setVisible(!getItemListAdapter().isFullyLoaded());
     	return true;
