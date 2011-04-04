@@ -46,6 +46,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 
 	private SqueezerPlaylist playlist;
 	private String oldname;
+	private int fromIndex;
 
 	public SqueezerItemView<SqueezerSong> createItemView() {
 		return new SqueezerSongView(this) {
@@ -87,9 +88,8 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 					orderItems();
 					return true;
 				case PLAYLIST_CONTEXTMENU_MOVE:
-					Bundle args = new Bundle();
-					args.putInt("index", index);
-					showDialog(DIALOG_MOVE, args);
+					fromIndex = index;
+					showDialog(DIALOG_MOVE);
 					return true;
 				}
 				return false;
@@ -149,9 +149,8 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	int fromIndex;
     @Override
-    protected Dialog onCreateDialog(int id, Bundle args) {
+    protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         switch (id) {
@@ -185,7 +184,6 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 			break;
 		case DIALOG_MOVE:
 			{
-				fromIndex = args.getInt("index") + 1;
 				View form = getLayoutInflater().inflate(R.layout.edittext_dialog, null);
 				builder.setView(form);
 		        final EditText editText = (EditText) form.findViewById(R.id.edittext);
@@ -215,7 +213,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
     }
     
     @Override
-    protected void onPrepareDialog(int id, final Dialog dialog, Bundle args) {
+    protected void onPrepareDialog(int id, final Dialog dialog) {
         switch (id) {
         case DIALOG_DELETE:
         	break;
@@ -237,7 +235,6 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 			break;
 		case DIALOG_MOVE:
 			{
-				fromIndex = args.getInt("index") + 1;
 				dialog.setTitle(getString(R.string.move_to_dialog_title, fromIndex));
 		        final EditText editText = (EditText) dialog.findViewById(R.id.edittext);
 		        editText.setText("");
@@ -262,7 +259,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 			}
 			break;
         }
-    	super.onPrepareDialog(id, dialog, args);
+    	super.onPrepareDialog(id, dialog);
     }
     
     private void rename(String newname) {

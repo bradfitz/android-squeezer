@@ -7,7 +7,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.InputType;
 import android.util.Log;
@@ -31,6 +30,8 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 	protected static final int DIALOG_DELETE = 2;
 
 	private SqueezerPlaylist currentPlaylist;
+	public void setCurrentPlaylist(SqueezerPlaylist currentPlaylist) { this.currentPlaylist = currentPlaylist; }
+
 	private String oldname;
 
 	public SqueezerItemView<SqueezerPlaylist> createItemView() {
@@ -74,7 +75,7 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 	}
 	
     @Override
-    protected Dialog onCreateDialog(int id, Bundle args) {
+    protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         switch (id) {
@@ -83,9 +84,9 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 			View form = getLayoutInflater().inflate(R.layout.edittext_dialog, null);
 			builder.setView(form);
 	        final EditText editText = (EditText) form.findViewById(R.id.edittext);
-			builder.setTitle(R.string.save_playlist_title);
+			builder.setTitle(R.string.new_playlist_title);
 			editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-			editText.setHint(R.string.save_playlist_hint);
+			editText.setHint(R.string.new_playlist_hint);
 	        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
 					create(editText.getText().toString());
@@ -105,7 +106,6 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 		}
         case DIALOG_DELETE:
         	{
-				currentPlaylist = (SqueezerPlaylist) args.get("playlist");
 				builder.setTitle(getString(R.string.delete_title, currentPlaylist.getName()));
 				builder.setMessage(R.string.delete__message);
 				builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -122,7 +122,6 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 			break;
 		case DIALOG_RENAME:
 			{
-		        currentPlaylist = (SqueezerPlaylist) args.get("playlist");
 				builder.setTitle(getString(R.string.rename_title, currentPlaylist.getName()));
 				View form = getLayoutInflater().inflate(R.layout.edittext_dialog, null);
 				builder.setView(form);
@@ -130,7 +129,7 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 				editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 		        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
-						rename(currentPlaylist, editText.getText().toString());
+						rename(editText.getText().toString());
 					}
 				});
 			}
@@ -143,7 +142,7 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
     }
     
     @Override
-    protected void onPrepareDialog(int id, final Dialog dialog, Bundle args) {
+    protected void onPrepareDialog(int id, final Dialog dialog) {
         switch (id) {
         case DIALOG_NEW:
         	{
@@ -152,17 +151,15 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
         	}
         	break;
         case DIALOG_DELETE:
-	        currentPlaylist = (SqueezerPlaylist) args.get("playlist");
         	break;
 		case DIALOG_RENAME:
 			{
-		        currentPlaylist = (SqueezerPlaylist) args.get("playlist");
 		        final EditText editText = (EditText) dialog.findViewById(R.id.edittext);
 				editText.setText(currentPlaylist.getName());
 		        editText.setOnKeyListener(new OnKeyListener() {
 		            public boolean onKey(View v, int keyCode, KeyEvent event) {
 		                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-							rename(currentPlaylist, editText.getText().toString());
+							rename(editText.getText().toString());
 							dialog.dismiss();
 							return true;
 		                }
@@ -172,7 +169,7 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 			}
 			break;
         }
-    	super.onPrepareDialog(id, dialog, args);
+    	super.onPrepareDialog(id, dialog);
     }
     
     private void create(String name) {
@@ -184,12 +181,11 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 		}
     }
     
-    private void rename(SqueezerPlaylist playlist, String newname) {
+    private void rename(String newname) {
    		try {
-   			currentPlaylist = playlist;
-   			oldname = playlist.getName();
-			getService().playlistsRename(playlist, newname);
-			playlist.setName(newname);
+   			oldname = currentPlaylist.getName();
+			getService().playlistsRename(currentPlaylist, newname);
+			currentPlaylist.setName(newname);
 			getItemListAdapter().notifyDataSetChanged();
 		} catch (RemoteException e) {
             Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);

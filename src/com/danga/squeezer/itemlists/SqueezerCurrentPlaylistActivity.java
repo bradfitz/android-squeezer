@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.InputType;
 import android.util.Log;
@@ -31,6 +30,8 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 	private static final int PLAYLIST_CONTEXTMENU_MOVE_UP = 2;
 	private static final int PLAYLIST_CONTEXTMENU_MOVE_DOWN = 3;
 	private static final int PLAYLIST_CONTEXTMENU_MOVE = 4;
+
+	private int fromIndex;
 
 	public static void show(Context context) {
 	    final Intent intent = new Intent(context, SqueezerCurrentPlaylistActivity.class);
@@ -69,9 +70,8 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 					orderItems();
 					return true;
 				case PLAYLIST_CONTEXTMENU_MOVE:
-					Bundle args = new Bundle();
-					args.putInt("index", index);
-					showDialog(DIALOG_MOVE, args);
+					fromIndex = index;
+					showDialog(DIALOG_MOVE);
 					return true;
 				}
 				return false;
@@ -113,9 +113,8 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	int fromIndex;
     @Override
-    protected Dialog onCreateDialog(int id, Bundle args) {
+    protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		View form = getLayoutInflater().inflate(R.layout.edittext_dialog, null);
 		builder.setView(form);
@@ -154,7 +153,6 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 			break;
 		case DIALOG_MOVE:
 			{
-				fromIndex = args.getInt("index") + 1;
 				builder.setTitle(getString(R.string.move_to_dialog_title, fromIndex));
 				editText.setInputType(InputType.TYPE_CLASS_NUMBER);
 				editText.setHint(R.string.move_to_index_hint);
@@ -181,7 +179,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
     }
     
     @Override
-    protected void onPrepareDialog(int id, final Dialog dialog, Bundle args) {
+    protected void onPrepareDialog(int id, final Dialog dialog) {
         final EditText editText = (EditText) dialog.findViewById(R.id.edittext);
         switch (id) {
 		case DIALOG_SAVE:
@@ -189,7 +187,6 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 			break;
 		case DIALOG_MOVE:
 			{
-				fromIndex = args.getInt("index") + 1;
 				dialog.setTitle(getString(R.string.move_to_dialog_title, fromIndex));
 		        editText.setText("");
 		        editText.setOnKeyListener(new OnKeyListener() {
@@ -213,7 +210,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 			}
 			break;
         }
-    	super.onPrepareDialog(id, dialog, args);
+    	super.onPrepareDialog(id, dialog);
     }
 
 }

@@ -1,13 +1,11 @@
 package com.danga.squeezer.itemlists;
 
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerBaseActivity;
 import com.danga.squeezer.SqueezerBaseItemView;
 import com.danga.squeezer.model.SqueezerPlaylist;
 
@@ -18,9 +16,11 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 	private static final int PLAYLISTS_CONTEXTMENU_BROWSE_SONGS = 2;
 	private static final int PLAYLISTS_CONTEXTMENU_PLAY_ITEM = 3;
 	private static final int PLAYLISTS_CONTEXTMENU_ADD_ITEM = 4;
+	private SqueezerPlaylistsActivity activity;
 
-	public SqueezerPlaylistView(SqueezerBaseActivity activity) {
+	public SqueezerPlaylistView(SqueezerPlaylistsActivity activity) {
 		super(activity);
+		this.activity = activity;
 	}
 
 	public String getQuantityString(int quantity) {
@@ -41,16 +41,14 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 		switch (menuItem.getItemId()) {
 		case PLAYLISTS_CONTEXTMENU_DELETE_ITEM:
 			{
-				Bundle args = new Bundle();
-				args.putParcelable("playlist", selectedItem);
-				getActivity().showDialog(SqueezerPlaylistsActivity.DIALOG_DELETE, args);
+				activity.setCurrentPlaylist(selectedItem);
+				getActivity().showDialog(SqueezerPlaylistsActivity.DIALOG_DELETE);
 			}
 			return true;
 		case PLAYLISTS_CONTEXTMENU_RENAME_ITEM:
 			{
-				Bundle args = new Bundle();
-				args.putParcelable("playlist", selectedItem);
-				getActivity().showDialog(SqueezerPlaylistsActivity.DIALOG_RENAME, args);
+				activity.setCurrentPlaylist(selectedItem);
+				getActivity().showDialog(SqueezerPlaylistsActivity.DIALOG_RENAME);
 			}
 			return true;
 		case PLAYLISTS_CONTEXTMENU_BROWSE_SONGS:
