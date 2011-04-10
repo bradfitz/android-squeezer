@@ -81,7 +81,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 	}
 
 	public void orderItems(int start) throws RemoteException {
-		getService().albums(start, sortOrder.name(), searchString, artist, year, genre);
+		getService().albums(start, sortOrder.name().replace("__", ""), searchString, artist, year, genre);
 	}
 	
 	public void setSortOrder(AlbumsSortOrder sortOrder) {
@@ -103,6 +103,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 		    String[] sortOrderStrings = new String[AlbumsSortOrder.values().length];
 		    sortOrderStrings[AlbumsSortOrder.album.ordinal()] = getString(R.string.albums_sort_order_album);
 		    sortOrderStrings[AlbumsSortOrder.artflow.ordinal()] = getString(R.string.albums_sort_order_artflow);
+		    sortOrderStrings[AlbumsSortOrder.__new.ordinal()] = getString(R.string.albums_sort_order_new);
 		    int checkedItem = sortOrder.ordinal();
 		    builder.setTitle(getString(R.string.choose_sort_order, getItemListAdapter().getQuantityString(2)));
 		    builder.setSingleChoiceItems(sortOrderStrings, checkedItem, new DialogInterface.OnClickListener() {
@@ -175,7 +176,8 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 
     private enum AlbumsSortOrder {
     	album,
-    	artflow;
+    	artflow,
+    	__new;
     }
     
 }

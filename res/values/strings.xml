@@ -30,6 +30,8 @@
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
     <string name="connection_failed_text">Connection failed.  Check settings.</string>
     <string name="disconnected_text">Disconnected.</string>
+    <string name="notification_playing_text">%s playing</string>
+    <string name="notification_connected_text">%s connected</string>
     <string name="filter_text_hint">Search for %s</string>
     <string name="search_instructions_text">Search for artist, album, genre or song title.</string>
     <string name="search_hint_text">Enter search text</string>
@@ -84,6 +86,7 @@ This project is very new and is undergoing active development. Patches and featu
 
 	<string name="albums_sort_order_album">Album</string>
 	<string name="albums_sort_order_artflow">Artist, Year, Album</string>
+    <string name="albums_sort_order_new">New music</string>
 
 	<string name="songs_sort_order_title">Title</string>
 	<string name="songs_sort_order_tracknum">Track</string>

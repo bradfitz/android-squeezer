@@ -37,8 +37,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.danga.squeezer.itemlists.SqueezerAlbumListActivity;
 import com.danga.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
 import com.danga.squeezer.itemlists.SqueezerPlayerListActivity;
+import com.danga.squeezer.itemlists.SqueezerSongListActivity;
+import com.danga.squeezer.model.SqueezerAlbum;
+import com.danga.squeezer.model.SqueezerArtist;
+import com.danga.squeezer.model.SqueezerSong;
 import com.danga.squeezer.service.SqueezeService;
 
 public class SqueezerActivity extends SqueezerBaseActivity {
@@ -198,6 +203,32 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                     }
                 });
         
+        artistText.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				SqueezerSong song = getCurrentSong();
+				if (song != null) {
+	                SqueezerAlbumListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+				}
+			}
+		});
+        
+        albumText.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				SqueezerSong song = getCurrentSong();
+				if (song != null) {
+	                SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
+				}
+			}
+		});
+        
+        trackText.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				SqueezerSong song = getCurrentSong();
+				if (song != null) {
+	                SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+				}
+			}
+		});
         
     }
     
@@ -238,9 +269,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             nextButton.setImageResource(0);
             prevButton.setImageResource(0);
             albumArt.setImageDrawable(null);
+            updateSongInfo(null);
             artistText.setText(getText(R.string.disconnected_text));
-            albumText.setText("");
-            trackText.setText("");
             setTitleForPlayer(null);
             currentTime.setText("--:--");
             totalTime.setText("--:--");
@@ -364,11 +394,21 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     
     // Should only be called from the UI thread.
     private void updateSongInfoFromService() {
-        artistText.setText(getServiceCurrentArtist());
-        albumText.setText(getServiceCurrentAlbum());
-        trackText.setText(getServiceCurrentSong());
+    	updateSongInfo(getCurrentSong());
         updateTimeDisplayTo(getSecondsElapsed(), getSecondsTotal());
         updateAlbumArtIfNeeded();
+    }
+    
+    private void updateSongInfo(SqueezerSong song) {
+    	if (song != null) {
+	        artistText.setText(song.getArtist());
+	        albumText.setText(song.getAlbum());
+	        trackText.setText(song.getName());
+    	} else {
+            artistText.setText("");
+            albumText.setText("");
+            trackText.setText("");
+    	}
     }
 
     // Should only be called from the UI thread.
@@ -439,16 +479,16 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         return 0;
     }
     
-    private String getServiceCurrentSong() {
+    private SqueezerSong getCurrentSong() {
         if (getService() == null) {
-            return "";
+            return null;
         }
         try {
             return getService().currentSong();
         } catch (RemoteException e) {
             Log.e(getTag(), "Service exception in getServiceCurrentSong(): " + e);
         }
-        return "";
+        return null;
     }
 
     private String getCurrentAlbumArtUrl() {
@@ -459,30 +499,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             return getService().currentAlbumArtUrl();
         } catch (RemoteException e) {
             Log.e(getTag(), "Service exception in getCurrentAlbumArtUrl(): " + e);
-        }
-        return "";
-    }
-
-    private String getServiceCurrentAlbum() {
-        if (getService() == null) {
-            return "";
-        }
-        try {
-            return getService().currentAlbum();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception in getServiceCurrentAlbum(): " + e);
-        }
-        return "";
-    }
-    
-    private String getServiceCurrentArtist() {
-        if (getService() == null) {
-            return "";
-        }
-        try {
-            return getService().currentArtist();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception in getServiceCurrentArtist(): " + e);
         }
         return "";
     }

@@ -105,7 +105,7 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 	}
 
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
-		SqueezerSongListActivity.show(this, new SqueezerAlbum(item.getAlbum_id(), item.getAlbum()));
+		insert(item);
 	}
 
 	@Override

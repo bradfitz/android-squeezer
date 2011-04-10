@@ -47,8 +47,7 @@ public class SqueezeService extends Service {
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
 	private static final String ALBUMTAGS = "alyj";
-    private static final String SONGTAGS = "asleyJ";
-	private static final String SONGTAGS_STATUS = SONGTAGS + "K";
+    private static final String SONGTAGS = "asleyJK";
 
 	private static final Map<String,String> itemKeys = initializeItemKeys();
 
@@ -286,15 +285,8 @@ public class SqueezeService extends Service {
 	private void parsePlaylistNotification(List<String> tokens) {
 		String notification = tokens.get(2);
 		if ("newsong".equals(notification)) {
-			if (tokens.size() >= 4) {
-				String newSong = Util.decode(tokens.get(3));
-				playerState.setCurrentSong(newSong);
-				updateOngoingNotification();
-				sendMusicChangedCallback();
-
-				// Now also ask for the rest of the status.
-				cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS_STATUS);
-			}
+			// Also ask for the rest of the status.
+			cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
 		} else if ("stop".equals(notification)) {
 			setPlayingState(false);
 		} else if ("pause".equals(notification)) {
@@ -344,10 +336,7 @@ public class SqueezeService extends Service {
 		HashMap<String, String> tokenMap = parseTokens(tokens);
         
 	    boolean musicHasChanged = false;
-	    musicHasChanged |= playerState.currentAlbumUpdated(tokenMap.get("album"));
-	    musicHasChanged |= playerState.currentArtistUpdated(tokenMap.get("artist"));
-	    musicHasChanged |= playerState.currentSongUpdated(tokenMap.get("title"));
-	    musicHasChanged |= playerState.currentArtworkTrackIdUpdated(tokenMap.get("artwork_track_id"));
+	    musicHasChanged |= playerState.setCurrentSongUpdated(new SqueezerSong(tokenMap));
         musicHasChanged |= playerState.currentArtworkUrlUpdated(tokenMap.get("artwork_url"));
 
         playerState.setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
@@ -390,7 +379,7 @@ public class SqueezeService extends Service {
         }
         
         // Start an async fetch of its status.
-        cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS_STATUS);
+        cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
 
         if (changed) {
             updatePlayerSubscriptionState();
@@ -422,7 +411,7 @@ public class SqueezeService extends Service {
         // depending on whether we have an Activity or some sort of client
         // that cares about second-to-second updates.
         if (connectionState.getCallback() != null) {
-            cli.sendPlayerCommand("status - 1 subscribe:1 tags:" + SONGTAGS_STATUS);
+            cli.sendPlayerCommand("status - 1 subscribe:1 tags:" + SONGTAGS);
         } else {
             cli.sendPlayerCommand("status - 1 subscribe:-");
         }
@@ -467,13 +456,14 @@ public class SqueezeService extends Service {
         Intent showNowPlaying = new Intent(this, SqueezerActivity.class)
             .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
-        String song = playerState.getCurrentSongNonNull();
+        String songName = playerState.getCurrentSongName();
+        String playerName = connectionState.getActivePlayer() != null ?  connectionState.getActivePlayer().getName() : "squeezer";
         if (playing) {
-            status.setLatestEventInfo(this, "Music Playing", song, pIntent);
+            status.setLatestEventInfo(this, getString(R.string.notification_playing_text, playerName), songName, pIntent);
             status.flags |= Notification.FLAG_ONGOING_EVENT;
             status.icon = R.drawable.stat_notify_musicplayer;
         } else {
-            status.setLatestEventInfo(this, "Squeezer's Connected", "No music is playing.", pIntent);
+            status.setLatestEventInfo(this, getString(R.string.notification_connected_text, playerName), "-", pIntent);
             status.flags |= Notification.FLAG_ONGOING_EVENT;
             status.icon = R.drawable.logo;
         }
@@ -658,40 +648,27 @@ public class SqueezeService extends Service {
             changeActivePlayer(player);
         }
 
-        public String getActivePlayerId() throws RemoteException {
-            SqueezerPlayer player = connectionState.getActivePlayer();
-            return player == null ? "" : player.getId();
-        }
-
         public String getActivePlayerName() throws RemoteException {
             SqueezerPlayer player = connectionState.getActivePlayer();
             return (player != null ? player.getName() : null);
         }
 
-        public String currentAlbum() throws RemoteException {
-            return playerState.getCurrentAlbumNonNull();
-        }
-
-        public String currentArtist() throws RemoteException {
-            return playerState.getCurrentArtistNonNull();
-        }
-
-        public String currentSong() throws RemoteException {
-            return playerState.getCurrentSongNonNull();
+        public SqueezerSong currentSong() throws RemoteException {
+            return playerState.getCurrentSong();
         }
 
         public String currentAlbumArtUrl() throws RemoteException {
             Integer port = connectionState.getHttpPort();
             if (port == null || port == 0) return "";
-            String artworkTrackId = playerState.getCurrentArtworkTrackId();
-            String artworkUrl = playerState.getCurrentArtworkUrl();
-            if (artworkTrackId != null) {
+
+            SqueezerSong song = playerState.getCurrentSong();
+            if (song != null && song.getArtwork_track_id() != null) {
 				return "http://" + connectionState.getCurrentHost() + ":" + port
-						+ artworkTrackIdUrl(artworkTrackId);
-            } else 
-            if (artworkUrl != null) 
-                return artworkUrl;
-            return "";
+						+ artworkTrackIdUrl(song.getArtwork_track_id());
+            }
+
+            String artworkUrl = playerState.getCurrentArtworkUrl();
+            return (artworkUrl != null ? artworkUrl : "");
         }
 
         public String getAlbumArtUrl(String artworkTrackId) throws RemoteException {

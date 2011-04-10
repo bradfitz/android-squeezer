@@ -35,7 +35,6 @@ interface ISqueezeService {
 	    void setActivePlayer(in SqueezerPlayer player);
 
 		// Returns the empty string (not null) if no player is set. 
-        String getActivePlayerId();
         String getActivePlayerName();
 
 	    ////////////////////
@@ -64,10 +63,7 @@ interface ISqueezeService {
         int getSecondsTotal();
         int getSecondsElapsed();
         
-        // Never return null:  (always empty string when unknown)
-        String currentArtist();
-        String currentAlbum();
-        String currentSong();
+        SqueezerSong currentSong();
         String currentAlbumArtUrl();
         String getAlbumArtUrl(String artworkTrackId);
 

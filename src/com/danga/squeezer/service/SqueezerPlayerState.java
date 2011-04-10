@@ -4,15 +4,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.danga.squeezer.Util;
+import com.danga.squeezer.model.SqueezerSong;
 
 public class SqueezerPlayerState {
     private final AtomicBoolean isPlaying = new AtomicBoolean(false);
     private final AtomicBoolean isPoweredOn = new AtomicBoolean(false);
     
-    private final AtomicReference<String> currentSong = new AtomicReference<String>();
-    private final AtomicReference<String> currentArtist = new AtomicReference<String>();
-    private final AtomicReference<String> currentAlbum = new AtomicReference<String>();
-    private final AtomicReference<String> currentArtworkTrackId = new AtomicReference<String>();
+    private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
     private final AtomicReference<String> currentArtworkUrl = new AtomicReference<String>();
     private final AtomicReference<Integer> currentTimeSecond = new AtomicReference<Integer>();
     private final AtomicReference<Integer> currentSongDuration = new AtomicReference<Integer>();
@@ -33,60 +31,29 @@ public class SqueezerPlayerState {
     	isPoweredOn.set(state);
     	return this;
     }
-    
 
-	public String getCurrentSong() {
-		return currentSong.get();
-	}
-	public String getCurrentSongNonNull() {
-		return Util.nonNullString(currentSong);
-	}
-    public boolean currentSongUpdated(String value) {
-    	return Util.atomicStringUpdated(currentSong, value);
+    public SqueezerSong getCurrentSong() {
+    	return currentSong.get();
     }
-    public SqueezerPlayerState setCurrentSong(String value) {
-    	currentSong.set(value);
+    public String getCurrentSongName() {
+    	SqueezerSong song = currentSong.get();
+    	return (song != null) ? song.getName() :  "";
+    }
+    public SqueezerPlayerState setCurrentSong(SqueezerSong song) {
+    	currentSong.set(song);
     	return this;
     }
-	
-	public String getCurrentArtist() {
-		return currentArtist.get();
-	}
-	public String getCurrentArtistNonNull() {
-		return Util.nonNullString(currentArtist);
-	}
-    public SqueezerPlayerState setCurrentArtist(String value) {
-    	currentArtist.set(value);
-    	return this;
+    public boolean setCurrentSongUpdated(SqueezerSong newValue) {
+    	SqueezerSong currentValue = currentSong.get();
+		if (currentValue == null && newValue == null)
+			return false;
+		if (currentValue == null || !currentValue.equals(newValue)) {
+			currentSong.set(newValue);
+			return true;
+		}
+		return false;
     }
-    public boolean currentArtistUpdated(String value) {
-    	return Util.atomicStringUpdated(currentArtist, value);
-    }
-	
-	public String getCurrentAlbum() {
-		return currentAlbum.get();
-	}
-    public boolean currentAlbumUpdated(String value) {
-    	return Util.atomicStringUpdated(currentAlbum, value);
-    }
-	public String getCurrentAlbumNonNull() {
-		return Util.nonNullString(currentAlbum);
-	}
-    public SqueezerPlayerState setCurrentAlbum(String value) {
-    	currentAlbum.set(value);
-    	return this;
-    }
-	
-	public String getCurrentArtworkTrackId() {
-		return currentArtworkTrackId.get();
-	}
-    public SqueezerPlayerState setCurrentArtworkTrackId(String value) {
-    	currentArtworkTrackId.set(value);
-    	return this;
-    }
-    public boolean currentArtworkTrackIdUpdated(String value) {
-    	return Util.atomicStringUpdated(currentArtworkTrackId, value);
-    }
+
 	
 	public String getCurrentArtworkUrl() {
 		return currentArtworkUrl.get();
@@ -124,10 +91,6 @@ public class SqueezerPlayerState {
 	public void clear() {
 		setPlaying(false);
         setCurrentSong(null);
-        setCurrentArtist(null);
-        setCurrentAlbum(null);
-        setCurrentArtworkTrackId(null);
-        setCurrentArtworkUrl(null);
         setCurrentTimeSecond(null);
         setCurrentSongDuration(null);
 	}

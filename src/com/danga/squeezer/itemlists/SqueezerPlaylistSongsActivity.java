@@ -21,7 +21,6 @@ import android.widget.Toast;
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerItemView;
 import com.danga.squeezer.Util;
-import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerPlaylist;
 import com.danga.squeezer.model.SqueezerSong;
 
@@ -127,7 +126,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 	};
 
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
-		SqueezerSongListActivity.show(this, new SqueezerAlbum(item.getAlbum_id(), item.getAlbum()));
+		insert(item);
 	}
     
     @Override
