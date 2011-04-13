@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerBaseActivity;
+import com.danga.squeezer.framework.SqueezerItemListActivity;
 import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerSong;
@@ -24,7 +24,7 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 	private boolean browseByArtist;
 	public void setBrowseByArtist(boolean browseByArtist) { this.browseByArtist = browseByArtist; }
 
-	public SqueezerSongView(SqueezerBaseActivity activity) {
+	public SqueezerSongView(SqueezerItemListActivity activity) {
 		super(activity);
 		layoutInflater = activity.getLayoutInflater();
 	}

@@ -19,8 +19,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerItemView;
 import com.danga.squeezer.Util;
+import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerPlaylist;
 import com.danga.squeezer.model.SqueezerSong;
 
@@ -47,6 +47,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 	private String oldname;
 	private int fromIndex;
 
+	@Override
 	public SqueezerItemView<SqueezerSong> createItemView() {
 		return new SqueezerSongView(this) {
 			@Override
@@ -108,23 +109,25 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 			}
 	}
 
-	public void orderItems(int start) throws RemoteException {
+	@Override
+	protected void orderPage(int start) throws RemoteException {
 		getService().playlistSongs(start, playlist);
 	}
 	
 	@Override
-	public void registerCallback() throws RemoteException {
+	protected void registerCallback() throws RemoteException {
 		super.registerCallback();
 		getService().registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
 	};
 	
 	@Override
-	public void unregisterCallback() throws RemoteException {
+	protected void unregisterCallback() throws RemoteException {
 		super.unregisterCallback();
 		getService().unregisterPlaylistMaintenanceCallback(playlistMaintenanceCallback);
 		
 	};
 
+	@Override
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
 		insert(item);
 	}

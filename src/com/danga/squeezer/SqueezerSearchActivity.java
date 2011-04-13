@@ -23,6 +23,8 @@ import android.widget.TextView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
 
+import com.danga.squeezer.framework.SqueezerItem;
+import com.danga.squeezer.framework.SqueezerItemListActivity;
 import com.danga.squeezer.itemlists.IServiceAlbumListCallback;
 import com.danga.squeezer.itemlists.IServiceArtistListCallback;
 import com.danga.squeezer.itemlists.IServiceGenreListCallback;
@@ -33,7 +35,7 @@ import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerGenre;
 import com.danga.squeezer.model.SqueezerSong;
 
-public class SqueezerSearchActivity extends SqueezerBaseActivity {
+public class SqueezerSearchActivity extends SqueezerItemListActivity {
 	private TextView loadingLabel;
 	private ExpandableListView resultsExpandableListView;
 	private SqueezerSearchAdapter searchResultsAdapter;
@@ -105,6 +107,22 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
 	};
 
 	@Override
+	protected void registerCallback() throws RemoteException {
+		getService().registerArtistListCallback(artistsCallback);
+		getService().registerAlbumListCallback(albumsCallback);
+		getService().registerGenreListCallback(genresCallback);
+		getService().registerSongListCallback(songsCallback);
+	}
+
+	@Override
+	protected void unregisterCallback() throws RemoteException {
+		getService().unregisterArtistListCallback(artistsCallback);
+		getService().unregisterAlbumListCallback(albumsCallback);
+		getService().unregisterGenreListCallback(genresCallback);
+		getService().unregisterSongListCallback(songsCallback);
+	}
+	
+	@Override
 	public final boolean onContextItemSelected(MenuItem menuItem) {
 		if (getService() != null) {
 			ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuItem.getMenuInfo();
@@ -125,10 +143,7 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
 
 	@Override
 	protected void onServiceConnected() throws RemoteException {
-		getService().registerArtistListCallback(artistsCallback);
-		getService().registerAlbumListCallback(albumsCallback);
-		getService().registerGenreListCallback(genresCallback);
-		getService().registerSongListCallback(songsCallback);
+		registerCallback();
 		doSearch();
 	}
 
@@ -136,10 +151,7 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
     public void onPause() {
         if (getService() != null) {
         	try {
-        		getService().unregisterArtistListCallback(artistsCallback);
-        		getService().unregisterAlbumListCallback(albumsCallback);
-        		getService().unregisterGenreListCallback(genresCallback);
-        		getService().unregisterSongListCallback(songsCallback);
+        		unregisterCallback();
 			} catch (RemoteException e) {
                 Log.e(getTag(), "Error unregistering list callback: " + e);
 			}
@@ -154,7 +166,8 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
     }
 
 	
-	private void doSearch(int start) {
+	@Override
+	protected void orderPage(int start) {
 		try {
 			getService().search(start, searchString);
 		} catch (RemoteException e) {
@@ -165,7 +178,7 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
 	private void doSearch(String searchString) {
 		if (searchString != null && searchString.length() > 0 && getService() != null) {
 			this.searchString = searchString;
-			doSearch(0);
+			reorderItems();
 			resultsExpandableListView.setVisibility(View.GONE);
 			loadingLabel.setVisibility(View.VISIBLE);
 			searchResultsAdapter.clear();
@@ -176,10 +189,10 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
 		doSearch(searchString);
 	}
 	
-	private <T extends SqueezerItem> void onItemsReceived(final int count, final int max, final int start, final List<T> items) {
+	private <T extends SqueezerItem> void onItemsReceived(final int count, final int start, final List<T> items) {
 		getUIThreadHandler().post(new Runnable() {
 			public void run() {
-				searchResultsAdapter.updateItems(count, max, start, items);
+				searchResultsAdapter.updateItems(count, start, items);
 				loadingLabel.setVisibility(View.GONE);
 				resultsExpandableListView.setVisibility(View.VISIBLE);
 			}
@@ -192,15 +205,6 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
         getMenuInflater().inflate(R.menu.itemlistmenu, menu);
         return super.onCreateOptionsMenu(menu);
     }
-    
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-    	super.onPrepareOptionsMenu(menu);
-    	
-    	MenuItem fetchAll = menu.findItem(R.id.menu_item_fetch_all);
-    	fetchAll.setVisible(!searchResultsAdapter.isFullyLoaded());
-    	return true;
-    }
 
 	@Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -211,35 +215,32 @@ public class SqueezerSearchActivity extends SqueezerBaseActivity {
         case R.id.menu_item_main:
         	SqueezerActivity.show(this);
 			return true;
-        case R.id.menu_item_fetch_all:
-			doSearch(searchResultsAdapter.getMaxCount());
-			return true;
         }
         return super.onMenuItemSelected(featureId, item);
 	}
 
 	
 	private IServiceArtistListCallback artistsCallback = new IServiceArtistListCallback.Stub() {
-		public void onArtistsReceived(int count, int max, int start, List<SqueezerArtist> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onArtistsReceived(int count, int start, List<SqueezerArtist> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
 	};
 
 	private IServiceAlbumListCallback albumsCallback = new IServiceAlbumListCallback.Stub() {
-		public void onAlbumsReceived(int count, int max, int start, List<SqueezerAlbum> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onAlbumsReceived(int count, int start, List<SqueezerAlbum> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
 	};
 
 	private IServiceGenreListCallback genresCallback = new IServiceGenreListCallback.Stub() {
-		public void onGenresReceived(int count, int max, int start, List<SqueezerGenre> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onGenresReceived(int count, int start, List<SqueezerGenre> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
 	};
 
 	private IServiceSongListCallback songsCallback = new IServiceSongListCallback.Stub() {
-		public void onSongsReceived(int count, int max, int start, List<SqueezerSong> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onSongsReceived(int count, int start, List<SqueezerSong> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
 	};
 

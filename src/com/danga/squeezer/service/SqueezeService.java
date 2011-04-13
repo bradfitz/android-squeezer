@@ -78,7 +78,6 @@ public class SqueezeService extends Service {
     SqueezerCLIImpl cli = new SqueezerCLIImpl(this);
     
     boolean debugLogging = false;
-	int maxListSize;
     
     SharedPreferences preferences;
 
@@ -98,7 +97,6 @@ public class SqueezeService extends Service {
 
 	private void getPreferences() {
 		debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
-        maxListSize = preferences.getInt(Preferences.KEY_MAX_ROWS, 100);
 	}
 
 	@Override

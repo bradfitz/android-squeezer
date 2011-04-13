@@ -1,7 +1,9 @@
-package com.danga.squeezer;
+package com.danga.squeezer.framework;
 
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.danga.squeezer.R;
 
 public abstract class SqueezerFilterableListActivity<T extends SqueezerItem> extends SqueezerBaseListActivity<T> {
 	

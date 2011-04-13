@@ -6,29 +6,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
 
-import com.danga.squeezer.SqueezerBaseListActivity;
-import com.danga.squeezer.SqueezerItemView;
+import com.danga.squeezer.framework.SqueezerBaseListActivity;
+import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerGenre;
 
 public class SqueezerGenreListActivity extends SqueezerBaseListActivity<SqueezerGenre>{
 
+	@Override
 	public SqueezerItemView<SqueezerGenre> createItemView() {
 		return new SqueezerGenreView(this);
 	}
 
-	public void registerCallback() throws RemoteException {
+	@Override
+	protected void registerCallback() throws RemoteException {
 		getService().registerGenreListCallback(genreListCallback);
 	}
 
-	public void unregisterCallback() throws RemoteException {
+	@Override
+	protected void unregisterCallback() throws RemoteException {
 		getService().unregisterGenreListCallback(genreListCallback);
 	}
 
-	public void orderItems(int start) throws RemoteException {
+	@Override
+	protected void orderPage(int start) throws RemoteException {
 		getService().genres(start);
 	}
 
-	public void onItemSelected(int index, SqueezerGenre item) throws RemoteException {
+	@Override
+	protected void onItemSelected(int index, SqueezerGenre item) throws RemoteException {
 		SqueezerAlbumListActivity.show(this, item);
 	}
 
@@ -39,8 +44,8 @@ public class SqueezerGenreListActivity extends SqueezerBaseListActivity<Squeezer
     }
 
     private IServiceGenreListCallback genreListCallback = new IServiceGenreListCallback.Stub() {
-		public void onGenresReceived(int count, int max, int start, List<SqueezerGenre> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onGenresReceived(int count, int start, List<SqueezerGenre> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
     };
 

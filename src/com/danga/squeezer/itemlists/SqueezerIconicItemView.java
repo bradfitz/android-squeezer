@@ -11,17 +11,17 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.danga.squeezer.service.ISqueezeService;
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerArtworkItem;
-import com.danga.squeezer.SqueezerBaseActivity;
-import com.danga.squeezer.SqueezerBaseItemView;
-import com.danga.squeezer.SqueezerItem;
+import com.danga.squeezer.framework.SqueezerArtworkItem;
+import com.danga.squeezer.framework.SqueezerBaseItemView;
+import com.danga.squeezer.framework.SqueezerItem;
+import com.danga.squeezer.framework.SqueezerItemListActivity;
+import com.danga.squeezer.service.ISqueezeService;
 
 public abstract class SqueezerIconicItemView<T extends SqueezerItem> extends SqueezerBaseItemView<T> {
 	private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
 
-	public SqueezerIconicItemView(SqueezerBaseActivity activity) {
+	public SqueezerIconicItemView(SqueezerItemListActivity activity) {
 		super(activity);
 	}
 	

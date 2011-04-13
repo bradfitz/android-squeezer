@@ -1,4 +1,4 @@
-package com.danga.squeezer;
+package com.danga.squeezer.framework;
 
 import com.danga.squeezer.service.ISqueezeService;
 import com.danga.squeezer.service.SqueezeService;
@@ -13,6 +13,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+/**
+ * Common base class for all activities in the squeezer
+ * @author Kurt Aaholst
+ *
+ */
 public abstract class SqueezerBaseActivity extends Activity {
 	private ISqueezeService service = null;
 	private Handler uiThreadHandler = new Handler() {};

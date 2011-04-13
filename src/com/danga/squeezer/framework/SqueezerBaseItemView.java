@@ -1,4 +1,4 @@
-package com.danga.squeezer;
+package com.danga.squeezer.framework;
 
 import java.lang.reflect.Field;
 
@@ -8,6 +8,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.danga.squeezer.R;
+import com.danga.squeezer.ReflectUtil;
+import com.danga.squeezer.Util;
 import com.danga.squeezer.itemlists.SqueezerAlbumListActivity;
 import com.danga.squeezer.itemlists.SqueezerArtistListActivity;
 import com.danga.squeezer.itemlists.SqueezerSongListActivity;
@@ -23,16 +26,16 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	protected static final int CONTEXTMENU_BROWSE_ARTIST_ALBUMS = 7;
 	protected static final int CONTEXTMENU_BROWSE_ARTIST_SONGS = 8;
 
-	private SqueezerBaseActivity activity;
+	private SqueezerItemListActivity activity;
 	private SqueezerItemAdapter<T> adapter;
 	private Class<T> itemClass;
 	private Creator<T> creator;
 
-	public SqueezerBaseItemView(SqueezerBaseActivity activity) {
+	public SqueezerBaseItemView(SqueezerItemListActivity activity) {
 		this.activity = activity;
 	}
 
-	public SqueezerBaseActivity getActivity() {
+	public SqueezerItemListActivity getActivity() {
 		return activity;
 	}
 	

@@ -18,9 +18,9 @@ import android.widget.Spinner;
 
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerActivity;
-import com.danga.squeezer.SqueezerItem;
-import com.danga.squeezer.SqueezerItemView;
-import com.danga.squeezer.SqueezerOrderableListActivity;
+import com.danga.squeezer.framework.SqueezerItem;
+import com.danga.squeezer.framework.SqueezerItemView;
+import com.danga.squeezer.framework.SqueezerOrderableListActivity;
 import com.danga.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import com.danga.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
 import com.danga.squeezer.model.SqueezerAlbum;
@@ -48,6 +48,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 		return year;
 	}
 
+	@Override
 	public SqueezerItemView<SqueezerAlbum> createItemView() {
 		return new SqueezerAlbumView(this);
 	}
@@ -68,19 +69,22 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 			}
 	}
 
-	public void registerCallback() throws RemoteException {
+	@Override
+	protected void registerCallback() throws RemoteException {
 		getService().registerAlbumListCallback(albumListCallback);
 		if (genreSpinner != null) genreSpinner.registerCallback();
 		if (yearSpinner != null) yearSpinner.registerCallback();
 	}
 
-	public void unregisterCallback() throws RemoteException {
+	@Override
+	protected void unregisterCallback() throws RemoteException {
 		getService().unregisterAlbumListCallback(albumListCallback);
 		if (genreSpinner != null) genreSpinner.unregisterCallback();
 		if (yearSpinner != null) yearSpinner.unregisterCallback();
 	}
 
-	public void orderItems(int start) throws RemoteException {
+	@Override
+	protected void orderPage(int start) throws RemoteException {
 		getService().albums(start, sortOrder.name().replace("__", ""), searchString, artist, year, genre);
 	}
 	
@@ -89,7 +93,8 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 		orderItems();
 	}
 
-	public void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
+	@Override
+	protected void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
 		play(item);
 		SqueezerActivity.show(this);
 	}
@@ -169,8 +174,8 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
     }
 
     private IServiceAlbumListCallback albumListCallback = new IServiceAlbumListCallback.Stub() {
-		public void onAlbumsReceived(int count, int max, int start, List<SqueezerAlbum> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onAlbumsReceived(int count, int start, List<SqueezerAlbum> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
     };
 

@@ -1,4 +1,4 @@
-package com.danga.squeezer;
+package com.danga.squeezer.framework;
 
 import android.os.Parcelable;
 

@@ -4,14 +4,14 @@ import android.view.ContextMenu;
 import android.view.Menu;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerBaseActivity;
-import com.danga.squeezer.SqueezerBaseItemView;
+import com.danga.squeezer.framework.SqueezerBaseItemView;
+import com.danga.squeezer.framework.SqueezerItemListActivity;
 import com.danga.squeezer.model.SqueezerArtist;
 
 
 public class SqueezerArtistView extends SqueezerBaseItemView<SqueezerArtist> {
 
-	public SqueezerArtistView(SqueezerBaseActivity activity) {
+	public SqueezerArtistView(SqueezerItemListActivity activity) {
 		super(activity);
 	}
 

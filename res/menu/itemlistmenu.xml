@@ -8,8 +8,4 @@
     android:id="@+id/menu_item_home"
    	android:title="@string/menu_item_home"	android:icon="@drawable/icon_home"
   />
-  <item
-   	android:id="@+id/menu_item_fetch_all"
-   	android:title="@string/menu_item_fetch_all" android:icon="@android:drawable/stat_sys_download"
-  />
 </menu>

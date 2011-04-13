@@ -17,8 +17,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerItem;
-import com.danga.squeezer.SqueezerItemView;
+import com.danga.squeezer.framework.SqueezerItem;
+import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import com.danga.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
 import com.danga.squeezer.model.SqueezerAlbum;
@@ -55,6 +55,7 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 	}
 
 
+	@Override
 	public SqueezerItemView<SqueezerSong> createItemView() {
 		songViewLogic = new SqueezerSongView(this);
 		return songViewLogic;
@@ -82,20 +83,21 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 	}
 
 	@Override
-	public void registerCallback() throws RemoteException {
+	protected void registerCallback() throws RemoteException {
 		super.registerCallback();
 		if (genreSpinner != null) genreSpinner.registerCallback();
 		if (yearSpinner != null) yearSpinner.registerCallback();
 	}
 
 	@Override
-	public void unregisterCallback() throws RemoteException {
+	protected void unregisterCallback() throws RemoteException {
 		super.registerCallback();
 		if (genreSpinner != null) genreSpinner.unregisterCallback();
 		if (yearSpinner != null) yearSpinner.unregisterCallback();
 	}
 
-	public void orderItems(int start) throws RemoteException {
+	@Override
+	protected void orderPage(int start) throws RemoteException {
 		getService().songs(start, sortOrder.name(), searchString, album, artist, year, genre);
 	}
 	
@@ -104,7 +106,8 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 		orderItems();
 	}
 
-	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
+	@Override
+	protected void onItemSelected(int index, SqueezerSong item) throws RemoteException {
 		insert(item);
 	}
 

@@ -1,4 +1,4 @@
-package com.danga.squeezer;
+package com.danga.squeezer.framework;
 
 
 import java.util.List;
@@ -17,21 +17,25 @@ import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.danga.squeezer.R;
+import com.danga.squeezer.SqueezerActivity;
+import com.danga.squeezer.SqueezerHomeActivity;
+
 /**
  * <p>
  * A generic base class for an activity to list items of a particular SqueezeServer data type. The data type
  * is defined by the generic type argument, and must be an extension of {@link SqueezerItem}.
  * You must provide an {@link SqueezerItemView} to provide the view logic used by this activity. This is done
- * by implementing {@link SqueezerListActivity#createItemView()}.
+ * by implementing {@link SqueezerItemListActivity#createItemView()}.
  * <p>
  * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link SqueezerItemListAdapter} is
- * created using the provided {@link SqueezerItemView}. See {@link SqueezerListActivity}, too see details
+ * created using the provided {@link SqueezerItemView}. See {@link SqueezerItemListActivity}, too see details
  * of ordering and receiving of list items from SqueezeServer, and handling of item selection.
  * 
  * @param <T>	Denotes the class of the items this class should list
  * @author Kurt Aaholst
  */
-public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerBaseActivity implements SqueezerListActivity<T> {
+public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
 	protected static final int DIALOG_FILTER = 0;
 	protected static final int DIALOG_ORDER = 1;
 	
@@ -70,6 +74,24 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		prepareActivity(getIntent().getExtras());
 	}
 
+	
+	/**
+	 * Implement the action to be taken when an item is selected.
+	 * @param index Position in the list of the selected item.
+	 * @param item The selected item. This may be null if 
+	 * @throws RemoteException
+	 */
+	abstract protected void onItemSelected(int index, T item) throws RemoteException;
+	
+	/**
+	 * @return A new view logic to be used by this activity
+	 */
+	abstract protected SqueezerItemView<T> createItemView();
+	
+	/**
+	 * Initial setup of this activity. 
+	 * @param extras Optionally use this information to setup the activity. (may be null)
+	 */
 	public void prepareActivity(Bundle extras) {
 	}
 
@@ -128,22 +150,18 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	 * @throws RemoteException 
 	 */
 	public void orderItems() {
-		try {
-			orderItems(0);
-		} catch (RemoteException e) {
-			Log.e(getTag(), "Error ordering items: " + e);
-		}
+		reorderItems();
 		listView.setVisibility(View.GONE);
 		loadingLabel.setVisibility(View.VISIBLE);
 		clearItemListAdapter();
 	}
 	
-	public void onItemsReceived(final int count, final int max, final int start, final List<T> items) {
+	public void onItemsReceived(final int count, final int start, final List<T> items) {
 		getUIThreadHandler().post(new Runnable() {
 			public void run() {
 				listView.setVisibility(View.VISIBLE);
 				loadingLabel.setVisibility(View.GONE);
-				getItemListAdapter().update(count, max, start, items);
+				getItemListAdapter().update(count, start, items);
 			}
 		});
 	}
@@ -163,14 +181,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         return super.onCreateOptionsMenu(menu);
     }
     
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-    	super.onPrepareOptionsMenu(menu);
-    	MenuItem fetchAll = menu.findItem(R.id.menu_item_fetch_all);
-    	fetchAll.setVisible(!getItemListAdapter().isFullyLoaded());
-    	return true;
-    }
-
 	@Override
     public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
@@ -179,13 +189,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 			return true;
         case R.id.menu_item_main:
         	SqueezerActivity.show(this);
-			return true;
-        case R.id.menu_item_fetch_all:
-        	try {
-				orderItems(getItemListAdapter().getCount());
-			} catch (RemoteException e) {
-                Log.e(getTag(), "Error ordering remaining items: " + e);
-			}
 			return true;
         }
         return super.onMenuItemSelected(featureId, menuItem);

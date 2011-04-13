@@ -7,18 +7,18 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Spinner;
 
-import com.danga.squeezer.service.ISqueezeService;
-import com.danga.squeezer.SqueezerBaseActivity;
-import com.danga.squeezer.SqueezerItemAdapter;
+import com.danga.squeezer.framework.SqueezerItemAdapter;
+import com.danga.squeezer.framework.SqueezerItemListActivity;
 import com.danga.squeezer.model.SqueezerGenre;
+import com.danga.squeezer.service.ISqueezeService;
 
 public class GenreSpinner {
 	private static final String TAG = GenreSpinner.class.getName();
 	GenreSpinnerCallback callback;
-	private SqueezerBaseActivity activity;
+	private SqueezerItemListActivity activity;
 	private Spinner spinner;
 
-	public GenreSpinner(GenreSpinnerCallback callback, SqueezerBaseActivity activity, Spinner spinner) {
+	public GenreSpinner(GenreSpinnerCallback callback, SqueezerItemListActivity activity, Spinner spinner) {
 		this.callback = callback;
 		this.activity = activity;
 		this.spinner = spinner;
@@ -59,16 +59,15 @@ public class GenreSpinner {
     private IServiceGenreListCallback genreListCallback = new IServiceGenreListCallback.Stub() {
 		private SqueezerItemAdapter<SqueezerGenre> adapter;
     	
-		public void onGenresReceived(final int count, final int max, final int start, final List<SqueezerGenre> list) throws RemoteException {
+		public void onGenresReceived(final int count, final int start, final List<SqueezerGenre> list) throws RemoteException {
 			callback.getUIThreadHandler().post(new Runnable() {
 				public void run() {
 					if (adapter == null) {
 						SqueezerGenreView itemView = new SqueezerGenreView(activity);
-						adapter = new SqueezerItemAdapter<SqueezerGenre>(itemView, count, true);
+						adapter = new SqueezerItemAdapter<SqueezerGenre>(itemView, true);
 						spinner.setAdapter(adapter);
-						if (count > max) orderItems(max);
 					}
-					adapter.update(count, max, start, list);
+					adapter.update(count, start, list);
 					spinner.setSelection(adapter.findItem(callback.getGenre()));
 				}
 			});

@@ -1,4 +1,5 @@
-package com.danga.squeezer;
+package com.danga.squeezer.framework;
+
 
 
 public abstract class SqueezerArtworkItem extends SqueezerItem {

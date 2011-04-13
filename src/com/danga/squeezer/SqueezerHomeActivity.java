@@ -47,7 +47,7 @@ public class SqueezerHomeActivity extends ListActivity {
 		}
 	};
 
-	static void show(Context context) {
+	public static void show(Context context) {
         final Intent intent = new Intent(context, SqueezerHomeActivity.class)
         		.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         		.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);

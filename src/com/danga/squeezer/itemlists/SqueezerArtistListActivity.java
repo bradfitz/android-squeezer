@@ -17,9 +17,9 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerFilterableListActivity;
-import com.danga.squeezer.SqueezerItem;
-import com.danga.squeezer.SqueezerItemView;
+import com.danga.squeezer.framework.SqueezerFilterableListActivity;
+import com.danga.squeezer.framework.SqueezerItem;
+import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerArtist;
@@ -36,6 +36,7 @@ public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<S
 		return genre;
 	}
 
+	@Override
 	public SqueezerItemView<SqueezerArtist> createItemView() {
 		return new SqueezerArtistView(this);
 	}
@@ -54,21 +55,25 @@ public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<S
 			}
 	}
 
-	public void registerCallback() throws RemoteException {
+	@Override
+	protected void registerCallback() throws RemoteException {
 		getService().registerArtistListCallback(artistsListCallback);
 		if (genreSpinner != null) genreSpinner.registerCallback();
 	}
 
-	public void unregisterCallback() throws RemoteException {
+	@Override
+	protected void unregisterCallback() throws RemoteException {
 		getService().unregisterArtistListCallback(artistsListCallback);
 		if (genreSpinner != null) genreSpinner.unregisterCallback();
 	}
 
-	public void orderItems(int start) throws RemoteException {
+	@Override
+	protected void orderPage(int start) throws RemoteException {
 		getService().artists(start, searchString, album, genre);
 	}
 
-	public void onItemSelected(int index, SqueezerArtist item) throws RemoteException {
+	@Override
+	protected void onItemSelected(int index, SqueezerArtist item) throws RemoteException {
 		SqueezerAlbumListActivity.show(this, item);
 	}
 	
@@ -129,8 +134,8 @@ public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<S
     }
 
     private IServiceArtistListCallback artistsListCallback = new IServiceArtistListCallback.Stub() {
-		public void onArtistsReceived(int count, int max, int start, List<SqueezerArtist> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onArtistsReceived(int count, int start, List<SqueezerArtist> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
     };
 

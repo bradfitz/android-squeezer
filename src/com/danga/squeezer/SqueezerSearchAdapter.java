@@ -13,6 +13,8 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.danga.squeezer.framework.SqueezerItem;
+import com.danga.squeezer.framework.SqueezerItemAdapter;
 import com.danga.squeezer.itemlists.SqueezerAlbumView;
 import com.danga.squeezer.itemlists.SqueezerArtistView;
 import com.danga.squeezer.itemlists.SqueezerGenreView;
@@ -61,17 +63,11 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends SqueezerItem> void updateItems(int count, int max, int start, List<T> items) {
+	public <T extends SqueezerItem> void updateItems(int count, int start, List<T> items) {
 		Class<T> clazz = (Class<T>) ReflectUtil.getGenericClass(items.getClass(), List.class, 0);
 		SqueezerItemAdapter<T> adapter = (SqueezerItemAdapter<T>)childAdapterMap.get(clazz);
-		adapter.update(count, max, start, items);
+		adapter.update(count, start, items);
 		notifyDataSetChanged();
-	}
-
-	public boolean isFullyLoaded() {
-		for (SqueezerItemAdapter<? extends SqueezerItem> itemAdapter: childAdapters)
-			if (!itemAdapter.isFullyLoaded()) return false;
-		return true;
 	}
 
 	public int getMaxCount() {
@@ -121,7 +117,7 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 		View row = activity.getLayoutInflater().inflate(R.layout.group_item, null);
 
 		TextView label = (TextView) row.findViewById(R.id.label);
-		label.setText(childAdapters[groupPosition].getHeader(childAdapters[groupPosition].getCount()));
+		label.setText(childAdapters[groupPosition].getHeader());
 
 		ImageView icon = (ImageView) row.findViewById(R.id.icon);
 		icon.setImageResource(groupIcons[groupPosition]);

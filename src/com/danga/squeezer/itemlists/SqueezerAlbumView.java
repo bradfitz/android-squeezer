@@ -8,13 +8,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerBaseActivity;
+import com.danga.squeezer.framework.SqueezerItemListActivity;
 import com.danga.squeezer.model.SqueezerAlbum;
 
 public class SqueezerAlbumView extends SqueezerIconicItemView<SqueezerAlbum> {
 	private LayoutInflater layoutInflater;
 
-	public SqueezerAlbumView(SqueezerBaseActivity activity) {
+	public SqueezerAlbumView(SqueezerItemListActivity activity) {
 		super(activity);
 		layoutInflater = activity.getLayoutInflater();
 	}

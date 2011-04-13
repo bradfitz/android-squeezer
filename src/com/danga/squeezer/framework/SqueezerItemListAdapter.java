@@ -1,7 +1,8 @@
 /**
  * 
  */
-package com.danga.squeezer;
+package com.danga.squeezer.framework;
+
 
 
 /**
@@ -23,10 +24,8 @@ public class SqueezerItemListAdapter<T extends SqueezerItem> extends SqueezerIte
 	}
 
 	@Override
-	protected T[] setUpList(int max) {
-		T[] items = super.setUpList(max);
-		getActivity().setTitle(getHeader(items.length));
-		return items;
+	protected void updateHeader() {
+		getActivity().setTitle(getHeader());
 	}
 
 }

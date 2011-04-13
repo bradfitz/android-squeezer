@@ -1,4 +1,5 @@
-package com.danga.squeezer;
+package com.danga.squeezer.framework;
+
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -25,7 +26,7 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	/**
 	 * @return The activity associated with this view logic
 	 */
-	SqueezerBaseActivity getActivity();
+	SqueezerItemListActivity getActivity();
 
 	/**
 	 * @return {@link Resources#getQuantityString(int, int)}

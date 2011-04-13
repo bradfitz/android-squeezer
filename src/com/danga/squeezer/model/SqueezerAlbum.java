@@ -4,8 +4,8 @@ import java.util.Map;
 
 import android.os.Parcel;
 
-import com.danga.squeezer.SqueezerArtworkItem;
 import com.danga.squeezer.Util;
+import com.danga.squeezer.framework.SqueezerArtworkItem;
 
 public class SqueezerAlbum extends SqueezerArtworkItem {
 

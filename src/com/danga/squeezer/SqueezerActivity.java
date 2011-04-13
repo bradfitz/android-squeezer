@@ -37,6 +37,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.danga.squeezer.framework.SqueezerBaseActivity;
 import com.danga.squeezer.itemlists.SqueezerAlbumListActivity;
 import com.danga.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
 import com.danga.squeezer.itemlists.SqueezerPlayerListActivity;

@@ -6,29 +6,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
 
-import com.danga.squeezer.SqueezerBaseListActivity;
-import com.danga.squeezer.SqueezerItemView;
+import com.danga.squeezer.framework.SqueezerBaseListActivity;
+import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerPlayer;
 
 public class SqueezerPlayerListActivity extends SqueezerBaseListActivity<SqueezerPlayer> {
 
+	@Override
 	public SqueezerItemView<SqueezerPlayer> createItemView() {
 		return new SqueezerPlayerView(this);
 	}
 
-	public void registerCallback() throws RemoteException {
+	@Override
+	protected void registerCallback() throws RemoteException {
 		getService().registerPlayerListCallback(playerListCallback);
 	}
 
-	public void unregisterCallback() throws RemoteException {
+	@Override
+	protected void unregisterCallback() throws RemoteException {
 		getService().unregisterPlayerListCallback(playerListCallback);
 	}
 
-	public void orderItems(int start) throws RemoteException {
+	@Override
+	protected void orderPage(int start) throws RemoteException {
 		getService().players(start);
 	}
 
-	public void onItemSelected(int index, SqueezerPlayer item) throws RemoteException {
+	@Override
+	protected void onItemSelected(int index, SqueezerPlayer item) throws RemoteException {
 		getService().setActivePlayer(item);
 		finish();
 	};
@@ -39,8 +44,8 @@ public class SqueezerPlayerListActivity extends SqueezerBaseListActivity<Squeeze
     }
 
     private IServicePlayerListCallback playerListCallback = new IServicePlayerListCallback.Stub() {
-		public void onPlayersReceived(int count, int max, int start, List<SqueezerPlayer> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onPlayersReceived(int count, int start, List<SqueezerPlayer> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
     };
 

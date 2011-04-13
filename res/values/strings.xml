@@ -46,7 +46,6 @@
     <string name="delete__message">Are you sure to delete?</string>
     <string name="loading_text">Loading...</string>
     <string name="browse_items_text" >Browse %2$d %1$s</string>
-    <string name="browse_max_items_text">Browse %2$d of a total %3$d %1$s</string>
     <string name="choose_sort_order">Choose ordering of %s</string>
     <string name="genre_prompt">Choose genre</string>
     <string name="year_prompt">Choose year</string>

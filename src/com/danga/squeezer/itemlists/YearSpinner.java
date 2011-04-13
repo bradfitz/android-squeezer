@@ -7,18 +7,18 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Spinner;
 
-import com.danga.squeezer.SqueezerBaseActivity;
-import com.danga.squeezer.SqueezerItemAdapter;
+import com.danga.squeezer.framework.SqueezerItemAdapter;
+import com.danga.squeezer.framework.SqueezerItemListActivity;
 import com.danga.squeezer.model.SqueezerYear;
 import com.danga.squeezer.service.ISqueezeService;
 
 public class YearSpinner {
 	private static final String TAG = YearSpinner.class.getName();
 	YearSpinnerCallback callback;
-	private SqueezerBaseActivity activity;
+	private SqueezerItemListActivity activity;
 	private Spinner spinner;
 
-	public YearSpinner(YearSpinnerCallback callback, SqueezerBaseActivity activity, Spinner spinner) {
+	public YearSpinner(YearSpinnerCallback callback, SqueezerItemListActivity activity, Spinner spinner) {
 		this.callback = callback;
 		this.activity = activity;
 		this.spinner = spinner;
@@ -59,16 +59,15 @@ public class YearSpinner {
     private IServiceYearListCallback yearListCallback = new IServiceYearListCallback.Stub() {
 		private SqueezerItemAdapter<SqueezerYear> adapter;
     	
-		public void onYearsReceived(final int count, final int max, final int start, final List<SqueezerYear> list) throws RemoteException {
+		public void onYearsReceived(final int count, final int start, final List<SqueezerYear> list) throws RemoteException {
 			callback.getUIThreadHandler().post(new Runnable() {
 				public void run() {
 					if (adapter == null) {
 						SqueezerYearView itemView = new SqueezerYearView(activity);
-						adapter = new SqueezerItemAdapter<SqueezerYear>(itemView, count, true);
+						adapter = new SqueezerItemAdapter<SqueezerYear>(itemView, true);
 						spinner.setAdapter(adapter);
-						if (count > max) orderItems(max);
 					}
-					adapter.update(count, max, start, list);
+					adapter.update(count, start, list);
 					spinner.setSelection(adapter.findItem(callback.getYear()));
 				}
 			});

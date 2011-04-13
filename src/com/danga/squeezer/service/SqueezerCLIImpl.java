@@ -13,8 +13,8 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.danga.squeezer.Preferences;
-import com.danga.squeezer.SqueezerItem;
 import com.danga.squeezer.Util;
+import com.danga.squeezer.framework.SqueezerItem;
 import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerGenre;
@@ -24,7 +24,7 @@ import com.danga.squeezer.model.SqueezerSong;
 import com.danga.squeezer.model.SqueezerYear;
 
 class SqueezerCLIImpl {
-    private static final String TAG = "SqueezerMusicLibraryCmds";
+    private static final String TAG = "SqueezerCLI";
 
 	private static final int PAGESIZE = 20;
 	
@@ -86,11 +86,11 @@ class SqueezerCLIImpl {
 			                players.add(player);
 						}
 						
-						public boolean processList(boolean rescan, int count, int max, int start) {
+						public boolean processList(boolean rescan, int count, int start) {
 							if (service.playerListCallback.get() != null) {
 								// If the player list activity is active, pass the discovered players to it
 								try {
-									service.playerListCallback.get().onPlayersReceived(count, max, start, players);
+									service.playerListCallback.get().onPlayersReceived(count, start, players);
 								} catch (RemoteException e) {
 									Log.e(TAG, e.toString());
 									return false;
@@ -260,7 +260,7 @@ class SqueezerCLIImpl {
      */
 	private void requestItems(String playerid, String cmd, int start, List<String> parameters) {
 		if (start == 0) cmdCorrelationIds.put(cmd, _correlationid);
-		StringBuilder sb = new StringBuilder(cmd + " " + start + " "  + 1);
+		StringBuilder sb = new StringBuilder(cmd + " " + start + " "  + (start == 0 ? 1 : PAGESIZE));
 		if (playerid != null) sb.insert(0, Util.encode(playerid) + " ");
 		if (parameters != null)
 			for (String parameter: parameters)
@@ -348,7 +348,7 @@ class SqueezerCLIImpl {
 		 * @param start Offset for the current list in total results.
 		 * @return
 		 */
-		boolean processList(boolean rescan, int count, int max, int start);
+		boolean processList(boolean rescan, int count, int start);
 	}
 
 
@@ -436,15 +436,15 @@ class SqueezerCLIImpl {
 					Integer count = counts.get(parser.count_id);
 					int countValue = (count == null ? 0 : count);
 					if (count != null || start == 0) {
-						if (!parser.handler.processList(rescan, countValue - actionsCount, service.maxListSize, start))
+						if (!parser.handler.processList(rescan, countValue - actionsCount, start))
 							break processLists;
 						if (countValue > max)
-							max = (count < service.maxListSize || end > service.maxListSize ) ? count : service.maxListSize;
+							max = countValue;
 					}
 				}
 			}
-			if (end < max) {
-				int pageSize = (end + PAGESIZE > max ? pageSize = max - end : PAGESIZE);
+			if (end % PAGESIZE != 0 && end < max) {
+				int pageSize = (end + PAGESIZE > max ? max - end : PAGESIZE - itemsPerResponse);
 				StringBuilder cmdline = new StringBuilder(cmd.cmd + " "	+ end + " " + pageSize);
 				for (String parameter : taggedParameters.values())
 					cmdline.append(" " + parameter);
@@ -470,10 +470,10 @@ class SqueezerCLIImpl {
 			years.add(new SqueezerYear(record));
 		}
 
-		public boolean processList(boolean rescan, int count, int max, int start) {
+		public boolean processList(boolean rescan, int count, int start) {
 			if (service.yearListCallback.get() != null) {
 				try {
-					service.yearListCallback.get().onYearsReceived(count, max, start, years);
+					service.yearListCallback.get().onYearsReceived(count, start, years);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -498,10 +498,10 @@ class SqueezerCLIImpl {
 			genres.add(new SqueezerGenre(record));
 		}
 
-		public boolean processList(boolean rescan, int count, int max, int start) {
+		public boolean processList(boolean rescan, int count, int start) {
 			if (service.genreListCallback.get() != null) {
 				try {
-					service.genreListCallback.get().onGenresReceived(count, max, start, genres);
+					service.genreListCallback.get().onGenresReceived(count, start, genres);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -528,10 +528,10 @@ class SqueezerCLIImpl {
 			artists.add(new SqueezerArtist(record));
 		}
 
-		public boolean processList(boolean rescan, int count, int max, int start) {
+		public boolean processList(boolean rescan, int count, int start) {
 			if (service.artistListCallback.get() != null) {
 				try {
-					service.artistListCallback.get().onArtistsReceived(count, max, start, artists);
+					service.artistListCallback.get().onArtistsReceived(count, start, artists);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -556,10 +556,10 @@ class SqueezerCLIImpl {
 			albums.add(new SqueezerAlbum(record));
 		}
 
-		public boolean processList(boolean rescan, int count, int max, int start) {
+		public boolean processList(boolean rescan, int count, int start) {
 			if (service.albumListCallback.get() != null) {
 				try {
-					service.albumListCallback.get().onAlbumsReceived(count, max, start, albums);
+					service.albumListCallback.get().onAlbumsReceived(count, start, albums);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -584,10 +584,10 @@ class SqueezerCLIImpl {
 			songs.add(new SqueezerSong(record));
 		}
 
-		public boolean processList(boolean rescan, int count, int max, int start) {
+		public boolean processList(boolean rescan, int count, int start) {
 			if (service.songListCallback.get() != null) {
 				try {
-					service.songListCallback.get().onSongsReceived(count, max, start, songs);
+					service.songListCallback.get().onSongsReceived(count, start, songs);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -612,10 +612,10 @@ class SqueezerCLIImpl {
 			playlists.add(new SqueezerPlaylist(record));
 		}
 
-		public boolean processList(boolean rescan, int count, int max, int start) {
+		public boolean processList(boolean rescan, int count, int start) {
 			if (service.playlistsCallback.get() != null) {
 				try {
-					service.playlistsCallback.get().onPlaylistsReceived(count, max, start, playlists);
+					service.playlistsCallback.get().onPlaylistsReceived(count, start, playlists);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());

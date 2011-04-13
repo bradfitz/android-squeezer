@@ -10,15 +10,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerBaseActivity;
-import com.danga.squeezer.SqueezerBaseItemView;
+import com.danga.squeezer.framework.SqueezerBaseItemView;
+import com.danga.squeezer.framework.SqueezerItemListActivity;
 import com.danga.squeezer.model.SqueezerPlayer;
 
 public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 	private LayoutInflater layoutInflater;
 	private static final Map<String, Integer> modelIcons = initializeModelIcons();
 
-	public SqueezerPlayerView(SqueezerBaseActivity activity) {
+	public SqueezerPlayerView(SqueezerItemListActivity activity) {
 		super(activity);
 		layoutInflater = activity.getLayoutInflater();
 	}

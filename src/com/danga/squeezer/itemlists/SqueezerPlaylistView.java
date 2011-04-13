@@ -6,7 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerBaseItemView;
+import com.danga.squeezer.framework.SqueezerBaseItemView;
 import com.danga.squeezer.model.SqueezerPlaylist;
 
 

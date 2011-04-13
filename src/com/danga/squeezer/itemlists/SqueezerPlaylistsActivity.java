@@ -20,8 +20,8 @@ import android.widget.Toast;
 
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerActivity;
-import com.danga.squeezer.SqueezerBaseListActivity;
-import com.danga.squeezer.SqueezerItemView;
+import com.danga.squeezer.framework.SqueezerBaseListActivity;
+import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerPlaylist;
 
 public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<SqueezerPlaylist>{
@@ -34,25 +34,30 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 
 	private String oldname;
 
+	@Override
 	public SqueezerItemView<SqueezerPlaylist> createItemView() {
 		return new SqueezerPlaylistView(this);
 	}
 
-	public void registerCallback() throws RemoteException {
+	@Override
+	protected void registerCallback() throws RemoteException {
 		getService().registerPlaylistsCallback(playlistsCallback);
 		getService().registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
 	}
 
-	public void unregisterCallback() throws RemoteException {
+	@Override
+	protected void unregisterCallback() throws RemoteException {
 		getService().unregisterPlaylistsCallback(playlistsCallback);
 		getService().unregisterPlaylistMaintenanceCallback(playlistMaintenanceCallback);
 	}
 
-	public void orderItems(int start) throws RemoteException {
+	@Override
+	protected void orderPage(int start) throws RemoteException {
 		getService().playlists(start);
 	}
 
-	public void onItemSelected(int index, SqueezerPlaylist item) throws RemoteException {
+	@Override
+	protected void onItemSelected(int index, SqueezerPlaylist item) throws RemoteException {
 		play(item);
 		SqueezerActivity.show(this);
 	}
@@ -199,8 +204,8 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
     }
 
     private IServicePlaylistsCallback playlistsCallback = new IServicePlaylistsCallback.Stub() {
-		public void onPlaylistsReceived(int count, int max, int start, List<SqueezerPlaylist> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onPlaylistsReceived(int count, int start, List<SqueezerPlaylist> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
     };
     

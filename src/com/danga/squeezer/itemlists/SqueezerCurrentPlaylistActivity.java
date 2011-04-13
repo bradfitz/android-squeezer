@@ -17,8 +17,8 @@ import android.view.View.OnKeyListener;
 import android.widget.EditText;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerItemView;
 import com.danga.squeezer.Util;
+import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerSong;
 
 public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListActivity {
@@ -38,6 +38,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 	    context.startActivity(intent);
 	}
 
+	@Override
 	public SqueezerItemView<SqueezerSong> createItemView() {
 		return new SqueezerSongView(this) {
 			@Override
@@ -79,11 +80,13 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 		};
 	}
 
-	public void orderItems(int start) throws RemoteException {
+	@Override
+	protected void orderPage(int start) throws RemoteException {
 		getService().currentPlaylist(start);
 	}
 
-	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
+	@Override
+	protected void onItemSelected(int index, SqueezerSong item) throws RemoteException {
 		getService().playlistIndex(index);
 		finish();
 	}

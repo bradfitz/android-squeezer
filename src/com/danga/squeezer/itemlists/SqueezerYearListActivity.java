@@ -6,29 +6,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
 
-import com.danga.squeezer.SqueezerBaseListActivity;
-import com.danga.squeezer.SqueezerItemView;
+import com.danga.squeezer.framework.SqueezerBaseListActivity;
+import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerYear;
 
 public class SqueezerYearListActivity extends SqueezerBaseListActivity<SqueezerYear>{
 
+	@Override
 	public SqueezerItemView<SqueezerYear> createItemView() {
 		return new SqueezerYearView(this);
 	}
 
-	public void registerCallback() throws RemoteException {
+	@Override
+	protected void registerCallback() throws RemoteException {
 		getService().registerYearListCallback(yearListCallback);
 	}
 
-	public void unregisterCallback() throws RemoteException {
+	@Override
+	protected void unregisterCallback() throws RemoteException {
 		getService().unregisterYearListCallback(yearListCallback);
 	}
 
-	public void orderItems(int start) throws RemoteException {
+	@Override
+	protected void orderPage(int start) throws RemoteException {
 		getService().years(start);
 	}
 
-	public void onItemSelected(int index, SqueezerYear item) throws RemoteException {
+	@Override
+	protected void onItemSelected(int index, SqueezerYear item) throws RemoteException {
 		SqueezerAlbumListActivity.show(this, item);
 	}
 
@@ -39,8 +44,8 @@ public class SqueezerYearListActivity extends SqueezerBaseListActivity<SqueezerY
     }
 
     private IServiceYearListCallback yearListCallback = new IServiceYearListCallback.Stub() {
-		public void onYearsReceived(int count, int max, int start, List<SqueezerYear> items) throws RemoteException {
-			onItemsReceived(count, max, start, items);
+		public void onYearsReceived(int count, int start, List<SqueezerYear> items) throws RemoteException {
+			onItemsReceived(count, start, items);
 		}
     };
 
