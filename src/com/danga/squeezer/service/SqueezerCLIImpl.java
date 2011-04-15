@@ -13,6 +13,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.danga.squeezer.Preferences;
+import com.danga.squeezer.R;
 import com.danga.squeezer.Util;
 import com.danga.squeezer.framework.SqueezerItem;
 import com.danga.squeezer.model.SqueezerAlbum;
@@ -25,8 +26,6 @@ import com.danga.squeezer.model.SqueezerYear;
 
 class SqueezerCLIImpl {
     private static final String TAG = "SqueezerCLI";
-
-	private static final int PAGESIZE = 20;
 	
 	class ExtendedQueryFormatCmd {
 		boolean playerSpecific;
@@ -186,10 +185,15 @@ class SqueezerCLIImpl {
 	}
 
 
-	private SqueezeService service;
+	private final SqueezeService service;
+	private int pageSize;
 
 	SqueezerCLIImpl(SqueezeService service) {
 		this.service = service;
+	}
+
+	void initialize() {
+		pageSize = service.getResources().getInteger(R.integer.PageSize);
 	}
 
 	
@@ -260,7 +264,7 @@ class SqueezerCLIImpl {
      */
 	private void requestItems(String playerid, String cmd, int start, List<String> parameters) {
 		if (start == 0) cmdCorrelationIds.put(cmd, _correlationid);
-		StringBuilder sb = new StringBuilder(cmd + " " + start + " "  + (start == 0 ? 1 : PAGESIZE));
+		StringBuilder sb = new StringBuilder(cmd + " " + start + " "  + (start == 0 ? 1 : pageSize));
 		if (playerid != null) sb.insert(0, Util.encode(playerid) + " ");
 		if (parameters != null)
 			for (String parameter: parameters)
@@ -443,9 +447,9 @@ class SqueezerCLIImpl {
 					}
 				}
 			}
-			if (end % PAGESIZE != 0 && end < max) {
-				int pageSize = (end + PAGESIZE > max ? max - end : PAGESIZE - itemsPerResponse);
-				StringBuilder cmdline = new StringBuilder(cmd.cmd + " "	+ end + " " + pageSize);
+			if (end % pageSize != 0 && end < max) {
+				int count = (end + pageSize > max ? max - end : pageSize - itemsPerResponse);
+				StringBuilder cmdline = new StringBuilder(cmd.cmd + " "	+ end + " " + count);
 				for (String parameter : taggedParameters.values())
 					cmdline.append(" " + parameter);
 				sendCommand(playerid + cmdline.toString());

@@ -92,7 +92,6 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		});
         
         resultsExpandableListView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-			
 			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 				ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuInfo;
 				long packedPosition = contextMenuInfo.packedPosition;
@@ -104,6 +103,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 			}
 		});
 
+        resultsExpandableListView.setOnScrollListener(this);
 	};
 
 	@Override

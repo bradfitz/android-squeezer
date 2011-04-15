@@ -7,7 +7,10 @@ import java.util.Set;
 
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 
+import com.danga.squeezer.R;
 import com.danga.squeezer.service.SqueezeService;
 
 /**
@@ -17,7 +20,7 @@ import com.danga.squeezer.service.SqueezeService;
  * </p>
  * @author Kurt Aaholst
  */
-public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
+public abstract class SqueezerItemListActivity extends SqueezerBaseActivity implements OnScrollListener {
     
     /**
      * This is called when the service is connected.
@@ -51,7 +54,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
 	 * @param pagePosition
 	 */
 	public void maybeOrderPage(int pagePosition) {
-		if (!orderedPages.contains(pagePosition)) {
+		if (!listBusy && !orderedPages.contains(pagePosition)) {
 			orderedPages.add(pagePosition);
 			try {
 				orderPage(pagePosition);
@@ -68,4 +71,33 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
 		orderedPages.clear();
 		maybeOrderPage(0);
 	}
+
+	
+	
+	private boolean listBusy;
+	public boolean isListBusy() { return listBusy; }
+
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+        switch (scrollState) {
+        case OnScrollListener.SCROLL_STATE_IDLE:
+        	listBusy = false;
+        	
+        	int pageSize = getResources().getInteger(R.integer.PageSize);
+        	int pos = (view.getFirstVisiblePosition() / pageSize) * pageSize;
+        	int end = view.getFirstVisiblePosition() + view.getChildCount();
+        	while (pos < end) {
+        		maybeOrderPage(pos);
+        		pos += pageSize;
+        	}
+        	break;
+        case OnScrollListener.SCROLL_STATE_FLING:
+        case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
+        	listBusy = true;
+        	break;
+        }
+ 	}
+	
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+	}
+	
 }

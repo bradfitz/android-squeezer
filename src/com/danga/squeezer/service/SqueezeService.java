@@ -43,7 +43,9 @@ import com.danga.squeezer.model.SqueezerYear;
 
 
 public class SqueezeService extends Service {
-    private static final String TAG = "SqueezeService";
+	public static final int PAGESIZE = 20;
+
+	private static final String TAG = "SqueezeService";
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
 	private static final String ALBUMTAGS = "alyj";
@@ -93,6 +95,8 @@ public class SqueezeService extends Service {
         
         preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
         getPreferences();
+        
+        cli.initialize();
     }
 
 	private void getPreferences() {
