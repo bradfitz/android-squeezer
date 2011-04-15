@@ -32,8 +32,6 @@ import com.danga.squeezer.Util;
  */
 public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 
-	private static final int PAGESIZE = 20;
-
 	/**
 	 * View logic for this adapter
 	 */
@@ -57,6 +55,12 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 * Text to display before the items are received from SqueezeServer
 	 */
 	private final String loadingText;
+
+	/*
+	 * Number of elements to by fetched at a time
+	 */
+	private int pageSize;
+	public int getPageSize() { return pageSize; }
 	
 	/**
 	 * Creates a new adapter. Initially the item list is populated with items displaying the
@@ -72,6 +76,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		itemView.setAdapter(this);
 		this.emptyItem = emptyItem;
 		loadingText = itemView.getActivity().getString(R.string.loading_text);
+		pageSize = itemView.getActivity().getResources().getInteger(R.integer.PageSize);
 		pages.clear();
 	}
 	
@@ -81,9 +86,9 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	public SqueezerItemAdapter(SqueezerItemView<T> itemView) {
 		this(itemView, false);
 	}
-
-	private int getPageNumber(int position) {
-		return position / PAGESIZE;
+	
+	private int pageNumber(int position) {
+		return position / pageSize;
 	}
 	
 	/**
@@ -129,20 +134,20 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	}
 
 	private T[] getPage(int position) {
-		int pageNumber = getPageNumber(position);
+		int pageNumber = pageNumber(position);
 		T[] page = pages.get(pageNumber);
 		if (page == null) {
-			pages.put(pageNumber, page = arrayInstance(PAGESIZE));
+			pages.put(pageNumber, page = arrayInstance(pageSize));
 		}
 		return page;
 	}
 	
 	private void setItems(int start, List<T> items) {
 		T[] page = getPage(start);
-		int offset = start % PAGESIZE;
+		int offset = start % pageSize;
 		Iterator<T> it = items.iterator();
 		while (it.hasNext()) {
-			if (offset >= PAGESIZE) {
+			if (offset >= pageSize) {
 				start += offset;
 				page = getPage(start);
 				offset = 0;
@@ -152,11 +157,10 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	}
 	
 	public T getItem(int position) {
-		T item = getPage(position)[position % PAGESIZE];
+		T item = getPage(position)[position % pageSize];
 		if (item == null) {
-			//TODO Possibly disable when flinging (and scrolling)
 			if (emptyItem) position--;
-			getActivity().maybeOrderPage(getPageNumber(position) * PAGESIZE);
+			getActivity().maybeOrderPage(pageNumber(position) * pageSize);
 		}
 		return item;
 	}

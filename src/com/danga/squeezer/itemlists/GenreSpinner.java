@@ -69,6 +69,11 @@ public class GenreSpinner {
 					}
 					adapter.update(count, start, list);
 					spinner.setSelection(adapter.findItem(callback.getGenre()));
+
+					if (count > start + list.size())
+						if ((start + list.size()) % adapter.getPageSize() == 0 ) {
+							orderItems(start + list.size());
+						}
 				}
 			});
 		}

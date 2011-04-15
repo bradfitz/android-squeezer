@@ -69,6 +69,11 @@ public class YearSpinner {
 					}
 					adapter.update(count, start, list);
 					spinner.setSelection(adapter.findItem(callback.getYear()));
+
+					if (count > start + list.size())
+						if ((start + list.size()) % adapter.getPageSize() == 0 ) {
+							orderItems(start + list.size());
+						}
 				}
 			});
 		}

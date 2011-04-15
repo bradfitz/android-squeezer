@@ -71,6 +71,9 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 				getItemListAdapter().setupContextMenu(menu, adapterMenuInfo.position);
 			}
 		});
+		
+		listView.setOnScrollListener(this);
+		
 		prepareActivity(getIntent().getExtras());
 	}
 
@@ -129,13 +132,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         super.onPause();
     }
 	
-
-	/**
-	 * @return The list view of this activity
-	 */
-	protected ListView getListView() {
-		return listView;
-	}
 
 
 	/**
