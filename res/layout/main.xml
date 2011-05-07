@@ -75,16 +75,16 @@
         android:orientation="horizontal"
         android:baselineAligned="false"
         android:paddingLeft="11dip"
-        android:paddingTop="4dip"
-        android:paddingBottom="8dip">
+        android:paddingTop="0dip"
+        android:paddingBottom="4dip">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="4dip"
-            android:src="@drawable/ic_mp_artist_playback" />
+            android:src="@drawable/ic_mp_song_playback" />
 
-        <TextView android:id="@+id/artistname"
+        <TextView android:id="@+id/trackname"
             android:textSize="18sp"
             android:singleLine="true"
             android:ellipsize="end"
@@ -101,8 +101,8 @@
         android:orientation="horizontal"
         android:baselineAligned="false"
         android:paddingLeft="11dip"
-        android:paddingTop="4dip"
-        android:paddingBottom="8dip">
+        android:paddingTop="0dip"
+        android:paddingBottom="4dip">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -120,6 +120,7 @@
 
     </LinearLayout>
 
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -133,9 +134,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="4dip"
-            android:src="@drawable/ic_mp_song_playback" />
+            android:src="@drawable/ic_mp_artist_playback" />
 
-        <TextView android:id="@+id/trackname"
+        <TextView android:id="@+id/artistname"
             android:textSize="14sp"
             android:singleLine="true"
             android:ellipsize="end"
@@ -144,7 +145,6 @@
             android:layout_height="wrap_content" />
 
     </LinearLayout>
-
     <include layout="@layout/audio_player_common" />
 
 </LinearLayout>
