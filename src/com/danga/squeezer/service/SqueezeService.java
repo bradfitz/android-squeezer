@@ -686,6 +686,15 @@ public class SqueezeService extends Service {
         public int getSecondsElapsed() throws RemoteException {
         	return playerState.getCurrentTimeSecond(0);
         }
+        
+        public boolean setSecondsElapsed(int seconds) throws RemoteException {
+        	if (!isConnected()) return false;
+        	if (seconds < 0) return false;
+        	
+        	cli.sendPlayerCommand("time " + seconds);
+        	
+        	return true;
+        }
 
         public int getSecondsTotal() throws RemoteException {
             return playerState.getCurrentSongDuration(0);

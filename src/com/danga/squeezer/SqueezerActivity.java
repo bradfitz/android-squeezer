@@ -34,6 +34,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,6 +80,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private String connectingTo = null;
     private ProgressDialog connectingDialog = null;
 
+    // Updating the seekbar
+    private boolean updateSeekBar = true;
     private volatile int secondsIn;
     private volatile int secondsTotal;
     private final static int UPDATE_TIME = 1;
@@ -231,6 +234,35 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			}
 		});
         
+        seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+        	SqueezerSong seekingSong;
+        	
+        	// Update the time indicator to reflect the dragged thumb position.
+			public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
+				if (fromUser) {
+			        currentTime.setText(Util.makeTimeString(progress));
+				}
+			}
+
+			// Disable updates when user drags the thumb.
+			public void onStartTrackingTouch(SeekBar s) {
+				seekingSong = getCurrentSong();
+				updateSeekBar = false;			
+			}
+
+			// Re-enable updates.  If the current song is the same as when
+			// we started seeking then jump to the new point in the track,
+			// otherwise ignore the seek.
+			public void onStopTrackingTouch(SeekBar s) {
+				SqueezerSong thisSong = getCurrentSong();
+				
+				updateSeekBar = true;
+				
+				if (seekingSong == thisSong) {
+					setSecondsElapsed(s.getProgress());
+				}
+			}
+        });
     }
     
     private boolean changeVolumeBy(int delta) {
@@ -385,12 +417,14 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     }
     
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
-        if (seekBar.getMax() != secondsTotal) {
-            seekBar.setMax(secondsTotal);
-            totalTime.setText(Util.makeTimeString(secondsTotal));
-        }
-        seekBar.setProgress(secondsIn);
-        currentTime.setText(Util.makeTimeString(secondsIn));
+    	if (updateSeekBar) {
+	        if (seekBar.getMax() != secondsTotal) {
+	            seekBar.setMax(secondsTotal);
+	            totalTime.setText(Util.makeTimeString(secondsTotal));
+	        }
+	        seekBar.setProgress(secondsIn);
+	        currentTime.setText(Util.makeTimeString(secondsIn));
+	    }
     }
     
     // Should only be called from the UI thread.
@@ -478,6 +512,18 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             Log.e(getTag(), "Service exception in getSecondsTotal(): " + e);
         }
         return 0;
+    }
+    
+    private boolean setSecondsElapsed(int seconds) {
+    	if (getService() == null) {
+    		return false;
+    	}
+    	try {
+    		return getService().setSecondsElapsed(seconds);
+    	} catch (RemoteException e) {
+    		Log.e(getTag(), "Service exception in setSecondsElapsed(" + seconds + "): " + e);
+    	}
+    	return true;
     }
     
     private SqueezerSong getCurrentSong() {

@@ -62,6 +62,7 @@ interface ISqueezeService {
         // Return 0 if unknown:
         int getSecondsTotal();
         int getSecondsElapsed();
+        boolean setSecondsElapsed(int seconds);
         
         SqueezerSong currentSong();
         String currentAlbumArtUrl();
