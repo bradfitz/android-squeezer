@@ -29,10 +29,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -108,27 +106,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
-        // Intercept volume keys to control SqueezeCenter volume.
-        // TODO: make this actually work.  It's something like this, but not quite.
-        // Other apps do it, so should be possible somehow.
-        LinearLayout mainLayout = (LinearLayout) findViewById(R.id.root_layout);
-        mainLayout.setOnKeyListener(new OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                    // TODO: notify user somehow. Toast?
-                    changeVolumeBy(+5);
-                    return true;
-                }
-                if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    // TODO: notify user somehow. Toast?
-                    changeVolumeBy(-5);
-                    return true;
-                }
-                return false;
-            }
-        });
-        
+              
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
         trackText = (TextView) findViewById(R.id.trackname);
@@ -263,6 +241,25 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 				}
 			}
         });
+    }
+    
+    /*
+     * Intercept hardware volume control keys to control Squeezeserver
+     * volume.
+     */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+    	if (event.getAction() == KeyEvent.ACTION_DOWN) {
+    		switch (event.getKeyCode()) {
+    		case KeyEvent.KEYCODE_VOLUME_UP:
+    			changeVolumeBy(+5);
+    			return true;
+    		case KeyEvent.KEYCODE_VOLUME_DOWN:
+    			changeVolumeBy(-5);
+    			return true;
+    		}
+    	}
+    	return super.dispatchKeyEvent(event);
     }
     
     private boolean changeVolumeBy(int delta) {
