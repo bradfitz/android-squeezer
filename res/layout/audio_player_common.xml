@@ -80,7 +80,7 @@
         android:background="#ff5a5a5a"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="fill_parent"
-        android:layout_height="36px"
+        android:layout_height="wrap_content"
         android:paddingLeft="5px"
         android:paddingRight="5px"
         android:paddingBottom="4px" />
