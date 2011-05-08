@@ -24,8 +24,6 @@
             <LinearLayout android:id="@+id/linearLayout2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_horizontal">
                 <ImageButton android:layout_width="85dip" android:layout_marginTop="14dip" android:layout_height="54dip" android:id="@+id/ic_mp_Home_btn" android:src="@drawable/icon_home"></ImageButton>
                 <ImageButton android:layout_width="85dip" android:layout_marginTop="14dip" android:layout_height="54dip" android:id="@+id/curplaylist" android:src="@drawable/ic_mp_current_playlist_btn"></ImageButton>
-                <ImageButton android:scaleType="center" android:layout_width="wrap_content" android:layout_marginTop="20dip" android:layout_height="wrap_content" android:padding="15dip" android:id="@+id/volume_down" android:src="@drawable/volume_down"></ImageButton>
-                <ImageButton android:scaleType="center" android:layout_width="wrap_content" android:layout_marginTop="20dip" android:layout_height="wrap_content" android:padding="15dip" android:id="@+id/volume_up" android:src="@drawable/volume_up"></ImageButton>
             </LinearLayout>
             <LinearLayout android:paddingLeft="11dip" android:paddingBottom="4dip" android:layout_width="fill_parent" android:paddingTop="4dip" android:baselineAligned="false" android:layout_height="wrap_content" android:orientation="horizontal" android:id="@+id/linearLayout3">
                 <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="4dip" android:src="@drawable/ic_mp_song_playback" android:id="@+id/imageView1"></ImageView>

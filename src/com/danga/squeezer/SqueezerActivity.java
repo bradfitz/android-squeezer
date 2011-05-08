@@ -169,22 +169,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 } catch (RemoteException e) { }
             }
         });
-        
-        // Hacks for now, making shuffle & repeat do volume up & down, until
-        // these do something & volume is fixed to use the side keys.
-        ((ImageButton) this.findViewById(R.id.volume_up)).setOnClickListener(
-                new OnClickListener() {
-                    public void onClick(View v) {
-                        changeVolumeBy(+5);
-                    }
-                });
-        ((ImageButton) this.findViewById(R.id.volume_down)).setOnClickListener(
-                new OnClickListener() {
-                    public void onClick(View v) {
-                        changeVolumeBy(-5);
-                    }
-                });
-        
+
         artistText.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
