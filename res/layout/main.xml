@@ -23,31 +23,27 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:orientation="vertical">
-
-		        <TextView android:id="@+id/trackname"
+     
+	     		<TextView android:id="@+id/trackname"
 		        	android:hint="Unknown track"
-		            android:textSize="14sp"
-		            android:textStyle="bold"
-		            android:gravity="center_horizontal"
-		            android:layout_gravity="center_vertical"
-		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content" />
+		        	android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		 			android:gravity="center_horizontal"
+		 			android:textAppearance="?android:attr/textAppearanceMedium"/>
 
 		        <TextView android:id="@+id/albumname"
 		        	android:hint="Unknown album"
-		            android:textSize="14sp"
 		            android:gravity="center_horizontal"
-		            android:layout_gravity="center_vertical"
 		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content" />
+		            android:layout_height="wrap_content"
+		            android:textAppearance="?android:attr/textAppearanceSmall" />
 				
 		        <TextView android:id="@+id/artistname"
 		        	android:hint="Unknown artist"
-		            android:textSize="14sp"
 		            android:gravity="center_horizontal"		            
-		            android:layout_gravity="center_vertical"
 		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content" />
+		            android:layout_height="wrap_content"
+		            android:textAppearance="?android:attr/textAppearanceSmall" />
 			</LinearLayout>
 
 			<LinearLayout
