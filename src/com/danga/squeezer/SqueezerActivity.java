@@ -229,21 +229,35 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     /*
      * Intercept hardware volume control keys to control Squeezeserver
      * volume.
+     * 
+     * Change the volume when the key is depressed.  Suppress the keyUp
+     * event, otherwise you get a notification beep as well as the volume
+     * changing.
      */
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-    	if (event.getAction() == KeyEvent.ACTION_DOWN) {
-    		switch (event.getKeyCode()) {
-    		case KeyEvent.KEYCODE_VOLUME_UP:
-    			changeVolumeBy(+5);
-    			return true;
-    		case KeyEvent.KEYCODE_VOLUME_DOWN:
-    			changeVolumeBy(-5);
-    			return true;
-    		}
-    	}
-    	return super.dispatchKeyEvent(event);
-    }
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			changeVolumeBy(+5);
+			return true;
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			changeVolumeBy(-5);
+			return true;
+		}
+		
+		return super.onKeyDown(keyCode, event);
+	}
+
+    @Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			return true;
+		}
+		
+		return super.onKeyUp(keyCode, event);
+	}    
     
     private boolean changeVolumeBy(int delta) {
         Log.v(getTag(), "Adjust volume by: " + delta);
