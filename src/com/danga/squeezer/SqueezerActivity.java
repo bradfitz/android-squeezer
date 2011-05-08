@@ -24,13 +24,17 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.text.Html;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -59,7 +63,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private TextView albumText;
     private TextView artistText;
     private TextView trackText;   
-    private TextView currentTime;   
+    private TextView currentTime;
     private TextView totalTime;   
     private ImageButton homeButton;
     private ImageButton curPlayListButton;
@@ -72,6 +76,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
     private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
 	
+    // Volume adjustments
+    private View mVolumeAdjustView;
     
     // Where we're connecting to.
     private boolean connectInProgress = false;
@@ -120,6 +126,10 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         totalTime = (TextView) findViewById(R.id.totaltime);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
 		
+        LayoutInflater inflater = getLayoutInflater();
+        mVolumeAdjustView = inflater.inflate(R.layout.volume_adjust,
+        		(LinearLayout) findViewById(R.id.volume_adjust_root));
+        
 		homeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
                 if (!isConnected()) return;
@@ -774,14 +784,42 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
             public void onVolumeChange(final int newVolume) throws RemoteException {
                 Log.v(getTag(), "Volume = " + newVolume);
-                uiThreadHandler.post(new Runnable() {
+                uiThreadHandler.post(new Runnable() {              	
                     public void run() {
-                        if (activeToast != null) {
-                            activeToast.setText("Volume: " + newVolume);
-                        } else {
-                            activeToast = Toast.makeText(SqueezerActivity.this, "Volume: " + newVolume, Toast.LENGTH_SHORT);
-                        }
-                        activeToast.show();
+                    	// TODO: Need similar activeToast shenanigans
+                    	// otherwise this persists for too long.
+                    	TextView message = (TextView) mVolumeAdjustView.findViewById(R.id.message);
+                    	TextView additionalMessage = (TextView) mVolumeAdjustView.findViewById(R.id.additional_message);
+                    	ProgressBar progress = (ProgressBar) mVolumeAdjustView.findViewById(R.id.level);
+                    	ImageView icon = (ImageView) mVolumeAdjustView.findViewById(R.id.ringer_stream_icon);
+                    	
+                    	progress.setMax(100);
+                    	progress.setProgress(newVolume);
+                    	
+                    	message.setText(getText(R.string.app_name) + " volume");
+                    	try {
+							additionalMessage.setText(getService().getActivePlayerName());
+						} catch (RemoteException e) {
+							// No matter.
+						}
+                    	
+						icon.setImageResource(newVolume == 0
+								? R.drawable.ic_volume_off
+								: R.drawable.ic_volume);
+						
+                    	Toast toast = new Toast(getApplicationContext());
+                    	
+                    	toast.setView(mVolumeAdjustView);
+                    	toast.setDuration(Toast.LENGTH_SHORT);
+                    	toast.setGravity(Gravity.TOP, 0, 0);
+                    	toast.show();
+                    	
+//                        if (activeToast != null) {
+//                            activeToast.setText("Volume: " + newVolume);
+//                        } else {
+//                            activeToast = Toast.makeText(SqueezerActivity.this, "Volume: " + newVolume, Toast.LENGTH_SHORT);
+//                        }
+//                        activeToast.show();
                     }
                 });
             }
