@@ -1,5 +1,14 @@
 package com.pocketjourney.view;
 
+/*
+ * E-mail from Anthony Stevens (anthony@infidian.com) in response to my
+ * message to support@pocketjourney.com.
+ * 
+ * "All the code in those tutorials are absolutely free/open for public
+ * use.  No need to include any copyright notice or attribution so feel
+ * free to make it your own."
+ */
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
