@@ -25,6 +25,7 @@ import com.danga.squeezer.Preferences;
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerActivity;
 import com.danga.squeezer.Util;
+import com.danga.squeezer.VolumePanel;
 import com.danga.squeezer.itemlists.IServiceAlbumListCallback;
 import com.danga.squeezer.itemlists.IServiceArtistListCallback;
 import com.danga.squeezer.itemlists.IServiceGenreListCallback;
@@ -79,13 +80,18 @@ public class SqueezeService extends Service {
     SqueezerPlayerState playerState = new SqueezerPlayerState();
     SqueezerCLIImpl cli = new SqueezerCLIImpl(this);
     
+    private VolumePanel mVolumePanel;
+    
     boolean debugLogging = false;
     
     SharedPreferences preferences;
-
+    
     @Override
     public void onCreate() {
     	super.onCreate();
+
+    	// Create the volume panel
+    	mVolumePanel = new VolumePanel(this.getApplicationContext());
     	
         // Clear leftover notification in case this service previously got killed while playing                                                
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -271,6 +277,12 @@ public class SqueezeService extends Service {
 	private void sendNewVolumeCallback(int newVolume) {
         if (connectionState.getCallback() == null) return;
         try {
+        	SqueezerPlayer player = connectionState.getActivePlayer();
+        	if (player == null) {
+        		mVolumePanel.postVolumeChanged(newVolume, (String) "");
+        	} else {
+        		mVolumePanel.postVolumeChanged(newVolume, player.getName());
+        	}
             connectionState.getCallback().onVolumeChange(newVolume);
         } catch (RemoteException e) {
         }
