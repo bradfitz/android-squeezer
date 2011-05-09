@@ -43,6 +43,12 @@
      android:persistent="true" />
 
   <CheckBoxPreference
+  	 android:key="squeezer.scrobble"
+  	 android:title="Scrobbling"
+  	 android:summary="Scrobble song information to last.fm"
+  	 android:persistent="true" />
+
+  <CheckBoxPreference
      android:key="squeezer.debuglogging"
      android:title="Debug Logging"
      android:summary="Keep this off, unless you're debugging something."

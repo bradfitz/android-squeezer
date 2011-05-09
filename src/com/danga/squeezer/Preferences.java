@@ -31,6 +31,9 @@ public final class Preferences {
     // Do we keep the notification going at top, even when we're not connected?
     public static final String KEY_NOTIFY_OF_CONNECTION = "squeezer.notifyofconnection";
     
+    // Do we scrobble track information?
+    public static final String KEY_SCROBBLE = "squeezer.scrobble";
+    
     public static final String KEY_DEBUG_LOGGING = "squeezer.debuglogging";
     
 	private Preferences() {

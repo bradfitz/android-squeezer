@@ -82,6 +82,7 @@ public class SqueezeService extends Service {
     
     private VolumePanel mVolumePanel;
     
+    boolean shouldScrobble = false;
     boolean debugLogging = false;
     
     SharedPreferences preferences;
@@ -106,6 +107,7 @@ public class SqueezeService extends Service {
     }
 
 	private void getPreferences() {
+		shouldScrobble = preferences.getBoolean(Preferences.KEY_SCROBBLE, false);
 		debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
 	}
 
@@ -300,21 +302,22 @@ public class SqueezeService extends Service {
 		String notification = tokens.get(2);
 		if ("newsong".equals(notification)) {
 			// Also ask for the rest of the status.
+			// TODO: Why? This information isn't then used
 			cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
 		} else if ("stop".equals(notification)) {
-			setPlayingState(false);
+//			setPlayingState(false);
 		} else if ("pause".equals(notification)) {
 			parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
 		}
 	}
     
 	private void parsePause(String explicitPause) {
-		boolean playing = playerState.isPlaying();
-		if ("0".equals(explicitPause)) {
-			if (playing) setPlayingState(false);
-		} else if ("1".equals(explicitPause)) {
-			if (!playing) setPlayingState(true);
-		}
+//		boolean playing = playerState.isPlaying();
+//		if ("0".equals(explicitPause)) {
+//			if (playing) setPlayingState(false);
+//		} else if ("1".equals(explicitPause)) {
+//			if (!playing) setPlayingState(true);
+//		}
 	}
 	
 	private void parseMode(String newMode) {
@@ -424,7 +427,11 @@ public class SqueezeService extends Service {
         // Subscribe or unsubscribe to the player's realtime status updates
         // depending on whether we have an Activity or some sort of client
         // that cares about second-to-second updates.
-        if (connectionState.getCallback() != null) {
+    	//
+    	// Note: If scrobbling is turned on then that counts as caring
+    	// about second-to-second updates -- otherwise we miss events from
+    	// buttons on the player, the web interface, and so on
+        if (connectionState.getCallback() != null || shouldScrobble) {
             cli.sendPlayerCommand("status - 1 subscribe:1 tags:" + SONGTAGS);
         } else {
             cli.sendPlayerCommand("status - 1 subscribe:-");
@@ -482,6 +489,20 @@ public class SqueezeService extends Service {
             status.icon = R.drawable.logo;
         }
         nm.notify(PLAYBACKSERVICE_STATUS, status);
+        
+        SqueezerSong s = playerState.getCurrentSong();
+        
+        if (shouldScrobble && s != null) {
+        	Intent i = new Intent("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
+
+        	i.putExtra("playing", playing);
+        	i.putExtra("track", songName);
+        	i.putExtra("album", s.getAlbum());
+        	i.putExtra("artist", s.getArtist());
+        	i.putExtra("secs", playerState.getCurrentSongDuration());
+
+        	sendBroadcast(i);
+        }
     }
 
     private void sendMusicChangedCallback() {
