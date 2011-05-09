@@ -82,7 +82,11 @@ public class SqueezeService extends Service {
     
     private VolumePanel mVolumePanel;
     
-    boolean shouldScrobble = false;
+    private static final int SCROBBLE_NONE = 0;
+    private static final int SCROBBLE_SCROBBLEDROID = 1;
+    private static final int SCROBBLE_SLS = 2;
+    
+    int scrobbleType;  
     boolean debugLogging = false;
     
     SharedPreferences preferences;
@@ -107,7 +111,7 @@ public class SqueezeService extends Service {
     }
 
 	private void getPreferences() {
-		shouldScrobble = preferences.getBoolean(Preferences.KEY_SCROBBLE, false);
+		scrobbleType = Integer.parseInt(preferences.getString(Preferences.KEY_SCROBBLE, "0"));
 		debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
 	}
 
@@ -431,7 +435,7 @@ public class SqueezeService extends Service {
     	// Note: If scrobbling is turned on then that counts as caring
     	// about second-to-second updates -- otherwise we miss events from
     	// buttons on the player, the web interface, and so on
-        if (connectionState.getCallback() != null || shouldScrobble) {
+        if (connectionState.getCallback() != null || (scrobbleType != SCROBBLE_NONE)) {
             cli.sendPlayerCommand("status - 1 subscribe:1 tags:" + SONGTAGS);
         } else {
             cli.sendPlayerCommand("status - 1 subscribe:-");
@@ -490,17 +494,34 @@ public class SqueezeService extends Service {
         }
         nm.notify(PLAYBACKSERVICE_STATUS, status);
         
-        SqueezerSong s = playerState.getCurrentSong();
-        
-        if (shouldScrobble && s != null) {
-        	Intent i = new Intent("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
-
-        	i.putExtra("playing", playing);
-        	i.putExtra("track", songName);
-        	i.putExtra("album", s.getAlbum());
-        	i.putExtra("artist", s.getArtist());
-        	i.putExtra("secs", playerState.getCurrentSongDuration());
-
+        if (scrobbleType != SCROBBLE_NONE) {
+        	SqueezerSong s = playerState.getCurrentSong();
+        	Intent i = new Intent();
+        	
+        	switch (scrobbleType) {
+	        case SCROBBLE_SCROBBLEDROID:
+	        	// http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
+	        	i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
+	        	i.putExtra("playing", playing);
+	        	i.putExtra("track", songName);
+	        	i.putExtra("album", s.getAlbum());
+	        	i.putExtra("artist", s.getArtist());
+	        	i.putExtra("secs", playerState.getCurrentSongDuration());
+	        	i.putExtra("source", "P");
+	        	break;
+	        case SCROBBLE_SLS:
+	        	// http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
+	        	i.setAction("com.adam.aslfms.notify.playstatechanged");
+	        	i.putExtra("state", playing ? 0 : 2);
+	        	i.putExtra("app-name", getText(R.string.app_name));
+	        	i.putExtra("app-package", "com.danga.squeezer");
+	        	i.putExtra("track", songName);
+	        	i.putExtra("album", s.getAlbum());
+	        	i.putExtra("artist", s.getArtist());
+	        	i.putExtra("duration", playerState.getCurrentSongDuration());
+	        	i.putExtra("source", "P");
+	        	break;
+        	}
         	sendBroadcast(i);
         }
     }
@@ -762,7 +783,6 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerPlayer.class);
 		}
 
-		
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
 		public boolean albums(int start, String sortOrder, String searchString,
 				SqueezerArtist artist, SqueezerYear year, SqueezerGenre genre)
@@ -979,6 +999,5 @@ public class SqueezeService extends Service {
             return true;
         }
         
-    };
-    
+	};
 }
