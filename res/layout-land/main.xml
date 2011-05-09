@@ -1,51 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:id="@+id/root_layout" android:orientation="vertical">
+<FrameLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:id="@+id/root_layout"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	
+	<ImageView android:layout_width="fill_parent" android:id="@+id/album" android:layout_height="fill_parent" android:cropToPadding="false" android:scaleType="fitStart"/>
 
-    <LinearLayout
-        android:layout_height="0dip"
-        android:gravity="center" android:layout_weight="1" android:layout_width="fill_parent" android:orientation="horizontal">
+	<com.pocketjourney.view.TransparentPanel
+		android:layout_width="wrap_content"
+		android:layout_height="fill_parent"
+		android:layout_gravity="right"
+		android:orientation="vertical">
+		
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+			
+	        <ImageButton 
+	        	android:layout_width="85dip" 
+	        	android:src="@drawable/icon_home" 
+	        	android:layout_height="54dip" 
+	        	android:id="@+id/ic_mp_Home_btn" 
+	        	android:layout_marginTop="14dip"/>
+	        	
+       		<ImageButton 
+       			android:layout_width="85dip" 
+       			android:src="@drawable/ic_mp_current_playlist_btn" 
+       			android:layout_height="54dip" 
+       			android:id="@+id/curplaylist" 
+       			android:layout_marginTop="14dip"/>
 
-        <ImageView
-            android:id="@+id/album"
-            android:background="@drawable/album_border_large"
-            android:layout_width="210dip"
-            android:layout_height="210dip"
-            android:layout_marginLeft="4dip"
-            android:layout_marginRight="2dip"
-            android:layout_marginTop="4dip" android:layout_gravity="left|right"/>
-
-        <LinearLayout
+		</LinearLayout>
+		
+   		<TextView android:id="@+id/trackname"
+        	android:hint="Unknown track"
+        	android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_width="wrap_content" android:orientation="vertical">
-            <LinearLayout android:id="@+id/linearLayout2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_horizontal">
-                <ImageButton android:layout_width="85dip" android:layout_marginTop="14dip" android:layout_height="54dip" android:id="@+id/ic_mp_Home_btn" android:src="@drawable/icon_home"></ImageButton>
-                <ImageButton android:layout_width="85dip" android:layout_marginTop="14dip" android:layout_height="54dip" android:id="@+id/curplaylist" android:src="@drawable/ic_mp_current_playlist_btn"></ImageButton>
-            </LinearLayout>
-            <LinearLayout android:paddingLeft="11dip" android:paddingBottom="4dip" android:layout_width="fill_parent" android:paddingTop="4dip" android:baselineAligned="false" android:layout_height="wrap_content" android:orientation="horizontal" android:id="@+id/linearLayout3">
-                <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="4dip" android:src="@drawable/ic_mp_song_playback" android:id="@+id/imageView1"></ImageView>
-                <TextView android:text="TextView" android:singleLine="true" android:textStyle="bold" android:layout_gravity="center_vertical" android:id="@+id/trackname" android:layout_width="fill_parent" android:layout_height="wrap_content" android:ellipsize="end" android:textSize="18sp"></TextView>
-            </LinearLayout>
-            <LinearLayout android:paddingLeft="11dip" android:paddingBottom="4dip" android:layout_width="fill_parent" android:paddingTop="0dip" android:baselineAligned="false" android:layout_height="wrap_content" android:orientation="horizontal" android:id="@+id/linearLayout4">
-                <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="4dip" android:src="@drawable/ic_mp_album_playback" android:id="@+id/imageView2"></ImageView>
-                <TextView android:text="TextView" android:singleLine="true" android:layout_gravity="center_vertical" android:id="@+id/albumname" android:layout_width="fill_parent" android:layout_height="wrap_content" android:ellipsize="end" android:textSize="14sp"></TextView>
-            </LinearLayout>
-            <LinearLayout android:paddingLeft="11dip" android:paddingBottom="8dip" android:layout_width="fill_parent" android:paddingTop="0dip" android:baselineAligned="false" android:layout_height="wrap_content" android:orientation="horizontal" android:id="@+id/linearLayout5">
-                <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="4dip" android:src="@drawable/ic_mp_artist_playback" android:id="@+id/imageView3"></ImageView>
-                <TextView android:text="TextView" android:singleLine="true" android:layout_gravity="center_vertical" android:id="@+id/artistname" android:layout_width="fill_parent" android:layout_height="wrap_content" android:ellipsize="end" android:textSize="14sp"></TextView>
-            </LinearLayout>
+ 			android:gravity="center_horizontal"
+ 			android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-        
-</LinearLayout>
+        <TextView android:id="@+id/albumname"
+        	android:hint="Unknown album"
+            android:gravity="center_horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+        <TextView android:id="@+id/artistname"
+        	android:hint="Unknown artist"
+            android:gravity="center_horizontal"		            
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
 
-    </LinearLayout>
-    <include layout="@layout/audio_player_common" />
+            <com.danga.squeezer.RepeatingImageButton
+            	android:id="@+id/prev" 
+            	style="@android:style/MediaButton.Previous" />
 
-</LinearLayout>
+            <ImageButton 
+            	android:id="@+id/pause" 
+            	style="@android:style/MediaButton.Play" />
 
-
-
+            <com.danga.squeezer.RepeatingImageButton 
+            	android:id="@+id/next" 
+            	style="@android:style/MediaButton.Next" />
+        </LinearLayout>
+   	</com.pocketjourney.view.TransparentPanel>
+    
+    <com.pocketjourney.view.TransparentPanel
+    	android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">    
+       
+        <TextView android:id="@+id/currenttime"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:shadowColor="#ff000000"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="3"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:paddingLeft="5px"
+            android:layout_height="wrap_content"
+            android:hint="--:--" />
+                    
+    	<SeekBar android:id="@+id/seekbar"
+        	style="?android:attr/progressBarStyleHorizontal"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:layout_gravity="bottom"
+	        android:paddingLeft="5px"
+	        android:paddingRight="5px"
+	        android:paddingBottom="4px" />
+	        
+        <TextView android:id="@+id/totaltime"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:shadowColor="#ff000000"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="3"
+            android:gravity="right"
+            android:paddingRight="5px"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="--:--" />	        
+	</com.pocketjourney.view.TransparentPanel>
+</FrameLayout>
 
