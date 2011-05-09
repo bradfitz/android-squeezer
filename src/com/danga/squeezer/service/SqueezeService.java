@@ -44,8 +44,6 @@ import com.danga.squeezer.model.SqueezerYear;
 
 
 public class SqueezeService extends Service {
-	public static final int PAGESIZE = 20;
-
 	private static final String TAG = "SqueezeService";
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
