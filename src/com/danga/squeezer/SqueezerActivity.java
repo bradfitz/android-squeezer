@@ -117,7 +117,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         currentTime = (TextView) findViewById(R.id.currenttime);
         totalTime = (TextView) findViewById(R.id.totaltime);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
-		        
+
+        // TODO: Simplify these following the notes at
+        // http://developer.android.com/resources/articles/ui-1.6.html
 		homeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
                 if (!isConnected()) return;
