@@ -19,7 +19,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerActivity;
 import com.danga.squeezer.framework.SqueezerBaseListActivity;
 import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.model.SqueezerPlaylist;
@@ -55,13 +54,6 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 	protected void orderPage(int start) throws RemoteException {
 		getService().playlists(start);
 	}
-
-	@Override
-	protected void onItemSelected(int index, SqueezerPlaylist item) throws RemoteException {
-		play(item);
-		SqueezerActivity.show(this);
-	}
-	
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -191,7 +183,7 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
    			oldname = currentPlaylist.getName();
 			getService().playlistsRename(currentPlaylist, newname);
 			currentPlaylist.setName(newname);
-			getItemListAdapter().notifyDataSetChanged();
+			getItemAdapter().notifyDataSetChanged();
 		} catch (RemoteException e) {
             Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
 		}
@@ -212,7 +204,7 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
     private void showServiceMessage(final String msg) {
 		getUIThreadHandler().post(new Runnable() {
 			public void run() {
-				getItemListAdapter().notifyDataSetChanged();
+				getItemAdapter().notifyDataSetChanged();
 				Toast.makeText(SqueezerPlaylistsActivity.this, msg, Toast.LENGTH_SHORT).show();
 			}
 		});

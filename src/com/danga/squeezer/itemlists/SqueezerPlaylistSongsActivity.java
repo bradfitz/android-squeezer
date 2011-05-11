@@ -126,11 +126,6 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 		getService().unregisterPlaylistMaintenanceCallback(playlistMaintenanceCallback);
 		
 	};
-
-	@Override
-	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
-		insert(item);
-	}
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -195,7 +190,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 		        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 		               	int targetIndex = Util.parseDecimalInt(editText.getText().toString(), -1);
-		               	if (targetIndex > 0 && targetIndex <= getItemListAdapter().getCount()) {
+		               	if (targetIndex > 0 && targetIndex <= getItemAdapter().getCount()) {
 		               		try {
 								getService().playlistsMove(playlist, fromIndex-1, targetIndex-1);
 								orderItems();
@@ -244,7 +239,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 		            public boolean onKey(View v, int keyCode, KeyEvent event) {
 		                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
 			               	int targetIndex = Util.parseDecimalInt(editText.getText().toString(), -1);
-			               	if (targetIndex > 0 && targetIndex <= getItemListAdapter().getCount()) {
+			               	if (targetIndex > 0 && targetIndex <= getItemAdapter().getCount()) {
 			               		try {
 									getService().playlistsMove(playlist, fromIndex-1, targetIndex-1);
 									orderItems();

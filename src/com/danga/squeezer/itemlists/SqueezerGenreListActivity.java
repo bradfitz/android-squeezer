@@ -32,11 +32,6 @@ public class SqueezerGenreListActivity extends SqueezerBaseListActivity<Squeezer
 		getService().genres(start);
 	}
 
-	@Override
-	protected void onItemSelected(int index, SqueezerGenre item) throws RemoteException {
-		SqueezerAlbumListActivity.show(this, item);
-	}
-
     
 	public static void show(Context context) {
         final Intent intent = new Intent(context, SqueezerGenreListActivity.class);

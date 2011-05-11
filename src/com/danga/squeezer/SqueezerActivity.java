@@ -1,10 +1,5 @@
 package com.danga.squeezer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,7 +12,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -38,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.danga.squeezer.framework.SqueezerBaseActivity;
+import com.danga.squeezer.framework.SqueezerIconUpdater;
 import com.danga.squeezer.itemlists.SqueezerAlbumListActivity;
 import com.danga.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
 import com.danga.squeezer.itemlists.SqueezerPlayerListActivity;
@@ -55,7 +50,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private AtomicBoolean isPlaying = new AtomicBoolean(false);
-    private AtomicReference<String> currentAlbumArtUrl = new AtomicReference<String>();
+    private AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
     
     private TextView albumText;
     private TextView artistText;
@@ -71,7 +66,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private ImageView albumArt;
     private SeekBar seekBar;
 
-    private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
+    private final SqueezerIconUpdater<SqueezerSong> iconUpdater = new SqueezerIconUpdater<SqueezerSong>(this);
 	
     
     // Where we're connecting to.
@@ -208,7 +203,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
-	                SqueezerAlbumListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+					if (!song.isRemote())
+						SqueezerAlbumListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
 				}
 			}
 		});
@@ -217,7 +213,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
-	                SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
+					if (!song.isRemote())
+						SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
 				}
 			}
 		});
@@ -226,7 +223,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
-	                SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+					if (!song.isRemote())
+						SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
 				}
 			}
 		});
@@ -395,9 +393,10 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     
     // Should only be called from the UI thread.
     private void updateSongInfoFromService() {
-    	updateSongInfo(getCurrentSong());
+        SqueezerSong song = getCurrentSong();
+    	updateSongInfo(song);
         updateTimeDisplayTo(getSecondsElapsed(), getSecondsTotal());
-        updateAlbumArtIfNeeded();
+        updateAlbumArtIfNeeded(song);
     }
     
     private void updateSongInfo(SqueezerSong song) {
@@ -413,47 +412,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     }
 
     // Should only be called from the UI thread.
-    private void updateAlbumArtIfNeeded() {
-        final String albumArtUrl = getCurrentAlbumArtUrl();
-        if (Util.atomicStringUpdated(currentAlbumArtUrl, albumArtUrl)) {
-            albumArt.setImageResource(R.drawable.icon_album_noart_143);
-            if (albumArtUrl != null && albumArtUrl.length() > 0) {
-                backgroundExecutor.execute(new Runnable() { 
-                    public void run() {
-                        if (!albumArtUrl.equals(currentAlbumArtUrl.get())) {
-                            // Bail out before fetch the resource if the song
-                            // album art has changed since this Runnable got
-                            // scheduled.
-                            return;
-                        }
-                        URL url;
-                        InputStream inputStream = null;
-                        boolean gotContent = false;
-                        try {
-                            url = new URL(albumArtUrl);
-                            inputStream = (InputStream) url.getContent();
-                            gotContent = true;
-                        } catch (MalformedURLException e) {
-                        } catch (IOException e) {
-                        } 
-                        if (!gotContent) {
-                            return;
-                        }
-                        final Drawable drawable = Drawable.createFromStream(inputStream, "src");
-                        uiThreadHandler.post(new Runnable() {
-                            public void run() {
-                                if (albumArtUrl.equals(currentAlbumArtUrl.get())) {
-                                    // Only set the image if the song art hasn't changed since we
-                                    // started and finally fetched the image over the network
-                                    // and decoded it.
-                                    albumArt.setImageDrawable(drawable);
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-        }
+    private void updateAlbumArtIfNeeded(SqueezerSong song) {
+        if (Util.atomicSongUpdated(currentSong, song))
+        	iconUpdater.updateIcon(albumArt, song, song.getArtworkUrl(getService()));
     }
     
     private int getSecondsElapsed() {
@@ -490,18 +451,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             Log.e(getTag(), "Service exception in getServiceCurrentSong(): " + e);
         }
         return null;
-    }
-
-    private String getCurrentAlbumArtUrl() {
-        if (getService() == null) {
-            return "";
-        }
-        try {
-            return getService().currentAlbumArtUrl();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception in getCurrentAlbumArtUrl(): " + e);
-        }
-        return "";
     }
 
 
