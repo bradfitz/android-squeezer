@@ -17,7 +17,7 @@ import android.widget.TextView;
  */
 public class IconRowAdapter extends BaseAdapter {
 	private Activity activity;
-	private int rowLayout = R.layout.icon_small_row_layout;
+	private int rowLayout = R.layout.icon_large_row_layout;
 	private int iconId = R.id.icon;
 	private int textId = R.id.label;
 

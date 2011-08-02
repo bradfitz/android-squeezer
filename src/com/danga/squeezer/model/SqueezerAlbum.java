@@ -43,6 +43,7 @@ public class SqueezerAlbum extends SqueezerArtworkItem {
 			return new SqueezerAlbum(source);
 		}
 	};
+	
 	private SqueezerAlbum(Parcel source) {
 		setId(source.readString());
 		name = source.readString();

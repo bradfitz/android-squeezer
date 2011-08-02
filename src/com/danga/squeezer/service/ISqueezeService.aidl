@@ -67,6 +67,7 @@ interface ISqueezeService {
         // Return 0 if unknown:
         int getSecondsTotal();
         int getSecondsElapsed();
+        boolean setSecondsElapsed(int seconds);
         
         SqueezerSong currentSong();
         String getAlbumArtUrl(String artworkTrackId);
@@ -83,6 +84,18 @@ interface ISqueezeService {
         void unregisterPlayerListCallback(IServicePlayerListCallback callback);
         
         // Album list
+       	/**
+		 * Starts an asynchronous fetch of album data from the server.  Any
+		 * callback registered with {@link registerAlbumListCallBack} will
+		 * be called when the data is fetched.
+		 * 
+		 * @param start
+		 * @param sortOrder
+		 * @param searchString
+		 * @param artist
+		 * @param year
+		 * @param genre
+		 */
         boolean albums(int start, String sortOrder, String searchString, in SqueezerArtist artist, in SqueezerYear year, in SqueezerGenre genre);
 	    void registerAlbumListCallback(IServiceAlbumListCallback callback);
         void unregisterAlbumListCallback(IServiceAlbumListCallback callback);

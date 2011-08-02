@@ -25,6 +25,7 @@ import com.danga.squeezer.Preferences;
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerActivity;
 import com.danga.squeezer.Util;
+import com.danga.squeezer.VolumePanel;
 import com.danga.squeezer.itemlists.IServiceAlbumListCallback;
 import com.danga.squeezer.itemlists.IServiceArtistListCallback;
 import com.danga.squeezer.itemlists.IServiceGenreListCallback;
@@ -47,8 +48,6 @@ import com.danga.squeezer.model.SqueezerYear;
 
 
 public class SqueezeService extends Service {
-	public static final int PAGESIZE = 20;
-
 	private static final String TAG = "SqueezeService";
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
@@ -85,13 +84,23 @@ public class SqueezeService extends Service {
     SqueezerPlayerState playerState = new SqueezerPlayerState();
     SqueezerCLIImpl cli = new SqueezerCLIImpl(this);
     
+    private VolumePanel mVolumePanel;
+    
+    private static final int SCROBBLE_NONE = 0;
+    private static final int SCROBBLE_SCROBBLEDROID = 1;
+    private static final int SCROBBLE_SLS = 2;
+    
+    int scrobbleType;  
     boolean debugLogging = false;
     
     SharedPreferences preferences;
-
+    
     @Override
     public void onCreate() {
     	super.onCreate();
+
+    	// Create the volume panel
+    	mVolumePanel = new VolumePanel(this.getApplicationContext());
     	
         // Clear leftover notification in case this service previously got killed while playing                                                
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -106,6 +115,7 @@ public class SqueezeService extends Service {
     }
 
 	private void getPreferences() {
+		scrobbleType = Integer.parseInt(preferences.getString(Preferences.KEY_SCROBBLE, "0"));
 		debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
 	}
 
@@ -319,6 +329,12 @@ public class SqueezeService extends Service {
 	private void sendNewVolumeCallback(int newVolume) {
         if (connectionState.getCallback() == null) return;
         try {
+        	SqueezerPlayer player = connectionState.getActivePlayer();
+        	if (player == null) {
+        		mVolumePanel.postVolumeChanged(newVolume, (String) "");
+        	} else {
+        		mVolumePanel.postVolumeChanged(newVolume, player.getName());
+        	}
             connectionState.getCallback().onVolumeChange(newVolume);
         } catch (RemoteException e) {
         }
@@ -336,21 +352,22 @@ public class SqueezeService extends Service {
 		String notification = tokens.get(2);
 		if ("newsong".equals(notification)) {
 			// Also ask for the rest of the status.
+			// TODO: Why? This information isn't then used
 			cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
 		} else if ("stop".equals(notification)) {
-			setPlayingState(false);
+//			setPlayingState(false);
 		} else if ("pause".equals(notification)) {
 			parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
 		}
 	}
     
 	private void parsePause(String explicitPause) {
-		boolean playing = playerState.isPlaying();
-		if ("0".equals(explicitPause)) {
-			if (playing) setPlayingState(false);
-		} else if ("1".equals(explicitPause)) {
-			if (!playing) setPlayingState(true);
-		}
+//		boolean playing = playerState.isPlaying();
+//		if ("0".equals(explicitPause)) {
+//			if (playing) setPlayingState(false);
+//		} else if ("1".equals(explicitPause)) {
+//			if (!playing) setPlayingState(true);
+//		}
 	}
 	
 	private void parseMode(String newMode) {
@@ -459,7 +476,11 @@ public class SqueezeService extends Service {
         // Subscribe or unsubscribe to the player's realtime status updates
         // depending on whether we have an Activity or some sort of client
         // that cares about second-to-second updates.
-        if (connectionState.getCallback() != null) {
+    	//
+    	// Note: If scrobbling is turned on then that counts as caring
+    	// about second-to-second updates -- otherwise we miss events from
+    	// buttons on the player, the web interface, and so on
+        if (connectionState.getCallback() != null || (scrobbleType != SCROBBLE_NONE)) {
             cli.sendPlayerCommand("status - 1 subscribe:1 tags:" + SONGTAGS);
         } else {
             cli.sendPlayerCommand("status - 1 subscribe:-");
@@ -517,6 +538,37 @@ public class SqueezeService extends Service {
             status.icon = R.drawable.logo;
         }
         nm.notify(PLAYBACKSERVICE_STATUS, status);
+        
+        if (scrobbleType != SCROBBLE_NONE) {
+        	SqueezerSong s = playerState.getCurrentSong();
+        	Intent i = new Intent();
+        	
+        	switch (scrobbleType) {
+	        case SCROBBLE_SCROBBLEDROID:
+	        	// http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
+	        	i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
+	        	i.putExtra("playing", playing);
+	        	i.putExtra("track", songName);
+	        	i.putExtra("album", s.getAlbum());
+	        	i.putExtra("artist", s.getArtist());
+	        	i.putExtra("secs", playerState.getCurrentSongDuration());
+	        	i.putExtra("source", "P");
+	        	break;
+	        case SCROBBLE_SLS:
+	        	// http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
+	        	i.setAction("com.adam.aslfms.notify.playstatechanged");
+	        	i.putExtra("state", playing ? 0 : 2);
+	        	i.putExtra("app-name", getText(R.string.app_name));
+	        	i.putExtra("app-package", "com.danga.squeezer");
+	        	i.putExtra("track", songName);
+	        	i.putExtra("album", s.getAlbum());
+	        	i.putExtra("artist", s.getArtist());
+	        	i.putExtra("duration", playerState.getCurrentSongDuration());
+	        	i.putExtra("source", "P");
+	        	break;
+        	}
+        	sendBroadcast(i);
+        }
     }
 
     private void sendMusicChangedCallback() {
@@ -732,6 +784,15 @@ public class SqueezeService extends Service {
         public int getSecondsElapsed() throws RemoteException {
         	return playerState.getCurrentTimeSecond(0);
         }
+        
+        public boolean setSecondsElapsed(int seconds) throws RemoteException {
+        	if (!isConnected()) return false;
+        	if (seconds < 0) return false;
+        	
+        	cli.sendPlayerCommand("time " + seconds);
+        	
+        	return true;
+        }
 
         public int getSecondsTotal() throws RemoteException {
             return playerState.getCurrentSongDuration(0);
@@ -766,7 +827,6 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerPlayer.class);
 		}
 
-		
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
 		public boolean albums(int start, String sortOrder, String searchString,
 				SqueezerArtist artist, SqueezerYear year, SqueezerGenre genre)

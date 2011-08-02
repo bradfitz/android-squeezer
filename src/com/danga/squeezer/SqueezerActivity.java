@@ -23,11 +23,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,14 +54,13 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private TextView albumText;
     private TextView artistText;
     private TextView trackText;   
-    private TextView currentTime;   
+    private TextView currentTime;
     private TextView totalTime;   
     private ImageButton homeButton;
     private ImageButton curPlayListButton;
     private ImageButton playPauseButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
-    private Toast activeToast;
     private ImageView albumArt;
     private SeekBar seekBar;
 
@@ -74,6 +72,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private String connectingTo = null;
     private ProgressDialog connectingDialog = null;
 
+    // Updating the seekbar
+    private boolean updateSeekBar = true;
     private volatile int secondsIn;
     private volatile int secondsTotal;
     private final static int UPDATE_TIME = 1;
@@ -100,27 +100,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
-        // Intercept volume keys to control SqueezeCenter volume.
-        // TODO: make this actually work.  It's something like this, but not quite.
-        // Other apps do it, so should be possible somehow.
-        LinearLayout mainLayout = (LinearLayout) findViewById(R.id.root_layout);
-        mainLayout.setOnKeyListener(new OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                    // TODO: notify user somehow. Toast?
-                    changeVolumeBy(+5);
-                    return true;
-                }
-                if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                    // TODO: notify user somehow. Toast?
-                    changeVolumeBy(-5);
-                    return true;
-                }
-                return false;
-            }
-        });
-        
+              
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
         trackText = (TextView) findViewById(R.id.trackname);
@@ -133,7 +113,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         currentTime = (TextView) findViewById(R.id.currenttime);
         totalTime = (TextView) findViewById(R.id.totaltime);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
-		
+
+        // TODO: Simplify these following the notes at
+        // http://developer.android.com/resources/articles/ui-1.6.html
 		homeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
                 if (!isConnected()) return;
@@ -183,22 +165,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 } catch (RemoteException e) { }
             }
         });
-        
-        // Hacks for now, making shuffle & repeat do volume up & down, until
-        // these do something & volume is fixed to use the side keys.
-        ((ImageButton) this.findViewById(R.id.volume_up)).setOnClickListener(
-                new OnClickListener() {
-                    public void onClick(View v) {
-                        changeVolumeBy(+5);
-                    }
-                });
-        ((ImageButton) this.findViewById(R.id.volume_down)).setOnClickListener(
-                new OnClickListener() {
-                    public void onClick(View v) {
-                        changeVolumeBy(-5);
-                    }
-                });
-        
+
         artistText.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
@@ -229,7 +196,69 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			}
 		});
         
+        seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+        	SqueezerSong seekingSong;
+        	
+        	// Update the time indicator to reflect the dragged thumb position.
+			public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
+				if (fromUser) {
+			        currentTime.setText(Util.makeTimeString(progress));
+				}
+			}
+
+			// Disable updates when user drags the thumb.
+			public void onStartTrackingTouch(SeekBar s) {
+				seekingSong = getCurrentSong();
+				updateSeekBar = false;			
+			}
+
+			// Re-enable updates.  If the current song is the same as when
+			// we started seeking then jump to the new point in the track,
+			// otherwise ignore the seek.
+			public void onStopTrackingTouch(SeekBar s) {
+				SqueezerSong thisSong = getCurrentSong();
+				
+				updateSeekBar = true;
+				
+				if (seekingSong == thisSong) {
+					setSecondsElapsed(s.getProgress());
+				}
+			}
+        });
     }
+    
+    /*
+     * Intercept hardware volume control keys to control Squeezeserver
+     * volume.
+     * 
+     * Change the volume when the key is depressed.  Suppress the keyUp
+     * event, otherwise you get a notification beep as well as the volume
+     * changing.
+     */
+    @Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+			changeVolumeBy(+5);
+			return true;
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			changeVolumeBy(-5);
+			return true;
+		}
+		
+		return super.onKeyDown(keyCode, event);
+	}
+
+    @Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_VOLUME_UP:
+		case KeyEvent.KEYCODE_VOLUME_DOWN:
+			return true;
+		}
+		
+		return super.onKeyUp(keyCode, event);
+	}    
     
     private boolean changeVolumeBy(int delta) {
         Log.v(getTag(), "Adjust volume by: " + delta);
@@ -383,12 +412,14 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     }
     
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
-        if (seekBar.getMax() != secondsTotal) {
-            seekBar.setMax(secondsTotal);
-            totalTime.setText(Util.makeTimeString(secondsTotal));
-        }
-        seekBar.setProgress(secondsIn);
-        currentTime.setText(Util.makeTimeString(secondsIn));
+    	if (updateSeekBar) {
+	        if (seekBar.getMax() != secondsTotal) {
+	            seekBar.setMax(secondsTotal);
+	            totalTime.setText(Util.makeTimeString(secondsTotal));
+	        }
+	        seekBar.setProgress(secondsIn);
+	        currentTime.setText(Util.makeTimeString(secondsIn));
+	    }
     }
     
     // Should only be called from the UI thread.
@@ -439,6 +470,18 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             Log.e(getTag(), "Service exception in getSecondsTotal(): " + e);
         }
         return 0;
+    }
+    
+    private boolean setSecondsElapsed(int seconds) {
+    	if (getService() == null) {
+    		return false;
+    	}
+    	try {
+    		return getService().setSecondsElapsed(seconds);
+    	} catch (RemoteException e) {
+    		Log.e(getTag(), "Service exception in setSecondsElapsed(" + seconds + "): " + e);
+    	}
+    	return true;
     }
     
     private SqueezerSong getCurrentSong() {
@@ -695,16 +738,11 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
             public void onVolumeChange(final int newVolume) throws RemoteException {
                 Log.v(getTag(), "Volume = " + newVolume);
-                uiThreadHandler.post(new Runnable() {
-                    public void run() {
-                        if (activeToast != null) {
-                            activeToast.setText("Volume: " + newVolume);
-                        } else {
-                            activeToast = Toast.makeText(SqueezerActivity.this, "Volume: " + newVolume, Toast.LENGTH_SHORT);
-                        }
-                        activeToast.show();
-                    }
-                });
+//                uiThreadHandler.post(new Runnable() {              	
+//                    public void run() {
+//						  Do something here if necessary               
+//                    }
+//                });
             }
 
             public void onPlayStatusChanged(boolean newStatus)

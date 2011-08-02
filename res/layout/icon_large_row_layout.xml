@@ -10,12 +10,12 @@
 >
    <ImageView
       android:id="@+id/icon"
-      android:layout_width="36dp"
-      android:layout_height="36dp"
-      android:maxWidth="36dp"
-      android:minWidth="36dp"
-      android:maxHeight="36dp"
-      android:minHeight="36dp"
+      android:layout_width="64px"
+      android:layout_height="64px"
+      android:maxWidth="64px"
+      android:minWidth="64px"
+      android:maxHeight="64px"
+      android:minHeight="64px"
    />
    <TextView
       android:id="@+id/label"
@@ -23,5 +23,6 @@
       android:paddingRight="9dp"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:textAppearance="?android:attr/textAppearanceMedium"
    />
 </LinearLayout>
