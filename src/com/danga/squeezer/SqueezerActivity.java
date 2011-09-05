@@ -6,12 +6,18 @@ import java.util.concurrent.atomic.AtomicReference;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -44,6 +50,7 @@ import com.danga.squeezer.service.SqueezeService;
 public class SqueezerActivity extends SqueezerBaseActivity {
     private static final int DIALOG_ABOUT = 0;
     private static final int DIALOG_CONNECTING = 1;
+    private static final int DIALOG_ENABLE_WIFI = 2;
 
     protected static final int HOME_REQUESTCODE = 0;
     
@@ -65,7 +72,23 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private SeekBar seekBar;
 
     private final SqueezerIconUpdater<SqueezerSong> iconUpdater = new SqueezerIconUpdater<SqueezerSong>(this);
-	
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            NetworkInfo networkInfo = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+            if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI && networkInfo.isConnected()) {
+                Log.v(getTag(), "Received WIFI connected broadcast");
+                if (!connectInProgress && !isConnected()) {
+                    // Requires a serviceStub.  Else we'll do this on the service connection callback.
+                    if (getService() != null) {
+                        Log.v(getTag(), "Initiated connect on WIFI connected");
+                        startVisibleConnection();
+                    }
+                }
+            }
+        }
+    };
     
     // Where we're connecting to.
     private boolean connectInProgress = false;
@@ -348,12 +371,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     	        updateUIFromServiceState();
 
     	        // Assume they want to connect...
-    	        if (!isConnected()) {
-    	            String ipPort = getConfiguredCliIpPort();
-    	            if (ipPort != null) {
-    	                startVisibleConnectionTo(ipPort);
-    	            }
-    	        }
+                if (!isConnected()) {
+                    startVisibleConnection();
+                }
     	    }
     	});
    	    getService().registerCallback(serviceCallback);
@@ -379,12 +399,13 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             // automatically.  (Requires a serviceStub.  Else we'll do this
             // on the service connection callback.)
             if (!isConnected()) {
-                String ipPort = getConfiguredCliIpPort();
-                if (ipPort != null) {
-                    startVisibleConnectionTo(ipPort);
-                }
+                //TODO kaa check for network connected
+                startVisibleConnection();
             }
         }
+        
+        if (isAutoConnect()) 
+            registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     // Should only be called from the UI thread.
@@ -542,6 +563,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 Log.e(getTag(), "Service exception in onPause(): " + e);
             }
         }
+        if (isAutoConnect())
+            unregisterReceiver(broadcastReceiver);
         super.onPause();
     }
 	
@@ -587,6 +610,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_ABOUT:
+        {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(getText(R.string.about_title));
             PackageManager pm = getPackageManager();
@@ -600,6 +624,25 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             }
             builder.setMessage(Html.fromHtml(aboutText));
             return builder.create();
+        }
+        case DIALOG_ENABLE_WIFI:
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.wifi_disabled_text);
+            builder.setMessage(R.string.enable_wifi_text);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                    if (!wifiManager.isWifiEnabled()) {
+                        Log.v(getTag(), "Enabling Wifi");
+                        wifiManager.setWifiEnabled(true);
+                    }
+                }
+            });
+            builder.setNegativeButton(android.R.string.cancel, null);
+            return builder.create();
+        }
+            
         case DIALOG_CONNECTING:
             // Note: this only happens the first time.  onPrepareDialog is called on each connect.
             connectingDialog = new ProgressDialog(this);
@@ -676,6 +719,12 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         }
         return ipPort;
     }
+
+    // Returns null if not configured.
+    private boolean isAutoConnect() {
+        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+        return preferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true);
+    }
     
     private void onUserInitiatesConnect() {
         if (getService() == null) {
@@ -692,14 +741,28 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     }
     
     private void startVisibleConnectionTo(String ipPort) {
+        if (isAutoConnect()) {
+            WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+            if (!wifiManager.isWifiEnabled()) {
+                showDialog(DIALOG_ENABLE_WIFI);
+                return; // We will come back here when Wi-Fi is ready
+            }
+        }
+
         connectInProgress = true;
         connectingTo = ipPort;
         showDialog(DIALOG_CONNECTING);
         try {
             getService().startConnect(ipPort);
         } catch (RemoteException e) {
-            Toast.makeText(this, "startConnection error: " + e,
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "startConnection error: " + e, Toast.LENGTH_LONG).show();
+        }
+    }
+    
+    private void startVisibleConnection() {
+        String ipPort = getConfiguredCliIpPort();
+        if (ipPort != null) {
+            startVisibleConnectionTo(ipPort);
         }
     }
 

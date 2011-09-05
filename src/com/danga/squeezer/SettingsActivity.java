@@ -41,11 +41,9 @@ public class SettingsActivity extends PreferenceActivity implements
         getPreferenceManager().setSharedPreferencesName(Preferences.NAME);
         addPreferencesFromResource(R.xml.preferences);
 
-        // Both not yet implemented, so disable.  TODO(bradfitz): implement.
+        // Not yet implemented, so disable.  TODO(bradfitz): implement.
         CheckBoxPreference autoDiscoverPref = (CheckBoxPreference) findPreference(Preferences.KEY_AUTO_DISCOVER);
         autoDiscoverPref.setEnabled(false);
-        CheckBoxPreference autoConnectPref = (CheckBoxPreference) findPreference(Preferences.KEY_AUTO_CONNECT);
-        autoConnectPref.setEnabled(false);
 
         addrPref = (EditTextPreference) findPreference(Preferences.KEY_SERVERADDR);
         addrPref.setOnPreferenceChangeListener(this);

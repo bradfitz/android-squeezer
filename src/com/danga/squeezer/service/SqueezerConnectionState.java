@@ -228,6 +228,7 @@ class SqueezerConnectionState {
                 service.disconnect();
                 Socket socket = new Socket();
                 try {
+                    Log.d(TAG, "Connecting to: " + cleanHostPort);
                     socket.connect(new InetSocketAddress(host, port),
                                    4000 /* ms timeout */);
                     socketRef.set(socket);

@@ -32,8 +32,8 @@
 
   <CheckBoxPreference
      android:key="squeezer.autoconnect"
-     android:title="Auto-connect"
-     android:summary="On Wifi availability, try to connect."
+     android:title="@string/settings_autoconnect_title"
+     android:summary="@string/settings_autoconnect_summary"
      android:persistent="true" />
 
   <CheckBoxPreference

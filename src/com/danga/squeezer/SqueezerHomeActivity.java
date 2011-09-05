@@ -1,9 +1,6 @@
 package com.danga.squeezer;
 
 
-import com.danga.squeezer.itemlists.SqueezerApplicationListActivity;
-import com.danga.squeezer.itemlists.SqueezerRadioListActivity;
-
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +8,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+
+import com.danga.squeezer.itemlists.SqueezerRadioListActivity;
 
 public class SqueezerHomeActivity extends ListActivity {
 
@@ -47,7 +46,8 @@ public class SqueezerHomeActivity extends ListActivity {
 				SqueezerRadioListActivity.show(SqueezerHomeActivity.this);
 				break;
 			case APPS:
-				SqueezerApplicationListActivity.show(SqueezerHomeActivity.this);
+			    //TODO (kaa) implement
+				//SqueezerApplicationListActivity.show(SqueezerHomeActivity.this);
 				break;
 			case FAVORITES:
 				break;
