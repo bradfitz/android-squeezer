@@ -1,10 +1,5 @@
 package com.danga.squeezer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,7 +12,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -37,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.danga.squeezer.framework.SqueezerBaseActivity;
+import com.danga.squeezer.framework.SqueezerIconUpdater;
 import com.danga.squeezer.itemlists.SqueezerAlbumListActivity;
 import com.danga.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
 import com.danga.squeezer.itemlists.SqueezerPlayerListActivity;
@@ -51,16 +46,16 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private static final int DIALOG_CONNECTING = 1;
 
     protected static final int HOME_REQUESTCODE = 0;
-    
-    private AtomicBoolean isConnected = new AtomicBoolean(false);
-    private AtomicBoolean isPlaying = new AtomicBoolean(false);
-    private AtomicReference<String> currentAlbumArtUrl = new AtomicReference<String>();
-    
+
+    private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    private final AtomicBoolean isPlaying = new AtomicBoolean(false);
+    private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
+
     private TextView albumText;
     private TextView artistText;
-    private TextView trackText;   
+    private TextView trackText;
     private TextView currentTime;
-    private TextView totalTime;   
+    private TextView totalTime;
     private ImageButton homeButton;
     private ImageButton curPlayListButton;
     private ImageButton playPauseButton;
@@ -69,8 +64,10 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private ImageView albumArt;
     private SeekBar seekBar;
 
-    private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
-    
+    // TODO private final ScheduledThreadPoolExecutor backgroundExecutor = new
+    // ScheduledThreadPoolExecutor(1);
+    private final SqueezerIconUpdater<SqueezerSong> iconUpdater = new SqueezerIconUpdater<SqueezerSong>(this);
+
     // Where we're connecting to.
     private boolean connectInProgress = false;
     private String connectingTo = null;
@@ -81,8 +78,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private volatile int secondsIn;
     private volatile int secondsTotal;
     private final static int UPDATE_TIME = 1;
-    
-    private Handler uiThreadHandler = new Handler() {
+
+    private final Handler uiThreadHandler = new Handler() {
         // Normally I'm lazy and just post Runnables to the uiThreadHandler
         // but time updating is special enough (it happens every second) to
         // take care not to allocate so much memory which forces Dalvik to GC
@@ -94,7 +91,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             }
         }
     };
-    
+
     @Override
 	public Handler getUIThreadHandler() {
     	return uiThreadHandler;
@@ -104,7 +101,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-              
+
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
         trackText = (TextView) findViewById(R.id.trackname);
@@ -126,14 +123,14 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 				SqueezerHomeActivity.show(SqueezerActivity.this);
 			}
 		});
-		
+
 		curPlayListButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
                 if (!isConnected()) return;
 				SqueezerCurrentPlaylistActivity.show(SqueezerActivity.this);
 			}
 		});
-		
+
         playPauseButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     if (getService() == null) return;
@@ -151,7 +148,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                     }
                 }
 	    });
-        
+
         nextButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (getService() == null) return;
@@ -174,32 +171,35 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
-	                SqueezerAlbumListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+					if (!song.isRemote())
+						SqueezerAlbumListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
 				}
 			}
 		});
-        
+
         albumText.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
-	                SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
+					if (!song.isRemote())
+						SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
 				}
 			}
 		});
-        
+
         trackText.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
-	                SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+					if (!song.isRemote())
+						SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
 				}
 			}
 		});
-        
+
         seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
         	SqueezerSong seekingSong;
-        	
+
         	// Update the time indicator to reflect the dragged thumb position.
 			public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
 				if (fromUser) {
@@ -210,7 +210,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			// Disable updates when user drags the thumb.
 			public void onStartTrackingTouch(SeekBar s) {
 				seekingSong = getCurrentSong();
-				updateSeekBar = false;			
+				updateSeekBar = false;
 			}
 
 			// Re-enable updates.  If the current song is the same as when
@@ -218,20 +218,20 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			// otherwise ignore the seek.
 			public void onStopTrackingTouch(SeekBar s) {
 				SqueezerSong thisSong = getCurrentSong();
-				
+
 				updateSeekBar = true;
-				
+
 				if (seekingSong == thisSong) {
 					setSecondsElapsed(s.getProgress());
 				}
 			}
         });
     }
-    
+
     /*
      * Intercept hardware volume control keys to control Squeezeserver
      * volume.
-     * 
+     *
      * Change the volume when the key is depressed.  Suppress the keyUp
      * event, otherwise you get a notification beep as well as the volume
      * changing.
@@ -246,7 +246,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			changeVolumeBy(-5);
 			return true;
 		}
-		
+
 		return super.onKeyDown(keyCode, event);
 	}
 
@@ -257,10 +257,10 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 		case KeyEvent.KEYCODE_VOLUME_DOWN:
 			return true;
 		}
-		
+
 		return super.onKeyUp(keyCode, event);
-	}    
-    
+	}
+
     private boolean changeVolumeBy(int delta) {
         Log.v(getTag(), "Adjust volume by: " + delta);
         if (getService() == null) {
@@ -371,10 +371,10 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         // killed due to zero refcount.  This is our signal that we want
         // it running in the background.
         startService(new Intent(this, SqueezeService.class));
-        
+
         if (getService() != null) {
             updateUIFromServiceState();
-            
+
             // If they've already set this up in the past, what they probably
             // want to do at this point is connect to the server, so do it
             // automatically.  (Requires a serviceStub.  Else we'll do this
@@ -409,9 +409,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         } catch (RemoteException e) {
             Log.e(getTag(), "Service exception: " + e);
         }
-       
+
     }
-    
+
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
     	if (updateSeekBar) {
 	        if (seekBar.getMax() != secondsTotal) {
@@ -422,14 +422,15 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 	        currentTime.setText(Util.makeTimeString(secondsIn));
 	    }
     }
-    
+
     // Should only be called from the UI thread.
     private void updateSongInfoFromService() {
-    	updateSongInfo(getCurrentSong());
+        SqueezerSong song = getCurrentSong();
+    	updateSongInfo(song);
         updateTimeDisplayTo(getSecondsElapsed(), getSecondsTotal());
-        updateAlbumArtIfNeeded();
+        updateAlbumArtIfNeeded(song);
     }
-    
+
     private void updateSongInfo(SqueezerSong song) {
     	if (song != null) {
 	        artistText.setText(song.getArtist());
@@ -443,49 +444,11 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     }
 
     // Should only be called from the UI thread.
-    private void updateAlbumArtIfNeeded() {
-        final String albumArtUrl = getCurrentAlbumArtUrl();
-        if (Util.atomicStringUpdated(currentAlbumArtUrl, albumArtUrl)) {
-            albumArt.setImageResource(R.drawable.icon_album_noart_143);
-            if (albumArtUrl != null && albumArtUrl.length() > 0) {
-                backgroundExecutor.execute(new Runnable() { 
-                    public void run() {
-                        if (!albumArtUrl.equals(currentAlbumArtUrl.get())) {
-                            // Bail out before fetch the resource if the song
-                            // album art has changed since this Runnable got
-                            // scheduled.
-                            return;
-                        }
-                        URL url;
-                        InputStream inputStream = null;
-                        boolean gotContent = false;
-                        try {
-                            url = new URL(albumArtUrl);
-                            inputStream = (InputStream) url.getContent();
-                            gotContent = true;
-                        } catch (MalformedURLException e) {
-                        } catch (IOException e) {
-                        } 
-                        if (!gotContent) {
-                            return;
-                        }
-                        final Drawable drawable = Drawable.createFromStream(inputStream, "src");
-                        uiThreadHandler.post(new Runnable() {
-                            public void run() {
-                                if (albumArtUrl.equals(currentAlbumArtUrl.get())) {
-                                    // Only set the image if the song art hasn't changed since we
-                                    // started and finally fetched the image over the network
-                                    // and decoded it.
-                                    albumArt.setImageDrawable(drawable);
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-        }
+    private void updateAlbumArtIfNeeded(SqueezerSong song) {
+        if (Util.atomicSongUpdated(currentSong, song))
+        	iconUpdater.updateIcon(albumArt, song, song.getArtworkUrl(getService()));
     }
-    
+
     private int getSecondsElapsed() {
         if (getService() == null) {
             return 0;
@@ -497,7 +460,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         }
         return 0;
     }
-    
+
     private int getSecondsTotal() {
         if (getService() == null) {
             return 0;
@@ -509,7 +472,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         }
         return 0;
     }
-    
+
     private boolean setSecondsElapsed(int seconds) {
     	if (getService() == null) {
     		return false;
@@ -521,7 +484,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     	}
     	return true;
     }
-    
+
     private SqueezerSong getCurrentSong() {
         if (getService() == null) {
             return null;
@@ -534,25 +497,13 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         return null;
     }
 
-    private String getCurrentAlbumArtUrl() {
-        if (getService() == null) {
-            return "";
-        }
-        try {
-            return getService().currentAlbumArtUrl();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception in getCurrentAlbumArtUrl(): " + e);
-        }
-        return "";
-    }
-
 
     private boolean isConnected() {
         if (getService() == null) {
             return false;
         }
         try {
-            return getService().isConnected(); 
+            return getService().isConnected();
         } catch (RemoteException e) {
             Log.e(getTag(), "Service exception in isConnected(): " + e);
         }
@@ -564,7 +515,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             return false;
         }
         try {
-            return getService().canPowerOn(); 
+            return getService().canPowerOn();
         } catch (RemoteException e) {
             Log.e(getTag(), "Service exception in canPowerOn(): " + e);
         }
@@ -576,7 +527,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             return false;
         }
         try {
-            return getService().canPowerOff(); 
+            return getService().canPowerOff();
         } catch (RemoteException e) {
             Log.e(getTag(), "Service exception in canPowerOff(): " + e);
         }
@@ -594,19 +545,19 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         }
         super.onPause();
     }
-	
+
 	@Override
 	public boolean onSearchRequested() {
   		SqueezerSearchActivity.show(this);
 		return false;
 	}
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.squeezer, menu);
         return super.onCreateOptionsMenu(menu);
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
     	super.onPrepareOptionsMenu(menu);
@@ -630,7 +581,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         MenuItem search = menu.findItem(R.id.menu_item_search);
         search.setEnabled(connected);
 
-    	return true;	
+    	return true;
     }
 
     @Override
@@ -659,7 +610,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         }
         return null;
     }
-    
+
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
         switch (id) {
@@ -673,7 +624,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             return;
         }
     }
-    
+
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
@@ -726,7 +677,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         }
         return ipPort;
     }
-    
+
     private void onUserInitiatesConnect() {
         if (getService() == null) {
             Log.e(getTag(), "serviceStub is null.");
@@ -740,7 +691,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         Log.v(getTag(), "User-initiated connect to: " + ipPort);
         startVisibleConnectionTo(ipPort);
     }
-    
+
     private void startVisibleConnectionTo(String ipPort) {
         connectInProgress = true;
         connectingTo = ipPort;
@@ -759,8 +710,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 				.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
     }
-	
-    private IServiceCallback serviceCallback = new IServiceCallback.Stub() {
+
+    private final IServiceCallback serviceCallback = new IServiceCallback.Stub() {
         public void onConnectionChanged(final boolean isConnected,
                                         final boolean postConnect)
                        throws RemoteException {
@@ -788,9 +739,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
             public void onVolumeChange(final int newVolume) throws RemoteException {
                 Log.v(getTag(), "Volume = " + newVolume);
-//                uiThreadHandler.post(new Runnable() {              	
+//                uiThreadHandler.post(new Runnable() {
 //                    public void run() {
-//						  Do something here if necessary               
+//						  Do something here if necessary
 //                    }
 //                });
             }

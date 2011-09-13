@@ -125,11 +125,22 @@ This project is very new and is undergoing active development. Patches and featu
         <item quantity="other">playlists</item>
     </plurals>
 
+    <plurals name="radio">
+        <item quantity="one">radio station plugin</item>
+        <item quantity="other">radio station plugins</item>
+    </plurals>
+
+    <plurals name="application">
+        <item quantity="one">application</item>
+        <item quantity="other">applications</item>
+    </plurals>
+
 
     <string-array name="home_items">
         <item>Now playing</item>
         <item>My Music</item>
         <item>Internet Radio</item>
+        <item>My Apps</item>
         <item>Favorites</item>
     </string-array>
 

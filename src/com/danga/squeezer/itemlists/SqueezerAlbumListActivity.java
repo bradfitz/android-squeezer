@@ -17,7 +17,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerActivity;
 import com.danga.squeezer.framework.SqueezerItem;
 import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.framework.SqueezerOrderableListActivity;
@@ -92,12 +91,6 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 		this.sortOrder = sortOrder;
 		orderItems();
 	}
-
-	@Override
-	protected void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
-		play(item);
-		SqueezerActivity.show(this);
-	}
 	
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -110,7 +103,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 		    sortOrderStrings[AlbumsSortOrder.artflow.ordinal()] = getString(R.string.albums_sort_order_artflow);
 		    sortOrderStrings[AlbumsSortOrder.__new.ordinal()] = getString(R.string.albums_sort_order_new);
 		    int checkedItem = sortOrder.ordinal();
-		    builder.setTitle(getString(R.string.choose_sort_order, getItemListAdapter().getQuantityString(2)));
+		    builder.setTitle(getString(R.string.choose_sort_order, getItemAdapter().getQuantityString(2)));
 		    builder.setSingleChoiceItems(sortOrderStrings, checkedItem, new DialogInterface.OnClickListener() {
 		            public void onClick(DialogInterface dialog, int indexSelected) {
 		               	setSortOrder(AlbumsSortOrder.values()[indexSelected]);
@@ -124,7 +117,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 			builder.setView(filterForm);
 
 			final EditText editText = (EditText) filterForm.findViewById(R.id.search_string);
-	        editText.setHint(getString(R.string.filter_text_hint, getItemListAdapter().getQuantityString(2)));
+	        editText.setHint(getString(R.string.filter_text_hint, getItemAdapter().getQuantityString(2)));
 			final Spinner genreSpinnerView = (Spinner) filterForm.findViewById(R.id.genre_spinner);
 			final Spinner yearSpinnerView = (Spinner) filterForm.findViewById(R.id.year_spinner);
 	        

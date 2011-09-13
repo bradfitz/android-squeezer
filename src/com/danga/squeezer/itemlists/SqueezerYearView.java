@@ -1,5 +1,6 @@
 package com.danga.squeezer.itemlists;
 
+import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 
@@ -16,6 +17,10 @@ public class SqueezerYearView extends SqueezerBaseItemView<SqueezerYear> {
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.year, quantity);
+	}
+
+	public void onItemSelected(int index, SqueezerYear item) throws RemoteException {
+		SqueezerAlbumListActivity.show(getActivity(), item);
 	}
 
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerYear item) {

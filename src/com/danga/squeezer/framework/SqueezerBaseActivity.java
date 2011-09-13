@@ -23,10 +23,6 @@ public abstract class SqueezerBaseActivity extends Activity {
 	private Handler uiThreadHandler = new Handler() {};
 
 	protected abstract void onServiceConnected() throws RemoteException;
-	
-	public SqueezerBaseActivity() {
-		super();
-	}
     
     protected String getTag() {
     	return getClass().getSimpleName();
@@ -100,7 +96,6 @@ public abstract class SqueezerBaseActivity extends Activity {
         }
         service.playlistControl(cmd.name(), item.getClass().getName(), item.getId());
         return true;
-    	
     }
     
     private enum PlaylistControlCmd {

@@ -32,11 +32,6 @@ public class SqueezerYearListActivity extends SqueezerBaseListActivity<SqueezerY
 		getService().years(start);
 	}
 
-	@Override
-	protected void onItemSelected(int index, SqueezerYear item) throws RemoteException {
-		SqueezerAlbumListActivity.show(this, item);
-	}
-
     
 	public static void show(Context context) {
         final Intent intent = new Intent(context, SqueezerYearListActivity.class);

@@ -3,6 +3,7 @@ package com.danga.squeezer.itemlists;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,11 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 
 		return convertView;
 	}
+
+	public void onItemSelected(int index, SqueezerPlayer item) throws RemoteException {
+		getActivity().getService().setActivePlayer(item);
+		getActivity().finish();
+	};
 
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlayer item) {
 	}
