@@ -54,13 +54,10 @@
     <string name="genre_label">Genre</string>
     <string name="year_label">Year</string>
     <string name="filter_label">Search text</string>
-    <string name="about_text">&lt;b&gt;Squeezer v%s (C) Brad Fitzpatrick&lt;/b&gt;
+    <string name="about_text">&lt;b&gt;Squeezer v%s (c) 2010, 2011 Kurt Aaholst, Nik Clayton, Brad Fitzpatrick&lt;/b&gt;
    
 &lt;p&gt;http://code.google.com/p/android-squeezer/&lt;/p&gt;
-&lt;p&gt;android-squeezer@googlegroups.com&lt;/p&gt;
-
-&lt;p&gt;Welcome to Squeezer!&lt;br/&gt;
-This project is very new and is undergoing active development. Patches and feature requests are welcome!&lt;/p&gt;</string>
+&lt;p&gt;android-squeezer@googlegroups.com&lt;/p&gt;</string>
 
 	<string name="CONTEXTMENU_BROWSE_SONGS">Browse songs</string>
 	<string name="CONTEXTMENU_BROWSE_ALBUMS">Browse albums</string>
