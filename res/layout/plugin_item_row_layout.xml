@@ -21,7 +21,18 @@
       android:id="@+id/label"
       android:paddingLeft="9dp"
       android:paddingRight="9dp"
-      android:layout_width="wrap_content"
+      android:layout_width="fill_parent"
       android:layout_height="wrap_content"
+      android:layout_weight="1"
+   />
+   <ImageView
+      android:id="@+id/groupicon"
+      android:src="@drawable/icon_group"
+      android:layout_width="14dp"
+      android:layout_height="14dp"
+      android:maxWidth="14dp"
+      android:minWidth="14dp"
+      android:maxHeight="14dp"
+      android:minHeight="14dp"
    />
 </LinearLayout>

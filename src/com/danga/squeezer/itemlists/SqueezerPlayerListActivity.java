@@ -31,12 +31,6 @@ public class SqueezerPlayerListActivity extends SqueezerBaseListActivity<Squeeze
 	protected void orderPage(int start) throws RemoteException {
 		getService().players(start);
 	}
-
-	@Override
-	protected void onItemSelected(int index, SqueezerPlayer item) throws RemoteException {
-		getService().setActivePlayer(item);
-		finish();
-	};
 	
 	public static void show(Context context) {
         final Intent intent = new Intent(context, SqueezerPlayerListActivity.class);

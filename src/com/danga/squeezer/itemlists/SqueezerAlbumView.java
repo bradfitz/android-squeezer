@@ -1,5 +1,6 @@
 package com.danga.squeezer.itemlists;
 
+import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -8,10 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.danga.squeezer.R;
+import com.danga.squeezer.SqueezerActivity;
 import com.danga.squeezer.framework.SqueezerItemListActivity;
 import com.danga.squeezer.model.SqueezerAlbum;
 
-public class SqueezerAlbumView extends SqueezerIconicItemView<SqueezerAlbum> {
+public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 	private LayoutInflater layoutInflater;
 
 	public SqueezerAlbumView(SqueezerItemListActivity activity) {
@@ -43,6 +45,11 @@ public class SqueezerAlbumView extends SqueezerIconicItemView<SqueezerAlbum> {
 		updateAlbumArt(viewHolder.icon, item);
 
 		return convertView;
+	}
+
+	public void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
+		getActivity().play(item);
+		SqueezerActivity.show(getActivity());
 	}
 
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerAlbum item) {

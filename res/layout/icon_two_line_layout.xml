@@ -3,10 +3,10 @@
    android:layout_width="fill_parent"
    android:layout_height="wrap_content"
    android:orientation="horizontal"
-   android:paddingLeft="10px"
-   android:paddingRight="10px"
-   android:paddingTop="8px"
-   android:paddingBottom="8px"
+   android:paddingLeft="9dp"
+   android:paddingRight="9dp"
+   android:paddingTop="7dp"
+   android:paddingBottom="7dp"
 >
    <ImageView
       android:id="@+id/icon"
@@ -23,16 +23,16 @@
       android:orientation="vertical">
 
       <TextView android:id="@+id/text1"
-         android:paddingLeft="10px"
-         android:paddingRight="10px"
+         android:paddingLeft="9dp"
+         android:paddingRight="9dp"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          android:textAppearance="?android:attr/textAppearanceMedium"
       />
 
       <TextView android:id="@+id/text2"
-         android:paddingLeft="10px"
-         android:paddingRight="10px"
+         android:paddingLeft="9dp"
+         android:paddingRight="9dp"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          android:textAppearance="?android:attr/textAppearanceSmall"
