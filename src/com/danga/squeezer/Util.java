@@ -11,8 +11,6 @@ import android.app.Activity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.danga.squeezer.model.SqueezerSong;
-
 public class Util {
     private Util() {}
 
@@ -32,7 +30,9 @@ public class Util {
      * @param newValue
      * @return true if target is updated. Otherwise return false. 
      */
-	public static boolean atomicStringUpdated(AtomicReference<String> target, String newValue) {
+    // Return true and update target, if it's different from newValue. Otherwise return false. 
+	public static boolean atomicStringUpdated(AtomicReference<String> target,
+			String newValue) {
 		String currentValue = target.get();
 		if (currentValue == null && newValue == null)
 			return false;
@@ -42,23 +42,6 @@ public class Util {
 		}
 		return false;
 	}
-
-    /**
-     * Update target, if it's different from newValue. 
-     * @param target
-     * @param newValue
-     * @return true if target is updated. Otherwise return false. 
-     */
-	public static boolean atomicSongUpdated(AtomicReference<SqueezerSong> target, SqueezerSong newValue) {
-    	SqueezerSong currentValue = target.get();
-		if (currentValue == null && newValue == null)
-			return false;
-		if (currentValue == null || !currentValue.equals(newValue)) {
-			target.set(newValue);
-			return true;
-		}
-		return false;
-    }
 
     public static int parseDecimalInt(String value, int defaultValue) {
     	if (value == null)

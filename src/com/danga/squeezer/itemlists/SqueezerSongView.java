@@ -44,20 +44,15 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 			viewHolder = (ViewHolder) convertView.getTag();
 
 		viewHolder.label1.setText(item.getName());
-		String text2 = "";
 		if (item.getId() != null) {
-			if (item.getArtist() != null) text2 += item.getArtist();
-			if (item.getAlbum() != null) text2 += " - " + item.getAlbum();
+			String text2 =  item.getArtist()  + " - " + item.getAlbum();
 			if (item.getYear() != 0) text2 = item.getYear() + " - " + text2;
-		}
-		viewHolder.label2.setText(text2);
-		updateIcon(viewHolder.icon, item, item.getArtworkUrl(getActivity().getService()));
+			viewHolder.label2.setText(text2);
+		} else
+			viewHolder.label2.setText("");
+		updateAlbumArt(viewHolder.icon, item);
 
 		return convertView;
-	}
-
-	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
-		getActivity().insert(item);
 	}
 
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {

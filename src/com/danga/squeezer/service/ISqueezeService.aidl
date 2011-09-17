@@ -9,8 +9,6 @@ import com.danga.squeezer.itemlists.IServiceGenreListCallback;
 import com.danga.squeezer.itemlists.IServiceSongListCallback;
 import com.danga.squeezer.itemlists.IServicePlaylistsCallback;
 import com.danga.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
-import com.danga.squeezer.itemlists.IServicePluginListCallback;
-import com.danga.squeezer.itemlists.IServicePluginItemListCallback;
 import com.danga.squeezer.model.SqueezerPlayer;
 import com.danga.squeezer.model.SqueezerSong;
 import com.danga.squeezer.model.SqueezerAlbum;
@@ -18,8 +16,6 @@ import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerYear;
 import com.danga.squeezer.model.SqueezerGenre;
 import com.danga.squeezer.model.SqueezerPlaylist;
-import com.danga.squeezer.model.SqueezerPlugin;
-import com.danga.squeezer.model.SqueezerPluginItem;
 
 interface ISqueezeService {
 	    // For the activity to get callbacks on interesting events:
@@ -62,7 +58,6 @@ interface ISqueezeService {
         boolean playlistMove(int fromIndex, int toIndex);
         boolean playlistClear();
         boolean playlistSave(String name);
-        boolean pluginPlaylistControl(in SqueezerPlugin plugin, String cmd, String id);
         
         // Return 0 if unknown:
         int getSecondsTotal();
@@ -70,8 +65,8 @@ interface ISqueezeService {
         boolean setSecondsElapsed(int seconds);
         
         SqueezerSong currentSong();
+        String currentAlbumArtUrl();
         String getAlbumArtUrl(String artworkTrackId);
-        String getIconUrl(String icon);
 
         // Returns new (predicted) volume.  Typical deltas are +10 or -10.
         // Note the volume changed callback will also still be run with
@@ -139,16 +134,5 @@ interface ISqueezeService {
         
         // Search
         boolean search(int start, String searchString);
-
-        
-        // Radios/plugins
-        boolean radios(int start);
-        boolean apps(int start);
-	    void registerPluginListCallback(IServicePluginListCallback callback);
-	    void unregisterPluginListCallback(IServicePluginListCallback callback);
-
-        boolean pluginItems(int start, in SqueezerPlugin plugin, in SqueezerPluginItem parent, String search);
-	    void registerPluginItemListCallback(IServicePluginItemListCallback callback);
-	    void unregisterPluginItemListCallback(IServicePluginItemListCallback callback);
 
 }

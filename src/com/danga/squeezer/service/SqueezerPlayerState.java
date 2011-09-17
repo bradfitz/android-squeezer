@@ -11,6 +11,7 @@ public class SqueezerPlayerState {
     private final AtomicBoolean isPoweredOn = new AtomicBoolean(false);
     
     private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
+    private final AtomicReference<String> currentArtworkUrl = new AtomicReference<String>();
     private final AtomicReference<Integer> currentTimeSecond = new AtomicReference<Integer>();
     private final AtomicReference<Integer> currentSongDuration = new AtomicReference<Integer>();
 
@@ -43,9 +44,28 @@ public class SqueezerPlayerState {
     	return this;
     }
     public boolean setCurrentSongUpdated(SqueezerSong newValue) {
-    	return Util.atomicSongUpdated(currentSong, newValue);
+    	SqueezerSong currentValue = currentSong.get();
+		if (currentValue == null && newValue == null)
+			return false;
+		if (currentValue == null || !currentValue.equals(newValue)) {
+			currentSong.set(newValue);
+			return true;
+		}
+		return false;
     }
 
+	
+	public String getCurrentArtworkUrl() {
+		return currentArtworkUrl.get();
+	}
+    public SqueezerPlayerState setCurrentArtworkUrl(String value) {
+    	currentArtworkUrl.set(value);
+    	return this;
+    }
+    public boolean currentArtworkUrlUpdated(String value) {
+    	return Util.atomicStringUpdated(currentArtworkUrl, value);
+    }
+	
 	public Integer getCurrentTimeSecond() {
 		return currentTimeSecond.get();
 	}

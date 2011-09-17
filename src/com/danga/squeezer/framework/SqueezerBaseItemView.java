@@ -78,13 +78,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	public View getAdapterView(View convertView, T item) {
 		return Util.getListItemView(getActivity(), convertView, item.getName());
 	}
-
 	
-
-	/**
-	 * The default context menu handler handles some common actions.
-	 * Each action must be set up in {@link #setupContextMenu(android.view.ContextMenu, int, SqueezerItem)}
-	 */
 	public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) throws RemoteException {
 		switch (menuItem.getItemId()) {
 		case CONTEXTMENU_BROWSE_SONGS:

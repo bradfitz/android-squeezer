@@ -3,12 +3,9 @@ package com.danga.squeezer.model;
 import java.util.Map;
 
 import android.os.Parcel;
-import android.os.RemoteException;
-import android.util.Log;
 
 import com.danga.squeezer.Util;
 import com.danga.squeezer.framework.SqueezerArtworkItem;
-import com.danga.squeezer.service.ISqueezeService;
 
 public class SqueezerSong extends SqueezerArtworkItem {
 
@@ -36,28 +33,6 @@ public class SqueezerSong extends SqueezerArtworkItem {
 	public String getAlbum_id() { return album_id; }
 	public void setAlbum_id(String album_id) { this.album_id = album_id; }
 	
-	private boolean remote;
-	public boolean isRemote() { return remote; }
-	public void setRemote(boolean remote) { this.remote = remote; }
-
-
-	private String artwork_url;
-	public String getArtwork_url() { return artwork_url; }
-	public void setArtwork_url(String artworkUrl) { artwork_url = artworkUrl; }
-
-    public String getArtworkUrl(ISqueezeService service) {
-		if (getArtwork_track_id() != null) {
-			try {
-				if (service == null)
-					return null;
-				return service.getAlbumArtUrl(getArtwork_track_id());
-			} catch (RemoteException e) {
-				Log.e(getClass().getSimpleName(), "Error requesting album art url: " + e);
-			}
-		}
-		return getArtwork_url();
-    }
-	
 	public SqueezerSong(Map<String, String> record) {
 		if (getId() == null) setId(record.get("track_id"));
 		if (getId() == null) setId(record.get("id"));
@@ -67,8 +42,6 @@ public class SqueezerSong extends SqueezerArtworkItem {
 		setYear(Util.parseDecimalIntOrZero(record.get("year")));
 		setArtist_id(record.get("artist_id"));
 		setAlbum_id(record.get("album_id"));
-		setRemote(Util.parseDecimalIntOrZero(record.get("remote")) != 0);
-		setArtwork_url(record.get("artwork_url"));
 		setArtwork_track_id(record.get("artwork_track_id"));
 	}
 	

@@ -71,6 +71,11 @@ public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<S
 	protected void orderPage(int start) throws RemoteException {
 		getService().artists(start, searchString, album, genre);
 	}
+
+	@Override
+	protected void onItemSelected(int index, SqueezerArtist item) throws RemoteException {
+		SqueezerAlbumListActivity.show(this, item);
+	}
 	
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -84,7 +89,7 @@ public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<S
 			builder.setView(filterForm);
 
 	        final EditText editText = (EditText) filterForm.findViewById(R.id.search_string);
-	        editText.setHint(getString(R.string.filter_text_hint, getItemAdapter().getQuantityString(2)));
+	        editText.setHint(getString(R.string.filter_text_hint, getItemListAdapter().getQuantityString(2)));
 			filterForm.findViewById(R.id.year_view).setVisibility(View.GONE);
 			final Spinner genreSpinnerView = (Spinner) filterForm.findViewById(R.id.genre_spinner);
 	        genreSpinner = new GenreSpinner(this, this, genreSpinnerView);

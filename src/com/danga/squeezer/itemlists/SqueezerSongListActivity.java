@@ -107,6 +107,11 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 	}
 
 	@Override
+	protected void onItemSelected(int index, SqueezerSong item) throws RemoteException {
+		insert(item);
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.filtermenuitem, menu);
         getMenuInflater().inflate(R.menu.ordermenuitem, menu);
@@ -142,7 +147,7 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 		    sortOrderStrings[SongsSortOrder.title.ordinal()] = getString(R.string.songs_sort_order_title);
 		    sortOrderStrings[SongsSortOrder.tracknum.ordinal()] = getString(R.string.songs_sort_order_tracknum);
 		    int checkedItem = sortOrder.ordinal();
-		    builder.setTitle(getString(R.string.choose_sort_order, getItemAdapter().getQuantityString(2)));
+		    builder.setTitle(getString(R.string.choose_sort_order, getItemListAdapter().getQuantityString(2)));
 		    builder.setSingleChoiceItems(sortOrderStrings, checkedItem, new DialogInterface.OnClickListener() {
 		            public void onClick(DialogInterface dialog, int indexSelected) {
 		               	setSortOrder(SongsSortOrder.values()[indexSelected]);
@@ -155,7 +160,7 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 			builder.setTitle(R.string.menu_item_filter);
 			builder.setView(filterForm);
 	        final EditText editText = (EditText) filterForm.findViewById(R.id.search_string);
-	        editText.setHint(getString(R.string.filter_text_hint, getItemAdapter().getQuantityString(2)));
+	        editText.setHint(getString(R.string.filter_text_hint, getItemListAdapter().getQuantityString(2)));
 			final Spinner genreSpinnerView = (Spinner) filterForm.findViewById(R.id.genre_spinner);
 			final Spinner yearSpinnerView = (Spinner) filterForm.findViewById(R.id.year_spinner);
 

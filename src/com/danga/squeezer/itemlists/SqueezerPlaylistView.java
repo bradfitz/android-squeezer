@@ -6,7 +6,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerActivity;
 import com.danga.squeezer.framework.SqueezerBaseItemView;
 import com.danga.squeezer.model.SqueezerPlaylist;
 
@@ -26,11 +25,6 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.playlist, quantity);
-	}
-
-	public void onItemSelected(int index, SqueezerPlaylist item) throws RemoteException {
-		getActivity().play(item);
-		SqueezerActivity.show(getActivity());
 	}
 
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlaylist item) {

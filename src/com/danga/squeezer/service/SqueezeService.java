@@ -32,8 +32,6 @@ import com.danga.squeezer.itemlists.IServiceGenreListCallback;
 import com.danga.squeezer.itemlists.IServicePlayerListCallback;
 import com.danga.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
 import com.danga.squeezer.itemlists.IServicePlaylistsCallback;
-import com.danga.squeezer.itemlists.IServicePluginItemListCallback;
-import com.danga.squeezer.itemlists.IServicePluginListCallback;
 import com.danga.squeezer.itemlists.IServiceSongListCallback;
 import com.danga.squeezer.itemlists.IServiceYearListCallback;
 import com.danga.squeezer.model.SqueezerAlbum;
@@ -41,8 +39,6 @@ import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerGenre;
 import com.danga.squeezer.model.SqueezerPlayer;
 import com.danga.squeezer.model.SqueezerPlaylist;
-import com.danga.squeezer.model.SqueezerPlugin;
-import com.danga.squeezer.model.SqueezerPluginItem;
 import com.danga.squeezer.model.SqueezerSong;
 import com.danga.squeezer.model.SqueezerYear;
 
@@ -52,7 +48,7 @@ public class SqueezeService extends Service {
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
 	private static final String ALBUMTAGS = "alyj";
-    private static final String SONGTAGS = "asleyJxK";
+    private static final String SONGTAGS = "asleyJK";
 
 	private static final Map<String,String> itemKeys = initializeItemKeys();
 
@@ -66,7 +62,7 @@ public class SqueezeService extends Service {
 		itemKeys.put(SqueezerPlaylist.class.getName(), "playlist_id");
 		return itemKeys;
 	}
-
+	
     private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
 	final AtomicReference<IServicePlayerListCallback> playerListCallback = new AtomicReference<IServicePlayerListCallback>();
@@ -77,40 +73,38 @@ public class SqueezeService extends Service {
 	final AtomicReference<IServiceSongListCallback> songListCallback = new AtomicReference<IServiceSongListCallback>();
 	final AtomicReference<IServicePlaylistsCallback> playlistsCallback = new AtomicReference<IServicePlaylistsCallback>();
 	final AtomicReference<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallback = new AtomicReference<IServicePlaylistMaintenanceCallback>();
-	final AtomicReference<IServicePluginListCallback> pluginListCallback = new AtomicReference<IServicePluginListCallback>();
-	final AtomicReference<IServicePluginItemListCallback> pluginItemListCallback = new AtomicReference<IServicePluginItemListCallback>();
 
     SqueezerConnectionState connectionState = new SqueezerConnectionState();
     SqueezerPlayerState playerState = new SqueezerPlayerState();
     SqueezerCLIImpl cli = new SqueezerCLIImpl(this);
-
+    
     private VolumePanel mVolumePanel;
-
+    
     private static final int SCROBBLE_NONE = 0;
     private static final int SCROBBLE_SCROBBLEDROID = 1;
     private static final int SCROBBLE_SLS = 2;
-
-    int scrobbleType;
+    
+    int scrobbleType;  
     boolean debugLogging = false;
-
+    
     SharedPreferences preferences;
-
+    
     @Override
     public void onCreate() {
     	super.onCreate();
 
     	// Create the volume panel
     	mVolumePanel = new VolumePanel(this.getApplicationContext());
-
-        // Clear leftover notification in case this service previously got killed while playing
+    	
+        // Clear leftover notification in case this service previously got killed while playing                                                
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(PLAYBACKSERVICE_STATUS);
         connectionState.setWifiLock(((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(
                 WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
-
+        
         preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
         getPreferences();
-
+        
         cli.initialize();
     }
 
@@ -123,7 +117,7 @@ public class SqueezeService extends Service {
 	public IBinder onBind(Intent intent) {
         return squeezeService;
     }
-
+	
     @Override
 	public void onDestroy() {
         super.onDestroy();
@@ -146,7 +140,7 @@ public class SqueezeService extends Service {
 		Map<String, SqueezerCmdHandler> handlers = new HashMap<String, SqueezerCmdHandler>();
 
 		for (final SqueezerCLIImpl.ExtendedQueryFormatCmd cmd: cli.extQueryFormatCmds) {
-			if (!(cmd.playerSpecific || cmd.prefixed)) handlers.put(cmd.cmd, new SqueezerCmdHandler() {
+			if (!cmd.playerSpecific) handlers.put(cmd.cmd, new SqueezerCmdHandler() {
 				public void handle(List<String> tokens) {
 					cli.parseSqueezerList(cmd, tokens);
 				}
@@ -206,31 +200,10 @@ public class SqueezeService extends Service {
 
 		return handlers;
 	}
-
-	private Map<String, SqueezerCmdHandler> initializePrefixedHandlers() {
-		Map<String, SqueezerCmdHandler> handlers = new HashMap<String, SqueezerCmdHandler>();
-
-		for (final SqueezerCLIImpl.ExtendedQueryFormatCmd cmd: cli.extQueryFormatCmds) {
-			if (cmd.prefixed && !cmd.playerSpecific) handlers.put(cmd.cmd, new SqueezerCmdHandler() {
-				public void handle(List<String> tokens) {
-					cli.parseSqueezerList(cmd, tokens);
-				}
-			});
-		}
-
-		return handlers;
-	}
-
+	
 	private Map<String, SqueezerCmdHandler> initializePlayerSpecificHandlers() {
 		Map<String, SqueezerCmdHandler> handlers = new HashMap<String, SqueezerCmdHandler>();
 
-		for (final SqueezerCLIImpl.ExtendedQueryFormatCmd cmd: cli.extQueryFormatCmds) {
-			if (cmd.playerSpecific && !cmd.prefixed) handlers.put(cmd.cmd, new SqueezerCmdHandler() {
-				public void handle(List<String> tokens) {
-					cli.parseSqueezerList(cmd, tokens);
-				}
-			});
-		}
 		handlers.put("prefset", new SqueezerCmdHandler() {
 			public void handle(List<String> tokens) {
 				if (tokens.size() > 4 && tokens.get(2).equals("server") && tokens.get(3).equals("volume")) {
@@ -269,58 +242,37 @@ public class SqueezeService extends Service {
 	            parsePlaylistNotification(tokens);
 			}
 		});
-
+        
 		return handlers;
 	}
 
-	private Map<String, SqueezerCmdHandler> initializePrefixedPlayerSpecificHandlers() {
-		Map<String, SqueezerCmdHandler> handlers = new HashMap<String, SqueezerCmdHandler>();
 
-		for (final SqueezerCLIImpl.ExtendedQueryFormatCmd cmd: cli.extQueryFormatCmds) {
-			if (cmd.playerSpecific && cmd.prefixed) handlers.put(cmd.cmd, new SqueezerCmdHandler() {
-				public void handle(List<String> tokens) {
-					cli.parseSqueezerList(cmd, tokens);
-				}
-			});
-		}
-
-		return handlers;
-	}
-
-    private final Map<String,SqueezerCmdHandler> globalHandlers = initializeGlobalHandlers();
-    private final Map<String,SqueezerCmdHandler> prefixedHandlers = initializePrefixedHandlers();
-    private final Map<String,SqueezerCmdHandler> playerSpecificHandlers = initializePlayerSpecificHandlers();
-    private final Map<String,SqueezerCmdHandler> prefixedPlayerSpecificHandlers = initializePrefixedPlayerSpecificHandlers();
-
+    private Map<String,SqueezerCmdHandler> globalHandlers = initializeGlobalHandlers();
+    private Map<String,SqueezerCmdHandler> playerSpecificHandlers = initializePlayerSpecificHandlers();
+	
     void onLineReceived(String serverLine) {
         if (debugLogging) Log.v(TAG, "LINE: " + serverLine);
         List<String> tokens = Arrays.asList(serverLine.split(" "));
         if (tokens.size() < 2) return;
-
+        
         SqueezerCmdHandler handler;
-        if ((handler = globalHandlers.get(tokens.get(0))) != null) {
+        handler = globalHandlers.get(tokens.get(0));
+        if (handler != null) {
         	handler.handle(tokens);
         	return;
         }
-        if ((handler = prefixedHandlers.get(tokens.get(1))) != null) {
-        	handler.handle(tokens);
-        	return;
-        }
-
+        
         // Player-specific commands follow.  But we ignore all that aren't for our
         // active player.
         String activePlayerId = (connectionState.getActivePlayer() != null ? connectionState.getActivePlayer().getId() : null);
         if (activePlayerId == null || activePlayerId.length() == 0 ||
             !Util.decode(tokens.get(0)).equals(activePlayerId)) {
-            // Different player that we're not interested in.
+            // Different player that we're not interested in.   
             // (yet? maybe later.)
             return;
         }
-        if ((handler = playerSpecificHandlers.get(tokens.get(1))) != null) {
-        	handler.handle(tokens);
-        	return;
-        }
-        if (tokens.size() > 2 && (handler = prefixedPlayerSpecificHandlers.get(tokens.get(2))) != null) {
+        handler = playerSpecificHandlers.get(tokens.get(1));
+        if (handler != null) {
         	handler.handle(tokens);
         	return;
         }
@@ -331,7 +283,7 @@ public class SqueezeService extends Service {
         try {
         	SqueezerPlayer player = connectionState.getActivePlayer();
         	if (player == null) {
-        		mVolumePanel.postVolumeChanged(newVolume, "");
+        		mVolumePanel.postVolumeChanged(newVolume, (String) "");
         	} else {
         		mVolumePanel.postVolumeChanged(newVolume, player.getName());
         	}
@@ -360,7 +312,7 @@ public class SqueezeService extends Service {
 			parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
 		}
 	}
-
+    
 	private void parsePause(String explicitPause) {
 //		boolean playing = playerState.isPlaying();
 //		if ("0".equals(explicitPause)) {
@@ -369,7 +321,7 @@ public class SqueezeService extends Service {
 //			if (!playing) setPlayingState(true);
 //		}
 	}
-
+	
 	private void parseMode(String newMode) {
 		boolean playing = playerState.isPlaying();
 		if ("pause".equals(newMode)) {
@@ -380,7 +332,7 @@ public class SqueezeService extends Service {
 			if (!playing) setPlayingState(true);
 		}
 	}
-
+	
     private HashMap<String, String> parseTokens(List<String> tokens) {
 		HashMap<String, String> tokenMap = new HashMap<String, String>();
         String key, value;
@@ -398,17 +350,18 @@ public class SqueezeService extends Service {
 		}
         return tokenMap;
     }
-
+	
     private void parseStatusLine(List<String> tokens) {
 		HashMap<String, String> tokenMap = parseTokens(tokens);
-
+        
 	    boolean musicHasChanged = false;
 	    musicHasChanged |= playerState.setCurrentSongUpdated(new SqueezerSong(tokenMap));
+        musicHasChanged |= playerState.currentArtworkUrlUpdated(tokenMap.get("artwork_url"));
 
         playerState.setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
-
+	    
         parseMode(tokenMap.get("mode"));
-
+	    
         if (musicHasChanged) {
             updateOngoingNotification();
             sendMusicChangedCallback();
@@ -423,7 +376,7 @@ public class SqueezeService extends Service {
             sendNewTimeCallback(time, duration);
         }
     }
-
+  
     void changeActivePlayer(SqueezerPlayer newPlayer) {
 		if (newPlayer == null) {
             return;
@@ -443,13 +396,13 @@ public class SqueezeService extends Service {
             connectionState.setActivePlayer(newPlayer);
             changed = true;
         }
-
+        
         // Start an async fetch of its status.
         cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
 
         if (changed) {
             updatePlayerSubscriptionState();
-
+        
             // NOTE: this involves a write and can block (sqlite lookup via binder call), so
             // should be done off-thread, so we can process service requests & send our callback
             // as quickly as possible.
@@ -463,7 +416,7 @@ public class SqueezeService extends Service {
                 }
             });
         }
-
+       
         if (connectionState.getCallback() != null) {
             try {
             	connectionState.getCallback().onPlayerChanged(playerId, newPlayer.getName());
@@ -471,7 +424,7 @@ public class SqueezeService extends Service {
         }
     }
 
-
+	
     private void updatePlayerSubscriptionState() {
         // Subscribe or unsubscribe to the player's realtime status updates
         // depending on whether we have an Activity or some sort of client
@@ -494,13 +447,13 @@ public class SqueezeService extends Service {
                 "pref httpport ?"  // learn the HTTP port (needed for images)
         );
     }
-
+	
     private void setPlayingState(boolean state) {
     	connectionState.updateWifiLock(state);
-
+        
         playerState.setPlaying(state);
         updateOngoingNotification();
-
+		
         if (connectionState.getCallback() == null) {
             return;
         }
@@ -512,7 +465,7 @@ public class SqueezeService extends Service {
     }
 
     private void updateOngoingNotification() {
-        boolean playing = playerState.isPlaying();
+        boolean playing = playerState.isPlaying();  
         if (!playing) {
             if (!preferences.getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false)) {
                 clearOngoingNotification();
@@ -538,11 +491,11 @@ public class SqueezeService extends Service {
             status.icon = R.drawable.logo;
         }
         nm.notify(PLAYBACKSERVICE_STATUS, status);
-
+        
         if (scrobbleType != SCROBBLE_NONE) {
         	SqueezerSong s = playerState.getCurrentSong();
         	Intent i = new Intent();
-
+        	
         	switch (scrobbleType) {
 	        case SCROBBLE_SCROBBLEDROID:
 	        	// http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
@@ -594,7 +547,7 @@ public class SqueezeService extends Service {
             connectionState.setCallback(callback);
 	    	updatePlayerSubscriptionState();
 	    }
-
+	    
 	    public void unregisterCallback(IServiceCallback callback) throws RemoteException {
             Log.v(TAG, "Callback detached.");
 	    	connectionState.callbackCompareAndSet(callback, null);
@@ -634,24 +587,24 @@ public class SqueezeService extends Service {
             cli.sendPlayerCommand("power 0");
             return true;
         }
-
+        
         public boolean canPowerOn() {
         	return canPower() && !playerState.isPoweredOn();
         }
-
+        
         public boolean canPowerOff() {
         	return canPower() && playerState.isPoweredOn();
         }
-
+        
         private boolean canPower() {
             SqueezerPlayer player = connectionState.getActivePlayer();
         	return connectionState.isConnected() && player != null && player.isCanpoweroff();
         }
-
+        
         public boolean canRandomplay() {
         	return connectionState.canRandomplay();
         }
-
+		
         public boolean togglePausePlay() throws RemoteException {
             if (!isConnected()) return false;
             Log.v(TAG, "pause...");
@@ -663,7 +616,7 @@ public class SqueezeService extends Service {
                 cli.sendPlayerCommand("pause 1");
             } else {
                 // TODO: use 'pause 0 <fade_in_secs>' to fade-in if we knew it was
-                // actually paused (as opposed to not playing at all)
+                // actually paused (as opposed to not playing at all) 
                 cli.sendPlayerCommand("play");
             }
             Log.v(TAG, "paused.");
@@ -691,63 +644,56 @@ public class SqueezeService extends Service {
             cli.sendPlayerCommand("button jump_fwd");
             return true;
         }
-
+        
         public boolean previousTrack() throws RemoteException {
             if (!isConnected() || !isPlaying()) return false;
             cli.sendPlayerCommand("button jump_rew");
             return true;
         }
-
+        
         public boolean playlistControl(String cmd, String className, String itemId) throws RemoteException {
             if (!isConnected()) return false;
             cli.sendPlayerCommand("playlistcontrol cmd:" + cmd + " " +  itemKeys.get(className) +":" + itemId);
             return true;
-
+        	
         }
-
+        
         public boolean randomPlay(String type) throws RemoteException {
             if (!isConnected()) return false;
             cli.sendPlayerCommand("randomplay " + type);
             return true;
         }
-
+        
         public boolean playlistIndex(int index) throws RemoteException {
             if (!isConnected()) return false;
             cli.sendPlayerCommand("playlist index " + index);
             return true;
         }
-
+        
         public boolean playlistRemove(int index) throws RemoteException {
             if (!isConnected()) return false;
             cli.sendPlayerCommand("playlist delete " + index);
             return true;
         }
-
+        
         public boolean playlistMove(int fromIndex, int toIndex) throws RemoteException {
             if (!isConnected()) return false;
             cli.sendPlayerCommand("playlist move " + fromIndex + " " + toIndex);
             return true;
         }
-
+        
         public boolean playlistClear() throws RemoteException {
             if (!isConnected()) return false;
             cli.sendPlayerCommand("playlist clear");
             return true;
         }
-
+        
         public boolean playlistSave(String name) throws RemoteException {
         	if (!isConnected()) return false;
         	cli.sendPlayerCommand("playlist save " + Util.encode(name));
         	return true;
         }
-
-        public boolean pluginPlaylistControl(SqueezerPlugin plugin, String cmd, String itemId) throws RemoteException {
-            if (!isConnected()) return false;
-            cli.sendPlayerCommand(plugin.getId() + " playlist " + cmd + " item_id:" + itemId);
-            return true;
-
-        }
-
+        
         public boolean isPlaying() throws RemoteException {
             return playerState.isPlaying();
         }
@@ -765,6 +711,20 @@ public class SqueezeService extends Service {
             return playerState.getCurrentSong();
         }
 
+        public String currentAlbumArtUrl() throws RemoteException {
+            Integer port = connectionState.getHttpPort();
+            if (port == null || port == 0) return "";
+
+            SqueezerSong song = playerState.getCurrentSong();
+            if (song != null && song.getArtwork_track_id() != null) {
+				return "http://" + connectionState.getCurrentHost() + ":" + port
+						+ artworkTrackIdUrl(song.getArtwork_track_id());
+            }
+
+            String artworkUrl = playerState.getCurrentArtworkUrl();
+            return (artworkUrl != null ? artworkUrl : "");
+        }
+
         public String getAlbumArtUrl(String artworkTrackId) throws RemoteException {
             Integer port = connectionState.getHttpPort();
             if (port == null || port == 0) return "";
@@ -775,22 +735,16 @@ public class SqueezeService extends Service {
 			return "/music/" + artworkTrackId + "/cover.jpg";
         }
 
-        public String getIconUrl(String icon) throws RemoteException {
-            Integer port = connectionState.getHttpPort();
-            if (port == null || port == 0) return "";
-			return "http://" + connectionState.getCurrentHost() + ":" + port + '/' + icon;
-        }
-
         public int getSecondsElapsed() throws RemoteException {
         	return playerState.getCurrentTimeSecond(0);
         }
-
+        
         public boolean setSecondsElapsed(int seconds) throws RemoteException {
         	if (!isConnected()) return false;
         	if (seconds < 0) return false;
-
+        	
         	cli.sendPlayerCommand("time " + seconds);
-
+        	
         	return true;
         }
 
@@ -807,7 +761,7 @@ public class SqueezeService extends Service {
             getPreferences();
         }
 
-
+        
         /* Start an async fetch of the SqueezeboxServer's players */
         public boolean players(int start) throws RemoteException {
             if (!isConnected()) return false;
@@ -846,7 +800,7 @@ public class SqueezeService extends Service {
             cli.requestItems("albums", start, parameters);
             return true;
         }
-
+        
 		public void registerAlbumListCallback(IServiceAlbumListCallback callback) throws RemoteException {
             Log.v(TAG, "AlbumListCallback attached.");
 	    	SqueezeService.this.albumListCallback.set(callback);
@@ -858,7 +812,7 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerAlbum.class);
 		}
 
-
+		
         /* Start an async fetch of the SqueezeboxServer's artists */
 		public boolean artists(int start, String searchString, SqueezerAlbum album,
 				SqueezerGenre genre) throws RemoteException {
@@ -885,7 +839,7 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerArtist.class);
 		}
 
-
+		
         /* Start an async fetch of the SqueezeboxServer's years */
         public boolean years(int start) throws RemoteException {
             if (!isConnected()) return false;
@@ -904,7 +858,7 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerYear.class);
 		}
 
-
+		
         /* Start an async fetch of the SqueezeboxServer's genres */
         public boolean genres(int start) throws RemoteException {
             if (!isConnected()) return false;
@@ -923,7 +877,7 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerGenre.class);
 		}
 
-
+		
 		/* Start an async fetch of the SqueezeboxServer's songs */
 		public boolean songs(int start, String sortOrder, String searchString, SqueezerAlbum album,
 				SqueezerArtist artist, SqueezerYear year, SqueezerGenre genre) throws RemoteException {
@@ -945,14 +899,14 @@ public class SqueezeService extends Service {
 			cli.requestItems("songs", start, parameters);
 			return true;
 		}
-
+        
         /* Start an async fetch of the SqueezeboxServer's current playlist */
         public boolean currentPlaylist(int start) throws RemoteException {
             if (!isConnected()) return false;
             cli.requestPlayerItems("status", start, Arrays.asList("tags:" + SONGTAGS));
             return true;
         }
-
+        
         /* Start an async fetch of the songs of the supplied playlist */
         public boolean playlistSongs(int start, SqueezerPlaylist playlist) throws RemoteException {
             if (!isConnected()) return false;
@@ -971,7 +925,7 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerSong.class);
 		}
 
-
+		
         /* Start an async fetch of the SqueezeboxServer's playlists */
         public boolean playlists(int start) throws RemoteException {
             if (!isConnected()) return false;
@@ -1000,7 +954,7 @@ public class SqueezeService extends Service {
             Log.v(TAG, "PlaylistMaintenanceCallback detached.");
             playlistMaintenanceCallback.compareAndSet(callback, null);
 		}
-
+		
 		public boolean playlistsDelete(SqueezerPlaylist playlist) throws RemoteException {
 			if (!isConnected()) return false;
 			cli.sendCommand("playlists delete playlist_id:" + playlist.getId());
@@ -1031,8 +985,8 @@ public class SqueezeService extends Service {
 			cli.sendCommand("playlists rename playlist_id:" + playlist.getId() + " dry_run:1 newname:" + Util.encode(newname));
 			return true;
 		}
-
-
+		
+        
         /* Start an asynchronous search of the SqueezeboxServer's library */
    		public boolean search(int start, String searchString) throws RemoteException {
             if (!isConnected()) return false;
@@ -1042,55 +996,6 @@ public class SqueezeService extends Service {
 			cli.requestItems("search", start, parameters);
             return true;
         }
-
-        /* Start an asynchronous fetch of the squeezeservers radio type plugins */
-   		public boolean radios(int start) throws RemoteException {
-            if (!isConnected()) return false;
-            cli.requestItems("radios", start);
-            return true;
-   		}
-
-        /* Start an asynchronous fetch of the squeezeservers radio application plugins */
-   		public boolean apps(int start) throws RemoteException {
-            if (!isConnected()) return false;
-            cli.requestItems("apps", start);
-            return true;
-   		}
-
-		public void registerPluginListCallback(IServicePluginListCallback callback) throws RemoteException {
-            Log.v(TAG, "SongListCallback attached.");
-	    	SqueezeService.this.pluginListCallback.set(callback);
-		}
-
-		public void unregisterPluginListCallback(IServicePluginListCallback callback) throws RemoteException {
-            Log.v(TAG, "SongListCallback detached.");
-	    	SqueezeService.this.pluginListCallback.compareAndSet(callback, null);
-			cli.cancelRequests(SqueezerSong.class);
-		}
-
-
-        /* Start an asynchronous fetch of the squeezeservers items of the given type */
-   		public boolean pluginItems(int start, SqueezerPlugin plugin, SqueezerPluginItem parent, String search) throws RemoteException {
-            if (!isConnected()) return false;
-            List<String> parameters = new ArrayList<String>();
-			if (parent != null)
-				parameters.add("item_id:" + parent.getId());
-			if (search != null && search.length() > 0)
-				parameters.add("search:" + search);
-            cli.requestPlayerItems(plugin.getId() + " items", start, parameters);
-            return true;
-   		}
-
-		public void registerPluginItemListCallback(IServicePluginItemListCallback callback) throws RemoteException {
-            Log.v(TAG, "SongListCallback attached.");
-	    	SqueezeService.this.pluginItemListCallback.set(callback);
-		}
-
-		public void unregisterPluginItemListCallback(IServicePluginItemListCallback callback) throws RemoteException {
-            Log.v(TAG, "SongListCallback detached.");
-	    	SqueezeService.this.pluginItemListCallback.compareAndSet(callback, null);
-			cli.cancelRequests(SqueezerSong.class);
-		}
-
-    };
+        
+	};
 }

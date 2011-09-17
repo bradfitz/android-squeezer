@@ -41,13 +41,6 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 	@Override
 	public SqueezerItemView<SqueezerSong> createItemView() {
 		return new SqueezerSongView(this) {
-
-			@Override
-			public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
-				getActivity().getService().playlistIndex(index);
-				getActivity().finish();
-			}
-
 			@Override
 			public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {
 				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_PLAY_ITEM, 1, R.string.CONTEXTMENU_PLAY_ITEM);
@@ -90,6 +83,12 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().currentPlaylist(start);
+	}
+
+	@Override
+	protected void onItemSelected(int index, SqueezerSong item) throws RemoteException {
+		getService().playlistIndex(index);
+		finish();
 	}
     
     @Override
@@ -163,7 +162,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 		        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 		               	int targetIndex = Util.parseDecimalInt(editText.getText().toString(), -1);
-		               	if (targetIndex > 0 && targetIndex <= getItemAdapter().getCount()) {
+		               	if (targetIndex > 0 && targetIndex <= getItemListAdapter().getCount()) {
 		               		try {
 								getService().playlistMove(fromIndex-1, targetIndex-1);
 								orderItems();
@@ -197,7 +196,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 		            public boolean onKey(View v, int keyCode, KeyEvent event) {
 		                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
 			               	int targetIndex = Util.parseDecimalInt(editText.getText().toString(), -1);
-			               	if (targetIndex > 0 && targetIndex <= getItemAdapter().getCount()) {
+			               	if (targetIndex > 0 && targetIndex <= getItemListAdapter().getCount()) {
 			               		try {
 									getService().playlistMove(fromIndex-1, targetIndex-1);
 									orderItems();

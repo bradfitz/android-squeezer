@@ -4,39 +4,18 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 
-  <LinearLayout
-    android:id="@+id/search_view"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:visibility="gone"
-    android:orientation="horizontal">
-
-    <EditText
-      android:id="@+id/search_input"
-      android:hint="@+string/search_hint_text"
-      android:inputType="textNoSuggestions"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1" />
-    <ImageButton 
-      android:id="@+id/search_button" 
-      android:src="@drawable/icon_search"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content" 
-      android:layout_alignParentRight="true"
-      android:layout_alignParentTop="true" />
-  </LinearLayout>
-  <ListView android:id="@+id/item_list"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:fastScrollEnabled="true"
-  />
-  <TextView
-  	android:id="@+id/loading_label"
-  	android:text="@string/loading_text"
-  	android:visibility="gone"
-  	android:layout_width="fill_parent"
-  	android:layout_height="fill_parent"
-  />
+	<ListView android:id="@+id/item_list"
+	  xmlns:android="http://schemas.android.com/apk/res/android"
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:fastScrollEnabled="true"
+	/>
+	<TextView
+		android:id="@+id/loading_label"
+		android:text="@string/loading_text"
+		android:visibility="gone"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+	/>
 
 </LinearLayout>

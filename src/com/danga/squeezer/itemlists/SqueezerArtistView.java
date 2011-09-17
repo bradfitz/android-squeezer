@@ -1,6 +1,5 @@
 package com.danga.squeezer.itemlists;
 
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 
@@ -14,10 +13,6 @@ public class SqueezerArtistView extends SqueezerBaseItemView<SqueezerArtist> {
 
 	public SqueezerArtistView(SqueezerItemListActivity activity) {
 		super(activity);
-	}
-
-	public void onItemSelected(int index, SqueezerArtist item) throws RemoteException {
-		SqueezerAlbumListActivity.show(getActivity(), item);
 	}
 
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerArtist item) {

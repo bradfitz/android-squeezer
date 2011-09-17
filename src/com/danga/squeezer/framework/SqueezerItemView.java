@@ -59,14 +59,6 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	void setAdapter(SqueezerItemAdapter<T> adapter);
 	
 	/**
-	 * Implement the action to be taken when an item is selected.
-	 * @param index Position in the list of the selected item.
-	 * @param item The selected item. This may be null if 
-	 * @throws RemoteException
-	 */
-	void onItemSelected(int index, T item) throws RemoteException;
-	
-	/**
 	 * <p>Setup the context menu for the current {@link SqueezerItem} implementation
 	 * <p>Leave this empty if there shall be no context menu.
 	 * @see OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, android.view.ContextMenu.ContextMenuInfo)
