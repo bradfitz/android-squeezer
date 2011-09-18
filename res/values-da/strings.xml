@@ -9,8 +9,8 @@
     <string name="settings_serveraddr_title">Server adresse</string>
     <string name="settings_serveraddr_format">I formatet host:port</string>
     <string name="settings_serveraddr_summary">IP addresse på SqueezeCenter serveren, f.eks. 10.0.0.5</string>
-    <string name="settings_maxrows_title">Maximum listelængde</string>
-    <string name="settings_maxrows_summary">Det maksimale antal elementer der automatisk hentes fra SqueezeServer</string>
+    <string name="settings_autoconnect_title">Forbind automatisk</string>
+    <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
     <string name="menu_item_disconnect">Afbryd</string>
     <string name="menu_item_connect">Forbind</string>
     <string name="menu_item_poweron">Tænd</string>
@@ -30,6 +30,8 @@
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
     <string name="disconnected_text">Afbrudt.</string>
+    <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
+    <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed. Vent venligst på en aktiv Wi-Fi-forbindelse. \nSlå Wi-Fi til?</string>
     <string name="notification_playing_text">%s spiller</string>
     <string name="notification_connected_text">%s forbundet</string>
     <string name="filter_text_hint">Søg efter %s</string>
