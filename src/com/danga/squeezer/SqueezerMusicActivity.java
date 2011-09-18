@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2009 Brad Fitzpatrick <brad@danga.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer;
 
 
@@ -51,7 +67,7 @@ public class SqueezerMusicActivity extends ListActivity {
         Log.d(TAG, "did bindService; serviceStub = " + service);
     }
 
-	private ServiceConnection serviceConnection = new ServiceConnection() {
+	private final ServiceConnection serviceConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName name, IBinder binder) {
             service = ISqueezeService.Stub.asInterface(binder);
             setMusicMenu();
@@ -67,12 +83,12 @@ public class SqueezerMusicActivity extends ListActivity {
         if (serviceConnection != null) {
         	unbindService(serviceConnection);
         }
-    }    
-	
+    }
+
 	private void setMusicMenu() {
 		final String[] musicItems = getResources().getStringArray(R.array.music_items);
 		final int[] musicIcons = new int[] { R.drawable.icon_ml_artist,
-				R.drawable.icon_ml_albums, R.drawable.icon_ml_songs, 
+				R.drawable.icon_ml_albums, R.drawable.icon_ml_songs,
 				R.drawable.icon_ml_genres, R.drawable.icon_ml_years,
 				R.drawable.icon_ml_random, R.drawable.icon_ml_folder,
 				R.drawable.icon_ml_playlist, R.drawable.icon_ml_search };
@@ -97,14 +113,14 @@ public class SqueezerMusicActivity extends ListActivity {
 					j++;
 				}
 			}
-			
+
 		}
 		setListAdapter(new IconRowAdapter(this, items, icons));
 		getListView().setOnItemClickListener(onMusicItemClick);
 	}
 
-	private OnItemClickListener onMusicItemClick = new OnItemClickListener() {
-		
+	private final OnItemClickListener onMusicItemClick = new OnItemClickListener() {
+
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			if (!canRandomplay && position >= RANDOM_MIX) position += 1;
 			switch (position) {

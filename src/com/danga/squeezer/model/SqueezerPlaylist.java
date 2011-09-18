@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.model;
 
 import java.util.Map;
@@ -15,7 +31,7 @@ public class SqueezerPlaylist extends SqueezerItem {
 		setId(record.containsKey("playlist_id") ? record.get("playlist_id") : record.get("id"));
 		name = record.get("playlist");
 	}
-	
+
 	public static final Creator<SqueezerPlaylist> CREATOR = new Creator<SqueezerPlaylist>() {
 		public SqueezerPlaylist[] newArray(int size) {
 			return new SqueezerPlaylist[size];
@@ -33,10 +49,10 @@ public class SqueezerPlaylist extends SqueezerItem {
 		dest.writeString(getId());
 		dest.writeString(name);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "id=" + getId() + ", name=" + name;
 	}
-	
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (c) 2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class RepeatingImageButton extends ImageButton {
     private int mRepeatCount;
     private RepeatListener mListener;
     private long mInterval = 500;
-    
+
     public RepeatingImageButton(Context context) {
         this(context, null);
     }
@@ -48,18 +48,18 @@ public class RepeatingImageButton extends ImageButton {
         setFocusable(true);
         setLongClickable(true);
     }
-    
+
     /**
      * Sets the listener to be called while the button is pressed and
      * the interval in milliseconds with which it will be called.
      * @param l The listener that will be called
-     * @param interval The interval in milliseconds for calls 
+     * @param interval The interval in milliseconds for calls
      */
     public void setRepeatListener(RepeatListener l, long interval) {
         mListener = l;
         mInterval = interval;
     }
-    
+
     @Override
     public boolean performLongClick() {
         mStartTime = SystemClock.elapsedRealtime();
@@ -67,7 +67,7 @@ public class RepeatingImageButton extends ImageButton {
         post(mRepeater);
         return true;
     }
-    
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -95,8 +95,8 @@ public class RepeatingImageButton extends ImageButton {
         }
         return super.onKeyUp(keyCode, event);
     }
-    
-    private Runnable mRepeater = new Runnable() {
+
+    private final Runnable mRepeater = new Runnable() {
         public void run() {
             doRepeat(false);
             if (isPressed()) {
@@ -111,7 +111,7 @@ public class RepeatingImageButton extends ImageButton {
             mListener.onRepeat(this, now - mStartTime, last ? -1 : mRepeatCount++);
         }
     }
-    
+
     public interface RepeatListener {
         /**
          * This method will be called repeatedly at roughly the interval
@@ -121,7 +121,7 @@ public class RepeatingImageButton extends ImageButton {
          * @param duration The number of milliseconds the button has been pressed so far.
          * @param repeatcount The number of previous calls in this sequence.
          * If this is going to be the last call in this sequence (i.e. the user
-         * just stopped pressing the button), the value will be -1.  
+         * just stopped pressing the button), the value will be -1.
          */
         void onRepeat(View v, long duration, int repeatcount);
     }

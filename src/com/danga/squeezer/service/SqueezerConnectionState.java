@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2009 Brad Fitzpatrick <brad@danga.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.service;
 
 import java.io.BufferedReader;
@@ -22,7 +38,7 @@ import com.danga.squeezer.model.SqueezerPlayer;
 class SqueezerConnectionState {
     private static final String TAG = "SqueezeService";
     private static final int DEFAULT_PORT = 9090;
-	
+
     // Incremented once per new connection and given to the Thread
     // that's listening on the socket.  So if it dies and it's not the
     // most recent version, then it's expected.  Else it should notify
@@ -37,7 +53,7 @@ class SqueezerConnectionState {
 	private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
 	private final AtomicReference<SqueezerPlayer> activePlayer = new AtomicReference<SqueezerPlayer>();
 	private final AtomicReference<SqueezerPlayer> defaultPlayer = new AtomicReference<SqueezerPlayer>();
-    
+
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
     private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
@@ -91,54 +107,54 @@ class SqueezerConnectionState {
         } catch (RemoteException e) {
         }
     }
-    
+
     IServiceCallback getCallback() {
     	return callback.get();
     }
-    
+
     void setCallback(IServiceCallback callback) {
     	this.callback.set(callback);
     }
-    
+
     void callbackCompareAndSet(IServiceCallback expect, IServiceCallback update) {
     	callback.compareAndSet(expect, update);
     }
-    
+
     SqueezerPlayer getActivePlayer() {
     	return activePlayer.get();
     }
-    
+
     void setActivePlayer(SqueezerPlayer player) {
     	activePlayer.set(player);
     }
-    
+
     SqueezerPlayer getDefaultPlayer() {
     	return defaultPlayer.get();
     }
-    
+
     void setDefaultPlayer(SqueezerPlayer player) {
     	defaultPlayer.set(player);
     }
-    
+
     PrintWriter getSocketWriter() {
     	return socketWriter.get();
     }
-    
+
     void setCurrentHost(String host) {
     	currentHost.set(host);
 		Log.v(TAG, "HTTP port is now: " + httpPort);
     }
-    
+
     void setCliPort(Integer port) {
     	cliPort.set(port);
 		Log.v(TAG, "HTTP port is now: " + httpPort);
     }
-    
+
     void setHttpPort(Integer port) {
     	httpPort.set(port);
 		Log.v(TAG, "HTTP port is now: " + httpPort);
     }
-    
+
     void setCanRandomplay(boolean value) {
     	canRandomplay.set(value);
     }
@@ -159,13 +175,13 @@ class SqueezerConnectionState {
     private class ListeningThread extends Thread {
     	private final SqueezeService service;
         private final Socket socket;
-        private final int generationNumber; 
+        private final int generationNumber;
         private ListeningThread(SqueezeService service, Socket socket, int generationNumber) {
         	this.service = service;
             this.socket = socket;
             this.generationNumber = generationNumber;
         }
-		
+
         @Override
         public void run() {
             BufferedReader in;
@@ -221,7 +237,7 @@ class SqueezerConnectionState {
         currentHost.set(host);
         cliPort.set(port);
         httpPort.set(null);  // not known until later, after connect.
-        
+
         // Start the off-thread connect.
         executor.execute(new Runnable() {
             public void run() {
@@ -286,5 +302,5 @@ class SqueezerConnectionState {
 	String getCurrentHost() {
 		return currentHost.get();
 	}
-   
+
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer;
 
 import java.lang.reflect.ParameterizedType;
@@ -16,7 +32,7 @@ public class ReflectUtil {
 	 * position in the supplied base class or interface.
 	 * <p>The method returns null if the class can't be resolved. See {@link #genericTypeResolver(Class, Class)}
 	 * for details on what can't be resolved, and how to work around it.
-	 * 
+	 *
 	 * @param currentClass The current class which must extend or implement <code>base</code>
 	 * @param base Generic base class or interface which type variable we wish to resolve.
 	 * @param genericArgumentNumber The position of the type variable we are interested in.
@@ -33,7 +49,7 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * <p>Resolve actual type arguments of the supplied class for the type variables in the supplied 
+	 * <p>Resolve actual type arguments of the supplied class for the type variables in the supplied
 	 * generic base class or interface.
 	 * <p>If the types can't be resolved an empty array is returned.<br>
 	 * <p><b>NOTE</b><br>This will only resolve generic parameters when they are declared in the class, it
@@ -42,7 +58,7 @@ public class ReflectUtil {
 	 * <code>new LinkedList<String>()</code> cant'be resolved but
 	 * <code>new LinkedList<String>(){}</code> can. (Notice the subclassing of the generic collection)
 	 * </pre>
-	 * 
+	 *
 	 * @param currentClass The current class which must extend or implement <code>base</code>
 	 * @param base Generic base class or interface which type variables we wish to resolve.
 	 * @return Actual type arguments for <code>base</code> used in <code>currentClass</code>.
@@ -70,9 +86,9 @@ public class ReflectUtil {
 
 
 	/**
-	 * <p>Resolve actual type arguments of the supplied class for the type variables in the supplied 
+	 * <p>Resolve actual type arguments of the supplied class for the type variables in the supplied
 	 * generic interface.
-	 * 
+	 *
 	 * @param currentClass The current class which may implement <code>base</code>
 	 * @param baseInterface Generic interface which type variables we wish to resolve.
 	 * @param actualTypeArguments Resolved type arguments from parent
@@ -84,11 +100,11 @@ public class ReflectUtil {
 		Type[] genericInterfaces = currentClass.getGenericInterfaces();
 		for (int ifno = 0; ifno < genericInterfaces.length; ifno++) {
 			Type[] actualTypeArguments = mapTypeArguments(currentClass, genericInterfaces[ifno], pActualTypeArguments);
-			
+
 			if (genericInterfaces[ifno] instanceof ParameterizedType)
 				if (baseInterface.equals(((ParameterizedType)genericInterfaces[ifno]).getRawType()))
 					return actualTypeArguments;
-			
+
 			Type[] resolvedTypes = genericInterfaceResolver(interfaces[ifno], baseInterface, actualTypeArguments);
 			if (resolvedTypes != null)
 				return resolvedTypes;
@@ -100,7 +116,7 @@ public class ReflectUtil {
 	/**
 	 * Map the resolved type arguments of the given class to the type parameters of the supplied superclass
 	 * or direct interface.
-	 * 
+	 *
 	 * @param currentClass The class with the supplied resolved type arguments
 	 * @param type Superclass or direct interface of <code>currentClass</code>
 	 * @param actualTypeArguments Resolved type arguments of of <code>currentClass</code>

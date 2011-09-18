@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.model;
 
 import java.util.Map;
@@ -20,7 +36,7 @@ public class SqueezerAlbum extends SqueezerArtworkItem {
 	private int year;
 	public int getYear() { return year; }
 	public void setYear(int year) { this.year = year; }
-	
+
 	public SqueezerAlbum(String albumId, String album) {
 		setId(albumId);
 		setName(album);
@@ -33,17 +49,17 @@ public class SqueezerAlbum extends SqueezerArtworkItem {
 		setYear(Util.parseDecimalIntOrZero(record.get("year")));
 		setArtwork_track_id(record.get("artwork_track_id"));
 	}
-	
+
 	public static final Creator<SqueezerAlbum> CREATOR = new Creator<SqueezerAlbum>() {
 		public SqueezerAlbum[] newArray(int size) {
 			return new SqueezerAlbum[size];
 		}
-		
+
 		public SqueezerAlbum createFromParcel(Parcel source) {
 			return new SqueezerAlbum(source);
 		}
 	};
-	
+
 	private SqueezerAlbum(Parcel source) {
 		setId(source.readString());
 		name = source.readString();
@@ -51,7 +67,7 @@ public class SqueezerAlbum extends SqueezerArtworkItem {
 		year = source.readInt();
 		setArtwork_track_id(source.readString());
 	}
-	
+
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(getId());
 		dest.writeString(name);
@@ -59,7 +75,7 @@ public class SqueezerAlbum extends SqueezerArtworkItem {
 		dest.writeInt(year);
 		dest.writeString(getArtwork_track_id());
 	}
-	
+
 
 	@Override
 	public String toString() {

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.itemlists;
 
 import android.app.AlertDialog;
@@ -58,7 +74,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 					menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_MOVE_DOWN, 4, R.string.PLAYLIST_CONTEXTMENU_MOVE_DOWN);
 				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_MOVE, 5, R.string.PLAYLIST_CONTEXTMENU_MOVE);
 			}
-			
+
 			@Override
 			public boolean doItemContext(MenuItem menuItem, int index, SqueezerSong selectedItem) throws RemoteException {
 				switch (menuItem.getItemId()) {
@@ -91,13 +107,13 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 	protected void orderPage(int start) throws RemoteException {
 		getService().currentPlaylist(start);
 	}
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.currentplaylistmenu, menu);
         return super.onCreateOptionsMenu(menu);
     }
-	
+
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
@@ -176,12 +192,12 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 			}
 			break;
         }
-        
+
         builder.setNegativeButton(android.R.string.cancel, null);
-        
+
         return builder.create();
     }
-    
+
     @Override
     protected void onPrepareDialog(int id, final Dialog dialog) {
         final EditText editText = (EditText) dialog.findViewById(R.id.edittext);

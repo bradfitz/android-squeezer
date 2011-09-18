@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2009 Brad Fitzpatrick <brad@danga.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer;
 
 import java.util.List;
@@ -8,20 +24,20 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
-import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.danga.squeezer.framework.SqueezerItem;
 import com.danga.squeezer.framework.SqueezerItemListActivity;
@@ -90,7 +106,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 				return true;
 			}
 		});
-        
+
         resultsExpandableListView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
 			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 				ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuInfo;
@@ -121,7 +137,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		getService().unregisterGenreListCallback(genresCallback);
 		getService().unregisterSongListCallback(songsCallback);
 	}
-	
+
 	@Override
 	public final boolean onContextItemSelected(MenuItem menuItem) {
 		if (getService() != null) {
@@ -157,15 +173,15 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 			}
         }
         super.onPause();
-    }    
-	
+    }
+
 	static void show(Context context) {
 		final Intent intent = new Intent(context, SqueezerSearchActivity.class)
 				.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
 
-	
+
 	@Override
 	protected void orderPage(int start) {
 		try {
@@ -184,11 +200,11 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 			searchResultsAdapter.clear();
 		}
 	}
-	
+
 	private void doSearch() {
 		doSearch(searchString);
 	}
-	
+
 	private <T extends SqueezerItem> void onItemsReceived(final int count, final int start, final List<T> items) {
 		getUIThreadHandler().post(new Runnable() {
 			public void run() {
@@ -199,7 +215,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		});
 	}
 
-	
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.itemlistmenu, menu);
@@ -219,26 +235,26 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
         return super.onMenuItemSelected(featureId, item);
 	}
 
-	
-	private IServiceArtistListCallback artistsCallback = new IServiceArtistListCallback.Stub() {
+
+	private final IServiceArtistListCallback artistsCallback = new IServiceArtistListCallback.Stub() {
 		public void onArtistsReceived(int count, int start, List<SqueezerArtist> items) throws RemoteException {
 			onItemsReceived(count, start, items);
 		}
 	};
 
-	private IServiceAlbumListCallback albumsCallback = new IServiceAlbumListCallback.Stub() {
+	private final IServiceAlbumListCallback albumsCallback = new IServiceAlbumListCallback.Stub() {
 		public void onAlbumsReceived(int count, int start, List<SqueezerAlbum> items) throws RemoteException {
 			onItemsReceived(count, start, items);
 		}
 	};
 
-	private IServiceGenreListCallback genresCallback = new IServiceGenreListCallback.Stub() {
+	private final IServiceGenreListCallback genresCallback = new IServiceGenreListCallback.Stub() {
 		public void onGenresReceived(int count, int start, List<SqueezerGenre> items) throws RemoteException {
 			onItemsReceived(count, start, items);
 		}
 	};
 
-	private IServiceSongListCallback songsCallback = new IServiceSongListCallback.Stub() {
+	private final IServiceSongListCallback songsCallback = new IServiceSongListCallback.Stub() {
 		public void onSongsReceived(int count, int start, List<SqueezerSong> items) throws RemoteException {
 			onItemsReceived(count, start, items);
 		}

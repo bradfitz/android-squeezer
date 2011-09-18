@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.service;
 
 import java.io.PrintWriter;
@@ -28,7 +44,7 @@ import com.danga.squeezer.model.SqueezerYear;
 
 class SqueezerCLIImpl {
     private static final String TAG = "SqueezerCLI";
-	
+
 	class ExtendedQueryFormatCmd {
 		final boolean playerSpecific;
 		final boolean prefixed;
@@ -55,7 +71,7 @@ class SqueezerCLIImpl {
 		public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters, SqueezerListHandler handler) {
 			this(false, cmd, taggedParameters, new SqueezeParserInfo(handler));
 		}
-		
+
 	}
 
 	final ExtendedQueryFormatCmd[] extQueryFormatCmds = initializeExtQueryFormatCmds();
@@ -63,7 +79,7 @@ class SqueezerCLIImpl {
 
 	private ExtendedQueryFormatCmd[] initializeExtQueryFormatCmds() {
 		List<ExtendedQueryFormatCmd> list = new ArrayList<ExtendedQueryFormatCmd>();
-		
+
 		list.add(
 			new ExtendedQueryFormatCmd(
 					"players",
@@ -77,14 +93,14 @@ class SqueezerCLIImpl {
 		        		public Class<? extends SqueezerItem> getDataType() {
 		        			return SqueezerPlayer.class;
 		        		}
-		        		
+
 		        		public void clear() {
 				        	lastConnectedPlayer = service.preferences.getString(Preferences.KEY_LASTPLAYER, null);
 		        			defaultPlayer = null;
 				        	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 			                players = new ArrayList<SqueezerPlayer>(){private static final long serialVersionUID = 4283732322286492895L;};
 		        		}
-						
+
 						public void add(Map<String, String> record) {
 							SqueezerPlayer player = new SqueezerPlayer(record);
 							// Discover the last connected player (if any, otherwise just pick the first one)
@@ -92,7 +108,7 @@ class SqueezerCLIImpl {
 								defaultPlayer = player;
 			                players.add(player);
 						}
-						
+
 						public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 							if (service.playerListCallback.get() != null) {
 								// If the player list activity is active, pass the discovered players to it
@@ -205,7 +221,7 @@ class SqueezerCLIImpl {
 
 		return list.toArray(new ExtendedQueryFormatCmd[]{});
 	}
-	
+
     private Map<String, ExtendedQueryFormatCmd> initializeExtQueryFormatCmdMap() {
         Map<String, ExtendedQueryFormatCmd> map = new HashMap<String, ExtendedQueryFormatCmd>();
         for (ExtendedQueryFormatCmd cmd: extQueryFormatCmds)
@@ -225,11 +241,11 @@ class SqueezerCLIImpl {
 		pageSize = service.getResources().getInteger(R.integer.PageSize);
 	}
 
-	
+
 	// All requests are tagged with a correlation id, which can be used when
 	// asynchronous responses are received.
     int _correlationid = 0;
-    
+
     synchronized void sendCommand(String... commands) {
         if (commands.length == 0) return;
         PrintWriter writer = service.connectionState.getSocketWriter();
@@ -245,33 +261,33 @@ class SqueezerCLIImpl {
             writer.flush();
         }
     }
-	
+
     void sendPlayerCommand(String command) {
         if (service.connectionState.getActivePlayer() == null) {
             return;
         }
         sendCommand(Util.encode(service.connectionState.getActivePlayer().getId()) + " " + command);
     }
-    
+
     boolean checkCorrelation(Integer registeredCorralationId, int currentCorrelationId) {
     	if (registeredCorralationId == null) return true;
     	return (currentCorrelationId >= registeredCorralationId);
     }
-    
+
 
     // We register when asynchronous fetches are initiated, and when callbacks are unregistered
     // because these events will make responses from pending requests obsolete
-    private Map<String, Integer> cmdCorrelationIds = new HashMap<String, Integer>();
-    private Map<Class<?>, Integer> typeCorrelationIds = new HashMap<Class<?>, Integer>();
-    
+    private final Map<String, Integer> cmdCorrelationIds = new HashMap<String, Integer>();
+    private final Map<Class<?>, Integer> typeCorrelationIds = new HashMap<Class<?>, Integer>();
+
     void cancelRequests(Class<?> clazz) {
 		typeCorrelationIds.put(clazz, _correlationid);
     }
-    
+
     private boolean checkCorrelation(String cmd, int correlationid) {
     	return checkCorrelation(cmdCorrelationIds.get(cmd), correlationid);
     }
-    
+
     private boolean checkCorrelation(Class<? extends SqueezerItem> type, int correlationid) {
     	return checkCorrelation(typeCorrelationIds.get(type), correlationid);
     }
@@ -285,9 +301,9 @@ class SqueezerCLIImpl {
      * This will always order one item, to learn the number of items from the server. Remaining
      * items will then be automatically ordered when the response arrives. See
      * {@link #parseSqueezerList(boolean, String, String, List, SqueezerListHandler)} for details.
-     * 
+     *
      * @param playerid Id of the current player or null
-     * @param cmd Identifies the 
+     * @param cmd Identifies the
      * @param start
      * @param parameters
      */
@@ -315,22 +331,22 @@ class SqueezerCLIImpl {
         }
         requestItems(service.connectionState.getActivePlayer().getId(), cmd, start, parameters);
 	}
-	
+
 	void requestPlayerItems(String cmd, int start) {
 		requestPlayerItems(cmd, start, null);
 	}
 
-   
-	
+
+
 	/**
      * Data for {@link SqueezerCLIImpl#parseSqueezerList(boolean, List, SqueezeParserInfo...)}
-     * 
+     *
      * @author kaa
      */
     private static class SqueezeParserInfo {
-    	private String item_delimiter;
-    	private String count_id;
-    	private SqueezerListHandler handler;
+    	private final String item_delimiter;
+    	private final String count_id;
+    	private final SqueezerListHandler handler;
 
     	/**
     	 * @param countId The label for the tag which contains the total number of results, normally "count".
@@ -342,11 +358,11 @@ class SqueezerCLIImpl {
 			item_delimiter = itemDelimiter;
 			this.handler = handler;
 		}
-    	
+
     	public SqueezeParserInfo(String itemDelimiter, SqueezerListHandler handler) {
     		this("count", itemDelimiter, handler);
     	}
-    	
+
     	public SqueezeParserInfo(SqueezerListHandler handler) {
     		this("id", handler);
     	}
@@ -364,18 +380,18 @@ class SqueezerCLIImpl {
 		 * @return The type of item this handler can handle
 		 */
 		Class<? extends SqueezerItem> getDataType();
-		
+
 		/**
 		 * Prepare for parsing an extended query format response
 		 */
 		void clear();
-		
+
 		/**
 		 * Called for each item received in the current reply. Just store this internally.
 		 * @param record
 		 */
 		void add(Map<String, String> record);
-		
+
 		/**
 		 * Called when the current reply is completely parsed. Pass the information on to your activity now. If there are
 		 * any more data, it is automatically ordered by {@link SqueezerCLIImpl#parseSqueezerList(List, SqueezerListHandler)}
@@ -426,7 +442,7 @@ class SqueezerCLIImpl {
 			countIdSet.add(parserInfo.count_id);
 			itemDelimeterMap.put(parserInfo.item_delimiter, parserInfo);
 		}
-		
+
 		SqueezeParserInfo parserInfo = null;
 		for (int idx = ofs+2; idx < tokens.size(); idx++) { String token = tokens.get(idx);
 			int colonPos = token.indexOf("%3A");
@@ -438,7 +454,7 @@ class SqueezerCLIImpl {
 			String value = Util.decode(token.substring(colonPos + 3));
 			if (service.debugLogging)
 				Log.v(TAG, "key=" + key + ", value: " + value);
-			
+
 			if (key.equals("rescan"))
 				rescan = (Util.parseDecimalIntOrZero(value) == 1);
 			else if (key.equals("correlationid"))
@@ -466,10 +482,10 @@ class SqueezerCLIImpl {
 						parameters.put(key, value);
 			}
 		}
-		
+
 		if (record != null) {
 			parserInfo.handler.add(record);
-			if (service.debugLogging) 
+			if (service.debugLogging)
 				Log.v(TAG, "record=" + record);
 		}
 
@@ -506,7 +522,7 @@ class SqueezerCLIImpl {
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerYear.class;
 		}
-		
+
 		public void clear() {
 			years = new ArrayList<SqueezerYear>(){private static final long serialVersionUID = 1321113152942485275L;};
 		}
@@ -534,7 +550,7 @@ class SqueezerCLIImpl {
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerGenre.class;
 		}
-		
+
 		public void clear() {
 			genres = new ArrayList<SqueezerGenre>(){private static final long serialVersionUID = 581979365656327794L;};
 		}
@@ -563,10 +579,10 @@ class SqueezerCLIImpl {
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerArtist.class;
 		}
-		
+
 		public void clear() {
 			artists = new ArrayList<SqueezerArtist>(){private static final long serialVersionUID = 3995870292581536540L;};
-			
+
 		}
 
 		public void add(Map<String, String> record) {
@@ -592,9 +608,9 @@ class SqueezerCLIImpl {
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerAlbum.class;
 		}
-		
+
 		public void clear() {
-			albums = new ArrayList<SqueezerAlbum>(){private static final long serialVersionUID = 3702842875796811666L;};			
+			albums = new ArrayList<SqueezerAlbum>(){private static final long serialVersionUID = 3702842875796811666L;};
 		}
 
 		public void add(Map<String, String> record) {
@@ -620,9 +636,9 @@ class SqueezerCLIImpl {
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerSong.class;
 		}
-		
+
 		public void clear() {
-			songs = new ArrayList<SqueezerSong>(){private static final long serialVersionUID = -6269354970999944842L;};			
+			songs = new ArrayList<SqueezerSong>(){private static final long serialVersionUID = -6269354970999944842L;};
 		}
 
 		public void add(Map<String, String> record) {
@@ -648,9 +664,9 @@ class SqueezerCLIImpl {
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerPlaylist.class;
 		}
-		
+
 		public void clear() {
-			playlists = new ArrayList<SqueezerPlaylist>(){ private static final long serialVersionUID = 3636348382591470060L; };			
+			playlists = new ArrayList<SqueezerPlaylist>(){ private static final long serialVersionUID = 3636348382591470060L; };
 		}
 
 		public void add(Map<String, String> record) {
@@ -677,9 +693,9 @@ class SqueezerCLIImpl {
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerPlaylist.class;
 		}
-		
+
 		public void clear() {
-			plugins = new ArrayList<SqueezerPlugin>(){ private static final long serialVersionUID = -8342580963244363146L; };			
+			plugins = new ArrayList<SqueezerPlugin>(){ private static final long serialVersionUID = -8342580963244363146L; };
 		}
 
 		public void add(Map<String, String> record) {
@@ -706,9 +722,9 @@ class SqueezerCLIImpl {
 		public Class<? extends SqueezerItem> getDataType() {
 			return SqueezerPlaylist.class;
 		}
-		
+
 		public void clear() {
-			pluginItems = new ArrayList<SqueezerPluginItem>(){ private static final long serialVersionUID = -2162255134145627211L; };			
+			pluginItems = new ArrayList<SqueezerPluginItem>(){ private static final long serialVersionUID = -2162255134145627211L; };
 		}
 
 		public void add(Map<String, String> record) {
@@ -728,5 +744,5 @@ class SqueezerCLIImpl {
 		}
 
 	}
-    
+
 }

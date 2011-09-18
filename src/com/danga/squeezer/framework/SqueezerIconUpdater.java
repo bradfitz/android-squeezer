@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.framework;
 
 import java.io.IOException;
@@ -6,33 +22,33 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import com.danga.squeezer.R;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.danga.squeezer.R;
+
 public class SqueezerIconUpdater<T extends SqueezerItem> {
 	private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
-	private SqueezerBaseActivity activity;
+	private final SqueezerBaseActivity activity;
 
 	public SqueezerIconUpdater(SqueezerBaseActivity activity) {
 		this.activity = activity;
 	}
-	
+
 	private SqueezerBaseActivity getActivity() {
 		return activity;
 	}
 
 	public void updateIcon(final ImageView icon, final Object item, final String urlString) {
 		icon.setImageResource(R.drawable.icon_album_noart);
-		
+
 		if (urlString == null || urlString.length() == 0) {
 			icon.setTag(null);
 			return;
 		}
-	
+
 		icon.setTag(item);
 		backgroundExecutor.execute(new Runnable() {
 			public void run() {
@@ -53,7 +69,7 @@ public class SqueezerIconUpdater<T extends SqueezerItem> {
 								icon.setImageBitmap(bitmap);
 							}
 						}
-						
+
 					});
 				} catch (MalformedURLException e) {
 				} catch (IOException e) {
@@ -62,7 +78,7 @@ public class SqueezerIconUpdater<T extends SqueezerItem> {
 			}
 		});
 	}
-	
+
 	private static Bitmap decodeUrl(URL url, int imageSize) throws IOException{
 	    Bitmap b = null;
 

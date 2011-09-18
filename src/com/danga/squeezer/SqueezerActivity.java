@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2009 Brad Fitzpatrick <brad@danga.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -248,7 +264,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 				}
 			}
         });
-        
+
         // Set up a server connection, if it is not present
         if (getConfiguredCliIpPort() == null) SettingsActivity.show(this);
     }
@@ -732,10 +748,10 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         }
         startVisibleConnection();
     }
-    
+
     private void startVisibleConnection() {
         if (connectInProgress) return;
-        
+
         String ipPort = getConfiguredCliIpPort();
         if (ipPort == null) return;
 

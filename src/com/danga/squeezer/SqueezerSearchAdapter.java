@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2009 Brad Fitzpatrick <brad@danga.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer;
 
 import java.util.HashMap;
@@ -25,12 +41,12 @@ import com.danga.squeezer.model.SqueezerGenre;
 import com.danga.squeezer.model.SqueezerSong;
 
 public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
-	private int[] groupIcons = { R.drawable.icon_ml_songs, R.drawable.icon_ml_albums, R.drawable.icon_ml_artist, R.drawable.icon_ml_genres};
+	private final int[] groupIcons = { R.drawable.icon_ml_songs, R.drawable.icon_ml_albums, R.drawable.icon_ml_artist, R.drawable.icon_ml_genres};
 
 	private SqueezerSearchActivity activity;
-	
+
 	private SqueezerItemAdapter<? extends SqueezerItem>[] childAdapters;
-	private Map<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>> childAdapterMap = new HashMap<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>>();
+	private final Map<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>> childAdapterMap = new HashMap<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>>();
 
 
 	public SqueezerSearchAdapter(SqueezerSearchActivity activity) {
@@ -47,7 +63,7 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 				public View getAdapterView(View convertView, SqueezerAlbum item) {
 					return Util.getListItemView(getActivity(), convertView, item.getName());
 				}
-				
+
 			}),
 			new SqueezerItemAdapter<SqueezerArtist>(new SqueezerArtistView(activity)),
 			new SqueezerItemAdapter<SqueezerGenre>(new SqueezerGenreView(activity)),
@@ -61,7 +77,7 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 		for (SqueezerItemAdapter<? extends SqueezerItem> itemAdapter: childAdapters)
 			itemAdapter.clear();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <T extends SqueezerItem> void updateItems(int count, int start, List<T> items) {
 		Class<T> clazz = (Class<T>) ReflectUtil.getGenericClass(items.getClass(), List.class, 0);

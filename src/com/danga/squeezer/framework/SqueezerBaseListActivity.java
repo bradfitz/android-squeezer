@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.framework;
 
 
@@ -12,10 +28,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerActivity;
@@ -31,19 +47,19 @@ import com.danga.squeezer.SqueezerHomeActivity;
  * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link SqueezerItemListAdapter} is
  * created using the provided {@link SqueezerItemView}. See {@link SqueezerItemListActivity}, too see details
  * of ordering and receiving of list items from SqueezeServer, and handling of item selection.
- * 
+ *
  * @param <T>	Denotes the class of the items this class should list
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
 	protected static final int DIALOG_FILTER = 0;
 	protected static final int DIALOG_ORDER = 1;
-	
+
 	private SqueezerItemAdapter<T> itemAdapter;
 	private ListView listView;
 	private TextView loadingLabel;
 	private SqueezerItemView<T> itemView;
-    
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,7 +67,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		listView = (ListView) findViewById(R.id.item_list);
 		loadingLabel = (TextView) findViewById(R.id.loading_label);
 		itemView = createItemView();
-		
+
     	listView.setOnItemClickListener(new OnItemClickListener() {
     		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     			T item = getItemAdapter().getItem(position);
@@ -64,27 +80,27 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     			}
     		}
     	});
-    	
+
 		listView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
 			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 				AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
 				getItemAdapter().setupContextMenu(menu, adapterMenuInfo.position);
 			}
 		});
-		
+
 		listView.setOnScrollListener(this);
-		
+
 		prepareActivity(getIntent().getExtras());
 	}
 
-	
+
 	/**
 	 * @return A new view logic to be used by this activity
 	 */
 	abstract protected SqueezerItemView<T> createItemView();
-	
+
 	/**
-	 * Initial setup of this activity. 
+	 * Initial setup of this activity.
 	 * @param extras Optionally use this information to setup the activity. (may be null)
 	 */
 	public void prepareActivity(Bundle extras) {
@@ -122,7 +138,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         }
         super.onPause();
     }
-	
+
 
 
 	/**
@@ -138,7 +154,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
 	/**
 	 * Order items from the start, and prepare an adapter to receive them
-	 * @throws RemoteException 
+	 * @throws RemoteException
 	 */
 	public void orderItems() {
 		reorderItems();
@@ -146,7 +162,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		loadingLabel.setVisibility(View.VISIBLE);
 		clearItemListAdapter();
 	}
-	
+
 	public void onItemsReceived(final int count, final int start, final List<T> items) {
 		getUIThreadHandler().post(new Runnable() {
 			public void run() {
@@ -156,7 +172,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 			}
 		});
 	}
-	
+
 	/**
 	 * Set the adapter to handle the display of the items, see also {@link #setListAdapter(android.widget.ListAdapter)}
 	 * @param listAdapter
@@ -165,13 +181,13 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		itemAdapter = createItemListAdapter(itemView);
 		listView.setAdapter(itemAdapter);
 	}
-   
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.itemlistmenu, menu);
         return super.onCreateOptionsMenu(menu);
     }
-    
+
 	@Override
     public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
@@ -184,5 +200,5 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         }
         return super.onMenuItemSelected(featureId, menuItem);
 	}
-	
+
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.itemlists;
 
 import java.util.List;
@@ -42,7 +58,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 	public SqueezerGenre getGenre() {
 		return genre;
 	}
-	
+
 	public SqueezerYear getYear() {
 		return year;
 	}
@@ -51,7 +67,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 	public SqueezerItemView<SqueezerAlbum> createItemView() {
 		return new SqueezerAlbumView(this);
 	}
-	
+
 	@Override
 	public void prepareActivity(Bundle extras) {
 		if (extras != null)
@@ -86,12 +102,12 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 	protected void orderPage(int start) throws RemoteException {
 		getService().albums(start, sortOrder.name().replace("__", ""), searchString, artist, year, genre);
 	}
-	
+
 	public void setSortOrder(AlbumsSortOrder sortOrder) {
 		this.sortOrder = sortOrder;
 		orderItems();
 	}
-	
+
     @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -120,7 +136,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 	        editText.setHint(getString(R.string.filter_text_hint, getItemAdapter().getQuantityString(2)));
 			final Spinner genreSpinnerView = (Spinner) filterForm.findViewById(R.id.genre_spinner);
 			final Spinner yearSpinnerView = (Spinner) filterForm.findViewById(R.id.year_spinner);
-	        
+
 	        if (artist != null) {
 	        	((EditText)filterForm.findViewById(R.id.artist)).setText(artist.getName());
 	        	filterForm.findViewById(R.id.artist_view).setVisibility(View.VISIBLE);
@@ -142,7 +158,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 	                return false;
 	            }
 	        });
-	        
+
 	        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
                 	searchString = editText.getText().toString();
@@ -152,13 +168,13 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 				}
 			});
 	        builder.setNegativeButton(android.R.string.cancel, null);
-	        
+
 			return builder.create();
         }
         return null;
     }
-    
-	
+
+
     public static void show(Context context, SqueezerItem... items) {
         final Intent intent = new Intent(context, SqueezerAlbumListActivity.class);
         for (SqueezerItem item: items)
@@ -166,7 +182,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
         context.startActivity(intent);
     }
 
-    private IServiceAlbumListCallback albumListCallback = new IServiceAlbumListCallback.Stub() {
+    private final IServiceAlbumListCallback albumListCallback = new IServiceAlbumListCallback.Stub() {
 		public void onAlbumsReceived(int count, int start, List<SqueezerAlbum> items) throws RemoteException {
 			onItemsReceived(count, start, items);
 		}
@@ -177,5 +193,5 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
     	artflow,
     	__new;
     }
-    
+
 }

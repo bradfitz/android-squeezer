@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.framework;
 
 import java.util.HashMap;
@@ -24,7 +40,7 @@ import com.danga.squeezer.Util;
  * If you need an adapter for a {@link SqueezerBaseListActivity}, then use
  * {@link SqueezerItemListAdapter} instead.
  * <p>
- * 
+ *
  * @param <T>
  *            Denotes the class of the items this class should list
  * @see SqueezerItemView
@@ -36,7 +52,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 * View logic for this adapter
 	 */
 	private final SqueezerItemView<T> itemView;
-	
+
 	/**
 	 * List of items, possibly headed with an empty item.
 	 * <p>
@@ -44,8 +60,8 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 * list.
 	 */
 	private int count;
-	private Map<Integer, T[]> pages = new HashMap<Integer, T[]>();
-	
+	private final Map<Integer, T[]> pages = new HashMap<Integer, T[]>();
+
 	/**
 	 *  This is set if the list shall start with an empty item.
 	 */
@@ -61,14 +77,14 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 */
 	private int pageSize;
 	public int getPageSize() { return pageSize; }
-	
+
 	/**
 	 * Creates a new adapter. Initially the item list is populated with items displaying the
 	 * localized "loading" text. Call {@link #update(int, int, int, List)} as items arrives
 	 * from SqueezeServer.
-	 *   
+	 *
 	 * @param itemView The {@link SqueezerItemView} to use with this adapter
-	 * @param count The number of items this adapter initially contains. 
+	 * @param count The number of items this adapter initially contains.
 	 * @param emptyItem If set the list of items shall start with an empty item
 	 */
 	public SqueezerItemAdapter(SqueezerItemView<T> itemView, boolean emptyItem) {
@@ -79,18 +95,18 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		pageSize = itemView.getActivity().getResources().getInteger(R.integer.PageSize);
 		pages.clear();
 	}
-	
+
 	/**
 	 * Calls {@link #SqueezerBaseAdapter(SqueezerItemView, int, boolean)}, with emptyItem = false
 	 */
 	public SqueezerItemAdapter(SqueezerItemView<T> itemView) {
 		this(itemView, false);
 	}
-	
+
 	private int pageNumber(int position) {
 		return position / pageSize;
 	}
-	
+
 	/**
 	 * Removes all items from this adapter leaving it empty.
 	 */
@@ -105,22 +121,22 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 			return itemView.getAdapterView(convertView, item);
 		return Util.getListItemView(getActivity(), convertView, (position == 0 && emptyItem ? "" : loadingText));
 	}
-	
+
 	public String getQuantityString(int size) {
 		return itemView.getQuantityString(size);
 	}
-	
+
 	public SqueezerItemListActivity getActivity() {
 		return itemView.getActivity();
 	}
-	
+
 	public void setupContextMenu(ContextMenu menu, int position) {
 		final T selectedItem = getItem(position);
 		if (selectedItem != null && selectedItem.getId() != null) {
 			itemView.setupContextMenu(menu, position, selectedItem);
 		}
 	}
-	
+
 	public boolean doItemContext(MenuItem menuItem, int position) throws RemoteException {
 		return itemView.doItemContext(menuItem, position, getItem(position));
 	}
@@ -141,7 +157,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		}
 		return page;
 	}
-	
+
 	private void setItems(int start, List<T> items) {
 		T[] page = getPage(start);
 		int offset = start % pageSize;
@@ -155,7 +171,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 			page[offset++] = it.next();
 		}
 	}
-	
+
 	public T getItem(int position) {
 		T item = getPage(position)[position % pageSize];
 		if (item == null) {
@@ -188,7 +204,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 * <p>
 	 * The size of the list of items is automatically adjusted if necessary, to obey the given
 	 * parameters.
-	 * 
+	 *
 	 * @param count
 	 *            Number of items as reported by squeezeserver.
 	 * @param start

@@ -1,9 +1,25 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.framework;
 
 import java.lang.reflect.Field;
 
-import android.os.RemoteException;
 import android.os.Parcelable.Creator;
+import android.os.RemoteException;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -26,7 +42,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	protected static final int CONTEXTMENU_BROWSE_ARTIST_ALBUMS = 7;
 	protected static final int CONTEXTMENU_BROWSE_ARTIST_SONGS = 8;
 
-	private SqueezerItemListActivity activity;
+	private final SqueezerItemListActivity activity;
 	private SqueezerItemAdapter<T> adapter;
 	private Class<T> itemClass;
 	private Creator<T> creator;
@@ -38,7 +54,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	public SqueezerItemListActivity getActivity() {
 		return activity;
 	}
-	
+
 	public SqueezerItemAdapter<T> getAdapter() {
 		return adapter;
 	}
@@ -79,7 +95,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		return Util.getListItemView(getActivity(), convertView, item.getName());
 	}
 
-	
+
 
 	/**
 	 * The default context menu handler handles some common actions.

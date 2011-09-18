@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.danga.squeezer.framework;
 
 
@@ -21,24 +37,24 @@ import com.danga.squeezer.service.SqueezeService;
  * @author Kurt Aaholst
  */
 public abstract class SqueezerItemListActivity extends SqueezerBaseActivity implements OnScrollListener {
-    
+
     /**
      * This is called when the service is connected.
      * <p>
      * You must register a callback for {@link SqueezeService} to call when the ordered items
      * from {@link #orderPage(int)} are received from SqueezeServer. This callback must pass
      * these items on to {@link SqueezerItemListAdapter#update(int, int, int, List)}.
-     * 
+     *
      * @throws RemoteException
      */
 	protected abstract void registerCallback() throws RemoteException;
-	
+
 	/**
 	 * This is called when the service is disconnected.
 	 * @throws RemoteException
 	 */
 	protected abstract void unregisterCallback() throws RemoteException;
-    
+
     /**
      * Implementations must start an asynchronous fetch of items, when this is called.
      * @throws RemoteException
@@ -47,7 +63,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
 	protected abstract void orderPage(int start) throws RemoteException;
 
 
-	private Set<Integer> orderedPages = new HashSet<Integer>();
+	private final Set<Integer> orderedPages = new HashSet<Integer>();
 
 	/**
 	 * Order page at specified position, if it has not already been ordered.
@@ -72,8 +88,8 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
 		maybeOrderPage(0);
 	}
 
-	
-	
+
+
 	private boolean listBusy;
 	public boolean isListBusy() { return listBusy; }
 
@@ -81,7 +97,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
         switch (scrollState) {
         case OnScrollListener.SCROLL_STATE_IDLE:
         	listBusy = false;
-        	
+
         	int pageSize = getResources().getInteger(R.integer.PageSize);
         	int pos = (view.getFirstVisiblePosition() / pageSize) * pageSize;
         	int end = view.getFirstVisiblePosition() + view.getChildCount();
@@ -96,8 +112,8 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
         	break;
         }
  	}
-	
+
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 	}
-	
+
 }

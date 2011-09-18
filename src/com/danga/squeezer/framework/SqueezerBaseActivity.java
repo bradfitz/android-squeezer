@@ -1,7 +1,20 @@
-package com.danga.squeezer.framework;
+/*
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import com.danga.squeezer.service.ISqueezeService;
-import com.danga.squeezer.service.SqueezeService;
+package com.danga.squeezer.framework;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -13,6 +26,9 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.danga.squeezer.service.ISqueezeService;
+import com.danga.squeezer.service.SqueezeService;
+
 /**
  * Common base class for all activities in the squeezer
  * @author Kurt Aaholst
@@ -20,10 +36,10 @@ import android.util.Log;
  */
 public abstract class SqueezerBaseActivity extends Activity {
 	private ISqueezeService service = null;
-	private Handler uiThreadHandler = new Handler() {};
+	private final Handler uiThreadHandler = new Handler() {};
 
 	protected abstract void onServiceConnected() throws RemoteException;
-    
+
     protected String getTag() {
     	return getClass().getSimpleName();
 	}
@@ -39,7 +55,7 @@ public abstract class SqueezerBaseActivity extends Activity {
 		return service;
 	}
 
-	private ServiceConnection serviceConnection = new ServiceConnection() {
+	private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = ISqueezeService.Stub.asInterface(binder);
    			try {
@@ -75,21 +91,21 @@ public abstract class SqueezerBaseActivity extends Activity {
 		return uiThreadHandler;
 	}
 
-	
+
 	// This section is just an easier way to call squeeze service
-    
+
 	public boolean play(SqueezerItem item) throws RemoteException {
 		return playlistControl(PlaylistControlCmd.load, item);
 	}
-	
+
 	public boolean add(SqueezerItem item) throws RemoteException {
 		return playlistControl(PlaylistControlCmd.add, item);
 	}
-	
+
 	public boolean insert(SqueezerItem item) throws RemoteException {
 		return playlistControl(PlaylistControlCmd.insert, item);
 	}
-	
+
     private boolean playlistControl(PlaylistControlCmd cmd, SqueezerItem item) throws RemoteException {
         if (service == null) {
             return false;
@@ -97,11 +113,11 @@ public abstract class SqueezerBaseActivity extends Activity {
         service.playlistControl(cmd.name(), item.getClass().getName(), item.getId());
         return true;
     }
-    
+
     private enum PlaylistControlCmd {
     	load,
     	add,
     	insert;
     }
-	
+
 }
