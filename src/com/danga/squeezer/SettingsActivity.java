@@ -42,8 +42,9 @@ public class SettingsActivity extends PreferenceActivity implements
         addPreferencesFromResource(R.xml.preferences);
 
         // Not yet implemented, so disable.  TODO(bradfitz): implement.
-        CheckBoxPreference autoDiscoverPref = (CheckBoxPreference) findPreference(Preferences.KEY_AUTO_DISCOVER);
-        autoDiscoverPref.setEnabled(false);
+        // CheckBoxPreference autoDiscoverPref = (CheckBoxPreference)
+        // findPreference(Preferences.KEY_AUTO_DISCOVER);
+        // autoDiscoverPref.setEnabled(false);
 
         addrPref = (EditTextPreference) findPreference(Preferences.KEY_SERVERADDR);
         addrPref.setOnPreferenceChangeListener(this);

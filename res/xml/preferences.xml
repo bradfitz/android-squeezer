@@ -18,11 +18,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                  android:key="first_preferencescreen">
 
-  <CheckBoxPreference
-     android:key="squeezer.autodiscover"
-     android:title="Auto-discover server"
-     android:summary="NOTDONE Auto-scan for the squeeze server."
-     android:persistent="true" />
+<!--   <CheckBoxPreference -->
+<!--      android:key="squeezer.autodiscover" -->
+<!--      android:title="Auto-discover server" -->
+<!--      android:summary="NOTDONE Auto-scan for the squeeze server." -->
+<!--      android:persistent="true" /> -->
 
    <EditTextPreference
      android:key="squeezer.serveraddr"
