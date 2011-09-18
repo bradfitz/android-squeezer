@@ -79,7 +79,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             NetworkInfo networkInfo = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
             if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI && networkInfo.isConnected()) {
                 Log.v(getTag(), "Received WIFI connected broadcast");
-                if (!connectInProgress && !isConnected()) {
+                if (!isConnected()) {
                     // Requires a serviceStub.  Else we'll do this on the service connection callback.
                     if (getService() != null) {
                         Log.v(getTag(), "Initiated connect on WIFI connected");
@@ -248,6 +248,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 				}
 			}
         });
+        
+        // Set up a server connection, if it is not present
+        if (getConfiguredCliIpPort() == null) SettingsActivity.show(this);
     }
 
     /*
@@ -305,7 +308,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             if (connectingDialog != null) {
                 Log.v(getTag(), "Dismissing...");
                 connectingDialog.dismiss();
-                connectInProgress = false;
                 if (!connected) {
                   Toast.makeText(this, getText(R.string.connection_failed_text), Toast.LENGTH_LONG).show();
                   return;
@@ -366,6 +368,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 	@Override
 	protected void onServiceConnected() throws RemoteException {
     	Log.v(getTag(), "Service bound");
+        getService().registerCallback(serviceCallback);
     	uiThreadHandler.post(new Runnable() {
     	    public void run() {
     	        updateUIFromServiceState();
@@ -376,7 +379,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 }
     	    }
     	});
-   	    getService().registerCallback(serviceCallback);
 	}
 
     @Override
@@ -393,15 +395,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
         if (getService() != null) {
             updateUIFromServiceState();
-
-            // If they've already set this up in the past, what they probably
-            // want to do at this point is connect to the server, so do it
-            // automatically.  (Requires a serviceStub.  Else we'll do this
-            // on the service connection callback.)
-            if (!isConnected()) {
-                //TODO kaa check for network connected
-                startVisibleConnection();
-            }
         }
 
         if (isAutoConnect())
@@ -727,20 +720,25 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     }
 
     private void onUserInitiatesConnect() {
+        // Set up a server connection, if it is not present
+        if (getConfiguredCliIpPort() == null) {
+            SettingsActivity.show(this);
+            return;
+        }
+
         if (getService() == null) {
             Log.e(getTag(), "serviceStub is null.");
             return;
         }
-        String ipPort = getConfiguredCliIpPort();
-        if (ipPort == null) {
-            SettingsActivity.show(this);
-            return;
-        }
-        Log.v(getTag(), "User-initiated connect to: " + ipPort);
-        startVisibleConnectionTo(ipPort);
+        startVisibleConnection();
     }
+    
+    private void startVisibleConnection() {
+        if (connectInProgress) return;
+        
+        String ipPort = getConfiguredCliIpPort();
+        if (ipPort == null) return;
 
-    private void startVisibleConnectionTo(String ipPort) {
         if (isAutoConnect()) {
             WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
             if (!wifiManager.isWifiEnabled()) {
@@ -756,13 +754,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             getService().startConnect(ipPort);
         } catch (RemoteException e) {
             Toast.makeText(this, "startConnection error: " + e, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void startVisibleConnection() {
-        String ipPort = getConfiguredCliIpPort();
-        if (ipPort != null) {
-            startVisibleConnectionTo(ipPort);
         }
     }
 

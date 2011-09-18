@@ -7,8 +7,7 @@
     <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
     <string name="settings_serveraddr_title">Server Address</string>
-    <string name="settings_serveraddr_format">In format host:port</string>
-    <string name="settings_serveraddr_summary">IP address of SqueezeBox Server, e.g. 10.0.0.5</string>
+    <string name="settings_serveraddr_summary">IP address or name of Squeezebox Server, e.g. 10.0.0.5 \nUse format host:port to specify a non standard port.</string>
     <string name="settings_autoconnect_title">Auto-connect</string>
     <string name="settings_autoconnect_summary">Offer to enable WiFi, and on Wifi availability, try to connect.</string>
     <string name="menu_item_disconnect">Disconnect</string>
