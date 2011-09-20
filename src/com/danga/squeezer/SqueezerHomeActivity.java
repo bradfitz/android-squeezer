@@ -58,19 +58,21 @@ public class SqueezerHomeActivity extends ListActivity {
 			case MUSIC:
 				SqueezerMusicActivity.show(SqueezerHomeActivity.this);
 				break;
-			case INTERNET_RADIO:
-				SqueezerRadioListActivity.show(SqueezerHomeActivity.this);
-				break;
-			case APPS:
-			    //TODO (kaa) implement
-				//SqueezerApplicationListActivity.show(SqueezerHomeActivity.this);
-
+            case INTERNET_RADIO:
                 // Uncomment these next two lines as an easy way to check crash
                 // reporting functionality.
                 // String sCrashString = null;
                 // Log.e("MyApp", sCrashString.toString());
-				break;
-			case FAVORITES:
+                SqueezerRadioListActivity.show(SqueezerHomeActivity.this);
+                break;
+            case APPS:
+                // TODO (kaa) implement
+                // Currently hidden, by commenting out the entry in strings.xml.
+                // SqueezerApplicationListActivity.show(SqueezerHomeActivity.this);
+                break;
+            case FAVORITES:
+                // Currently hidden, by commenting out the entry in strings.xml.
+                // TODO: Implement
 				break;
 			}
 		}

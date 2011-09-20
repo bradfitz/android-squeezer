@@ -174,8 +174,8 @@
         <item>Now playing</item>
         <item>My Music</item>
         <item>Internet Radio</item>
-        <item>My Apps</item>
-        <item>Favorites</item>
+<!--         <item>My Apps</item> -->
+<!--         <item>Favorites</item> -->
     </string-array>
 
     <string-array name="music_items">
