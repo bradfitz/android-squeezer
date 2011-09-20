@@ -105,6 +105,25 @@
 	<string name="songs_sort_order_title">Title</string>
 	<string name="songs_sort_order_tracknum">Track</string>
 
+    <!--  Crash notifications -->
+    <string name="crash_toast_text">Sorry, an error occurred.</string>
+    <string name="crash_notif_ticker_text">Sorry, Squeezer crashed. Please send a report.</string>
+    <string name="crash_notif_title">Squeezer crashed.</string>
+    <string name="crash_notif_text">Select to help fix the bug.</string>
+    <string name="crash_dialog_text">An unexpected error occurred, and Squeezer crashed. A bug report has been prepared, please press OK to send it. No personally identifying information is included in this report.</string>	
+    <string name="crash_dialog_comment_prompt">If you have any additional comments that you think are helpful, please enter them here.</string>
+    <string name="crash_dialog_ok_toast">Thank you for helping us to improve Squeezer.</string>
+
+    <!--  ACRA preference strings -->
+    <string name="pref_cat_error_reports">Error reports</string>
+    <string name="pref_disable_acra">Report errors</string>
+    <string name="pref_acra_enabled">Errors are caught, and you have the option of sending a report to the developers.</string>
+    <string name="pref_acra_disabled">Errors are caught, but you will not be prompted to send a report. No report is sent.</string>
+
+    <string name="pref_acra_alwaysaccept">Automatically send reports</string>
+    <string name="pref_acra_alwaysaccept_enabled">Errors will automatically be reported.</string>
+    <string name="pref_acra_alwaysaccept_disabled">Errors will not automatically be reported.</string>
+
     <plurals name="artist">
         <item quantity="one">artist</item>
         <item quantity="other">artists</item>

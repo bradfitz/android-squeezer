@@ -52,9 +52,25 @@
      android:defaultValue="0"
     />
 
-  <CheckBoxPreference
-     android:key="squeezer.debuglogging"
-     android:title="Debug Logging"
-     android:summary="Keep this off, unless you're debugging something."
-     android:persistent="true" />
+  <PreferenceCategory
+    android:title="@string/pref_cat_error_reports">
+
+    <CheckBoxPreference android:key="acra.enable"
+        android:title="@string/pref_disable_acra"
+        android:summaryOn="@string/pref_acra_enabled"
+        android:summaryOff="@string/pref_acra_disabled"
+        android:defaultValue="true"/>
+
+    <CheckBoxPreference android:key="acra.alwaysaccept"
+        android:title="@string/pref_acra_alwaysaccept"
+        android:summaryOn="@string/pref_acra_alwaysaccept_enabled"
+        android:summaryOff="@string/pref_acra_alwaysaccept_disabled"
+        android:defaultValue="false"/>
+
+<!--   <CheckBoxPreference -->
+<!--      android:key="squeezer.debuglogging" -->
+<!--      android:title="Debug Logging" -->
+<!--      android:summary="Keep this off, unless you're debugging something." -->
+<!--      android:persistent="true" /> -->
+  </PreferenceCategory>
 </PreferenceScreen>

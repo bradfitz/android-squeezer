@@ -64,6 +64,11 @@ public class SqueezerHomeActivity extends ListActivity {
 			case APPS:
 			    //TODO (kaa) implement
 				//SqueezerApplicationListActivity.show(SqueezerHomeActivity.this);
+
+                // Uncomment these next two lines as an easy way to check crash
+                // reporting functionality.
+                // String sCrashString = null;
+                // Log.e("MyApp", sCrashString.toString());
 				break;
 			case FAVORITES:
 				break;
