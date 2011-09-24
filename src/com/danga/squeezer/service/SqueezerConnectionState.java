@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.acra.ErrorReporter;
+
 import android.net.wifi.WifiManager;
 import android.os.RemoteException;
 import android.util.Log;
@@ -83,7 +85,9 @@ class SqueezerConnectionState {
         if (socket != null) {
             try {
                 socket.close();
-            } catch (IOException e) {}
+            } catch (IOException e) {
+                ErrorReporter.getInstance().handleException(e);
+            }
         }
         socketRef.set(null);
         socketWriter.set(null);
@@ -105,6 +109,7 @@ class SqueezerConnectionState {
             callback.get().onConnectionChanged(currentState, postConnect);
             Log.d(TAG, "post-call setting callback connection state.");
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
         }
     }
 
@@ -188,6 +193,7 @@ class SqueezerConnectionState {
             try {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()), 128);
             } catch (IOException e) {
+                ErrorReporter.getInstance().handleException(e);
                 Log.v(TAG, "IOException while creating BufferedReader: " + e);
                 service.disconnect();
                 return;
@@ -198,6 +204,7 @@ class SqueezerConnectionState {
                 try {
                     line = in.readLine();
                 } catch (IOException e) {
+                    // Do not use ErrorReporter, this is handled.
                     line = null;
                     exception = e;
                 }
@@ -206,6 +213,7 @@ class SqueezerConnectionState {
                     // if we're not the main connection generation anymore,
                     // else we should notify about it.
                     if (currentConnectionGeneration.get() == generationNumber) {
+                        // TODO: Notify user that connection is lost.
                         Log.v(TAG, "Server disconnected; exception=" + exception);
                         service.disconnect();
                     } else {
@@ -290,6 +298,7 @@ class SqueezerConnectionState {
         try {
             return Integer.parseInt(hostPort.substring(colonPos + 1));
         } catch (NumberFormatException unused) {
+            ErrorReporter.getInstance().handleException(unused);
             Log.d(TAG, "Can't parse port out of " + hostPort);
             return DEFAULT_PORT;
         }

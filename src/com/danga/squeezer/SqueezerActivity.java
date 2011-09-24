@@ -19,6 +19,8 @@ package com.danga.squeezer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.acra.ErrorReporter;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -153,8 +155,12 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         totalTime = (TextView) findViewById(R.id.totaltime);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
 
-        // TODO: Simplify these following the notes at
-        // http://developer.android.com/resources/articles/ui-1.6.html
+        /*
+         * TODO: Simplify these following the notes at
+         * http://developer.android.com/resources/articles/ui-1.6.html. Maybe.
+         * because the TextView resources don't support the android:onClick
+         * attribute.
+         */
 		homeButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
                 if (!isConnected()) return;
@@ -182,6 +188,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                             onUserInitiatesConnect();
                         }
                     } catch (RemoteException e) {
+                    ErrorReporter.getInstance().handleException(e);
                         Log.e(getTag(), "Service exception from togglePausePlay(): " + e);
                     }
                 }
@@ -192,7 +199,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 if (getService() == null) return;
                 try {
                     getService().nextTrack();
-                } catch (RemoteException e) { }
+                } catch (RemoteException e) {
+                    ErrorReporter.getInstance().handleException(e);
+                }
             }
         });
 
@@ -201,7 +210,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 if (getService() == null) return;
                 try {
                     getService().previousTrack();
-                } catch (RemoteException e) { }
+                } catch (RemoteException e) {
+                    ErrorReporter.getInstance().handleException(e);
+                }
             }
         });
 
@@ -311,6 +322,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             getService().adjustVolumeBy(delta);
             return true;
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
         }
         return false;
     }
@@ -325,6 +337,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 Log.v(getTag(), "Dismissing...");
                 connectingDialog.dismiss();
                 if (!connected) {
+                    // TODO: Make this a dialog? Allow the user to correct the
+                    // server settings here?
                   Toast.makeText(this, getText(R.string.connection_failed_text), Toast.LENGTH_LONG).show();
                   return;
                 }
@@ -436,6 +450,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             isPlaying.set(getService().isPlaying());
             updatePlayPauseIcon();
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Service exception: " + e);
         }
 
@@ -485,6 +500,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         try {
             return getService().getSecondsElapsed();
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Service exception in getSecondsElapsed(): " + e);
         }
         return 0;
@@ -497,6 +513,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         try {
             return getService().getSecondsTotal();
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Service exception in getSecondsTotal(): " + e);
         }
         return 0;
@@ -509,6 +526,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     	try {
     		return getService().setSecondsElapsed(seconds);
     	} catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
     		Log.e(getTag(), "Service exception in setSecondsElapsed(" + seconds + "): " + e);
     	}
     	return true;
@@ -521,6 +539,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         try {
             return getService().currentSong();
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Service exception in getServiceCurrentSong(): " + e);
         }
         return null;
@@ -534,6 +553,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         try {
             return getService().isConnected();
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Service exception in isConnected(): " + e);
         }
         return false;
@@ -546,6 +566,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         try {
             return getService().canPowerOn();
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Service exception in canPowerOn(): " + e);
         }
         return false;
@@ -558,6 +579,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         try {
             return getService().canPowerOff();
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Service exception in canPowerOff(): " + e);
         }
         return false;
@@ -569,6 +591,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             try {
                 getService().unregisterCallback(serviceCallback);
             } catch (RemoteException e) {
+                ErrorReporter.getInstance().handleException(e);
                 Log.e(getTag(), "Service exception in onPause(): " + e);
             }
         }
@@ -629,6 +652,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 info = pm.getPackageInfo("com.danga.squeezer", 0);
                 aboutText = getString(R.string.about_text, info.versionName);
             } catch (NameNotFoundException e) {
+                    ErrorReporter.getInstance().handleException(e);
                 aboutText = "Package not found.";
             }
             builder.setMessage(Html.fromHtml(aboutText));
@@ -692,6 +716,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             try {
                 getService().disconnect();
             } catch (RemoteException e) {
+                    ErrorReporter.getInstance().handleException(e);
                 Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
             }
             return true;
@@ -699,6 +724,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             try {
                 getService().powerOn();
             } catch (RemoteException e) {
+                    ErrorReporter.getInstance().handleException(e);
                 Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
             }
             return true;
@@ -706,6 +732,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             try {
                 getService().powerOff();
             } catch (RemoteException e) {
+                    ErrorReporter.getInstance().handleException(e);
                 Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
             }
             return true;
@@ -769,6 +796,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         try {
             getService().startConnect(ipPort);
         } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
             Toast.makeText(this, "startConnection error: " + e, Toast.LENGTH_LONG).show();
         }
     }

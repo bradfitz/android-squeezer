@@ -18,6 +18,8 @@ package com.danga.squeezer.itemlists;
 
 import java.util.List;
 
+import org.acra.ErrorReporter;
+
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
@@ -47,6 +49,7 @@ public class YearSpinner {
 			try {
 				callback.getService().years(start);
 			} catch (RemoteException e) {
+                ErrorReporter.getInstance().handleException(e);
                 Log.e(TAG, "Error ordering items: " + e);
 			}
 		}
@@ -57,6 +60,7 @@ public class YearSpinner {
 			try {
 				callback.getService().registerYearListCallback(yearListCallback);
 			} catch (RemoteException e) {
+                ErrorReporter.getInstance().handleException(e);
                 Log.e(TAG, "Error registering callback: " + e);
 			}
 		}
@@ -67,6 +71,7 @@ public class YearSpinner {
 			try {
 				callback.getService().unregisterYearListCallback(yearListCallback);
 			} catch (RemoteException e) {
+                ErrorReporter.getInstance().handleException(e);
                 Log.e(TAG, "Error unregistering callback: " + e);
 			}
 		}

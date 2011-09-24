@@ -16,6 +16,8 @@
 
 package com.danga.squeezer.itemlists;
 
+import org.acra.ErrorReporter;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -123,6 +125,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 					getService().playlistClear();
 					finish();
 				} catch (RemoteException e) {
+                        ErrorReporter.getInstance().handleException(e);
 					Log.e(getTag(), "Error trying to clear playlist: " + e);
 				}
 			return true;
@@ -151,6 +154,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 	               		try {
 							getService().playlistSave(editText.getText().toString());
 						} catch (RemoteException e) {
+                                    ErrorReporter.getInstance().handleException(e);
 			                Log.e(getTag(), "Error saving playlist as '"+ editText.getText() + "': " + e);
 						}
 					}
@@ -162,6 +166,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 								getService().playlistSave(editText.getText().toString());
 								dismissDialog(DIALOG_SAVE);
 							} catch (RemoteException e) {
+                                ErrorReporter.getInstance().handleException(e);
 				                Log.e(getTag(), "Error saving playlist as '"+ editText.getText() + "': " + e);
 							}
 							return true;
@@ -184,6 +189,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 								getService().playlistMove(fromIndex-1, targetIndex-1);
 								orderItems();
 							} catch (RemoteException e) {
+                                        ErrorReporter.getInstance().handleException(e);
 				                Log.e(getTag(), "Error moving song from '"+ fromIndex + "' to '" +targetIndex + "': " + e);
 							}
 		               	}
@@ -219,6 +225,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 									orderItems();
 									dialog.dismiss();
 								} catch (RemoteException e) {
+                                    ErrorReporter.getInstance().handleException(e);
 					                Log.e(getTag(), "Error moving song from '"+ fromIndex + "' to '" +targetIndex + "': " + e);
 								}
 			               	}

@@ -19,6 +19,8 @@ package com.danga.squeezer.framework;
 
 import java.util.List;
 
+import org.acra.ErrorReporter;
+
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -115,6 +117,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 			try {
 				return itemView.doItemContext(menuItem, menuInfo.position, selectedItem);
 			} catch (RemoteException e) {
+                ErrorReporter.getInstance().handleException(e);
                 Log.e(getTag(), "Error context menu action '"+ menuInfo + "' for '" + selectedItem + "': " + e);
 			}
 		}
@@ -133,6 +136,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         	try {
 				unregisterCallback();
 			} catch (RemoteException e) {
+                ErrorReporter.getInstance().handleException(e);
                 Log.e(getTag(), "Error unregistering list callback: " + e);
 			}
         }

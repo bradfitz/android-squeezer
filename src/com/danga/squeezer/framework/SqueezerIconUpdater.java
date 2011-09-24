@@ -22,6 +22,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import org.acra.ErrorReporter;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -72,7 +74,9 @@ public class SqueezerIconUpdater<T extends SqueezerItem> {
 
 					});
 				} catch (MalformedURLException e) {
+                    ErrorReporter.getInstance().handleException(e);
 				} catch (IOException e) {
+                    ErrorReporter.getInstance().handleException(e);
 					Log.e(getClass().getSimpleName(), "Error getting drawable from url='" + urlString +"': " + e);
 				}
 			}

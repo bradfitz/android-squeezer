@@ -16,6 +16,8 @@
 
 package com.danga.squeezer.framework;
 
+import org.acra.ErrorReporter;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -61,6 +63,7 @@ public abstract class SqueezerBaseActivity extends Activity {
    			try {
    				SqueezerBaseActivity.this.onServiceConnected();
             } catch (RemoteException e) {
+                ErrorReporter.getInstance().handleException(e);
                 Log.e(getTag(), "Error in onServiceConnected: " + e);
             }
         }

@@ -16,6 +16,8 @@
 
 package com.danga.squeezer.itemlists;
 
+import org.acra.ErrorReporter;
+
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,6 +66,7 @@ public abstract class SqueezerPluginView extends SqueezerIconicItemView<Squeezer
 		try {
 			return service.getIconUrl(icon);
 		} catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
 			Log.e(getClass().getSimpleName(), "Error requesting icon url: " + e);
 			return null;
 		}

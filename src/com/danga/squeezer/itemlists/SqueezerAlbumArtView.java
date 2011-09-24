@@ -17,6 +17,8 @@
 package com.danga.squeezer.itemlists;
 
 
+import org.acra.ErrorReporter;
+
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.ImageView;
@@ -48,6 +50,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerItem> extends Squee
 		try {
 			return service.getAlbumArtUrl(artwork_track_id);
 		} catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
 			Log.e(getClass().getSimpleName(), "Error requesting album art url: " + e);
 			return null;
 		}
