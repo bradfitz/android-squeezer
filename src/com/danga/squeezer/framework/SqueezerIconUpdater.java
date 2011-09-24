@@ -41,8 +41,8 @@ public class SqueezerIconUpdater<T extends SqueezerItem> {
 		return activity;
 	}
 
-	public void updateIcon(final ImageView icon, final Object item, final String urlString) {
-		icon.setImageResource(R.drawable.icon_album_noart);
+    public void updateIcon(final ImageView icon, final Object item, final String urlString) {
+        icon.setImageResource(R.drawable.icon_album_noart_143);
 
 		if (urlString == null || urlString.length() == 0) {
 			icon.setTag(null);
