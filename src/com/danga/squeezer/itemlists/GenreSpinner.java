@@ -18,8 +18,6 @@ package com.danga.squeezer.itemlists;
 
 import java.util.List;
 
-import org.acra.ErrorReporter;
-
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
@@ -49,7 +47,6 @@ public class GenreSpinner {
 			try {
 				callback.getService().genres(start);
 			} catch (RemoteException e) {
-                ErrorReporter.getInstance().handleException(e);
                 Log.e(TAG, "Error ordering items: " + e);
 			}
 		}
@@ -60,7 +57,6 @@ public class GenreSpinner {
 			try {
 				callback.getService().registerGenreListCallback(genreListCallback);
 			} catch (RemoteException e) {
-                ErrorReporter.getInstance().handleException(e);
                 Log.e(TAG, "Error registering callback: " + e);
 			}
 		}
@@ -71,7 +67,6 @@ public class GenreSpinner {
 			try {
 				callback.getService().unregisterGenreListCallback(genreListCallback);
 			} catch (RemoteException e) {
-                ErrorReporter.getInstance().handleException(e);
                 Log.e(TAG, "Error unregistering callback: " + e);
 			}
 		}

@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.acra.ErrorReporter;
-
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -117,7 +115,6 @@ class SqueezerCLIImpl {
 								try {
 									service.playerListCallback.get().onPlayersReceived(count, start, players);
 								} catch (RemoteException e) {
-                                        ErrorReporter.getInstance().handleException(e);
 									Log.e(TAG, e.toString());
 									return false;
 								}
@@ -540,7 +537,6 @@ class SqueezerCLIImpl {
 					service.yearListCallback.get().onYearsReceived(count, start, years);
 					return true;
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 					Log.e(TAG, e.toString());
 				}
 			}
@@ -569,7 +565,6 @@ class SqueezerCLIImpl {
 					service.genreListCallback.get().onGenresReceived(count, start, genres);
 					return true;
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 					Log.e(TAG, e.toString());
 				}
 			}
@@ -600,7 +595,6 @@ class SqueezerCLIImpl {
 					service.artistListCallback.get().onArtistsReceived(count, start, artists);
 					return true;
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 					Log.e(TAG, e.toString());
 				}
 			}
@@ -629,7 +623,6 @@ class SqueezerCLIImpl {
 					service.albumListCallback.get().onAlbumsReceived(count, start, albums);
 					return true;
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 					Log.e(TAG, e.toString());
 				}
 			}
@@ -658,7 +651,6 @@ class SqueezerCLIImpl {
 					service.songListCallback.get().onSongsReceived(count, start, songs);
 					return true;
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 					Log.e(TAG, e.toString());
 				}
 			}
@@ -687,7 +679,6 @@ class SqueezerCLIImpl {
 					service.playlistsCallback.get().onPlaylistsReceived(count, start, playlists);
 					return true;
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 					Log.e(TAG, e.toString());
 				}
 			}
@@ -717,7 +708,6 @@ class SqueezerCLIImpl {
 					service.pluginListCallback.get().onPluginsReceived(count, start, plugins);
 					return true;
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 					Log.e(TAG, e.toString());
 				}
 			}
@@ -747,7 +737,6 @@ class SqueezerCLIImpl {
 					service.pluginItemListCallback.get().onPluginItemsReceived(count, start, parameters, pluginItems);
 					return true;
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 					Log.e(TAG, e.toString());
 				}
 			}

@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.acra.ErrorReporter;
-
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.AbsListView;
@@ -77,7 +75,6 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
 			try {
 				orderPage(pagePosition);
 			} catch (RemoteException e) {
-                ErrorReporter.getInstance().handleException(e);
 				Log.e(getTag(), "Error ordering items (" + pagePosition + "): " + e);
 			}
 		}

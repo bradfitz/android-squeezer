@@ -16,8 +16,6 @@
 
 package com.danga.squeezer.itemlists;
 
-import org.acra.ErrorReporter;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -178,7 +176,6 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 						getService().playlistsDelete(playlist);
 						finish();
 					} catch (RemoteException e) {
-                                    ErrorReporter.getInstance().handleException(e);
 		                Log.e(getTag(), "Error deleting playlist");
 					}
 				}
@@ -214,7 +211,6 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 								getService().playlistsMove(playlist, fromIndex-1, targetIndex-1);
 								orderItems();
 							} catch (RemoteException e) {
-                                        ErrorReporter.getInstance().handleException(e);
 				                Log.e(getTag(), "Error moving song from '"+ fromIndex + "' to '" +targetIndex + "': " + e);
 							}
 		               	}
@@ -265,7 +261,6 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 									orderItems();
 									dialog.dismiss();
 								} catch (RemoteException e) {
-                                    ErrorReporter.getInstance().handleException(e);
 					                Log.e(getTag(), "Error moving song from '"+ fromIndex + "' to '" +targetIndex + "': " + e);
 								}
 			               	}
@@ -286,7 +281,6 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 			getService().playlistsRename(playlist, newname);
    	    	playlist.setName(newname);
 		} catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
 		}
     }

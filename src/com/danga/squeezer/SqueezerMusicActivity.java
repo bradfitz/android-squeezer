@@ -17,8 +17,6 @@
 package com.danga.squeezer;
 
 
-import org.acra.ErrorReporter;
-
 import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -101,7 +99,6 @@ public class SqueezerMusicActivity extends ListActivity {
         	try {
 				canRandomplay = service.canRandomplay();
 			} catch (RemoteException e) {
-                ErrorReporter.getInstance().handleException(e);
 				Log.e(TAG, "Error requesting randomplay ability: " + e);
 			}
 		}

@@ -18,8 +18,6 @@ package com.danga.squeezer.itemlists;
 
 import java.util.List;
 
-import org.acra.ErrorReporter;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -129,7 +127,6 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 							getService().playlistsDelete(currentPlaylist);
 							orderItems();
 						} catch (RemoteException e) {
-                                    ErrorReporter.getInstance().handleException(e);
 							Log.e(getTag(), "Error deleting playlist");
 						}
 					}
@@ -193,7 +190,6 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 			getService().playlistsNew(name);
 			orderItems();
 		} catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Error saving playlist as '"+ name + "': " + e);
 		}
     }
@@ -205,7 +201,6 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 			currentPlaylist.setName(newname);
 			getItemAdapter().notifyDataSetChanged();
 		} catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
             Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
 		}
     }

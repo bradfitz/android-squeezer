@@ -16,8 +16,6 @@
 
 package com.danga.squeezer;
 
-import org.acra.ErrorReporter;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -75,9 +73,7 @@ public class SettingsActivity extends PreferenceActivity implements
                     if (serviceStub != null) {
                         try {
                             serviceStub.preferenceChanged(key);
-                            } catch (RemoteException e) {
-                                ErrorReporter.getInstance().handleException(e);
-                            }
+                        } catch (RemoteException e) {}
                     }
             }
         });

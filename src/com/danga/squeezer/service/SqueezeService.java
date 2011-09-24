@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.acra.ErrorReporter;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -183,7 +181,6 @@ public class SqueezeService extends Service {
 							try {
 								playlistMaintenanceCallback.get().onCreateFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE, tokenMap.get("name")));
 							} catch (RemoteException e) {
-                                ErrorReporter.getInstance().handleException(e);
 								Log.e(TAG, getString(R.string.PLAYLIST_EXISTS_MESSAGE, tokenMap.get("name")));
 							}
 						}
@@ -196,7 +193,6 @@ public class SqueezeService extends Service {
 								try {
 									playlistMaintenanceCallback.get().onRenameFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE, tokenMap.get("newname")));
 								} catch (RemoteException e) {
-                                    ErrorReporter.getInstance().handleException(e);
 									Log.e(TAG, getString(R.string.PLAYLIST_EXISTS_MESSAGE, tokenMap.get("newname")));
 								}
 							}
@@ -357,7 +353,6 @@ public class SqueezeService extends Service {
         	}
             connectionState.getCallback().onVolumeChange(newVolume);
         } catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
         }
     }
 
@@ -366,7 +361,6 @@ public class SqueezeService extends Service {
         try {
         	connectionState.getCallback().onTimeInSongChange(secondsIn, secondsTotal);
         } catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
         }
     }
 
@@ -489,9 +483,7 @@ public class SqueezeService extends Service {
         if (connectionState.getCallback() != null) {
             try {
             	connectionState.getCallback().onPlayerChanged(playerId, newPlayer.getName());
-            } catch (RemoteException e) {
-                ErrorReporter.getInstance().handleException(e);
-            }
+            } catch (RemoteException e) {}
         }
     }
 
@@ -531,7 +523,6 @@ public class SqueezeService extends Service {
         try {
         	connectionState.getCallback().onPlayStatusChanged(state);
         } catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
         }
 
     }
@@ -603,7 +594,6 @@ public class SqueezeService extends Service {
         try {
         	connectionState.getCallback().onMusicChanged();
         } catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
         }
     }
 

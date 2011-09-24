@@ -18,8 +18,6 @@ package com.danga.squeezer.model;
 
 import java.util.Map;
 
-import org.acra.ErrorReporter;
-
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.util.Log;
@@ -70,7 +68,6 @@ public class SqueezerSong extends SqueezerArtworkItem {
 					return null;
 				return service.getAlbumArtUrl(getArtwork_track_id());
 			} catch (RemoteException e) {
-                ErrorReporter.getInstance().handleException(e);
 				Log.e(getClass().getSimpleName(), "Error requesting album art url: " + e);
 			}
 		}

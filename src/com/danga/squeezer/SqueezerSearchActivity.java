@@ -18,8 +18,6 @@ package com.danga.squeezer;
 
 import java.util.List;
 
-import org.acra.ErrorReporter;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -101,7 +99,6 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 						} else
 							SqueezerAlbumListActivity.show(SqueezerSearchActivity.this, item);
 					} catch (RemoteException e) {
-                        ErrorReporter.getInstance().handleException(e);
 						Log.e(getTag(), "Error from default action for search result '" + item
 								+ "': " + e);
 					}
@@ -152,7 +149,6 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 				try {
 					searchResultsAdapter.doItemContext(menuItem, groupPosition, childPosition);
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 					SqueezerItem item = searchResultsAdapter.getChild(groupPosition, childPosition);
 					Log.e(getTag(), "Error executing context menu action '" + contextMenuInfo + "' for '"	+ item + "': " + e);
 				}
@@ -173,7 +169,6 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
         	try {
         		unregisterCallback();
 			} catch (RemoteException e) {
-                ErrorReporter.getInstance().handleException(e);
                 Log.e(getTag(), "Error unregistering list callback: " + e);
 			}
         }
@@ -192,7 +187,6 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		try {
 			getService().search(start, searchString);
 		} catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
 			Log.e(getTag(), "Error performing search: " + e);
 		}
 	}

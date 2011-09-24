@@ -19,8 +19,6 @@ package com.danga.squeezer;
 
 import java.util.Arrays;
 
-import org.acra.ErrorReporter;
-
 import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -87,7 +85,6 @@ public class SqueezerRandomplayActivity extends ListActivity {
 				try {
 					service.randomPlay(RandomPlayType.values()[position].toString());
 				} catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
 	                Log.e(TAG, "Error registering list callback: " + e);
 				}
 				SqueezerActivity.show(SqueezerRandomplayActivity.this);

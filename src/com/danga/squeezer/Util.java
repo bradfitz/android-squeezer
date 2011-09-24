@@ -23,8 +23,6 @@ import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.acra.ErrorReporter;
-
 import android.app.Activity;
 import android.view.View;
 import android.widget.TextView;
@@ -88,7 +86,6 @@ public class Util {
             int intValue = Integer.parseInt(value);
             return intValue;
         } catch (NumberFormatException e) {
-            ErrorReporter.getInstance().handleException(e);
             return defaultValue;
         }
     }
@@ -120,7 +117,6 @@ public class Util {
         try {
             return URLEncoder.encode(string, "UTF-8").replace("+", "%20");
         } catch (UnsupportedEncodingException e) {
-            ErrorReporter.getInstance().handleException(e);
             return "";
         }
     }
@@ -129,7 +125,6 @@ public class Util {
         try {
             return URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            ErrorReporter.getInstance().handleException(e);
             return "";
         }
     }
