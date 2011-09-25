@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Brad Fitzpatrick <brad@danga.com>
+ * Copyright (c) 2009 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -624,22 +625,29 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-        case DIALOG_ABOUT:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(getText(R.string.about_title));
-            PackageManager pm = getPackageManager();
-            PackageInfo info;
-            String aboutText;
-            try {
-                info = pm.getPackageInfo("com.danga.squeezer", 0);
-                aboutText = getString(R.string.about_text, info.versionName);
-            } catch (NameNotFoundException e) {
-                aboutText = "Package not found.";
+            case DIALOG_ABOUT: {
+                final TextView message = (TextView) getLayoutInflater().inflate(
+                        R.layout.about_textview, null);
+
+                PackageManager pm = getPackageManager();
+                PackageInfo info;
+                String aboutTitle;
+                try {
+                    info = pm.getPackageInfo("com.danga.squeezer", 0);
+                    aboutTitle = getString(R.string.about_title, info.versionName);
+                } catch (NameNotFoundException e) {
+                    aboutTitle = "Package not found.";
+                }
+
+                message.setText(Html.fromHtml((String) getText(R.string.about_text)));
+                message.setAutoLinkMask(RESULT_OK);
+                message.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+                return new AlertDialog.Builder(this)
+                        .setTitle(aboutTitle)
+                        .setView(message)
+                        .create();
             }
-            builder.setMessage(Html.fromHtml(aboutText));
-            return builder.create();
-        }
         case DIALOG_ENABLE_WIFI:
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

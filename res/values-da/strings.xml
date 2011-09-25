@@ -42,7 +42,7 @@
     <string name="menu_item_playlists_new">Ny afspilningsliste</string>
     <string name="menu_item_playlist_clear">Ryd afspilningsliste</string>
     <string name="menu_item_playlist_save">Gem afspilningsliste</string>
-    <string name="about_title">Om squeezer</string>
+    <string name="about_title">Om squeezer v%s</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
