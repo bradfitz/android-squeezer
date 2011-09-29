@@ -24,6 +24,8 @@
 <!--      android:summary="NOTDONE Auto-scan for the squeeze server." -->
 <!--      android:persistent="true" /> -->
 
+   <!-- TODO: Something that only allowed IP:port here would be nice,
+        instead of using the normal keyboard. -->
    <EditTextPreference
      android:key="squeezer.serveraddr"
      android:title="@string/settings_serveraddr_title"
