@@ -47,9 +47,9 @@ public class SqueezerMusicActivity extends ListActivity {
 	private static final int GENRES = 3;
 	private static final int YEARS = 4;
 	private static final int RANDOM_MIX = 5;
-	private static final int MUSIC_FOLDER = 6;
-	private static final int PLAYLISTS = 7;
-	private static final int SEARCH = 8;
+    private static final int MUSIC_FOLDER = -1; /* 6; */
+    private static final int PLAYLISTS = 6;
+    private static final int SEARCH = 7;
 
 	private ISqueezeService service;
 	private boolean canRandomplay = true;
@@ -90,7 +90,7 @@ public class SqueezerMusicActivity extends ListActivity {
 		final int[] musicIcons = new int[] { R.drawable.icon_ml_artist,
 				R.drawable.icon_ml_albums, R.drawable.icon_ml_songs,
 				R.drawable.icon_ml_genres, R.drawable.icon_ml_years,
-				R.drawable.icon_ml_random, R.drawable.icon_ml_folder,
+                R.drawable.icon_ml_random, /* R.drawable.icon_ml_folder, */
 				R.drawable.icon_ml_playlist, R.drawable.icon_ml_search };
 		String[] items = musicItems;
 		int[] icons = musicIcons;
@@ -143,6 +143,7 @@ public class SqueezerMusicActivity extends ListActivity {
 				SqueezerRandomplayActivity.show(SqueezerMusicActivity.this);
 				break;
 			case MUSIC_FOLDER:
+                /* TODO: Implement browsing the music folder. */
 				break;
 			case PLAYLISTS:
 				SqueezerPlaylistsActivity.show(SqueezerMusicActivity.this);

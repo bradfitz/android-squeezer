@@ -163,7 +163,7 @@
         <item>Genrer</item>
         <item>År</item>
         <item>Tilfældigt miks</item>
-        <item>Musikmappe</item>
+<!--         <item>Musikmappe</item> -->
         <item>Afspilningslister</item>
         <item>Søg</item>
     </string-array>

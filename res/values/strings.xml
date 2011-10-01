@@ -363,7 +363,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item>Genres</item>
         <item>Years</item>
         <item>Random mix</item>
-        <item>Music Folder</item>
+<!--         <item>Music Folder</item> -->
         <item>Playlists</item>
         <item>Search</item>
     </string-array>
