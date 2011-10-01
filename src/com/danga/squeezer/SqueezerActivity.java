@@ -63,6 +63,7 @@ import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerSong;
 import com.danga.squeezer.service.SqueezeService;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class SqueezerActivity extends SqueezerBaseActivity {
     private static final int DIALOG_ABOUT = 0;
@@ -131,6 +132,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         }
     };
 
+    private GoogleAnalyticsTracker tracker;
+
     @Override
 	public Handler getUIThreadHandler() {
     	return uiThreadHandler;
@@ -140,6 +143,15 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+        if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
+            Log.v("SqueezerActivity", "Tracking page view 'SqueezerActivity");
+            // Start the tracker in manual dispatch mode...
+            tracker = GoogleAnalyticsTracker.getInstance();
+            tracker.startNewSession("UA-26056668-1", this);
+            tracker.trackPageView("SqueezerActivity");
+        }
 
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
@@ -792,6 +804,17 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 				.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 				.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Send analytics stats (if enabled).
+        if (tracker != null) {
+            tracker.dispatch();
+            tracker.stopSession();
+        }
     }
 
     private final IServiceCallback serviceCallback = new IServiceCallback.Stub() {

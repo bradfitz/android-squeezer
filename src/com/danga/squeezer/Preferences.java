@@ -36,6 +36,9 @@ public final class Preferences {
 
     public static final String KEY_DEBUG_LOGGING = "squeezer.debuglogging";
 
+    // Do we send anonymous usage statistics?
+    public static final String KEY_ANALYTICS_ENABLED = "squeezer.analytics.enabled";
+
 	private Preferences() {
 	}
 }

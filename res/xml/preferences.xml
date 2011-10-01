@@ -69,6 +69,12 @@
         android:summaryOff="@string/pref_acra_alwaysaccept_disabled"
         android:defaultValue="false"/>
 
+    <CheckBoxPreference android:key="squeezer.analytics.enabled"
+        android:title="@string/pref_analytics_enable"
+        android:summaryOn="@string/pref_analytics_enable_enabled"
+        android:summaryOff="@string/pref_analytics_enable_disabled"
+        android:defaultValue="true"/>
+
 <!--   <CheckBoxPreference -->
 <!--      android:key="squeezer.debuglogging" -->
 <!--      android:title="Debug Logging" -->
