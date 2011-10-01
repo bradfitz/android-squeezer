@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Spinner;
 
 import com.danga.squeezer.R;
 import com.danga.squeezer.Util;
@@ -115,12 +116,37 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		pages.clear();
 	}
 
-	public View getView(int position, View convertView, ViewGroup parent) {
+    /*
+     * TODO: Annoying gyrations here to separate spinners from other list views.
+     */
+    public View getView(int position, View convertView, ViewGroup parent) {
 		T item = getItem(position);
-		if (item != null)
-			return itemView.getAdapterView(convertView, item);
-		return Util.getListItemView(getActivity(), convertView, (position == 0 && emptyItem ? "" : loadingText));
+        if (item != null) {
+            if (parent instanceof Spinner) {
+                return itemView.getSpinnerAdapterView(convertView, item);
+            } else {
+                return itemView.getAdapterView(convertView, item);
+            }
+        }
+
+        if (parent instanceof Spinner) {
+            return Util.getSpinnerItemView(getActivity(), convertView,
+                    (position == 0 && emptyItem ? "" : loadingText));
+        } else {
+            return Util.getListItemView(getActivity(), convertView,
+                    (position == 0 && emptyItem ? "" : loadingText));
+        }
 	}
+
+    @Override
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        T item = getItem(position);
+        if (item != null)
+            return itemView.getSpinnerAdapterView(convertView, item);
+
+        return Util.getSpinnerItemView(getActivity(), convertView,
+                (position == 0 && emptyItem ? "" : loadingText));
+    }
 
 	public String getQuantityString(int size) {
 		return itemView.getQuantityString(size);

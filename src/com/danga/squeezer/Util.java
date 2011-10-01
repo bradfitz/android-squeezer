@@ -138,4 +138,14 @@ public class Util {
 		return view;
 	}
 
+    public static View getSpinnerItemView(Activity activity, View convertView, String label) {
+        TextView view;
+        view = (TextView) (convertView != null
+                && TextView.class.isAssignableFrom(convertView.getClass())
+                ? convertView
+                : activity.getLayoutInflater().inflate(R.layout.spinner_item, null));
+        view.setText(label);
+        return view;
+    }
+
 }
