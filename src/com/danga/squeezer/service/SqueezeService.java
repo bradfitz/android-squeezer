@@ -844,9 +844,9 @@ public class SqueezeService extends Service {
 		}
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
-		public boolean albums(int start, String sortOrder, String searchString,
-				SqueezerArtist artist, SqueezerYear year, SqueezerGenre genre)
-				throws RemoteException {
+        public boolean albums(int start, String sortOrder, String searchString,
+                SqueezerArtist artist, SqueezerYear year, SqueezerGenre genre, SqueezerSong song)
+                throws RemoteException {
             if (!isConnected()) return false;
             List<String> parameters = new ArrayList<String>();
             parameters.add("tags:" + ALBUMTAGS);
@@ -857,8 +857,10 @@ public class SqueezeService extends Service {
 				parameters.add("artist_id:" + artist.getId());
 			if (year != null)
 				parameters.add("year:" + year.getId());
-			if (genre != null)
-				parameters.add("genre_id:" + genre.getId());
+            if (genre != null)
+                parameters.add("genre_id:" + genre.getId());
+            if (song != null)
+                parameters.add("track_id:" + song.getId());
             cli.requestItems("albums", start, parameters);
             return true;
         }

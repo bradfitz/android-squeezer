@@ -67,6 +67,7 @@
     <string name="choose_sort_order">Choose ordering of %s</string>
     <string name="genre_prompt">Choose genre</string>
     <string name="year_prompt">Choose year</string>
+    <string name="track_label">Track</string>
     <string name="artist_label">Artist</string>
     <string name="album_label">Album</string>
     <string name="genre_label">Genre</string>

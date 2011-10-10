@@ -68,6 +68,7 @@
     <string name="choose_sort_order">Vælg rækkefølge af %s</string>
     <string name="genre_prompt">Vælg genre</string>
     <string name="year_prompt">Vælg år</string>
+    <string name="track_label">Sang</string>
     <string name="artist_label">Kunster</string>
     <string name="album_label">Album</string>
     <string name="genre_label">Genre</string>

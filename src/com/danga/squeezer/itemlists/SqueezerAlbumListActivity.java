@@ -41,6 +41,7 @@ import com.danga.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
 import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerGenre;
+import com.danga.squeezer.model.SqueezerSong;
 import com.danga.squeezer.model.SqueezerYear;
 
 public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<SqueezerAlbum>
@@ -48,6 +49,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 
 	private AlbumsSortOrder sortOrder = AlbumsSortOrder.album;
 	private String searchString = null;
+    private SqueezerSong song;
 	private SqueezerArtist artist;
 	private SqueezerYear year;
 	private SqueezerGenre genre;
@@ -76,8 +78,10 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 					artist = extras.getParcelable(key);
 				} else if (SqueezerYear.class.getName().equals(key)) {
 					year = extras.getParcelable(key);
-				} else if (SqueezerGenre.class.getName().equals(key)) {
-					genre = extras.getParcelable(key);
+                } else if (SqueezerGenre.class.getName().equals(key)) {
+                    genre = extras.getParcelable(key);
+                } else if (SqueezerSong.class.getName().equals(key)) {
+                    song = extras.getParcelable(key);
 				} else
 					Log.e(getTag(), "Unexpected extra value: " + key + "("
 							+ extras.get(key).getClass().getName() + ")");
@@ -100,7 +104,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 
 	@Override
 	protected void orderPage(int start) throws RemoteException {
-		getService().albums(start, sortOrder.name().replace("__", ""), searchString, artist, year, genre);
+		getService().albums(start, sortOrder.name().replace("__", ""), searchString, artist, year, genre, song);
 	}
 
 	public void setSortOrder(AlbumsSortOrder sortOrder) {
@@ -137,10 +141,14 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 			final Spinner genreSpinnerView = (Spinner) filterForm.findViewById(R.id.genre_spinner);
 			final Spinner yearSpinnerView = (Spinner) filterForm.findViewById(R.id.year_spinner);
 
-	        if (artist != null) {
-	        	((EditText)filterForm.findViewById(R.id.artist)).setText(artist.getName());
-	        	filterForm.findViewById(R.id.artist_view).setVisibility(View.VISIBLE);
-	        }
+            if (song != null) {
+                ((EditText)filterForm.findViewById(R.id.track)).setText(song.getName());
+                filterForm.findViewById(R.id.track_view).setVisibility(View.VISIBLE);
+            }
+            if (artist != null) {
+                ((EditText)filterForm.findViewById(R.id.artist)).setText(artist.getName());
+                filterForm.findViewById(R.id.artist_view).setVisibility(View.VISIBLE);
+            }
 
 	        genreSpinner = new GenreSpinner(this, this, genreSpinnerView);
 	        yearSpinner = new YearSpinner(this, this, yearSpinnerView);
