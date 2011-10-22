@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
@@ -34,8 +33,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.danga.squeezer.R;
-import com.danga.squeezer.SqueezerActivity;
-import com.danga.squeezer.SqueezerHomeActivity;
 
 /**
  * <p>
@@ -52,8 +49,8 @@ import com.danga.squeezer.SqueezerHomeActivity;
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
-	protected static final int DIALOG_FILTER = 0;
-	protected static final int DIALOG_ORDER = 1;
+	public static final int DIALOG_FILTER = 0;
+	public static final int DIALOG_ORDER = 1;
 
 	private SqueezerItemAdapter<T> itemAdapter;
 	private ListView listView;
@@ -180,25 +177,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	private void clearItemListAdapter() {
 		itemAdapter = createItemListAdapter(itemView);
 		listView.setAdapter(itemAdapter);
-	}
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.itemlistmenu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-	@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-        case R.id.menu_item_home:
-        	SqueezerHomeActivity.show(this);
-			return true;
-        case R.id.menu_item_main:
-        	SqueezerActivity.show(this);
-			return true;
-        }
-        return super.onMenuItemSelected(featureId, menuItem);
 	}
 
 }

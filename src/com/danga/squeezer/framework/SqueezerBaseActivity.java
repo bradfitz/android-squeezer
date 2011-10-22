@@ -16,7 +16,6 @@
 
 package com.danga.squeezer.framework;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +23,7 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.danga.squeezer.service.ISqueezeService;
@@ -34,7 +34,7 @@ import com.danga.squeezer.service.SqueezeService;
  * @author Kurt Aaholst
  *
  */
-public abstract class SqueezerBaseActivity extends Activity {
+public abstract class SqueezerBaseActivity extends FragmentActivity {
 	private ISqueezeService service = null;
 	private final Handler uiThreadHandler = new Handler() {};
 
@@ -42,10 +42,6 @@ public abstract class SqueezerBaseActivity extends Activity {
 
     protected String getTag() {
     	return getClass().getSimpleName();
-	}
-
-	public void setService(ISqueezeService service) {
-		this.service = service;
 	}
 
 	/**

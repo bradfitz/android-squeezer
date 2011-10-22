@@ -25,8 +25,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
@@ -37,6 +35,8 @@ import com.danga.squeezer.framework.SqueezerItem;
 import com.danga.squeezer.framework.SqueezerItemView;
 import com.danga.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import com.danga.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
+import com.danga.squeezer.menu.SqueezerFilterMenuItemFragment;
+import com.danga.squeezer.menu.SqueezerOrderMenuItemFragment;
 import com.danga.squeezer.model.SqueezerAlbum;
 import com.danga.squeezer.model.SqueezerArtist;
 import com.danga.squeezer.model.SqueezerGenre;
@@ -122,25 +122,12 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity i
 		orderItems();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.filtermenuitem, menu);
-        getMenuInflater().inflate(R.menu.ordermenuitem, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_item_sort:
-			showDialog(DIALOG_ORDER);
-			return true;
-		case R.id.menu_item_filter:
-			showDialog(DIALOG_FILTER);
-			return true;
-		}
-		return super.onMenuItemSelected(featureId, item);
-	}
+	@Override 
+	public void onCreate(Bundle savedInstanceState) {
+	    super.onCreate(savedInstanceState);
+        SqueezerFilterMenuItemFragment.addTo(this);
+        SqueezerOrderMenuItemFragment.addTo(this);
+	};
 
 	@Override
 	public boolean onSearchRequested() {

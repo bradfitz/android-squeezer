@@ -17,7 +17,6 @@
 package com.danga.squeezer;
 
 
-import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -25,10 +24,12 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
 import com.danga.squeezer.itemlists.SqueezerAlbumListActivity;
 import com.danga.squeezer.itemlists.SqueezerArtistListActivity;
@@ -36,10 +37,11 @@ import com.danga.squeezer.itemlists.SqueezerGenreListActivity;
 import com.danga.squeezer.itemlists.SqueezerPlaylistsActivity;
 import com.danga.squeezer.itemlists.SqueezerSongListActivity;
 import com.danga.squeezer.itemlists.SqueezerYearListActivity;
+import com.danga.squeezer.menu.SqueezerMenuFragment;
 import com.danga.squeezer.service.ISqueezeService;
 import com.danga.squeezer.service.SqueezeService;
 
-public class SqueezerMusicActivity extends ListActivity {
+public class SqueezerMusicActivity extends FragmentActivity {
 	private static final String TAG = SqueezerMusicActivity.class.getName();
 	private static final int ARTISTS = 0;
 	private static final int ALBUMS = 1;
@@ -53,11 +55,15 @@ public class SqueezerMusicActivity extends ListActivity {
 
 	private ISqueezeService service;
 	private boolean canRandomplay = true;
+    private ListView listView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setMusicMenu();
+		setContentView(R.layout.item_list);
+        listView = (ListView) findViewById(R.id.item_list);
+        SqueezerMenuFragment.addTo(this);
+        setMusicMenu();
 	}
 
     @Override
@@ -115,8 +121,8 @@ public class SqueezerMusicActivity extends ListActivity {
 			}
 
 		}
-		setListAdapter(new IconRowAdapter(this, items, icons));
-		getListView().setOnItemClickListener(onMusicItemClick);
+        listView.setAdapter(new IconRowAdapter(this, items, icons));
+		listView.setOnItemClickListener(onMusicItemClick);
 	}
 
 	private final OnItemClickListener onMusicItemClick = new OnItemClickListener() {
