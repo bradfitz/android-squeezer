@@ -18,18 +18,20 @@ package com.danga.squeezer.framework;
 
 import com.danga.squeezer.menu.SqueezerFilterMenuItemFragment;
 
-public abstract class SqueezerFilterableListActivity<T extends SqueezerItem> extends SqueezerBaseListActivity<T> {
+public abstract class SqueezerFilterableListActivity<T extends SqueezerItem>
+        extends SqueezerBaseListActivity<T>
+        implements SqueezerFilterMenuItemFragment.SqueezerFilterableListActivity {
 
     @Override
     public void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SqueezerFilterMenuItemFragment.addTo(this);
     };
-    
-	@Override
-	public boolean onSearchRequested() {
-		showDialog(DIALOG_FILTER);
-		return false;
-	}
+
+    @Override
+    public boolean onSearchRequested() {
+        showFilterDialog();
+        return false;
+    }
 
 }

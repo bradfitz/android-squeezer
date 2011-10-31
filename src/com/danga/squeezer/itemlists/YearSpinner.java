@@ -111,6 +111,7 @@ public class YearSpinner {
     	ISqueezeService getService();
     	Handler getUIThreadHandler();
     	SqueezerYear getYear();
+    	void setYear(SqueezerYear year);
     }
 
 }

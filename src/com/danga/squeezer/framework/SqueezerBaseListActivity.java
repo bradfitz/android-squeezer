@@ -49,9 +49,6 @@ import com.danga.squeezer.R;
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
-	public static final int DIALOG_FILTER = 0;
-	public static final int DIALOG_ORDER = 1;
-
 	private SqueezerItemAdapter<T> itemAdapter;
 	private ListView listView;
 	private TextView loadingLabel;
@@ -145,7 +142,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		return itemAdapter;
 	}
 
-	protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T>  itemView) {
+	protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T> itemView) {
 		return new SqueezerItemListAdapter<T>(itemView);
 	}
 

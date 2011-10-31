@@ -19,7 +19,9 @@ package com.danga.squeezer.framework;
 import com.danga.squeezer.menu.SqueezerOrderMenuItemFragment;
 
 
-public abstract class SqueezerOrderableListActivity<T extends SqueezerItem> extends SqueezerFilterableListActivity<T> {
+public abstract class SqueezerOrderableListActivity<T extends SqueezerItem> 
+        extends SqueezerFilterableListActivity<T> 
+        implements SqueezerOrderMenuItemFragment.SqueezerOrderableListActivity {
 
     @Override
     public void onCreate(android.os.Bundle savedInstanceState) {

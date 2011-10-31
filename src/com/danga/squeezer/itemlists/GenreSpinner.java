@@ -112,7 +112,8 @@ public class GenreSpinner {
     public interface GenreSpinnerCallback {
     	ISqueezeService getService();
     	Handler getUIThreadHandler();
-    	SqueezerGenre getGenre();
+        SqueezerGenre getGenre();
+        void setGenre(SqueezerGenre genre);
     }
 
 }

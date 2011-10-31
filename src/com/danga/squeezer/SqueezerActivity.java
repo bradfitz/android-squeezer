@@ -38,6 +38,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
+import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -66,10 +67,6 @@ import com.danga.squeezer.service.SqueezeService;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class SqueezerActivity extends SqueezerBaseActivity {
-    private static final int DIALOG_ABOUT = 0;
-    private static final int DIALOG_CONNECTING = 1;
-    private static final int DIALOG_ENABLE_WIFI = 2;
-
     protected static final int HOME_REQUESTCODE = 0;
 
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
@@ -634,35 +631,38 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     	return true;
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (id) {
-            case DIALOG_ABOUT: {
-                final TextView message = (TextView) getLayoutInflater().inflate(
-                        R.layout.about_textview, null);
+    private class AboutDialog extends DialogFragment {
+        
+        @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final TextView message = (TextView) getActivity().getLayoutInflater().inflate(R.layout.about_textview, null);
 
-                PackageManager pm = getPackageManager();
-                PackageInfo info;
-                String aboutTitle;
-                try {
-                    info = pm.getPackageInfo("com.danga.squeezer", 0);
-                    aboutTitle = getString(R.string.about_title, info.versionName);
-                } catch (NameNotFoundException e) {
-                    aboutTitle = "Package not found.";
-                }
-
-                message.setText(Html.fromHtml((String) getText(R.string.about_text)));
-                message.setAutoLinkMask(RESULT_OK);
-                message.setMovementMethod(ScrollingMovementMethod.getInstance());
-
-                return new AlertDialog.Builder(this)
-                        .setTitle(aboutTitle)
-                        .setView(message)
-                        .create();
+            PackageManager pm = getPackageManager();
+            PackageInfo info;
+            String aboutTitle;
+            try {
+                info = pm.getPackageInfo("com.danga.squeezer", 0);
+                aboutTitle = getString(R.string.about_title, info.versionName);
+            } catch (NameNotFoundException e) {
+                aboutTitle = "Package not found.";
             }
-        case DIALOG_ENABLE_WIFI:
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            message.setText(Html.fromHtml((String) getText(R.string.about_text)));
+            message.setAutoLinkMask(RESULT_OK);
+            message.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle(aboutTitle)
+                    .setView(message)
+                    .create();
+        }
+        
+        
+    }
+    
+    private class EnableWifiDialog extends DialogFragment {
+        
+        @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.wifi_disabled_text);
             builder.setMessage(R.string.enable_wifi_text);
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -678,28 +678,22 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             return builder.create();
         }
 
-        case DIALOG_CONNECTING:
-            // Note: this only happens the first time.  onPrepareDialog is called on each connect.
-            connectingDialog = new ProgressDialog(this);
+    }
+    
+    private class ConnectingDialog extends DialogFragment {
+        
+        @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+            connectingDialog = new ProgressDialog(getActivity());
             connectingDialog.setTitle(getText(R.string.connecting_text));
             connectingDialog.setIndeterminate(true);
+            connectingDialog.setMessage(getString(R.string.connecting_to_text, connectingTo));
+
+            // Lose the race?  If Service/network is very fast.
+            if (!connectInProgress) connectingDialog.dismiss();
+
             return connectingDialog;
         }
-        return null;
-    }
-
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog) {
-        switch (id) {
-        case DIALOG_CONNECTING:
-            ProgressDialog connectingDialog = (ProgressDialog) dialog;
-            connectingDialog.setMessage(getString(R.string.connecting_to_text, connectingTo));
-            if (!connectInProgress) {
-                // Lose the race?  If Service/network is very fast.
-                connectingDialog.dismiss();
-            }
-            return;
-        }
+        
     }
 
     @Override
@@ -739,7 +733,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
       		SqueezerPlayerListActivity.show(this);
       	    return true;
         case R.id.menu_item_about:
-            showDialog(DIALOG_ABOUT);
+            new AboutDialog().show(getSupportFragmentManager(), "AboutDialog");
             return true;
         }
         return super.onMenuItemSelected(featureId, item);
@@ -784,14 +778,14 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         if (isAutoConnect()) {
             WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
             if (!wifiManager.isWifiEnabled()) {
-                showDialog(DIALOG_ENABLE_WIFI);
+                new EnableWifiDialog().show(getSupportFragmentManager(), "EnableWifiDialog");
                 return; // We will come back here when Wi-Fi is ready
             }
         }
 
         connectInProgress = true;
         connectingTo = ipPort;
-        showDialog(DIALOG_CONNECTING);
+        new ConnectingDialog().show(getSupportFragmentManager(), "ConnectingDialog");
         try {
             getService().startConnect(ipPort);
         } catch (RemoteException e) {
