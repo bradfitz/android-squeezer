@@ -18,6 +18,7 @@
 
 <resources>
     <string name="app_name">Squeezer</string>
+    <string name="volume">%s volume</string>
     <string name="menu_item_players">Players</string>
     <string name="menu_item_search_label">Search</string>
     <string name="menu_item_settings_label">Settings</string>

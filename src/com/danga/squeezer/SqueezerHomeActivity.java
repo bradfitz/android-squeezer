@@ -20,16 +20,17 @@ package com.danga.squeezer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.os.RemoteException;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.danga.squeezer.framework.SqueezerBaseActivity;
 import com.danga.squeezer.itemlists.SqueezerRadioListActivity;
 import com.danga.squeezer.menu.SqueezerMenuFragment;
 
-public class SqueezerHomeActivity extends FragmentActivity {
+public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private ListView listView;
 
 	@Override
@@ -40,6 +41,10 @@ public class SqueezerHomeActivity extends FragmentActivity {
         SqueezerMenuFragment.addTo(this);
         setHomeMenu();
 	}
+
+    @Override
+    protected void onServiceConnected() throws RemoteException {
+    }
 
 	private void setHomeMenu() {
 		int[] icons = new int[] { R.drawable.icon_nowplaying,

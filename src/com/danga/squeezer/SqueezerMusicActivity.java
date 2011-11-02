@@ -16,21 +16,17 @@
 
 package com.danga.squeezer;
 
-
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.danga.squeezer.framework.SqueezerBaseActivity;
 import com.danga.squeezer.itemlists.SqueezerAlbumListActivity;
 import com.danga.squeezer.itemlists.SqueezerArtistListActivity;
 import com.danga.squeezer.itemlists.SqueezerGenreListActivity;
@@ -38,11 +34,8 @@ import com.danga.squeezer.itemlists.SqueezerPlaylistsActivity;
 import com.danga.squeezer.itemlists.SqueezerSongListActivity;
 import com.danga.squeezer.itemlists.SqueezerYearListActivity;
 import com.danga.squeezer.menu.SqueezerMenuFragment;
-import com.danga.squeezer.service.ISqueezeService;
-import com.danga.squeezer.service.SqueezeService;
 
-public class SqueezerMusicActivity extends FragmentActivity {
-	private static final String TAG = SqueezerMusicActivity.class.getName();
+public class SqueezerMusicActivity extends SqueezerBaseActivity {
 	private static final int ARTISTS = 0;
 	private static final int ALBUMS = 1;
 	private static final int SONGS = 2;
@@ -53,7 +46,6 @@ public class SqueezerMusicActivity extends FragmentActivity {
     private static final int PLAYLISTS = 6;
     private static final int SEARCH = 7;
 
-	private ISqueezeService service;
 	private boolean canRandomplay = true;
     private ListView listView;
 
@@ -67,28 +59,8 @@ public class SqueezerMusicActivity extends FragmentActivity {
 	}
 
     @Override
-    public void onResume() {
-        super.onResume();
-        bindService(new Intent(this, SqueezeService.class), serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService; serviceStub = " + service);
-    }
-
-	private final ServiceConnection serviceConnection = new ServiceConnection() {
-		public void onServiceConnected(ComponentName name, IBinder binder) {
-            service = ISqueezeService.Stub.asInterface(binder);
-            setMusicMenu();
-        }
-        public void onServiceDisconnected(ComponentName name) {
-            service = null;
-        };
-    };
-
-	@Override
-    public void onPause() {
-        super.onPause();
-        if (serviceConnection != null) {
-        	unbindService(serviceConnection);
-        }
+    protected void onServiceConnected() throws RemoteException {
+        setMusicMenu();
     }
 
 	private void setMusicMenu() {
@@ -101,11 +73,11 @@ public class SqueezerMusicActivity extends FragmentActivity {
 		String[] items = musicItems;
 		int[] icons = musicIcons;
 
-		if (service != null) {
+		if (getService() != null) {
         	try {
-				canRandomplay = service.canRandomplay();
+				canRandomplay = getService().canRandomplay();
 			} catch (RemoteException e) {
-				Log.e(TAG, "Error requesting randomplay ability: " + e);
+				Log.e(getTag(), "Error requesting randomplay ability: " + e);
 			}
 		}
 		if (!canRandomplay) {

@@ -85,7 +85,7 @@ public class SqueezeService extends Service {
 
     private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
-	final AtomicReference<IServicePlayerListCallback> playerListCallback = new AtomicReference<IServicePlayerListCallback>();
+    final AtomicReference<IServicePlayerListCallback> playerListCallback = new AtomicReference<IServicePlayerListCallback>();
 	final AtomicReference<IServiceAlbumListCallback> albumListCallback = new AtomicReference<IServiceAlbumListCallback>();
 	final AtomicReference<IServiceArtistListCallback> artistListCallback = new AtomicReference<IServiceArtistListCallback>();
 	final AtomicReference<IServiceYearListCallback> yearListCallback = new AtomicReference<IServiceYearListCallback>();
@@ -343,17 +343,8 @@ public class SqueezeService extends Service {
     }
 
 	private void sendNewVolumeCallback(int newVolume) {
-        if (connectionState.getCallback() == null) return;
-        try {
-        	SqueezerPlayer player = connectionState.getActivePlayer();
-        	if (player == null) {
-        		mVolumePanel.postVolumeChanged(newVolume, "");
-        	} else {
-        		mVolumePanel.postVolumeChanged(newVolume, player.getName());
-        	}
-            connectionState.getCallback().onVolumeChange(newVolume);
-        } catch (RemoteException e) {
-        }
+    	SqueezerPlayer player = connectionState.getActivePlayer();
+		mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
     }
 
     private void sendNewTimeCallback(int secondsIn, int secondsTotal) {

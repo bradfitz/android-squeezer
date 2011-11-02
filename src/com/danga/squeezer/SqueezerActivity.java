@@ -42,7 +42,6 @@ import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -281,52 +280,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
         // Set up a server connection, if it is not present
         if (getConfiguredCliIpPort() == null) SettingsActivity.show(this);
-    }
-
-    /*
-     * Intercept hardware volume control keys to control Squeezeserver
-     * volume.
-     *
-     * Change the volume when the key is depressed.  Suppress the keyUp
-     * event, otherwise you get a notification beep as well as the volume
-     * changing.
-     */
-    @Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		switch (keyCode) {
-		case KeyEvent.KEYCODE_VOLUME_UP:
-			changeVolumeBy(+5);
-			return true;
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			changeVolumeBy(-5);
-			return true;
-		}
-
-		return super.onKeyDown(keyCode, event);
-	}
-
-    @Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		switch (keyCode) {
-		case KeyEvent.KEYCODE_VOLUME_UP:
-		case KeyEvent.KEYCODE_VOLUME_DOWN:
-			return true;
-		}
-
-		return super.onKeyUp(keyCode, event);
-	}
-
-    private boolean changeVolumeBy(int delta) {
-        Log.v(getTag(), "Adjust volume by: " + delta);
-        if (getService() == null) {
-            return false;
-        }
-        try {
-            getService().adjustVolumeBy(delta);
-            return true;
-        } catch (RemoteException e) {
-        }
-        return false;
     }
 
     // Should only be called the UI thread.
@@ -835,15 +788,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                             updateSongInfoFromService();
                         }
                     });
-            }
-
-            public void onVolumeChange(final int newVolume) throws RemoteException {
-                Log.v(getTag(), "Volume = " + newVolume);
-//                uiThreadHandler.post(new Runnable() {
-//                    public void run() {
-//						  Do something here if necessary
-//                    }
-//                });
             }
 
             public void onPlayStatusChanged(boolean newStatus)

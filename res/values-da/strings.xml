@@ -18,6 +18,7 @@
 
 <resources>
     <string name="app_name">Squeezer</string>
+    <string name="volume">%s lydstyrke</string>
     <string name="menu_item_players">Afspillere</string>
     <string name="menu_item_search_label">Søg</string>
     <string name="menu_item_settings_label">Indstillinger</string>
