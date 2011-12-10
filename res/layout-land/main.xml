@@ -78,7 +78,7 @@
             android:orientation="horizontal"
             android:gravity="center">
 
-            <com.danga.squeezer.RepeatingImageButton
+            <uk.org.ngo.squeezer.RepeatingImageButton
             	android:id="@+id/prev" 
             	style="@android:style/MediaButton.Previous" />
 
@@ -86,7 +86,7 @@
             	android:id="@+id/pause" 
             	style="@android:style/MediaButton.Play" />
 
-            <com.danga.squeezer.RepeatingImageButton 
+            <uk.org.ngo.squeezer.RepeatingImageButton 
             	android:id="@+id/next" 
             	style="@android:style/MediaButton.Next" />
         </LinearLayout>
