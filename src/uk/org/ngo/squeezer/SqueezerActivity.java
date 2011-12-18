@@ -149,7 +149,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             Log.v("SqueezerActivity", "Tracking page view 'SqueezerActivity");
             // Start the tracker in manual dispatch mode...
             tracker = GoogleAnalyticsTracker.getInstance();
-            tracker.startNewSession("UA-26056668-1", this);
+            tracker.startNewSession("UA-26457780-1", this);
             tracker.trackPageView("SqueezerActivity");
         }
 
