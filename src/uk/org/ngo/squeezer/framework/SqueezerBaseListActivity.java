@@ -19,14 +19,11 @@ package uk.org.ngo.squeezer.framework;
 
 import java.util.List;
 
-import uk.org.ngo.squeezer.SqueezerActivity;
-import uk.org.ngo.squeezer.SqueezerHomeActivity;
-
+import uk.org.ngo.squeezer.R;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
@@ -35,8 +32,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import uk.org.ngo.squeezer.R;
 
 /**
  * <p>
@@ -53,9 +48,6 @@ import uk.org.ngo.squeezer.R;
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
-	protected static final int DIALOG_FILTER = 0;
-	protected static final int DIALOG_ORDER = 1;
-
 	private SqueezerItemAdapter<T> itemAdapter;
 	private ListView listView;
 	private TextView loadingLabel;
@@ -149,7 +141,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		return itemAdapter;
 	}
 
-	protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T>  itemView) {
+    protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T> itemView) {
 		return new SqueezerItemListAdapter<T>(itemView);
 	}
 
@@ -181,25 +173,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	private void clearItemListAdapter() {
 		itemAdapter = createItemListAdapter(itemView);
 		listView.setAdapter(itemAdapter);
-	}
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.itemlistmenu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-	@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-        case R.id.menu_item_home:
-        	SqueezerHomeActivity.show(this);
-			return true;
-        case R.id.menu_item_main:
-        	SqueezerActivity.show(this);
-			return true;
-        }
-        return super.onMenuItemSelected(featureId, menuItem);
 	}
 
 }

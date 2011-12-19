@@ -21,14 +21,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.service.SqueezeService;
-
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-
-import uk.org.ngo.squeezer.R;
 
 /**
  * <p>
@@ -38,6 +38,12 @@ import uk.org.ngo.squeezer.R;
  * @author Kurt Aaholst
  */
 public abstract class SqueezerItemListActivity extends SqueezerBaseActivity implements OnScrollListener {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SqueezerMenuFragment.addTo(this);
+    };
 
     /**
      * This is called when the service is connected.

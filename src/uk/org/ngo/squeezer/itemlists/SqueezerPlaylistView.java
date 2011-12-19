@@ -16,15 +16,16 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsDeleteDialog;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsRenameDialog;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import uk.org.ngo.squeezer.R;
 
 
 public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist> {
@@ -64,13 +65,13 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 		case PLAYLISTS_CONTEXTMENU_DELETE_ITEM:
 			{
 				activity.setCurrentPlaylist(selectedItem);
-				getActivity().showDialog(SqueezerPlaylistsActivity.DIALOG_DELETE);
+				SqueezerPlaylistsDeleteDialog.addTo(activity);
 			}
 			return true;
 		case PLAYLISTS_CONTEXTMENU_RENAME_ITEM:
 			{
 				activity.setCurrentPlaylist(selectedItem);
-				getActivity().showDialog(SqueezerPlaylistsActivity.DIALOG_RENAME);
+				SqueezerPlaylistsRenameDialog.addTo(activity);
 			}
 			return true;
 		case PLAYLISTS_CONTEXTMENU_BROWSE_SONGS:

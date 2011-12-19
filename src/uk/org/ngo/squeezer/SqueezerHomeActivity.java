@@ -17,30 +17,44 @@
 package uk.org.ngo.squeezer;
 
 
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
-import android.app.ListActivity;
+import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
-public class SqueezerHomeActivity extends ListActivity {
+public class SqueezerHomeActivity extends SqueezerBaseActivity {
+    private ListView listView;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setHomeMenu();
-	}
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.item_list);
+        listView = (ListView) findViewById(R.id.item_list);
+        SqueezerMenuFragment.addTo(this);
+        setHomeMenu();
+    }
 
-	private void setHomeMenu() {
-		int[] icons = new int[] { R.drawable.icon_nowplaying,
-				R.drawable.icon_mymusic, R.drawable.icon_internet_radio,
-				R.drawable.icon_my_apps, R.drawable.icon_favorites };
-		setListAdapter(new IconRowAdapter(this, getResources().getStringArray(R.array.home_items), icons));
-		getListView().setOnItemClickListener(onHomeItemClick);
-	}
+    @Override
+    protected void onServiceConnected() throws RemoteException {
+    }
+
+    private void setHomeMenu() {
+        int[] icons = new int[] {
+                R.drawable.icon_nowplaying,
+                R.drawable.icon_mymusic, R.drawable.icon_internet_radio,
+                R.drawable.icon_my_apps, R.drawable.icon_favorites
+        };
+        listView.setAdapter(new IconRowAdapter(this, getResources().getStringArray(
+                R.array.home_items), icons));
+        listView.setOnItemClickListener(onHomeItemClick);
+    }
 
 	private final OnItemClickListener onHomeItemClick = new OnItemClickListener() {
 		private static final int NOW_PLAYING = 0;

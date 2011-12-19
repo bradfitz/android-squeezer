@@ -18,19 +18,17 @@ package uk.org.ngo.squeezer.framework;
 
 import java.lang.reflect.Field;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.ReflectUtil;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
-
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-
-import uk.org.ngo.squeezer.R;
 
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
 	protected static final int CONTEXTMENU_BROWSE_SONGS = 0;
@@ -96,8 +94,8 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		return Util.getListItemView(getActivity(), convertView, item.getName());
 	}
 
-    public View getSpinnerAdapterView(View convertView, T item) {
-        return Util.getSpinnerItemView(getActivity(), convertView, item.getName());
+    public View getAdapterView(View convertView, String label) {
+        return Util.getListItemView(getActivity(), convertView, label);
     }
 
 

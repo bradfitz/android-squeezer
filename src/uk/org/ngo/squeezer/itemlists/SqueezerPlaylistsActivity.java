@@ -18,39 +18,26 @@ package uk.org.ngo.squeezer.itemlists;
 
 import java.util.List;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsNewDialog;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.RemoteException;
-import android.text.InputType;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnKeyListener;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
-import uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback;
-
 public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<SqueezerPlaylist>{
-	protected static final int DIALOG_NEW = 0;
-	protected static final int DIALOG_RENAME = 1;
-	protected static final int DIALOG_DELETE = 2;
-
 	private SqueezerPlaylist currentPlaylist;
+    public SqueezerPlaylist getCurrentPlaylist() { return currentPlaylist; }
 	public void setCurrentPlaylist(SqueezerPlaylist currentPlaylist) { this.currentPlaylist = currentPlaylist; }
 
 	private String oldname;
+    public String getOldname() { return oldname; }
+    public void setOldname(String oldname) { this.oldname = oldname; }
 
 	@Override
 	public SqueezerItemView<SqueezerPlaylist> createItemView() {
@@ -84,130 +71,11 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_item_playlists_new:
-			showDialog(DIALOG_NEW);
+		    SqueezerPlaylistsNewDialog.addTo(this);
 			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
-
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        switch (id) {
-        case DIALOG_NEW:
-		{
-			View form = getLayoutInflater().inflate(R.layout.edittext_dialog, null);
-			builder.setView(form);
-	        final EditText editText = (EditText) form.findViewById(R.id.edittext);
-			builder.setTitle(R.string.new_playlist_title);
-			editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-			editText.setHint(R.string.new_playlist_hint);
-	        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					create(editText.getText().toString());
-				}
-			});
-	        editText.setOnKeyListener(new OnKeyListener() {
-	            public boolean onKey(View v, int keyCode, KeyEvent event) {
-	                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-	               		create(editText.getText().toString());
-						dismissDialog(DIALOG_NEW);
-						return true;
-	                }
-	                return false;
-	            }
-	        });
-        	break;
-		}
-        case DIALOG_DELETE:
-        	{
-				builder.setTitle(getString(R.string.delete_title, currentPlaylist.getName()));
-				builder.setMessage(R.string.delete__message);
-				builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						try {
-							getService().playlistsDelete(currentPlaylist);
-							orderItems();
-						} catch (RemoteException e) {
-							Log.e(getTag(), "Error deleting playlist");
-						}
-					}
-				});
-			}
-			break;
-		case DIALOG_RENAME:
-			{
-				builder.setTitle(getString(R.string.rename_title, currentPlaylist.getName()));
-				View form = getLayoutInflater().inflate(R.layout.edittext_dialog, null);
-				builder.setView(form);
-		        final EditText editText = (EditText) form.findViewById(R.id.edittext);
-				editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-		        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						rename(editText.getText().toString());
-					}
-				});
-			}
-			break;
-        }
-
-        builder.setNegativeButton(android.R.string.cancel, null);
-
-        return builder.create();
-    }
-
-    @Override
-    protected void onPrepareDialog(int id, final Dialog dialog) {
-        switch (id) {
-        case DIALOG_NEW:
-        	{
-		        final EditText editText = (EditText) dialog.findViewById(R.id.edittext);
-				editText.setText("");
-        	}
-        	break;
-        case DIALOG_DELETE:
-        	break;
-		case DIALOG_RENAME:
-			{
-		        final EditText editText = (EditText) dialog.findViewById(R.id.edittext);
-				editText.setText(currentPlaylist.getName());
-		        editText.setOnKeyListener(new OnKeyListener() {
-		            public boolean onKey(View v, int keyCode, KeyEvent event) {
-		                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-							rename(editText.getText().toString());
-							dialog.dismiss();
-							return true;
-		                }
-		                return false;
-		            }
-		        });
-			}
-			break;
-        }
-    	super.onPrepareDialog(id, dialog);
-    }
-
-    private void create(String name) {
-   		try {
-			getService().playlistsNew(name);
-			orderItems();
-		} catch (RemoteException e) {
-            Log.e(getTag(), "Error saving playlist as '"+ name + "': " + e);
-		}
-    }
-
-    private void rename(String newname) {
-   		try {
-   			oldname = currentPlaylist.getName();
-			getService().playlistsRename(currentPlaylist, newname);
-			currentPlaylist.setName(newname);
-			getItemAdapter().notifyDataSetChanged();
-		} catch (RemoteException e) {
-            Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
-		}
-    }
-
 
 	public static void show(Context context) {
         final Intent intent = new Intent(context, SqueezerPlaylistsActivity.class);
