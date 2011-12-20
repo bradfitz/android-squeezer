@@ -22,7 +22,7 @@
   <LinearLayout android:id="@+id/filterview"
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+                android:layout_height="wrap_content">
 
     <LinearLayout android:orientation="vertical"
                   android:layout_width="fill_parent"
@@ -39,7 +39,7 @@
                 android:focusable="false"
                 android:inputType="none"
       />
-      <View android:layout_height="2dip" android:layout_width="fill_parent"
+      <View android:layout_height="2dp" android:layout_width="fill_parent"
             android:background="#FF909090" />
     </LinearLayout>
 
@@ -58,7 +58,7 @@
                 android:focusable="false"
                 android:inputType="none"
       />
-      <View android:layout_height="2dip" android:layout_width="fill_parent"
+      <View android:layout_height="2dp" android:layout_width="fill_parent"
             android:background="#FF909090" />
     </LinearLayout>
 
@@ -76,7 +76,7 @@
                 android:enabled="false"
                 android:focusable="false"
                 android:inputType="none" />
-      <View android:layout_height="2dip" android:layout_width="fill_parent"
+      <View android:layout_height="2dp" android:layout_width="fill_parent"
             android:background="#FF909090" />
     </LinearLayout>
 
@@ -91,7 +91,7 @@
                 android:layout_weight="1"
       />
 
-    <View android:layout_height="2dip" android:layout_width="fill_parent"
+    <View android:layout_height="2dp" android:layout_width="fill_parent"
           android:background="#FF909090" />
 
     <LinearLayout android:orientation="vertical"
@@ -109,7 +109,7 @@
       />
       </LinearLayout>
 
-    <View android:layout_height="2dip" android:layout_width="fill_parent"
+    <View android:layout_height="2dp" android:layout_width="fill_parent"
           android:background="#FF909090" />
 
     <LinearLayout android:orientation="vertical"
