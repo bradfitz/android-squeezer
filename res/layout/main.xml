@@ -83,32 +83,22 @@
 	    	android:gravity="center"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:paddingTop="1px"
-	        android:paddingBottom="4px"
+	        android:paddingTop="1dp"
+	        android:paddingBottom="4dp"
 	        android:orientation="horizontal">
-	
-	        <LinearLayout
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:orientation="horizontal"
-	            android:layout_gravity="bottom"
-	            android:layout_marginTop="1px"
-	            android:layout_marginBottom="2px"
-	            android:gravity="center">
 	
 	            <uk.org.ngo.squeezer.RepeatingImageButton android:id="@+id/prev" style="@android:style/MediaButton.Previous" />
 	
 	            <ImageButton android:id="@+id/pause" style="@android:style/MediaButton.Play" />
 	
 	            <uk.org.ngo.squeezer.RepeatingImageButton android:id="@+id/next" style="@android:style/MediaButton.Next" />
-	        </LinearLayout>
 	    </LinearLayout>
 	
 	    <LinearLayout
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:paddingTop="1px"
-	        android:paddingBottom="4px"
+	        android:paddingTop="1dp"
+	        android:paddingBottom="4dp"
 	        android:orientation="horizontal">
 	        
 	        <TextView android:id="@+id/currenttime"
@@ -121,7 +111,7 @@
 	            android:shadowRadius="3"
 	            android:layout_gravity="center_vertical"
 	            android:layout_width="wrap_content"
-	            android:paddingLeft="5px"
+	            android:paddingLeft="5dp"
 	            android:layout_height="wrap_content"
 	            android:hint="--:--" />
 	                    
@@ -131,9 +121,9 @@
 		        android:layout_height="wrap_content"
 		        android:layout_weight="1"
 		        android:layout_gravity="bottom"
-		        android:paddingLeft="5px"
-		        android:paddingRight="5px"
-		        android:paddingBottom="4px" />
+		        android:paddingLeft="5dp"
+		        android:paddingRight="5dp"
+		        android:paddingBottom="4dp" />
 		        
 	        <TextView android:id="@+id/totaltime"
 	            android:textAppearance="?android:attr/textAppearanceMedium"
@@ -144,7 +134,7 @@
 	            android:shadowDy="0"
 	            android:shadowRadius="3"
 	            android:gravity="right"
-	            android:paddingRight="5px"
+	            android:paddingRight="5dp"
 	            android:layout_gravity="center_vertical"
 	            android:layout_weight="0"
 	            android:layout_width="wrap_content"
