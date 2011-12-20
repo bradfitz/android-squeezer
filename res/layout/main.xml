@@ -30,7 +30,12 @@
 				android:layout_height="wrap_content"
 				android:orientation="vertical">
 				
-		        <ImageButton android:layout_width="85dip" android:src="@drawable/icon_home" android:layout_height="54dip" android:id="@+id/ic_mp_Home_btn" android:layout_marginTop="14dip"></ImageButton>
+		        <ImageButton
+                    android:layout_width="85dp"
+                    android:src="@drawable/icon_home"
+                    android:layout_height="54dp"
+                    android:id="@+id/ic_mp_Home_btn"
+                    android:layout_marginTop="14dp" />
 
 			</LinearLayout>
 			
@@ -42,21 +47,21 @@
 				android:orientation="vertical">
      
 	     		<TextView android:id="@+id/trackname"
-		        	android:hint="Unknown track"
+                    android:hint="@string/unknown_track"
 		        	android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
 		 			android:gravity="center_horizontal"
 		 			android:textAppearance="?android:attr/textAppearanceMedium"/>
 
 		        <TextView android:id="@+id/albumname"
-		        	android:hint="Unknown album"
+                    android:hint="@string/unknown_album"
 		            android:gravity="center_horizontal"
 		            android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
 		            android:textAppearance="?android:attr/textAppearanceSmall" />
 				
 		        <TextView android:id="@+id/artistname"
-		        	android:hint="Unknown artist"
+                    android:hint="@string/unknown_artist"
 		            android:gravity="center_horizontal"		            
 		            android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
@@ -68,7 +73,13 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:orientation="vertical">
-        		<ImageButton android:layout_width="85dip" android:src="@drawable/ic_mp_current_playlist_btn" android:layout_height="54dip" android:id="@+id/curplaylist" android:layout_marginTop="14dip"></ImageButton>
+                
+        		<ImageButton 
+                    android:layout_width="85dp"
+                    android:src="@drawable/ic_mp_current_playlist_btn"
+                    android:layout_height="54dp"
+                    android:id="@+id/curplaylist"
+                    android:layout_marginTop="14dp" />
     		</LinearLayout>
     	</com.pocketjourney.view.TransparentPanel>
     
