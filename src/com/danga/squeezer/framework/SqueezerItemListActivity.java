@@ -28,6 +28,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 
 import com.danga.squeezer.R;
+import com.danga.squeezer.menu.MenuFragment;
 import com.danga.squeezer.menu.SqueezerMenuFragment;
 import com.danga.squeezer.service.SqueezeService;
 
@@ -43,7 +44,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SqueezerMenuFragment.addTo(this);
+        MenuFragment.add(this, SqueezerMenuFragment.class);
     };
     
     /**

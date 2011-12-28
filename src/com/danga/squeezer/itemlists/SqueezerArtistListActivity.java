@@ -91,7 +91,7 @@ public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<S
 	}
 
     public void showFilterDialog() {
-        SqueezerArtistFilterDialog.addTo(this);
+        new SqueezerArtistFilterDialog().show(getSupportFragmentManager(), "ArtistFilterDialog");
     }
 
 	public static void show(Context context, SqueezerItem... items) {

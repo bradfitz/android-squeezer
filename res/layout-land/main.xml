@@ -35,13 +35,6 @@
 			android:layout_height="wrap_content"
 			android:orientation="horizontal">
 			
-	        <ImageButton 
-	        	android:layout_width="85dip" 
-	        	android:src="@drawable/icon_home" 
-	        	android:layout_height="54dip"
-	        	android:id="@+id/ic_mp_Home_btn" 
-	        	android:layout_marginTop="14dip"/>
-	        	
        		<ImageButton 
        			android:layout_width="85dip" 
        			android:src="@drawable/ic_mp_current_playlist_btn" 

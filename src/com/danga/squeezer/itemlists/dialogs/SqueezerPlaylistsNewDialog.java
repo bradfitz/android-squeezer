@@ -10,16 +10,13 @@ import com.danga.squeezer.R;
 import com.danga.squeezer.itemlists.SqueezerPlaylistsActivity;
 
 public class SqueezerPlaylistsNewDialog extends SqueezerBaseEditTextDialog {
-    private final SqueezerPlaylistsActivity activity;
-    
-    private SqueezerPlaylistsNewDialog(SqueezerPlaylistsActivity activity) {
-        this.activity = activity;
-    }
+    private SqueezerPlaylistsActivity activity;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
+        activity = (SqueezerPlaylistsActivity) getActivity();
         dialog.setTitle(R.string.new_playlist_title);
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         editText.setHint(R.string.new_playlist_hint);
@@ -39,9 +36,4 @@ public class SqueezerPlaylistsNewDialog extends SqueezerBaseEditTextDialog {
     }
 
     
-    public static void addTo(SqueezerPlaylistsActivity activity) {
-        SqueezerPlaylistsNewDialog dialog = new SqueezerPlaylistsNewDialog(activity);
-        dialog.show(activity.getSupportFragmentManager(), "NewPlaylistDialog");
-    }
-
 }

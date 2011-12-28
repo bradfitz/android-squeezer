@@ -1,9 +1,6 @@
 package com.danga.squeezer.menu;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,17 +8,13 @@ import android.view.MenuItem;
 import com.danga.squeezer.R;
 
 
-public class SqueezerOrderMenuItemFragment extends Fragment {
-    final SqueezerOrderableListActivity activity;
-    
-    private SqueezerOrderMenuItemFragment(SqueezerOrderableListActivity activity) {
-        this.activity = activity;
-    }
+public class SqueezerOrderMenuItemFragment extends MenuFragment {
+    private SqueezerOrderableListActivity activity;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        activity = (SqueezerOrderableListActivity) getActivity();
     };
 
     @Override
@@ -40,16 +33,8 @@ public class SqueezerOrderMenuItemFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
     
-    public static void addTo(SqueezerOrderableListActivity activity) {
-        FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(0, new SqueezerOrderMenuItemFragment(activity));
-        fragmentTransaction.commit();
-    }
-    
     public interface SqueezerOrderableListActivity {
         public void showOrderDialog();
-        FragmentManager getSupportFragmentManager();
     }
 
 }

@@ -16,6 +16,7 @@
 
 package com.danga.squeezer.framework;
 
+import com.danga.squeezer.menu.MenuFragment;
 import com.danga.squeezer.menu.SqueezerFilterMenuItemFragment;
 
 public abstract class SqueezerFilterableListActivity<T extends SqueezerItem>
@@ -25,7 +26,7 @@ public abstract class SqueezerFilterableListActivity<T extends SqueezerItem>
     @Override
     public void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SqueezerFilterMenuItemFragment.addTo(this);
+        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
     };
 
     @Override

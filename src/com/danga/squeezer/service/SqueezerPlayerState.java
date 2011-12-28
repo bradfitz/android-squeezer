@@ -42,9 +42,10 @@ public class SqueezerPlayerState {
     public boolean isPoweredOn() {
 		return isPoweredOn.get();
 	}
-    public SqueezerPlayerState setPoweredOn(boolean state) {
+    public boolean setPoweredOn(boolean state) {
+        boolean lastState = isPoweredOn.get();
     	isPoweredOn.set(state);
-    	return this;
+    	return lastState != state;
     }
 
     public SqueezerSong getCurrentSong() {
@@ -59,7 +60,7 @@ public class SqueezerPlayerState {
     	return this;
     }
     public boolean setCurrentSongUpdated(SqueezerSong newValue) {
-    	return Util.atomicSongUpdated(currentSong, newValue);
+    	return Util.atomicReferenceUpdated(currentSong, newValue);
     }
 
 	public Integer getCurrentTimeSecond() {

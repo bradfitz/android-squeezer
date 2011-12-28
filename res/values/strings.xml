@@ -39,9 +39,9 @@
     <string name="menu_item_sort">Sort order</string>
     <string name="menu_item_delete">Delete</string>
     <string name="menu_item_rename">Rename</string>
-    <string name="menu_item_playlists_new">New playlist</string>
-    <string name="menu_item_playlist_clear">Clear current playlist</string>
-    <string name="menu_item_playlist_save">Save current playlist</string>
+    <string name="menu_item_playlists_new">New</string>
+    <string name="menu_item_playlist_clear">Clear</string>
+    <string name="menu_item_playlist_save">Save</string>
     <string name="about_title">About Squeezer v%s</string>
     <string name="connecting_text">Connecting</string>
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
@@ -356,7 +356,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
 
     <string-array name="home_items">
-        <item>Now playing</item>
         <item>My Music</item>
         <item>Internet Radio</item>
 <!--         <item>My Apps</item> -->

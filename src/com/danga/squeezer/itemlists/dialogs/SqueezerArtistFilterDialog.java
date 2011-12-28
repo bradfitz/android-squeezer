@@ -11,18 +11,15 @@ import com.danga.squeezer.itemlists.SqueezerArtistListActivity;
 import com.danga.squeezer.model.SqueezerGenre;
 
 public class SqueezerArtistFilterDialog extends SqueezerBaseFilterDialog {
-    private final SqueezerArtistListActivity activity;
+    private SqueezerArtistListActivity activity;
     private EditText editText;
     private Spinner genreSpinnerView;
-    
-    private SqueezerArtistFilterDialog(SqueezerArtistListActivity activity) {
-        this.activity = activity;
-    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
+        activity = (SqueezerArtistListActivity) getActivity();
         editText = (EditText) filterForm.findViewById(R.id.search_string);
         editText.setHint(getString(R.string.filter_text_hint, activity.getItemAdapter().getQuantityString(2)));
         editText.setText(activity.getSearchString());
@@ -44,11 +41,6 @@ public class SqueezerArtistFilterDialog extends SqueezerBaseFilterDialog {
         activity.setSearchString(editText.getText().toString());
         activity.setGenre((SqueezerGenre) genreSpinnerView.getSelectedItem());
         activity.orderItems();
-    }
-
-    public static void addTo(SqueezerArtistListActivity activity) {
-        SqueezerArtistFilterDialog dialog = new SqueezerArtistFilterDialog(activity);
-        dialog.show(activity.getSupportFragmentManager(), "FilterDialog");
     }
 
 }

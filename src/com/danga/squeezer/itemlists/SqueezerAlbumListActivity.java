@@ -124,18 +124,13 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 		this.sortOrder = sortOrder;
 		orderItems();
 	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-	    super.onCreate(savedInstanceState);
-	};
 	
 	public void showFilterDialog() {
-        SqueezerAlbumFilterDialog.addTo(this);
+        new SqueezerAlbumFilterDialog().show(getSupportFragmentManager(), "AlbumFilterDialog");
 	}
 
 	public void showOrderDialog() {
-	    SqueezerAlbumOrderDialog.addTo(this);
+	    new SqueezerAlbumOrderDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
 	}
 
     public static void show(Context context, SqueezerItem... items) {

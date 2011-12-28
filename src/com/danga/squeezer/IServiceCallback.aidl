@@ -27,5 +27,6 @@ oneway interface IServiceCallback {
   
   void onPlayStatusChanged(boolean isPlaying);
   void onTimeInSongChange(int secondsIn, int secondsTotal);
+  void onPowerStatusChanged();
 }
 

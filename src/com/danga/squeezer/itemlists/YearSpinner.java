@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Spinner;
 
+import com.danga.squeezer.R;
 import com.danga.squeezer.Util;
 import com.danga.squeezer.framework.SqueezerItemAdapter;
 import com.danga.squeezer.framework.SqueezerItemListActivity;
@@ -84,11 +85,11 @@ public class YearSpinner {
 						SqueezerYearView itemView = new SqueezerYearView(activity) {
 							@Override
 							public View getAdapterView(View convertView, SqueezerYear item) {
-								return Util.getSpinnerItemView(getActivity(), convertView, item.getName());
+								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, item.getName());
 							}
 							@Override
 							public View getAdapterView(View convertView, String label) {
-								return Util.getSpinnerItemView(getActivity(), convertView, label);
+								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, label);
 							};
 						};
 						adapter = new SqueezerItemAdapter<SqueezerYear>(itemView, true);

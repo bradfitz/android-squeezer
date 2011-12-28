@@ -30,7 +30,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.danga.squeezer.R;
 
@@ -51,7 +50,7 @@ import com.danga.squeezer.R;
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
 	private SqueezerItemAdapter<T> itemAdapter;
 	private ListView listView;
-	private TextView loadingLabel;
+	private View loadingLabel;
 	private SqueezerItemView<T> itemView;
 
 	@Override
@@ -59,8 +58,10 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.item_list);
 		listView = (ListView) findViewById(R.id.item_list);
-		loadingLabel = (TextView) findViewById(R.id.loading_label);
+		loadingLabel = (View) findViewById(R.id.loading_label);
 		itemView = createItemView();
+		itemAdapter = createItemListAdapter(itemView);
+        listView.setAdapter(itemAdapter);
 
     	listView.setOnItemClickListener(new OnItemClickListener() {
     		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -154,7 +155,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		reorderItems();
 		listView.setVisibility(View.GONE);
 		loadingLabel.setVisibility(View.VISIBLE);
-		clearItemListAdapter();
+        itemAdapter.clear();
 	}
 
 	public void onItemsReceived(final int count, final int start, final List<T> items) {
@@ -165,15 +166,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 				getItemAdapter().update(count, start, items);
 			}
 		});
-	}
-
-	/**
-	 * Set the adapter to handle the display of the items, see also {@link #setListAdapter(android.widget.ListAdapter)}
-	 * @param listAdapter
-	 */
-	private void clearItemListAdapter() {
-		itemAdapter = createItemListAdapter(itemView);
-		listView.setAdapter(itemAdapter);
 	}
 
 }

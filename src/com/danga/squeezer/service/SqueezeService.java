@@ -83,7 +83,7 @@ public class SqueezeService extends Service {
 		return itemKeys;
 	}
 
-    private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+    final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
     final AtomicReference<IServicePlayerListCallback> playerListCallback = new AtomicReference<IServicePlayerListCallback>();
 	final AtomicReference<IServiceAlbumListCallback> albumListCallback = new AtomicReference<IServiceAlbumListCallback>();
@@ -412,7 +412,9 @@ public class SqueezeService extends Service {
 	    boolean musicHasChanged = false;
 	    musicHasChanged |= playerState.setCurrentSongUpdated(new SqueezerSong(tokenMap));
 
-        playerState.setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
+        if (playerState.setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1)) {
+            sendPowerStatusChangedCallback();
+        }
 
         parseMode(tokenMap.get("mode"));
 
@@ -592,6 +594,16 @@ public class SqueezeService extends Service {
         NotificationManager nm =
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(PLAYBACKSERVICE_STATUS);
+    }
+
+    private void sendPowerStatusChangedCallback() {
+        if (connectionState.getCallback() == null) {
+            return;
+        }
+        try {
+            connectionState.getCallback().onPowerStatusChanged();
+        } catch (RemoteException e) {
+        }
     }
 
     private final ISqueezeService.Stub squeezeService = new ISqueezeService.Stub() {

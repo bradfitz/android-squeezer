@@ -20,5 +20,8 @@
   <item
    	android:id="@+id/menu_item_playlists_new"
    	android:title="@string/menu_item_playlists_new"
+   	android:icon="@drawable/ic_action_playlist_add"
+    android:showAsAction="ifRoom|withText"
+    android:orderInCategory="1"
   />
 </menu>

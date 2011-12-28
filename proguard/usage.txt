@@ -1,0 +1,787 @@
+android.support.v4.app.ActivityCompatHoneycomb:
+    34:35:static void dump(android.app.Activity,java.lang.String,java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[])
+android.support.v4.app.BackStackRecord:
+    static final java.lang.String TAG
+    static final int OP_NULL
+    static final int OP_ADD
+    static final int OP_REPLACE
+    static final int OP_REMOVE
+    static final int OP_HIDE
+    static final int OP_SHOW
+    static final int OP_DETACH
+    static final int OP_ATTACH
+    269:269:public int getId()
+    273:273:public int getBreadCrumbTitleRes()
+    277:277:public int getBreadCrumbShortTitleRes()
+    281:284:public java.lang.CharSequence getBreadCrumbTitle()
+    288:291:public java.lang.CharSequence getBreadCrumbShortTitle()
+    313:314:public android.support.v4.app.FragmentTransaction add(int,android.support.v4.app.Fragment)
+    318:319:public android.support.v4.app.FragmentTransaction add(int,android.support.v4.app.Fragment,java.lang.String)
+    354:354:public android.support.v4.app.FragmentTransaction replace(int,android.support.v4.app.Fragment)
+    358:363:public android.support.v4.app.FragmentTransaction replace(int,android.support.v4.app.Fragment,java.lang.String)
+    381:390:public android.support.v4.app.FragmentTransaction hide(android.support.v4.app.Fragment)
+    394:403:public android.support.v4.app.FragmentTransaction show(android.support.v4.app.Fragment)
+    411:416:public android.support.v4.app.FragmentTransaction detach(android.support.v4.app.Fragment)
+    424:429:public android.support.v4.app.FragmentTransaction attach(android.support.v4.app.Fragment)
+    433:435:public android.support.v4.app.FragmentTransaction setCustomAnimations(int,int)
+    439:440:public android.support.v4.app.FragmentTransaction setTransition(int)
+    444:445:public android.support.v4.app.FragmentTransaction setTransitionStyle(int)
+    449:455:public android.support.v4.app.FragmentTransaction addToBackStack(java.lang.String)
+    459:459:public boolean isAddToBackStackAllowed()
+    463:468:public android.support.v4.app.FragmentTransaction disallowAddToBackStack()
+    472:474:public android.support.v4.app.FragmentTransaction setBreadCrumbTitle(int)
+    478:480:public android.support.v4.app.FragmentTransaction setBreadCrumbTitle(java.lang.CharSequence)
+    484:486:public android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(int)
+    490:492:public android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(java.lang.CharSequence)
+    702:702:public int getTransition()
+    706:706:public int getTransitionStyle()
+    710:710:public boolean isEmpty()
+android.support.v4.app.DialogFragment:
+    public static final int STYLE_NORMAL
+    public static final int STYLE_NO_TITLE
+    public static final int STYLE_NO_FRAME
+    public static final int STYLE_NO_INPUT
+    private static final java.lang.String SAVED_DIALOG_STATE_TAG
+    private static final java.lang.String SAVED_STYLE
+    private static final java.lang.String SAVED_THEME
+    private static final java.lang.String SAVED_CANCELABLE
+    private static final java.lang.String SAVED_SHOWS_DIALOG
+    private static final java.lang.String SAVED_BACK_STACK_ID
+    100:107:public void setStyle(int,int)
+    136:139:public int show(android.support.v4.app.FragmentTransaction,java.lang.String)
+    174:174:public android.app.Dialog getDialog()
+    191:193:public void setCancelable(boolean)
+    199:199:public boolean isCancelable()
+    220:221:public void setShowsDialog(boolean)
+    227:227:public boolean getShowsDialog()
+android.support.v4.app.Fragment:
+    static final int INITIALIZING
+    static final int CREATED
+    static final int ACTIVITY_CREATED
+    static final int STOPPED
+    static final int STARTED
+    static final int RESUMED
+    455:455:public final int getId()
+    496:501:public void setInitialSavedState(android.support.v4.app.Fragment$SavedState)
+    515:517:public void setTargetFragment(android.support.v4.app.Fragment,int)
+    523:523:public final android.support.v4.app.Fragment getTargetFragment()
+    530:530:public final int getTargetRequestCode()
+    607:607:public final boolean isDetached()
+    616:616:public final boolean isRemoving()
+    627:627:public final boolean isInLayout()
+    635:635:public final boolean isResumed()
+    644:644:public final boolean isVisible()
+    684:685:public void setRetainInstance(boolean)
+    688:688:public final boolean getRetainInstance()
+    711:719:public android.support.v4.app.LoaderManager getLoaderManager()
+    727:731:public void startActivity(android.content.Intent)
+    738:742:public void startActivityForResult(android.content.Intent,int)
+    1165:1166:public void registerForContextMenu(android.view.View)
+    1176:1177:public void unregisterForContextMenu(android.view.View)
+android.support.v4.app.Fragment$SavedState:
+    285:287:Fragment$SavedState(android.os.Bundle)
+android.support.v4.app.FragmentActivity:
+    private static final java.lang.String TAG
+    private static final java.lang.String FRAGMENTS_TAG
+    private static final int HONEYCOMB
+    static final int MSG_REALLY_STOPPED
+    static final int MSG_RESUME_PENDING
+    647:655:public void startActivityFromFragment(android.support.v4.app.Fragment,android.content.Intent,int)
+    676:681:public android.support.v4.app.LoaderManager getSupportLoaderManager()
+android.support.v4.app.FragmentActivity$FragmentTag:
+    public static final int Fragment_id
+    public static final int Fragment_name
+    public static final int Fragment_tag
+android.support.v4.app.FragmentManager:
+    public static final int POP_BACK_STACK_INCLUSIVE
+    132:132:public android.support.v4.app.FragmentTransaction openTransaction()
+    public abstract boolean executePendingTransactions()
+    public abstract android.support.v4.app.Fragment findFragmentById(int)
+    public abstract void popBackStack()
+    public abstract boolean popBackStackImmediate()
+    public abstract void popBackStack(java.lang.String,int)
+    public abstract boolean popBackStackImmediate(java.lang.String,int)
+    public abstract boolean popBackStackImmediate(int,int)
+    public abstract int getBackStackEntryCount()
+    public abstract android.support.v4.app.FragmentManager$BackStackEntry getBackStackEntryAt(int)
+    public abstract void addOnBackStackChangedListener(android.support.v4.app.FragmentManager$OnBackStackChangedListener)
+    public abstract void removeOnBackStackChangedListener(android.support.v4.app.FragmentManager$OnBackStackChangedListener)
+    public abstract void putFragment(android.os.Bundle,java.lang.String,android.support.v4.app.Fragment)
+    public abstract android.support.v4.app.Fragment getFragment(android.os.Bundle,java.lang.String)
+    public abstract android.support.v4.app.Fragment$SavedState saveFragmentInstanceState(android.support.v4.app.Fragment)
+    public abstract void dump(java.lang.String,java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[])
+    327:328:public static void enableDebugLogging(boolean)
+android.support.v4.app.FragmentManager$BackStackEntry
+android.support.v4.app.FragmentManagerImpl:
+    static final java.lang.String TAG
+    static final java.lang.String TARGET_REQUEST_CODE_STATE_TAG
+    static final java.lang.String TARGET_STATE_TAG
+    static final java.lang.String VIEW_STATE_TAG
+    static final int ANIM_DUR
+    public static final int ANIM_STYLE_OPEN_ENTER
+    public static final int ANIM_STYLE_OPEN_EXIT
+    public static final int ANIM_STYLE_CLOSE_ENTER
+    public static final int ANIM_STYLE_CLOSE_EXIT
+    public static final int ANIM_STYLE_FADE_ENTER
+    public static final int ANIM_STYLE_FADE_EXIT
+    427:432:public void popBackStack()
+    443:448:public void popBackStack(java.lang.String,int)
+    452:454:public boolean popBackStackImmediate(java.lang.String,int)
+    471:476:public boolean popBackStackImmediate(int,int)
+    481:481:public int getBackStackEntryCount()
+    486:486:public android.support.v4.app.FragmentManager$BackStackEntry getBackStackEntryAt(int)
+    491:495:public void addOnBackStackChangedListener(android.support.v4.app.FragmentManager$OnBackStackChangedListener)
+    499:502:public void removeOnBackStackChangedListener(android.support.v4.app.FragmentManager$OnBackStackChangedListener)
+    533:541:public android.support.v4.app.Fragment$SavedState saveFragmentInstanceState(android.support.v4.app.Fragment)
+    1229:1237:public android.support.v4.app.Fragment findFragmentByWho(java.lang.String)
+android.support.v4.app.FragmentManagerImpl$2
+android.support.v4.app.FragmentManagerImpl$3
+android.support.v4.app.FragmentPagerAdapter
+android.support.v4.app.FragmentStatePagerAdapter
+android.support.v4.app.FragmentTransaction:
+    public static final int TRANSIT_ENTER_MASK
+    public static final int TRANSIT_EXIT_MASK
+    public static final int TRANSIT_UNSET
+    public static final int TRANSIT_NONE
+    public static final int TRANSIT_FRAGMENT_OPEN
+    public static final int TRANSIT_FRAGMENT_CLOSE
+    public static final int TRANSIT_FRAGMENT_FADE
+    public abstract android.support.v4.app.FragmentTransaction add(int,android.support.v4.app.Fragment)
+    public abstract android.support.v4.app.FragmentTransaction add(int,android.support.v4.app.Fragment,java.lang.String)
+    public abstract android.support.v4.app.FragmentTransaction replace(int,android.support.v4.app.Fragment)
+    public abstract android.support.v4.app.FragmentTransaction replace(int,android.support.v4.app.Fragment,java.lang.String)
+    public abstract android.support.v4.app.FragmentTransaction hide(android.support.v4.app.Fragment)
+    public abstract android.support.v4.app.FragmentTransaction show(android.support.v4.app.Fragment)
+    public abstract android.support.v4.app.FragmentTransaction detach(android.support.v4.app.Fragment)
+    public abstract android.support.v4.app.FragmentTransaction attach(android.support.v4.app.Fragment)
+    public abstract boolean isEmpty()
+    public abstract android.support.v4.app.FragmentTransaction setCustomAnimations(int,int)
+    public abstract android.support.v4.app.FragmentTransaction setTransition(int)
+    public abstract android.support.v4.app.FragmentTransaction setTransitionStyle(int)
+    public abstract android.support.v4.app.FragmentTransaction addToBackStack(java.lang.String)
+    public abstract boolean isAddToBackStackAllowed()
+    public abstract android.support.v4.app.FragmentTransaction disallowAddToBackStack()
+    public abstract android.support.v4.app.FragmentTransaction setBreadCrumbTitle(int)
+    public abstract android.support.v4.app.FragmentTransaction setBreadCrumbTitle(java.lang.CharSequence)
+    public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(int)
+    public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(java.lang.CharSequence)
+android.support.v4.app.HCSparseArray:
+    224:229:public void setValueAt(int,java.lang.Object)
+    237:241:public int indexOfKey(int)
+    253:261:public int indexOfValue(java.lang.Object)
+    284:311:public void append(int,java.lang.Object)
+    334:343:private void checkIntegrity()
+android.support.v4.app.ListFragment
+android.support.v4.app.ListFragment$1
+android.support.v4.app.ListFragment$2
+android.support.v4.app.LoaderManager:
+    public abstract android.support.v4.content.Loader initLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks)
+    public abstract android.support.v4.content.Loader restartLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks)
+    public abstract void destroyLoader(int)
+    public abstract android.support.v4.content.Loader getLoader(int)
+    public abstract void dump(java.lang.String,java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[])
+    176:177:public static void enableDebugLogging(boolean)
+android.support.v4.app.LoaderManagerImpl:
+    static final java.lang.String TAG
+    boolean mRetainingStarted
+    boolean mCreatingLoader
+    475:478:private android.support.v4.app.LoaderManagerImpl$LoaderInfo createLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks)
+    484:489:private android.support.v4.app.LoaderManagerImpl$LoaderInfo createAndInstallLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks)
+    494:501:void installLoader(android.support.v4.app.LoaderManagerImpl$LoaderInfo)
+    529:551:public android.support.v4.content.Loader initLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks)
+    579:633:public android.support.v4.content.Loader restartLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks)
+    644:661:public void destroyLoader(int)
+    669:680:public android.support.v4.content.Loader getLoader(int)
+android.support.v4.app.LoaderManagerImpl$LoaderInfo:
+    219:223:public LoaderManagerImpl$LoaderInfo(android.support.v4.app.LoaderManagerImpl,int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks)
+    353:402:public void onLoadComplete(android.support.v4.content.Loader,java.lang.Object)
+android.support.v4.content.AsyncTaskLoader
+android.support.v4.content.AsyncTaskLoader$LoadTask
+android.support.v4.content.CursorLoader
+android.support.v4.content.Loader:
+    android.content.Context mContext
+    75:77:public Loader(android.content.Context)
+    87:90:public void deliverResult(java.lang.Object)
+    96:96:public android.content.Context getContext()
+    103:103:public int getId()
+    142:142:public boolean isStarted()
+    151:151:public boolean isAbandoned()
+    160:160:public boolean isReset()
+    202:203:public void forceLoad()
+    210:210:protected void onForceLoad()
+    246:248:public void abandon()
+    260:260:protected void onAbandon()
+    297:299:public boolean takeContentChanged()
+    311:319:public void onContentChanged()
+android.support.v4.content.Loader$ForceLoadContentObserver
+android.support.v4.content.Loader$OnLoadCompleteListener:
+    public abstract void onLoadComplete(android.support.v4.content.Loader,java.lang.Object)
+android.support.v4.util.LruCache
+android.support.v4.util.TimeUtils
+android.support.v4.view.MenuCompat
+android.support.v4.view.MenuCompat$BaseMenuVersionImpl
+android.support.v4.view.MenuCompat$HoneycombMenuVersionImpl
+android.support.v4.view.MenuCompat$MenuVersionImpl
+android.support.v4.view.MenuCompatHoneycomb
+android.support.v4.view.MotionEventCompat:
+    public static final int ACTION_MASK
+    public static final int ACTION_POINTER_DOWN
+    public static final int ACTION_POINTER_UP
+    public static final int ACTION_HOVER_MOVE
+    public static final int ACTION_SCROLL
+    public static final int ACTION_POINTER_INDEX_MASK
+    public static final int ACTION_POINTER_INDEX_SHIFT
+    133:133:public static int getActionMasked(android.view.MotionEvent)
+android.support.v4.view.PagerAdapter:
+    private android.support.v4.view.PagerAdapter$DataSetObserver mObserver
+    public static final int POSITION_UNCHANGED
+    public static final int POSITION_NONE
+    110:110:public int getItemPosition(java.lang.Object)
+    118:121:public void notifyDataSetChanged()
+    124:125:void setDataSetObserver(android.support.v4.view.PagerAdapter$DataSetObserver)
+android.support.v4.view.PagerAdapter$DataSetObserver
+android.support.v4.view.VelocityTrackerCompat:
+    81:81:public static float getXVelocity(android.view.VelocityTracker,int)
+android.support.v4.view.VelocityTrackerCompat$BaseVelocityTrackerVersionImpl:
+    39:39:public float getXVelocity(android.view.VelocityTracker,int)
+android.support.v4.view.VelocityTrackerCompat$HoneycombVelocityTrackerVersionImpl:
+    53:53:public float getXVelocity(android.view.VelocityTracker,int)
+android.support.v4.view.VelocityTrackerCompat$VelocityTrackerVersionImpl:
+    public abstract float getXVelocity(android.view.VelocityTracker,int)
+android.support.v4.view.VelocityTrackerCompatHoneycomb:
+    26:26:public static float getXVelocity(android.view.VelocityTracker,int)
+android.support.v4.view.ViewPager:
+    private static final java.lang.String TAG
+    private static final boolean DEBUG
+    private static final boolean USE_CACHE
+    private android.support.v4.view.PagerAdapter$DataSetObserver mObserver
+    private static final int INVALID_POINTER
+    public static final int SCROLL_STATE_IDLE
+    public static final int SCROLL_STATE_DRAGGING
+    public static final int SCROLL_STATE_SETTLING
+    214:236:public void setAdapter(android.support.v4.view.PagerAdapter)
+    239:239:public android.support.v4.view.PagerAdapter getAdapter()
+    243:245:public void setCurrentItem(int)
+    287:288:public void setOnPageChangeListener(android.support.v4.view.ViewPager$OnPageChangeListener)
+    332:376:void dataSetChanged()
+android.support.v4.view.ViewPager$1
+android.support.v4.view.ViewPager$DataSetObserver
+android.support.v4.view.ViewPager$SimpleOnPageChangeListener
+android.support.v4.widget.CursorAdapter
+android.support.v4.widget.CursorAdapter$1
+android.support.v4.widget.CursorAdapter$ChangeObserver
+android.support.v4.widget.CursorAdapter$MyDataSetObserver
+android.support.v4.widget.CursorFilter
+android.support.v4.widget.CursorFilter$CursorFilterClient
+android.support.v4.widget.ResourceCursorAdapter
+android.support.v4.widget.SimpleCursorAdapter
+android.support.v4.widget.SimpleCursorAdapter$CursorToStringConverter
+android.support.v4.widget.SimpleCursorAdapter$ViewBinder
+com.danga.squeezer.IServiceCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onMusicChanged
+    static final int TRANSACTION_onPlayerChanged
+    static final int TRANSACTION_onConnectionChanged
+    static final int TRANSACTION_onPlayStatusChanged
+    static final int TRANSACTION_onTimeInSongChange
+com.danga.squeezer.IServiceCallback$Stub$Proxy:
+    105:105:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.IconRowAdapter:
+    45:45:public int getImage(int)
+com.danga.squeezer.Preferences
+com.danga.squeezer.R
+com.danga.squeezer.R$array
+com.danga.squeezer.R$attr
+com.danga.squeezer.R$dimen
+com.danga.squeezer.R$drawable
+com.danga.squeezer.R$id
+com.danga.squeezer.R$integer
+com.danga.squeezer.R$layout
+com.danga.squeezer.R$menu
+com.danga.squeezer.R$plurals
+com.danga.squeezer.R$string
+com.danga.squeezer.R$styleable
+com.danga.squeezer.R$xml
+com.danga.squeezer.RepeatingImageButton:
+    59:61:public void setRepeatListener(com.danga.squeezer.RepeatingImageButton$RepeatListener,long)
+com.danga.squeezer.Squeezer:
+    33:33:public static android.content.Context getContext()
+com.danga.squeezer.SqueezerActivity:
+    protected static final int HOME_REQUESTCODE
+    private static final int UPDATE_TIME
+com.danga.squeezer.SqueezerHomeActivity$1:
+    private static final int MUSIC
+    private static final int INTERNET_RADIO
+    private static final int APPS
+    private static final int FAVORITES
+com.danga.squeezer.SqueezerMusicActivity:
+    private static final int ARTISTS
+    private static final int ALBUMS
+    private static final int SONGS
+    private static final int GENRES
+    private static final int YEARS
+    private static final int RANDOM_MIX
+    private static final int MUSIC_FOLDER
+    private static final int PLAYLISTS
+    private static final int SEARCH
+com.danga.squeezer.SqueezerSearchAdapter:
+    89:92:public int getMaxCount()
+com.danga.squeezer.Util:
+    36:37:public static java.lang.String nonNullString(java.util.concurrent.atomic.AtomicReference)
+    52:59:public static boolean atomicStringUpdated(java.util.concurrent.atomic.AtomicReference,java.lang.String)
+com.danga.squeezer.VolumePanel:
+    private static final int MSG_VOLUME_CHANGED
+    private static final int MSG_FREE_RESOURCES
+com.danga.squeezer.actionbarcompat.ActionBarHelper:
+    public abstract com.danga.squeezer.actionbarcompat.ActionBarHelper setIcon(android.graphics.drawable.Drawable)
+    public abstract void setRefreshActionItemState(boolean)
+com.danga.squeezer.actionbarcompat.ActionBarHelperBase:
+    private static final java.lang.String MENU_RES_NAMESPACE
+    private static final java.lang.String MENU_ATTR_ID
+    private static final java.lang.String MENU_ATTR_SHOW_AS_ACTION
+    115:125:public void setRefreshActionItemState(boolean)
+    162:163:public com.danga.squeezer.actionbarcompat.ActionBarHelper setIcon(android.graphics.drawable.Drawable)
+com.danga.squeezer.actionbarcompat.ActionBarHelperHoneycomb:
+    51:71:public void setRefreshActionItemState(boolean)
+    79:79:protected android.content.Context getActionBarThemedContext()
+    89:89:public com.danga.squeezer.actionbarcompat.ActionBarHelper setIcon(android.graphics.drawable.Drawable)
+com.danga.squeezer.actionbarcompat.ActionBarHelperICS:
+    34:34:protected android.content.Context getActionBarThemedContext()
+    39:41:public com.danga.squeezer.actionbarcompat.ActionBarHelper setIcon(android.graphics.drawable.Drawable)
+com.danga.squeezer.framework.SqueezerBaseItemView:
+    protected static final int CONTEXTMENU_BROWSE_SONGS
+    protected static final int CONTEXTMENU_BROWSE_ALBUMS
+    protected static final int CONTEXTMENU_BROWSE_ARTISTS
+    protected static final int CONTEXTMENU_PLAY_ITEM
+    protected static final int CONTEXTMENU_ADD_ITEM
+    protected static final int CONTEXTMENU_INSERT_ITEM
+    protected static final int CONTEXTMENU_BROWSE_ALBUM_SONGS
+    protected static final int CONTEXTMENU_BROWSE_ARTIST_ALBUMS
+    protected static final int CONTEXTMENU_BROWSE_ARTIST_SONGS
+com.danga.squeezer.framework.SqueezerItemListActivity:
+    103:103:public boolean isListBusy()
+com.danga.squeezer.itemlists.GenreSpinner$GenreSpinnerCallback:
+    public abstract void setGenre(com.danga.squeezer.model.SqueezerGenre)
+com.danga.squeezer.itemlists.IServiceAlbumListCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onAlbumsReceived
+com.danga.squeezer.itemlists.IServiceAlbumListCallback$Stub$Proxy:
+    73:73:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.IServiceArtistListCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onArtistsReceived
+com.danga.squeezer.itemlists.IServiceArtistListCallback$Stub$Proxy:
+    73:73:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.IServiceGenreListCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onGenresReceived
+com.danga.squeezer.itemlists.IServiceGenreListCallback$Stub$Proxy:
+    73:73:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.IServicePlayerListCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onPlayersReceived
+com.danga.squeezer.itemlists.IServicePlayerListCallback$Stub$Proxy:
+    73:73:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.IServicePlaylistMaintenanceCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onRenameFailed
+    static final int TRANSACTION_onCreateFailed
+com.danga.squeezer.itemlists.IServicePlaylistMaintenanceCallback$Stub$Proxy:
+    77:77:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.IServicePlaylistsCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onPlaylistsReceived
+com.danga.squeezer.itemlists.IServicePlaylistsCallback$Stub$Proxy:
+    73:73:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.IServicePluginItemListCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onPluginItemsReceived
+com.danga.squeezer.itemlists.IServicePluginItemListCallback$Stub$Proxy:
+    76:76:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.IServicePluginListCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onPluginsReceived
+com.danga.squeezer.itemlists.IServicePluginListCallback$Stub$Proxy:
+    73:73:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.IServiceSongListCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onSongsReceived
+com.danga.squeezer.itemlists.IServiceSongListCallback$Stub$Proxy:
+    73:73:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.IServiceYearListCallback$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_onYearsReceived
+com.danga.squeezer.itemlists.IServiceYearListCallback$Stub$Proxy:
+    73:73:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.itemlists.SqueezerAlbumListActivity:
+    53:53:public void setSong(com.danga.squeezer.model.SqueezerSong)
+    57:57:public void setArtist(com.danga.squeezer.model.SqueezerArtist)
+com.danga.squeezer.itemlists.SqueezerApplicationListActivity:
+    40:42:public static void show(android.content.Context)
+com.danga.squeezer.itemlists.SqueezerArtistListActivity:
+    45:45:public void setAlbum(com.danga.squeezer.model.SqueezerAlbum)
+com.danga.squeezer.itemlists.SqueezerCurrentPlaylistActivity:
+    private static final int PLAYLIST_CONTEXTMENU_PLAY_ITEM
+    private static final int PLAYLIST_CONTEXTMENU_REMOVE_ITEM
+    private static final int PLAYLIST_CONTEXTMENU_MOVE_UP
+    private static final int PLAYLIST_CONTEXTMENU_MOVE_DOWN
+    private static final int PLAYLIST_CONTEXTMENU_MOVE
+com.danga.squeezer.itemlists.SqueezerPlaylistSongsActivity:
+    private static final int PLAYLIST_CONTEXTMENU_PLAY_ITEM
+    private static final int PLAYLIST_CONTEXTMENU_ADD_ITEM
+    private static final int PLAYLIST_CONTEXTMENU_INSERT_ITEM
+    private static final int PLAYLIST_CONTEXTMENU_REMOVE_ITEM
+    private static final int PLAYLIST_CONTEXTMENU_MOVE_UP
+    private static final int PLAYLIST_CONTEXTMENU_MOVE_DOWN
+    private static final int PLAYLIST_CONTEXTMENU_MOVE
+    56:56:public java.lang.String getOldname()
+com.danga.squeezer.itemlists.SqueezerPlaylistView:
+    private static final int PLAYLISTS_CONTEXTMENU_DELETE_ITEM
+    private static final int PLAYLISTS_CONTEXTMENU_RENAME_ITEM
+    private static final int PLAYLISTS_CONTEXTMENU_BROWSE_SONGS
+    private static final int PLAYLISTS_CONTEXTMENU_PLAY_ITEM
+    private static final int PLAYLISTS_CONTEXTMENU_ADD_ITEM
+com.danga.squeezer.itemlists.SqueezerPlaylistsActivity:
+    40:40:public java.lang.String getOldname()
+com.danga.squeezer.itemlists.SqueezerPluginItemListActivity:
+    157:157:public boolean load(com.danga.squeezer.model.SqueezerPluginItem)
+com.danga.squeezer.itemlists.SqueezerSongListActivity:
+    55:55:public void setAlbum(com.danga.squeezer.model.SqueezerAlbum)
+    59:59:public void setArtist(com.danga.squeezer.model.SqueezerArtist)
+com.danga.squeezer.itemlists.YearSpinner$YearSpinnerCallback:
+    public abstract void setYear(com.danga.squeezer.model.SqueezerYear)
+com.danga.squeezer.model.SqueezerGenre:
+    28:28:public com.danga.squeezer.model.SqueezerGenre setName(java.lang.String)
+com.danga.squeezer.model.SqueezerPlayer:
+    29:29:public java.lang.String getIp()
+    30:30:public void setIp(java.lang.String)
+    34:34:public com.danga.squeezer.model.SqueezerPlayer setName(java.lang.String)
+    38:38:public void setCanpoweroff(boolean)
+    42:42:public void setModel(java.lang.String)
+com.danga.squeezer.model.SqueezerPlugin:
+    29:29:public com.danga.squeezer.model.SqueezerPlugin setName(java.lang.String)
+    33:33:public void setIcon(java.lang.String)
+    36:36:public int getWeight()
+    37:37:public void setWeight(int)
+    40:40:public java.lang.String getType()
+    41:41:public void setType(java.lang.String)
+com.danga.squeezer.model.SqueezerPluginItem:
+    29:29:public com.danga.squeezer.model.SqueezerPluginItem setName(java.lang.String)
+    32:32:public java.lang.String getDescription()
+    33:33:public void setDescription(java.lang.String)
+    37:37:public void setImage(java.lang.String)
+    41:41:public void setHasitems(boolean)
+    44:44:public java.lang.String getType()
+    45:45:public void setType(java.lang.String)
+com.danga.squeezer.service.ISqueezeService$Stub:
+    private static final java.lang.String DESCRIPTOR
+    static final int TRANSACTION_registerCallback
+    static final int TRANSACTION_unregisterCallback
+    static final int TRANSACTION_startConnect
+    static final int TRANSACTION_disconnect
+    static final int TRANSACTION_isConnected
+    static final int TRANSACTION_preferenceChanged
+    static final int TRANSACTION_setActivePlayer
+    static final int TRANSACTION_getActivePlayerName
+    static final int TRANSACTION_canPowerOn
+    static final int TRANSACTION_canPowerOff
+    static final int TRANSACTION_powerOn
+    static final int TRANSACTION_powerOff
+    static final int TRANSACTION_canRandomplay
+    static final int TRANSACTION_isPlaying
+    static final int TRANSACTION_togglePausePlay
+    static final int TRANSACTION_play
+    static final int TRANSACTION_stop
+    static final int TRANSACTION_nextTrack
+    static final int TRANSACTION_previousTrack
+    static final int TRANSACTION_playlistControl
+    static final int TRANSACTION_randomPlay
+    static final int TRANSACTION_playlistIndex
+    static final int TRANSACTION_playlistRemove
+    static final int TRANSACTION_playlistMove
+    static final int TRANSACTION_playlistClear
+    static final int TRANSACTION_playlistSave
+    static final int TRANSACTION_pluginPlaylistControl
+    static final int TRANSACTION_getSecondsTotal
+    static final int TRANSACTION_getSecondsElapsed
+    static final int TRANSACTION_setSecondsElapsed
+    static final int TRANSACTION_currentSong
+    static final int TRANSACTION_getAlbumArtUrl
+    static final int TRANSACTION_getIconUrl
+    static final int TRANSACTION_adjustVolumeBy
+    static final int TRANSACTION_players
+    static final int TRANSACTION_registerPlayerListCallback
+    static final int TRANSACTION_unregisterPlayerListCallback
+    static final int TRANSACTION_albums
+    static final int TRANSACTION_registerAlbumListCallback
+    static final int TRANSACTION_unregisterAlbumListCallback
+    static final int TRANSACTION_artists
+    static final int TRANSACTION_registerArtistListCallback
+    static final int TRANSACTION_unregisterArtistListCallback
+    static final int TRANSACTION_years
+    static final int TRANSACTION_registerYearListCallback
+    static final int TRANSACTION_unregisterYearListCallback
+    static final int TRANSACTION_genres
+    static final int TRANSACTION_registerGenreListCallback
+    static final int TRANSACTION_unregisterGenreListCallback
+    static final int TRANSACTION_songs
+    static final int TRANSACTION_currentPlaylist
+    static final int TRANSACTION_playlistSongs
+    static final int TRANSACTION_registerSongListCallback
+    static final int TRANSACTION_unregisterSongListCallback
+    static final int TRANSACTION_playlists
+    static final int TRANSACTION_registerPlaylistsCallback
+    static final int TRANSACTION_unregisterPlaylistsCallback
+    static final int TRANSACTION_registerPlaylistMaintenanceCallback
+    static final int TRANSACTION_unregisterPlaylistMaintenanceCallback
+    static final int TRANSACTION_playlistsNew
+    static final int TRANSACTION_playlistsRename
+    static final int TRANSACTION_playlistsDelete
+    static final int TRANSACTION_playlistsMove
+    static final int TRANSACTION_playlistsRemove
+    static final int TRANSACTION_search
+    static final int TRANSACTION_radios
+    static final int TRANSACTION_apps
+    static final int TRANSACTION_registerPluginListCallback
+    static final int TRANSACTION_unregisterPluginListCallback
+    static final int TRANSACTION_pluginItems
+    static final int TRANSACTION_registerPluginItemListCallback
+    static final int TRANSACTION_unregisterPluginItemListCallback
+com.danga.squeezer.service.ISqueezeService$Stub$Proxy:
+    878:878:public java.lang.String getInterfaceDescriptor()
+com.danga.squeezer.service.SqueezeService:
+    private static final java.lang.String TAG
+    private static final int PLAYBACKSERVICE_STATUS
+    private static final java.lang.String ALBUMTAGS
+    private static final java.lang.String SONGTAGS
+    private static final int SCROBBLE_NONE
+    private static final int SCROBBLE_SCROBBLEDROID
+    private static final int SCROBBLE_SLS
+com.danga.squeezer.service.SqueezerCLIImpl:
+    private static final java.lang.String TAG
+    336:337:void requestPlayerItems(java.lang.String,int)
+com.danga.squeezer.service.SqueezerCLIImpl$1$1:
+    private static final long serialVersionUID
+com.danga.squeezer.service.SqueezerCLIImpl$AlbumListHandler$1:
+    private static final long serialVersionUID
+com.danga.squeezer.service.SqueezerCLIImpl$ArtistListHandler$1:
+    private static final long serialVersionUID
+com.danga.squeezer.service.SqueezerCLIImpl$GenreListHandler$1:
+    private static final long serialVersionUID
+com.danga.squeezer.service.SqueezerCLIImpl$PlaylistsHandler$1:
+    private static final long serialVersionUID
+com.danga.squeezer.service.SqueezerCLIImpl$PluginItemListHandler$1:
+    private static final long serialVersionUID
+com.danga.squeezer.service.SqueezerCLIImpl$PluginListHandler$1:
+    private static final long serialVersionUID
+com.danga.squeezer.service.SqueezerCLIImpl$SongListHandler$1:
+    private static final long serialVersionUID
+com.danga.squeezer.service.SqueezerCLIImpl$YearListHandler$1:
+    private static final long serialVersionUID
+com.danga.squeezer.service.SqueezerConnectionState:
+    private static final java.lang.String TAG
+    private static final int DEFAULT_PORT
+    132:132:com.danga.squeezer.model.SqueezerPlayer getDefaultPlayer()
+    144:146:void setCurrentHost(java.lang.String)
+    149:151:void setCliPort(java.lang.Integer)
+com.danga.squeezer.service.SqueezerPlayerState:
+    66:66:public java.lang.Integer getCurrentTimeSecond()
+com.google.android.apps.analytics.AnalyticsReceiver:
+    static final java.lang.String INSTALL_ACTION
+    static final java.lang.String REFERRER_KEY
+com.google.android.apps.analytics.CustomVariable:
+    public static final int MAX_CUSTOM_VARIABLES
+    public static final java.lang.String INDEX_ERROR_MSG
+    public static final int VISITOR_SCOPE
+    public static final int SESSION_SCOPE
+    public static final int PAGE_SCOPE
+    public static final int MAX_CUSTOM_VARIABLE_LENGTH
+    public CustomVariable(int,java.lang.String,java.lang.String)
+com.google.android.apps.analytics.Dispatcher:
+    public abstract boolean isDryRun()
+com.google.android.apps.analytics.Event:
+    static final java.lang.String PAGEVIEW_EVENT_CATEGORY
+    static final java.lang.String INSTALL_EVENT_CATEGORY
+    static final java.lang.String TRANSACTION_CATEGORY
+    static final java.lang.String ITEM_CATEGORY
+com.google.android.apps.analytics.GoogleAnalyticsTracker:
+    public static final java.lang.String PRODUCT
+    public static final java.lang.String VERSION
+    public static final java.lang.String WIRE_VERSION
+    public static final java.lang.String LOG_TAG
+    public void start(java.lang.String,int,android.content.Context)
+    public void start(java.lang.String,android.content.Context)
+    com.google.android.apps.analytics.Dispatcher getDispatcher()
+    public void setProductVersion(java.lang.String,java.lang.String)
+    public void trackEvent(java.lang.String,java.lang.String,java.lang.String,int)
+    com.google.android.apps.analytics.HitStore getHitStore()
+    public boolean setCustomVar(int,java.lang.String,java.lang.String,int)
+    public boolean setCustomVar(int,java.lang.String,java.lang.String)
+    public java.lang.String getVisitorCustomVar(int)
+    public void addTransaction(com.google.android.apps.analytics.Transaction)
+    public void addItem(com.google.android.apps.analytics.Item)
+    public void trackTransactions()
+    public void clearTransactions()
+    public void setAnonymizeIp(boolean)
+    public boolean getAnonymizeIp()
+    public void setSampleRate(int)
+    public int getSampleRate()
+    public boolean setReferrer(java.lang.String)
+    public void setDebug(boolean)
+    public void setDryRun(boolean)
+    public boolean isDryRun()
+    public boolean setDispatcher(com.google.android.apps.analytics.Dispatcher)
+com.google.android.apps.analytics.HitBuilder:
+    private static final java.lang.String GOOGLE_ANALYTICS_GIF_PATH
+    static final java.lang.String FAKE_DOMAIN_HASH
+    private static final int X10_PROJECT_NAMES
+    private static final int X10_PROJECT_VALUES
+    private static final int X10_PROJECT_SCOPES
+com.google.android.apps.analytics.HitStore:
+    public abstract com.google.android.apps.analytics.Hit[] peekHits(int)
+    public abstract int getStoreId()
+    public abstract com.google.android.apps.analytics.Referrer getReferrer()
+    public abstract void clearReferrer()
+    public abstract void loadExistingSession()
+    public abstract java.lang.String getVisitorCustomVar(int)
+com.google.android.apps.analytics.NetworkDispatcher:
+    private static final java.lang.String GOOGLE_ANALYTICS_HOST_NAME
+    private static final int GOOGLE_ANALYTICS_HOST_PORT
+    private static final java.lang.String USER_AGENT_TEMPLATE
+    private static final int MAX_EVENTS_PER_PIPELINE
+    private static final int MAX_SEQUENTIAL_REQUESTS
+    private static final long MIN_RETRY_INTERVAL
+    public void init(com.google.android.apps.analytics.Dispatcher$Callbacks,com.google.android.apps.analytics.PipelinedRequester,com.google.android.apps.analytics.HitStore)
+    public void waitForThreadLooper()
+    java.lang.String getUserAgent()
+com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread:
+    NetworkDispatcher$DispatcherThread(com.google.android.apps.analytics.Dispatcher$Callbacks,com.google.android.apps.analytics.PipelinedRequester,java.lang.String,com.google.android.apps.analytics.NetworkDispatcher,com.google.android.apps.analytics.NetworkDispatcher$1)
+com.google.android.apps.analytics.PersistentHitStore:
+    private static final int MAX_HITS
+    private static final java.lang.String STORE_ID
+    private static final java.lang.String EVENT_ID
+    private static final java.lang.String SCREEN_WIDTH
+    private static final java.lang.String SCREEN_HEIGHT
+    private static final java.lang.String VALUE
+    private static final java.lang.String LABEL
+    private static final java.lang.String ACTION
+    private static final java.lang.String CATEGORY
+    private static final java.lang.String VISITS
+    private static final java.lang.String TIMESTAMP_CURRENT
+    private static final java.lang.String TIMESTAMP_PREVIOUS
+    private static final java.lang.String TIMESTAMP_FIRST
+    private static final java.lang.String RANDOM_VAL
+    private static final java.lang.String ACCOUNT_ID
+    private static final java.lang.String USER_ID
+    static final java.lang.String REFERRER_COLUMN
+    static final java.lang.String REFERRER
+    static final java.lang.String TIMESTAMP_REFERRER
+    static final java.lang.String REFERRER_VISIT
+    static final java.lang.String REFERRER_INDEX
+    private static final java.lang.String CUSTOMVAR_ID
+    private static final java.lang.String CUSTOMVAR_INDEX
+    private static final java.lang.String CUSTOMVAR_NAME
+    private static final java.lang.String CUSTOMVAR_VALUE
+    private static final java.lang.String CUSTOMVAR_SCOPE
+    private static final java.lang.String CUSTOM_VARIABLE_COLUMN_TYPE
+    private static final java.lang.String TRANSACTION_ID
+    private static final java.lang.String ORDER_ID
+    private static final java.lang.String STORE_NAME
+    private static final java.lang.String TOTAL_COST
+    private static final java.lang.String TOTAL_TAX
+    private static final java.lang.String SHIPPING_COST
+    private static final java.lang.String ITEM_ID
+    private static final java.lang.String ITEM_SKU
+    private static final java.lang.String ITEM_NAME
+    private static final java.lang.String ITEM_CATEGORY
+    private static final java.lang.String ITEM_PRICE
+    private static final java.lang.String ITEM_COUNT
+    private static final java.lang.String HIT_ID
+    private static final java.lang.String HIT_STRING
+    private static final java.lang.String HIT_TIMESTAMP
+    private static final java.lang.String DATABASE_NAME
+    private static final int DATABASE_VERSION
+    private static final java.lang.String CREATE_INSTALL_REFERRER_TABLE
+    private static final java.lang.String CREATE_REFERRER_TABLE
+    PersistentHitStore(android.content.Context,java.lang.String)
+    PersistentHitStore(com.google.android.apps.analytics.PersistentHitStore$DataBaseHelper)
+    com.google.android.apps.analytics.PersistentHitStore$DataBaseHelper getDatabaseHelper()
+    long getTimestampFirst()
+    long getTimestampPrevious()
+    long getTimestampCurrent()
+    int getVisits()
+    public java.lang.String getVisitorCustomVar(int)
+    public int getStoreId()
+    public com.google.android.apps.analytics.Referrer getReferrer()
+    public void clearReferrer()
+com.google.android.apps.analytics.PersistentHitStore$DataBaseHelper:
+    public PersistentHitStore$DataBaseHelper(android.content.Context,com.google.android.apps.analytics.PersistentHitStore)
+    public PersistentHitStore$DataBaseHelper(android.content.Context,java.lang.String,com.google.android.apps.analytics.PersistentHitStore)
+com.pocketjourney.view.TransparentPanel:
+    private android.graphics.Paint borderPaint
+    47:48:public void setInnerPaint(android.graphics.Paint)
+    51:52:public void setBorderPaint(android.graphics.Paint)
+org.acra.ACRAConfigurationException:
+    private static final long serialVersionUID
+org.acra.ConfigurationInspector:
+    private static final java.lang.String SUFFIX_MASK
+    private static final java.lang.String FIELD_SCREENLAYOUT
+    private static final java.lang.String FIELD_UIMODE
+    private static final java.lang.String FIELD_MNC
+    private static final java.lang.String FIELD_MCC
+    private static final java.lang.String PREFIX_UI_MODE
+    private static final java.lang.String PREFIX_TOUCHSCREEN
+    private static final java.lang.String PREFIX_SCREENLAYOUT
+    private static final java.lang.String PREFIX_ORIENTATION
+    private static final java.lang.String PREFIX_NAVIGATIONHIDDEN
+    private static final java.lang.String PREFIX_NAVIGATION
+    private static final java.lang.String PREFIX_KEYBOARDHIDDEN
+    private static final java.lang.String PREFIX_KEYBOARD
+    private static final java.lang.String PREFIX_HARDKEYBOARDHIDDEN
+org.acra.CrashReportData:
+    private static final long serialVersionUID
+    private static final java.lang.String PROP_DTD_NAME
+    private static final int NONE
+    private static final int SLASH
+    private static final int UNICODE
+    private static final int CONTINUE
+    private static final int KEY_DONE
+    private static final int IGNORE
+    88:90:public CrashReportData(org.acra.CrashReportData)
+    162:169:public java.lang.String getProperty(org.acra.ReportField,java.lang.String)
+    181:205:public void list(java.io.PrintStream)
+    216:240:public void list(java.io.PrintWriter)
+    475:475:private java.util.Enumeration keys()
+    497:500:public void save(java.io.OutputStream,java.lang.String)
+    513:513:public java.lang.Object setProperty(org.acra.ReportField,java.lang.String)
+    568:585:public synchronized void store(java.io.Writer,java.lang.String)
+    700:701:public void storeToXML(java.io.OutputStream,java.lang.String)
+    727:778:public synchronized void storeToXML(java.io.OutputStream,java.lang.String,java.lang.String)
+    786:786:private java.lang.String substitutePredefinedEntries(java.lang.String)
+org.acra.ErrorReporter:
+    public static final java.lang.String REPORTFILE_EXTENSION
+    private static final int MAX_SEND_REPORTS
+    static final java.lang.String APPROVED_SUFFIX
+    static final java.lang.String EXTRA_REPORT_FILE_NAME
+    289:289:public java.lang.String putCustomData(java.lang.String,java.lang.String)
+    302:302:public java.lang.String removeCustomData(java.lang.String)
+    315:315:public java.lang.String getCustomData(java.lang.String)
+    787:793:public java.lang.Thread handleSilentException(java.lang.Throwable)
+    1081:1082:public void deletePendingSilentReports()
+    1234:1235:public void removeReportSender(org.acra.sender.ReportSender)
+    1243:1250:public void removeReportSenders(java.lang.Class)
+    1257:1258:public void removeAllReportSenders()
+    1266:1268:public void setReportSender(org.acra.sender.ReportSender)
+org.acra.LogCatCollector:
+    private static final int DEFAULT_TAIL_COUNT
+org.acra.util.Base64
+org.acra.util.Base64$Coder
+org.acra.util.Base64$Decoder
+org.acra.util.Base64$Encoder
+org.acra.util.HttpRequest:
+    65:66:public void clearCookies()
+    70:77:public void abort()
+    131:140:public java.lang.String sendGet(java.lang.String)
+    144:167:public java.io.InputStream getHttpStream(java.lang.String)
+org.acra.util.Installation:
+    private static final java.lang.String INSTALLATION

@@ -12,20 +12,18 @@ import com.danga.squeezer.itemlists.SqueezerAbstractSongListActivity;
 import com.danga.squeezer.model.SqueezerPlaylist;
 
 public class SqueezerPlaylistItemMoveDialog extends SqueezerBaseEditTextDialog {
-    private final SqueezerAbstractSongListActivity activity;
+    private SqueezerAbstractSongListActivity activity;
     private int fromIndex;
     private SqueezerPlaylist playlist;
-    
-    private SqueezerPlaylistItemMoveDialog(SqueezerAbstractSongListActivity activity, SqueezerPlaylist playlist, int fromIndex) {
-        this.activity = activity;
-        this.playlist = playlist;
-        this.fromIndex = fromIndex + 1;
-    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
+        activity = (SqueezerAbstractSongListActivity) getActivity();
+        Bundle args = getArguments();
+        fromIndex = args.getInt("fromIndex");
+        playlist = args.getParcelable("playlist");
         dialog.setTitle(getString(R.string.move_to_dialog_title, fromIndex));
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setHint(R.string.move_to_index_hint);
@@ -52,12 +50,19 @@ public class SqueezerPlaylistItemMoveDialog extends SqueezerBaseEditTextDialog {
     }
 
     public static void addTo(SqueezerAbstractSongListActivity activity, int fromIndex) {
-        SqueezerPlaylistItemMoveDialog dialog = new SqueezerPlaylistItemMoveDialog(activity, null, fromIndex);
+        SqueezerPlaylistItemMoveDialog dialog = new SqueezerPlaylistItemMoveDialog();
+        Bundle args = new Bundle();
+        args.putInt("fromIndex", fromIndex);
+        dialog.setArguments(args);
         dialog.show(activity.getSupportFragmentManager(), "MoveDialog");
     }
 
     public static void addTo(SqueezerAbstractSongListActivity activity, SqueezerPlaylist playlist, int fromIndex) {
-        SqueezerPlaylistItemMoveDialog dialog = new SqueezerPlaylistItemMoveDialog(activity, playlist, fromIndex);
+        SqueezerPlaylistItemMoveDialog dialog = new SqueezerPlaylistItemMoveDialog();
+        Bundle args = new Bundle();
+        args.putInt("fromIndex", fromIndex);
+        args.putParcelable("playlist", playlist);
+        dialog.setArguments(args);
         dialog.show(activity.getSupportFragmentManager(), "MoveDialog");
     }
 

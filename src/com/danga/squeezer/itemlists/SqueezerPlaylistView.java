@@ -24,8 +24,8 @@ import android.view.MenuItem;
 import com.danga.squeezer.R;
 import com.danga.squeezer.SqueezerActivity;
 import com.danga.squeezer.framework.SqueezerBaseItemView;
-import com.danga.squeezer.itemlists.dialogs.SqueezerPlaylistsRenameDialog;
 import com.danga.squeezer.itemlists.dialogs.SqueezerPlaylistsDeleteDialog;
+import com.danga.squeezer.itemlists.dialogs.SqueezerPlaylistsRenameDialog;
 import com.danga.squeezer.model.SqueezerPlaylist;
 
 
@@ -66,13 +66,13 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 		case PLAYLISTS_CONTEXTMENU_DELETE_ITEM:
 			{
 				activity.setCurrentPlaylist(selectedItem);
-				SqueezerPlaylistsDeleteDialog.addTo(activity);
+				new SqueezerPlaylistsDeleteDialog().show(activity.getSupportFragmentManager(), SqueezerPlaylistsDeleteDialog.class.getName());
 			}
 			return true;
 		case PLAYLISTS_CONTEXTMENU_RENAME_ITEM:
 			{
 				activity.setCurrentPlaylist(selectedItem);
-				SqueezerPlaylistsRenameDialog.addTo(activity);
+				new SqueezerPlaylistsRenameDialog().show(activity.getSupportFragmentManager(), SqueezerPlaylistsRenameDialog.class.getName());
 			}
 			return true;
 		case PLAYLISTS_CONTEXTMENU_BROWSE_SONGS:

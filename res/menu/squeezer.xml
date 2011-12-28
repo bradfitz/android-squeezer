@@ -17,40 +17,64 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:id="@+id/menu_item_home"
+		android:title="@string/menu_item_home"
+		android:icon="@drawable/ic_action_home"
+		android:showAsAction="always"
+	/>
     <item
         android:id="@+id/menu_item_connect"
-        android:icon="@android:drawable/presence_online"
+        android:icon="@drawable/presence_online"
         android:title="@string/menu_item_connect"
-        android:alphabeticShortcut="c" />
+        android:alphabeticShortcut="c"
+    	android:showAsAction="never|withText"
+    />
     <item
         android:id="@+id/menu_item_disconnect"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:icon="@drawable/ic_action_disconnect"
         android:title="@string/menu_item_disconnect"
-        android:alphabeticShortcut="d" />
+        android:alphabeticShortcut="d"
+    	android:showAsAction="never|withText"
+    />
     <item
      	android:id="@+id/menu_item_poweron"
-     	android:title="@string/menu_item_poweron" android:icon="@android:drawable/ic_lock_power_off"/>
+     	android:title="@string/menu_item_poweron"
+     	android:icon="@drawable/ic_action_power"
+    	android:showAsAction="never|withText"
+    />
     <item 
     	android:id="@+id/menu_item_poweroff"
-    	android:title="@string/menu_item_poweroff" android:icon="@android:drawable/ic_lock_power_off"/>
+    	android:title="@string/menu_item_poweroff"
+    	android:icon="@drawable/ic_action_power"
+    	android:showAsAction="never|withText"
+    />
     <item
         android:id="@+id/menu_item_players"
         android:title="@string/menu_item_players"
-        android:alphabeticShortcut="z" android:icon="@+drawable/icon_choose_player"/>
+        android:alphabeticShortcut="z"
+        android:icon="@+drawable/ic_action_choose_player"
+    	android:showAsAction="ifRoom|withText"
+    />
     <item
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_action_search"
         android:id="@+id/menu_item_search"
         android:title="@string/menu_item_search_label"
-        android:alphabeticShortcut="s" />
+        android:alphabeticShortcut="s"
+    	android:showAsAction="ifRoom"
+    />
     <item
         android:icon="@android:drawable/ic_menu_info_details"
         android:id="@+id/menu_item_about"
         android:title="@string/menu_item_about_label"
-        android:alphabeticShortcut="a" />
+        android:alphabeticShortcut="a"
+    	android:showAsAction="never|withText"
+    />
     <item
-        android:icon="@android:drawable/ic_menu_preferences"
+        android:icon="@drawable/ic_action_preferences"
         android:id="@+id/menu_item_settings"
         android:title="@string/menu_item_settings_label"
-        android:alphabeticShortcut="p" />
-
+        android:alphabeticShortcut="p"
+    	android:showAsAction="never|withText"
+    />    
 </menu>

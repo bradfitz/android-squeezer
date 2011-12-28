@@ -10,16 +10,13 @@ import com.danga.squeezer.R;
 import com.danga.squeezer.itemlists.SqueezerPlaylistsActivity;
 
 public class SqueezerPlaylistsRenameDialog extends SqueezerBaseEditTextDialog {
-    private final SqueezerPlaylistsActivity activity;
+    private SqueezerPlaylistsActivity activity;
     
-    private SqueezerPlaylistsRenameDialog(SqueezerPlaylistsActivity activity) {
-        this.activity = activity;
-    }
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
+        activity = (SqueezerPlaylistsActivity) getActivity();
         dialog.setTitle(getString(R.string.rename_title, activity.getCurrentPlaylist().getName()));
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         editText.setText(activity.getCurrentPlaylist().getName());
@@ -38,12 +35,6 @@ public class SqueezerPlaylistsRenameDialog extends SqueezerBaseEditTextDialog {
             Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
         }
         return true;
-    }
-
-    
-    public static void addTo(SqueezerPlaylistsActivity activity) {
-        SqueezerPlaylistsRenameDialog dialog = new SqueezerPlaylistsRenameDialog(activity);
-        dialog.show(activity.getSupportFragmentManager(), "RenameDialog");
     }
 
 }

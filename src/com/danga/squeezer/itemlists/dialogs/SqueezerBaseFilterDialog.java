@@ -14,6 +14,7 @@ import com.danga.squeezer.R;
 
 public abstract class SqueezerBaseFilterDialog extends DialogFragment {
     protected View filterForm;
+    protected abstract void filter();
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -44,7 +45,5 @@ public abstract class SqueezerBaseFilterDialog extends DialogFragment {
 
         return builder.create();
     }
-    
-    protected abstract void filter();
 
 }

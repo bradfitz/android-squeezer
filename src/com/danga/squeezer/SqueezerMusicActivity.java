@@ -33,6 +33,7 @@ import com.danga.squeezer.itemlists.SqueezerGenreListActivity;
 import com.danga.squeezer.itemlists.SqueezerPlaylistsActivity;
 import com.danga.squeezer.itemlists.SqueezerSongListActivity;
 import com.danga.squeezer.itemlists.SqueezerYearListActivity;
+import com.danga.squeezer.menu.MenuFragment;
 import com.danga.squeezer.menu.SqueezerMenuFragment;
 
 public class SqueezerMusicActivity extends SqueezerBaseActivity {
@@ -54,7 +55,7 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
-        SqueezerMenuFragment.addTo(this);
+        MenuFragment.add(this, SqueezerMenuFragment.class);
         setMusicMenu();
 	}
 

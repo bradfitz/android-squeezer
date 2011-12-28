@@ -30,6 +30,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.danga.squeezer.framework.SqueezerBaseActivity;
+import com.danga.squeezer.menu.MenuFragment;
 import com.danga.squeezer.menu.SqueezerMenuFragment;
 
 public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
@@ -40,7 +41,7 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
-		SqueezerMenuFragment.addTo(this);
+		MenuFragment.add(this, SqueezerMenuFragment.class);
 		setRandomplayMenu();
 	}
 

@@ -12,16 +12,13 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 
 public class SqueezerPlaylistDeleteDialog extends DialogFragment {
-    private final SqueezerPlaylistSongsActivity activity;
-    
-    private SqueezerPlaylistDeleteDialog(SqueezerPlaylistSongsActivity activity) {
-        this.activity = activity;
-    }
+    private SqueezerPlaylistSongsActivity activity;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
+        activity = (SqueezerPlaylistSongsActivity) getActivity();
         builder.setTitle(getString(R.string.delete_title, activity.getPlaylist().getName()));
         builder.setMessage(R.string.delete__message);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -37,11 +34,6 @@ public class SqueezerPlaylistDeleteDialog extends DialogFragment {
         builder.setNegativeButton(android.R.string.cancel, null);
 
         return builder.create();
-    }
-
-    public static void addTo(SqueezerPlaylistSongsActivity activity) {
-        SqueezerPlaylistDeleteDialog dialog = new SqueezerPlaylistDeleteDialog(activity);
-        dialog.show(activity.getSupportFragmentManager(), "DeleteDialog");
     }
 
 }

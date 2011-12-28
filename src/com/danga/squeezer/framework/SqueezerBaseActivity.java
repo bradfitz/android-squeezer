@@ -23,10 +23,11 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import com.danga.squeezer.R;
+import com.danga.squeezer.actionbarcompat.ActionBarActivity;
 import com.danga.squeezer.service.ISqueezeService;
 import com.danga.squeezer.service.SqueezeService;
 
@@ -35,7 +36,7 @@ import com.danga.squeezer.service.SqueezeService;
  * @author Kurt Aaholst
  *
  */
-public abstract class SqueezerBaseActivity extends FragmentActivity {
+public abstract class SqueezerBaseActivity extends ActionBarActivity {
 	private ISqueezeService service = null;
 	private final Handler uiThreadHandler = new Handler() {};
 
@@ -52,6 +53,14 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
 		return service;
 	}
 
+    /**
+     * Use this to post Runnables to work off thread
+     */
+    public Handler getUIThreadHandler() {
+        return uiThreadHandler;
+    }
+
+
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = ISqueezeService.Stub.asInterface(binder);
@@ -64,6 +73,12 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
 		public void onServiceDisconnected(ComponentName name) {
             service = null;
         };
+    };
+    
+    @Override
+    protected void onCreate(android.os.Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getActionBarHelper().setIcon(R.drawable.ic_action_now_playing);
     };
 
     @Override
@@ -80,13 +95,6 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
         	unbindService(serviceConnection);
         }
     }
-
-	/**
-	 * Use this to post Runnables to work off thread
-	 */
-	public Handler getUIThreadHandler() {
-		return uiThreadHandler;
-	}
 
 	
     /*

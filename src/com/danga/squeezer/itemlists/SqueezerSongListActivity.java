@@ -30,6 +30,7 @@ import com.danga.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
 import com.danga.squeezer.itemlists.dialogs.SqueezerSongFilterDialog;
 import com.danga.squeezer.itemlists.dialogs.SqueezerSongOrderDialog;
 import com.danga.squeezer.itemlists.dialogs.SqueezerSongOrderDialog.SongsSortOrder;
+import com.danga.squeezer.menu.MenuFragment;
 import com.danga.squeezer.menu.SqueezerFilterMenuItemFragment;
 import com.danga.squeezer.menu.SqueezerOrderMenuItemFragment;
 import com.danga.squeezer.model.SqueezerAlbum;
@@ -144,8 +145,8 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 	@Override 
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-        SqueezerFilterMenuItemFragment.addTo(this);
-        SqueezerOrderMenuItemFragment.addTo(this);
+        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
+        MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
 	};
 
 	@Override
@@ -155,11 +156,11 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 	}
 
     public void showFilterDialog() {
-        SqueezerSongFilterDialog.addTo(this);
+        new SqueezerSongFilterDialog().show(getSupportFragmentManager(), "SongFilterDialog");
     }
 
     public void showOrderDialog() {
-        SqueezerSongOrderDialog.addTo(this);
+        new SqueezerSongOrderDialog().show(this.getSupportFragmentManager(), "OrderDialog");
     }
 
 }
