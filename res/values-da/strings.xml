@@ -64,7 +64,7 @@
     <string name="rename_title">Omdøb %s</string>
     <string name="delete_title">Slet %s</string>
     <string name="delete__message">Er du sikker på at slette?</string>
-    <string name="loading_text">Henter...</string>
+    <string name="loading_text">Henter &#8230;</string>
     <string name="browse_items_text">Viser %2$d %1$s</string>
     <string name="choose_sort_order">Vælg rækkefølge af %s</string>
     <string name="genre_prompt">Vælg genre</string>
@@ -89,7 +89,7 @@
     <string name="PLAYLIST_CONTEXTMENU_REMOVE_ITEM">Fjern fra afspilningsliste</string>
     <string name="PLAYLIST_CONTEXTMENU_MOVE_UP">Flyt op</string>
     <string name="PLAYLIST_CONTEXTMENU_MOVE_DOWN">Flyt ned</string>
-    <string name="PLAYLIST_CONTEXTMENU_MOVE">Flyt ...</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE">Flyt &#8230;</string>
 
 	<string name="ITEM_PLAYING">Spiller nu %s</string>
 	<string name="ITEM_ADDED">%s er tilføjet den nuværende afspilningsliste</string>
