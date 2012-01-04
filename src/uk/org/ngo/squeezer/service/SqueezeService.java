@@ -257,11 +257,13 @@ public class SqueezeService extends Service {
 		});
 		handlers.put("play", new SqueezerCmdHandler() {
 			public void handle(List<String> tokens) {
+                Log.v(TAG, "play registered");
 	            setPlayingState(true);
 			}
 		});
 		handlers.put("stop", new SqueezerCmdHandler() {
 			public void handle(List<String> tokens) {
+                Log.v(TAG, "stop registered");
 	            setPlayingState(false);
 			}
 		});
@@ -368,6 +370,7 @@ public class SqueezeService extends Service {
 	}
 
 	private void parsePause(String explicitPause) {
+	    if (debugLogging) Log.v(TAG, "parsePause: '" + explicitPause + "'");
 //		boolean playing = playerState.isPlaying();
 //		if ("0".equals(explicitPause)) {
 //			if (playing) setPlayingState(false);
@@ -377,6 +380,7 @@ public class SqueezeService extends Service {
 	}
 
 	private void parseMode(String newMode) {
+	    if (debugLogging) Log.v(TAG, "parseMode: '" + newMode + "'");
 		boolean playing = playerState.isPlaying();
 		if ("pause".equals(newMode)) {
 			if (playing) setPlayingState(false);
@@ -437,7 +441,7 @@ public class SqueezeService extends Service {
             return;
         }
 
-        Log.v(TAG, "Active player now: " + newPlayer);
+        Log.i(TAG, "Active player now: " + newPlayer);
         final String playerId = newPlayer.getId();
         String oldPlayerId =  (connectionState.getActivePlayer() != null ? connectionState.getActivePlayer().getId() : null);
         boolean changed = false;
@@ -463,7 +467,7 @@ public class SqueezeService extends Service {
             // as quickly as possible.
             executor.execute(new Runnable() {
                 public void run() {
-                    Log.v(TAG, "Saving " + Preferences.KEY_LASTPLAYER + "=" + playerId);
+                    Log.i(TAG, "Saving " + Preferences.KEY_LASTPLAYER + "=" + playerId);
                     final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString(Preferences.KEY_LASTPLAYER, playerId);
@@ -672,7 +676,6 @@ public class SqueezeService extends Service {
 
         public boolean togglePausePlay() throws RemoteException {
             if (!isConnected()) return false;
-            Log.v(TAG, "pause...");
             if (playerState.isPlaying()) {
                 // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
                 // because then we'd get confused when they came back in to us, not being
@@ -684,16 +687,13 @@ public class SqueezeService extends Service {
                 // actually paused (as opposed to not playing at all)
                 cli.sendPlayerCommand("play");
             }
-            Log.v(TAG, "paused.");
             return true;
         }
 
         public boolean play() throws RemoteException {
             if (!isConnected()) return false;
-            Log.v(TAG, "play..");
             playerState.setPlaying(true);
             cli.sendPlayerCommand("play");
-            Log.v(TAG, "played.");
             return true;
         }
 
@@ -817,7 +817,7 @@ public class SqueezeService extends Service {
         }
 
         public void preferenceChanged(String key) throws RemoteException {
-            Log.v(TAG, "Preference changed: " + key);
+            Log.i(TAG, "Preference changed: " + key);
             if (Preferences.KEY_NOTIFY_OF_CONNECTION.equals(key)) {
                 updateOngoingNotification();
                 return;

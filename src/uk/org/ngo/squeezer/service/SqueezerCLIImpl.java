@@ -257,6 +257,7 @@ class SqueezerCLIImpl {
         } else {
             // Get it into one packet by deferring flushing...
             for (String command : commands) {
+                Log.v(TAG, "Send: " + command);
                 writer.print(command + "\n");
             }
             writer.flush();
