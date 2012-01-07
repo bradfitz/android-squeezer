@@ -91,7 +91,7 @@ public class SqueezeService extends Service {
 	final AtomicReference<IServiceGenreListCallback> genreListCallback = new AtomicReference<IServiceGenreListCallback>();
 	final AtomicReference<IServiceSongListCallback> songListCallback = new AtomicReference<IServiceSongListCallback>();
 	final AtomicReference<IServicePlaylistsCallback> playlistsCallback = new AtomicReference<IServicePlaylistsCallback>();
-	final AtomicReference<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallback = new AtomicReference<IServicePlaylistMaintenanceCallback>();
+    final AtomicReference<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallback = new AtomicReference<IServicePlaylistMaintenanceCallback>();
 	final AtomicReference<IServicePluginListCallback> pluginListCallback = new AtomicReference<IServicePluginListCallback>();
 	final AtomicReference<IServicePluginItemListCallback> pluginItemListCallback = new AtomicReference<IServicePluginItemListCallback>();
 
@@ -368,7 +368,7 @@ public class SqueezeService extends Service {
 			parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
 		}
 	}
-
+	
 	private void parsePause(String explicitPause) {
 	    if (debugLogging) Log.v(TAG, "parsePause: '" + explicitPause + "'");
 //		boolean playing = playerState.isPlaying();
@@ -412,8 +412,8 @@ public class SqueezeService extends Service {
     private void parseStatusLine(List<String> tokens) {
 		HashMap<String, String> tokenMap = parseTokens(tokens);
 
-	    boolean musicHasChanged = false;
-	    musicHasChanged |= playerState.setCurrentSongUpdated(new SqueezerSong(tokenMap));
+	    boolean musicHasChanged = playerState.setCurrentSong(new SqueezerSong(tokenMap));
+	    playerState.setCurrentPlaylist(tokenMap.get("playlist_name"));
 
         if (playerState.setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1)) {
             sendPowerStatusChangedCallback();
@@ -779,8 +779,12 @@ public class SqueezeService extends Service {
             return (player != null ? player.getName() : null);
         }
 
-        public SqueezerSong currentSong() throws RemoteException {
+        public SqueezerSong getCurrentSong() throws RemoteException {
             return playerState.getCurrentSong();
+        }
+        
+        public String getCurrentPlaylist() {
+            return playerState.getCurrentPlaylist();
         }
 
         public String getAlbumArtUrl(String artworkTrackId) throws RemoteException {

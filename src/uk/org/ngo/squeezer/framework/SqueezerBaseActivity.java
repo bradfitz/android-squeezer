@@ -25,6 +25,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
@@ -147,24 +148,22 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity {
 
 	// This section is just an easier way to call squeeze service
 
-	public boolean play(SqueezerItem item) throws RemoteException {
-		return playlistControl(PlaylistControlCmd.load, item);
+	public void play(SqueezerItem item) throws RemoteException {
+		playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
 	}
 
-	public boolean add(SqueezerItem item) throws RemoteException {
-		return playlistControl(PlaylistControlCmd.add, item);
+	public void add(SqueezerItem item) throws RemoteException {
+		playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
 	}
 
-	public boolean insert(SqueezerItem item) throws RemoteException {
-		return playlistControl(PlaylistControlCmd.insert, item);
+	public void insert(SqueezerItem item) throws RemoteException {
+		playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
 	}
 
-    private boolean playlistControl(PlaylistControlCmd cmd, SqueezerItem item) throws RemoteException {
-        if (service == null) {
-            return false;
-        }
+    private void playlistControl(PlaylistControlCmd cmd, SqueezerItem item, int resId) throws RemoteException {
+        if (service == null) return;
         service.playlistControl(cmd.name(), item.getClass().getName(), item.getId());
-        return true;
+        Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
     }
 
     private enum PlaylistControlCmd {

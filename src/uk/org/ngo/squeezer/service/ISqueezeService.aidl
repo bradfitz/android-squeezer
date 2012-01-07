@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceSongListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePluginListCallback;
@@ -85,7 +86,8 @@ interface ISqueezeService {
         int getSecondsElapsed();
         boolean setSecondsElapsed(int seconds);
         
-        SqueezerSong currentSong();
+        SqueezerSong getCurrentSong();
+        String getCurrentPlaylist();
         String getAlbumArtUrl(String artworkTrackId);
         String getIconUrl(String icon);
 
@@ -131,7 +133,7 @@ interface ISqueezeService {
 	    void registerGenreListCallback(IServiceGenreListCallback callback);
         void unregisterGenreListCallback(IServiceGenreListCallback callback);
         
-        // Song list
+        // Song lists
         boolean songs(int start, String sortOrder, String searchString, in SqueezerAlbum album, in SqueezerArtist artist, in SqueezerYear year, in SqueezerGenre genre);
         boolean currentPlaylist(int start);
         boolean playlistSongs(int start, in SqueezerPlaylist playlist);

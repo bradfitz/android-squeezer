@@ -476,7 +476,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             return null;
         }
         try {
-            return getService().currentSong();
+            return getService().getCurrentSong();
         } catch (RemoteException e) {
             Log.e(getTag(), "Service exception in getCurrentSong(): " + e);
         }
@@ -684,6 +684,10 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                         Toast.makeText(SqueezerActivity.this, "startConnection error: " + e, Toast.LENGTH_LONG).show();
                     }
                 } else {
+                    // We couldn't create the connect progress bar.
+                    // If this happens because of the android life cycle, then we are fine, and
+                    // will get back here shortly, otherwise the user will have to press the
+                    // connect button again.
                     Log.v(getTag(), "Could not show the connect dialog, connecting aborted");
                 }
             }
