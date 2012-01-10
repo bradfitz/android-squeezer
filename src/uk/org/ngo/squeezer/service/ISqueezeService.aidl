@@ -23,7 +23,6 @@ import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceSongListCallback;
-import uk.org.ngo.squeezer.itemlists.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePluginListCallback;
