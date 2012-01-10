@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<resources>
+    <string name="app_name">Squeezer</string>
+    <string name="volume">%s lydstyrke</string>
+    <string name="menu_item_players">Afspillere</string>
+    <string name="menu_item_search_label">Søg</string>
+    <string name="menu_item_settings_label">Indstillinger</string>
+    <string name="menu_item_about_label">Om</string>
+    <string name="activity_settings_name">Indstillinger</string>
+    <string name="settings_serveraddr_title">Server adresse</string>
+    <string name="settings_serveraddr_format">I formatet host:port</string>
+    <string name="settings_serveraddr_summary">IP addresse på SqueezeBox Server, f.eks. 10.0.0.5 \nBrug formatet host:port for at angive en ikke standard port.</string>
+    <string name="settings_autoconnect_title">Forbind automatisk</string>
+    <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
+    <string name="menu_item_disconnect">Afbryd</string>
+    <string name="menu_item_connect">Forbind</string>
+    <string name="menu_item_poweron">Tænd</string>
+    <string name="menu_item_poweroff">Sluk</string>
+    <string name="menu_item_main">Nu spiller</string>
+    <string name="menu_item_home">Hovedmenu</string>
+    <string name="menu_item_fetch_all">Hent resten</string>
+    <string name="menu_item_filter">Filter</string>
+    <string name="menu_item_sort">Sortér</string>
+    <string name="menu_item_delete">Slet</string>
+    <string name="menu_item_rename">Omdøb</string>
+    <string name="menu_item_playlists_new">Ny</string>
+    <string name="menu_item_playlist_clear">Ryd</string>
+    <string name="menu_item_playlist_save">Gem</string>
+    <string name="about_title">Om squeezer v%s</string>
+    <string name="connecting_text">Forbinder</string>
+    <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
+    <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
+    <string name="disconnected_text">Afbrudt.</string>
+    <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
+    <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed. Vent venligst på en aktiv Wi-Fi-forbindelse. \nSlå Wi-Fi til?</string>
+    <string name="notification_playing_text">%s spiller</string>
+    <string name="notification_connected_text">%s forbundet</string>
+    <string name="filter_text_hint">Søg efter %s</string>
+    <string name="search_instructions_text">Søg efter kunster, album, genre eller sang titel.</string>
+    <string name="search_hint_text">Angiv søgetekst</string>
+    <string name="move_to_dialog_title">Flyt sang nr %s</string>
+    <string name="move_to_index_hint">Angiv ny position for sang</string>
+    <string name="save_playlist_title">Gem afspilningsliste</string>
+    <string name="save_playlist_hint">Angiv navn på afspilningsliste</string>
+    <string name="new_playlist_title">Ny afspilningsliste</string>
+    <string name="new_playlist_hint">Angiv navn på afspilningsliste</string>
+    <string name="rename_title">Omdøb %s</string>
+    <string name="delete_title">Slet %s</string>
+    <string name="delete__message">Er du sikker på at slette?</string>
+    <string name="loading_text">Henter &#8230;</string>
+    <string name="browse_items_text">Viser %2$d %1$s</string>
+    <string name="choose_sort_order">Vælg rækkefølge af %s</string>
+    <string name="genre_prompt">Vælg genre</string>
+    <string name="year_prompt">Vælg år</string>
+    <string name="track_label">Sang</string>
+    <string name="artist_label">Kunster</string>
+    <string name="album_label">Album</string>
+    <string name="genre_label">Genre</string>
+    <string name="year_label">År</string>
+    <string name="filter_label">Søgetekst</string>
+
+	<string name="CONTEXTMENU_BROWSE_SONGS">Vis sange</string>
+	<string name="CONTEXTMENU_BROWSE_ALBUMS">Vis album</string>
+	<string name="CONTEXTMENU_BROWSE_ARTISTS">Vis kunstnere</string>
+    <string name="CONTEXTMENU_BROWSE_ALBUM_SONGS">Vis sange på album</string>
+    <string name="CONTEXTMENU_BROWSE_ARTIST_ALBUMS">Vis album med sange af kunster</string>
+    <string name="CONTEXTMENU_BROWSE_ARTIST_SONGS">Vis sange af kunster</string>
+	<string name="CONTEXTMENU_PLAY_ITEM">Afspil</string>
+	<string name="CONTEXTMENU_ADD_ITEM">Tilføj til afspilningsliste</string>
+	<string name="CONTEXTMENU_INSERT_ITEM">Afspil efter den sang der spilles nu</string>
+
+    <string name="PLAYLIST_CONTEXTMENU_REMOVE_ITEM">Fjern fra afspilningsliste</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE_UP">Flyt op</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE_DOWN">Flyt ned</string>
+    <string name="PLAYLIST_CONTEXTMENU_MOVE">Flyt &#8230;</string>
+
+	<string name="ITEM_PLAYING">Spiller nu %s</string>
+	<string name="ITEM_ADDED">%s er tilføjet den nuværende afspilningsliste</string>
+	<string name="ITEM_INSERTED">%s er sat til at blive spillet umiddelbart efter den aktuelle sang i den nuværende afspilningsliste</string>
+  
+    <string name="PLAYLIST_EXISTS_MESSAGE">Afspilningsliste %s findes allerede</string>
+	
+	<string name="albums_sort_order_album">Album</string>
+    <string name="albums_sort_order_artflow">Kunstner, År, Album</string>
+    <string name="albums_sort_order_new">Nye numre</string>
+
+	<string name="songs_sort_order_title">Titel</string>
+	<string name="songs_sort_order_tracknum">Spor</string>
+
+    <plurals name="artist">
+        <item quantity="one">kunstner</item>
+        <item quantity="other">kunstnere</item>
+    </plurals>
+
+    <plurals name="album">
+        <item quantity="one">album</item>
+        <item quantity="other">album</item>
+    </plurals>
+
+    <plurals name="genre">
+        <item quantity="one">genre</item>
+        <item quantity="other">genrer</item>
+    </plurals>
+
+    <plurals name="year">
+        <item quantity="one">år</item>
+        <item quantity="other">år</item>
+    </plurals>
+
+    <plurals name="song">
+        <item quantity="one">sang</item>
+        <item quantity="other">sange</item>
+    </plurals>
+
+    <plurals name="player">
+        <item quantity="one">afspiller</item>
+        <item quantity="other">afspillere</item>
+    </plurals>
+
+    <plurals name="playlist">
+        <item quantity="one">afspilningsliste</item>
+        <item quantity="other">afspilningslister</item>
+    </plurals>
+
+    <plurals name="radio">
+        <item quantity="one">internet radio kategori</item>
+        <item quantity="other">internet radio kategorier</item>
+    </plurals>
+
+    <plurals name="application">
+        <item quantity="one">program</item>
+        <item quantity="other">programmer</item>
+    </plurals>
+
+
+    <string-array name="home_items">
+        <item>Musik</item>
+        <item>Internetradio</item>
+<!--         <item>Mine programmer</item> -->
+<!--         <item>Favoritter</item> -->
+    </string-array>
+
+    <string-array name="music_items">
+        <item>Kunstnere</item>
+        <item>Album</item>
+        <item>Alle Sange</item>
+        <item>Genrer</item>
+        <item>År</item>
+        <item>Tilfældigt miks</item>
+<!--         <item>Musikmappe</item> -->
+        <item>Afspilningslister</item>
+        <item>Søg</item>
+    </string-array>
+
+    <string-array name="randomplay_items">
+        <item>Miks baseret på tilfældige numre</item>
+        <item>Miks baseret på tilfældigt album</item>
+        <item>Miks baseret på tilfældig kunster</item>
+        <item>Miks baseret på tilfældigt årstal</item>
+        <item>Vælg genrer</item>
+    </string-array>
+
+</resources>

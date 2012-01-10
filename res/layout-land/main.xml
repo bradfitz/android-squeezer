@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--  
+ Copyright (c) 2011 Google Inc.  All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<FrameLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:id="@+id/root_layout"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	
+	<ImageView android:layout_width="fill_parent" android:id="@+id/album" android:layout_height="fill_parent" android:cropToPadding="false" android:scaleType="fitStart"/>
+
+	<com.pocketjourney.view.TransparentPanel
+		android:layout_width="wrap_content"
+		android:layout_height="fill_parent"
+		android:layout_gravity="right"
+		android:orientation="vertical">
+		
+		<RelativeLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+			
+       		<ImageButton 
+       			android:layout_width="85dip" 
+       			android:src="@drawable/ic_mp_current_playlist_btn" 
+       			android:layout_height="54dip"
+                android:layout_alignParentRight="true"
+       			android:id="@+id/curplaylist" 
+       			android:layout_marginTop="14dip"/>
+		</RelativeLayout>>
+		
+   		<TextView android:id="@+id/trackname"
+        	android:hint="Unknown track"
+        	android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+ 			android:gravity="center_horizontal"
+ 			android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <TextView android:id="@+id/albumname"
+        	android:hint="Unknown album"
+            android:gravity="center_horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+        <TextView android:id="@+id/artistname"
+        	android:hint="Unknown artist"
+            android:gravity="center_horizontal"		            
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <uk.org.ngo.squeezer.RepeatingImageButton
+            	android:id="@+id/prev" 
+            	style="@android:style/MediaButton.Previous" />
+
+            <ImageButton 
+            	android:id="@+id/pause" 
+            	style="@android:style/MediaButton.Play" />
+
+            <uk.org.ngo.squeezer.RepeatingImageButton 
+            	android:id="@+id/next" 
+            	style="@android:style/MediaButton.Next" />
+        </LinearLayout>
+   	</com.pocketjourney.view.TransparentPanel>
+    
+    <com.pocketjourney.view.TransparentPanel
+    	android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">    
+       
+        <TextView android:id="@+id/currenttime"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:shadowColor="#ff000000"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="3"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:paddingLeft="5dp"
+            android:layout_height="wrap_content"
+            android:hint="--:--" />
+                    
+    	<SeekBar android:id="@+id/seekbar"
+        	style="?android:attr/progressBarStyleHorizontal"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:layout_gravity="bottom"
+	        android:paddingLeft="5dp"
+	        android:paddingRight="5dp"
+	        android:paddingBottom="4dp" />
+	        
+        <TextView android:id="@+id/totaltime"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:shadowColor="#ff000000"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="3"
+            android:gravity="right"
+            android:paddingRight="5dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="--:--" />	        
+	</com.pocketjourney.view.TransparentPanel>
+</FrameLayout>
+

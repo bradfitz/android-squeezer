@@ -1,0 +1,30 @@
+0.6
+===
+
+*   Browse the library.
+
+    Full support for browsing by artist, album, song, genre, or year.  Also use 
+    Internet radio stations.
+    
+*   Search.
+
+    Search your library by artist, album, song, and genre.
+    
+*   Playlists.
+
+    Create, modify, and delete playlists on the server.
+
+*   Scrobble the currently playing track to Last.fm.
+
+*   "Now playing" UI.
+
+    Larger album artwork, and the current artist and album are now links to searches
+    for more songs by the same artist / from the same album.  There is also a
+    "landscape" optimised UI.
+
+*   "Scrub" through the currently playing track using the seekbar.
+
+*   Control the player's volume using your device's hardware volume keys.
+
+*   Error reporting.  If Squeezer encounters an error you can (optionally) submit
+    an error report to the developers.

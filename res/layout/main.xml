@@ -1,149 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:id="@+id/root_layout"
-    >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:gravity="center">
+<!--
+ Copyright (c) 2009 Google Inc.  All Rights Reserved.
 
-        <ImageView
-            android:id="@+id/album"
-            android:background="@drawable/album_border_large"
-            android:layout_width="210dip"
-            android:layout_height="210dip"
-            android:layout_marginLeft="4dip"
-            android:layout_marginRight="2dip"
-            android:layout_marginTop="4dip" />
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-        <LinearLayout
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+       http://www.apache.org/licenses/LICENSE-2.0
 
-           <ImageButton android:id="@+id/curplaylist"
-                android:src="@drawable/ic_mp_current_playlist_btn"
-                android:clickable="false"
-                android:layout_width="85dip"
-                android:layout_height="54dip"
-                android:layout_marginTop="14dip" />
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal">
+<merge xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root_layout">
+	<ImageView android:layout_width="fill_parent" android:id="@+id/album" android:layout_height="fill_parent" android:cropToPadding="false" android:scaleType="fitCenter"></ImageView>
 
-           <ImageButton android:id="@+id/volume_down"
-                android:src="@drawable/volume_down"
-                android:padding="15dip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:scaleType="center"
-                android:layout_marginTop="20dip" />
+		<com.pocketjourney.view.TransparentPanel
+			android:gravity="top"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+			
+			<LinearLayout
+				android:id="@+id/track_details"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="vertical">
+     
+	     		<TextView android:id="@+id/trackname"
+		        	android:hint="Unknown track"
+		        	android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		 			android:gravity="center_horizontal"
+		 			android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-           <ImageButton android:id="@+id/volume_up"
-                android:padding="15dip"
-                android:src="@drawable/volume_up"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:scaleType="center"
-                android:layout_marginTop="20dip" />
-                
-                </LinearLayout>
+		        <TextView android:id="@+id/albumname"
+		        	android:hint="Unknown album"
+		            android:gravity="center_horizontal"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		            android:textAppearance="?android:attr/textAppearanceSmall" />
+				
+		        <TextView android:id="@+id/artistname"
+		        	android:hint="Unknown artist"
+		            android:gravity="center_horizontal"		            
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		            android:textAppearance="?android:attr/textAppearanceSmall" />
+			</LinearLayout>
 
-        </LinearLayout>
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:baselineAligned="false"
-        android:paddingLeft="11dip"
-        android:paddingTop="4dip"
-        android:paddingBottom="8dip">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="4dip"
-            android:src="@drawable/ic_mp_artist_playback" />
-
-        <TextView android:id="@+id/artistname"
-            android:textSize="18sp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:textStyle="bold"
-            android:layout_gravity="center_vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <LinearLayout
+			<LinearLayout
+				android:gravity="right"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+        		<ImageButton android:layout_width="85dip" android:src="@drawable/ic_mp_current_playlist_btn" android:layout_height="54dip" android:id="@+id/curplaylist" android:layout_marginTop="14dip"></ImageButton>
+    		</LinearLayout>
+    	</com.pocketjourney.view.TransparentPanel>
+    
+    <!-- <include layout="@layout/audio_player_common" android:layout_gravity="bottom"/> -->
+    <com.pocketjourney.view.TransparentPanel
+    	android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:baselineAligned="false"
-        android:paddingLeft="11dip"
-        android:paddingTop="4dip"
-        android:paddingBottom="8dip">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="4dip"
-            android:src="@drawable/ic_mp_album_playback" />
-
-        <TextView android:id="@+id/albumname"
-            android:textSize="14sp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:layout_gravity="center_vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:baselineAligned="false"
-        android:paddingLeft="11dip"
-        android:paddingTop="0dip"
-        android:paddingBottom="8dip">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="4dip"
-            android:src="@drawable/ic_mp_song_playback" />
-
-        <TextView android:id="@+id/trackname"
-            android:textSize="14sp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:layout_gravity="center_vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <include layout="@layout/audio_player_common" />
-
-</LinearLayout>
-
-
-
+        android:layout_gravity="bottom">
+    
+	    <LinearLayout
+	    	android:gravity="center"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:paddingTop="1dp"
+	        android:paddingBottom="4dp"
+	        android:orientation="horizontal">
+	
+	            <uk.org.ngo.squeezer.RepeatingImageButton android:id="@+id/prev" style="@android:style/MediaButton.Previous" />
+	
+	            <ImageButton android:id="@+id/pause" style="@android:style/MediaButton.Play" />
+	
+	            <uk.org.ngo.squeezer.RepeatingImageButton android:id="@+id/next" style="@android:style/MediaButton.Next" />
+	    </LinearLayout>
+	
+	    <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:paddingTop="1dp"
+	        android:paddingBottom="4dp"
+	        android:orientation="horizontal">
+	        
+	        <TextView android:id="@+id/currenttime"
+	            android:textAppearance="?android:attr/textAppearanceMedium"
+	            android:textSize="14sp"
+	            android:textStyle="bold"
+	            android:shadowColor="#ff000000"
+	            android:shadowDx="0"
+	            android:shadowDy="0"
+	            android:shadowRadius="3"
+	            android:layout_gravity="center_vertical"
+	            android:layout_width="wrap_content"
+	            android:paddingLeft="5dp"
+	            android:layout_height="wrap_content"
+	            android:hint="--:--" />
+	                    
+	    	<SeekBar android:id="@+id/seekbar"
+	        	style="?android:attr/progressBarStyleHorizontal"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:layout_gravity="bottom"
+		        android:paddingLeft="5dp"
+		        android:paddingRight="5dp"
+		        android:paddingBottom="4dp" />
+		        
+	        <TextView android:id="@+id/totaltime"
+	            android:textAppearance="?android:attr/textAppearanceMedium"
+	            android:textSize="14sp"
+	            android:textStyle="bold"
+	            android:shadowColor="#ff000000"
+	            android:shadowDx="0"
+	            android:shadowDy="0"
+	            android:shadowRadius="3"
+	            android:gravity="right"
+	            android:paddingRight="5dp"
+	            android:layout_gravity="center_vertical"
+	            android:layout_weight="0"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:hint="--:--" />	        
+		</LinearLayout>
+	</com.pocketjourney.view.TransparentPanel>
+</merge>
 
