@@ -28,13 +28,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import uk.org.ngo.squeezer.IServiceCallback;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
-
 import android.net.wifi.WifiManager;
 import android.os.RemoteException;
 import android.util.Log;
-
-import uk.org.ngo.squeezer.IServiceCallback;
 
 class SqueezerConnectionState {
     private static final String TAG = "SqueezeService";
@@ -66,7 +64,7 @@ class SqueezerConnectionState {
 		this.wifiLock = wifiLock;
 	}
 
-	void updateWifiLock(boolean state) {
+    void updateWifiLock(boolean state) {
         // TODO: this might be running in the wrong thread.  Is wifiLock thread-safe?
         if (state && !wifiLock.isHeld()) {
             Log.v(TAG, "Locking wifi while playing.");
@@ -74,9 +72,22 @@ class SqueezerConnectionState {
         }
         if (!state && wifiLock.isHeld()) {
             Log.v(TAG, "Unlocking wifi.");
-            wifiLock.release();
+            try {
+                wifiLock.release();
+                // Seen a crash here with:
+                //
+                // Permission Denial: broadcastIntent() requesting a sticky
+                // broadcast
+                // from pid=29506, uid=10061 requires
+                // android.permission.BROADCAST_STICKY
+                //
+                // Catching the exception (which seems harmless) seems better
+                // than requesting an additional permission.
+            } catch (SecurityException e) {
+                Log.v(TAG, "Caught odd SecurityException releasing wifilock");
+            }
         }
-	}
+    }
 
     void disconnect() {
         currentConnectionGeneration.incrementAndGet();
