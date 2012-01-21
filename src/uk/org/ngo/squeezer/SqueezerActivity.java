@@ -19,6 +19,9 @@ package uk.org.ngo.squeezer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import uk.org.ngo.squeezer.dialogs.AboutDialog;
+import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
+import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.framework.SqueezerIconUpdater;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
@@ -29,18 +32,11 @@ import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.SqueezeService;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
@@ -48,9 +44,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
-import android.support.v4.app.DialogFragment;
-import android.text.Html;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,6 +64,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private final AtomicBoolean isPlaying = new AtomicBoolean(false);
     private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
+    private final AtomicBoolean connectInProgress = new AtomicBoolean(false);
 
     private TextView albumText;
     private TextView artistText;
@@ -105,9 +99,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     };
 
     // Where we're connecting to.
-    private boolean connectInProgress = false;
-    private String connectingTo = null;
-    private ProgressDialog connectingDialog = null;
+    private ConnectingDialog connectingDialog = null;
 
     // Updating the seekbar
     private boolean updateSeekBar = true;
@@ -286,17 +278,18 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private void setConnected(boolean connected, boolean postConnect) {
         Log.v(getTag(), "setConnected(" + connected + ", " + postConnect + ")");
         if (postConnect) {
-            connectInProgress = false;
-            Log.v(getTag(), "Post-connect; connectingDialog == " + connectingDialog);
+            connectInProgress.set(false);
             if (connectingDialog != null) {
-                Log.v(getTag(), "Dismissing...");
+                Log.d(getTag(), "Dismissing ConnectingDialog");
                 connectingDialog.dismiss();
-                if (!connected) {
-                    // TODO: Make this a dialog? Allow the user to correct the
-                    // server settings here?
-                  Toast.makeText(this, getText(R.string.connection_failed_text), Toast.LENGTH_LONG).show();
-                  return;
-                }
+            } else {
+                Log.d(getTag(), "Got connection failure, but ConnectingDialog wasn't showing");
+            }
+            connectingDialog = null;
+            if (!connected) {
+                // TODO: Make this a dialog? Allow the user to correct the
+                // server settings here?
+              Toast.makeText(this, getText(R.string.connection_failed_text), Toast.LENGTH_LONG).show();
             }
         }
 
@@ -357,13 +350,13 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     	uiThreadHandler.post(new Runnable() {
     	    public void run() {
     	        updateUIFromServiceState();
-
-    	        // Assume they want to connect...
-                if (!isConnected()) {
-                    startVisibleConnection();
-                }
     	    }
     	});
+
+        // Assume they want to connect...
+        if (!isConnected()) {
+            startVisibleConnection();
+        }
 	}
 
     @Override
@@ -391,6 +384,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         // Update the UI to reflect connection state.  Basically just for
         // the initial display, as changing the prev/next buttons to empty
         // doesn't seem to work in onCreate.  (LayoutInflator still running?)
+        Log.d(getTag(), "updateUIFromServiceState");
         setConnected(isConnected(), false);
 
         // TODO(bradfitz): remove this check once everything is converted into
@@ -534,6 +528,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
     @Override
     public void onPause() {
+        Log.d(getTag(), "onPause...");
         if (getService() != null) {
             try {
                 getService().unregisterCallback(serviceCallback);
@@ -582,68 +577,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         search.setEnabled(connected);
 
     	return true;
-    }
-
-    private class AboutDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final TextView message = (TextView) getActivity().getLayoutInflater().inflate(R.layout.about_textview, null);
-
-            PackageManager pm = getPackageManager();
-            PackageInfo info;
-            String aboutTitle;
-            try {
-                info = pm.getPackageInfo("uk.org.ngo.squeezer", 0);
-                aboutTitle = getString(R.string.about_title, info.versionName);
-            } catch (NameNotFoundException e) {
-                aboutTitle = "Package not found.";
-            }
-
-            message.setText(Html.fromHtml((String) getText(R.string.about_text)));
-            message.setAutoLinkMask(RESULT_OK);
-            message.setMovementMethod(ScrollingMovementMethod.getInstance());
-
-            return new AlertDialog.Builder(getActivity())
-                    .setTitle(aboutTitle)
-                    .setView(message)
-                    .create();
-        }
-    }
-
-    private class EnableWifiDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.wifi_disabled_text);
-            builder.setMessage(R.string.enable_wifi_text);
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-                    if (!wifiManager.isWifiEnabled()) {
-                        Log.v(getTag(), "Enabling Wifi");
-                        wifiManager.setWifiEnabled(true);
-                    }
-                }
-            });
-            builder.setNegativeButton(android.R.string.cancel, null);
-            return builder.create();
-        }
-    }
-
-    private class ConnectingDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            connectingDialog = new ProgressDialog(getActivity());
-            connectingDialog.setTitle(getText(R.string.connecting_text));
-            connectingDialog.setIndeterminate(true);
-            connectingDialog.setMessage(getString(R.string.connecting_to_text, connectingTo));
-
-            // Lose the race?  If Service/network is very fast.
-            if (!connectInProgress) connectingDialog.dismiss();
-
-            return connectingDialog;
-        }
-
     }
 
     @Override
@@ -720,27 +653,39 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     }
 
     private void startVisibleConnection() {
-        if (connectInProgress) return;
+        Log.v(getTag(), "startVisibleConnection..., connectInProgress: " + connectInProgress.get());
+        uiThreadHandler.post(new Runnable() {
+            public void run() {
+                String ipPort = getConfiguredCliIpPort();
+                if (ipPort == null)
+                    return;
 
-        String ipPort = getConfiguredCliIpPort();
-        if (ipPort == null) return;
+                if (isAutoConnect()) {
+                    WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                    if (!wifiManager.isWifiEnabled()) {
+                        new EnableWifiDialog().show(getSupportFragmentManager(), "EnableWifiDialog");
+                        return; // We will come back here when Wi-Fi is ready
+                    }
+                }
 
-        if (isAutoConnect()) {
-            WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-            if (!wifiManager.isWifiEnabled()) {
-                new EnableWifiDialog().show(getSupportFragmentManager(), "EnableWifiDialog");
-                return; // We will come back here when Wi-Fi is ready
+                if (connectInProgress.get()) {
+                    Log.v(getTag(), "Connection is allready in progress, connecting aborted");
+                    return;
+                }
+                connectingDialog = ConnectingDialog.addTo(SqueezerActivity.this, ipPort);
+                if (connectingDialog != null) {
+                    Log.v(getTag(), "startConnect, ipPort: " + ipPort);
+                    connectInProgress.set(true);
+                    try {
+                        getService().startConnect(ipPort);
+                    } catch (RemoteException e) {
+                        Toast.makeText(SqueezerActivity.this, "startConnection error: " + e, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Log.v(getTag(), "Could not show the connect dialog, connecting aborted");
+                }
             }
-        }
-
-        connectInProgress = true;
-        connectingTo = ipPort;
-        new ConnectingDialog().show(getSupportFragmentManager(), "ConnectingDialog");
-        try {
-            getService().startConnect(ipPort);
-        } catch (RemoteException e) {
-            Toast.makeText(this, "startConnection error: " + e, Toast.LENGTH_LONG).show();
-        }
+        });
     }
 
 	public static void show(Context context) {
