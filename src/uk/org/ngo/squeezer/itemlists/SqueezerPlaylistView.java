@@ -65,13 +65,13 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 		case PLAYLISTS_CONTEXTMENU_DELETE_ITEM:
 			{
 				activity.setCurrentPlaylist(selectedItem);
-				SqueezerPlaylistsDeleteDialog.addTo(activity);
+				new SqueezerPlaylistsDeleteDialog().show(activity.getSupportFragmentManager(), SqueezerPlaylistsDeleteDialog.class.getName());
 			}
 			return true;
 		case PLAYLISTS_CONTEXTMENU_RENAME_ITEM:
 			{
 				activity.setCurrentPlaylist(selectedItem);
-				SqueezerPlaylistsRenameDialog.addTo(activity);
+				new SqueezerPlaylistsRenameDialog().show(activity.getSupportFragmentManager(), SqueezerPlaylistsRenameDialog.class.getName());
 			}
 			return true;
 		case PLAYLISTS_CONTEXTMENU_BROWSE_SONGS:

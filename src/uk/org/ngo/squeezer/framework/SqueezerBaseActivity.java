@@ -16,7 +16,10 @@
 
 package uk.org.ngo.squeezer.framework;
 
-import android.app.Activity;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
+import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.SqueezeService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,19 +27,16 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
+import android.widget.Toast;
 
 /**
  * Common base class for all activities in the squeezer
  * @author Kurt Aaholst
  *
  */
-public abstract class SqueezerBaseActivity extends FragmentActivity {
+public abstract class SqueezerBaseActivity extends ActionBarActivity {
 	private ISqueezeService service = null;
 	private final Handler uiThreadHandler = new Handler() {};
 
@@ -53,6 +53,14 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
 		return service;
 	}
 
+    /**
+     * Use this to post Runnables to work off thread
+     */
+    public Handler getUIThreadHandler() {
+        return uiThreadHandler;
+    }
+
+
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = ISqueezeService.Stub.asInterface(binder);
@@ -65,6 +73,12 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
 		public void onServiceDisconnected(ComponentName name) {
             service = null;
         };
+    };
+
+    @Override
+    protected void onCreate(android.os.Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getActionBarHelper().setIcon(R.drawable.ic_action_now_playing);
     };
 
     @Override
@@ -82,14 +96,7 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
         }
     }
 
-	/**
-	 * Use this to post Runnables to work off thread
-	 */
-	public Handler getUIThreadHandler() {
-		return uiThreadHandler;
-	}
 
-	
     /*
      * Intercept hardware volume control keys to control Squeezeserver
      * volume.
@@ -140,24 +147,22 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
 
 	// This section is just an easier way to call squeeze service
 
-	public boolean play(SqueezerItem item) throws RemoteException {
-		return playlistControl(PlaylistControlCmd.load, item);
+	public void play(SqueezerItem item) throws RemoteException {
+		playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
 	}
 
-	public boolean add(SqueezerItem item) throws RemoteException {
-		return playlistControl(PlaylistControlCmd.add, item);
+	public void add(SqueezerItem item) throws RemoteException {
+		playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
 	}
 
-	public boolean insert(SqueezerItem item) throws RemoteException {
-		return playlistControl(PlaylistControlCmd.insert, item);
+	public void insert(SqueezerItem item) throws RemoteException {
+		playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
 	}
 
-    private boolean playlistControl(PlaylistControlCmd cmd, SqueezerItem item) throws RemoteException {
-        if (service == null) {
-            return false;
-        }
+    private void playlistControl(PlaylistControlCmd cmd, SqueezerItem item, int resId) throws RemoteException {
+        if (service == null) return;
         service.playlistControl(cmd.name(), item.getClass().getName(), item.getId());
-        return true;
+        Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
     }
 
     private enum PlaylistControlCmd {

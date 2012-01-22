@@ -20,9 +20,13 @@
   <item
    	android:id="@+id/menu_item_playlists_delete"
    	android:title="@string/menu_item_delete"
+    android:showAsAction="ifRoom|withText"
+    android:orderInCategory="1"
   />
   <item
     android:id="@+id/menu_item_playlists_rename"
     android:title="@string/menu_item_rename"
+    android:showAsAction="ifRoom|withText"
+    android:orderInCategory="1"
   />
 </menu>

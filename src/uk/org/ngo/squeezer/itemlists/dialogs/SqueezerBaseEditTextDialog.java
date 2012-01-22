@@ -13,6 +13,7 @@ import android.widget.EditText;
 
 public abstract class SqueezerBaseEditTextDialog extends DialogFragment {
     protected EditText editText;
+    abstract protected boolean commit(String string);
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -41,7 +42,5 @@ public abstract class SqueezerBaseEditTextDialog extends DialogFragment {
 
         return builder.create();
     }
-
-    abstract protected boolean commit(String string);
 
 }

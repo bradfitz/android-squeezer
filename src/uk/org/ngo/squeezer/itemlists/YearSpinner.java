@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 import java.util.List;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
@@ -83,11 +84,11 @@ public class YearSpinner {
 						SqueezerYearView itemView = new SqueezerYearView(activity) {
 							@Override
 							public View getAdapterView(View convertView, SqueezerYear item) {
-								return Util.getSpinnerItemView(getActivity(), convertView, item.getName());
+								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, item.getName());
 							}
 							@Override
 							public View getAdapterView(View convertView, String label) {
-								return Util.getSpinnerItemView(getActivity(), convertView, label);
+								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, label);
 							};
 						};
 						adapter = new SqueezerItemAdapter<SqueezerYear>(itemView, true);

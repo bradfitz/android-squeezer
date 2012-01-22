@@ -26,20 +26,6 @@
 			android:orientation="horizontal">
 			
 			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:orientation="vertical">
-				
-		        <ImageButton
-                    android:layout_width="85dp"
-                    android:src="@drawable/icon_home"
-                    android:layout_height="54dp"
-                    android:id="@+id/ic_mp_Home_btn"
-                    android:layout_marginTop="14dp" />
-
-			</LinearLayout>
-			
-			<LinearLayout
 				android:id="@+id/track_details"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

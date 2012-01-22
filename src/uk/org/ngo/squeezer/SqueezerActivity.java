@@ -61,8 +61,6 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 public class SqueezerActivity extends SqueezerBaseActivity {
     protected static final int HOME_REQUESTCODE = 0;
 
-    private final AtomicBoolean isConnected = new AtomicBoolean(false);
-    private final AtomicBoolean isPlaying = new AtomicBoolean(false);
     private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
     private final AtomicBoolean connectInProgress = new AtomicBoolean(false);
 
@@ -71,7 +69,13 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private TextView trackText;
     private TextView currentTime;
     private TextView totalTime;
-    private ImageButton homeButton;
+    private MenuItem connectButton;
+    private MenuItem disconnectButton;
+    private MenuItem poweronButton;
+    private MenuItem poweroffButton;
+    private MenuItem playersButton;
+    private MenuItem searchButton;
+    private MenuItem homeButton;
     private ImageButton curPlayListButton;
     private ImageButton playPauseButton;
     private ImageButton nextButton;
@@ -144,7 +148,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
         trackText = (TextView) findViewById(R.id.trackname);
-        homeButton = (ImageButton) findViewById(R.id.ic_mp_Home_btn);
         curPlayListButton = (ImageButton) findViewById(R.id.curplaylist);
         playPauseButton = (ImageButton) findViewById(R.id.pause);
         nextButton = (ImageButton) findViewById(R.id.next);
@@ -160,16 +163,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
          * because the TextView resources don't support the android:onClick
          * attribute.
          */
-		homeButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-                if (!isConnected()) return;
-				SqueezerHomeActivity.show(SqueezerActivity.this);
-			}
-		});
-
 		curPlayListButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-                if (!isConnected()) return;
 				SqueezerCurrentPlaylistActivity.show(SqueezerActivity.this);
 			}
 		});
@@ -178,7 +173,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 public void onClick(View v) {
                     if (getService() == null) return;
                     try {
-                        if (isConnected.get()) {
+                        if (isConnected()) {
                             Log.v(getTag(), "Pause...");
                             getService().togglePausePlay();
                         } else {
@@ -293,8 +288,17 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             }
         }
 
-    	isConnected.set(connected);
-    	nextButton.setEnabled(connected);
+        // These are all set at the same time, so one check is sufficient
+        if (connectButton != null) {
+            connectButton.setVisible(!connected);
+            disconnectButton.setVisible(connected);
+            playersButton.setEnabled(connected);
+            searchButton.setEnabled(connected);
+            homeButton.setEnabled(connected);
+        }
+
+        curPlayListButton.setEnabled(connected);
+        nextButton.setEnabled(connected);
     	prevButton.setEnabled(connected);
     	if (!connected) {
             nextButton.setImageResource(0);
@@ -302,7 +306,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             albumArt.setImageDrawable(null);
             updateSongInfo(null);
             artistText.setText(getText(R.string.disconnected_text));
-            setTitleForPlayer(null);
             currentTime.setText("--:--");
             totalTime.setText("--:--");
             seekBar.setEnabled(false);
@@ -314,14 +317,15 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             seekBar.setEnabled(true);
     	}
     	updatePlayPauseIcon();
+        updateUIForPlayer();
     }
 
     private void updatePlayPauseIcon() {
         uiThreadHandler.post(new Runnable() {
             public void run() {
-                if (!isConnected.get()) {
-                    playPauseButton.setImageResource(android.R.drawable.presence_online);  // green circle
-                } else if (isPlaying.get()) {
+                if (!isConnected()) {
+                    playPauseButton.setImageResource(R.drawable.presence_online);  // green circle
+                } else if (isPlaying()) {
                     playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
                 } else {
                     playPauseButton.setImageResource(android.R.drawable.ic_media_play);
@@ -330,15 +334,17 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         });
     }
 
-    // May be called from any thread.
-    private void setTitleForPlayer(final String playerName) {
+    private void updateUIForPlayer() {
         uiThreadHandler.post(new Runnable() {
             public void run() {
+                String playerName = getActivePlayerName();
                 if (playerName != null && !"".equals(playerName)) {
                     setTitle(getText(R.string.app_name) + ": " + playerName);
                 } else {
                     setTitle(getText(R.string.app_name));
                 }
+                poweronButton.setVisible(canPowerOn());
+                poweroffButton.setVisible(canPowerOff());
             }
         });
     }
@@ -372,7 +378,11 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         startService(new Intent(this, SqueezeService.class));
 
         if (getService() != null) {
-            updateUIFromServiceState();
+            uiThreadHandler.post(new Runnable() {
+                public void run() {
+                    updateUIFromServiceState();
+                }
+            });
         }
 
         if (isAutoConnect())
@@ -386,22 +396,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         // doesn't seem to work in onCreate.  (LayoutInflator still running?)
         Log.d(getTag(), "updateUIFromServiceState");
         setConnected(isConnected(), false);
-
-        // TODO(bradfitz): remove this check once everything is converted into
-        // safe accessors like isConnected() already is.
-        if (getService() == null) {
-            Log.e(getTag(), "Can't update UI with null serviceStub");
-            return;
-        }
-
-        try {
-            setTitleForPlayer(getService().getActivePlayerName());
-            isPlaying.set(getService().isPlaying());
-            updatePlayPauseIcon();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception: " + e);
-        }
-
     }
 
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
@@ -437,7 +431,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
     // Should only be called from the UI thread.
     private void updateAlbumArtIfNeeded(SqueezerSong song) {
-        if (Util.atomicSongUpdated(currentSong, song))
+        if (Util.atomicReferenceUpdated(currentSong, song))
         	iconUpdater.updateIcon(albumArt, song, song != null ? song.getArtworkUrl(getService()) : null);
     }
 
@@ -482,13 +476,24 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             return null;
         }
         try {
-            return getService().currentSong();
+            return getService().getCurrentSong();
         } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception in getServiceCurrentSong(): " + e);
+            Log.e(getTag(), "Service exception in getCurrentSong(): " + e);
         }
         return null;
     }
 
+    private String getActivePlayerName() {
+        if (getService() == null) {
+            return null;
+        }
+        try {
+            return getService().getActivePlayerName();
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Service exception in getActivePlayerName(): " + e);
+        }
+        return null;
+    }
 
     private boolean isConnected() {
         if (getService() == null) {
@@ -498,6 +503,18 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             return getService().isConnected();
         } catch (RemoteException e) {
             Log.e(getTag(), "Service exception in isConnected(): " + e);
+        }
+        return false;
+    }
+
+    private boolean isPlaying() {
+        if (getService() == null) {
+            return false;
+        }
+        try {
+            return getService().isPlaying();
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Service exception in isPlaying(): " + e);
         }
         return false;
     }
@@ -543,45 +560,31 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
 	@Override
 	public boolean onSearchRequested() {
-  		SqueezerSearchActivity.show(this);
+	    if (isConnected()) {
+	        SqueezerSearchActivity.show(this);
+	    }
 		return false;
 	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.squeezer, menu);
+        connectButton = getActionBarHelper().findItem(R.id.menu_item_connect);
+        disconnectButton = getActionBarHelper().findItem(R.id.menu_item_disconnect);
+        poweronButton = getActionBarHelper().findItem(R.id.menu_item_poweron);
+        poweroffButton = getActionBarHelper().findItem(R.id.menu_item_poweroff);
+        playersButton = getActionBarHelper().findItem(R.id.menu_item_players);
+        searchButton = getActionBarHelper().findItem(R.id.menu_item_search);
+        homeButton = getActionBarHelper().findItem(R.id.menu_item_home);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-    	super.onPrepareOptionsMenu(menu);
-    	boolean connected = isConnected.get();
-
-    	// Only show one of connect and disconnect:
-    	MenuItem connect = menu.findItem(R.id.menu_item_connect);
-    	connect.setVisible(!connected);
-    	MenuItem disconnect = menu.findItem(R.id.menu_item_disconnect);
-    	disconnect.setVisible(connected);
-
-    	// Only show power on/off, according to playerstate
-    	MenuItem powerOn = menu.findItem(R.id.menu_item_poweron);
-    	powerOn.setVisible(canPowerOn());
-    	MenuItem powerOff = menu.findItem(R.id.menu_item_poweroff);
-    	powerOff.setVisible(canPowerOff());
-
-    	// Disable things that don't work when not connected.
-        MenuItem players = menu.findItem(R.id.menu_item_players);
-        players.setEnabled(connected);
-        MenuItem search = menu.findItem(R.id.menu_item_search);
-        search.setEnabled(connected);
-
-    	return true;
-    }
-
-    @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        switch (item.getItemId()) {
+    switch (item.getItemId()) {
+        case R.id.menu_item_home:
+            SqueezerHomeActivity.show(this);
+            return true;
       	case R.id.menu_item_settings:
             SettingsActivity.show(this);
             return true;
@@ -682,6 +685,10 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                         Toast.makeText(SqueezerActivity.this, "startConnection error: " + e, Toast.LENGTH_LONG).show();
                     }
                 } else {
+                    // We couldn't create the connect progress bar.
+                    // If this happens because of the android life cycle, then we are fine, and
+                    // will get back here shortly, otherwise the user will have to press the
+                    // connect button again.
                     Log.v(getTag(), "Could not show the connect dialog, connecting aborted");
                 }
             }
@@ -710,40 +717,45 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         public void onConnectionChanged(final boolean isConnected,
                                         final boolean postConnect)
                        throws RemoteException {
-                Log.v(getTag(), "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
-                uiThreadHandler.post(new Runnable() {
-                        public void run() {
-                            setConnected(isConnected, postConnect);
-                        }
-                    });
-            }
+            Log.v(getTag(), "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
+            uiThreadHandler.post(new Runnable() {
+                    public void run() {
+                        setConnected(isConnected, postConnect);
+                    }
+                });
+        }
 
-            public void onPlayerChanged(final String playerId,
-                                        final String playerName) throws RemoteException {
-                Log.v(getTag(), "player now " + playerId + ": " + playerName);
-                setTitleForPlayer(playerName);
-            }
+        public void onPlayerChanged(final String playerId,
+                                    final String playerName) throws RemoteException {
+            Log.v(getTag(), "player now " + playerId + ": " + playerName);
+            updateUIForPlayer();
+        }
 
-            public void onMusicChanged() throws RemoteException {
-                uiThreadHandler.post(new Runnable() {
-                        public void run() {
-                            updateSongInfoFromService();
-                        }
-                    });
-            }
+        public void onMusicChanged() throws RemoteException {
+            uiThreadHandler.post(new Runnable() {
+                    public void run() {
+                        updateSongInfoFromService();
+                    }
+                });
+        }
 
-            public void onPlayStatusChanged(boolean newStatus)
+        public void onPlayStatusChanged(boolean newStatus)
+            throws RemoteException {
+            updatePlayPauseIcon();
+        }
+
+        public void onTimeInSongChange(final int secondsIn, final int secondsTotal)
                 throws RemoteException {
-                isPlaying.set(newStatus);
-                updatePlayPauseIcon();
-            }
+            SqueezerActivity.this.secondsIn = secondsIn;
+            SqueezerActivity.this.secondsTotal = secondsTotal;
+            uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
+        }
 
-            public void onTimeInSongChange(final int secondsIn, final int secondsTotal)
-                    throws RemoteException {
-                SqueezerActivity.this.secondsIn = secondsIn;
-                SqueezerActivity.this.secondsTotal = secondsTotal;
-                uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
-            }
-        };
+        public void onPowerStatusChanged()
+            throws RemoteException {
+            updateUIForPlayer();
+        }
+
+    };
 
 }

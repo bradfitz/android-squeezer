@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 import java.util.List;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
@@ -80,17 +81,15 @@ public class GenreSpinner {
 			callback.getUIThreadHandler().post(new Runnable() {
 				public void run() {
 					if (adapter == null) {
-                        SqueezerGenreView itemView = new SqueezerGenreView(activity) {
-                            @Override
-                            public View getAdapterView(View convertView, SqueezerGenre item) {
-                                return Util.getSpinnerItemView(getActivity(), convertView,
-                                        item.getName());
-                            }
-
-                            @Override
-                            public View getAdapterView(View convertView, String label) {
-                                return Util.getSpinnerItemView(getActivity(), convertView, label);
-                            };
+						SqueezerGenreView itemView = new SqueezerGenreView(activity) {
+							@Override
+							public View getAdapterView(View convertView, SqueezerGenre item) {
+								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, item.getName());
+							}
+							@Override
+							public View getAdapterView(View convertView, String label) {
+								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, label);
+							};
 
 						};
 						adapter = new SqueezerItemAdapter<SqueezerGenre>(itemView, true);

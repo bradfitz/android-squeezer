@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer;
 
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
+import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
 import android.content.Intent;
@@ -37,7 +38,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
-        SqueezerMenuFragment.addTo(this);
+        MenuFragment.add(this, SqueezerMenuFragment.class);
         setHomeMenu();
     }
 
@@ -45,29 +46,22 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     protected void onServiceConnected() throws RemoteException {
     }
 
-    private void setHomeMenu() {
+	private void setHomeMenu() {
         int[] icons = new int[] {
-                R.drawable.icon_nowplaying,
-                R.drawable.icon_mymusic, R.drawable.icon_internet_radio,
-                R.drawable.icon_my_apps, R.drawable.icon_favorites
-        };
-        listView.setAdapter(new IconRowAdapter(this, getResources().getStringArray(
-                R.array.home_items), icons));
-        listView.setOnItemClickListener(onHomeItemClick);
-    }
+				R.drawable.icon_mymusic, R.drawable.icon_internet_radio,
+				R.drawable.icon_my_apps, R.drawable.icon_favorites };
+		listView.setAdapter(new IconRowAdapter(this, getResources().getStringArray(R.array.home_items), icons));
+		listView.setOnItemClickListener(onHomeItemClick);
+	}
 
 	private final OnItemClickListener onHomeItemClick = new OnItemClickListener() {
-		private static final int NOW_PLAYING = 0;
-		private static final int MUSIC = 1;
-		private static final int INTERNET_RADIO = 2;
-		private static final int APPS = 3;
-		private static final int FAVORITES = 4;
+		private static final int MUSIC = 0;
+		private static final int INTERNET_RADIO = 1;
+		private static final int APPS = 2;
+		private static final int FAVORITES = 3;
 
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			switch (position) {
-			case NOW_PLAYING:
-				SqueezerActivity.show(SqueezerHomeActivity.this);
-				break;
 			case MUSIC:
 				SqueezerMusicActivity.show(SqueezerHomeActivity.this);
 				break;

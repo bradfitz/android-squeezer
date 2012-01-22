@@ -257,17 +257,22 @@ class SqueezerCLIImpl {
         } else {
             // Get it into one packet by deferring flushing...
             for (String command : commands) {
+                Log.v(TAG, "Send: " + command);
                 writer.print(command + "\n");
             }
             writer.flush();
         }
     }
 
-    void sendPlayerCommand(String command) {
+    void sendPlayerCommand(final String command) {
         if (service.connectionState.getActivePlayer() == null) {
             return;
         }
-        sendCommand(Util.encode(service.connectionState.getActivePlayer().getId()) + " " + command);
+        service.executor.execute(new Runnable() {
+            public void run() {
+                sendCommand(Util.encode(service.connectionState.getActivePlayer().getId()) + " " + command);
+            }
+        });
     }
 
     boolean checkCorrelation(Integer registeredCorralationId, int currentCorrelationId) {
@@ -310,12 +315,16 @@ class SqueezerCLIImpl {
      */
 	private void requestItems(String playerid, String cmd, int start, List<String> parameters) {
 		if (start == 0) cmdCorrelationIds.put(cmd, _correlationid);
-		StringBuilder sb = new StringBuilder(cmd + " " + start + " "  + (start == 0 ? 1 : pageSize));
+		final StringBuilder sb = new StringBuilder(cmd + " " + start + " "  + (start == 0 ? 1 : pageSize));
 		if (playerid != null) sb.insert(0, Util.encode(playerid) + " ");
 		if (parameters != null)
 			for (String parameter: parameters)
 				sb.append(" " + Util.encode(parameter));
-		sendCommand(sb.toString());
+		service.executor.execute(new Runnable() {
+            public void run() {
+                sendCommand(sb.toString());
+            }
+        });
 	}
 
 	void requestItems(String cmd, int start, List<String> parameters) {

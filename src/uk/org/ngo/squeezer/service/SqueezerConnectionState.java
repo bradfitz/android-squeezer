@@ -35,7 +35,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 class SqueezerConnectionState {
-    private static final String TAG = "SqueezeService";
+    private static final String TAG = "SqueezeConnectionState";
     private static final int DEFAULT_PORT = 9090;
 
     // Incremented once per new connection and given to the Thread
@@ -90,6 +90,7 @@ class SqueezerConnectionState {
     }
 
     void disconnect() {
+        Log.v(TAG, "disconnect");
         currentConnectionGeneration.incrementAndGet();
         Socket socket = socketRef.get();
         if (socket != null) {
@@ -152,19 +153,9 @@ class SqueezerConnectionState {
     	return socketWriter.get();
     }
 
-    void setCurrentHost(String host) {
-    	currentHost.set(host);
-		Log.v(TAG, "HTTP port is now: " + httpPort);
-    }
-
-    void setCliPort(Integer port) {
-    	cliPort.set(port);
-		Log.v(TAG, "HTTP port is now: " + httpPort);
-    }
-
     void setHttpPort(Integer port) {
     	httpPort.set(port);
-		Log.v(TAG, "HTTP port is now: " + httpPort);
+		Log.v(TAG, "HTTP port is now: " + port);
     }
 
     void setCanRandomplay(boolean value) {
@@ -232,6 +223,7 @@ class SqueezerConnectionState {
     }
 
     void startConnect(final SqueezeService service, ScheduledThreadPoolExecutor executor, String hostPort) throws RemoteException {
+        Log.v(TAG, "startConnect");
         // Common mistakes, based on crash reports...
         if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
             hostPort = hostPort.substring(7);

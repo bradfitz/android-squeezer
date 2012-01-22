@@ -40,9 +40,9 @@
     <string name="menu_item_sort">Sortér</string>
     <string name="menu_item_delete">Slet</string>
     <string name="menu_item_rename">Omdøb</string>
-    <string name="menu_item_playlists_new">Ny afspilningsliste</string>
-    <string name="menu_item_playlist_clear">Ryd afspilningsliste</string>
-    <string name="menu_item_playlist_save">Gem afspilningsliste</string>
+    <string name="menu_item_playlists_new">Ny</string>
+    <string name="menu_item_playlist_clear">Ryd</string>
+    <string name="menu_item_playlist_save">Gem</string>
     <string name="about_title">Om squeezer v%s</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
@@ -151,7 +151,6 @@
 
 
     <string-array name="home_items">
-        <item>Nu spiller</item>
         <item>Musik</item>
         <item>Internetradio</item>
 <!--         <item>Mine programmer</item> -->

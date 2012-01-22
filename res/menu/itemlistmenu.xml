@@ -18,16 +18,16 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <item
-    android:id="@+id/menu_item_main"
-   	android:title="@string/menu_item_main" android:icon="@drawable/icon_music"
-  />
-  <item
     android:id="@+id/menu_item_home"
-   	android:title="@string/menu_item_home"	android:icon="@drawable/icon_home"
+    android:title="@string/menu_item_home"
+    android:icon="@drawable/ic_action_home"
+    android:showAsAction="always"
   />
   <item
-    android:icon="@android:drawable/ic_menu_preferences"
+    android:icon="@drawable/ic_action_preferences"
     android:id="@+id/menu_item_settings"
     android:title="@string/menu_item_settings_label"
-    android:alphabeticShortcut="p" />
+    android:showAsAction="never"
+    android:alphabeticShortcut="p"
+    />
 </menu>

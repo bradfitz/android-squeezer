@@ -38,7 +38,7 @@ public abstract class SqueezerAbstractSongListActivity extends SqueezerBaseListA
 	}
 
 	private final IServiceSongListCallback songListCallback = new IServiceSongListCallback.Stub() {
-		public void onSongsReceived(int count, int start, List<SqueezerSong> items) throws RemoteException {
+		public void onSongsReceived(int count, int start, List<SqueezerSong> items) {
 			onItemsReceived(count, start, items);
 		}
     };

@@ -125,18 +125,13 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 		orderItems();
 	}
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    };
+	public void showFilterDialog() {
+        new SqueezerAlbumFilterDialog().show(getSupportFragmentManager(), "AlbumFilterDialog");
+	}
 
-    public void showFilterDialog() {
-        SqueezerAlbumFilterDialog.addTo(this);
-    }
-
-    public void showOrderDialog() {
-        SqueezerAlbumOrderDialog.addTo(this);
-    }
+	public void showOrderDialog() {
+	    new SqueezerAlbumOrderDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
+	}
 
     public static void show(Context context, SqueezerItem... items) {
         final Intent intent = new Intent(context, SqueezerAlbumListActivity.class);
@@ -147,7 +142,8 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 
     private final IServiceAlbumListCallback albumListCallback = new IServiceAlbumListCallback.Stub() {
 		public void onAlbumsReceived(int count, int start, List<SqueezerAlbum> items) throws RemoteException {
-			onItemsReceived(count, start, items);
+		    onItemsReceived(count, start, items);
 		}
     };
+
 }

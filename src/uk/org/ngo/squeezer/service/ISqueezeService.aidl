@@ -85,7 +85,8 @@ interface ISqueezeService {
         int getSecondsElapsed();
         boolean setSecondsElapsed(int seconds);
         
-        SqueezerSong currentSong();
+        SqueezerSong getCurrentSong();
+        String getCurrentPlaylist();
         String getAlbumArtUrl(String artworkTrackId);
         String getIconUrl(String icon);
 
@@ -131,7 +132,7 @@ interface ISqueezeService {
 	    void registerGenreListCallback(IServiceGenreListCallback callback);
         void unregisterGenreListCallback(IServiceGenreListCallback callback);
         
-        // Song list
+        // Song lists
         boolean songs(int start, String sortOrder, String searchString, in SqueezerAlbum album, in SqueezerArtist artist, in SqueezerYear year, in SqueezerGenre genre);
         boolean currentPlaylist(int start);
         boolean playlistSongs(int start, in SqueezerPlaylist playlist);

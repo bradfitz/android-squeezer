@@ -11,19 +11,16 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 public class SqueezerAlbumFilterDialog extends SqueezerBaseFilterDialog {
-    private final SqueezerAlbumListActivity activity;
+    private SqueezerAlbumListActivity activity;
     private Spinner genreSpinnerView;
     private Spinner yearSpinnerView;
     private EditText editText;
-
-    private SqueezerAlbumFilterDialog(SqueezerAlbumListActivity activity) {
-        this.activity = activity;
-    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
+        activity = (SqueezerAlbumListActivity) getActivity();
         editText = (EditText) filterForm.findViewById(R.id.search_string);
         editText.setHint(getString(R.string.filter_text_hint, activity.getItemAdapter().getQuantityString(2)));
         editText.setText(activity.getSearchString());
@@ -51,11 +48,6 @@ public class SqueezerAlbumFilterDialog extends SqueezerBaseFilterDialog {
         activity.setGenre((SqueezerGenre) genreSpinnerView.getSelectedItem());
         activity.setYear((SqueezerYear) yearSpinnerView.getSelectedItem());
         activity.orderItems();
-    }
-
-    public static void addTo(SqueezerAlbumListActivity activity) {
-        SqueezerAlbumFilterDialog dialog = new SqueezerAlbumFilterDialog(activity);
-        dialog.show(activity.getSupportFragmentManager(), "FilterDialog");
     }
 
 }

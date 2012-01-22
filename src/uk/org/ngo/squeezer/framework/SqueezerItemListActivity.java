@@ -30,6 +30,8 @@ import android.util.Log;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 
+import uk.org.ngo.squeezer.menu.MenuFragment;
+
 /**
  * <p>
  * This class defines the common minimum, which any activity browsing the SqueezeServer's database
@@ -42,7 +44,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SqueezerMenuFragment.addTo(this);
+        MenuFragment.add(this, SqueezerMenuFragment.class);
     };
 
     /**

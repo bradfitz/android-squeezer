@@ -28,7 +28,6 @@ import android.os.Parcelable.Creator;
 import android.os.RemoteException;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
 	protected static final int CONTEXTMENU_BROWSE_SONGS = 0;
@@ -91,13 +90,12 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	}
 
 	public View getAdapterView(View convertView, T item) {
-		return Util.getListItemView(getActivity(), convertView, item.getName());
+		return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, item.getName());
 	}
 
-    public View getAdapterView(View convertView, String label) {
-        return Util.getListItemView(getActivity(), convertView, label);
-    }
-
+	public View getAdapterView(View convertView, String label) {
+		return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, label);
+	}
 
 	/**
 	 * The default context menu handler handles some common actions.
@@ -115,16 +113,13 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 			SqueezerArtistListActivity.show(activity, selectedItem);
 			return true;
 		case CONTEXTMENU_PLAY_ITEM:
-			if (activity.play(selectedItem))
-				Toast.makeText(activity, activity.getString(R.string.ITEM_PLAYING, selectedItem.getName()), Toast.LENGTH_SHORT).show();
+			activity.play(selectedItem);
 			return true;
 		case CONTEXTMENU_ADD_ITEM:
-			if (activity.add(selectedItem))
-				Toast.makeText(activity, activity.getString(R.string.ITEM_ADDED, selectedItem.getName()), Toast.LENGTH_SHORT).show();
+			activity.add(selectedItem);
 			return true;
 		case CONTEXTMENU_INSERT_ITEM:
-			if (activity.insert(selectedItem))
-				Toast.makeText(activity, activity.getString(R.string.ITEM_INSERTED, selectedItem.getName()), Toast.LENGTH_SHORT).show();
+			activity.insert(selectedItem);
 			return true;
 		}
 		return false;

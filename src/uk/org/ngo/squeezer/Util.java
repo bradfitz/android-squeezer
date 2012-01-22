@@ -23,13 +23,9 @@ import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
-import uk.org.ngo.squeezer.model.SqueezerSong;
-
-import android.app.Activity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-
-import uk.org.ngo.squeezer.R;
 
 public class Util {
     private Util() {}
@@ -46,36 +42,20 @@ public class Util {
 
     /**
      * Update target, if it's different from newValue.
+     * @param <T>
      * @param target
      * @param newValue
      * @return true if target is updated. Otherwise return false.
      */
-	public static boolean atomicStringUpdated(AtomicReference<String> target, String newValue) {
-		String currentValue = target.get();
-		if (currentValue == null && newValue == null)
-			return false;
-		if (currentValue == null || !currentValue.equals(newValue)) {
-			target.set(newValue);
-			return true;
-		}
-		return false;
-	}
-
-    /**
-     * Update target, if it's different from newValue.
-     * @param target
-     * @param newValue
-     * @return true if target is updated. Otherwise return false.
-     */
-	public static boolean atomicSongUpdated(AtomicReference<SqueezerSong> target, SqueezerSong newValue) {
-    	SqueezerSong currentValue = target.get();
-		if (currentValue == null && newValue == null)
-			return false;
-		if (currentValue == null || !currentValue.equals(newValue)) {
-			target.set(newValue);
-			return true;
-		}
-		return false;
+    public static <T> boolean atomicReferenceUpdated(AtomicReference<T> target, T newValue) {
+        T currentValue = target.get();
+        if (currentValue == null && newValue == null)
+            return false;
+        if (currentValue == null || !currentValue.equals(newValue)) {
+            target.set(newValue);
+            return true;
+        }
+        return false;
     }
 
     public static int parseDecimalInt(String value, int defaultValue) {
@@ -131,21 +111,12 @@ public class Util {
         }
     }
 
-    public static View getListItemView(Activity activity, View convertView, String label) {
-		TextView view;
-		view = (TextView)(convertView != null && TextView.class.isAssignableFrom(convertView.getClass())
-				? convertView
-				: activity.getLayoutInflater().inflate(R.layout.list_item, null));
-		view.setText(label);
-		return view;
-	}
-
-    public static View getSpinnerItemView(Activity activity, View convertView, String label) {
+    public static View getListItemView(LayoutInflater layoutInflater, int id, View convertView, CharSequence label) {
         TextView view;
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
-                : activity.getLayoutInflater().inflate(R.layout.spinner_item, null));
+                : layoutInflater.inflate(id, null));
         view.setText(label);
         return view;
     }

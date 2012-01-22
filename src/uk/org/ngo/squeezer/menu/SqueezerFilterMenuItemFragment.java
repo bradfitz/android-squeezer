@@ -2,25 +2,18 @@ package uk.org.ngo.squeezer.menu;
 
 import uk.org.ngo.squeezer.R;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
-public class SqueezerFilterMenuItemFragment extends Fragment {
-    final SqueezerFilterableListActivity activity;
-
-    private SqueezerFilterMenuItemFragment(SqueezerFilterableListActivity activity) {
-        this.activity = activity;
-    }
+public class SqueezerFilterMenuItemFragment extends MenuFragment {
+    private SqueezerFilterableListActivity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        activity = (SqueezerFilterableListActivity)getActivity();
     };
 
     @Override
@@ -39,16 +32,8 @@ public class SqueezerFilterMenuItemFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public static void addTo(SqueezerFilterableListActivity activity) {
-        FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(0, new SqueezerFilterMenuItemFragment(activity));
-        fragmentTransaction.commit();
-    }
-
     public interface SqueezerFilterableListActivity {
         public void showFilterDialog();
-        FragmentManager getSupportFragmentManager();
     }
 
 }

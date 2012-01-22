@@ -15,7 +15,6 @@
  */
 
 package uk.org.ngo.squeezer.itemlists;
-import uk.org.ngo.squeezer.model.SqueezerSong;
 
 oneway interface IServicePlaylistMaintenanceCallback {
   void onRenameFailed(String msg);
