@@ -28,6 +28,8 @@ import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlayerListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
+import uk.org.ngo.squeezer.menu.MenuFragment;
+import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
@@ -75,7 +77,6 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
     private MenuItem poweroffButton;
     private MenuItem playersButton;
     private MenuItem searchButton;
-    private MenuItem homeButton;
     private ImageButton curPlayListButton;
     private ImageButton playPauseButton;
     private ImageButton nextButton;
@@ -144,6 +145,8 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
             tracker.startNewSession("UA-26457780-1", this);
             tracker.trackPageView("NowPlayingActivity");
         }
+
+        MenuFragment.add(this, SqueezerMenuFragment.class);
 
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
@@ -294,7 +297,6 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
             disconnectButton.setVisible(connected);
             playersButton.setEnabled(connected);
             searchButton.setEnabled(connected);
-            homeButton.setEnabled(connected);
         }
 
         curPlayListButton.setEnabled(connected);
@@ -575,16 +577,12 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
         poweroffButton = getActionBarHelper().findItem(R.id.menu_item_poweroff);
         playersButton = getActionBarHelper().findItem(R.id.menu_item_players);
         searchButton = getActionBarHelper().findItem(R.id.menu_item_search);
-        homeButton = getActionBarHelper().findItem(R.id.menu_item_home);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
     switch (item.getItemId()) {
-        case R.id.menu_item_home:
-            SqueezerHomeActivity.show(this);
-            return true;
       	case R.id.menu_item_settings:
             SettingsActivity.show(this);
             return true;

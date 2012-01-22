@@ -2,7 +2,6 @@ package uk.org.ngo.squeezer.menu;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SettingsActivity;
-import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.SqueezerHomeActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,15 +19,14 @@ public class SqueezerMenuFragment extends MenuFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case android.R.id.home:
-            NowPlayingActivity.show(getActivity());
-            return true;
-        case R.id.menu_item_home:
-            SqueezerHomeActivity.show(getActivity());
-            return true;
-        case R.id.menu_item_settings:
-            SettingsActivity.show(getActivity());
-            return true;
+            // Application icon clicked.
+            case android.R.id.home:
+                SqueezerHomeActivity.show(getActivity());
+                return true;
+
+            case R.id.menu_item_settings:
+                SettingsActivity.show(getActivity());
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

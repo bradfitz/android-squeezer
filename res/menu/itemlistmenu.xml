@@ -18,12 +18,6 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <item
-    android:id="@+id/menu_item_home"
-    android:title="@string/menu_item_home"
-    android:icon="@drawable/ic_action_home"
-    android:showAsAction="always"
-  />
-  <item
     android:icon="@drawable/ic_action_preferences"
     android:id="@+id/menu_item_settings"
     android:title="@string/menu_item_settings_label"
