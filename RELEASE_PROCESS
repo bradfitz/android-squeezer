@@ -1,0 +1,57 @@
+How to cut a release of Squeezer, and push to the various markets it's in.
+
+* Set the new version number.
+
+Edit AndroidManifest.xml.  Increment android:versionCode by 1, and set 
+android:versionName appropriately.
+
+* Update NEWS
+
+Edit NEWS, and add release notes that reflect the (public) changes in this version.
+
+* Generate and test the release APK
+
+From the top level directory, run:
+
+  ant release
+  ant installr
+
+Verify that the version number in the About dialog is correct and that Squeezer works
+correctly.
+
+You can also use Eclipse to export the release project if necessary.
+
+* Copy the ProGuard files.
+
+Eclipse and Ant dump the ProGuard files in to different places.  If the release was
+cut with "ant release" then copy bin/proguard/mapping.txt to proguard/mapping.txt.
+
+* Commit the changes
+
+AndroidManifest.xml
+NEWS
+proguard/mapping.txt
+
+* Tag the release.
+
+Where <version> is the numeric version string (e.g., 0.6.1).
+
+git tag -a <version> -m "Code for the <version> release."
+
+* Upload the release APK to the Android Market.
+
+Go to https://market.android.com/publish/Home#, signed in as android.squeezer@gmail.com.
+
+Find the existing entry for Squeezer, and upload the new APK.
+
+Include the contents of NEWS for this release (possibly re-edited to fit within the
+500 char limit) in the "Recent Changes" section.
+
+* Upload the release APK to the Amazon Market.
+
+Go to https://developer.amazon.com/home.html, signed in as android.squeezer@gmail.com.
+
+Find the existing entry for Squeezer, and upload the new APK.
+
+Include the contents of NEWS for this release in the "Recent Changes" section.
+
