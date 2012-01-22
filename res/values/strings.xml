@@ -79,8 +79,8 @@
     <string name="unknown_album">Unknown album</string>
     <string name="unknown_artist">Unknown artist</string>
 
-    <string name="about_text">&lt;p&gt;&lt;b&gt;Copyright &#169; 2009 Google Inc.  All Rights Reserved&lt;br /&gt;
-Copyright &#169; 2011 Kurt Aaholst.  All Rights Reserved.&lt;/b&gt;&lt;/p&gt;
+    <string name="about_text">&lt;p&gt;&lt;b&gt;Copyright &amp;#169; 2009 Google Inc.  All Rights Reserved&lt;br /&gt;
+Copyright &amp;#169; 2011 Kurt Aaholst.  All Rights Reserved.&lt;/b&gt;&lt;/p&gt;
    
 &lt;p&gt;http://code.google.com/p/android-squeezer/&lt;/p&gt;
 
