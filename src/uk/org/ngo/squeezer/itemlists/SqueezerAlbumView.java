@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
-import uk.org.ngo.squeezer.SqueezerActivity;
+import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import android.os.RemoteException;
@@ -65,7 +65,7 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 
 	public void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
 		getActivity().play(item);
-		SqueezerActivity.show(getActivity());
+		NowPlayingActivity.show(getActivity());
 	}
 
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerAlbum item) {

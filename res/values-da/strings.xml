@@ -151,6 +151,7 @@
 
 
     <string-array name="home_items">
+        <item>Now Playing</item>
         <item>Musik</item>
         <item>Internetradio</item>
 <!--         <item>Mine programmer</item> -->

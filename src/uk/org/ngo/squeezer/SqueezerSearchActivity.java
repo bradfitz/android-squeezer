@@ -93,7 +93,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 					try {
 						if (item instanceof SqueezerAlbum) {
 							play(item);
-							SqueezerActivity.show(SqueezerSearchActivity.this);
+							NowPlayingActivity.show(SqueezerSearchActivity.this);
 						} else
 							SqueezerAlbumListActivity.show(SqueezerSearchActivity.this, item);
 					} catch (RemoteException e) {

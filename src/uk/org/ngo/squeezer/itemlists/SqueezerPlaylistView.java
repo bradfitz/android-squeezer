@@ -17,7 +17,7 @@
 package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.SqueezerActivity;
+import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsDeleteDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsRenameDialog;
@@ -47,7 +47,7 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 
 	public void onItemSelected(int index, SqueezerPlaylist item) throws RemoteException {
 		getActivity().play(item);
-		SqueezerActivity.show(getActivity());
+		NowPlayingActivity.show(getActivity());
 	}
 
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlaylist item) {

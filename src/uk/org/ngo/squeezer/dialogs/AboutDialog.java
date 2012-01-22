@@ -1,7 +1,7 @@
 package uk.org.ngo.squeezer.dialogs;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.SqueezerActivity;
+import uk.org.ngo.squeezer.NowPlayingActivity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.pm.PackageInfo;
@@ -29,7 +29,7 @@ public class AboutDialog extends DialogFragment {
         }
 
         message.setText(Html.fromHtml((String) getText(R.string.about_text)));
-        message.setAutoLinkMask(SqueezerActivity.RESULT_OK);
+        message.setAutoLinkMask(NowPlayingActivity.RESULT_OK);
         message.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         return new AlertDialog.Builder(getActivity())

@@ -58,7 +58,7 @@ import android.widget.Toast;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-public class SqueezerActivity extends SqueezerBaseActivity {
+public class NowPlayingActivity extends SqueezerBaseActivity {
     protected static final int HOME_REQUESTCODE = 0;
 
     private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
@@ -138,11 +138,11 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
         if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
-            Log.v("SqueezerActivity", "Tracking page view 'SqueezerActivity");
+            Log.v("NowPlayingActivity", "Tracking page view 'NowPlayingActivity");
             // Start the tracker in manual dispatch mode...
             tracker = GoogleAnalyticsTracker.getInstance();
             tracker.startNewSession("UA-26457780-1", this);
-            tracker.trackPageView("SqueezerActivity");
+            tracker.trackPageView("NowPlayingActivity");
         }
 
         albumText = (TextView) findViewById(R.id.albumname);
@@ -165,7 +165,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
          */
 		curPlayListButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				SqueezerCurrentPlaylistActivity.show(SqueezerActivity.this);
+				SqueezerCurrentPlaylistActivity.show(NowPlayingActivity.this);
 			}
 		});
 
@@ -210,7 +210,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
 					if (!song.isRemote())
-						SqueezerAlbumListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+						SqueezerAlbumListActivity.show(NowPlayingActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
 				}
 			}
 		});
@@ -220,7 +220,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
 					if (!song.isRemote())
-						SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
+						SqueezerSongListActivity.show(NowPlayingActivity.this, new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
 				}
 			}
 		});
@@ -230,7 +230,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
 					if (!song.isRemote())
-						SqueezerSongListActivity.show(SqueezerActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+						SqueezerSongListActivity.show(NowPlayingActivity.this, new SqueezerArtist(song.getArtist_id(), song.getArtist()));
 				}
 			}
 		});
@@ -675,14 +675,14 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                     Log.v(getTag(), "Connection is allready in progress, connecting aborted");
                     return;
                 }
-                connectingDialog = ConnectingDialog.addTo(SqueezerActivity.this, ipPort);
+                connectingDialog = ConnectingDialog.addTo(NowPlayingActivity.this, ipPort);
                 if (connectingDialog != null) {
                     Log.v(getTag(), "startConnect, ipPort: " + ipPort);
                     connectInProgress.set(true);
                     try {
                         getService().startConnect(ipPort);
                     } catch (RemoteException e) {
-                        Toast.makeText(SqueezerActivity.this, "startConnection error: " + e, Toast.LENGTH_LONG).show();
+                        Toast.makeText(NowPlayingActivity.this, "startConnection error: " + e, Toast.LENGTH_LONG).show();
                     }
                 } else {
                     // We couldn't create the connect progress bar.
@@ -696,7 +696,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     }
 
 	public static void show(Context context) {
-		final Intent intent = new Intent(context, SqueezerActivity.class)
+		final Intent intent = new Intent(context, NowPlayingActivity.class)
 				.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 				.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
@@ -746,8 +746,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
         public void onTimeInSongChange(final int secondsIn, final int secondsTotal)
                 throws RemoteException {
-            SqueezerActivity.this.secondsIn = secondsIn;
-            SqueezerActivity.this.secondsTotal = secondsTotal;
+            NowPlayingActivity.this.secondsIn = secondsIn;
+            NowPlayingActivity.this.secondsTotal = secondsTotal;
             uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
         }
 

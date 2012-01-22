@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
-import uk.org.ngo.squeezer.SqueezerActivity;
+import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import android.os.RemoteException;
 import android.view.ContextMenu;
@@ -76,7 +76,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 			activity.show(item);
 		else {
 			activity.play(item);
-			SqueezerActivity.show(getActivity());
+			NowPlayingActivity.show(getActivity());
 		}
 	}
 

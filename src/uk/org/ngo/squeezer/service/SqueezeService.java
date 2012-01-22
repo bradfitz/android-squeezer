@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import uk.org.ngo.squeezer.IServiceCallback;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.SqueezerActivity;
+import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
@@ -536,7 +536,7 @@ public class SqueezeService extends Service {
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Notification status = new Notification();
         //status.contentView = views;
-        Intent showNowPlaying = new Intent(this, SqueezerActivity.class)
+        Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
             .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
         String songName = playerState.getCurrentSongName();

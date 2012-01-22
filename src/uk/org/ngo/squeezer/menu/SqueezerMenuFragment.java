@@ -2,7 +2,7 @@ package uk.org.ngo.squeezer.menu;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SettingsActivity;
-import uk.org.ngo.squeezer.SqueezerActivity;
+import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.SqueezerHomeActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +21,7 @@ public class SqueezerMenuFragment extends MenuFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case android.R.id.home:
-            SqueezerActivity.show(getActivity());
+            NowPlayingActivity.show(getActivity());
             return true;
         case R.id.menu_item_home:
             SqueezerHomeActivity.show(getActivity());
