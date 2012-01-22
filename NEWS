@@ -1,3 +1,20 @@
+0.6.1
+=====
+
+*   Included higher resolution icons for devices with a higher display density,
+    such as the Galaxy Nexus.
+
+*   Fixed a rare crash when releasing the WiFi lock.
+
+*   The hardware volume controls now work from all activities, not just the Now
+    Playing activity.  This fixes issue 20
+    (http://code.google.com/p/android-squeezer/issues/detail?id=20).
+
+*   The "Settings" menu option is now visible in all activities, not just the Now
+    Playing activity.  This fixes issue 23
+    (http://code.google.com/p/android-squeezer/issues/detail?id=23).
+
+
 0.6
 ===
 
