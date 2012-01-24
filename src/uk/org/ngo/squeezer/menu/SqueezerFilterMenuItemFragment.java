@@ -11,11 +11,7 @@ import android.view.MenuItem;
 
 
 public class SqueezerFilterMenuItemFragment extends Fragment {
-    final SqueezerFilterableListActivity activity;
-
-    private SqueezerFilterMenuItemFragment(SqueezerFilterableListActivity activity) {
-        this.activity = activity;
-    }
+    SqueezerFilterableListActivity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,6 +23,7 @@ public class SqueezerFilterMenuItemFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.filtermenuitem, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        activity = (SqueezerFilterableListActivity) getActivity();
     }
 
     @Override
@@ -42,7 +39,7 @@ public class SqueezerFilterMenuItemFragment extends Fragment {
     public static void addTo(SqueezerFilterableListActivity activity) {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(0, new SqueezerFilterMenuItemFragment(activity));
+        fragmentTransaction.add(0, new SqueezerFilterMenuItemFragment());
         fragmentTransaction.commit();
     }
 

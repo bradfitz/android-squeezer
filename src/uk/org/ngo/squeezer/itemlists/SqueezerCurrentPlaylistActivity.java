@@ -114,8 +114,8 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 				}
 			return true;
 		case R.id.menu_item_playlist_save:
-		    SqueezerPlaylistSaveDialog.addTo(this);
-			return true;
+	        new SqueezerPlaylistSaveDialog().show(getSupportFragmentManager(), "SaveDialog");
+	        return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}

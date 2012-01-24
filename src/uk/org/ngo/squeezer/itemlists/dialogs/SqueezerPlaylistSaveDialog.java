@@ -9,16 +9,13 @@ import android.text.InputType;
 import android.util.Log;
 
 public class SqueezerPlaylistSaveDialog extends SqueezerBaseEditTextDialog {
-    private final SqueezerBaseActivity activity;
-
-    private SqueezerPlaylistSaveDialog(SqueezerBaseActivity activity) {
-        this.activity = activity;
-    }
+    private SqueezerBaseActivity activity;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
+        activity = (SqueezerBaseActivity) getActivity();
         dialog.setTitle(R.string.save_playlist_title);
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         editText.setHint(R.string.save_playlist_hint);
@@ -34,12 +31,6 @@ public class SqueezerPlaylistSaveDialog extends SqueezerBaseEditTextDialog {
             Log.e(getTag(), "Error saving playlist as '"+ name + "': " + e);
         }
         return true;
-    }
-
-
-    public static void addTo(SqueezerBaseActivity activity) {
-        SqueezerPlaylistSaveDialog dialog = new SqueezerPlaylistSaveDialog(activity);
-        dialog.show(activity.getSupportFragmentManager(), "SaveDialog");
     }
 
 }

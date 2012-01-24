@@ -9,14 +9,10 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
 public class SqueezerSongOrderDialog extends DialogFragment {
-    private final SqueezerSongListActivity activity;
-
-    private SqueezerSongOrderDialog(SqueezerSongListActivity activity) {
-        this.activity = activity;
-    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final SqueezerSongListActivity activity = (SqueezerSongListActivity) getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         String[] sortOrderStrings = new String[SongsSortOrder.values().length];
         sortOrderStrings[SongsSortOrder.title.ordinal()] = getString(R.string.songs_sort_order_title);
@@ -30,12 +26,6 @@ public class SqueezerSongOrderDialog extends DialogFragment {
                 }
             });
         return builder.create();
-    }
-
-
-    public static void addTo(SqueezerSongListActivity activity) {
-        SqueezerSongOrderDialog dialog = new SqueezerSongOrderDialog(activity);
-        dialog.show(activity.getSupportFragmentManager(), "OrderDialog");
     }
 
     public enum SongsSortOrder {

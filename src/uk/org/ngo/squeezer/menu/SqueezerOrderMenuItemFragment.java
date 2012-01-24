@@ -11,16 +11,13 @@ import android.view.MenuItem;
 
 
 public class SqueezerOrderMenuItemFragment extends Fragment {
-    final SqueezerOrderableListActivity activity;
-
-    private SqueezerOrderMenuItemFragment(SqueezerOrderableListActivity activity) {
-        this.activity = activity;
-    }
+    SqueezerOrderableListActivity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        activity = (SqueezerOrderableListActivity) getActivity();
     };
 
     @Override
@@ -42,7 +39,7 @@ public class SqueezerOrderMenuItemFragment extends Fragment {
     public static void addTo(SqueezerOrderableListActivity activity) {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(0, new SqueezerOrderMenuItemFragment(activity));
+        fragmentTransaction.add(0, new SqueezerOrderMenuItemFragment());
         fragmentTransaction.commit();
     }
 

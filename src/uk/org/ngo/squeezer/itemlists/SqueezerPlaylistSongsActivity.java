@@ -144,10 +144,10 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_item_playlists_delete:
-		    SqueezerPlaylistDeleteDialog.addTo(this);
+		    new SqueezerPlaylistDeleteDialog().show(getSupportFragmentManager(), SqueezerPlaylistDeleteDialog.class.getName());
 			return true;
 		case R.id.menu_item_playlists_rename:
-		    SqueezerPlaylistRenameDialog.addTo(this);
+		    new SqueezerPlaylistRenameDialog().show(getSupportFragmentManager(), SqueezerPlaylistRenameDialog.class.getName());
 			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);

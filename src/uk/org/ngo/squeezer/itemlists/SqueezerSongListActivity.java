@@ -155,11 +155,11 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
     }
 
     public void showFilterDialog() {
-        SqueezerSongFilterDialog.addTo(this);
+        new SqueezerSongFilterDialog().show(getSupportFragmentManager(), "SongFilterDialog");
     }
 
     public void showOrderDialog() {
-        SqueezerSongOrderDialog.addTo(this);
+        new SqueezerSongOrderDialog().show(this.getSupportFragmentManager(), "OrderDialog");
     }
 
 }

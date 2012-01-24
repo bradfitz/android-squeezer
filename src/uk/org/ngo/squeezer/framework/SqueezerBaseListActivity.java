@@ -53,7 +53,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	private TextView loadingLabel;
 	private SqueezerItemView<T> itemView;
 
-	@Override
+
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.item_list);
@@ -135,10 +136,17 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
 
 	/**
-	 * @return The current listadapter, or null if not set
+     * @return The current {@link SqueezerItemView}, creating it if necessary
+	 */
+    public SqueezerItemView<T> getItemView() {
+        return itemView == null ? (itemView = createItemView()) : itemView;
+    }
+
+	/**
+	 * @return The current {@link SqueezerItemAdapter}, creating it if necesary
 	 */
 	public SqueezerItemAdapter<T> getItemAdapter() {
-		return itemAdapter;
+		return itemAdapter == null ? (itemAdapter = createItemListAdapter(getItemView())) : itemAdapter;
 	}
 
     protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T> itemView) {
@@ -171,8 +179,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	 * @param listAdapter
 	 */
 	private void clearItemListAdapter() {
-		itemAdapter = createItemListAdapter(itemView);
-		listView.setAdapter(itemAdapter);
+		listView.setAdapter(getItemAdapter());
 	}
 
 }

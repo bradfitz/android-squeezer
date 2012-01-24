@@ -9,16 +9,13 @@ import android.text.InputType;
 import android.util.Log;
 
 public class SqueezerPlaylistRenameDialog extends SqueezerBaseEditTextDialog {
-    private final SqueezerPlaylistSongsActivity activity;
-
-    private SqueezerPlaylistRenameDialog(SqueezerPlaylistSongsActivity activity) {
-        this.activity = activity;
-    }
+    private SqueezerPlaylistSongsActivity activity;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
+        activity = (SqueezerPlaylistSongsActivity) getActivity();
         dialog.setTitle(getString(R.string.rename_title, activity.getPlaylist().getName()));
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         editText.setText(activity.getPlaylist().getName());
@@ -37,12 +34,6 @@ public class SqueezerPlaylistRenameDialog extends SqueezerBaseEditTextDialog {
             Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
         }
         return true;
-    }
-
-
-    public static void addTo(SqueezerPlaylistSongsActivity activity) {
-        SqueezerPlaylistRenameDialog dialog = new SqueezerPlaylistRenameDialog(activity);
-        dialog.show(activity.getSupportFragmentManager(), "RenameDialog");
     }
 
 }

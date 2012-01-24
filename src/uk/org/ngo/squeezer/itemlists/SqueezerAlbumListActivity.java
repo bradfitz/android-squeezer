@@ -131,11 +131,11 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
     };
 
     public void showFilterDialog() {
-        SqueezerAlbumFilterDialog.addTo(this);
+        new SqueezerAlbumFilterDialog().show(getSupportFragmentManager(), "AlbumFilterDialog");
     }
 
     public void showOrderDialog() {
-        SqueezerAlbumOrderDialog.addTo(this);
+        new SqueezerAlbumOrderDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
     }
 
     public static void show(Context context, SqueezerItem... items) {
