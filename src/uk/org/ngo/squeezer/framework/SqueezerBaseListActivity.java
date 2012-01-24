@@ -31,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * <p>
@@ -49,18 +50,17 @@ import android.widget.ListView;
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
 	private SqueezerItemAdapter<T> itemAdapter;
 	private ListView listView;
-	private View loadingLabel;
+	private TextView loadingLabel;
 	private SqueezerItemView<T> itemView;
 
-	@Override
+
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.item_list);
 		listView = (ListView) findViewById(R.id.item_list);
-		loadingLabel = (View) findViewById(R.id.loading_label);
+		loadingLabel = (TextView) findViewById(R.id.loading_label);
 		itemView = createItemView();
-		itemAdapter = createItemListAdapter(itemView);
-        listView.setAdapter(itemAdapter);
 
     	listView.setOnItemClickListener(new OnItemClickListener() {
     		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -136,10 +136,17 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
 
 	/**
-	 * @return The current listadapter, or null if not set
+     * @return The current {@link SqueezerItemView}, creating it if necessary
+	 */
+    public SqueezerItemView<T> getItemView() {
+        return itemView == null ? (itemView = createItemView()) : itemView;
+    }
+
+	/**
+	 * @return The current {@link SqueezerItemAdapter}, creating it if necesary
 	 */
 	public SqueezerItemAdapter<T> getItemAdapter() {
-		return itemAdapter;
+		return itemAdapter == null ? (itemAdapter = createItemListAdapter(getItemView())) : itemAdapter;
 	}
 
     protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T> itemView) {
@@ -154,7 +161,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		reorderItems();
 		listView.setVisibility(View.GONE);
 		loadingLabel.setVisibility(View.VISIBLE);
-        itemAdapter.clear();
+		clearItemListAdapter();
 	}
 
 	public void onItemsReceived(final int count, final int start, final List<T> items) {
@@ -165,6 +172,14 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 				getItemAdapter().update(count, start, items);
 			}
 		});
+	}
+
+	/**
+	 * Set the adapter to handle the display of the items, see also {@link #setListAdapter(android.widget.ListAdapter)}
+	 * @param listAdapter
+	 */
+	private void clearItemListAdapter() {
+		listView.setAdapter(getItemAdapter());
 	}
 
 }

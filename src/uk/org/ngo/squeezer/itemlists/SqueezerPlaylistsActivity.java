@@ -72,7 +72,7 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 		switch (item.getItemId()) {
 		case R.id.menu_item_playlists_new:
 		    new SqueezerPlaylistsNewDialog().show(getSupportFragmentManager(), SqueezerPlaylistsNewDialog.class.getName());
-			return true;
+		    return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}

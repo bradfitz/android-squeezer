@@ -125,13 +125,18 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 		orderItems();
 	}
 
-	public void showFilterDialog() {
-        new SqueezerAlbumFilterDialog().show(getSupportFragmentManager(), "AlbumFilterDialog");
-	}
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    };
 
-	public void showOrderDialog() {
-	    new SqueezerAlbumOrderDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
-	}
+    public void showFilterDialog() {
+        new SqueezerAlbumFilterDialog().show(getSupportFragmentManager(), "AlbumFilterDialog");
+    }
+
+    public void showOrderDialog() {
+        new SqueezerAlbumOrderDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
+    }
 
     public static void show(Context context, SqueezerItem... items) {
         final Intent intent = new Intent(context, SqueezerAlbumListActivity.class);

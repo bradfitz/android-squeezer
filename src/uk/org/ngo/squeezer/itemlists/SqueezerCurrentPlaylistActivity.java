@@ -114,22 +114,10 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 				}
 			return true;
 		case R.id.menu_item_playlist_save:
-		    SqueezerPlaylistSaveDialog.addTo(this, getCurrentPlaylist());
-			return true;
+	        new SqueezerPlaylistSaveDialog().show(getSupportFragmentManager(), "SaveDialog");
+	        return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
-
-    private String getCurrentPlaylist() {
-        if (getService() == null) {
-            return null;
-        }
-        try {
-            return getService().getCurrentPlaylist();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception in getCurrentPlaylist(): " + e);
-        }
-        return null;
-    }
 
 }
