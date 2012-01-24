@@ -31,7 +31,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.TextView;
 
 /**
  * <p>
@@ -50,7 +49,7 @@ import android.widget.TextView;
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
 	private SqueezerItemAdapter<T> itemAdapter;
 	private ListView listView;
-	private TextView loadingLabel;
+    private View loadingLabel;
 	private SqueezerItemView<T> itemView;
 
 
@@ -59,8 +58,10 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.item_list);
 		listView = (ListView) findViewById(R.id.item_list);
-		loadingLabel = (TextView) findViewById(R.id.loading_label);
-		itemView = createItemView();
+        loadingLabel = findViewById(R.id.loading_label);
+        itemView = createItemView();
+        itemAdapter = createItemListAdapter(itemView);
+        listView.setAdapter(itemAdapter);
 
     	listView.setOnItemClickListener(new OnItemClickListener() {
     		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
