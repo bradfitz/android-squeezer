@@ -76,8 +76,8 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
     private MenuItem poweronButton;
     private MenuItem poweroffButton;
     private MenuItem playersButton;
+    private MenuItem playlistButton;
     private MenuItem searchButton;
-    private ImageButton curPlayListButton;
     private ImageButton playPauseButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
@@ -151,7 +151,6 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
         trackText = (TextView) findViewById(R.id.trackname);
-        curPlayListButton = (ImageButton) findViewById(R.id.curplaylist);
         playPauseButton = (ImageButton) findViewById(R.id.pause);
         nextButton = (ImageButton) findViewById(R.id.next);
         prevButton = (ImageButton) findViewById(R.id.prev);
@@ -166,12 +165,6 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
          * because the TextView resources don't support the android:onClick
          * attribute.
          */
-		curPlayListButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				SqueezerCurrentPlaylistActivity.show(NowPlayingActivity.this);
-			}
-		});
-
         playPauseButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     if (getService() == null) return;
@@ -296,10 +289,10 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
             connectButton.setVisible(!connected);
             disconnectButton.setVisible(connected);
             playersButton.setEnabled(connected);
+            playlistButton.setEnabled(connected);
             searchButton.setEnabled(connected);
         }
 
-        curPlayListButton.setEnabled(connected);
         nextButton.setEnabled(connected);
     	prevButton.setEnabled(connected);
     	if (!connected) {
@@ -576,6 +569,7 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
         poweronButton = getActionBarHelper().findItem(R.id.menu_item_poweron);
         poweroffButton = getActionBarHelper().findItem(R.id.menu_item_poweroff);
         playersButton = getActionBarHelper().findItem(R.id.menu_item_players);
+        playlistButton = getActionBarHelper().findItem(R.id.menu_item_playlist);
         searchButton = getActionBarHelper().findItem(R.id.menu_item_search);
         return super.onCreateOptionsMenu(menu);
     }
@@ -613,6 +607,9 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
                 Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
             }
             return true;
+            case R.id.menu_item_playlist:
+                SqueezerCurrentPlaylistActivity.show(this);
+                break;
       	case R.id.menu_item_players:
       		SqueezerPlayerListActivity.show(this);
       	    return true;

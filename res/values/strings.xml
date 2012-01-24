@@ -39,6 +39,7 @@
     <string name="menu_item_sort">Sort order</string>
     <string name="menu_item_delete">Delete</string>
     <string name="menu_item_rename">Rename</string>
+    <string name="menu_item_playlist">Playlist</string>
     <string name="menu_item_playlists_new">New</string>
     <string name="menu_item_playlist_clear">Clear</string>
     <string name="menu_item_playlist_save">Save</string>
