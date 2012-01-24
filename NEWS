@@ -1,3 +1,9 @@
+0.6.2
+=====
+
+*   Fix crashes on orientation change, and assorted Honeycomb crashes after incorrect
+    API selection.
+
 0.6.1
 =====
 
