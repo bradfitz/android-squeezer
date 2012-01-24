@@ -58,23 +58,19 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:paddingLeft="8dp"
             android:paddingRight="8dp" />
-                
+
         <SeekBar android:id="@+id/seekbar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="bottom"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:paddingBottom="4dp" />
-                
         
 	    <LinearLayout
 	    	android:gravity="center"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:paddingTop="1dp"
 	        android:paddingBottom="4dp"
 	        android:orientation="horizontal">
 
@@ -82,7 +78,6 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:layout_gravity="center_vertical"
                 android:layout_width="wrap_content"
-                android:paddingLeft="4dp"
                 android:layout_height="wrap_content"
                 android:hint="--:--" />
             	
@@ -95,9 +90,7 @@
             <TextView android:id="@+id/totaltime"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:gravity="right"
-                android:paddingRight="4dp"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="--:--" />         
