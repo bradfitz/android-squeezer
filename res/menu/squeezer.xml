@@ -71,11 +71,4 @@
         android:alphabeticShortcut="a"
         android:showAsAction="never|withText"
     />
-    <item
-        android:icon="@drawable/ic_action_preferences"
-        android:id="@+id/menu_item_settings"
-        android:title="@string/menu_item_settings_label"
-        android:alphabeticShortcut="p"
-        android:showAsAction="never|withText"
-    />    
 </menu>
