@@ -334,7 +334,7 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
             public void run() {
                 String playerName = getActivePlayerName();
                 if (playerName != null && !"".equals(playerName)) {
-                    setTitle(getText(R.string.app_name) + ": " + playerName);
+                    setTitle(playerName);
                 } else {
                     setTitle(getText(R.string.app_name));
                 }
