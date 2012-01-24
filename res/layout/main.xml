@@ -16,16 +16,19 @@
  limitations under the License.
 -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root_layout">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
     <ImageView
         android:layout_width="fill_parent"
-        android:gravity="top"
         android:id="@+id/album"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:cropToPadding="false"
-        android:scaleType="fitStart" />
+        android:scaleType="fitCenter"
+        android:layout_weight="1" />
     
-    <!-- <include layout="@layout/audio_player_common" android:layout_gravity="bottom"/> -->
     <LinearLayout
     	android:orientation="vertical"
         android:layout_width="fill_parent"
@@ -99,7 +102,7 @@
                 android:layout_weight="1"
                 android:gravity="right"/>                
    	    </LinearLayout>
-	
 	</LinearLayout>
-</merge>
+</LinearLayout>
+
 
