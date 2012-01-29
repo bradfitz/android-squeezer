@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer;
+package uk.org.ngo.squeezer.widgets;
 
 import android.content.Context;
 import android.os.SystemClock;

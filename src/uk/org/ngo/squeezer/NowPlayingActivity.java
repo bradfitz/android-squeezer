@@ -135,7 +135,7 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
     /** Called when the activity is first created. */
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.now_playing);
 
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
         if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
