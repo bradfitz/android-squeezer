@@ -36,7 +36,7 @@ import android.widget.Toast;
  * @author Kurt Aaholst
  *
  */
-public abstract class SqueezerBaseActivity extends ActionBarActivity {
+public abstract class SqueezerBaseActivity extends ActionBarActivity implements HasUiThread {
 	private ISqueezeService service = null;
 	private final Handler uiThreadHandler = new Handler() {};
 
@@ -59,7 +59,6 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity {
     public Handler getUIThreadHandler() {
         return uiThreadHandler;
     }
-
 
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder binder) {

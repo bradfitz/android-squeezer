@@ -22,24 +22,23 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import uk.org.ngo.squeezer.R;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.widget.ImageView;
 
-import uk.org.ngo.squeezer.R;
-
 public class SqueezerIconUpdater<T extends SqueezerItem> {
 	private final ScheduledThreadPoolExecutor backgroundExecutor = new ScheduledThreadPoolExecutor(1);
-	private final SqueezerBaseActivity activity;
+    private final HasUiThread thingWithUiThread;
 
-	public SqueezerIconUpdater(SqueezerBaseActivity activity) {
-		this.activity = activity;
+    public SqueezerIconUpdater(HasUiThread activity_or_fragment) {
+        this.thingWithUiThread = activity_or_fragment;
 	}
 
-	private SqueezerBaseActivity getActivity() {
-		return activity;
-	}
+    private HasUiThread getThingWithUiThread() {
+        return thingWithUiThread;
+    }
 
     public void updateIcon(final ImageView icon, final Object item, final String urlString) {
         icon.setImageResource(R.drawable.icon_album_noart_143);
@@ -60,7 +59,7 @@ public class SqueezerIconUpdater<T extends SqueezerItem> {
 				try {
 					URL url = new URL(urlString);
 					final Bitmap bitmap = decodeUrl(url, icon.getHeight());
-					getActivity().getUIThreadHandler().post(new Runnable() {
+                    getThingWithUiThread().getUIThreadHandler().post(new Runnable() {
 						public void run() {
 							if (icon.getTag() == item) {
 	                            // Only set the image if the item art hasn't changed since we
