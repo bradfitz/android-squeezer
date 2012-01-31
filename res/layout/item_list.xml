@@ -45,7 +45,9 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:fastScrollEnabled="true"
+    android:layout_weight="1"
   />
+
   <LinearLayout
     android:id="@+id/loading_label"
     android:background="#90909090"
@@ -66,5 +68,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
     />
   </LinearLayout>
-  
+
+    <fragment android:name="uk.org.ngo.squeezer.NowPlayingFragment"
+        android:id="@+id/now_playing_fragment"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp" />
 </LinearLayout>

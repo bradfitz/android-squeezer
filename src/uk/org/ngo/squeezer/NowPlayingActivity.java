@@ -17,6 +17,8 @@
 package uk.org.ngo.squeezer;
 
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
+import uk.org.ngo.squeezer.menu.MenuFragment;
+import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -46,11 +48,7 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
             tracker.trackPageView("NowPlayingActivity");
         }
 
-        // XXX: Uncommenting this is needed in order for the app icon in the
-        // action bar to work. However it causes an exception when the device
-        // orientation changes, which needs investigation.
-
-        // MenuFragment.add(this, SqueezerMenuFragment.class);
+        MenuFragment.add(this, SqueezerMenuFragment.class);
     }
 
     @Override

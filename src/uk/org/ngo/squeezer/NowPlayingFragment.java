@@ -49,6 +49,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -152,6 +153,23 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         };
     };
 
+    private boolean mFullHeightLayout;
+
+    /**
+     * Called before onAttach. Pull out the layout spec to figure out which
+     * layout to use later.
+     */
+    @Override
+    public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
+        super.onInflate(activity, attrs, savedInstanceState);
+
+        int layout_height = attrs.getAttributeUnsignedIntValue(
+                "http://schemas.android.com/apk/res/android",
+                "layout_height", 0);
+
+        mFullHeightLayout = (layout_height == ViewGroup.LayoutParams.FILL_PARENT);
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -171,128 +189,145 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.now_playing_fragment_full, container, false);
+        View v;
 
-        albumText = (TextView) v.findViewById(R.id.albumname);
-        artistText = (TextView) v.findViewById(R.id.artistname);
-        trackText = (TextView) v.findViewById(R.id.trackname);
-        playPauseButton = (ImageButton) v.findViewById(R.id.pause);
-        nextButton = (ImageButton) v.findViewById(R.id.next);
-        prevButton = (ImageButton) v.findViewById(R.id.prev);
+        if (mFullHeightLayout) {
+            v = inflater.inflate(R.layout.now_playing_fragment_full, container, false);
+
+            artistText = (TextView) v.findViewById(R.id.artistname);
+            playPauseButton = (ImageButton) v.findViewById(R.id.pause);
+            nextButton = (ImageButton) v.findViewById(R.id.next);
+            prevButton = (ImageButton) v.findViewById(R.id.prev);
+            currentTime = (TextView) v.findViewById(R.id.currenttime);
+            totalTime = (TextView) v.findViewById(R.id.totaltime);
+            seekBar = (SeekBar) v.findViewById(R.id.seekbar);
+        } else {
+            v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
+        }
+
         albumArt = (ImageView) v.findViewById(R.id.album);
-        currentTime = (TextView) v.findViewById(R.id.currenttime);
-        totalTime = (TextView) v.findViewById(R.id.totaltime);
-        seekBar = (SeekBar) v.findViewById(R.id.seekbar);
+        trackText = (TextView) v.findViewById(R.id.trackname);
+        albumText = (TextView) v.findViewById(R.id.albumname);
 
-        /*
-         * TODO: Simplify these following the notes at
-         * http://developer.android.com/resources/articles/ui-1.6.html. Maybe.
-         * because the TextView resources don't support the android:onClick
-         * attribute.
-         */
-        playPauseButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                if (mService == null)
-                    return;
-                try {
-                    if (isConnected()) {
-                        Log.v(TAG, "Pause...");
-                        mService.togglePausePlay();
-                    } else {
-                        // When we're not connected, the play/pause
-                        // button turns into a green connect button.
-                        onUserInitiatesConnect();
+        if (mFullHeightLayout) {
+            /*
+             * TODO: Simplify these following the notes at
+             * http://developer.android.com/resources/articles/ui-1.6.html.
+             * Maybe. because the TextView resources don't support the
+             * android:onClick attribute.
+             */
+            playPauseButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    if (mService == null)
+                        return;
+                    try {
+                        if (isConnected()) {
+                            Log.v(TAG, "Pause...");
+                            mService.togglePausePlay();
+                        } else {
+                            // When we're not connected, the play/pause
+                            // button turns into a green connect button.
+                            onUserInitiatesConnect();
+                        }
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "Service exception from togglePausePlay(): " + e);
                     }
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Service exception from togglePausePlay(): " + e);
                 }
-            }
-        });
+            });
 
-        nextButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                if (mService == null)
-                    return;
-                try {
-                    mService.nextTrack();
-                } catch (RemoteException e) {
+            nextButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    if (mService == null)
+                        return;
+                    try {
+                        mService.nextTrack();
+                    } catch (RemoteException e) {
+                    }
                 }
-            }
-        });
+            });
 
-        prevButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                if (mService == null)
-                    return;
-                try {
-                    mService.previousTrack();
-                } catch (RemoteException e) {
+            prevButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    if (mService == null)
+                        return;
+                    try {
+                        mService.previousTrack();
+                    } catch (RemoteException e) {
+                    }
                 }
-            }
-        });
+            });
 
-        artistText.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                SqueezerSong song = getCurrentSong();
-                if (song != null) {
-                    if (!song.isRemote())
-                        SqueezerAlbumListActivity.show(mActivity,
-                                new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+            artistText.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    SqueezerSong song = getCurrentSong();
+                    if (song != null) {
+                        if (!song.isRemote())
+                            SqueezerAlbumListActivity.show(mActivity,
+                                    new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+                    }
                 }
-            }
-        });
+            });
 
-        albumText.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                SqueezerSong song = getCurrentSong();
-                if (song != null) {
-                    if (!song.isRemote())
-                        SqueezerSongListActivity.show(mActivity,
-                                new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
+            albumText.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    SqueezerSong song = getCurrentSong();
+                    if (song != null) {
+                        if (!song.isRemote())
+                            SqueezerSongListActivity.show(mActivity,
+                                    new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
+                    }
                 }
-            }
-        });
+            });
 
-        trackText.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                SqueezerSong song = getCurrentSong();
-                if (song != null) {
-                    if (!song.isRemote())
-                        SqueezerSongListActivity.show(mActivity,
-                                new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+            trackText.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    SqueezerSong song = getCurrentSong();
+                    if (song != null) {
+                        if (!song.isRemote())
+                            SqueezerSongListActivity.show(mActivity,
+                                    new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+                    }
                 }
-            }
-        });
+            });
 
-        seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-            SqueezerSong seekingSong;
+            seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+                SqueezerSong seekingSong;
 
-            // Update the time indicator to reflect the dragged thumb position.
-            public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
-                if (fromUser) {
-                    currentTime.setText(Util.makeTimeString(progress));
+                // Update the time indicator to reflect the dragged thumb
+                // position.
+                public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        currentTime.setText(Util.makeTimeString(progress));
+                    }
                 }
-            }
 
-            // Disable updates when user drags the thumb.
-            public void onStartTrackingTouch(SeekBar s) {
-                seekingSong = getCurrentSong();
-                updateSeekBar = false;
-            }
-
-            // Re-enable updates. If the current song is the same as when
-            // we started seeking then jump to the new point in the track,
-            // otherwise ignore the seek.
-            public void onStopTrackingTouch(SeekBar s) {
-                SqueezerSong thisSong = getCurrentSong();
-
-                updateSeekBar = true;
-
-                if (seekingSong == thisSong) {
-                    setSecondsElapsed(s.getProgress());
+                // Disable updates when user drags the thumb.
+                public void onStartTrackingTouch(SeekBar s) {
+                    seekingSong = getCurrentSong();
+                    updateSeekBar = false;
                 }
-            }
-        });
+
+                // Re-enable updates. If the current song is the same as when
+                // we started seeking then jump to the new point in the track,
+                // otherwise ignore the seek.
+                public void onStopTrackingTouch(SeekBar s) {
+                    SqueezerSong thisSong = getCurrentSong();
+
+                    updateSeekBar = true;
+
+                    if (seekingSong == thisSong) {
+                        setSecondsElapsed(s.getProgress());
+                    }
+                }
+            });
+        } else {
+            // Clicking on the layout goes to NowPlayingActivity.
+            v.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    NowPlayingActivity.show(mActivity);
+                }
+            });
+        }
 
         return v;
     }
@@ -326,7 +361,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         }
 
         // These are all set at the same time, so one check is sufficient
-        if (connectButton != null) {
+        if (connectButton != null && mFullHeightLayout) {
             connectButton.setVisible(!connected);
             disconnectButton.setVisible(connected);
             playersButton.setEnabled(connected);
@@ -334,57 +369,70 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
             searchButton.setEnabled(connected);
         }
 
-        nextButton.setEnabled(connected);
-        prevButton.setEnabled(connected);
+        if (mFullHeightLayout) {
+            nextButton.setEnabled(connected);
+            prevButton.setEnabled(connected);
+        }
+
         if (!connected) {
-            nextButton.setImageResource(0);
-            prevButton.setImageResource(0);
-            albumArt.setImageDrawable(null);
+            albumArt.setImageResource(R.drawable.icon_album_noart_143);
             updateSongInfo(null);
-            artistText.setText(getText(R.string.disconnected_text));
-            currentTime.setText("--:--");
-            totalTime.setText("--:--");
-            seekBar.setEnabled(false);
-            seekBar.setProgress(0);
+
+            if (mFullHeightLayout) {
+                nextButton.setImageResource(0);
+                prevButton.setImageResource(0);
+                artistText.setText(getText(R.string.disconnected_text));
+                currentTime.setText("--:--");
+                totalTime.setText("--:--");
+                seekBar.setEnabled(false);
+                seekBar.setProgress(0);
+            }
         } else {
-            nextButton.setImageResource(android.R.drawable.ic_media_next);
-            prevButton.setImageResource(android.R.drawable.ic_media_previous);
             updateSongInfoFromService();
-            seekBar.setEnabled(true);
+
+            if (mFullHeightLayout) {
+                nextButton.setImageResource(android.R.drawable.ic_media_next);
+                prevButton.setImageResource(android.R.drawable.ic_media_previous);
+                seekBar.setEnabled(true);
+            }
         }
         updatePlayPauseIcon();
         updateUIForPlayer();
     }
 
     private void updatePlayPauseIcon() {
-        uiThreadHandler.post(new Runnable() {
-            public void run() {
-                if (!isConnected()) {
-                    playPauseButton.setImageResource(R.drawable.presence_online); // green
-                                                                                  // circle
-                } else if (isPlaying()) {
-                    playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
-                } else {
-                    playPauseButton.setImageResource(android.R.drawable.ic_media_play);
+        if (mFullHeightLayout) {
+            uiThreadHandler.post(new Runnable() {
+                public void run() {
+                    if (!isConnected()) {
+                        playPauseButton.setImageResource(R.drawable.presence_online); // green
+                                                                                      // circle
+                    } else if (isPlaying()) {
+                        playPauseButton.setImageResource(android.R.drawable.ic_media_pause);
+                    } else {
+                        playPauseButton.setImageResource(android.R.drawable.ic_media_play);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void updateUIForPlayer() {
-        uiThreadHandler.post(new Runnable() {
-            public void run() {
-                String playerName = getActivePlayerName();
-                // XXX: Only do this if full screen
-                if (playerName != null && !"".equals(playerName)) {
-                    mActivity.setTitle(playerName);
-                } else {
-                    mActivity.setTitle(getText(R.string.app_name));
+        if (mFullHeightLayout) {
+            uiThreadHandler.post(new Runnable() {
+                public void run() {
+                    String playerName = getActivePlayerName();
+                    // XXX: Only do this if full screen
+                    if (playerName != null && !"".equals(playerName)) {
+                        mActivity.setTitle(playerName);
+                    } else {
+                        mActivity.setTitle(getText(R.string.app_name));
+                    }
+                    poweronButton.setVisible(canPowerOn());
+                    poweroffButton.setVisible(canPowerOff());
                 }
-                poweronButton.setVisible(canPowerOn());
-                poweroffButton.setVisible(canPowerOff());
-            }
-        });
+            });
+        }
     }
 
     protected void onServiceConnected() throws RemoteException {
@@ -443,13 +491,15 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
     }
 
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
-        if (updateSeekBar) {
-            if (seekBar.getMax() != secondsTotal) {
-                seekBar.setMax(secondsTotal);
-                totalTime.setText(Util.makeTimeString(secondsTotal));
+        if (mFullHeightLayout) {
+            if (updateSeekBar) {
+                if (seekBar.getMax() != secondsTotal) {
+                    seekBar.setMax(secondsTotal);
+                    totalTime.setText(Util.makeTimeString(secondsTotal));
+                }
+                seekBar.setProgress(secondsIn);
+                currentTime.setText(Util.makeTimeString(secondsIn));
             }
-            seekBar.setProgress(secondsIn);
-            currentTime.setText(Util.makeTimeString(secondsIn));
         }
     }
 
@@ -463,13 +513,17 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
 
     private void updateSongInfo(SqueezerSong song) {
         if (song != null) {
-            artistText.setText(song.getArtist());
             albumText.setText(song.getAlbum());
             trackText.setText(song.getName());
+            if (mFullHeightLayout) {
+                artistText.setText(song.getArtist());
+            }
         } else {
-            artistText.setText("");
             albumText.setText("");
             trackText.setText("");
+            if (mFullHeightLayout) {
+                artistText.setText("");
+            }
         }
     }
 
@@ -618,7 +672,6 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
     // }
 
     /*
-     * (non-Javadoc)
      * @see
      * android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu,
      * android.view.MenuInflater)
@@ -763,6 +816,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         });
     }
 
+    // XXX: This can be deleted.
     public static void show(Context context) {
         final Intent intent = new Intent(context, NowPlayingActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
