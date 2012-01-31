@@ -36,8 +36,8 @@
         android:layout_height="fill_parent"
         android:orientation="vertical">
 
-        <!-- TODO: This block copied from layout/main.xml and could be refactored in to
-             a common track info block... -->
+        <!-- TODO: This block copied from layout/now_playing_fragment_full.xml and
+             could be refactored in to a common track info block... -->
         <TextView android:id="@+id/trackname"
             android:hint="@string/unknown_track"
             android:layout_width="fill_parent"
