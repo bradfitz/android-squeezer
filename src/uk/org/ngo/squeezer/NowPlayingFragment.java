@@ -137,9 +137,6 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
 
     private ConnectingDialog connectingDialog = null;
 
-    // XXX: Plenty of warnings about leaking serviceConnection in logcat.
-    // Suspect that we need to make this non-final, assign it onResume, and
-    // clear it in onPause().
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             Log.v(TAG, "ServiceConnection.onServiceConnected()");
@@ -600,6 +597,9 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         if (mService != null) {
             try {
                 mService.unregisterCallback(serviceCallback);
+                if (serviceConnection != null) {
+                    mActivity.unbindService(serviceConnection);
+                }
             } catch (RemoteException e) {
                 Log.e(TAG, "Service exception in onPause(): " + e);
             }
