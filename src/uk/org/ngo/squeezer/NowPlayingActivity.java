@@ -16,16 +16,17 @@
 
 package uk.org.ngo.squeezer;
 
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-public class NowPlayingActivity extends FragmentActivity {
+public class NowPlayingActivity extends SqueezerBaseActivity {
     protected static final int HOME_REQUESTCODE = 0;
     private final String TAG = "NowPlayingActivity";
 
@@ -45,6 +46,10 @@ public class NowPlayingActivity extends FragmentActivity {
             tracker.trackPageView("NowPlayingActivity");
         }
 
+        // XXX: Uncommenting this is needed in order for the app icon in the
+        // action bar to work. However it causes an exception when the device
+        // orientation changes, which needs investigation.
+
         // MenuFragment.add(this, SqueezerMenuFragment.class);
     }
 
@@ -62,7 +67,17 @@ public class NowPlayingActivity extends FragmentActivity {
     }
 
 
-	public static void show(Context context) {
+    /*
+     * (non-Javadoc)
+     * @see
+     * uk.org.ngo.squeezer.framework.SqueezerBaseActivity#onServiceConnected()
+     */
+    @Override
+    protected void onServiceConnected() throws RemoteException {
+        // Does nothing
+    }
+
+    public static void show(Context context) {
 		final Intent intent = new Intent(context, NowPlayingActivity.class)
 				.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
