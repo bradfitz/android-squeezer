@@ -362,14 +362,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
 
     <string-array name="home_items">
-        <item>Now Playing</item>
-        <item>My Music</item>
-        <item>Internet Radio</item>
-<!--         <item>My Apps</item> -->
-<!--         <item>Favorites</item> -->
-    </string-array>
-
-    <string-array name="music_items">
         <item>Artists</item>
         <item>Albums</item>
         <item>Songs</item>
@@ -378,7 +370,9 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item>Random mix</item>
 <!--         <item>Music Folder</item> -->
         <item>Playlists</item>
-        <item>Search</item>
+        <item>Internet Radio</item>
+<!--         <item>My Apps</item> -->
+<!--         <item>Favorites</item> -->
     </string-array>
 
     <string-array name="randomplay_items">

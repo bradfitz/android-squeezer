@@ -151,14 +151,6 @@
 
 
     <string-array name="home_items">
-        <item>Now Playing</item>
-        <item>Musik</item>
-        <item>Internetradio</item>
-<!--         <item>Mine programmer</item> -->
-<!--         <item>Favoritter</item> -->
-    </string-array>
-
-    <string-array name="music_items">
         <item>Kunstnere</item>
         <item>Album</item>
         <item>Alle Sange</item>
@@ -167,7 +159,9 @@
         <item>Tilfældigt miks</item>
 <!--         <item>Musikmappe</item> -->
         <item>Afspilningslister</item>
-        <item>Søg</item>
+        <item>Internetradio</item>
+<!--         <item>Mine programmer</item> -->
+<!--         <item>Favoritter</item> -->
     </string-array>
 
     <string-array name="randomplay_items">
