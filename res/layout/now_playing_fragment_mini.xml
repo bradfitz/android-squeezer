@@ -22,7 +22,7 @@
     android:layout_height="fill_parent"
     android:gravity="left">
 
-    <ImageView
+    <uk.org.ngo.squeezer.widgets.SquareImageView
         android:layout_width="wrap_content"
         android:id="@+id/album"
         android:layout_height="fill_parent"
@@ -32,7 +32,10 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:gravity="center_vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
 
         <TextView android:id="@+id/trackname"
             android:hint="@string/unknown_track"
