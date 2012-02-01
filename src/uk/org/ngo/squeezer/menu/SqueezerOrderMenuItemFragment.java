@@ -2,15 +2,13 @@ package uk.org.ngo.squeezer.menu;
 
 import uk.org.ngo.squeezer.R;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
-public class SqueezerOrderMenuItemFragment extends Fragment {
+public class SqueezerOrderMenuItemFragment extends MenuFragment {
     SqueezerOrderableListActivity activity;
 
     @Override
@@ -34,13 +32,6 @@ public class SqueezerOrderMenuItemFragment extends Fragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public static void addTo(SqueezerOrderableListActivity activity) {
-        FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(0, new SqueezerOrderMenuItemFragment());
-        fragmentTransaction.commit();
     }
 
     public interface SqueezerOrderableListActivity {

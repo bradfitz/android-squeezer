@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongFilterDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog.SongsSortOrder;
+import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment;
 import uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
@@ -144,8 +145,8 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SqueezerFilterMenuItemFragment.addTo(this);
-        SqueezerOrderMenuItemFragment.addTo(this);
+        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
+        MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
     };
 
     @Override

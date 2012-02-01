@@ -5,16 +5,12 @@ import uk.org.ngo.squeezer.SettingsActivity;
 import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.SqueezerHomeActivity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
-public class SqueezerMenuFragment extends Fragment {
+public class SqueezerMenuFragment extends MenuFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,13 +38,6 @@ public class SqueezerMenuFragment extends Fragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public static void addTo(FragmentActivity activity) {
-        FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(0, new SqueezerMenuFragment());
-        fragmentTransaction.commit();
     }
 
 }

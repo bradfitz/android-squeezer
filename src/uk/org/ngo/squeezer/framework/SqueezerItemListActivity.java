@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import android.os.Bundle;
@@ -42,7 +43,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SqueezerMenuFragment.addTo(this);
+        MenuFragment.add(this, SqueezerMenuFragment.class);
     };
 
     /**

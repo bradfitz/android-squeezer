@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.itemlists.SqueezerGenreListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
+import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
 import android.content.Intent;
@@ -35,7 +36,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 public class SqueezerMusicActivity extends SqueezerBaseActivity {
-	private static final String TAG = SqueezerMusicActivity.class.getName();
 	private static final int ARTISTS = 0;
 	private static final int ALBUMS = 1;
 	private static final int SONGS = 2;
@@ -54,7 +54,7 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
-        SqueezerMenuFragment.addTo(this);
+        MenuFragment.add(this, SqueezerMenuFragment.class);
         setMusicMenu();
     }
 

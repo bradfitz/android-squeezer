@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment;
 
 
@@ -26,7 +27,7 @@ public abstract class SqueezerFilterableListActivity<T extends SqueezerItem>
     @Override
     public void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SqueezerFilterMenuItemFragment.addTo(this);
+        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
     };
 
     @Override
