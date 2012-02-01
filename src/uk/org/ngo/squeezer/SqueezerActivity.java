@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
@@ -133,12 +134,17 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         setContentView(R.layout.main);
 
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+
+        // Enable Analytics if the option is on, and we're not running in debug
+        // mode so that debug tests don't pollute the stats.
         if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
-            Log.v("SqueezerActivity", "Tracking page view 'SqueezerActivity");
-            // Start the tracker in manual dispatch mode...
-            tracker = GoogleAnalyticsTracker.getInstance();
-            tracker.startNewSession("UA-26457780-1", this);
-            tracker.trackPageView("SqueezerActivity");
+            if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0) {
+                Log.v("SqueezerActivity", "Tracking page view 'SqueezerActivity");
+                // Start the tracker in manual dispatch mode...
+                tracker = GoogleAnalyticsTracker.getInstance();
+                tracker.startNewSession("UA-26457780-1", this);
+                tracker.trackPageView("SqueezerActivity");
+            }
         }
 
         albumText = (TextView) findViewById(R.id.albumname);
