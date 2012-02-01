@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import android.os.Bundle;
@@ -29,8 +30,6 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-
-import uk.org.ngo.squeezer.menu.MenuFragment;
 
 /**
  * <p>

@@ -44,16 +44,24 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 
 	public static void show(Context context, SqueezerPlaylist playlist) {
 	    final Intent intent = new Intent(context, SqueezerPlaylistSongsActivity.class);
-	    intent.putExtra(playlist.getClass().getName(), playlist);
+	    intent.putExtra("playlist", playlist);
 	    context.startActivity(intent);
 	}
 
     private SqueezerPlaylist playlist;
+    private String oldname;
     public SqueezerPlaylist getPlaylist() { return playlist; }
 
-    private String oldname;
-    public String getOldname() { return oldname; }
-    public void setOldname(String oldname) { this.oldname = oldname; }
+    public void playlistRename(String newname) {
+        try {
+            oldname = playlist.getName();
+            getService().playlistsRename(playlist, newname);
+            playlist.setName(newname);
+            getIntent().putExtra("playlist", playlist);
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
+        }
+    }
 
 	@Override
 	public SqueezerItemView<SqueezerSong> createItemView() {
@@ -106,14 +114,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 
 	@Override
 	public void prepareActivity(Bundle extras) {
-		if (extras != null)
-			for (String key : extras.keySet()) {
-				if (SqueezerPlaylist.class.getName().equals(key)) {
-					playlist = extras.getParcelable(key);
-				} else
-					Log.e(getTag(), "Unexpected extra value: " + key + "("
-							+ extras.get(key).getClass().getName() + ")");
-			}
+	    playlist = extras.getParcelable("playlist");
 	}
 
 	@Override
@@ -165,6 +166,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 
 		public void onRenameFailed(String msg) throws RemoteException {
 			playlist.setName(oldname);
+            getIntent().putExtra("playlist", playlist);
 			showServiceMessage(msg);
 		}
 

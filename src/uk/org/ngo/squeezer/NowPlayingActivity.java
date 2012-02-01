@@ -22,6 +22,7 @@ import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -41,11 +42,13 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
 
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
         if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
-            Log.v("NowPlayingActivity", "Tracking page view 'NowPlayingActivity");
-            // Start the tracker in manual dispatch mode...
-            tracker = GoogleAnalyticsTracker.getInstance();
-            tracker.startNewSession("UA-26457780-1", this);
-            tracker.trackPageView("NowPlayingActivity");
+            if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0) {
+                Log.v("NowPlayingActivity", "Tracking page view 'NowPlayingActivity");
+                // Start the tracker in manual dispatch mode...
+                tracker = GoogleAnalyticsTracker.getInstance();
+                tracker.startNewSession("UA-26457780-1", this);
+                tracker.trackPageView("NowPlayingActivity");
+            }
         }
 
         MenuFragment.add(this, SqueezerMenuFragment.class);

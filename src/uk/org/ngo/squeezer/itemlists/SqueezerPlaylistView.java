@@ -16,8 +16,8 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
-import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.NowPlayingActivity;
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsDeleteDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsRenameDialog;
@@ -61,18 +61,13 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 
 	@Override
 	public boolean doItemContext(MenuItem menuItem, int index, SqueezerPlaylist selectedItem) throws RemoteException {
+        activity.setCurrentPlaylist(index, selectedItem);
 		switch (menuItem.getItemId()) {
 		case PLAYLISTS_CONTEXTMENU_DELETE_ITEM:
-			{
-				activity.setCurrentPlaylist(selectedItem);
-				new SqueezerPlaylistsDeleteDialog().show(activity.getSupportFragmentManager(), SqueezerPlaylistsDeleteDialog.class.getName());
-			}
+			new SqueezerPlaylistsDeleteDialog().show(activity.getSupportFragmentManager(), SqueezerPlaylistsDeleteDialog.class.getName());
 			return true;
 		case PLAYLISTS_CONTEXTMENU_RENAME_ITEM:
-			{
-				activity.setCurrentPlaylist(selectedItem);
-				new SqueezerPlaylistsRenameDialog().show(activity.getSupportFragmentManager(), SqueezerPlaylistsRenameDialog.class.getName());
-			}
+			new SqueezerPlaylistsRenameDialog().show(activity.getSupportFragmentManager(), SqueezerPlaylistsRenameDialog.class.getName());
 			return true;
 		case PLAYLISTS_CONTEXTMENU_BROWSE_SONGS:
 			SqueezerPlaylistSongsActivity.show(getActivity(), selectedItem);

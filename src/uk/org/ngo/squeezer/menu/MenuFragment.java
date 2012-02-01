@@ -9,18 +9,20 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 /**
- * A base class to be extended by fragments which would like to participate in populating the action bar,
- * and which are used in an {@link ActionBarActivity}.
+ * A base class to be extended by fragments which would like to participate in
+ * populating the action bar, and which are used in an {@link ActionBarActivity}
+ * .
  * <p>
- * This class takes care of removing action bar items from the options menu.
- * It also contains a few convenience methods to ease using a menu fragment.
+ * This class takes care of removing action bar items from the options menu. It
+ * also contains a few convenience methods to ease using a menu fragment.
  *
  * @author Kurt Aaholst
  */
 public class MenuFragment extends Fragment {
 
     /**
-     * Just a little helper, which calls {@link #setHasOptionsMenu(boolean)} with a true argument.
+     * Just a little helper, which calls {@link #setHasOptionsMenu(boolean)}
+     * with a true argument.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
