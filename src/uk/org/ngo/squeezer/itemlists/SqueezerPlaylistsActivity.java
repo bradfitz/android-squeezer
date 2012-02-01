@@ -26,18 +26,46 @@ import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<SqueezerPlaylist>{
+    private int currentIndex = -1;
 	private SqueezerPlaylist currentPlaylist;
+    private String oldname;
     public SqueezerPlaylist getCurrentPlaylist() { return currentPlaylist; }
-	public void setCurrentPlaylist(SqueezerPlaylist currentPlaylist) { this.currentPlaylist = currentPlaylist; }
 
-	private String oldname;
-    public String getOldname() { return oldname; }
-    public void setOldname(String oldname) { this.oldname = oldname; }
+    /**
+     * Set the playlist to be used as context
+     * @param index
+     * @param playlist
+     */
+    public void setCurrentPlaylist(int index, SqueezerPlaylist playlist) {
+	    this.currentIndex = index;
+	    this.currentPlaylist = playlist;
+	    getIntent().putExtra("currentPlaylist", currentPlaylist);
+	}
+
+    /**
+     * Rename the playlist previously set as context.
+     * @param newname
+     */
+    public void playlistRename(String newname) {
+        try {
+            getService().playlistsRename(getCurrentPlaylist(), newname);
+            if (currentIndex != -1) {
+                oldname = currentPlaylist.getName();
+                getCurrentPlaylist().setName(newname);
+                getItemAdapter().notifyDataSetChanged();
+            } else
+                // We don't know which item to update, so we just reorder
+                orderItems();
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
+        }
+    }
 
 	@Override
 	public SqueezerItemView<SqueezerPlaylist> createItemView() {
@@ -59,6 +87,13 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().playlists(start);
+	}
+
+	@Override
+	public void prepareActivity(android.os.Bundle extras) {
+        if (extras != null) {
+            currentPlaylist = extras.getParcelable("currentPlaylist");
+        }
 	}
 
     @Override
@@ -100,7 +135,8 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
     private final IServicePlaylistMaintenanceCallback playlistMaintenanceCallback = new IServicePlaylistMaintenanceCallback.Stub() {
 
 		public void onRenameFailed(String msg) throws RemoteException {
-			currentPlaylist.setName(oldname);
+		    if (currentIndex != -1)
+		        currentPlaylist.setName(oldname);
 			showServiceMessage(msg);
 		}
 

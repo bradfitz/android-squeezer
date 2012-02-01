@@ -4,9 +4,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.text.InputType;
-import android.util.Log;
 
 public class SqueezerPlaylistRenameDialog extends SqueezerBaseEditTextDialog {
     private SqueezerPlaylistSongsActivity activity;
@@ -25,14 +23,7 @@ public class SqueezerPlaylistRenameDialog extends SqueezerBaseEditTextDialog {
 
     @Override
     protected boolean commit(String newname) {
-        try {
-            activity.setOldname(activity.getPlaylist().getName());
-            activity.getService().playlistsRename(activity.getPlaylist(), newname);
-            activity.getPlaylist().setName(newname);
-            activity.getItemAdapter().notifyDataSetChanged();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
-        }
+        activity.playlistRename(newname);
         return true;
     }
 
