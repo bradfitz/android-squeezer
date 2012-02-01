@@ -815,14 +815,6 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         });
     }
 
-    // XXX: This can be deleted.
-    public static void show(Context context) {
-        final Intent intent = new Intent(context, NowPlayingActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        context.startActivity(intent);
-    }
-
     private final IServiceCallback serviceCallback = new IServiceCallback.Stub() {
         public void onConnectionChanged(final boolean isConnected,
                                         final boolean postConnect)
