@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import uk.org.ngo.squeezer.actionbarcompat.ActionBarHelper;
 import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.framework.HasUiThread;
 import uk.org.ngo.squeezer.framework.SqueezerIconUpdater;
@@ -69,13 +68,11 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         HasUiThread {
     private final String TAG = "NowPlayingFragment";
 
-    private Activity mActivity;
+    private FragmentActivity mActivity;
     private ISqueezeService mService = null;
 
     private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
     private final AtomicBoolean connectInProgress = new AtomicBoolean(false);
-
-    private ActionBarHelper mActionBarHelper;
 
     private TextView albumText;
     private TextView artistText;
@@ -173,8 +170,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mActivity = activity;
-        mActionBarHelper = ActionBarHelper.createInstance(mActivity);
+        mActivity = (FragmentActivity) activity;
     };
 
     @Override
@@ -361,7 +357,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         }
 
         // These are all set at the same time, so one check is sufficient
-        if (connectButton != null && mFullHeightLayout) {
+        if (connectButton != null) {
             connectButton.setVisible(!connected);
             disconnectButton.setVisible(connected);
             playersButton.setEnabled(connected);
@@ -418,21 +414,20 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
     }
 
     private void updateUIForPlayer() {
-        if (mFullHeightLayout) {
-            uiThreadHandler.post(new Runnable() {
-                public void run() {
+        uiThreadHandler.post(new Runnable() {
+            public void run() {
+                if (mFullHeightLayout) {
                     String playerName = getActivePlayerName();
-                    // XXX: Only do this if full screen
                     if (playerName != null && !"".equals(playerName)) {
                         mActivity.setTitle(playerName);
                     } else {
                         mActivity.setTitle(getText(R.string.app_name));
                     }
-                    poweronButton.setVisible(canPowerOn());
-                    poweroffButton.setVisible(canPowerOff());
                 }
-            });
-        }
+                poweronButton.setVisible(canPowerOn());
+                poweroffButton.setVisible(canPowerOff());
+            }
+        });
     }
 
     protected void onServiceConnected() throws RemoteException {
@@ -677,16 +672,20 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
      * android.view.MenuInflater)
      */
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater
-            inflater) {
-        mActionBarHelper.getMenuInflater(inflater).inflate(R.menu.squeezer, menu);
-        connectButton = mActionBarHelper.findItem(R.id.menu_item_connect);
-        disconnectButton = mActionBarHelper.findItem(R.id.menu_item_disconnect);
-        poweronButton = mActionBarHelper.findItem(R.id.menu_item_poweron);
-        poweroffButton = mActionBarHelper.findItem(R.id.menu_item_poweroff);
-        playersButton = mActionBarHelper.findItem(R.id.menu_item_players);
-        playlistButton = mActionBarHelper.findItem(R.id.menu_item_playlist);
-        searchButton = mActionBarHelper.findItem(R.id.menu_item_search);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // I confess that I don't understand why using the inflater passed as
+        // an argument here doesn't work -- but if you do it crashes without
+        // a stracktrace on API 7.
+        MenuInflater i = mActivity.getMenuInflater();
+        i.inflate(R.menu.squeezer, menu);
+
+        connectButton = menu.findItem(R.id.menu_item_connect);
+        disconnectButton = menu.findItem(R.id.menu_item_disconnect);
+        poweronButton = menu.findItem(R.id.menu_item_poweron);
+        poweroffButton = menu.findItem(R.id.menu_item_poweroff);
+        playersButton = menu.findItem(R.id.menu_item_players);
+        playlistButton = menu.findItem(R.id.menu_item_playlist);
+        searchButton = menu.findItem(R.id.menu_item_search);
     }
 
     @Override
@@ -795,7 +794,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
                     Log.v(TAG, "Connection is allready in progress, connecting aborted");
                     return;
                 }
-                connectingDialog = ConnectingDialog.addTo((FragmentActivity) mActivity, ipPort);
+                connectingDialog = ConnectingDialog.addTo(mActivity, ipPort);
                 if (connectingDialog != null) {
                     Log.v(TAG, "startConnect, ipPort: " + ipPort);
                     connectInProgress.set(true);
