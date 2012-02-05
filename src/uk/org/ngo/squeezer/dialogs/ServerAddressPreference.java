@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -120,6 +119,7 @@ public class ServerAddressPreference extends DialogPreference {
         }
     }
 
+
     /**
      * Starts scanning for servers.
      * <p>
@@ -166,8 +166,8 @@ public class ServerAddressPreference extends DialogPreference {
     }
 
     @Override
-    public void onClick(DialogInterface dialog, int which) {
-        super.onClick(dialog, which);
+    protected void onDialogClosed(boolean positiveResult) {
+        super.onDialogClosed(positiveResult);
 
         // Stop scanning
         if (mScanInProgress) {
@@ -175,7 +175,7 @@ public class ServerAddressPreference extends DialogPreference {
             mScanInProgress = false;
         }
 
-        if (which == DialogInterface.BUTTON_POSITIVE) {
+        if (positiveResult) {
             String addr = mServerAddressEditText.getText().toString();
             persistString(addr);
             callChangeListener(addr);
@@ -235,6 +235,8 @@ public class ServerAddressPreference extends DialogPreference {
             int subnet = ip & 0x00ffffff;
             int lastOctet;
             Socket socket;
+
+            // XXX: Adjust this before pushing live...
             for (lastOctet = 99; lastOctet < 105; lastOctet++) {
                 int addressToCheck = (lastOctet << 24) | subnet;
 
