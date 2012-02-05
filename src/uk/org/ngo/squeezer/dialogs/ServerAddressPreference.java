@@ -184,17 +184,12 @@ public class ServerAddressPreference extends DialogPreference {
 
     /**
      * Inserts the selected address in to the edittext widget.
-     * <p>
-     * XXX: Not firing, despite showing multiple items in the menu.
      * 
      * @author nik
      */
     public class MyOnItemSelectedListener implements OnItemSelectedListener {
-
         public void onItemSelected(AdapterView<?> parent,
                 View view, int pos, long id) {
-            Log.v("Spinner", "onItemSelected called");
-            Log.v("Spinner", "Selected: " + parent.getItemAtPosition(pos).toString());
             mServerAddressEditText.setText(parent.getItemAtPosition(pos).toString());
         }
 
