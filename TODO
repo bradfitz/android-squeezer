@@ -12,8 +12,6 @@
 * Wait for Wifi when connection fails & try again.  (auto-kick
   Wifi too...?)
 
-* Auto-connect when Wifi state becomes available.
-
 * screen/sleep lock option? "party remote mode"
 
 * use NIO for parsing input and allocate less big Strings objects in

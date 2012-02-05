@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2012 Google Inc.  All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.org.ngo.squeezer.dialogs;
 
 import java.io.IOException;
@@ -108,7 +124,7 @@ public class ServerAddressPreference extends DialogPreference {
                     if (mScanInProgress == false) {
                         onScanStart();
                     } else {
-
+                        onScanFinish();
                     }
                 }
             });
@@ -127,7 +143,7 @@ public class ServerAddressPreference extends DialogPreference {
      */
     void onScanStart() {
         Log.v("DIALOG", "Start scanning");
-        mScanBtn.setText("Cancel scan"); // TODO: i18n
+        mScanBtn.setText(R.string.settings_server_scan_stop);
 
         mServersSpinner.setVisibility(View.GONE);
 
@@ -147,7 +163,7 @@ public class ServerAddressPreference extends DialogPreference {
      * Adjusts the UI as necessary.
      */
     void onScanFinish() {
-        mScanBtn.setText("Start scan"); // TODO: i18n
+        mScanBtn.setText(R.string.settings_server_scan_start);
         mScanTask.cancel(true);
 
         mScanProgressBar.setVisibility(View.GONE);
@@ -155,13 +171,18 @@ public class ServerAddressPreference extends DialogPreference {
         mServerAddressEditText.setEnabled(true);
         mScanInProgress = false;
 
-        // If we only found one address then populate the edittext widget.
-        // Otherwise, show the spinner so the user can choose a server.
-        if (mDiscoveredServers.size() == 1) {
-            mServerAddressEditText.setText(mDiscoveredServers.get(0));
-        } else {
-            mServersSpinner.setVisibility(View.VISIBLE);
-            mServersSpinner.setAdapter(mAdapter);
+        switch (mDiscoveredServers.size()) {
+            case 0:
+                // Do nothing, no servers found.
+                break;
+            case 1:
+                // Populate the edit text widget with the address found.
+                mServerAddressEditText.setText(mDiscoveredServers.get(0));
+                break;
+            default:
+                // Show the spinner so the user can choose a server.
+                mServersSpinner.setVisibility(View.VISIBLE);
+                mServersSpinner.setAdapter(mAdapter);
         }
     }
 
@@ -200,8 +221,6 @@ public class ServerAddressPreference extends DialogPreference {
 
     /**
      * Scans the local network for servers.
-     * <p>
-     * XXX: Likely not safe on orientation changes.
      * 
      * @author nik
      */
@@ -231,8 +250,7 @@ public class ServerAddressPreference extends DialogPreference {
             int lastOctet;
             Socket socket;
 
-            // XXX: Adjust this before pushing live...
-            for (lastOctet = 99; lastOctet < 105; lastOctet++) {
+            for (lastOctet = 1; lastOctet < 254; lastOctet++) {
                 int addressToCheck = (lastOctet << 24) | subnet;
 
                 if (addressToCheck == ip)
