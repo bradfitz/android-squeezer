@@ -58,6 +58,7 @@ public class ServerAddressPreference extends DialogPreference {
                     .getSystemService(Context.CONNECTIVITY_SERVICE);
 
     private ArrayList<String> mDiscoveredServers = new ArrayList<String>();
+    private ArrayAdapter<String> mAdapter;
 
     private Context mContext;
 
@@ -95,10 +96,9 @@ public class ServerAddressPreference extends DialogPreference {
         mServerAddressEditText.setSelection(serveraddr.length());
 
         // Set up the servers spinner.
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext,
-                android.R.layout.simple_spinner_item, mDiscoveredServers);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mServersSpinner.setAdapter(adapter);
+        mAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item,
+                mDiscoveredServers);
+        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
 
         // Only support network scanning on WiFi.
@@ -130,11 +130,9 @@ public class ServerAddressPreference extends DialogPreference {
         mScanBtn.setText("Cancel scan"); // TODO: i18n
 
         mServersSpinner.setVisibility(View.GONE);
-        mServersSpinner.setEnabled(false);
 
         mScanProgressBar.setProgress(0);
         mScanProgressBar.setVisibility(View.VISIBLE);
-        mScanProgressBar.setEnabled(true);
 
         mServerAddressEditText.setEnabled(false);
 
@@ -152,7 +150,6 @@ public class ServerAddressPreference extends DialogPreference {
         mScanBtn.setText("Start scan"); // TODO: i18n
         mScanTask.cancel(true);
 
-        mScanProgressBar.setEnabled(false);
         mScanProgressBar.setVisibility(View.GONE);
 
         mServerAddressEditText.setEnabled(true);
@@ -163,10 +160,9 @@ public class ServerAddressPreference extends DialogPreference {
         if (mDiscoveredServers.size() == 1) {
             mServerAddressEditText.setText(mDiscoveredServers.get(0));
         } else {
-            mServersSpinner.setEnabled(true);
             mServersSpinner.setVisibility(View.VISIBLE);
+            mServersSpinner.setAdapter(mAdapter);
         }
-
     }
 
     @Override
