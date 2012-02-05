@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation='vertical'
+    android:layout_width='wrap_content'
+    android:layout_height='wrap_content'
+    android:paddingLeft='8dp'
+    android:paddingRight='8dp'>
+
+    <!-- This layout is used by setting the 'dialogLayout' attribute in DialogPreference -->
+
+    <!-- This is filled by the 'dialogMessage' attribute on DialogPreference: -->
+    <TextView android:id="@android:id/message"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/server_address"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_below="@android:id/message" />
+
+    <TextView android:id="@+id/scan_msg"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_below="@id/server_address"
+        android:text="Or press 'Start scan' to scan the network for servers." />
+
+    <Button
+        android:id="@+id/scan_btn"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Start scan"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_below="@id/scan_msg" />
+
+    <ProgressBar
+        android:id="@+id/scan_progress"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:paddingLeft="4dp"
+        android:max="254"
+        android:layout_below="@id/scan_msg"
+        android:layout_toRightOf="@id/scan_btn"
+        android:visibility="gone" />
+
+    <Spinner
+        android:id="@+id/found_servers"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/scan_msg"
+        android:layout_toRightOf="@id/scan_btn"
+        android:prompt="@string/settings_server_prompt"
+        android:visibility="gone" />
+</RelativeLayout>

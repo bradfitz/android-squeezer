@@ -26,7 +26,14 @@
 
    <!-- TODO: Something that only allowed IP:port here would be nice,
         instead of using the normal keyboard. -->
-   <EditTextPreference
+   <uk.org.ngo.squeezer.dialogs.ServerAddressPreference
+     android:key="squeezer.serveraddr"
+     android:title="@string/settings_serveraddr_title"
+     android:summary="@string/settings_serveraddr_summary"
+     android:dialogMessage="The server's name or IP address."
+     android:persistent="true" />
+
+  <EditTextPreference
      android:key="squeezer.serveraddr"
      android:title="@string/settings_serveraddr_title"
      android:summary="@string/settings_serveraddr_summary"
