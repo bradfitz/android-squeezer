@@ -20,6 +20,7 @@ import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerGenreListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
@@ -41,10 +42,10 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
 	private static final int SONGS = 2;
 	private static final int GENRES = 3;
 	private static final int YEARS = 4;
-	private static final int RANDOM_MIX = 5;
-    private static final int MUSIC_FOLDER = -1; /* 6; */
-    private static final int PLAYLISTS = 6;
-    private static final int SEARCH = 7;
+    private static final int MUSIC_FOLDER = 5;
+    private static final int RANDOM_MIX = 6;
+    private static final int PLAYLISTS = 7;
+    private static final int SEARCH = 8;
 
 	private boolean canRandomplay = true;
     private ListView listView;
@@ -68,7 +69,7 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
 		final int[] musicIcons = new int[] { R.drawable.icon_ml_artist,
 				R.drawable.icon_ml_albums, R.drawable.icon_ml_songs,
 				R.drawable.icon_ml_genres, R.drawable.icon_ml_years,
-                R.drawable.icon_ml_random, /* R.drawable.icon_ml_folder, */
+                R.drawable.icon_ml_folder, R.drawable.icon_ml_random,
 				R.drawable.icon_ml_playlist, R.drawable.icon_ml_search };
 		String[] items = musicItems;
 		int[] icons = musicIcons;
@@ -80,6 +81,10 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
 				Log.e(getTag(), "Error requesting randomplay ability: " + e);
 			}
 		}
+
+        // XXX: Needs a test here to confirm that the server supports browsing
+        // by music folder...
+
 		if (!canRandomplay) {
 			items = new String[musicItems.length - 1];
 			icons = new int[musicIcons.length -1];
@@ -117,11 +122,11 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
 			case YEARS:
 				SqueezerYearListActivity.show(SqueezerMusicActivity.this);
 				break;
-			case RANDOM_MIX:
+                case MUSIC_FOLDER:
+                    SqueezerMusicFolderListActivity.show(SqueezerMusicActivity.this);
+                    break;
+                case RANDOM_MIX:
 				SqueezerRandomplayActivity.show(SqueezerMusicActivity.this);
-				break;
-			case MUSIC_FOLDER:
-                /* TODO: Implement browsing the music folder. */
 				break;
 			case PLAYLISTS:
 				SqueezerPlaylistsActivity.show(SqueezerMusicActivity.this);

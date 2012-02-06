@@ -26,22 +26,21 @@ import java.util.Map;
 import java.util.Set;
 
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
+import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
-
 import android.os.RemoteException;
 import android.util.Log;
-
-import uk.org.ngo.squeezer.R;
 
 class SqueezerCLIImpl {
     private static final String TAG = "SqueezerCLI";
@@ -159,6 +158,13 @@ class SqueezerCLIImpl {
 				new GenreListHandler()
 			)
 		);
+		list.add(
+		        new ExtendedQueryFormatCmd(
+                        "musicfolder",
+                        new HashSet<String>(Arrays.asList("folder_id", "url", "tags", "charset")),
+		                new MusicFolderListHandler()
+		                )
+		        );
 		list.add(
 			new ExtendedQueryFormatCmd(
 				"songs",
@@ -630,6 +636,39 @@ class SqueezerCLIImpl {
 			return false;
 		}
 	}
+
+    private class MusicFolderListHandler implements SqueezerListHandler {
+        List<SqueezerMusicFolder> musicFolders;
+
+        public Class<? extends SqueezerItem> getDataType() {
+            return SqueezerMusicFolder.class;
+        }
+
+        public void clear() {
+            musicFolders = new ArrayList<SqueezerMusicFolder>() {
+                private static final long serialVersionUID = 3167368005259913925L;
+            };
+        }
+
+        public void add(Map<String, String> record) {
+            musicFolders.add(new SqueezerMusicFolder(record));
+        }
+
+        public boolean processList(boolean rescan, int count, int start,
+                Map<String, String> parameters) {
+            if (service.musicFolderListCallback.get() != null) {
+                try {
+                    service.musicFolderListCallback.get().onMusicFoldersReceived(count, start,
+                            musicFolders);
+                    return true;
+                } catch (RemoteException e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+
+            return false;
+        }
+    }
 
 	private class SongListHandler implements SqueezerListHandler {
 		List<SqueezerSong> songs;

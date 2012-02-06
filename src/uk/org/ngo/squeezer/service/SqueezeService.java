@@ -33,6 +33,7 @@ import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback;
@@ -43,6 +44,7 @@ import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
+import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
@@ -94,6 +96,7 @@ public class SqueezeService extends Service {
 	final AtomicReference<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallback = new AtomicReference<IServicePlaylistMaintenanceCallback>();
 	final AtomicReference<IServicePluginListCallback> pluginListCallback = new AtomicReference<IServicePluginListCallback>();
 	final AtomicReference<IServicePluginItemListCallback> pluginItemListCallback = new AtomicReference<IServicePluginItemListCallback>();
+    final AtomicReference<IServiceMusicFolderListCallback> musicFolderListCallback = new AtomicReference<IServiceMusicFolderListCallback>();
 
     SqueezerConnectionState connectionState = new SqueezerConnectionState();
     SqueezerPlayerState playerState = new SqueezerPlayerState();
@@ -931,6 +934,26 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerGenre.class);
 		}
 
+        /* Start an async fetch of the SqueezeboxServer's music folders */
+        public boolean musicFolders(int start) throws RemoteException {
+            if (!isConnected())
+                return false;
+            cli.requestItems("musicfolder", start);
+            return true;
+        }
+
+        public void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback)
+                throws RemoteException {
+            Log.v(TAG, "MusicFolderListCallback attached.");
+            SqueezeService.this.musicFolderListCallback.set(callback);
+        }
+
+        public void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback)
+                throws RemoteException {
+            Log.v(TAG, "MusicFolderListCallback detached.");
+            SqueezeService.this.musicFolderListCallback.compareAndSet(callback, null);
+            cli.cancelRequests(SqueezerMusicFolder.class);
+        }
 
 		/* Start an async fetch of the SqueezeboxServer's songs */
 		public boolean songs(int start, String sortOrder, String searchString, SqueezerAlbum album,

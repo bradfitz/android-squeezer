@@ -22,6 +22,7 @@ import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceSongListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
@@ -31,6 +32,7 @@ import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
+import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
 import uk.org.ngo.squeezer.model.SqueezerYear;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
@@ -130,6 +132,11 @@ interface ISqueezeService {
         boolean genres(int start);
 	    void registerGenreListCallback(IServiceGenreListCallback callback);
         void unregisterGenreListCallback(IServiceGenreListCallback callback);
+        
+        // MusicFolder list
+        boolean musicFolders(int start);
+        void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback);
+        void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback);
         
         // Song list
         boolean songs(int start, String sortOrder, String searchString, in SqueezerAlbum album, in SqueezerArtist artist, in SqueezerYear year, in SqueezerGenre genre);

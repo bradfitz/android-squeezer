@@ -329,6 +329,11 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item quantity="other">genres</item>
     </plurals>
 
+    <plurals name="musicfolder">
+        <item quantity="one">music folder</item>
+        <item quantity="other">music folders</item>
+    </plurals>
+
     <plurals name="year">
         <item quantity="one">year</item>
         <item quantity="other">years</item>
@@ -359,7 +364,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item quantity="other">applications</item>
     </plurals>
 
-
     <string-array name="home_items">
         <item>Now playing</item>
         <item>My Music</item>
@@ -374,8 +378,8 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item>Songs</item>
         <item>Genres</item>
         <item>Years</item>
+        <item>Music Folder</item>
         <item>Random mix</item>
-<!--         <item>Music Folder</item> -->
         <item>Playlists</item>
         <item>Search</item>
     </string-array>
