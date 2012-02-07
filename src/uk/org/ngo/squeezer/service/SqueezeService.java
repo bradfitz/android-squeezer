@@ -71,18 +71,26 @@ public class SqueezeService extends Service {
 	private static final String ALBUMTAGS = "alyj";
     private static final String SONGTAGS = "asleyJxK";
 
-	private static final Map<String,String> itemKeys = initializeItemKeys();
+    /**
+     * Map class names to the tags that are used to represent items of this
+     * class in tagged requests/responses to the server.
+     * <p>
+     * TODO: Why isn't this part of the class definition?
+     */
+    private static final Map<String, String> itemKeys = initializeItemKeys();
 
-	private static Map<String, String> initializeItemKeys() {
-		Map<String, String> itemKeys = new HashMap<String, String>();
-		itemKeys.put(SqueezerAlbum.class.getName(), "album_id");
-		itemKeys.put(SqueezerArtist.class.getName(), "artist_id");
-		itemKeys.put(SqueezerYear.class.getName(), "year");
-		itemKeys.put(SqueezerGenre.class.getName(), "genre_id");
-		itemKeys.put(SqueezerSong.class.getName(), "track_id");
-		itemKeys.put(SqueezerPlaylist.class.getName(), "playlist_id");
-		return itemKeys;
-	}
+    private static Map<String, String> initializeItemKeys() {
+        Map<String, String> itemKeys = new HashMap<String, String>();
+        itemKeys.put(SqueezerAlbum.class.getName(), "album_id");
+        itemKeys.put(SqueezerArtist.class.getName(), "artist_id");
+        itemKeys.put(SqueezerMusicFolder.class.getName(), "folder_id");
+        itemKeys.put(SqueezerGenre.class.getName(), "genre_id");
+        itemKeys.put(SqueezerPlaylist.class.getName(), "playlist_id");
+        itemKeys.put(SqueezerSong.class.getName(), "track_id");
+        itemKeys.put(SqueezerYear.class.getName(), "year");
+
+        return itemKeys;
+    }
 
     private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
@@ -709,9 +717,25 @@ public class SqueezeService extends Service {
 
         public boolean playlistControl(String cmd, String className, String itemId) throws RemoteException {
             if (!isConnected()) return false;
+            /**
+             * XXX: This doesn't work properly when browsing music folders.
+             * <p>
+             * The problem is that itemKeys maps SqueezerMusicFolderView to the
+             * string 'folder_id'. That's fine when the thing the view is
+             * displaying is a folder, but it breaks when it's a track or a
+             * playlist.
+             * <p>
+             * Couple of ways to fix this:
+             * <p>
+             * 1. SqueezerMusicFolderView could override the playlist control
+             * helper functions, and add logic to select the correct tag type.
+             * <p>
+             * 2. Add a getTag() or similar method to the model.* classes that
+             * returns the correct tag for the type, and remove itemKeys from
+             * this class entirely.
+             */
             cli.sendPlayerCommand("playlistcontrol cmd:" + cmd + " " +  itemKeys.get(className) +":" + itemId);
             return true;
-
         }
 
         public boolean randomPlay(String type) throws RemoteException {

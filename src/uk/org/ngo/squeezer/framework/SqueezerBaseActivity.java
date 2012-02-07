@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.SqueezeService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -26,9 +28,6 @@ import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
 
 /**
  * Common base class for all activities in the squeezer
