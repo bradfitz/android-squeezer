@@ -934,11 +934,33 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerGenre.class);
 		}
 
-        /* Start an async fetch of the SqueezeboxServer's music folders */
-        public boolean musicFolders(int start) throws RemoteException {
-            if (!isConnected())
+        /**
+         * Starts an async fetch of the contents of a SqueezerboxServer's music
+         * folders in the given folderId.
+         * <p>
+         * folderId may be null, in which case the contents of the root music
+         * folder are returned.
+         * <p>
+         * Results are returned through the callback registered with
+         * {@link registerMusicFolderListCallback}.
+         * 
+         * @param start Where in the list of folders to start.
+         * @param folderId The folder to view.
+         * @return <code>true</code> if the request was sent, <code>false</code>
+         *         if the service is not connected.
+         */
+        public boolean musicFolders(int start, String folderId) throws RemoteException {
+            if (!isConnected()) {
                 return false;
-            cli.requestItems("musicfolder", start);
+            }
+
+            List<String> parameters = new ArrayList<String>();
+
+            if (folderId != null) {
+                parameters.add("folder_id:" + folderId);
+            }
+
+            cli.requestItems("musicfolder", start, parameters);
             return true;
         }
 

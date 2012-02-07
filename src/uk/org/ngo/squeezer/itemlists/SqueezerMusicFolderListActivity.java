@@ -23,13 +23,39 @@ import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.RemoteException;
 
+/**
+ * Display a list of Squeezebox music folders.
+ * <p>
+ * If the <code>extras</code> bundle contains a key that matches
+ * <code>SqueezerMusicFolder.class.getName()</code> the value is assumed to be
+ * an instance of that class, and that folder will be displayed.
+ * <p>
+ * Otherwise the root music folder is shown.
+ * 
+ * @author nik
+ */
 public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<SqueezerMusicFolder> {
+    private static final String TAG = "SqueezerMusicFolderListActivity";
+
+    /** The folder to view. The root folder if null. */
+    SqueezerMusicFolder mFolder;
 
     @Override
     public SqueezerItemView<SqueezerMusicFolder> createItemView() {
         return new SqueezerMusicFolderView(this);
+    }
+
+    /**
+     * Extract the folder to view (if provided).
+     */
+    @Override
+    public void prepareActivity(Bundle extras) {
+        if (extras != null) {
+            mFolder = extras.getParcelable(SqueezerMusicFolder.class.getName());
+        }
     }
 
     @Override
@@ -42,18 +68,42 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
         getService().unregisterMusicFolderListCallback(musicFolderListCallback);
     }
 
+    /**
+     * Fetch the contents of a folder. Fetches the contents of
+     * <code>mFolder</code> if non-null, the root folder otherwise.
+     * 
+     * @param start Where in the list of folders to start fetching.
+     */
     @Override
     protected void orderPage(int start) throws RemoteException {
-        getService().musicFolders(start);
+        if (mFolder == null) {
+            // No specific item, fetch from the beginning.
+            getService().musicFolders(start, null);
+        } else {
+            getService().musicFolders(start, mFolder.getId());
+        }
     }
 
+    /**
+     * Show this activity, showing the contents of the root folder.
+     * 
+     * @param context
+     */
     public static void show(Context context) {
         final Intent intent = new Intent(context, SqueezerMusicFolderListActivity.class);
         context.startActivity(intent);
     }
 
-    public static void show(Context context, SqueezerMusicFolder item) {
-        /** TODO: Start the activity showing a particular folder. */
+    /**
+     * Show this activity, showing the contents of the given folder.
+     * 
+     * @param context
+     * @param folder The folder whose contents will be shown.
+     */
+    public static void show(Context context, SqueezerMusicFolder folder) {
+        final Intent intent = new Intent(context, SqueezerMusicFolderListActivity.class);
+        intent.putExtra(folder.getClass().getName(), folder);
+        context.startActivity(intent);
     }
 
     private final IServiceMusicFolderListCallback musicFolderListCallback = new IServiceMusicFolderListCallback.Stub() {

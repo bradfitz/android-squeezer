@@ -134,7 +134,7 @@ interface ISqueezeService {
         void unregisterGenreListCallback(IServiceGenreListCallback callback);
         
         // MusicFolder list
-        boolean musicFolders(int start);
+        boolean musicFolders(int start, String folderId);
         void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback);
         void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback);
         
