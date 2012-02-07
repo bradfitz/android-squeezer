@@ -24,12 +24,9 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.model.SqueezerSong;
-
 import android.app.Activity;
 import android.view.View;
 import android.widget.TextView;
-
-import uk.org.ngo.squeezer.R;
 
 public class Util {
     private Util() {}
@@ -131,6 +128,17 @@ public class Util {
         }
     }
 
+    /**
+     * Convenience function for a ListView with entries that are plain
+     * TextViews.
+     * <p>
+     * 
+     * @param activity
+     * @param convertView
+     * @param label The text to show in the list item.
+     * @return a view inflated from <code>R.layout.list_item</code>, with the
+     *         contents of <code>label</code> assigned to the TextView.
+     */
     public static View getListItemView(Activity activity, View convertView, String label) {
 		TextView view;
 		view = (TextView)(convertView != null && TextView.class.isAssignableFrom(convertView.getClass())

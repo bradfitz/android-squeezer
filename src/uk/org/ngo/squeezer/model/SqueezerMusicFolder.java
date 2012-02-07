@@ -21,8 +21,21 @@ import java.util.Map;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import android.os.Parcel;
 
+// XXX: Should be renamed to SqueezerMusicFolderItem.
+
+/**
+ * Encapsulate a music folder item on the Squeezerserver.
+ * <p>
+ * An item has a name and a type. The name is free text, the type may be one of
+ * "track", "folder", "playlist", or "unknown".
+ * 
+ * @author nik
+ */
 public class SqueezerMusicFolder extends SqueezerItem {
     private String name;
+
+    /** The folder item's type, "track", "folder", "playlist", "unknown". */
+    private String type;
 
     @Override
     public String getName() {
@@ -34,6 +47,15 @@ public class SqueezerMusicFolder extends SqueezerItem {
         return this;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public SqueezerMusicFolder setType(String type) {
+        this.type = type;
+        return this;
+    }
+
     public SqueezerMusicFolder(String musicFolderId, String musicFolder) {
         setId(musicFolderId);
         setName(musicFolder);
@@ -42,6 +64,7 @@ public class SqueezerMusicFolder extends SqueezerItem {
     public SqueezerMusicFolder(Map<String, String> record) {
         setId(record.get("id"));
         name = record.get("filename");
+        type = record.get("type");
     }
 
     public static final Creator<SqueezerMusicFolder> CREATOR = new Creator<SqueezerMusicFolder>() {
@@ -57,16 +80,17 @@ public class SqueezerMusicFolder extends SqueezerItem {
     private SqueezerMusicFolder(Parcel source) {
         setId(source.readString());
         name = source.readString();
+        type = source.readString();
     }
 
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(name);
+        dest.writeString(type);
     }
 
     @Override
     public String toString() {
-        return "id=" + getId() + ", name=" + name;
+        return "id=" + getId() + ", name=" + name + ", type=" + type;
     }
-
 }

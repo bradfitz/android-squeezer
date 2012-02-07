@@ -22,10 +22,61 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
 import android.os.RemoteException;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+/**
+ * View for one entry in a {@link SqueezerMusicFolderListActivity}.
+ * <p>
+ * Shows an entry with an icon indicating the type of the music folder item, and
+ * the name of the item.
+ * 
+ * @author nik
+ */
 public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicFolder> {
+    // Note: Does not derive from SqueezerIconicItemView because the icons that
+    // this class displays are packaged with the app, not downloaded from the
+    // server.
+
+    private final static String TAG = "SqueezerMusicFolderView";
+    private final LayoutInflater mLayoutInflater;
+
     public SqueezerMusicFolderView(SqueezerItemListActivity activity) {
         super(activity);
+        mLayoutInflater = activity.getLayoutInflater();
+    }
+
+    @Override
+    public View getAdapterView(View convertView, SqueezerMusicFolder item) {
+        ViewHolder viewHolder;
+
+        if (convertView == null || convertView.getTag() == null) {
+            convertView = mLayoutInflater.inflate(R.layout.icon_large_row_layout, null);
+            viewHolder = new ViewHolder();
+            viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+        viewHolder.label.setText(item.getName());
+
+        String type = item.getType();
+        int icon_resource = R.drawable.icon_help;
+
+        if (type.equals("folder"))
+            icon_resource = R.drawable.icon_ml_folder;
+        if (type.equals("track"))
+            icon_resource = R.drawable.icon_ml_songs;
+        if (type.equals("playlist"))
+            icon_resource = R.drawable.icon_ml_playlist;
+
+        viewHolder.icon.setImageResource(icon_resource);
+
+        return convertView;
     }
 
     public void onItemSelected(int index, SqueezerMusicFolder item) throws RemoteException {
@@ -37,5 +88,10 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
 
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.musicfolder, quantity);
+    }
+
+    private static class ViewHolder {
+        TextView label;
+        ImageView icon;
     }
 }
