@@ -20,6 +20,7 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
@@ -88,7 +89,8 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 
         resultsExpandableListView.setOnChildClickListener( new OnChildClickListener() {
 			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-	    		SqueezerItem item = searchResultsAdapter.getChild(groupPosition, childPosition);
+                SqueezerPlaylistItem item = searchResultsAdapter.getChild(groupPosition,
+                        childPosition);
 				if (item != null && item.getId() != null) {
 					try {
 						if (item instanceof SqueezerAlbum) {

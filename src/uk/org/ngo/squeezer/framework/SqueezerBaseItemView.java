@@ -115,15 +115,15 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 			SqueezerArtistListActivity.show(activity, selectedItem);
 			return true;
 		case CONTEXTMENU_PLAY_ITEM:
-			if (activity.play(selectedItem))
+                if (activity.play((SqueezerPlaylistItem) selectedItem))
 				Toast.makeText(activity, activity.getString(R.string.ITEM_PLAYING, selectedItem.getName()), Toast.LENGTH_SHORT).show();
 			return true;
 		case CONTEXTMENU_ADD_ITEM:
-			if (activity.add(selectedItem))
+                if (activity.add((SqueezerPlaylistItem) selectedItem))
 				Toast.makeText(activity, activity.getString(R.string.ITEM_ADDED, selectedItem.getName()), Toast.LENGTH_SHORT).show();
 			return true;
 		case CONTEXTMENU_INSERT_ITEM:
-			if (activity.insert(selectedItem))
+                if (activity.insert((SqueezerPlaylistItem) selectedItem))
 				Toast.makeText(activity, activity.getString(R.string.ITEM_INSERTED, selectedItem.getName()), Toast.LENGTH_SHORT).show();
 			return true;
 		}

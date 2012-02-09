@@ -22,6 +22,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
+import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumView;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistView;
 import uk.org.ngo.squeezer.itemlists.SqueezerGenreView;
@@ -30,7 +31,6 @@ import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
-
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -39,8 +39,6 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import uk.org.ngo.squeezer.R;
 
 public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 	private final int[] groupIcons = { R.drawable.icon_ml_songs, R.drawable.icon_ml_albums, R.drawable.icon_ml_artist, R.drawable.icon_ml_genres};
@@ -102,8 +100,8 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 		childAdapters[groupPosition].doItemContext(menuItem, childPosition);
 	}
 
-	public SqueezerItem getChild(int groupPosition, int childPosition) {
-		return childAdapters[groupPosition].getItem(childPosition);
+    public SqueezerPlaylistItem getChild(int groupPosition, int childPosition) {
+        return (SqueezerPlaylistItem) childAdapters[groupPosition].getItem(childPosition);
 	}
 
 	public long getChildId(int groupPosition, int childPosition) {

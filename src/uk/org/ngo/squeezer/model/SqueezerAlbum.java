@@ -20,11 +20,15 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerArtworkItem;
-
 import android.os.Parcel;
 
 
 public class SqueezerAlbum extends SqueezerArtworkItem {
+
+    @Override
+    public String getPlaylistTag() {
+        return "album_id";
+    }
 
 	private String name;
 	@Override public String getName() { return name; }

@@ -34,7 +34,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 /**
- * <p>
  * A generic base class for an activity to list items of a particular
  * SqueezeServer data type. The data type is defined by the generic type
  * argument, and must be an extension of {@link SqueezerItem}. You must provide
@@ -136,8 +135,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         }
         super.onPause();
     }
-
-
 
 	/**
      * @return The current {@link SqueezerItemView}, creating it if necessary

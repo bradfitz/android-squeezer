@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.model;
 
 import java.util.Map;
 
-import uk.org.ngo.squeezer.framework.SqueezerItem;
+import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
 import android.os.Parcel;
 
 // XXX: Should be renamed to SqueezerMusicFolderItem.
@@ -31,7 +31,25 @@ import android.os.Parcel;
  * 
  * @author nik
  */
-public class SqueezerMusicFolder extends SqueezerItem {
+public class SqueezerMusicFolder extends SqueezerPlaylistItem {
+
+    @Override
+    public String getPlaylistTag() {
+        if (type.equals("track")) {
+            return "track_id";
+        }
+
+        if (type.equals("playlist")) {
+            return "playlist_id";
+        }
+
+        if (type.equals("folder")) {
+            return "folder_id";
+        }
+
+        return "Unknown_type_in_getTag()";
+    }
+
     private String name;
 
     /** The folder item's type, "track", "folder", "playlist", "unknown". */

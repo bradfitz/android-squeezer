@@ -138,23 +138,24 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
 
 	// This section is just an easier way to call squeeze service
 
-	public boolean play(SqueezerItem item) throws RemoteException {
+    public boolean play(SqueezerPlaylistItem item) throws RemoteException {
 		return playlistControl(PlaylistControlCmd.load, item);
 	}
 
-	public boolean add(SqueezerItem item) throws RemoteException {
+    public boolean add(SqueezerPlaylistItem item) throws RemoteException {
 		return playlistControl(PlaylistControlCmd.add, item);
 	}
 
-	public boolean insert(SqueezerItem item) throws RemoteException {
+    public boolean insert(SqueezerPlaylistItem item) throws RemoteException {
 		return playlistControl(PlaylistControlCmd.insert, item);
 	}
 
-    private boolean playlistControl(PlaylistControlCmd cmd, SqueezerItem item) throws RemoteException {
+    private boolean playlistControl(PlaylistControlCmd cmd, SqueezerPlaylistItem item)
+            throws RemoteException {
         if (service == null) {
             return false;
         }
-        service.playlistControl(cmd.name(), item.getClass().getName(), item.getId());
+        service.playlistControl(cmd.name(), item.getPlaylistTag(), item.getId());
         return true;
     }
 

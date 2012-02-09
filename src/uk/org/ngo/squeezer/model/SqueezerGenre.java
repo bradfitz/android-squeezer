@@ -18,12 +18,17 @@ package uk.org.ngo.squeezer.model;
 
 import java.util.Map;
 
-import uk.org.ngo.squeezer.framework.SqueezerItem;
-
+import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
 import android.os.Parcel;
 
 
-public class SqueezerGenre extends SqueezerItem {
+public class SqueezerGenre extends SqueezerPlaylistItem {
+
+    @Override
+    public String getPlaylistTag() {
+        return "genre_id";
+    }
+
 	private String name;
 	@Override public String getName() { return name; }
 	public SqueezerGenre setName(String name) { this.name = name; return this; }
