@@ -47,6 +47,7 @@ class SqueezerConnectionState {
     // Connection state:
 	private final AtomicReference<IServiceCallback> callback = new AtomicReference<IServiceCallback>();
 	private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
 	private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
 	private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
 	private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
@@ -165,6 +166,14 @@ class SqueezerConnectionState {
     void setHttpPort(Integer port) {
     	httpPort.set(port);
 		Log.v(TAG, "HTTP port is now: " + httpPort);
+    }
+
+    void setCanMusicfolder(boolean value) {
+        mCanMusicfolder.set(value);
+    }
+
+    boolean canMusicfolder() {
+        return mCanMusicfolder.get();
     }
 
     void setCanRandomplay(boolean value) {

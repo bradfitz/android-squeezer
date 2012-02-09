@@ -203,6 +203,10 @@ public class SqueezeService extends Service {
 		});
 		handlers.put("can", new SqueezerCmdHandler() {
 			public void handle(List<String> tokens) {
+                if ("musicfolder".equals(tokens.get(1)) && tokens.size() >= 3) {
+                    connectionState.setCanMusicfolder(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
+                }
+
 				if ("randomplay".equals(tokens.get(1)) && tokens.size() >= 3) {
 					connectionState.setCanRandomplay(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
 				}
@@ -486,6 +490,7 @@ public class SqueezeService extends Service {
     void onCliPortConnectionEstablished() {
         cli.sendCommand("listen 1",
                 "players 0 1",   // initiate an async player fetch
+                "can musicfolder ?", // learn music folder browsing support
                 "can randomplay ?",   // learn random play function functionality
                 "pref httpport ?"  // learn the HTTP port (needed for images)
         );
@@ -642,6 +647,16 @@ public class SqueezeService extends Service {
         private boolean canPower() {
             SqueezerPlayer player = connectionState.getActivePlayer();
         	return connectionState.isConnected() && player != null && player.isCanpoweroff();
+        }
+
+        /**
+         * Determines whether the Squeezeserver supports the
+         * <code>musicfolders</code> command.
+         * 
+         * @return <code>true</code> if it does, <code>false</code> otherwise.
+         */
+        public boolean canMusicfolder() {
+            return connectionState.canMusicfolder();
         }
 
         public boolean canRandomplay() {

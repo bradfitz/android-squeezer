@@ -32,7 +32,6 @@ import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
-import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
 import uk.org.ngo.squeezer.model.SqueezerYear;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
@@ -66,6 +65,7 @@ interface ISqueezeService {
   	    boolean canPowerOff();
         boolean powerOn();
         boolean powerOff();
+        boolean canMusicfolder();
         boolean canRandomplay();
         boolean isPlaying();
         boolean togglePausePlay();

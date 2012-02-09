@@ -16,6 +16,9 @@
 
 package uk.org.ngo.squeezer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
@@ -47,7 +50,8 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
     private static final int PLAYLISTS = 7;
     private static final int SEARCH = 8;
 
-	private boolean canRandomplay = true;
+    private boolean mCanMusicfolder = false;
+    private boolean mCanRandomplay = false;
     private ListView listView;
 
     @Override
@@ -65,48 +69,48 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
     }
 
 	private void setMusicMenu() {
-		final String[] musicItems = getResources().getStringArray(R.array.music_items);
+        final String[] musicItems = getResources().getStringArray(R.array.music_items);
 		final int[] musicIcons = new int[] { R.drawable.icon_ml_artist,
 				R.drawable.icon_ml_albums, R.drawable.icon_ml_songs,
 				R.drawable.icon_ml_genres, R.drawable.icon_ml_years,
                 R.drawable.icon_ml_folder, R.drawable.icon_ml_random,
 				R.drawable.icon_ml_playlist, R.drawable.icon_ml_search };
-		String[] items = musicItems;
-		int[] icons = musicIcons;
+
+        if (getService() != null) {
+            try {
+                mCanMusicfolder = getService().canMusicfolder();
+            } catch (RemoteException e) {
+                Log.e(getTag(), "Error requesting musicfolder ability: " + e);
+            }
+        }
 
 		if (getService() != null) {
         	try {
-				canRandomplay = getService().canRandomplay();
+				mCanRandomplay = getService().canRandomplay();
 			} catch (RemoteException e) {
 				Log.e(getTag(), "Error requesting randomplay ability: " + e);
 			}
 		}
 
-        // XXX: Needs a test here to confirm that the server supports browsing
-        // by music folder...
+        List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
+        for (int i = ARTISTS; i <= SEARCH; i++) {
+            if (i == MUSIC_FOLDER && !mCanMusicfolder)
+                continue;
 
-		if (!canRandomplay) {
-			items = new String[musicItems.length - 1];
-			icons = new int[musicIcons.length -1];
-			int j = 0;
-			for (int i = 0; i < musicItems.length; i++) {
-				if (i != RANDOM_MIX) {
-					items[j] = musicItems[i];
-					icons[j] = musicIcons[i];
-					j++;
-				}
-			}
+            if (i == RANDOM_MIX && !mCanRandomplay)
+                continue;
 
-		}
-        listView.setAdapter(new IconRowAdapter(this, items, icons));
+            rows.add(new IconRowAdapter.IconRow(i, musicItems[i], musicIcons[i]));
+        }
+
+        listView.setAdapter(new IconRowAdapter(this, rows));
 		listView.setOnItemClickListener(onMusicItemClick);
 	}
 
 	private final OnItemClickListener onMusicItemClick = new OnItemClickListener() {
 
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			if (!canRandomplay && position >= RANDOM_MIX) position += 1;
-			switch (position) {
+            switch ((int) id) {
 			case ARTISTS:
 				SqueezerArtistListActivity.show(SqueezerMusicActivity.this);
 				break;

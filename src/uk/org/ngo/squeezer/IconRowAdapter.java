@@ -16,6 +16,9 @@
 
 package uk.org.ngo.squeezer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,29 +37,53 @@ public class IconRowAdapter extends BaseAdapter {
 	private final int iconId = R.id.icon;
 	private final int textId = R.id.label;
 
-	private final int[] images;
-	private final String[] items;
+    /** Rows to display in the list. */
+    List<IconRow> mRows = new ArrayList<IconRow>();
 
 	public int getCount() {
-		return items.length;
+        return mRows.size();
 	}
 
 	public int getImage(int position) {
-		return images[position];
+        return mRows.get(position).getIcon();
 	}
 
 	public String getItem(int position) {
-		return items[position];
+        return mRows.get(position).getText();
 	}
 
 	public long getItemId(int position) {
-		return position;
+        return mRows.get(position).getId();
 	}
 
-	public IconRowAdapter(Activity context, String[] items, int[] images) {
-		this.items = items;
+    /**
+     * Creates an IconRowAdapter where the id of each item corresponds to its
+     * index in <code>items</code>.
+     * <p>
+     * <code>items</code> and <code>icons</item> must be the same size.
+     * 
+     * @param context
+     * @param items Item text.
+     * @param images Image resources.
+     */
+    public IconRowAdapter(Activity context, String[] items, int[] icons) {
 		this.activity = context;
-		this.images = images;
+
+        // Convert to a list of IconRow.
+        for (int i = 0; i < items.length; i++) {
+            mRows.add(new IconRow(i, items[i], icons[i]));
+		}
+	}
+
+    /**
+     * Creates an IconRowAdapter from the list of <code>rows</code>.
+     * 
+     * @param context
+     * @param rows Rows to appear in the list.
+     */
+    public IconRowAdapter(Activity context, List<IconRow> rows) {
+        this.activity = context;
+        mRows = rows;
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -64,8 +91,8 @@ public class IconRowAdapter extends BaseAdapter {
 		TextView label = (TextView) row.findViewById(textId);
 		ImageView icon = (ImageView) row.findViewById(iconId);
 
-		label.setText(items[position]);
-		icon.setImageResource(images[position]);
+        label.setText(mRows.get(position).getText());
+        icon.setImageResource(mRows.get(position).getIcon());
 
 		return row;
 	}
@@ -74,4 +101,49 @@ public class IconRowAdapter extends BaseAdapter {
 		return activity;
 	}
 
+    /**
+     * Helper class to represent a row. Each row has an identifier, a string,
+     * and an icon.
+     * <p>
+     * The identifier should be unique across all rows in a given
+     * {@link IconRowAdapter}, and will be used as the <code>id</code> paramter
+     * to the <code>OnItemClickListener</code>.
+     * 
+     * @author nik
+     */
+    public static class IconRow {
+        private long mId;
+        private String mText;
+        private int mIcon;
+
+        IconRow(long id, String text, int icon) {
+            mId = id;
+            mText = text;
+            mIcon = icon;
+        }
+
+        public long getId() {
+            return mId;
+        }
+
+        public void setId(long id) {
+            mId = id;
+        }
+
+        public String getText() {
+            return mText;
+        }
+
+        public void setText(String text) {
+            mText = text;
+        }
+
+        public int getIcon() {
+            return mIcon;
+        }
+
+        public void setIcon(int icon) {
+            mIcon = icon;
+        }
+    }
 }
