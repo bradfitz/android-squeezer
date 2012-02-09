@@ -19,7 +19,7 @@ package uk.org.ngo.squeezer.itemlists;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
-import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
+import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -36,7 +36,7 @@ import android.widget.TextView;
  * 
  * @author nik
  */
-public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicFolder> {
+public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicFolderItem> {
     // Note: Does not derive from SqueezerIconicItemView because the icons that
     // this class displays are packaged with the app, not downloaded from the
     // server.
@@ -50,7 +50,7 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     }
 
     @Override
-    public View getAdapterView(View convertView, SqueezerMusicFolder item) {
+    public View getAdapterView(View convertView, SqueezerMusicFolderItem item) {
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
@@ -80,11 +80,11 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
         return convertView;
     }
 
-    public void onItemSelected(int index, SqueezerMusicFolder item) throws RemoteException {
+    public void onItemSelected(int index, SqueezerMusicFolderItem item) throws RemoteException {
         SqueezerMusicFolderListActivity.show(getActivity(), item);
     };
 
-    public void setupContextMenu(ContextMenu menu, int index, SqueezerMusicFolder item) {
+    public void setupContextMenu(ContextMenu menu, int index, SqueezerMusicFolderItem item) {
         menu.setHeaderTitle(item.getName());
         menu.add(Menu.NONE, CONTEXTMENU_PLAY_ITEM, 3, R.string.CONTEXTMENU_PLAY_ITEM);
         menu.add(Menu.NONE, CONTEXTMENU_ADD_ITEM, 4, R.string.CONTEXTMENU_ADD_ITEM);

@@ -15,8 +15,8 @@
  */
 
 package uk.org.ngo.squeezer.itemlists;
-import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
+import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 
 oneway interface IServiceMusicFolderListCallback {
-  void onMusicFoldersReceived(int count, int start, in List<SqueezerMusicFolder> musicfolders);
+  void onMusicFoldersReceived(int count, int start, in List<SqueezerMusicFolderItem> musicfolders);
 }

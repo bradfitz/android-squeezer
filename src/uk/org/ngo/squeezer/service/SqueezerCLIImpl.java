@@ -32,7 +32,7 @@ import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
-import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
+import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
@@ -638,20 +638,20 @@ class SqueezerCLIImpl {
 	}
 
     private class MusicFolderListHandler implements SqueezerListHandler {
-        List<SqueezerMusicFolder> musicFolders;
+        List<SqueezerMusicFolderItem> musicFolders;
 
         public Class<? extends SqueezerItem> getDataType() {
-            return SqueezerMusicFolder.class;
+            return SqueezerMusicFolderItem.class;
         }
 
         public void clear() {
-            musicFolders = new ArrayList<SqueezerMusicFolder>() {
+            musicFolders = new ArrayList<SqueezerMusicFolderItem>() {
                 private static final long serialVersionUID = 3167368005259913925L;
             };
         }
 
         public void add(Map<String, String> record) {
-            musicFolders.add(new SqueezerMusicFolder(record));
+            musicFolders.add(new SqueezerMusicFolderItem(record));
         }
 
         public boolean processList(boolean rescan, int count, int start,

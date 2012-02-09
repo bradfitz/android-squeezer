@@ -15,4 +15,4 @@
  */
 
 package uk.org.ngo.squeezer.model;
-parcelable SqueezerMusicFolder;
+parcelable SqueezerMusicFolderItem;

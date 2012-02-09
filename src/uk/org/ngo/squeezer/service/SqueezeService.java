@@ -44,7 +44,7 @@ import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
-import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
+import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
@@ -962,7 +962,7 @@ public class SqueezeService extends Service {
                 throws RemoteException {
             Log.v(TAG, "MusicFolderListCallback detached.");
             SqueezeService.this.musicFolderListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(SqueezerMusicFolder.class);
+            cli.cancelRequests(SqueezerMusicFolderItem.class);
         }
 
 		/* Start an async fetch of the SqueezeboxServer's songs */

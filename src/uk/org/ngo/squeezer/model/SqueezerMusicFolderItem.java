@@ -21,8 +21,6 @@ import java.util.Map;
 import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
 import android.os.Parcel;
 
-// XXX: Should be renamed to SqueezerMusicFolderItem.
-
 /**
  * Encapsulate a music folder item on the Squeezerserver.
  * <p>
@@ -31,7 +29,7 @@ import android.os.Parcel;
  * 
  * @author nik
  */
-public class SqueezerMusicFolder extends SqueezerPlaylistItem {
+public class SqueezerMusicFolderItem extends SqueezerPlaylistItem {
 
     @Override
     public String getPlaylistTag() {
@@ -60,7 +58,7 @@ public class SqueezerMusicFolder extends SqueezerPlaylistItem {
         return name;
     }
 
-    public SqueezerMusicFolder setName(String name) {
+    public SqueezerMusicFolderItem setName(String name) {
         this.name = name;
         return this;
     }
@@ -69,33 +67,33 @@ public class SqueezerMusicFolder extends SqueezerPlaylistItem {
         return type;
     }
 
-    public SqueezerMusicFolder setType(String type) {
+    public SqueezerMusicFolderItem setType(String type) {
         this.type = type;
         return this;
     }
 
-    public SqueezerMusicFolder(String musicFolderId, String musicFolder) {
+    public SqueezerMusicFolderItem(String musicFolderId, String musicFolder) {
         setId(musicFolderId);
         setName(musicFolder);
     }
 
-    public SqueezerMusicFolder(Map<String, String> record) {
+    public SqueezerMusicFolderItem(Map<String, String> record) {
         setId(record.get("id"));
         name = record.get("filename");
         type = record.get("type");
     }
 
-    public static final Creator<SqueezerMusicFolder> CREATOR = new Creator<SqueezerMusicFolder>() {
-        public SqueezerMusicFolder[] newArray(int size) {
-            return new SqueezerMusicFolder[size];
+    public static final Creator<SqueezerMusicFolderItem> CREATOR = new Creator<SqueezerMusicFolderItem>() {
+        public SqueezerMusicFolderItem[] newArray(int size) {
+            return new SqueezerMusicFolderItem[size];
         }
 
-        public SqueezerMusicFolder createFromParcel(Parcel source) {
-            return new SqueezerMusicFolder(source);
+        public SqueezerMusicFolderItem createFromParcel(Parcel source) {
+            return new SqueezerMusicFolderItem(source);
         }
     };
 
-    private SqueezerMusicFolder(Parcel source) {
+    private SqueezerMusicFolderItem(Parcel source) {
         setId(source.readString());
         name = source.readString();
         type = source.readString();

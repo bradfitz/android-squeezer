@@ -20,7 +20,7 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
-import uk.org.ngo.squeezer.model.SqueezerMusicFolder;
+import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,14 +37,14 @@ import android.os.RemoteException;
  * 
  * @author nik
  */
-public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<SqueezerMusicFolder> {
+public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<SqueezerMusicFolderItem> {
     private static final String TAG = "SqueezerMusicFolderListActivity";
 
     /** The folder to view. The root folder if null. */
-    SqueezerMusicFolder mFolder;
+    SqueezerMusicFolderItem mFolder;
 
     @Override
-    public SqueezerItemView<SqueezerMusicFolder> createItemView() {
+    public SqueezerItemView<SqueezerMusicFolderItem> createItemView() {
         return new SqueezerMusicFolderView(this);
     }
 
@@ -54,7 +54,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
     @Override
     public void prepareActivity(Bundle extras) {
         if (extras != null) {
-            mFolder = extras.getParcelable(SqueezerMusicFolder.class.getName());
+            mFolder = extras.getParcelable(SqueezerMusicFolderItem.class.getName());
         }
     }
 
@@ -100,14 +100,14 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
      * @param context
      * @param folder The folder whose contents will be shown.
      */
-    public static void show(Context context, SqueezerMusicFolder folder) {
+    public static void show(Context context, SqueezerMusicFolderItem folder) {
         final Intent intent = new Intent(context, SqueezerMusicFolderListActivity.class);
         intent.putExtra(folder.getClass().getName(), folder);
         context.startActivity(intent);
     }
 
     private final IServiceMusicFolderListCallback musicFolderListCallback = new IServiceMusicFolderListCallback.Stub() {
-        public void onMusicFoldersReceived(int count, int start, List<SqueezerMusicFolder> items)
+        public void onMusicFoldersReceived(int count, int start, List<SqueezerMusicFolderItem> items)
                 throws RemoteException {
             onItemsReceived(count, start, items);
         }
