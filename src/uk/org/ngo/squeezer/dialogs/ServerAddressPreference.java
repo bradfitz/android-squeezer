@@ -57,9 +57,6 @@ import android.widget.TextView;
  *
  */
 public class ServerAddressPreference extends DialogPreference {
-    private static final int DEFAULT_PORT = 9090; // XXX: Dup from
-                                                  // SqueezerConnectionState
-
     private EditText mServerAddressEditText;
     private Button mScanBtn;
     private ProgressBar mScanProgressBar;
