@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer;
 
+import uk.org.ngo.squeezer.dialogs.ServerAddressPreference;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import android.content.ComponentName;
@@ -27,7 +28,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
@@ -38,7 +38,7 @@ public class SettingsActivity extends PreferenceActivity implements
 	private final String TAG = "SettingsActivity";
 
     private ISqueezeService serviceStub = null;
-    private EditTextPreference addrPref;
+    private ServerAddressPreference addrPref;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -56,12 +56,7 @@ public class SettingsActivity extends PreferenceActivity implements
         getPreferenceManager().setSharedPreferencesName(Preferences.NAME);
         addPreferencesFromResource(R.xml.preferences);
 
-        // Not yet implemented, so disable.  TODO(bradfitz): implement.
-        // CheckBoxPreference autoDiscoverPref = (CheckBoxPreference)
-        // findPreference(Preferences.KEY_AUTO_DISCOVER);
-        // autoDiscoverPref.setEnabled(false);
-
-        addrPref = (EditTextPreference) findPreference(Preferences.KEY_SERVERADDR);
+        addrPref = (ServerAddressPreference) findPreference(Preferences.KEY_SERVERADDR);
         addrPref.setOnPreferenceChangeListener(this);
 
         SharedPreferences preferences = getPreferenceManager().getSharedPreferences();

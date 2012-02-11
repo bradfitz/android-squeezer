@@ -26,7 +26,7 @@
     <string name="activity_settings_name">Indstillinger</string>
     <string name="settings_serveraddr_title">Server adresse</string>
     <string name="settings_serveraddr_format">I formatet host:port</string>
-    <string name="settings_serveraddr_summary">IP addresse på SqueezeBox Server, f.eks. 10.0.0.5 \nBrug formatet host:port for at angive en ikke standard port.</string>
+    <string name="settings_serveraddr_summary">IP addresse på SqueezeBox Server, f.eks. 10.0.0.5.</string>
     <string name="settings_autoconnect_title">Forbind automatisk</string>
     <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
     <string name="menu_item_disconnect">Afbryd</string>
