@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import android.os.RemoteException;
@@ -27,8 +28,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import uk.org.ngo.squeezer.R;
 
 public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPluginItem> {
 	private final SqueezerPluginItemListActivity activity;
@@ -45,17 +44,18 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
-			convertView = layoutInflater.inflate(R.layout.plugin_item_row_layout, null);
-			viewHolder = new ViewHolder();
+            convertView = layoutInflater.inflate(R.layout.icon_large_row_layout, null);
+
+            viewHolder = new ViewHolder();
 			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-			viewHolder.groupIcon =  (ImageView) convertView.findViewById(R.id.groupicon);
+
 			convertView.setTag(viewHolder);
-		} else
+        } else {
 			viewHolder = (ViewHolder) convertView.getTag();
+        }
 
 		viewHolder.label.setText(item.getName());
-		viewHolder.groupIcon.setVisibility(item.isHasitems() ? View.VISIBLE : View.INVISIBLE);
 		updateIcon(viewHolder.icon, item, item.getImage());
 
 		return convertView;
@@ -64,7 +64,6 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 	private static class ViewHolder {
 		TextView label;
 		ImageView icon;
-		ImageView groupIcon;
 	}
 
 	public String getQuantityString(int quantity) {

@@ -41,7 +41,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
-	private final int[] groupIcons = { R.drawable.icon_ml_songs, R.drawable.icon_ml_albums, R.drawable.icon_ml_artist, R.drawable.icon_ml_genres};
+    private final int[] groupIcons = {
+            R.drawable.ic_songs, R.drawable.ic_albums, R.drawable.ic_artists, R.drawable.ic_genres
+    };
 
 	private SqueezerSearchActivity activity;
 

@@ -33,7 +33,7 @@ import android.widget.TextView;
  * <p>
  * Shows an entry with an icon indicating the type of the music folder item, and
  * the name of the item.
- * 
+ *
  * @author nik
  */
 public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicFolderItem> {
@@ -69,11 +69,11 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
         int icon_resource = R.drawable.icon_help;
 
         if (type.equals("folder"))
-            icon_resource = R.drawable.icon_ml_folder;
+            icon_resource = R.drawable.ic_music_folder;
         if (type.equals("track"))
-            icon_resource = R.drawable.icon_ml_songs;
+            icon_resource = R.drawable.ic_songs;
         if (type.equals("playlist"))
-            icon_resource = R.drawable.icon_ml_playlist;
+            icon_resource = R.drawable.ic_playlists;
 
         viewHolder.icon.setImageResource(icon_resource);
 

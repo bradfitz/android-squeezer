@@ -70,11 +70,11 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
 
 	private void setMusicMenu() {
         final String[] musicItems = getResources().getStringArray(R.array.music_items);
-		final int[] musicIcons = new int[] { R.drawable.icon_ml_artist,
-				R.drawable.icon_ml_albums, R.drawable.icon_ml_songs,
-				R.drawable.icon_ml_genres, R.drawable.icon_ml_years,
-                R.drawable.icon_ml_folder, R.drawable.icon_ml_random,
-				R.drawable.icon_ml_playlist, R.drawable.icon_ml_search };
+        final int[] musicIcons = new int[] {
+                R.drawable.ic_artists, R.drawable.ic_albums, R.drawable.ic_songs,
+                R.drawable.ic_genres, R.drawable.ic_years, R.drawable.ic_music_folder,
+                R.drawable.ic_random, R.drawable.ic_playlists, R.drawable.ic_search
+        };
 
         if (getService() != null) {
             try {

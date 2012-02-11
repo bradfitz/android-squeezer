@@ -48,9 +48,9 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 
     private void setHomeMenu() {
         int[] icons = new int[] {
-                R.drawable.icon_nowplaying,
-                R.drawable.icon_mymusic, R.drawable.icon_internet_radio,
-                R.drawable.icon_my_apps, R.drawable.icon_favorites
+                R.drawable.ic_now_playing, R.drawable.ic_my_music,
+                R.drawable.ic_internet_radio, R.drawable.ic_my_apps,
+                R.drawable.ic_favorites
         };
         listView.setAdapter(new IconRowAdapter(this, getResources().getStringArray(
                 R.array.home_items), icons));
