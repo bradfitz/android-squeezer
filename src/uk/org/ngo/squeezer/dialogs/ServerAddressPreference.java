@@ -52,7 +52,7 @@ import android.widget.TextView;
  * Android (without dismissing the first one), which makes showing a
  * ProgressDialog during the scan difficult.  Hence the gyrations to enable
  * and disable various dialog controls during the scan.
- * 
+ *
  * @author nik
  *
  */
@@ -68,14 +68,14 @@ public class ServerAddressPreference extends DialogPreference {
     private scanNetworkTask mScanTask;
     private boolean mScanInProgress = false;
 
-    private ConnectivityManager mConnectivityManager =
+    private final ConnectivityManager mConnectivityManager =
             (ConnectivityManager) Squeezer.getContext()
                     .getSystemService(Context.CONNECTIVITY_SERVICE);
 
-    private ArrayList<String> mDiscoveredServers = new ArrayList<String>();
+    private final ArrayList<String> mDiscoveredServers = new ArrayList<String>();
     private ArrayAdapter<String> mAdapter;
 
-    private Context mContext;
+    private final Context mContext;
 
     public ServerAddressPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -153,7 +153,7 @@ public class ServerAddressPreference extends DialogPreference {
         mServerAddressEditText.setEnabled(false);
 
         mScanTask = new scanNetworkTask();
-        mScanTask.execute();
+        mScanTask.execute(mContext.getResources().getInteger(R.integer.DefaultPort));
         mScanInProgress = true;
     }
 
@@ -205,7 +205,7 @@ public class ServerAddressPreference extends DialogPreference {
 
     /**
      * Inserts the selected address in to the edittext widget.
-     * 
+     *
      * @author nik
      */
     public class MyOnItemSelectedListener implements OnItemSelectedListener {
@@ -221,10 +221,10 @@ public class ServerAddressPreference extends DialogPreference {
 
     /**
      * Scans the local network for servers.
-     * 
+     *
      * @author nik
      */
-    private class scanNetworkTask extends AsyncTask<Void, Integer, Integer> {
+    private class scanNetworkTask extends AsyncTask<Integer, Integer, Integer> {
         String TAG = "scanNetworkTask";
 
         @Override
@@ -234,8 +234,14 @@ public class ServerAddressPreference extends DialogPreference {
             mDiscoveredServers.clear();
         }
 
-        // Background thread.
-        protected Integer doInBackground(Void... arg0) {
+        /**
+         * Performs a scan of the local network.
+         *
+         * @param ports An array of ports to scan on each host. Only the first
+         *            port is scanned.
+         */
+        @Override
+        protected Integer doInBackground(Integer... ports) {
             WifiManager wm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
             WifiManager.WifiLock wifiLock = wm.createWifiLock(TAG);
 
@@ -250,7 +256,7 @@ public class ServerAddressPreference extends DialogPreference {
             int lastOctet;
             Socket socket;
 
-            for (lastOctet = 1; lastOctet < 254; lastOctet++) {
+            for (lastOctet = 1; lastOctet <= 254; lastOctet++) {
                 int addressToCheck = (lastOctet << 24) | subnet;
 
                 if (addressToCheck == ip)
@@ -269,7 +275,7 @@ public class ServerAddressPreference extends DialogPreference {
                 // socket and note the IP address.
                 socket = new Socket();
                 try {
-                    socket.connect(new InetSocketAddress(addrStr, DEFAULT_PORT),
+                    socket.connect(new InetSocketAddress(addrStr, ports[0]),
                             500 /* ms timeout */);
                 } catch (IOException e) {
                 } // Expected, can be ignored.
