@@ -26,11 +26,16 @@ You can also use Eclipse to export the release project if necessary.
 Eclipse and Ant dump the ProGuard files in to different places.  If the release was
 cut with "ant release" then copy bin/proguard/mapping.txt to proguard/mapping.txt.
 
+* Update the screenshots (if necessary).
+
+Take new screenshots for market/screenshots.
+
 * Commit the changes
 
 AndroidManifest.xml
 NEWS
 proguard/mapping.txt
+market/screenshots/*
 
 * Tag the release.
 

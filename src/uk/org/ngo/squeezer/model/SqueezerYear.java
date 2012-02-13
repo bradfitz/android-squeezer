@@ -18,12 +18,16 @@ package uk.org.ngo.squeezer.model;
 
 import java.util.Map;
 
-import uk.org.ngo.squeezer.framework.SqueezerItem;
-
+import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
 import android.os.Parcel;
 
 
-public class SqueezerYear extends SqueezerItem {
+public class SqueezerYear extends SqueezerPlaylistItem {
+
+    @Override
+    public String getPlaylistTag() {
+        return "year_id";
+    }
 
 	public SqueezerYear(Map<String, String> record) {
 		setId(record.get("year"));
@@ -38,6 +42,7 @@ public class SqueezerYear extends SqueezerItem {
 			return new SqueezerYear(source);
 		}
 	};
+
 	private SqueezerYear(Parcel source) {
 		setId(source.readString());
 	}

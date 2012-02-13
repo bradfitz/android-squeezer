@@ -74,6 +74,7 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 			return true;
 		case PLAYLISTS_CONTEXTMENU_PLAY_ITEM:
 			getActivity().play(selectedItem);
+                NowPlayingActivity.show(getActivity());
 			return true;
 		case PLAYLISTS_CONTEXTMENU_ADD_ITEM:
 			getActivity().add(selectedItem);

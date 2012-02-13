@@ -29,6 +29,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.IServiceCallback;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import android.net.wifi.WifiManager;
 import android.os.RemoteException;
@@ -36,7 +38,6 @@ import android.util.Log;
 
 class SqueezerConnectionState {
     private static final String TAG = "SqueezeConnectionState";
-    private static final int DEFAULT_PORT = 9090;
 
     // Incremented once per new connection and given to the Thread
     // that's listening on the socket.  So if it dies and it's not the
@@ -47,6 +48,7 @@ class SqueezerConnectionState {
     // Connection state:
 	private final AtomicReference<IServiceCallback> callback = new AtomicReference<IServiceCallback>();
 	private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
 	private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
 	private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
 	private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
@@ -156,6 +158,14 @@ class SqueezerConnectionState {
     void setHttpPort(Integer port) {
     	httpPort.set(port);
 		Log.v(TAG, "HTTP port is now: " + port);
+    }
+
+    void setCanMusicfolder(boolean value) {
+        mCanMusicfolder.set(value);
+    }
+
+    boolean canMusicfolder() {
+        return mCanMusicfolder.get();
     }
 
     void setCanRandomplay(boolean value) {
@@ -285,17 +295,17 @@ class SqueezerConnectionState {
 
     private static int parsePort(String hostPort) {
         if (hostPort == null) {
-            return DEFAULT_PORT;
+            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
         }
         int colonPos = hostPort.indexOf(":");
         if (colonPos == -1) {
-            return DEFAULT_PORT;
+            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
         }
         try {
             return Integer.parseInt(hostPort.substring(colonPos + 1));
         } catch (NumberFormatException unused) {
             Log.d(TAG, "Can't parse port out of " + hostPort);
-            return DEFAULT_PORT;
+            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
         }
     }
 

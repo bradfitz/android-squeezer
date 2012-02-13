@@ -111,7 +111,8 @@ public class Util {
         }
     }
 
-    public static View getListItemView(LayoutInflater layoutInflater, int id, View convertView, CharSequence label) {
+    public static View getListItemView(LayoutInflater layoutInflater, int id, View convertView,
+            CharSequence label) {
         TextView view;
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())

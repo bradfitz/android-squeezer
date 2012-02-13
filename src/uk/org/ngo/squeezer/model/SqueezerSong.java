@@ -20,14 +20,17 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerArtworkItem;
-
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.util.Log;
 
-import uk.org.ngo.squeezer.service.ISqueezeService;
-
 public class SqueezerSong extends SqueezerArtworkItem {
+
+    @Override
+    public String getPlaylistTag() {
+        return "track_id";
+    }
 
 	private String name;
 	@Override public String getName() { return name; }

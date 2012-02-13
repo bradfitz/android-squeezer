@@ -33,17 +33,20 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 /**
+ * A generic base class for an activity to list items of a particular
+ * SqueezeServer data type. The data type is defined by the generic type
+ * argument, and must be an extension of {@link SqueezerItem}. You must provide
+ * an {@link SqueezerItemView} to provide the view logic used by this activity.
+ * This is done by implementing
+ * {@link SqueezerItemListActivity#createItemView()}.
  * <p>
- * A generic base class for an activity to list items of a particular SqueezeServer data type. The data type
- * is defined by the generic type argument, and must be an extension of {@link SqueezerItem}.
- * You must provide an {@link SqueezerItemView} to provide the view logic used by this activity. This is done
- * by implementing {@link SqueezerItemListActivity#createItemView()}.
- * <p>
- * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link SqueezerItemListAdapter} is
- * created using the provided {@link SqueezerItemView}. See {@link SqueezerItemListActivity}, too see details
- * of ordering and receiving of list items from SqueezeServer, and handling of item selection.
- *
- * @param <T>	Denotes the class of the items this class should list
+ * When the activity is first created ({@link #onCreate(Bundle)}), an empty
+ * {@link SqueezerItemListAdapter} is created using the provided
+ * {@link SqueezerItemView}. See {@link SqueezerItemListActivity} for see
+ * details of ordering and receiving of list items from SqueezeServer, and
+ * handling of item selection.
+ * 
+ * @param <T> Denotes the class of the items this class should list
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
@@ -133,8 +136,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         }
         super.onPause();
     }
-
-
 
 	/**
      * @return The current {@link SqueezerItemView}, creating it if necessary

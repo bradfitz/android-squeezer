@@ -134,6 +134,9 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
     };
 
     private ConnectingDialog connectingDialog = null;
+    public void clearConnectingDialog() {
+        connectingDialog = null;
+    }
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder binder) {

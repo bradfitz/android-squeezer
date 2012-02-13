@@ -17,10 +17,14 @@
 package uk.org.ngo.squeezer;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerGenreListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
@@ -43,14 +47,15 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private static final int SONGS = 2;
     private static final int GENRES = 3;
     private static final int YEARS = 4;
-    private static final int RANDOM_MIX = 5;
-    private static final int MUSIC_FOLDER = -1; /* 6; */
-    private static final int PLAYLISTS = 6;
-    private static final int INTERNET_RADIO = 7;
-    private static final int APPS = 8;
-    private static final int FAVORITES = 9;
+    private static final int MUSIC_FOLDER = 5;
+    private static final int RANDOM_MIX = 6;
+    private static final int PLAYLISTS = 7;
+    private static final int INTERNET_RADIO = 8;
+    private static final int APPS = 9;
+    private static final int FAVORITES = 10;
 
-    private boolean canRandomplay = true;
+    private boolean mCanMusicfolder = false;
+    private boolean mCanRandomplay = false;
     private ListView listView;
 
     @Override
@@ -67,47 +72,63 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     }
 
 	private void setHomeMenu() {
-        int[] icons = new int[] { R.drawable.icon_ml_artist,
-                R.drawable.icon_ml_albums, R.drawable.icon_ml_songs,
-                R.drawable.icon_ml_genres, R.drawable.icon_ml_years,
-                R.drawable.icon_ml_random, /* R.drawable.icon_ml_folder, */
-                R.drawable.icon_ml_playlist, R.drawable.icon_internet_radio,
-                R.drawable.icon_my_apps, R.drawable.icon_favorites
+        int[] icons = new int[] {
+                R.drawable.ic_artists,
+                R.drawable.ic_albums, R.drawable.ic_songs,
+                R.drawable.ic_genres, R.drawable.ic_years,
+                R.drawable.ic_music_folder, R.drawable.ic_random,
+                R.drawable.ic_playlists, R.drawable.ic_internet_radio,
+                R.drawable.ic_my_apps, R.drawable.ic_favorites
         };
 
         String[] items = getResources().getStringArray(R.array.home_items);;
 
+        /**
+         * XXX: There's a race condition here.
+         * 
+         * If we make these calls before the "can ..." results have reached the
+         * service then the can*() methods return the default false.
+         *
+         * This wasn't a problem when these were in a separate activity, because
+         * by the the time the user had clicked through to SqueezerMusicActivity
+         * the service had had the time to fetch the data.
+         */
         if (getService() != null) {
             try {
-                canRandomplay = getService().canRandomplay();
+                mCanMusicfolder = getService().canMusicfolder();
+            } catch (RemoteException e) {
+                Log.e(getTag(), "Error requesting musicfolder ability: " + e);
+            }
+        }
+
+        if (getService() != null) {
+            try {
+                mCanRandomplay = getService().canRandomplay();
             } catch (RemoteException e) {
                 Log.e(getTag(), "Error requesting randomplay ability: " + e);
             }
         }
-        if (!canRandomplay) {
-            items = new String[items.length - 1];
-            icons = new int[icons.length - 1];
-            int j = 0;
-            for (int i = 0; i < items.length; i++) {
-                if (i != RANDOM_MIX) {
-                    items[j] = items[i];
-                    icons[j] = icons[i];
-                    j++;
-                }
-            }
 
+        List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
+        for (int i = ARTISTS; i <= INTERNET_RADIO; i++) { // APPS & FAVORITES
+                                                          // not implemented
+            if (i == MUSIC_FOLDER && !mCanMusicfolder)
+                continue;
+
+            if (i == RANDOM_MIX && !mCanRandomplay)
+                continue;
+
+            rows.add(new IconRowAdapter.IconRow(i, items[i], icons[i]));
         }
 
-		listView.setAdapter(new IconRowAdapter(this, getResources().getStringArray(R.array.home_items), icons));
+        listView.setAdapter(new IconRowAdapter(this, rows));
 		listView.setOnItemClickListener(onHomeItemClick);
 	}
 
 	private final OnItemClickListener onHomeItemClick = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            if (!canRandomplay && position >= RANDOM_MIX)
-                position += 1;
 
-            switch (position) {
+            switch ((int) id) {
                 case ARTISTS:
                     SqueezerArtistListActivity.show(SqueezerHomeActivity.this);
                     break;
@@ -123,11 +144,11 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                 case YEARS:
                     SqueezerYearListActivity.show(SqueezerHomeActivity.this);
                     break;
+                case MUSIC_FOLDER:
+                    SqueezerMusicFolderListActivity.show(SqueezerHomeActivity.this);
+                    break;
                 case RANDOM_MIX:
                     SqueezerRandomplayActivity.show(SqueezerHomeActivity.this);
-                    break;
-                case MUSIC_FOLDER:
-                    /* TODO: Implement browsing the music folder. */
                     break;
                 case PLAYLISTS:
                     SqueezerPlaylistsActivity.show(SqueezerHomeActivity.this);

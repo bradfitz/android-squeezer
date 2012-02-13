@@ -1,8 +1,26 @@
+0.7
+===
+
+*   Added support for browsing the Squeezeserver's music folder (if the server
+    includes this feature).
+
+*   Added support for scanning the local network to find compatible Squeezeservers,
+    as an alternative to entering IP addresses by hand.
+
+*   Fixed a crash caused by pressing the "back" key while the "Connecting..."
+    dialog was showing.
+
+*   Fixed a crash when renaming or deleting playlists.
+
+*   Fixed a bug where duplicated items might appear on the menu.
+
+
 0.6.2
 =====
 
 *   Fix crashes on orientation change, and assorted Honeycomb crashes after incorrect
     API selection.
+
 
 0.6.1
 =====

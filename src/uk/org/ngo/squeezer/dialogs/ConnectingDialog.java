@@ -1,11 +1,14 @@
 package uk.org.ngo.squeezer.dialogs;
 
+import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
 public class ConnectingDialog extends DialogFragment {
@@ -20,6 +23,16 @@ public class ConnectingDialog extends DialogFragment {
         connectingDialog.setMessage(getString(R.string.connecting_to_text, connectingTo));
         return connectingDialog;
     }
+
+    @Override
+    public void onDismiss(android.content.DialogInterface dialog) {
+        FragmentActivity activity = getActivity();
+        FragmentManager fm = activity.getSupportFragmentManager();
+        Fragment nowPlayingFragment = fm.findFragmentById(R.id.now_playing_fragment);
+
+        if (nowPlayingFragment != null)
+            ((NowPlayingFragment) nowPlayingFragment).clearConnectingDialog();
+    };
 
     public static ConnectingDialog addTo(FragmentActivity activity, String connectingTo) {
         ConnectingDialog dialog = new ConnectingDialog();

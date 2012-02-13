@@ -1,4 +1,3 @@
-
 package uk.org.ngo.squeezer.menu;
 
 import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;

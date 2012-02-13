@@ -18,18 +18,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                  android:key="first_preferencescreen">
 
-<!--   <CheckBoxPreference -->
-<!--      android:key="squeezer.autodiscover" -->
-<!--      android:title="Auto-discover server" -->
-<!--      android:summary="NOTDONE Auto-scan for the squeeze server." -->
-<!--      android:persistent="true" /> -->
-
    <!-- TODO: Something that only allowed IP:port here would be nice,
         instead of using the normal keyboard. -->
-   <EditTextPreference
+   <uk.org.ngo.squeezer.dialogs.ServerAddressPreference
      android:key="squeezer.serveraddr"
      android:title="@string/settings_serveraddr_title"
      android:summary="@string/settings_serveraddr_summary"
+     android:dialogMessage="@string/settings_serveraddr_summary"
      android:persistent="true" />
 
   <CheckBoxPreference

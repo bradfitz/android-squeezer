@@ -22,6 +22,7 @@ import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceSongListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
@@ -64,6 +65,7 @@ interface ISqueezeService {
   	    boolean canPowerOff();
         boolean powerOn();
         boolean powerOff();
+        boolean canMusicfolder();
         boolean canRandomplay();
         boolean isPlaying();
         boolean togglePausePlay();
@@ -132,7 +134,12 @@ interface ISqueezeService {
 	    void registerGenreListCallback(IServiceGenreListCallback callback);
         void unregisterGenreListCallback(IServiceGenreListCallback callback);
         
-        // Song lists
+        // MusicFolder list
+        boolean musicFolders(int start, String folderId);
+        void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback);
+        void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback);
+
+        // Song list
         boolean songs(int start, String sortOrder, String searchString, in SqueezerAlbum album, in SqueezerArtist artist, in SqueezerYear year, in SqueezerGenre genre);
         boolean currentPlaylist(int start);
         boolean playlistSongs(int start, in SqueezerPlaylist playlist);

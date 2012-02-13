@@ -22,7 +22,11 @@ import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import android.widget.ImageView;
 
-
+/**
+ * An item view with associated icon where the image is remote.
+ * 
+ * @param <T>
+ */
 public abstract class SqueezerIconicItemView<T extends SqueezerItem> extends SqueezerBaseItemView<T> {
 	private final SqueezerIconUpdater<T> iconUpdater;
 

@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.framework;
 
 
 
-public abstract class SqueezerArtworkItem extends SqueezerItem {
+public abstract class SqueezerArtworkItem extends SqueezerPlaylistItem {
 
 	private String artwork_track_id;
 	public String getArtwork_track_id() { return artwork_track_id; }

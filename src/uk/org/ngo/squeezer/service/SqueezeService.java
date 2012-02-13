@@ -25,14 +25,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.IServiceCallback;
+import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback;
@@ -43,6 +44,7 @@ import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
+import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
@@ -69,19 +71,6 @@ public class SqueezeService extends Service {
 	private static final String ALBUMTAGS = "alyj";
     private static final String SONGTAGS = "asleyJxK";
 
-	private static final Map<String,String> itemKeys = initializeItemKeys();
-
-	private static Map<String, String> initializeItemKeys() {
-		Map<String, String> itemKeys = new HashMap<String, String>();
-		itemKeys.put(SqueezerAlbum.class.getName(), "album_id");
-		itemKeys.put(SqueezerArtist.class.getName(), "artist_id");
-		itemKeys.put(SqueezerYear.class.getName(), "year");
-		itemKeys.put(SqueezerGenre.class.getName(), "genre_id");
-		itemKeys.put(SqueezerSong.class.getName(), "track_id");
-		itemKeys.put(SqueezerPlaylist.class.getName(), "playlist_id");
-		return itemKeys;
-	}
-
     final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
     final AtomicReference<IServicePlayerListCallback> playerListCallback = new AtomicReference<IServicePlayerListCallback>();
@@ -94,6 +83,7 @@ public class SqueezeService extends Service {
     final AtomicReference<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallback = new AtomicReference<IServicePlaylistMaintenanceCallback>();
 	final AtomicReference<IServicePluginListCallback> pluginListCallback = new AtomicReference<IServicePluginListCallback>();
 	final AtomicReference<IServicePluginItemListCallback> pluginItemListCallback = new AtomicReference<IServicePluginItemListCallback>();
+    final AtomicReference<IServiceMusicFolderListCallback> musicFolderListCallback = new AtomicReference<IServiceMusicFolderListCallback>();
 
     SqueezerConnectionState connectionState = new SqueezerConnectionState();
     SqueezerPlayerState playerState = new SqueezerPlayerState();
@@ -213,6 +203,10 @@ public class SqueezeService extends Service {
 		});
 		handlers.put("can", new SqueezerCmdHandler() {
 			public void handle(List<String> tokens) {
+                if ("musicfolder".equals(tokens.get(1)) && tokens.size() >= 3) {
+                    connectionState.setCanMusicfolder(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
+                }
+
 				if ("randomplay".equals(tokens.get(1)) && tokens.size() >= 3) {
 					connectionState.setCanRandomplay(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
 				}
@@ -503,6 +497,7 @@ public class SqueezeService extends Service {
     void onCliPortConnectionEstablished() {
         cli.sendCommand("listen 1",
                 "players 0 1",   // initiate an async player fetch
+                "can musicfolder ?", // learn music folder browsing support
                 "can randomplay ?",   // learn random play function functionality
                 "pref httpport ?"  // learn the HTTP port (needed for images)
         );
@@ -671,6 +666,16 @@ public class SqueezeService extends Service {
         	return connectionState.isConnected() && player != null && player.isCanpoweroff();
         }
 
+        /**
+         * Determines whether the Squeezeserver supports the
+         * <code>musicfolders</code> command.
+         *
+         * @return <code>true</code> if it does, <code>false</code> otherwise.
+         */
+        public boolean canMusicfolder() {
+            return connectionState.canMusicfolder();
+        }
+
         public boolean canRandomplay() {
         	return connectionState.canRandomplay();
         }
@@ -717,11 +722,12 @@ public class SqueezeService extends Service {
             return true;
         }
 
-        public boolean playlistControl(String cmd, String className, String itemId) throws RemoteException {
+        public boolean playlistControl(String cmd, String tag, String itemId)
+                throws RemoteException {
             if (!isConnected()) return false;
-            cli.sendPlayerCommand("playlistcontrol cmd:" + cmd + " " +  itemKeys.get(className) +":" + itemId);
-            return true;
 
+            cli.sendPlayerCommand("playlistcontrol cmd:" + cmd + " " + tag + ":" + itemId);
+            return true;
         }
 
         public boolean randomPlay(String type) throws RemoteException {
@@ -948,6 +954,48 @@ public class SqueezeService extends Service {
 			cli.cancelRequests(SqueezerGenre.class);
 		}
 
+        /**
+         * Starts an async fetch of the contents of a SqueezerboxServer's music
+         * folders in the given folderId.
+         * <p>
+         * folderId may be null, in which case the contents of the root music
+         * folder are returned.
+         * <p>
+         * Results are returned through the callback registered with
+         * {@link registerMusicFolderListCallback}.
+         *
+         * @param start Where in the list of folders to start.
+         * @param folderId The folder to view.
+         * @return <code>true</code> if the request was sent, <code>false</code>
+         *         if the service is not connected.
+         */
+        public boolean musicFolders(int start, String folderId) throws RemoteException {
+            if (!isConnected()) {
+                return false;
+            }
+
+            List<String> parameters = new ArrayList<String>();
+
+            if (folderId != null) {
+                parameters.add("folder_id:" + folderId);
+            }
+
+            cli.requestItems("musicfolder", start, parameters);
+            return true;
+        }
+
+        public void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback)
+                throws RemoteException {
+            Log.v(TAG, "MusicFolderListCallback attached.");
+            SqueezeService.this.musicFolderListCallback.set(callback);
+        }
+
+        public void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback)
+                throws RemoteException {
+            Log.v(TAG, "MusicFolderListCallback detached.");
+            SqueezeService.this.musicFolderListCallback.compareAndSet(callback, null);
+            cli.cancelRequests(SqueezerMusicFolderItem.class);
+        }
 
 		/* Start an async fetch of the SqueezeboxServer's songs */
 		public boolean songs(int start, String sortOrder, String searchString, SqueezerAlbum album,

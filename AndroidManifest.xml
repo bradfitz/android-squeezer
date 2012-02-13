@@ -52,6 +52,7 @@
         <activity android:name=".itemlists.SqueezerAlbumListActivity" android:label="@string/app_name" />
         <activity android:name=".itemlists.SqueezerYearListActivity" android:label="@string/app_name" />
         <activity android:name=".itemlists.SqueezerGenreListActivity" android:label="@string/app_name" />
+        <activity android:name=".itemlists.SqueezerMusicFolderListActivity" android:label="@string/app_name" />
         <activity android:name=".itemlists.SqueezerSongListActivity" android:label="@string/app_name" />
         <activity android:name=".itemlists.SqueezerCurrentPlaylistActivity" android:label="@string/app_name" />
         <activity android:name=".itemlists.SqueezerPlaylistsActivity" android:label="@string/app_name" />

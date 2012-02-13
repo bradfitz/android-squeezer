@@ -41,6 +41,9 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
         setContentView(R.layout.now_playing);
 
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+
+        // Enable Analytics if the option is on, and we're not running in debug
+        // mode so that debug tests don't pollute the stats.
         if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
             if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0) {
                 Log.v("NowPlayingActivity", "Tracking page view 'NowPlayingActivity");

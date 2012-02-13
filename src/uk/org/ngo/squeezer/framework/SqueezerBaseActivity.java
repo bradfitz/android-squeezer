@@ -146,21 +146,22 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
 
 	// This section is just an easier way to call squeeze service
 
-	public void play(SqueezerItem item) throws RemoteException {
+    public void play(SqueezerPlaylistItem item) throws RemoteException {
 		playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
 	}
 
-	public void add(SqueezerItem item) throws RemoteException {
+    public void add(SqueezerPlaylistItem item) throws RemoteException {
 		playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
 	}
 
-	public void insert(SqueezerItem item) throws RemoteException {
+    public void insert(SqueezerPlaylistItem item) throws RemoteException {
 		playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
 	}
 
-    private void playlistControl(PlaylistControlCmd cmd, SqueezerItem item, int resId) throws RemoteException {
+    private void playlistControl(PlaylistControlCmd cmd, SqueezerPlaylistItem item, int resId)
+            throws RemoteException {
         if (service == null) return;
-        service.playlistControl(cmd.name(), item.getClass().getName(), item.getId());
+        service.playlistControl(cmd.name(), item.getPlaylistTag(), item.getId());
         Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
     }
 

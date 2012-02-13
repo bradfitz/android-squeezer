@@ -19,15 +19,16 @@ package uk.org.ngo.squeezer.framework;
 import android.os.Parcelable;
 
 /**
- * <p>
- * Base class for SqueezeServer data. Specializations must implement all the necessary boilerplate
- * code. This is okay for now, because we only have few data types.
- * </p>
+ * Base class for SqueezeServer data. Specializations must implement all the
+ * necessary boilerplate code. This is okay for now, because we only have few
+ * data types.
+ * 
  * @author Kurt Aaholst
  */
 public abstract class SqueezerItem implements Parcelable {
 
 	private String id;
+
 	public void setId(String id) { this.id = id; }
 	public String getId() { return id; }
 
