@@ -33,6 +33,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import android.net.wifi.WifiManager;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -46,7 +47,10 @@ class SqueezerConnectionState {
     private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
 
     // Connection state:
-	private final AtomicReference<IServiceCallback> callback = new AtomicReference<IServiceCallback>();
+    // XXX: Why is the callback list part of SqueezerConnectionState and not
+    // SqueezerService?
+    private final RemoteCallbackList<IServiceCallback> mServiceCallbacks = new RemoteCallbackList<IServiceCallback>();
+
 	private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
 	private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
@@ -112,27 +116,34 @@ class SqueezerConnectionState {
 
     private void setConnectionState(boolean currentState, boolean postConnect) {
         isConnected.set(currentState);
-        if (callback.get() == null) {
-            return;
+
+        int i = mServiceCallbacks.beginBroadcast();
+        while (i > 0) {
+            i--;
+            try {
+                Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
+                mServiceCallbacks.getBroadcastItem(i)
+                        .onConnectionChanged(currentState, postConnect);
+                Log.d(TAG, "post-call setting callback connection state.");
+
+            } catch (RemoteException e) {
+                // The RemoteCallbackList will take care of removing
+                // the dead object for us.
+            }
         }
-        try {
-            Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
-            callback.get().onConnectionChanged(currentState, postConnect);
-            Log.d(TAG, "post-call setting callback connection state.");
-        } catch (RemoteException e) {
-        }
+        mServiceCallbacks.finishBroadcast();
     }
 
-    IServiceCallback getCallback() {
-    	return callback.get();
+    RemoteCallbackList<IServiceCallback> getCallbacks() {
+        return mServiceCallbacks;
     }
 
     void setCallback(IServiceCallback callback) {
-    	this.callback.set(callback);
+        mServiceCallbacks.register(callback);
     }
 
-    void callbackCompareAndSet(IServiceCallback expect, IServiceCallback update) {
-    	callback.compareAndSet(expect, update);
+    void removeCallback(IServiceCallback callback) {
+        mServiceCallbacks.unregister(callback);
     }
 
     SqueezerPlayer getActivePlayer() {

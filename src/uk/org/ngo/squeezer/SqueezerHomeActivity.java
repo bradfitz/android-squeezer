@@ -42,6 +42,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 public class SqueezerHomeActivity extends SqueezerBaseActivity {
+    private final String TAG = "SqueezerHomeActivity";
+
     private static final int ARTISTS = 0;
     private static final int ALBUMS = 1;
     private static final int SONGS = 2;
@@ -64,14 +66,61 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
         MenuFragment.add(this, SqueezerMenuFragment.class);
-        setHomeMenu();
     }
 
     @Override
     protected void onServiceConnected() throws RemoteException {
+        getService().registerCallback(mCallback);
     }
 
-	private void setHomeMenu() {
+
+    private final IServiceCallback mCallback = new IServiceCallback.Stub() {
+        public void onConnectionChanged(boolean isConnected, boolean postConnect)
+                throws RemoteException {
+            // XXX: The UI needs to change at this point, since none of the
+            // options are valid if we're not connected.
+        }
+
+        /**
+         * Sets the menu after handshaking with the SqueezeServer has completed.
+         * <p>
+         * This is necessary because the service doesn't know whether the server
+         * supports music folder browsing and random play ability until the
+         * handshake completes, and the menu is adjusted depending on whether or
+         * not those abilities exist.
+         */
+        public void onHandshakeCompleted() throws RemoteException {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    createListItems();
+                }
+            });
+        }
+
+        // Nothing to do when these events happen.
+
+        public void onMusicChanged() throws RemoteException {
+        }
+
+        public void onPlayerChanged(String playerId, String playerName) throws RemoteException {
+        }
+
+        public void onPlayStatusChanged(boolean isPlaying) throws RemoteException {
+        }
+
+        public void onTimeInSongChange(int secondsIn, int secondsTotal) throws RemoteException {
+        }
+
+        public void onPowerStatusChanged() throws RemoteException {
+        }
+    };
+
+    /**
+     * Creates the list of items to show in the activity.
+     * <p>
+     * Must be run on the UI thread.
+     */
+    private void createListItems() {
         int[] icons = new int[] {
                 R.drawable.ic_artists,
                 R.drawable.ic_albums, R.drawable.ic_songs,
@@ -83,16 +132,6 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 
         String[] items = getResources().getStringArray(R.array.home_items);;
 
-        /**
-         * XXX: There's a race condition here.
-         * 
-         * If we make these calls before the "can ..." results have reached the
-         * service then the can*() methods return the default false.
-         *
-         * This wasn't a problem when these were in a separate activity, because
-         * by the the time the user had clicked through to SqueezerMusicActivity
-         * the service had had the time to fetch the data.
-         */
         if (getService() != null) {
             try {
                 mCanMusicfolder = getService().canMusicfolder();
@@ -175,6 +214,19 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 			}
 		}
 	};
+
+    @Override
+    public void onPause() {
+        if (getService() != null) {
+            try {
+                getService().unregisterCallback(mCallback);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Service exception in onPause(): " + e);
+            }
+        }
+
+        super.onPause();
+    }
 
 	public static void show(Context context) {
         final Intent intent = new Intent(context, SqueezerHomeActivity.class)

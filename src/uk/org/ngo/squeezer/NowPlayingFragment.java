@@ -861,6 +861,9 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
             updateUIForPlayer();
         }
 
+        public void onHandshakeCompleted() throws RemoteException {
+            // Do nothing.
+        }
     };
 
 }

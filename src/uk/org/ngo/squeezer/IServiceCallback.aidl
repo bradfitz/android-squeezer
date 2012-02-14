@@ -24,6 +24,9 @@ oneway interface IServiceCallback {
 
   // postConnect is only true for the very first callback after a new initial connect.
   void onConnectionChanged(boolean isConnected, boolean postConnect);
+
+  // Handshaking with the server has completed.
+  void onHandshakeCompleted();
   
   void onPlayStatusChanged(boolean isPlaying);
   void onTimeInSongChange(int secondsIn, int secondsTotal);
