@@ -60,7 +60,7 @@
 	    <!-- ProgressBar and Spinner have visibility controlled in code. -->
 	    <ProgressBar
 	        android:id="@+id/scan_progress"
-	        style="@android:style/Widget.ProgressBar.Horizontal"
+	        style="?android:attr/progressBarStyleHorizontal"
 	        android:layout_height="wrap_content"
 	        android:layout_width="fill_parent"
 	        android:layout_gravity="center_vertical"
