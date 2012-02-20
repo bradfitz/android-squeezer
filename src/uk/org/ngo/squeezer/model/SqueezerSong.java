@@ -89,7 +89,25 @@ public class SqueezerSong extends SqueezerArtworkItem {
 		setAlbum_id(record.get("album_id"));
 		setRemote(Util.parseDecimalIntOrZero(record.get("remote")) != 0);
 		setArtwork_url(record.get("artwork_url"));
-		setArtwork_track_id(record.get("artwork_track_id"));
+
+        // Work around a (possible) bug in the squeezeserver.
+        //
+        // I've seen tracks where the "coverart" tag comes back positive (1)
+        // but there's no "artwork_track_id" tag. If that happens, use this
+        // song's ID as the artwork_track_id.
+        String artworkTrackId = record.get("artwork_track_id");
+        if (artworkTrackId != null) {
+            setArtwork_track_id(record.get("artwork_track_id"));
+        } else {
+            // If there's no cover art then the server doesn't respond
+            // "coverart:0" or something useful like that, it just doesn't
+            // include a response.  Hence these shenanigans.
+            String coverArt = record.get("coverart");
+            if (coverArt != null && coverArt.equals("1")) {
+                setArtwork_track_id(getId());
+            }
+        }
+
 	}
 
 	public static final Creator<SqueezerSong> CREATOR = new Creator<SqueezerSong>() {

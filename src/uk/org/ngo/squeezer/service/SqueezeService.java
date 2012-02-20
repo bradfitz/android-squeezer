@@ -69,7 +69,7 @@ public class SqueezeService extends Service {
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
 	private static final String ALBUMTAGS = "alyj";
-    private static final String SONGTAGS = "asleyJxK";
+    private static final String SONGTAGS = "asleyjJxK";
 
     private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
@@ -652,7 +652,7 @@ public class SqueezeService extends Service {
         /**
          * Determines whether the Squeezeserver supports the
          * <code>musicfolders</code> command.
-         * 
+         *
          * @return <code>true</code> if it does, <code>false</code> otherwise.
          */
         public boolean canMusicfolder() {
@@ -946,7 +946,7 @@ public class SqueezeService extends Service {
          * <p>
          * Results are returned through the callback registered with
          * {@link registerMusicFolderListCallback}.
-         * 
+         *
          * @param start Where in the list of folders to start.
          * @param folderId The folder to view.
          * @return <code>true</code> if the request was sent, <code>false</code>
