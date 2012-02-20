@@ -26,6 +26,11 @@
     <string name="activity_settings_name">Indstillinger</string>
     <string name="settings_serveraddr_title">Server adresse</string>
     <string name="settings_serveraddr_summary">IP addresse på SqueezeBox Server, f.eks. 10.0.0.5.</string>
+    <string name="settings_server_prompt">Vælg en server</string>
+    <string name="settings_server_scan_start">Start scanning</string>
+    <string name="settings_server_scan_stop">Afbryd scanning</string>
+    <string name="settings_server_scan_msg">Eller tryk \'Start scanning\' for at scanne netværket for servere.</string>
+    <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke er forbundet.</string>
     <string name="settings_autoconnect_title">Forbind automatisk</string>
     <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
     <string name="menu_item_disconnect">Afbryd</string>
@@ -116,6 +121,11 @@
     <plurals name="genre">
         <item quantity="one">genre</item>
         <item quantity="other">genrer</item>
+    </plurals>
+
+    <plurals name="musicfolder">
+        <item quantity="one">musikmappe</item>
+        <item quantity="other">musikmapper</item>
     </plurals>
 
     <plurals name="year">

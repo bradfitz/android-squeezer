@@ -127,7 +127,7 @@ public class ServerAddressPreference extends DialogPreference {
             });
         } else {
             TextView scan_msg = (TextView) view.findViewById(R.id.scan_msg);
-            scan_msg.setText("Scanning is disabled, because WiFi is not connected.");
+            scan_msg.setText(mContext.getText(R.string.settings_server_scanning_disabled_msg));
             mScanBtn.setEnabled(false);
         }
     }

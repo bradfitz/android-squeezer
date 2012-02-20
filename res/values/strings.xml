@@ -30,6 +30,7 @@
     <string name="settings_server_scan_start">Start scan</string>
     <string name="settings_server_scan_stop">Stop scanning</string>
     <string name="settings_server_scan_msg">Or press \'Start scan\' to scan the network for servers.</string>
+    <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because WiFi is not connected.</string>
     <string name="settings_autoconnect_title">Auto-connect</string>
     <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability, try to connect.</string>
     <string name="menu_item_disconnect">Disconnect</string>
