@@ -51,28 +51,28 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
-	    <Button
-	        android:id="@+id/scan_btn"
-	        android:layout_height="wrap_content"
-	        android:layout_width="wrap_content"
-	        android:text="@string/settings_server_scan_start" />
+        <Button
+            android:id="@+id/scan_btn"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/settings_server_scan_start" />
 
-	    <!-- ProgressBar and Spinner have visibility controlled in code. -->
-	    <ProgressBar
-	        android:id="@+id/scan_progress"
-	        style="?android:attr/progressBarStyleHorizontal"
-	        android:layout_height="wrap_content"
-	        android:layout_width="fill_parent"
-	        android:layout_gravity="center_vertical"
-	        android:paddingLeft="4dp"
-	        android:max="254"
-	        android:visibility="gone" />
+        <!-- ProgressBar and Spinner have visibility controlled in code. -->
+        <ProgressBar
+            android:id="@+id/scan_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="4dp"
+            android:max="254"
+            android:visibility="gone" />
 
-	    <Spinner
-	        android:id="@+id/found_servers"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:prompt="@string/settings_server_prompt"
-	        android:visibility="gone" />
+        <Spinner
+            android:id="@+id/found_servers"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:prompt="@string/settings_server_prompt"
+            android:visibility="gone" />
     </LinearLayout>
 </LinearLayout>
