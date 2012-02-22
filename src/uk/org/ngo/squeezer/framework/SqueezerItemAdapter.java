@@ -184,6 +184,11 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		return position;
 	}
 
+    /**
+     * Generates a string suitable for use as an activity's title.
+     *
+     * @return the title.
+     */
 	public String getHeader() {
 		String item_text = getQuantityString(getCount());
 		String header = getActivity().getString(R.string.browse_items_text, item_text, getCount());

@@ -16,15 +16,14 @@
 
 package uk.org.ngo.squeezer.framework;
 
-
-
 /**
- * <p>
  * Specialization of {@link SqueezerItemAdapter} to be used in
  * {@link SqueezerBaseListActivity}.
- *
- * @param <T>
- *            Denotes the class of the items this class should list
+ * <p>
+ * Only difference is that the activity's title is automatically updated to
+ * reflect the number of items being shown.
+ * 
+ * @param <T> Denotes the class of the items this class should list
  * @author Kurt Aaholst
  */
 public class SqueezerItemListAdapter<T extends SqueezerItem> extends SqueezerItemAdapter<T> {
