@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlists;
 import java.util.List;
 
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
+import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import android.content.Context;
@@ -34,7 +35,7 @@ import android.os.RemoteException;
  * an instance of that class, and that folder will be displayed.
  * <p>
  * Otherwise the root music folder is shown.
- * 
+ *
  * @author nik
  */
 public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<SqueezerMusicFolderItem> {
@@ -49,12 +50,24 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
     }
 
     /**
+     * Deliberately use {@link SqueezerItemAdapter} instead of
+     * {@link SqueezerItemListAdapator} so that the title is not updated out
+     * from under us.
+     */
+    @Override
+    protected SqueezerItemAdapter<SqueezerMusicFolderItem> createItemListAdapter(
+            SqueezerItemView<SqueezerMusicFolderItem> itemView) {
+        return new SqueezerItemAdapter<SqueezerMusicFolderItem>(itemView);
+    };
+
+    /**
      * Extract the folder to view (if provided).
      */
     @Override
     public void prepareActivity(Bundle extras) {
         if (extras != null) {
             mFolder = extras.getParcelable(SqueezerMusicFolderItem.class.getName());
+            setTitle(mFolder.getName());
         }
     }
 
@@ -71,7 +84,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
     /**
      * Fetch the contents of a folder. Fetches the contents of
      * <code>mFolder</code> if non-null, the root folder otherwise.
-     * 
+     *
      * @param start Where in the list of folders to start fetching.
      */
     @Override
@@ -86,7 +99,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
 
     /**
      * Show this activity, showing the contents of the root folder.
-     * 
+     *
      * @param context
      */
     public static void show(Context context) {
@@ -96,7 +109,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
 
     /**
      * Show this activity, showing the contents of the given folder.
-     * 
+     *
      * @param context
      * @param folder The folder whose contents will be shown.
      */
