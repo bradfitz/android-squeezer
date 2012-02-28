@@ -140,8 +140,12 @@ public class SqueezeService extends Service {
     }
 
     void disconnect() {
+        disconnect(false);
+    }
+
+    void disconnect(boolean isIoError) {
+        connectionState.disconnect(!isIoError && mHandshakeComplete == false);
         mHandshakeComplete = false;
-    	connectionState.disconnect();
         clearOngoingNotification();
         playerState.clear();
     }
@@ -198,15 +202,23 @@ public class SqueezeService extends Service {
 					cli.parseSqueezerList(cli.extQueryFormatCmdMap.get("playlists"), tokens);
 			}
 		});
-		handlers.put("pref", new SqueezerCmdHandler() {
-			public void handle(List<String> tokens) {
-				if ("httpport".equals(tokens.get(1)) && tokens.size() >= 3) {
-					connectionState.setHttpPort(Integer.parseInt(tokens.get(2)));
-				}
-			}
-		});
+        handlers.put("login", new SqueezerCmdHandler() {
+            public void handle(List<String> tokens) {
+                Log.i(TAG, "Authenticated: " + tokens);
+                onAuthenticated();
+            }
+        });
+        handlers.put("pref", new SqueezerCmdHandler() {
+            public void handle(List<String> tokens) {
+                Log.i(TAG, "Preference received: " + tokens);
+                if ("httpport".equals(tokens.get(1)) && tokens.size() >= 3) {
+                    connectionState.setHttpPort(Integer.parseInt(tokens.get(2)));
+                }
+            }
+        });
 		handlers.put("can", new SqueezerCmdHandler() {
 			public void handle(List<String> tokens) {
+                Log.i(TAG, "Capability received: " + tokens);
                 if ("musicfolder".equals(tokens.get(1)) && tokens.size() >= 3) {
                     connectionState.setCanMusicfolder(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
                 }
@@ -224,6 +236,7 @@ public class SqueezeService extends Service {
              * callbacks that have been registered.
              */
             public void handle(List<String> tokens) {
+                Log.i(TAG, "Version received: " + tokens);
                 mHandshakeComplete = true;
 
                 RemoteCallbackList<IServiceCallback> callbacks = connectionState.getCallbacks();
@@ -539,10 +552,31 @@ public class SqueezeService extends Service {
     }
 
     /**
+     * Authenticate on the SqueezeServer.
+     * <p><b>Note</b>, the server does
+     * <pre>
+     * login user wrongpassword
+     * login user ******
+     * (Connection terminted)
+     * </pre>
+     * instead of as documented
+     * <pre>
+     * login user wrongpassword
+     * login user ******
+     * (Connection terminted)
+     * </pre>
+     * therefore a disconnect when handshake (the next step after authentication)
+     * is not completed, is considered an authentication failure.
+     */
+    void onCliPortConnectionEstablished() {
+        cli.sendCommand("login test test");
+    }
+
+    /**
      * Handshake with the SqueezeServer, learn some of its supported features,
      * and start listening for asynchronous updates of server state.
      */
-    void onCliPortConnectionEstablished() {
+    void onAuthenticated() {
         cli.sendCommand("listen 1",
                 "players 0 1",   // initiate an async player fetch
                 "can musicfolder ?", // learn music folder browsing support

@@ -339,7 +339,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
     }
 
     // Should only be called the UI thread.
-    private void setConnected(boolean connected, boolean postConnect) {
+    private void setConnected(boolean connected, boolean postConnect, boolean loginFailure) {
         Log.v(TAG, "setConnected(" + connected + ", " + postConnect + ")");
         if (postConnect) {
             connectInProgress.set(false);
@@ -357,6 +357,11 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
                         Toast.LENGTH_LONG)
                         .show();
             }
+        }
+        if (loginFailure) {
+            Toast.makeText(mActivity, getText(R.string.login_failed_text),
+                    Toast.LENGTH_LONG)
+                    .show();
         }
 
         // These are all set at the same time, so one check is sufficient
@@ -397,6 +402,10 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         }
         updatePlayPauseIcon();
         updateUIForPlayer();
+    }
+    
+    private void setConnected() {
+        setConnected(isConnected(), false, false);
     }
 
     private void updatePlayPauseIcon() {
@@ -485,7 +494,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         // the initial display, as changing the prev/next buttons to empty
         // doesn't seem to work in onCreate. (LayoutInflator still running?)
         Log.d(TAG, "updateUIFromServiceState");
-        setConnected(isConnected(), false);
+        setConnected();
     }
 
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
@@ -820,12 +829,13 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
 
     private final IServiceCallback serviceCallback = new IServiceCallback.Stub() {
         public void onConnectionChanged(final boolean isConnected,
-                                        final boolean postConnect)
+                                        final boolean postConnect,
+                                        final boolean loginFailed)
                        throws RemoteException {
             Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
             uiThreadHandler.post(new Runnable() {
                 public void run() {
-                    setConnected(isConnected, postConnect);
+                    setConnected(isConnected, postConnect, loginFailed);
                 }
             });
         }

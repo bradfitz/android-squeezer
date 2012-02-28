@@ -75,7 +75,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 
 
     private final IServiceCallback mCallback = new IServiceCallback.Stub() {
-        public void onConnectionChanged(boolean isConnected, boolean postConnect)
+        public void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailure)
                 throws RemoteException {
             // XXX: The UI needs to change at this point, since none of the
             // options are valid if we're not connected.
