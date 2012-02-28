@@ -16,32 +16,13 @@
  limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-   android:layout_width="fill_parent"
-   android:layout_height="wrap_content"
-   android:orientation="horizontal"
-   android:paddingLeft="36dp"
-   android:paddingRight="9dp"
-   android:paddingTop="7dp"
-   android:paddingBottom="7dp"
->
-   <ImageView
-      android:id="@+id/icon"
-      android:layout_width="35dp"
-      android:layout_height="28dp"
-      android:maxWidth="35dp"
-      android:minWidth="35dp"
-      android:maxHeight="28dp"
-      android:minHeight="28dp"
-      android:paddingLeft="7dp"
-   />
-   <TextView
-      android:id="@+id/label"
-      android:paddingLeft="7dp"
-      android:paddingRight="7dp"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:textAppearance="?android:attr/textAppearanceMedium"
-   />
-</LinearLayout>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/label"
+    android:textAppearance="?android:attr/textAppearanceMedium"
+    android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:drawablePadding="8dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+/>

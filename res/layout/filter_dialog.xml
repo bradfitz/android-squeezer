@@ -17,114 +17,140 @@
 -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout android:id="@+id/filterview"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="4dp"
+        android:paddingTop="4dp">
+
+        <LinearLayout android:id="@+id/track_view"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/track_label"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+
+            <EditText android:id="@+id/track"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:focusable="false"
+                android:inputType="none"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/artist_view"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/artist_label"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+
+            <EditText android:id="@+id/artist"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:focusable="false"
+                android:inputType="none"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/album_view"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/album_label"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+
+            <EditText android:id="@+id/album"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:focusable="false"
+                android:inputType="none"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+        </LinearLayout>
+
+        <TextView
+            android:text="@string/filter_label"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp" />
+
+        <EditText android:id="@+id/search_string"
+            android:hint="@string/filter_text_hint"
+            android:inputType="textNoSuggestions"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp" />
+
+        <LinearLayout android:id="@+id/genre_view"
+            android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
-  <LinearLayout android:id="@+id/filterview"
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
 
-    <LinearLayout android:orientation="vertical"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
-                  android:id="@+id/track_view"
-                  android:visibility="gone">
-      <TextView android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/track_label"/>
-      <EditText android:id="@+id/track"
+            <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:enabled="false"
-                android:focusable="false"
-                android:inputType="none"
-      />
-      <View android:layout_height="2dp" android:layout_width="fill_parent"
-            android:background="#FF909090" />
+                android:text="@string/genre_label"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+
+            <Spinner android:id="@+id/genre_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/genre_prompt"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/year_view"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/year_label"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+
+            <Spinner android:id="@+id/year_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/year_prompt"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout android:orientation="vertical"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
-                  android:id="@+id/artist_view"
-                  android:visibility="gone">
-      <TextView android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/artist_label"/>
-      <EditText android:id="@+id/artist"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:enabled="false"
-                android:focusable="false"
-                android:inputType="none"
-      />
-      <View android:layout_height="2dp" android:layout_width="fill_parent"
-            android:background="#FF909090" />
-    </LinearLayout>
-
-    <LinearLayout android:orientation="vertical"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
-                  android:id="@+id/album_view"
-                  android:visibility="gone">
-      <TextView android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/album_label"/>
-      <EditText android:id="@+id/album"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:enabled="false"
-                android:focusable="false"
-                android:inputType="none" />
-      <View android:layout_height="2dp" android:layout_width="fill_parent"
-            android:background="#FF909090" />
-    </LinearLayout>
-
-      <TextView android:text="@string/filter_label"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"/>
-      <EditText android:id="@+id/search_string"
-                android:hint="@string/filter_text_hint"
-                android:inputType="textNoSuggestions"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-      />
-
-    <View android:layout_height="2dp" android:layout_width="fill_parent"
-          android:background="#FF909090" />
-
-    <LinearLayout android:orientation="vertical"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
-                  android:id="@+id/genre_view">
-      <TextView android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/genre_label"/>
-      <Spinner android:id="@+id/genre_spinner"
-               android:layout_width="fill_parent"
-               android:layout_height="wrap_content"
-               android:prompt="@string/genre_prompt"
-               android:layout_weight="1"
-      />
-      </LinearLayout>
-
-    <View android:layout_height="2dp" android:layout_width="fill_parent"
-          android:background="#FF909090" />
-
-    <LinearLayout android:orientation="vertical"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
-                  android:id="@+id/year_view">
-      <TextView android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/year_label"/>
-      <Spinner android:id="@+id/year_spinner"
-               android:layout_width="fill_parent"
-               android:layout_height="wrap_content"
-               android:prompt="@string/year_prompt"
-               android:layout_weight="1"
-      />
-    </LinearLayout>
-  </LinearLayout>
 </ScrollView>

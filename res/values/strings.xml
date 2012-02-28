@@ -30,8 +30,9 @@
     <string name="settings_server_scan_start">Start scan</string>
     <string name="settings_server_scan_stop">Stop scanning</string>
     <string name="settings_server_scan_msg">Or press \'Start scan\' to scan the network for servers.</string>
+    <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because WiFi is not connected.</string>
     <string name="settings_autoconnect_title">Auto-connect</string>
-    <string name="settings_autoconnect_summary">Offer to enable WiFi, and on Wifi availability, try to connect.</string>
+    <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability, try to connect.</string>
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
     <string name="menu_item_poweron">Power on</string>
@@ -50,10 +51,10 @@
     <string name="about_title">About Squeezer v%s</string>
     <string name="connecting_text">Connecting</string>
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
-    <string name="connection_failed_text">Connection failed.  Check settings.</string>
+    <string name="connection_failed_text">Connection failed. Check settings.</string>
     <string name="disconnected_text">Disconnected.</string>
-    <string name="wifi_disabled_text">Wifi is disabled</string>
-    <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. Please wait for an active Wi-Fi connection. \nTurn on Wifi now?</string>
+    <string name="wifi_disabled_text">Wi-Fi is disabled</string>
+    <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. Please wait for an active Wi-Fi connection. \nTurn on Wi-Fi now?</string>
     <string name="notification_playing_text">%s playing</string>
     <string name="notification_connected_text">%s connected</string>
     <string name="filter_text_hint">Search for %s</string>

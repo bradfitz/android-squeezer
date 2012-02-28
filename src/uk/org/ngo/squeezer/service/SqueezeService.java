@@ -70,7 +70,7 @@ public class SqueezeService extends Service {
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
 	private static final String ALBUMTAGS = "alyj";
-    private static final String SONGTAGS = "asleyJxK";
+    private static final String SONGTAGS = "asleyjJxK";
 
     final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 

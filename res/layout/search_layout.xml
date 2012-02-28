@@ -38,7 +38,7 @@
 		 	android:id="@+id/search_input"
 		 	android:hint="@+string/search_hint_text"
 		 	android:inputType="textNoSuggestions"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1" />
 		<ImageButton 

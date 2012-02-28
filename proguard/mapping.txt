@@ -2833,14 +2833,20 @@ uk.org.ngo.squeezer.IconRowAdapter -> uk.org.ngo.squeezer.IconRowAdapter:
     int rowLayout -> b
     int iconId -> c
     int textId -> d
-    int[] images -> e
-    java.lang.String[] items -> f
-    41:41:int getCount() -> getCount
-    49:49:java.lang.String getItem(int) -> getItem
-    53:53:long getItemId(int) -> getItemId
-    63:70:android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
-    74:74:android.app.Activity getActivity() -> getActivity
-    31:31:java.lang.Object getItem(int) -> getItem
+    java.util.List mRows -> e
+    44:44:int getCount() -> getCount
+    52:52:java.lang.String getItem(int) -> getItem
+    56:56:long getItemId(int) -> getItemId
+    90:97:android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
+    101:101:android.app.Activity getActivity() -> getActivity
+    34:34:java.lang.Object getItem(int) -> getItem
+uk.org.ngo.squeezer.IconRowAdapter$IconRow -> uk.org.ngo.squeezer.IconRowAdapter$IconRow:
+    long mId -> a
+    java.lang.String mText -> b
+    int mIcon -> c
+    126:126:long getId() -> getId
+    134:134:java.lang.String getText() -> getText
+    142:142:int getIcon() -> getIcon
 uk.org.ngo.squeezer.IntEditTextPreference -> uk.org.ngo.squeezer.IntEditTextPreference:
     39:39:java.lang.String getPersistedString(java.lang.String) -> getPersistedString
     44:44:boolean persistString(java.lang.String) -> persistString
@@ -2869,14 +2875,14 @@ uk.org.ngo.squeezer.RepeatingImageButton$RepeatListener -> uk.org.ngo.squeezer.R
 uk.org.ngo.squeezer.SettingsActivity -> uk.org.ngo.squeezer.SettingsActivity:
     java.lang.String TAG -> a
     uk.org.ngo.squeezer.service.ISqueezeService serviceStub -> b
-    android.preference.EditTextPreference addrPref -> c
+    uk.org.ngo.squeezer.dialogs.ServerAddressPreference addrPref -> c
     android.content.ServiceConnection serviceConnection -> d
-    54:85:void onCreate(android.os.Bundle) -> onCreate
-    89:93:void onResume() -> onResume
-    97:99:void onPause() -> onPause
-    102:107:void updateAddressSummary(java.lang.String) -> updateAddressSummary
-    110:119:boolean onPreferenceChange(android.preference.Preference,java.lang.Object) -> onPreferenceChange
-    123:125:void show(android.content.Context) -> show
+    54:80:void onCreate(android.os.Bundle) -> onCreate
+    84:88:void onResume() -> onResume
+    92:94:void onPause() -> onPause
+    97:102:void updateAddressSummary(java.lang.String) -> updateAddressSummary
+    105:114:boolean onPreferenceChange(android.preference.Preference,java.lang.Object) -> onPreferenceChange
+    118:120:void show(android.content.Context) -> show
     36:36:uk.org.ngo.squeezer.service.ISqueezeService access$002(uk.org.ngo.squeezer.SettingsActivity,uk.org.ngo.squeezer.service.ISqueezeService) -> access$002
     36:36:uk.org.ngo.squeezer.service.ISqueezeService access$000(uk.org.ngo.squeezer.SettingsActivity) -> access$000
 uk.org.ngo.squeezer.SettingsActivity$1 -> uk.org.ngo.squeezer.SettingsActivity$1:
@@ -2885,9 +2891,10 @@ uk.org.ngo.squeezer.SettingsActivity$1 -> uk.org.ngo.squeezer.SettingsActivity$1
     48:49:void onServiceDisconnected(android.content.ComponentName) -> onServiceDisconnected
 uk.org.ngo.squeezer.SettingsActivity$2 -> uk.org.ngo.squeezer.SettingsActivity$2:
     uk.org.ngo.squeezer.SettingsActivity this$0 -> a
-    71:77:void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
+    66:72:void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
 uk.org.ngo.squeezer.Squeezer -> uk.org.ngo.squeezer.Squeezer:
     uk.org.ngo.squeezer.Squeezer instance -> a
+    33:33:android.content.Context getContext() -> getContext
     38:40:void onCreate() -> onCreate
 uk.org.ngo.squeezer.SqueezerActivity -> uk.org.ngo.squeezer.SqueezerActivity:
     java.util.concurrent.atomic.AtomicBoolean isConnected -> a
@@ -2915,178 +2922,177 @@ uk.org.ngo.squeezer.SqueezerActivity -> uk.org.ngo.squeezer.SqueezerActivity:
     android.os.Handler uiThreadHandler -> w
     com.google.android.apps.analytics.GoogleAnalyticsTracker tracker -> x
     uk.org.ngo.squeezer.IServiceCallback serviceCallback -> y
-    127:127:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
-    132:275:void onCreate(android.os.Bundle) -> onCreate
-    279:317:void setConnected(boolean,boolean) -> setConnected
-    320:331:void updatePlayPauseIcon() -> updatePlayPauseIcon
-    335:344:void setTitleForPlayer(java.lang.String) -> setTitleForPlayer
-    348:360:void onServiceConnected() -> onServiceConnected
-    364:380:void onResume() -> onResume
-    387:405:void updateUIFromServiceState() -> updateUIFromServiceState
-    408:416:void updateTimeDisplayTo(int,int) -> updateTimeDisplayTo
-    420:424:void updateSongInfoFromService() -> updateSongInfoFromService
-    427:436:void updateSongInfo(uk.org.ngo.squeezer.model.SqueezerSong) -> updateSongInfo
-    440:442:void updateAlbumArtIfNeeded(uk.org.ngo.squeezer.model.SqueezerSong) -> updateAlbumArtIfNeeded
-    445:453:int getSecondsElapsed() -> getSecondsElapsed
-    457:465:int getSecondsTotal() -> getSecondsTotal
-    469:477:boolean setSecondsElapsed(int) -> setSecondsElapsed
-    481:489:uk.org.ngo.squeezer.model.SqueezerSong getCurrentSong() -> getCurrentSong
-    494:502:boolean isConnected() -> isConnected
-    506:514:boolean canPowerOn() -> canPowerOn
-    518:526:boolean canPowerOff() -> canPowerOff
-    531:542:void onPause() -> onPause
-    546:547:boolean onSearchRequested() -> onSearchRequested
-    552:553:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
-    558:579:boolean onPrepareOptionsMenu(android.view.Menu) -> onPrepareOptionsMenu
-    584:622:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
-    627:632:java.lang.String getConfiguredCliIpPort() -> getConfiguredCliIpPort
-    637:638:boolean isAutoConnect() -> isAutoConnect
-    643:653:void onUserInitiatesConnect() -> onUserInitiatesConnect
-    656:689:void startVisibleConnection() -> startVisibleConnection
-    692:696:void show(android.content.Context) -> show
-    700:707:void onDestroy() -> onDestroy
-    61:61:java.lang.String access$000(uk.org.ngo.squeezer.SqueezerActivity) -> access$000
-    61:61:boolean access$100(uk.org.ngo.squeezer.SqueezerActivity) -> access$100
-    61:61:java.lang.String access$200(uk.org.ngo.squeezer.SqueezerActivity) -> access$200
-    61:61:void access$300(uk.org.ngo.squeezer.SqueezerActivity) -> access$300
-    61:61:int access$400(uk.org.ngo.squeezer.SqueezerActivity) -> access$400
-    61:61:int access$500(uk.org.ngo.squeezer.SqueezerActivity) -> access$500
-    61:61:void access$600(uk.org.ngo.squeezer.SqueezerActivity,int,int) -> access$600
-    61:61:java.util.concurrent.atomic.AtomicBoolean access$700(uk.org.ngo.squeezer.SqueezerActivity) -> access$700
-    61:61:java.lang.String access$800(uk.org.ngo.squeezer.SqueezerActivity) -> access$800
-    61:61:void access$900(uk.org.ngo.squeezer.SqueezerActivity) -> access$900
-    61:61:java.lang.String access$1000(uk.org.ngo.squeezer.SqueezerActivity) -> access$1000
-    61:61:uk.org.ngo.squeezer.model.SqueezerSong access$1100(uk.org.ngo.squeezer.SqueezerActivity) -> access$1100
-    61:61:android.widget.TextView access$1200(uk.org.ngo.squeezer.SqueezerActivity) -> access$1200
-    61:61:boolean access$1302(uk.org.ngo.squeezer.SqueezerActivity,boolean) -> access$1302
-    61:61:boolean access$1400(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$1400
-    61:61:android.widget.ImageButton access$1500(uk.org.ngo.squeezer.SqueezerActivity) -> access$1500
-    61:61:java.util.concurrent.atomic.AtomicBoolean access$1600(uk.org.ngo.squeezer.SqueezerActivity) -> access$1600
-    61:61:void access$1700(uk.org.ngo.squeezer.SqueezerActivity) -> access$1700
-    61:61:java.lang.String access$1800(uk.org.ngo.squeezer.SqueezerActivity) -> access$1800
-    61:61:boolean access$1900(uk.org.ngo.squeezer.SqueezerActivity) -> access$1900
-    61:61:java.util.concurrent.atomic.AtomicBoolean access$2000(uk.org.ngo.squeezer.SqueezerActivity) -> access$2000
-    61:61:java.lang.String access$2100(uk.org.ngo.squeezer.SqueezerActivity) -> access$2100
-    61:61:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$2202(uk.org.ngo.squeezer.SqueezerActivity,uk.org.ngo.squeezer.dialogs.ConnectingDialog) -> access$2202
-    61:61:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$2200(uk.org.ngo.squeezer.SqueezerActivity) -> access$2200
-    61:61:java.lang.String access$2300(uk.org.ngo.squeezer.SqueezerActivity) -> access$2300
-    61:61:java.lang.String access$2400(uk.org.ngo.squeezer.SqueezerActivity) -> access$2400
-    61:61:java.lang.String access$2500(uk.org.ngo.squeezer.SqueezerActivity) -> access$2500
-    61:61:void access$2600(uk.org.ngo.squeezer.SqueezerActivity,boolean,boolean) -> access$2600
-    61:61:android.os.Handler access$2700(uk.org.ngo.squeezer.SqueezerActivity) -> access$2700
-    61:61:java.lang.String access$2800(uk.org.ngo.squeezer.SqueezerActivity) -> access$2800
-    61:61:void access$2900(uk.org.ngo.squeezer.SqueezerActivity,java.lang.String) -> access$2900
-    61:61:void access$3000(uk.org.ngo.squeezer.SqueezerActivity) -> access$3000
-    61:61:void access$3100(uk.org.ngo.squeezer.SqueezerActivity) -> access$3100
-    61:61:int access$402(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$402
-    61:61:int access$502(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$502
+    104:104:void clearConnectingDialog() -> clearConnectingDialog
+    129:129:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
+    134:282:void onCreate(android.os.Bundle) -> onCreate
+    286:324:void setConnected(boolean,boolean) -> setConnected
+    327:338:void updatePlayPauseIcon() -> updatePlayPauseIcon
+    342:351:void setTitleForPlayer(java.lang.String) -> setTitleForPlayer
+    355:367:void onServiceConnected() -> onServiceConnected
+    371:387:void onResume() -> onResume
+    394:412:void updateUIFromServiceState() -> updateUIFromServiceState
+    415:423:void updateTimeDisplayTo(int,int) -> updateTimeDisplayTo
+    427:431:void updateSongInfoFromService() -> updateSongInfoFromService
+    434:443:void updateSongInfo(uk.org.ngo.squeezer.model.SqueezerSong) -> updateSongInfo
+    447:449:void updateAlbumArtIfNeeded(uk.org.ngo.squeezer.model.SqueezerSong) -> updateAlbumArtIfNeeded
+    452:460:int getSecondsElapsed() -> getSecondsElapsed
+    464:472:int getSecondsTotal() -> getSecondsTotal
+    476:484:boolean setSecondsElapsed(int) -> setSecondsElapsed
+    488:496:uk.org.ngo.squeezer.model.SqueezerSong getCurrentSong() -> getCurrentSong
+    501:509:boolean isConnected() -> isConnected
+    513:521:boolean canPowerOn() -> canPowerOn
+    525:533:boolean canPowerOff() -> canPowerOff
+    538:549:void onPause() -> onPause
+    553:554:boolean onSearchRequested() -> onSearchRequested
+    559:560:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    565:586:boolean onPrepareOptionsMenu(android.view.Menu) -> onPrepareOptionsMenu
+    591:629:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
+    634:639:java.lang.String getConfiguredCliIpPort() -> getConfiguredCliIpPort
+    644:645:boolean isAutoConnect() -> isAutoConnect
+    650:660:void onUserInitiatesConnect() -> onUserInitiatesConnect
+    663:696:void startVisibleConnection() -> startVisibleConnection
+    699:703:void show(android.content.Context) -> show
+    707:714:void onDestroy() -> onDestroy
+    62:62:java.lang.String access$000(uk.org.ngo.squeezer.SqueezerActivity) -> access$000
+    62:62:boolean access$100(uk.org.ngo.squeezer.SqueezerActivity) -> access$100
+    62:62:java.lang.String access$200(uk.org.ngo.squeezer.SqueezerActivity) -> access$200
+    62:62:void access$300(uk.org.ngo.squeezer.SqueezerActivity) -> access$300
+    62:62:int access$400(uk.org.ngo.squeezer.SqueezerActivity) -> access$400
+    62:62:int access$500(uk.org.ngo.squeezer.SqueezerActivity) -> access$500
+    62:62:void access$600(uk.org.ngo.squeezer.SqueezerActivity,int,int) -> access$600
+    62:62:java.util.concurrent.atomic.AtomicBoolean access$700(uk.org.ngo.squeezer.SqueezerActivity) -> access$700
+    62:62:java.lang.String access$800(uk.org.ngo.squeezer.SqueezerActivity) -> access$800
+    62:62:void access$900(uk.org.ngo.squeezer.SqueezerActivity) -> access$900
+    62:62:java.lang.String access$1000(uk.org.ngo.squeezer.SqueezerActivity) -> access$1000
+    62:62:uk.org.ngo.squeezer.model.SqueezerSong access$1100(uk.org.ngo.squeezer.SqueezerActivity) -> access$1100
+    62:62:android.widget.TextView access$1200(uk.org.ngo.squeezer.SqueezerActivity) -> access$1200
+    62:62:boolean access$1302(uk.org.ngo.squeezer.SqueezerActivity,boolean) -> access$1302
+    62:62:boolean access$1400(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$1400
+    62:62:android.widget.ImageButton access$1500(uk.org.ngo.squeezer.SqueezerActivity) -> access$1500
+    62:62:java.util.concurrent.atomic.AtomicBoolean access$1600(uk.org.ngo.squeezer.SqueezerActivity) -> access$1600
+    62:62:void access$1700(uk.org.ngo.squeezer.SqueezerActivity) -> access$1700
+    62:62:java.lang.String access$1800(uk.org.ngo.squeezer.SqueezerActivity) -> access$1800
+    62:62:boolean access$1900(uk.org.ngo.squeezer.SqueezerActivity) -> access$1900
+    62:62:java.util.concurrent.atomic.AtomicBoolean access$2000(uk.org.ngo.squeezer.SqueezerActivity) -> access$2000
+    62:62:java.lang.String access$2100(uk.org.ngo.squeezer.SqueezerActivity) -> access$2100
+    62:62:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$2202(uk.org.ngo.squeezer.SqueezerActivity,uk.org.ngo.squeezer.dialogs.ConnectingDialog) -> access$2202
+    62:62:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$2200(uk.org.ngo.squeezer.SqueezerActivity) -> access$2200
+    62:62:java.lang.String access$2300(uk.org.ngo.squeezer.SqueezerActivity) -> access$2300
+    62:62:java.lang.String access$2400(uk.org.ngo.squeezer.SqueezerActivity) -> access$2400
+    62:62:java.lang.String access$2500(uk.org.ngo.squeezer.SqueezerActivity) -> access$2500
+    62:62:void access$2600(uk.org.ngo.squeezer.SqueezerActivity,boolean,boolean) -> access$2600
+    62:62:android.os.Handler access$2700(uk.org.ngo.squeezer.SqueezerActivity) -> access$2700
+    62:62:java.lang.String access$2800(uk.org.ngo.squeezer.SqueezerActivity) -> access$2800
+    62:62:void access$2900(uk.org.ngo.squeezer.SqueezerActivity,java.lang.String) -> access$2900
+    62:62:void access$3000(uk.org.ngo.squeezer.SqueezerActivity) -> access$3000
+    62:62:void access$3100(uk.org.ngo.squeezer.SqueezerActivity) -> access$3100
+    62:62:int access$402(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$402
+    62:62:int access$502(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$502
 uk.org.ngo.squeezer.SqueezerActivity$1 -> uk.org.ngo.squeezer.SqueezerActivity$1:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    87:98:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+    88:99:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 uk.org.ngo.squeezer.SqueezerActivity$10 -> uk.org.ngo.squeezer.SqueezerActivity$10:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    235:240:void onClick(android.view.View) -> onClick
+    242:247:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$11 -> uk.org.ngo.squeezer.SqueezerActivity$11:
     uk.org.ngo.squeezer.model.SqueezerSong seekingSong -> a
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> b
-    248:251:void onProgressChanged(android.widget.SeekBar,int,boolean) -> onProgressChanged
-    255:257:void onStartTrackingTouch(android.widget.SeekBar) -> onStartTrackingTouch
-    263:270:void onStopTrackingTouch(android.widget.SeekBar) -> onStopTrackingTouch
+    255:258:void onProgressChanged(android.widget.SeekBar,int,boolean) -> onProgressChanged
+    262:264:void onStartTrackingTouch(android.widget.SeekBar) -> onStartTrackingTouch
+    270:277:void onStopTrackingTouch(android.widget.SeekBar) -> onStopTrackingTouch
 uk.org.ngo.squeezer.SqueezerActivity$12 -> uk.org.ngo.squeezer.SqueezerActivity$12:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    322:329:void run() -> run
+    329:336:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$13 -> uk.org.ngo.squeezer.SqueezerActivity$13:
     java.lang.String val$playerName -> a
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> b
-    337:342:void run() -> run
+    344:349:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$14 -> uk.org.ngo.squeezer.SqueezerActivity$14:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    352:353:void run() -> run
+    359:360:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$15 -> uk.org.ngo.squeezer.SqueezerActivity$15:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    659:687:void run() -> run
+    666:694:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$16 -> uk.org.ngo.squeezer.SqueezerActivity$16:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    713:719:void onConnectionChanged(boolean,boolean) -> onConnectionChanged
-    723:725:void onPlayerChanged(java.lang.String,java.lang.String) -> onPlayerChanged
-    728:733:void onMusicChanged() -> onMusicChanged
-    737:739:void onPlayStatusChanged(boolean) -> onPlayStatusChanged
-    743:746:void onTimeInSongChange(int,int) -> onTimeInSongChange
+    720:726:void onConnectionChanged(boolean,boolean) -> onConnectionChanged
+    730:732:void onPlayerChanged(java.lang.String,java.lang.String) -> onPlayerChanged
+    735:740:void onMusicChanged() -> onMusicChanged
+    744:746:void onPlayStatusChanged(boolean) -> onPlayStatusChanged
+    750:753:void onTimeInSongChange(int,int) -> onTimeInSongChange
 uk.org.ngo.squeezer.SqueezerActivity$16$1 -> uk.org.ngo.squeezer.SqueezerActivity$16$1:
     boolean val$isConnected -> a
     boolean val$postConnect -> b
     uk.org.ngo.squeezer.SqueezerActivity$16 this$1 -> c
-    716:717:void run() -> run
+    723:724:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$16$2 -> uk.org.ngo.squeezer.SqueezerActivity$16$2:
     uk.org.ngo.squeezer.SqueezerActivity$16 this$1 -> a
-    730:731:void run() -> run
+    737:738:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$2 -> uk.org.ngo.squeezer.SqueezerActivity$2:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    117:120:void handleMessage(android.os.Message) -> handleMessage
+    119:122:void handleMessage(android.os.Message) -> handleMessage
 uk.org.ngo.squeezer.SqueezerActivity$3 -> uk.org.ngo.squeezer.SqueezerActivity$3:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    165:167:void onClick(android.view.View) -> onClick
+    172:174:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$4 -> uk.org.ngo.squeezer.SqueezerActivity$4:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    172:174:void onClick(android.view.View) -> onClick
+    179:181:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$5 -> uk.org.ngo.squeezer.SqueezerActivity$5:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    179:192:void onClick(android.view.View) -> onClick
+    186:199:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$6 -> uk.org.ngo.squeezer.SqueezerActivity$6:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    197:201:void onClick(android.view.View) -> onClick
+    204:208:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$7 -> uk.org.ngo.squeezer.SqueezerActivity$7:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    206:210:void onClick(android.view.View) -> onClick
+    213:217:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$8 -> uk.org.ngo.squeezer.SqueezerActivity$8:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    215:220:void onClick(android.view.View) -> onClick
+    222:227:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$9 -> uk.org.ngo.squeezer.SqueezerActivity$9:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    225:230:void onClick(android.view.View) -> onClick
+    232:237:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerHomeActivity -> uk.org.ngo.squeezer.SqueezerHomeActivity:
     android.widget.ListView listView -> a
     android.widget.AdapterView$OnItemClickListener onHomeItemClick -> b
-    37:42:void onCreate(android.os.Bundle) -> onCreate
-    46:46:void onServiceConnected() -> onServiceConnected
-    49:57:void setHomeMenu() -> setHomeMenu
-    95:99:void show(android.content.Context) -> show
+    38:43:void onCreate(android.os.Bundle) -> onCreate
+    47:47:void onServiceConnected() -> onServiceConnected
+    50:58:void setHomeMenu() -> setHomeMenu
+    96:100:void show(android.content.Context) -> show
 uk.org.ngo.squeezer.SqueezerHomeActivity$1 -> uk.org.ngo.squeezer.SqueezerHomeActivity$1:
     uk.org.ngo.squeezer.SqueezerHomeActivity this$0 -> a
-    67:80:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+    68:81:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
 uk.org.ngo.squeezer.SqueezerMusicActivity -> uk.org.ngo.squeezer.SqueezerMusicActivity:
-    java.lang.String TAG -> a
-    boolean canRandomplay -> b
+    boolean mCanMusicfolder -> a
+    boolean mCanRandomplay -> b
     android.widget.ListView listView -> c
     android.widget.AdapterView$OnItemClickListener onMusicItemClick -> d
-    54:59:void onCreate(android.os.Bundle) -> onCreate
-    63:64:void onServiceConnected() -> onServiceConnected
-    67:98:void setMusicMenu() -> setMusicMenu
-    137:139:void show(android.content.Context) -> show
-    37:37:boolean access$000(uk.org.ngo.squeezer.SqueezerMusicActivity) -> access$000
+    59:64:void onCreate(android.os.Bundle) -> onCreate
+    68:69:void onServiceConnected() -> onServiceConnected
+    72:108:void setMusicMenu() -> setMusicMenu
+    146:148:void show(android.content.Context) -> show
 uk.org.ngo.squeezer.SqueezerMusicActivity$1 -> uk.org.ngo.squeezer.SqueezerMusicActivity$1:
     uk.org.ngo.squeezer.SqueezerMusicActivity this$0 -> a
-    103:133:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+    113:142:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
 uk.org.ngo.squeezer.SqueezerRandomplayActivity -> uk.org.ngo.squeezer.SqueezerRandomplayActivity:
-    java.lang.String TAG -> a
-    android.widget.ListView listView -> b
-    android.widget.AdapterView$OnItemClickListener onRandomplayItemClick -> c
-    41:46:void onCreate(android.os.Bundle) -> onCreate
-    50:50:void onServiceConnected() -> onServiceConnected
-    54:60:void setRandomplayMenu() -> setRandomplayMenu
-    79:81:void show(android.content.Context) -> show
-    34:34:java.lang.String access$000(uk.org.ngo.squeezer.SqueezerRandomplayActivity) -> access$000
+    android.widget.ListView listView -> a
+    android.widget.AdapterView$OnItemClickListener onRandomplayItemClick -> b
+    40:45:void onCreate(android.os.Bundle) -> onCreate
+    49:49:void onServiceConnected() -> onServiceConnected
+    53:59:void setRandomplayMenu() -> setRandomplayMenu
+    78:80:void show(android.content.Context) -> show
+    35:35:java.lang.String access$000(uk.org.ngo.squeezer.SqueezerRandomplayActivity) -> access$000
 uk.org.ngo.squeezer.SqueezerRandomplayActivity$1 -> uk.org.ngo.squeezer.SqueezerRandomplayActivity$1:
     uk.org.ngo.squeezer.SqueezerRandomplayActivity this$0 -> a
-    64:73:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+    63:72:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
 uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType -> uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType:
     uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType tracks -> a
     uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType albums -> b
     uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType contributors -> c
     uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType year -> d
     uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType[] $VALUES -> e
-    83:83:uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType[] values() -> values
-    83:83:uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType valueOf(java.lang.String) -> valueOf
+    82:82:uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType[] values() -> values
+    82:82:uk.org.ngo.squeezer.SqueezerRandomplayActivity$RandomPlayType valueOf(java.lang.String) -> valueOf
 uk.org.ngo.squeezer.SqueezerSearchActivity -> uk.org.ngo.squeezer.SqueezerSearchActivity:
     android.widget.TextView loadingLabel -> a
     android.widget.ExpandableListView resultsExpandableListView -> b
@@ -3096,55 +3102,55 @@ uk.org.ngo.squeezer.SqueezerSearchActivity -> uk.org.ngo.squeezer.SqueezerSearch
     uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback albumsCallback -> f
     uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback genresCallback -> g
     uk.org.ngo.squeezer.itemlists.IServiceSongListCallback songsCallback -> h
-    60:121:void onCreate(android.os.Bundle) -> onCreate
-    125:129:void registerCallback() -> registerCallback
-    133:137:void unregisterCallback() -> unregisterCallback
-    141:155:boolean onContextItemSelected(android.view.MenuItem) -> onContextItemSelected
-    160:162:void onServiceConnected() -> onServiceConnected
-    166:174:void onPause() -> onPause
-    177:180:void show(android.content.Context) -> show
-    186:190:void orderPage(int) -> orderPage
-    193:200:void doSearch(java.lang.String) -> doSearch
-    203:204:void doSearch() -> doSearch
-    207:214:void onItemsReceived(int,int,java.util.List) -> onItemsReceived
-    52:52:void access$000(uk.org.ngo.squeezer.SqueezerSearchActivity,java.lang.String) -> access$000
-    52:52:uk.org.ngo.squeezer.SqueezerSearchAdapter access$100(uk.org.ngo.squeezer.SqueezerSearchActivity) -> access$100
-    52:52:java.lang.String access$200(uk.org.ngo.squeezer.SqueezerSearchActivity) -> access$200
-    52:52:android.widget.TextView access$300(uk.org.ngo.squeezer.SqueezerSearchActivity) -> access$300
-    52:52:android.widget.ExpandableListView access$400(uk.org.ngo.squeezer.SqueezerSearchActivity) -> access$400
-    52:52:void access$500(uk.org.ngo.squeezer.SqueezerSearchActivity,int,int,java.util.List) -> access$500
+    61:123:void onCreate(android.os.Bundle) -> onCreate
+    127:131:void registerCallback() -> registerCallback
+    135:139:void unregisterCallback() -> unregisterCallback
+    143:157:boolean onContextItemSelected(android.view.MenuItem) -> onContextItemSelected
+    162:164:void onServiceConnected() -> onServiceConnected
+    168:176:void onPause() -> onPause
+    179:182:void show(android.content.Context) -> show
+    188:192:void orderPage(int) -> orderPage
+    195:202:void doSearch(java.lang.String) -> doSearch
+    205:206:void doSearch() -> doSearch
+    209:216:void onItemsReceived(int,int,java.util.List) -> onItemsReceived
+    53:53:void access$000(uk.org.ngo.squeezer.SqueezerSearchActivity,java.lang.String) -> access$000
+    53:53:uk.org.ngo.squeezer.SqueezerSearchAdapter access$100(uk.org.ngo.squeezer.SqueezerSearchActivity) -> access$100
+    53:53:java.lang.String access$200(uk.org.ngo.squeezer.SqueezerSearchActivity) -> access$200
+    53:53:android.widget.TextView access$300(uk.org.ngo.squeezer.SqueezerSearchActivity) -> access$300
+    53:53:android.widget.ExpandableListView access$400(uk.org.ngo.squeezer.SqueezerSearchActivity) -> access$400
+    53:53:void access$500(uk.org.ngo.squeezer.SqueezerSearchActivity,int,int,java.util.List) -> access$500
 uk.org.ngo.squeezer.SqueezerSearchActivity$1 -> uk.org.ngo.squeezer.SqueezerSearchActivity$1:
     android.widget.EditText val$searchCriteriaText -> a
     uk.org.ngo.squeezer.SqueezerSearchActivity this$0 -> b
-    73:77:boolean onKey(android.view.View,int,android.view.KeyEvent) -> onKey
+    74:78:boolean onKey(android.view.View,int,android.view.KeyEvent) -> onKey
 uk.org.ngo.squeezer.SqueezerSearchActivity$2 -> uk.org.ngo.squeezer.SqueezerSearchActivity$2:
     android.widget.EditText val$searchCriteriaText -> a
     uk.org.ngo.squeezer.SqueezerSearchActivity this$0 -> b
-    83:86:void onClick(android.view.View) -> onClick
+    84:87:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerSearchActivity$3 -> uk.org.ngo.squeezer.SqueezerSearchActivity$3:
     uk.org.ngo.squeezer.SqueezerSearchActivity this$0 -> a
-    91:104:boolean onChildClick(android.widget.ExpandableListView,android.view.View,int,int,long) -> onChildClick
+    92:106:boolean onChildClick(android.widget.ExpandableListView,android.view.View,int,int,long) -> onChildClick
 uk.org.ngo.squeezer.SqueezerSearchActivity$4 -> uk.org.ngo.squeezer.SqueezerSearchActivity$4:
     uk.org.ngo.squeezer.SqueezerSearchActivity this$0 -> a
-    110:117:void onCreateContextMenu(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo) -> onCreateContextMenu
+    112:119:void onCreateContextMenu(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo) -> onCreateContextMenu
 uk.org.ngo.squeezer.SqueezerSearchActivity$5 -> uk.org.ngo.squeezer.SqueezerSearchActivity$5:
     int val$count -> a
     int val$start -> b
     java.util.List val$items -> c
     uk.org.ngo.squeezer.SqueezerSearchActivity this$0 -> d
-    209:212:void run() -> run
+    211:214:void run() -> run
 uk.org.ngo.squeezer.SqueezerSearchActivity$6 -> uk.org.ngo.squeezer.SqueezerSearchActivity$6:
     uk.org.ngo.squeezer.SqueezerSearchActivity this$0 -> a
-    219:220:void onArtistsReceived(int,int,java.util.List) -> onArtistsReceived
+    221:222:void onArtistsReceived(int,int,java.util.List) -> onArtistsReceived
 uk.org.ngo.squeezer.SqueezerSearchActivity$7 -> uk.org.ngo.squeezer.SqueezerSearchActivity$7:
     uk.org.ngo.squeezer.SqueezerSearchActivity this$0 -> a
-    225:226:void onAlbumsReceived(int,int,java.util.List) -> onAlbumsReceived
+    227:228:void onAlbumsReceived(int,int,java.util.List) -> onAlbumsReceived
 uk.org.ngo.squeezer.SqueezerSearchActivity$8 -> uk.org.ngo.squeezer.SqueezerSearchActivity$8:
     uk.org.ngo.squeezer.SqueezerSearchActivity this$0 -> a
-    231:232:void onGenresReceived(int,int,java.util.List) -> onGenresReceived
+    233:234:void onGenresReceived(int,int,java.util.List) -> onGenresReceived
 uk.org.ngo.squeezer.SqueezerSearchActivity$9 -> uk.org.ngo.squeezer.SqueezerSearchActivity$9:
     uk.org.ngo.squeezer.SqueezerSearchActivity this$0 -> a
-    237:238:void onSongsReceived(int,int,java.util.List) -> onSongsReceived
+    239:240:void onSongsReceived(int,int,java.util.List) -> onSongsReceived
 uk.org.ngo.squeezer.SqueezerSearchAdapter -> uk.org.ngo.squeezer.SqueezerSearchAdapter:
     int[] groupIcons -> a
     uk.org.ngo.squeezer.SqueezerSearchActivity activity -> b
@@ -3154,17 +3160,17 @@ uk.org.ngo.squeezer.SqueezerSearchAdapter -> uk.org.ngo.squeezer.SqueezerSearchA
     84:88:void updateItems(int,int,java.util.List) -> updateItems
     98:99:void setupContextMenu(android.view.ContextMenu,int,int) -> setupContextMenu
     102:103:void doItemContext(android.view.MenuItem,int,int) -> doItemContext
-    106:106:uk.org.ngo.squeezer.framework.SqueezerItem getChild(int,int) -> getChild
+    106:106:uk.org.ngo.squeezer.framework.SqueezerPlaylistItem getChild(int,int) -> getChild
     110:110:long getChildId(int,int) -> getChildId
     114:114:android.view.View getChildView(int,int,boolean,android.view.View,android.view.ViewGroup) -> getChildView
     118:118:int getChildrenCount(int) -> getChildrenCount
     122:122:java.lang.Object getGroup(int) -> getGroup
     126:126:int getGroupCount() -> getGroupCount
     130:130:long getGroupId(int) -> getGroupId
-    134:142:android.view.View getGroupView(int,boolean,android.view.View,android.view.ViewGroup) -> getGroupView
-    146:146:boolean hasStableIds() -> hasStableIds
-    150:150:boolean isChildSelectable(int,int) -> isChildSelectable
-    45:45:java.lang.Object getChild(int,int) -> getChild
+    135:152:android.view.View getGroupView(int,boolean,android.view.View,android.view.ViewGroup) -> getGroupView
+    156:156:boolean hasStableIds() -> hasStableIds
+    160:160:boolean isChildSelectable(int,int) -> isChildSelectable
+    43:43:java.lang.Object getChild(int,int) -> getChild
 uk.org.ngo.squeezer.SqueezerSearchAdapter$1 -> uk.org.ngo.squeezer.SqueezerSearchAdapter$1:
     uk.org.ngo.squeezer.SqueezerSearchAdapter this$0 -> a
     60:60:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.model.SqueezerSong) -> getAdapterView
@@ -3177,15 +3183,15 @@ uk.org.ngo.squeezer.Util -> uk.org.ngo.squeezer.Util:
     java.lang.StringBuilder sFormatBuilder -> a
     java.util.Formatter sFormatter -> b
     java.lang.Object[] sTimeArgs -> c
-    43:44:int getAtomicInteger(java.util.concurrent.atomic.AtomicReference,int) -> getAtomicInteger
-    71:78:boolean atomicSongUpdated(java.util.concurrent.atomic.AtomicReference,uk.org.ngo.squeezer.model.SqueezerSong) -> atomicSongUpdated
-    82:91:int parseDecimalInt(java.lang.String,int) -> parseDecimalInt
-    96:96:int parseDecimalIntOrZero(java.lang.String) -> parseDecimalIntOrZero
-    107:115:java.lang.String makeTimeString(long) -> makeTimeString
-    120:122:java.lang.String encode(java.lang.String) -> encode
-    128:130:java.lang.String decode(java.lang.String) -> decode
-    136:140:android.view.View getListItemView(android.app.Activity,android.view.View,java.lang.String) -> getListItemView
-    145:150:android.view.View getSpinnerItemView(android.app.Activity,android.view.View,java.lang.String) -> getSpinnerItemView
+    40:41:int getAtomicInteger(java.util.concurrent.atomic.AtomicReference,int) -> getAtomicInteger
+    68:75:boolean atomicSongUpdated(java.util.concurrent.atomic.AtomicReference,uk.org.ngo.squeezer.model.SqueezerSong) -> atomicSongUpdated
+    79:88:int parseDecimalInt(java.lang.String,int) -> parseDecimalInt
+    93:93:int parseDecimalIntOrZero(java.lang.String) -> parseDecimalIntOrZero
+    104:112:java.lang.String makeTimeString(long) -> makeTimeString
+    117:119:java.lang.String encode(java.lang.String) -> encode
+    125:127:java.lang.String decode(java.lang.String) -> decode
+    144:148:android.view.View getListItemView(android.app.Activity,android.view.View,java.lang.String) -> getListItemView
+    153:158:android.view.View getSpinnerItemView(android.app.Activity,android.view.View,java.lang.String) -> getSpinnerItemView
 uk.org.ngo.squeezer.VolumePanel -> uk.org.ngo.squeezer.VolumePanel:
     android.content.Context mContext -> a
     android.widget.Toast mToast -> b
@@ -3202,13 +3208,52 @@ uk.org.ngo.squeezer.VolumePanel -> uk.org.ngo.squeezer.VolumePanel:
 uk.org.ngo.squeezer.dialogs.AboutDialog -> uk.org.ngo.squeezer.dialogs.AboutDialog:
     19:35:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
 uk.org.ngo.squeezer.dialogs.ConnectingDialog -> uk.org.ngo.squeezer.dialogs.ConnectingDialog:
-    15:21:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
-    25:36:uk.org.ngo.squeezer.dialogs.ConnectingDialog addTo(android.support.v4.app.FragmentActivity,java.lang.String) -> addTo
+    16:22:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
+    27:30:void onDismiss(android.content.DialogInterface) -> onDismiss
+    33:44:uk.org.ngo.squeezer.dialogs.ConnectingDialog addTo(android.support.v4.app.FragmentActivity,java.lang.String) -> addTo
 uk.org.ngo.squeezer.dialogs.EnableWifiDialog -> uk.org.ngo.squeezer.dialogs.EnableWifiDialog:
     17:30:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
 uk.org.ngo.squeezer.dialogs.EnableWifiDialog$1 -> uk.org.ngo.squeezer.dialogs.EnableWifiDialog$1:
     uk.org.ngo.squeezer.dialogs.EnableWifiDialog this$0 -> a
     22:27:void onClick(android.content.DialogInterface,int) -> onClick
+uk.org.ngo.squeezer.dialogs.ServerAddressPreference -> uk.org.ngo.squeezer.dialogs.ServerAddressPreference:
+    android.widget.EditText mServerAddressEditText -> a
+    android.widget.Button mScanBtn -> b
+    android.widget.ProgressBar mScanProgressBar -> c
+    android.widget.Spinner mServersSpinner -> d
+    uk.org.ngo.squeezer.dialogs.ServerAddressPreference$scanNetworkTask mScanTask -> e
+    boolean mScanInProgress -> f
+    android.net.ConnectivityManager mConnectivityManager -> g
+    java.util.ArrayList mDiscoveredServers -> h
+    android.widget.ArrayAdapter mAdapter -> i
+    android.content.Context mContext -> j
+    85:133:void onBindDialogView(android.view.View) -> onBindDialogView
+    142:159:void onScanStart() -> onScanStart
+    167:188:void onScanFinish() -> onScanFinish
+    192:205:void onDialogClosed(boolean) -> onDialogClosed
+    59:59:boolean access$000(uk.org.ngo.squeezer.dialogs.ServerAddressPreference) -> access$000
+    59:59:android.widget.EditText access$200(uk.org.ngo.squeezer.dialogs.ServerAddressPreference) -> access$200
+    59:59:java.util.ArrayList access$300(uk.org.ngo.squeezer.dialogs.ServerAddressPreference) -> access$300
+    59:59:android.content.Context access$400(uk.org.ngo.squeezer.dialogs.ServerAddressPreference) -> access$400
+    59:59:android.widget.ProgressBar access$500(uk.org.ngo.squeezer.dialogs.ServerAddressPreference) -> access$500
+uk.org.ngo.squeezer.dialogs.ServerAddressPreference$1 -> uk.org.ngo.squeezer.dialogs.ServerAddressPreference$1:
+    uk.org.ngo.squeezer.dialogs.ServerAddressPreference this$0 -> a
+    121:126:void onClick(android.view.View) -> onClick
+uk.org.ngo.squeezer.dialogs.ServerAddressPreference$MyOnItemSelectedListener -> uk.org.ngo.squeezer.dialogs.ServerAddressPreference$MyOnItemSelectedListener:
+    uk.org.ngo.squeezer.dialogs.ServerAddressPreference this$0 -> a
+    215:216:void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
+    220:220:void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
+uk.org.ngo.squeezer.dialogs.ServerAddressPreference$scanNetworkTask -> uk.org.ngo.squeezer.dialogs.ServerAddressPreference$scanNetworkTask:
+    java.lang.String TAG -> a
+    uk.org.ngo.squeezer.dialogs.ServerAddressPreference this$0 -> b
+    233:236:void onPreExecute() -> onPreExecute
+    246:303:java.lang.Integer doInBackground(java.lang.Integer[]) -> doInBackground
+    308:309:void onProgressUpdate(java.lang.Integer[]) -> onProgressUpdate
+    313:315:void onCancelled() -> onCancelled
+    319:321:void onPostExecute(java.lang.Integer) -> onPostExecute
+    228:228:void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+    228:228:void onPostExecute(java.lang.Object) -> onPostExecute
+    228:228:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
 uk.org.ngo.squeezer.framework.SqueezerArtworkItem -> uk.org.ngo.squeezer.framework.SqueezerArtworkItem:
     java.lang.String artwork_track_id -> a
     24:24:java.lang.String getArtwork_track_id() -> getArtwork_track_id
@@ -3218,32 +3263,32 @@ uk.org.ngo.squeezer.framework.SqueezerBaseActivity -> uk.org.ngo.squeezer.framew
     android.os.Handler uiThreadHandler -> b
     android.content.ServiceConnection serviceConnection -> c
     void onServiceConnected() -> onServiceConnected
-    46:46:java.lang.String getTag() -> getTag
-    53:53:uk.org.ngo.squeezer.service.ISqueezeService getService() -> getService
-    72:75:void onResume() -> onResume
-    79:83:void onPause() -> onPause
-    89:89:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
-    103:112:boolean onKeyDown(int,android.view.KeyEvent) -> onKeyDown
-    117:123:boolean onKeyUp(int,android.view.KeyEvent) -> onKeyUp
-    127:137:boolean changeVolumeBy(int) -> changeVolumeBy
-    144:144:boolean play(uk.org.ngo.squeezer.framework.SqueezerItem) -> play
-    148:148:boolean add(uk.org.ngo.squeezer.framework.SqueezerItem) -> add
-    152:152:boolean insert(uk.org.ngo.squeezer.framework.SqueezerItem) -> insert
-    156:160:boolean playlistControl(uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd,uk.org.ngo.squeezer.framework.SqueezerItem) -> playlistControl
-    39:39:uk.org.ngo.squeezer.service.ISqueezeService access$002(uk.org.ngo.squeezer.framework.SqueezerBaseActivity,uk.org.ngo.squeezer.service.ISqueezeService) -> access$002
+    44:44:java.lang.String getTag() -> getTag
+    51:51:uk.org.ngo.squeezer.service.ISqueezeService getService() -> getService
+    70:73:void onResume() -> onResume
+    77:81:void onPause() -> onPause
+    87:87:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
+    101:110:boolean onKeyDown(int,android.view.KeyEvent) -> onKeyDown
+    115:121:boolean onKeyUp(int,android.view.KeyEvent) -> onKeyUp
+    125:135:boolean changeVolumeBy(int) -> changeVolumeBy
+    142:142:boolean play(uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> play
+    146:146:boolean add(uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> add
+    150:150:boolean insert(uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> insert
+    155:159:boolean playlistControl(uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd,uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> playlistControl
+    37:37:uk.org.ngo.squeezer.service.ISqueezeService access$002(uk.org.ngo.squeezer.framework.SqueezerBaseActivity,uk.org.ngo.squeezer.service.ISqueezeService) -> access$002
 uk.org.ngo.squeezer.framework.SqueezerBaseActivity$1 -> uk.org.ngo.squeezer.framework.SqueezerBaseActivity$1:
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity this$0 -> a
 uk.org.ngo.squeezer.framework.SqueezerBaseActivity$2 -> uk.org.ngo.squeezer.framework.SqueezerBaseActivity$2:
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity this$0 -> a
-    58:64:void onServiceConnected(android.content.ComponentName,android.os.IBinder) -> onServiceConnected
-    66:67:void onServiceDisconnected(android.content.ComponentName) -> onServiceDisconnected
+    56:62:void onServiceConnected(android.content.ComponentName,android.os.IBinder) -> onServiceConnected
+    64:65:void onServiceDisconnected(android.content.ComponentName) -> onServiceDisconnected
 uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd -> uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd:
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd load -> a
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd add -> b
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd insert -> c
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd[] $VALUES -> d
-    163:163:uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd[] values() -> values
-    163:163:uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd valueOf(java.lang.String) -> valueOf
+    162:162:uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd[] values() -> values
+    162:162:uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd valueOf(java.lang.String) -> valueOf
 uk.org.ngo.squeezer.framework.SqueezerBaseItemView -> uk.org.ngo.squeezer.framework.SqueezerBaseItemView:
     uk.org.ngo.squeezer.framework.SqueezerItemListActivity activity -> a
     uk.org.ngo.squeezer.framework.SqueezerItemAdapter adapter -> b
@@ -3262,36 +3307,36 @@ uk.org.ngo.squeezer.framework.SqueezerBaseListActivity -> uk.org.ngo.squeezer.fr
     android.widget.ListView listView -> b
     android.widget.TextView loadingLabel -> c
     uk.org.ngo.squeezer.framework.SqueezerItemView itemView -> d
-    59:88:void onCreate(android.os.Bundle) -> onCreate
+    62:91:void onCreate(android.os.Bundle) -> onCreate
     uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
-    101:101:void prepareActivity(android.os.Bundle) -> prepareActivity
-    105:115:boolean onContextItemSelected(android.view.MenuItem) -> onContextItemSelected
-    120:122:void onServiceConnected() -> onServiceConnected
-    126:134:void onPause() -> onPause
-    142:142:uk.org.ngo.squeezer.framework.SqueezerItemView getItemView() -> getItemView
-    149:149:uk.org.ngo.squeezer.framework.SqueezerItemAdapter getItemAdapter() -> getItemAdapter
-    153:153:uk.org.ngo.squeezer.framework.SqueezerItemAdapter createItemListAdapter(uk.org.ngo.squeezer.framework.SqueezerItemView) -> createItemListAdapter
-    161:165:void orderItems() -> orderItems
-    168:175:void onItemsReceived(int,int,java.util.List) -> onItemsReceived
-    182:183:void clearItemListAdapter() -> clearItemListAdapter
-    50:50:uk.org.ngo.squeezer.framework.SqueezerItemView access$000(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$000
-    50:50:android.widget.ListView access$100(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$100
-    50:50:android.widget.TextView access$200(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$200
+    104:104:void prepareActivity(android.os.Bundle) -> prepareActivity
+    108:118:boolean onContextItemSelected(android.view.MenuItem) -> onContextItemSelected
+    123:125:void onServiceConnected() -> onServiceConnected
+    129:137:void onPause() -> onPause
+    143:143:uk.org.ngo.squeezer.framework.SqueezerItemView getItemView() -> getItemView
+    150:150:uk.org.ngo.squeezer.framework.SqueezerItemAdapter getItemAdapter() -> getItemAdapter
+    154:154:uk.org.ngo.squeezer.framework.SqueezerItemAdapter createItemListAdapter(uk.org.ngo.squeezer.framework.SqueezerItemView) -> createItemListAdapter
+    162:166:void orderItems() -> orderItems
+    169:176:void onItemsReceived(int,int,java.util.List) -> onItemsReceived
+    183:184:void clearItemListAdapter() -> clearItemListAdapter
+    53:53:uk.org.ngo.squeezer.framework.SqueezerItemView access$000(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$000
+    53:53:android.widget.ListView access$100(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$100
+    53:53:android.widget.TextView access$200(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$200
 uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$1 -> uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$1:
     uk.org.ngo.squeezer.framework.SqueezerBaseListActivity this$0 -> a
-    67:75:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+    70:78:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
 uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$2 -> uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$2:
     uk.org.ngo.squeezer.framework.SqueezerBaseListActivity this$0 -> a
-    80:82:void onCreateContextMenu(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo) -> onCreateContextMenu
+    83:85:void onCreateContextMenu(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo) -> onCreateContextMenu
 uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$3 -> uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$3:
     int val$count -> a
     int val$start -> b
     java.util.List val$items -> c
     uk.org.ngo.squeezer.framework.SqueezerBaseListActivity this$0 -> d
-    170:173:void run() -> run
+    171:174:void run() -> run
 uk.org.ngo.squeezer.framework.SqueezerFilterableListActivity -> uk.org.ngo.squeezer.framework.SqueezerFilterableListActivity:
-    28:30:void onCreate(android.os.Bundle) -> onCreate
-    34:35:boolean onSearchRequested() -> onSearchRequested
+    29:31:void onCreate(android.os.Bundle) -> onCreate
+    35:36:boolean onSearchRequested() -> onSearchRequested
 uk.org.ngo.squeezer.framework.SqueezerIconUpdater -> uk.org.ngo.squeezer.framework.SqueezerIconUpdater:
     java.util.concurrent.ScheduledThreadPoolExecutor backgroundExecutor -> a
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity activity -> b
@@ -3312,12 +3357,12 @@ uk.org.ngo.squeezer.framework.SqueezerIconUpdater$1$1 -> uk.org.ngo.squeezer.fra
     65:71:void run() -> run
 uk.org.ngo.squeezer.framework.SqueezerItem -> uk.org.ngo.squeezer.framework.SqueezerItem:
     java.lang.String id -> a
-    31:31:void setId(java.lang.String) -> setId
-    32:32:java.lang.String getId() -> getId
+    32:32:void setId(java.lang.String) -> setId
+    33:33:java.lang.String getId() -> getId
     java.lang.String getName() -> getName
-    37:37:int describeContents() -> describeContents
-    42:42:int hashCode() -> hashCode
-    47:51:boolean equals(java.lang.Object) -> equals
+    38:38:int describeContents() -> describeContents
+    43:43:int hashCode() -> hashCode
+    48:52:boolean equals(java.lang.Object) -> equals
 uk.org.ngo.squeezer.framework.SqueezerItemAdapter -> uk.org.ngo.squeezer.framework.SqueezerItemAdapter:
     uk.org.ngo.squeezer.framework.SqueezerItemView itemView -> a
     int count -> b
@@ -3339,25 +3384,25 @@ uk.org.ngo.squeezer.framework.SqueezerItemAdapter -> uk.org.ngo.squeezer.framewo
     161:172:void setItems(int,java.util.List) -> setItems
     175:180:uk.org.ngo.squeezer.framework.SqueezerItem getItem(int) -> getItem
     184:184:long getItemId(int) -> getItemId
-    188:190:java.lang.String getHeader() -> getHeader
-    199:199:void updateHeader() -> updateHeader
-    215:225:void update(int,int,java.util.List) -> update
-    232:237:int findItem(uk.org.ngo.squeezer.framework.SqueezerItem) -> findItem
-    241:241:uk.org.ngo.squeezer.framework.SqueezerItem[] arrayInstance(int) -> arrayInstance
+    193:195:java.lang.String getHeader() -> getHeader
+    204:204:void updateHeader() -> updateHeader
+    220:230:void update(int,int,java.util.List) -> update
+    237:242:int findItem(uk.org.ngo.squeezer.framework.SqueezerItem) -> findItem
+    246:246:uk.org.ngo.squeezer.framework.SqueezerItem[] arrayInstance(int) -> arrayInstance
     46:46:java.lang.Object getItem(int) -> getItem
 uk.org.ngo.squeezer.framework.SqueezerItemListActivity -> uk.org.ngo.squeezer.framework.SqueezerItemListActivity:
     java.util.Set orderedPages -> a
     boolean listBusy -> b
-    44:46:void onCreate(android.os.Bundle) -> onCreate
+    45:47:void onCreate(android.os.Bundle) -> onCreate
     void registerCallback() -> registerCallback
     void unregisterCallback() -> unregisterCallback
     void orderPage(int) -> orderPage
-    80:88:void maybeOrderPage(int) -> maybeOrderPage
-    94:96:void reorderItems() -> reorderItems
-    104:121:void onScrollStateChanged(android.widget.AbsListView,int) -> onScrollStateChanged
-    124:124:void onScroll(android.widget.AbsListView,int,int,int) -> onScroll
+    81:89:void maybeOrderPage(int) -> maybeOrderPage
+    95:97:void reorderItems() -> reorderItems
+    105:122:void onScrollStateChanged(android.widget.AbsListView,int) -> onScrollStateChanged
+    125:125:void onScroll(android.widget.AbsListView,int,int,int) -> onScroll
 uk.org.ngo.squeezer.framework.SqueezerItemListAdapter -> uk.org.ngo.squeezer.framework.SqueezerItemListAdapter:
-    41:42:void updateHeader() -> updateHeader
+    40:41:void updateHeader() -> updateHeader
 uk.org.ngo.squeezer.framework.SqueezerItemView -> uk.org.ngo.squeezer.framework.SqueezerItemView:
     uk.org.ngo.squeezer.framework.SqueezerItemListActivity getActivity() -> getActivity
     java.lang.String getQuantityString(int) -> getQuantityString
@@ -3370,7 +3415,9 @@ uk.org.ngo.squeezer.framework.SqueezerItemView -> uk.org.ngo.squeezer.framework.
     void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> setupContextMenu
     boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> doItemContext
 uk.org.ngo.squeezer.framework.SqueezerOrderableListActivity -> uk.org.ngo.squeezer.framework.SqueezerOrderableListActivity:
-    27:29:void onCreate(android.os.Bundle) -> onCreate
+    28:30:void onCreate(android.os.Bundle) -> onCreate
+uk.org.ngo.squeezer.framework.SqueezerPlaylistItem -> uk.org.ngo.squeezer.framework.SqueezerPlaylistItem:
+    java.lang.String getPlaylistTag() -> getPlaylistTag
 uk.org.ngo.squeezer.itemlists.GenreSpinner -> uk.org.ngo.squeezer.itemlists.GenreSpinner:
     java.lang.String TAG -> b
     uk.org.ngo.squeezer.itemlists.GenreSpinner$GenreSpinnerCallback callback -> a
@@ -3434,6 +3481,16 @@ uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback$Stub$Proxy -> uk.org.ngo
     android.os.IBinder mRemote -> a
     69:69:android.os.IBinder asBinder() -> asBinder
     77:86:void onGenresReceived(int,int,java.util.List) -> onGenresReceived
+uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback -> uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback:
+    void onMusicFoldersReceived(int,int,java.util.List) -> onMusicFoldersReceived
+uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback$Stub -> uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback$Stub:
+    23:30:uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback asInterface(android.os.IBinder) -> asInterface
+    34:34:android.os.IBinder asBinder() -> asBinder
+    38:58:boolean onTransact(int,android.os.Parcel,android.os.Parcel,int) -> onTransact
+uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback$Stub$Proxy -> uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback$Stub$Proxy:
+    android.os.IBinder mRemote -> a
+    69:69:android.os.IBinder asBinder() -> asBinder
+    77:86:void onMusicFoldersReceived(int,int,java.util.List) -> onMusicFoldersReceived
 uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback -> uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback:
     void onPlayersReceived(int,int,java.util.List) -> onPlayersReceived
 uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback$Stub -> uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback$Stub:
@@ -3633,7 +3690,35 @@ uk.org.ngo.squeezer.itemlists.SqueezerGenreView -> uk.org.ngo.squeezer.itemlists
     29:29:void onItemSelected(int,uk.org.ngo.squeezer.framework.SqueezerItem) -> onItemSelected
 uk.org.ngo.squeezer.itemlists.SqueezerIconicItemView -> uk.org.ngo.squeezer.itemlists.SqueezerIconicItemView:
     uk.org.ngo.squeezer.framework.SqueezerIconUpdater iconUpdater -> a
-    35:36:void updateIcon(android.widget.ImageView,java.lang.Object,java.lang.String) -> updateIcon
+    39:40:void updateIcon(android.widget.ImageView,java.lang.Object,java.lang.String) -> updateIcon
+uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity -> uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity:
+    uk.org.ngo.squeezer.model.SqueezerMusicFolderItem mFolder -> a
+    uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback musicFolderListCallback -> b
+    49:49:uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
+    60:60:uk.org.ngo.squeezer.framework.SqueezerItemAdapter createItemListAdapter(uk.org.ngo.squeezer.framework.SqueezerItemView) -> createItemListAdapter
+    68:72:void prepareActivity(android.os.Bundle) -> prepareActivity
+    76:77:void registerCallback() -> registerCallback
+    81:82:void unregisterCallback() -> unregisterCallback
+    92:98:void orderPage(int) -> orderPage
+    106:108:void show(android.content.Context) -> show
+    117:120:void show(android.content.Context,uk.org.ngo.squeezer.model.SqueezerMusicFolderItem) -> show
+uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity$1 -> uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity$1:
+    uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity this$0 -> a
+    125:126:void onMusicFoldersReceived(int,int,java.util.List) -> onMusicFoldersReceived
+uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderView -> uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderView:
+    android.view.LayoutInflater mLayoutInflater -> a
+    uk.org.ngo.squeezer.framework.SqueezerItemListActivity mContext -> b
+    60:84:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.model.SqueezerMusicFolderItem) -> getAdapterView
+    88:97:void onItemSelected(int,uk.org.ngo.squeezer.model.SqueezerMusicFolderItem) -> onItemSelected
+    100:104:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.model.SqueezerMusicFolderItem) -> setupContextMenu
+    107:107:java.lang.String getQuantityString(int) -> getQuantityString
+    40:40:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.framework.SqueezerItem) -> getAdapterView
+    40:40:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> setupContextMenu
+    40:40:void onItemSelected(int,uk.org.ngo.squeezer.framework.SqueezerItem) -> onItemSelected
+uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderView$1 -> uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderView$1:
+uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderView$ViewHolder -> uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderView$ViewHolder:
+    android.widget.TextView label -> a
+    android.widget.ImageView icon -> b
 uk.org.ngo.squeezer.itemlists.SqueezerPlayerListActivity -> uk.org.ngo.squeezer.itemlists.SqueezerPlayerListActivity:
     uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback playerListCallback -> a
     35:35:uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
@@ -3665,72 +3750,75 @@ uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity -> uk.org.ngo.squeez
     java.lang.String oldname -> b
     uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback playlistMaintenanceCallback -> c
     46:49:void show(android.content.Context,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> show
-    52:52:uk.org.ngo.squeezer.model.SqueezerPlaylist getPlaylist() -> getPlaylist
-    56:56:void setOldname(java.lang.String) -> setOldname
-    60:60:uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
-    109:117:void prepareActivity(android.os.Bundle) -> prepareActivity
-    121:122:void orderPage(int) -> orderPage
-    126:128:void registerCallback() -> registerCallback
-    132:135:void unregisterCallback() -> unregisterCallback
-    139:140:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
-    145:153:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
-    157:162:void showServiceMessage(java.lang.String) -> showServiceMessage
+    53:53:uk.org.ngo.squeezer.model.SqueezerPlaylist getPlaylist() -> getPlaylist
+    57:64:void playlistRename(java.lang.String) -> playlistRename
+    68:68:uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
+    117:118:void prepareActivity(android.os.Bundle) -> prepareActivity
+    122:123:void orderPage(int) -> orderPage
+    127:129:void registerCallback() -> registerCallback
+    133:136:void unregisterCallback() -> unregisterCallback
+    140:141:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    146:154:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
+    158:163:void showServiceMessage(java.lang.String) -> showServiceMessage
     36:36:uk.org.ngo.squeezer.model.SqueezerPlaylist access$000(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity) -> access$000
     36:36:java.lang.String access$100(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity) -> access$100
     36:36:void access$200(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity,java.lang.String) -> access$200
 uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity$1 -> uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity$1:
     uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity this$0 -> a
-    63:72:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.model.SqueezerSong) -> setupContextMenu
-    76:102:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.model.SqueezerSong) -> doItemContext
-    60:60:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> doItemContext
-    60:60:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> setupContextMenu
+    71:80:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.model.SqueezerSong) -> setupContextMenu
+    84:110:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.model.SqueezerSong) -> doItemContext
+    68:68:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> doItemContext
+    68:68:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> setupContextMenu
 uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity$2 -> uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity$2:
     java.lang.String val$msg -> a
     uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity this$0 -> b
-    159:160:void run() -> run
+    160:161:void run() -> run
 uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity$3 -> uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity$3:
     uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity this$0 -> a
-    167:169:void onRenameFailed(java.lang.String) -> onRenameFailed
-    172:173:void onCreateFailed(java.lang.String) -> onCreateFailed
+    168:171:void onRenameFailed(java.lang.String) -> onRenameFailed
+    174:175:void onCreateFailed(java.lang.String) -> onCreateFailed
 uk.org.ngo.squeezer.itemlists.SqueezerPlaylistView -> uk.org.ngo.squeezer.itemlists.SqueezerPlaylistView:
     uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity activity -> a
     45:45:java.lang.String getQuantityString(int) -> getQuantityString
     49:51:void onItemSelected(int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> onItemSelected
     54:60:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> setupContextMenu
-    64:87:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> doItemContext
+    64:83:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> doItemContext
     31:31:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> doItemContext
     31:31:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> setupContextMenu
     31:31:void onItemSelected(int,uk.org.ngo.squeezer.framework.SqueezerItem) -> onItemSelected
 uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity -> uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity:
-    uk.org.ngo.squeezer.model.SqueezerPlaylist currentPlaylist -> a
-    java.lang.String oldname -> b
-    uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback playlistsCallback -> c
-    uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback playlistMaintenanceCallback -> d
-    35:35:uk.org.ngo.squeezer.model.SqueezerPlaylist getCurrentPlaylist() -> getCurrentPlaylist
-    36:36:void setCurrentPlaylist(uk.org.ngo.squeezer.model.SqueezerPlaylist) -> setCurrentPlaylist
-    40:40:void setOldname(java.lang.String) -> setOldname
-    44:44:uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
-    49:51:void registerCallback() -> registerCallback
-    55:57:void unregisterCallback() -> unregisterCallback
-    61:62:void orderPage(int) -> orderPage
-    66:67:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
-    72:77:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
-    81:83:void show(android.content.Context) -> show
-    92:98:void showServiceMessage(java.lang.String) -> showServiceMessage
-    33:33:java.lang.String access$000(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity) -> access$000
-    33:33:uk.org.ngo.squeezer.model.SqueezerPlaylist access$100(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity) -> access$100
-    33:33:void access$200(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity,java.lang.String) -> access$200
+    int currentIndex -> a
+    uk.org.ngo.squeezer.model.SqueezerPlaylist currentPlaylist -> b
+    java.lang.String oldname -> c
+    uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback playlistsCallback -> d
+    uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback playlistMaintenanceCallback -> e
+    38:38:uk.org.ngo.squeezer.model.SqueezerPlaylist getCurrentPlaylist() -> getCurrentPlaylist
+    46:49:void setCurrentPlaylist(int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> setCurrentPlaylist
+    57:68:void playlistRename(java.lang.String) -> playlistRename
+    72:72:uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
+    77:79:void registerCallback() -> registerCallback
+    83:85:void unregisterCallback() -> unregisterCallback
+    89:90:void orderPage(int) -> orderPage
+    94:97:void prepareActivity(android.os.Bundle) -> prepareActivity
+    101:102:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    107:112:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
+    116:118:void show(android.content.Context) -> show
+    127:133:void showServiceMessage(java.lang.String) -> showServiceMessage
+    34:34:int access$000(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity) -> access$000
+    34:34:java.lang.String access$100(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity) -> access$100
+    34:34:uk.org.ngo.squeezer.model.SqueezerPlaylist access$200(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity) -> access$200
+    34:34:void access$300(uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity,java.lang.String) -> access$300
 uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity$1 -> uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity$1:
     uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity this$0 -> a
-    87:88:void onPlaylistsReceived(int,int,java.util.List) -> onPlaylistsReceived
+    122:123:void onPlaylistsReceived(int,int,java.util.List) -> onPlaylistsReceived
 uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity$2 -> uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity$2:
     java.lang.String val$msg -> a
     uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity this$0 -> b
-    94:96:void run() -> run
+    129:131:void run() -> run
 uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity$3 -> uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity$3:
     uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity this$0 -> a
-    103:105:void onRenameFailed(java.lang.String) -> onRenameFailed
-    108:109:void onCreateFailed(java.lang.String) -> onCreateFailed
+    138:141:void onRenameFailed(java.lang.String) -> onRenameFailed
+    144:145:void onCreateFailed(java.lang.String) -> onCreateFailed
 uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity -> uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity:
     uk.org.ngo.squeezer.model.SqueezerPlugin plugin -> a
     uk.org.ngo.squeezer.model.SqueezerPluginItem parent -> b
@@ -3781,20 +3869,19 @@ uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistContr
 uk.org.ngo.squeezer.itemlists.SqueezerPluginItemView -> uk.org.ngo.squeezer.itemlists.SqueezerPluginItemView:
     uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity activity -> a
     android.view.LayoutInflater layoutInflater -> b
-    47:61:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> getAdapterView
-    71:71:java.lang.String getQuantityString(int) -> getQuantityString
-    75:81:void onItemSelected(int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> onItemSelected
-    84:90:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> setupContextMenu
-    94:108:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> doItemContext
-    33:33:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> doItemContext
-    33:33:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.framework.SqueezerItem) -> getAdapterView
-    33:33:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> setupContextMenu
-    33:33:void onItemSelected(int,uk.org.ngo.squeezer.framework.SqueezerItem) -> onItemSelected
+    46:61:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> getAdapterView
+    70:70:java.lang.String getQuantityString(int) -> getQuantityString
+    74:80:void onItemSelected(int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> onItemSelected
+    83:89:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> setupContextMenu
+    93:107:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> doItemContext
+    32:32:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> doItemContext
+    32:32:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.framework.SqueezerItem) -> getAdapterView
+    32:32:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> setupContextMenu
+    32:32:void onItemSelected(int,uk.org.ngo.squeezer.framework.SqueezerItem) -> onItemSelected
 uk.org.ngo.squeezer.itemlists.SqueezerPluginItemView$1 -> uk.org.ngo.squeezer.itemlists.SqueezerPluginItemView$1:
 uk.org.ngo.squeezer.itemlists.SqueezerPluginItemView$ViewHolder -> uk.org.ngo.squeezer.itemlists.SqueezerPluginItemView$ViewHolder:
     android.widget.TextView label -> a
     android.widget.ImageView icon -> b
-    android.widget.ImageView groupIcon -> c
 uk.org.ngo.squeezer.itemlists.SqueezerPluginListActivity -> uk.org.ngo.squeezer.itemlists.SqueezerPluginListActivity:
     uk.org.ngo.squeezer.itemlists.IServicePluginListCallback pluginListCallback -> a
     38:39:void registerCallback() -> registerCallback
@@ -3831,28 +3918,28 @@ uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity -> uk.org.ngo.squeezer.it
     uk.org.ngo.squeezer.itemlists.GenreSpinner genreSpinner -> g
     uk.org.ngo.squeezer.itemlists.YearSpinner yearSpinner -> h
     uk.org.ngo.squeezer.itemlists.SqueezerSongView songViewLogic -> i
-    48:48:java.lang.String getSearchString() -> getSearchString
-    49:49:void setSearchString(java.lang.String) -> setSearchString
-    52:52:uk.org.ngo.squeezer.model.SqueezerAlbum getAlbum() -> getAlbum
-    56:56:uk.org.ngo.squeezer.model.SqueezerArtist getArtist() -> getArtist
-    60:60:uk.org.ngo.squeezer.model.SqueezerYear getYear() -> getYear
-    61:61:void setYear(uk.org.ngo.squeezer.model.SqueezerYear) -> setYear
-    64:64:uk.org.ngo.squeezer.model.SqueezerGenre getGenre() -> getGenre
-    65:65:void setGenre(uk.org.ngo.squeezer.model.SqueezerGenre) -> setGenre
-    69:70:void setGenreSpinner(android.widget.Spinner) -> setGenreSpinner
-    74:75:void setYearSpinner(android.widget.Spinner) -> setYearSpinner
-    81:85:void show(android.content.Context,uk.org.ngo.squeezer.framework.SqueezerItem[]) -> show
-    90:91:uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
-    96:113:void prepareActivity(android.os.Bundle) -> prepareActivity
-    117:120:void registerCallback() -> registerCallback
-    124:127:void unregisterCallback() -> unregisterCallback
-    131:133:void orderPage(int) -> orderPage
-    136:136:uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog$SongsSortOrder getSortOrder() -> getSortOrder
-    140:142:void setSortOrder(uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog$SongsSortOrder) -> setSortOrder
-    146:149:void onCreate(android.os.Bundle) -> onCreate
-    153:154:boolean onSearchRequested() -> onSearchRequested
-    158:159:void showFilterDialog() -> showFilterDialog
-    162:163:void showOrderDialog() -> showOrderDialog
+    49:49:java.lang.String getSearchString() -> getSearchString
+    50:50:void setSearchString(java.lang.String) -> setSearchString
+    53:53:uk.org.ngo.squeezer.model.SqueezerAlbum getAlbum() -> getAlbum
+    57:57:uk.org.ngo.squeezer.model.SqueezerArtist getArtist() -> getArtist
+    61:61:uk.org.ngo.squeezer.model.SqueezerYear getYear() -> getYear
+    62:62:void setYear(uk.org.ngo.squeezer.model.SqueezerYear) -> setYear
+    65:65:uk.org.ngo.squeezer.model.SqueezerGenre getGenre() -> getGenre
+    66:66:void setGenre(uk.org.ngo.squeezer.model.SqueezerGenre) -> setGenre
+    70:71:void setGenreSpinner(android.widget.Spinner) -> setGenreSpinner
+    75:76:void setYearSpinner(android.widget.Spinner) -> setYearSpinner
+    82:86:void show(android.content.Context,uk.org.ngo.squeezer.framework.SqueezerItem[]) -> show
+    91:92:uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
+    97:114:void prepareActivity(android.os.Bundle) -> prepareActivity
+    118:121:void registerCallback() -> registerCallback
+    125:128:void unregisterCallback() -> unregisterCallback
+    132:134:void orderPage(int) -> orderPage
+    137:137:uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog$SongsSortOrder getSortOrder() -> getSortOrder
+    141:143:void setSortOrder(uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog$SongsSortOrder) -> setSortOrder
+    147:150:void onCreate(android.os.Bundle) -> onCreate
+    154:155:boolean onSearchRequested() -> onSearchRequested
+    159:160:void showFilterDialog() -> showFilterDialog
+    163:164:void showOrderDialog() -> showOrderDialog
 uk.org.ngo.squeezer.itemlists.SqueezerSongView -> uk.org.ngo.squeezer.itemlists.SqueezerSongView:
     android.view.LayoutInflater layoutInflater -> a
     boolean browseByAlbum -> b
@@ -3985,8 +4072,8 @@ uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistItemMoveDialog -> uk.org.n
     60:66:void addTo(uk.org.ngo.squeezer.itemlists.SqueezerAbstractSongListActivity,uk.org.ngo.squeezer.model.SqueezerPlaylist,int) -> addTo
 uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistRenameDialog -> uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistRenameDialog:
     uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity activity -> b
-    16:23:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
-    29:36:boolean commit(java.lang.String) -> commit
+    14:21:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
+    26:27:boolean commit(java.lang.String) -> commit
 uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistSaveDialog -> uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistSaveDialog:
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity activity -> b
     16:23:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
@@ -4004,8 +4091,8 @@ uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsNewDialog -> uk.org.ngo.s
     29:34:boolean commit(java.lang.String) -> commit
 uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsRenameDialog -> uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsRenameDialog:
     uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity activity -> b
-    16:23:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
-    29:36:boolean commit(java.lang.String) -> commit
+    14:21:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
+    26:27:boolean commit(java.lang.String) -> commit
 uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongFilterDialog -> uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongFilterDialog:
     uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity activity -> b
     android.widget.Spinner genreSpinnerView -> c
@@ -4025,70 +4112,85 @@ uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog$SongsSortOrder -> 
     uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog$SongsSortOrder[] $VALUES -> c
     31:31:uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog$SongsSortOrder[] values() -> values
     31:31:uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog$SongsSortOrder valueOf(java.lang.String) -> valueOf
+uk.org.ngo.squeezer.menu.MenuFragment -> uk.org.ngo.squeezer.menu.MenuFragment:
+    24:26:void onCreate(android.os.Bundle) -> onCreate
+    38:48:void add(android.support.v4.app.FragmentActivity,java.lang.Class) -> add
 uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment -> uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment:
     uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment$SqueezerFilterableListActivity activity -> a
-    18:20:void onCreate(android.os.Bundle) -> onCreate
-    24:27:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> onCreateOptionsMenu
-    31:36:boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
-    40:44:void addTo(uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment$SqueezerFilterableListActivity) -> addTo
+    16:18:void onCreate(android.os.Bundle) -> onCreate
+    22:25:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> onCreateOptionsMenu
+    29:34:boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
 uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment$SqueezerFilterableListActivity -> uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment$SqueezerFilterableListActivity:
     void showFilterDialog() -> showFilterDialog
-    android.support.v4.app.FragmentManager getSupportFragmentManager() -> getSupportFragmentManager
 uk.org.ngo.squeezer.menu.SqueezerMenuFragment -> uk.org.ngo.squeezer.menu.SqueezerMenuFragment:
-    21:23:void onCreate(android.os.Bundle) -> onCreate
-    27:29:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> onCreateOptionsMenu
-    33:44:boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
-    48:52:void addTo(android.support.v4.app.FragmentActivity) -> addTo
+    17:19:void onCreate(android.os.Bundle) -> onCreate
+    23:25:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> onCreateOptionsMenu
+    29:40:boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
 uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment -> uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment:
     uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment$SqueezerOrderableListActivity activity -> a
-    18:21:void onCreate(android.os.Bundle) -> onCreate
-    25:27:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> onCreateOptionsMenu
-    31:36:boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
-    40:44:void addTo(uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment$SqueezerOrderableListActivity) -> addTo
+    16:19:void onCreate(android.os.Bundle) -> onCreate
+    23:25:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> onCreateOptionsMenu
+    29:34:boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
 uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment$SqueezerOrderableListActivity -> uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment$SqueezerOrderableListActivity:
     void showOrderDialog() -> showOrderDialog
-    android.support.v4.app.FragmentManager getSupportFragmentManager() -> getSupportFragmentManager
 uk.org.ngo.squeezer.model.SqueezerAlbum -> uk.org.ngo.squeezer.model.SqueezerAlbum:
     java.lang.String name -> a
     java.lang.String artist -> b
     int year -> c
     android.os.Parcelable$Creator CREATOR -> CREATOR
-    30:30:java.lang.String getName() -> getName
-    31:31:uk.org.ngo.squeezer.model.SqueezerAlbum setName(java.lang.String) -> setName
-    34:34:java.lang.String getArtist() -> getArtist
-    35:35:void setArtist(java.lang.String) -> setArtist
-    38:38:int getYear() -> getYear
-    39:39:void setYear(int) -> setYear
-    73:78:void writeToParcel(android.os.Parcel,int) -> writeToParcel
-    83:83:java.lang.String toString() -> toString
+    30:30:java.lang.String getPlaylistTag() -> getPlaylistTag
+    34:34:java.lang.String getName() -> getName
+    35:35:uk.org.ngo.squeezer.model.SqueezerAlbum setName(java.lang.String) -> setName
+    38:38:java.lang.String getArtist() -> getArtist
+    39:39:void setArtist(java.lang.String) -> setArtist
+    42:42:int getYear() -> getYear
+    43:43:void setYear(int) -> setYear
+    77:82:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    87:87:java.lang.String toString() -> toString
 uk.org.ngo.squeezer.model.SqueezerAlbum$1 -> uk.org.ngo.squeezer.model.SqueezerAlbum$1:
-    56:56:uk.org.ngo.squeezer.model.SqueezerAlbum[] newArray(int) -> newArray
-    60:60:uk.org.ngo.squeezer.model.SqueezerAlbum createFromParcel(android.os.Parcel) -> createFromParcel
-    54:54:java.lang.Object[] newArray(int) -> newArray
-    54:54:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+    60:60:uk.org.ngo.squeezer.model.SqueezerAlbum[] newArray(int) -> newArray
+    64:64:uk.org.ngo.squeezer.model.SqueezerAlbum createFromParcel(android.os.Parcel) -> createFromParcel
+    58:58:java.lang.Object[] newArray(int) -> newArray
+    58:58:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
 uk.org.ngo.squeezer.model.SqueezerArtist -> uk.org.ngo.squeezer.model.SqueezerArtist:
     java.lang.String name -> a
     android.os.Parcelable$Creator CREATOR -> CREATOR
-    28:28:java.lang.String getName() -> getName
-    29:29:uk.org.ngo.squeezer.model.SqueezerArtist setName(java.lang.String) -> setName
-    55:57:void writeToParcel(android.os.Parcel,int) -> writeToParcel
-    62:62:java.lang.String toString() -> toString
+    29:29:java.lang.String getPlaylistTag() -> getPlaylistTag
+    33:33:java.lang.String getName() -> getName
+    34:34:uk.org.ngo.squeezer.model.SqueezerArtist setName(java.lang.String) -> setName
+    60:62:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    67:67:java.lang.String toString() -> toString
 uk.org.ngo.squeezer.model.SqueezerArtist$1 -> uk.org.ngo.squeezer.model.SqueezerArtist$1:
-    43:43:uk.org.ngo.squeezer.model.SqueezerArtist[] newArray(int) -> newArray
-    47:47:uk.org.ngo.squeezer.model.SqueezerArtist createFromParcel(android.os.Parcel) -> createFromParcel
-    41:41:java.lang.Object[] newArray(int) -> newArray
-    41:41:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+    48:48:uk.org.ngo.squeezer.model.SqueezerArtist[] newArray(int) -> newArray
+    52:52:uk.org.ngo.squeezer.model.SqueezerArtist createFromParcel(android.os.Parcel) -> createFromParcel
+    46:46:java.lang.Object[] newArray(int) -> newArray
+    46:46:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
 uk.org.ngo.squeezer.model.SqueezerGenre -> uk.org.ngo.squeezer.model.SqueezerGenre:
     java.lang.String name -> a
     android.os.Parcelable$Creator CREATOR -> CREATOR
-    28:28:java.lang.String getName() -> getName
-    50:52:void writeToParcel(android.os.Parcel,int) -> writeToParcel
-    56:56:java.lang.String toString() -> toString
+    29:29:java.lang.String getPlaylistTag() -> getPlaylistTag
+    33:33:java.lang.String getName() -> getName
+    55:57:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    61:61:java.lang.String toString() -> toString
 uk.org.ngo.squeezer.model.SqueezerGenre$1 -> uk.org.ngo.squeezer.model.SqueezerGenre$1:
-    38:38:uk.org.ngo.squeezer.model.SqueezerGenre[] newArray(int) -> newArray
-    42:42:uk.org.ngo.squeezer.model.SqueezerGenre createFromParcel(android.os.Parcel) -> createFromParcel
-    36:36:java.lang.Object[] newArray(int) -> newArray
-    36:36:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+    43:43:uk.org.ngo.squeezer.model.SqueezerGenre[] newArray(int) -> newArray
+    47:47:uk.org.ngo.squeezer.model.SqueezerGenre createFromParcel(android.os.Parcel) -> createFromParcel
+    41:41:java.lang.Object[] newArray(int) -> newArray
+    41:41:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+uk.org.ngo.squeezer.model.SqueezerMusicFolderItem -> uk.org.ngo.squeezer.model.SqueezerMusicFolderItem:
+    java.lang.String name -> a
+    java.lang.String type -> b
+    android.os.Parcelable$Creator CREATOR -> CREATOR
+    36:48:java.lang.String getPlaylistTag() -> getPlaylistTag
+    56:56:java.lang.String getName() -> getName
+    69:69:java.lang.String getType() -> getType
+    105:108:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    112:112:java.lang.String toString() -> toString
+uk.org.ngo.squeezer.model.SqueezerMusicFolderItem$1 -> uk.org.ngo.squeezer.model.SqueezerMusicFolderItem$1:
+    90:90:uk.org.ngo.squeezer.model.SqueezerMusicFolderItem[] newArray(int) -> newArray
+    94:94:uk.org.ngo.squeezer.model.SqueezerMusicFolderItem createFromParcel(android.os.Parcel) -> createFromParcel
+    88:88:java.lang.Object[] newArray(int) -> newArray
+    88:88:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
 uk.org.ngo.squeezer.model.SqueezerPlayer -> uk.org.ngo.squeezer.model.SqueezerPlayer:
     java.lang.String ip -> a
     java.lang.String name -> b
@@ -4108,15 +4210,16 @@ uk.org.ngo.squeezer.model.SqueezerPlayer$1 -> uk.org.ngo.squeezer.model.Squeezer
 uk.org.ngo.squeezer.model.SqueezerPlaylist -> uk.org.ngo.squeezer.model.SqueezerPlaylist:
     java.lang.String name -> a
     android.os.Parcelable$Creator CREATOR -> CREATOR
-    28:28:java.lang.String getName() -> getName
-    29:29:uk.org.ngo.squeezer.model.SqueezerPlaylist setName(java.lang.String) -> setName
-    50:52:void writeToParcel(android.os.Parcel,int) -> writeToParcel
-    56:56:java.lang.String toString() -> toString
+    29:29:java.lang.String getPlaylistTag() -> getPlaylistTag
+    33:33:java.lang.String getName() -> getName
+    34:34:uk.org.ngo.squeezer.model.SqueezerPlaylist setName(java.lang.String) -> setName
+    55:57:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    61:61:java.lang.String toString() -> toString
 uk.org.ngo.squeezer.model.SqueezerPlaylist$1 -> uk.org.ngo.squeezer.model.SqueezerPlaylist$1:
-    38:38:uk.org.ngo.squeezer.model.SqueezerPlaylist[] newArray(int) -> newArray
-    42:42:uk.org.ngo.squeezer.model.SqueezerPlaylist createFromParcel(android.os.Parcel) -> createFromParcel
-    36:36:java.lang.Object[] newArray(int) -> newArray
-    36:36:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+    43:43:uk.org.ngo.squeezer.model.SqueezerPlaylist[] newArray(int) -> newArray
+    47:47:uk.org.ngo.squeezer.model.SqueezerPlaylist createFromParcel(android.os.Parcel) -> createFromParcel
+    41:41:java.lang.Object[] newArray(int) -> newArray
+    41:41:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
 uk.org.ngo.squeezer.model.SqueezerPlugin -> uk.org.ngo.squeezer.model.SqueezerPlugin:
     java.lang.String name -> a
     java.lang.String icon -> b
@@ -4160,40 +4263,42 @@ uk.org.ngo.squeezer.model.SqueezerSong -> uk.org.ngo.squeezer.model.SqueezerSong
     boolean remote -> g
     java.lang.String artwork_url -> h
     android.os.Parcelable$Creator CREATOR -> CREATOR
-    33:33:java.lang.String getName() -> getName
-    34:34:uk.org.ngo.squeezer.model.SqueezerSong setName(java.lang.String) -> setName
-    37:37:java.lang.String getArtist() -> getArtist
-    38:38:void setArtist(java.lang.String) -> setArtist
-    41:41:java.lang.String getAlbum() -> getAlbum
-    42:42:void setAlbum(java.lang.String) -> setAlbum
-    45:45:int getYear() -> getYear
-    46:46:void setYear(int) -> setYear
-    49:49:java.lang.String getArtist_id() -> getArtist_id
-    50:50:void setArtist_id(java.lang.String) -> setArtist_id
-    53:53:java.lang.String getAlbum_id() -> getAlbum_id
-    54:54:void setAlbum_id(java.lang.String) -> setAlbum_id
-    57:57:boolean isRemote() -> isRemote
-    58:58:void setRemote(boolean) -> setRemote
-    62:62:java.lang.String getArtwork_url() -> getArtwork_url
-    63:63:void setArtwork_url(java.lang.String) -> setArtwork_url
-    66:75:java.lang.String getArtworkUrl(uk.org.ngo.squeezer.service.ISqueezeService) -> getArtworkUrl
-    112:120:void writeToParcel(android.os.Parcel,int) -> writeToParcel
-    125:125:java.lang.String toString() -> toString
+    32:32:java.lang.String getPlaylistTag() -> getPlaylistTag
+    36:36:java.lang.String getName() -> getName
+    37:37:uk.org.ngo.squeezer.model.SqueezerSong setName(java.lang.String) -> setName
+    40:40:java.lang.String getArtist() -> getArtist
+    41:41:void setArtist(java.lang.String) -> setArtist
+    44:44:java.lang.String getAlbum() -> getAlbum
+    45:45:void setAlbum(java.lang.String) -> setAlbum
+    48:48:int getYear() -> getYear
+    49:49:void setYear(int) -> setYear
+    52:52:java.lang.String getArtist_id() -> getArtist_id
+    53:53:void setArtist_id(java.lang.String) -> setArtist_id
+    56:56:java.lang.String getAlbum_id() -> getAlbum_id
+    57:57:void setAlbum_id(java.lang.String) -> setAlbum_id
+    60:60:boolean isRemote() -> isRemote
+    61:61:void setRemote(boolean) -> setRemote
+    65:65:java.lang.String getArtwork_url() -> getArtwork_url
+    66:66:void setArtwork_url(java.lang.String) -> setArtwork_url
+    69:78:java.lang.String getArtworkUrl(uk.org.ngo.squeezer.service.ISqueezeService) -> getArtworkUrl
+    133:141:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    146:146:java.lang.String toString() -> toString
 uk.org.ngo.squeezer.model.SqueezerSong$1 -> uk.org.ngo.squeezer.model.SqueezerSong$1:
-    94:94:uk.org.ngo.squeezer.model.SqueezerSong[] newArray(int) -> newArray
-    98:98:uk.org.ngo.squeezer.model.SqueezerSong createFromParcel(android.os.Parcel) -> createFromParcel
-    92:92:java.lang.Object[] newArray(int) -> newArray
-    92:92:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+    115:115:uk.org.ngo.squeezer.model.SqueezerSong[] newArray(int) -> newArray
+    119:119:uk.org.ngo.squeezer.model.SqueezerSong createFromParcel(android.os.Parcel) -> createFromParcel
+    113:113:java.lang.Object[] newArray(int) -> newArray
+    113:113:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
 uk.org.ngo.squeezer.model.SqueezerYear -> uk.org.ngo.squeezer.model.SqueezerYear:
     android.os.Parcelable$Creator CREATOR -> CREATOR
-    45:46:void writeToParcel(android.os.Parcel,int) -> writeToParcel
-    50:50:java.lang.String getName() -> getName
-    55:55:java.lang.String toString() -> toString
+    29:29:java.lang.String getPlaylistTag() -> getPlaylistTag
+    50:51:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    55:55:java.lang.String getName() -> getName
+    60:60:java.lang.String toString() -> toString
 uk.org.ngo.squeezer.model.SqueezerYear$1 -> uk.org.ngo.squeezer.model.SqueezerYear$1:
-    34:34:uk.org.ngo.squeezer.model.SqueezerYear[] newArray(int) -> newArray
-    38:38:uk.org.ngo.squeezer.model.SqueezerYear createFromParcel(android.os.Parcel) -> createFromParcel
-    32:32:java.lang.Object[] newArray(int) -> newArray
-    32:32:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
+    38:38:uk.org.ngo.squeezer.model.SqueezerYear[] newArray(int) -> newArray
+    42:42:uk.org.ngo.squeezer.model.SqueezerYear createFromParcel(android.os.Parcel) -> createFromParcel
+    36:36:java.lang.Object[] newArray(int) -> newArray
+    36:36:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
 uk.org.ngo.squeezer.service.ISqueezeService -> uk.org.ngo.squeezer.service.ISqueezeService:
     void registerCallback(uk.org.ngo.squeezer.IServiceCallback) -> registerCallback
     void unregisterCallback(uk.org.ngo.squeezer.IServiceCallback) -> unregisterCallback
@@ -4207,6 +4312,7 @@ uk.org.ngo.squeezer.service.ISqueezeService -> uk.org.ngo.squeezer.service.ISque
     boolean canPowerOff() -> canPowerOff
     boolean powerOn() -> powerOn
     boolean powerOff() -> powerOff
+    boolean canMusicfolder() -> canMusicfolder
     boolean canRandomplay() -> canRandomplay
     boolean isPlaying() -> isPlaying
     boolean togglePausePlay() -> togglePausePlay
@@ -4244,6 +4350,9 @@ uk.org.ngo.squeezer.service.ISqueezeService -> uk.org.ngo.squeezer.service.ISque
     boolean genres(int) -> genres
     void registerGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> registerGenreListCallback
     void unregisterGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> unregisterGenreListCallback
+    boolean musicFolders(int,java.lang.String) -> musicFolders
+    void registerMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> registerMusicFolderListCallback
+    void unregisterMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> unregisterMusicFolderListCallback
     boolean songs(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre) -> songs
     boolean currentPlaylist(int) -> currentPlaylist
     boolean playlistSongs(int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistSongs
@@ -4270,84 +4379,87 @@ uk.org.ngo.squeezer.service.ISqueezeService -> uk.org.ngo.squeezer.service.ISque
 uk.org.ngo.squeezer.service.ISqueezeService$Stub -> uk.org.ngo.squeezer.service.ISqueezeService$Stub:
     23:30:uk.org.ngo.squeezer.service.ISqueezeService asInterface(android.os.IBinder) -> asInterface
     34:34:android.os.IBinder asBinder() -> asBinder
-    38:863:boolean onTransact(int,android.os.Parcel,android.os.Parcel,int) -> onTransact
+    38:901:boolean onTransact(int,android.os.Parcel,android.os.Parcel,int) -> onTransact
 uk.org.ngo.squeezer.service.ISqueezeService$Stub$Proxy -> uk.org.ngo.squeezer.service.ISqueezeService$Stub$Proxy:
     android.os.IBinder mRemote -> a
-    874:874:android.os.IBinder asBinder() -> asBinder
-    884:894:void registerCallback(uk.org.ngo.squeezer.IServiceCallback) -> registerCallback
-    899:909:void unregisterCallback(uk.org.ngo.squeezer.IServiceCallback) -> unregisterCallback
-    917:927:void startConnect(java.lang.String) -> startConnect
-    932:941:void disconnect() -> disconnect
-    946:959:boolean isConnected() -> isConnected
-    965:975:void preferenceChanged(java.lang.String) -> preferenceChanged
-    982:998:void setActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setActivePlayer
-    1005:1018:java.lang.String getActivePlayerName() -> getActivePlayerName
-    1025:1038:boolean canPowerOn() -> canPowerOn
-    1042:1055:boolean canPowerOff() -> canPowerOff
-    1059:1072:boolean powerOn() -> powerOn
-    1076:1089:boolean powerOff() -> powerOff
-    1093:1106:boolean canRandomplay() -> canRandomplay
-    1110:1123:boolean isPlaying() -> isPlaying
-    1127:1140:boolean togglePausePlay() -> togglePausePlay
-    1144:1157:boolean play() -> play
-    1161:1174:boolean stop() -> stop
-    1178:1191:boolean nextTrack() -> nextTrack
-    1195:1208:boolean previousTrack() -> previousTrack
-    1212:1228:boolean playlistControl(java.lang.String,java.lang.String,java.lang.String) -> playlistControl
-    1232:1246:boolean randomPlay(java.lang.String) -> randomPlay
-    1250:1264:boolean playlistIndex(int) -> playlistIndex
-    1268:1282:boolean playlistRemove(int) -> playlistRemove
-    1286:1301:boolean playlistMove(int,int) -> playlistMove
-    1305:1318:boolean playlistClear() -> playlistClear
-    1322:1336:boolean playlistSave(java.lang.String) -> playlistSave
-    1340:1362:boolean pluginPlaylistControl(uk.org.ngo.squeezer.model.SqueezerPlugin,java.lang.String,java.lang.String) -> pluginPlaylistControl
-    1368:1381:int getSecondsTotal() -> getSecondsTotal
-    1385:1398:int getSecondsElapsed() -> getSecondsElapsed
-    1402:1416:boolean setSecondsElapsed(int) -> setSecondsElapsed
-    1420:1438:uk.org.ngo.squeezer.model.SqueezerSong currentSong() -> currentSong
-    1442:1456:java.lang.String getAlbumArtUrl(java.lang.String) -> getAlbumArtUrl
-    1460:1474:java.lang.String getIconUrl(java.lang.String) -> getIconUrl
-    1482:1496:int adjustVolumeBy(int) -> adjustVolumeBy
-    1502:1516:boolean players(int) -> players
-    1520:1530:void registerPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> registerPlayerListCallback
-    1535:1545:void unregisterPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> unregisterPlayerListCallback
-    1563:1607:boolean albums(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre,uk.org.ngo.squeezer.model.SqueezerSong) -> albums
-    1611:1621:void registerAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> registerAlbumListCallback
-    1626:1636:void unregisterAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> unregisterAlbumListCallback
-    1643:1672:boolean artists(int,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerGenre) -> artists
-    1676:1686:void registerArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> registerArtistListCallback
-    1691:1701:void unregisterArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> unregisterArtistListCallback
-    1708:1722:boolean years(int) -> years
-    1726:1736:void registerYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> registerYearListCallback
-    1741:1751:void unregisterYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> unregisterYearListCallback
-    1758:1772:boolean genres(int) -> genres
-    1776:1786:void registerGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> registerGenreListCallback
-    1791:1801:void unregisterGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> unregisterGenreListCallback
-    1808:1852:boolean songs(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre) -> songs
-    1856:1870:boolean currentPlaylist(int) -> currentPlaylist
-    1874:1895:boolean playlistSongs(int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistSongs
-    1899:1909:void registerSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> registerSongListCallback
-    1914:1924:void unregisterSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> unregisterSongListCallback
-    1931:1945:boolean playlists(int) -> playlists
-    1949:1959:void registerPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> registerPlaylistsCallback
-    1964:1974:void unregisterPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> unregisterPlaylistsCallback
-    1981:1991:void registerPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> registerPlaylistMaintenanceCallback
-    1996:2006:void unregisterPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> unregisterPlaylistMaintenanceCallback
-    2011:2025:boolean playlistsNew(java.lang.String) -> playlistsNew
-    2029:2050:boolean playlistsRename(uk.org.ngo.squeezer.model.SqueezerPlaylist,java.lang.String) -> playlistsRename
-    2054:2074:boolean playlistsDelete(uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistsDelete
-    2078:2100:boolean playlistsMove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int,int) -> playlistsMove
-    2104:2125:boolean playlistsRemove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int) -> playlistsRemove
-    2131:2146:boolean search(int,java.lang.String) -> search
-    2152:2166:boolean radios(int) -> radios
-    2170:2184:boolean apps(int) -> apps
-    2188:2198:void registerPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> registerPluginListCallback
-    2203:2213:void unregisterPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> unregisterPluginListCallback
-    2218:2247:boolean pluginItems(int,uk.org.ngo.squeezer.model.SqueezerPlugin,uk.org.ngo.squeezer.model.SqueezerPluginItem,java.lang.String) -> pluginItems
-    2251:2261:void registerPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> registerPluginItemListCallback
-    2266:2276:void unregisterPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> unregisterPluginItemListCallback
+    912:912:android.os.IBinder asBinder() -> asBinder
+    922:932:void registerCallback(uk.org.ngo.squeezer.IServiceCallback) -> registerCallback
+    937:947:void unregisterCallback(uk.org.ngo.squeezer.IServiceCallback) -> unregisterCallback
+    955:965:void startConnect(java.lang.String) -> startConnect
+    970:979:void disconnect() -> disconnect
+    984:997:boolean isConnected() -> isConnected
+    1003:1013:void preferenceChanged(java.lang.String) -> preferenceChanged
+    1020:1036:void setActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setActivePlayer
+    1043:1056:java.lang.String getActivePlayerName() -> getActivePlayerName
+    1063:1076:boolean canPowerOn() -> canPowerOn
+    1080:1093:boolean canPowerOff() -> canPowerOff
+    1097:1110:boolean powerOn() -> powerOn
+    1114:1127:boolean powerOff() -> powerOff
+    1131:1144:boolean canMusicfolder() -> canMusicfolder
+    1148:1161:boolean canRandomplay() -> canRandomplay
+    1165:1178:boolean isPlaying() -> isPlaying
+    1182:1195:boolean togglePausePlay() -> togglePausePlay
+    1199:1212:boolean play() -> play
+    1216:1229:boolean stop() -> stop
+    1233:1246:boolean nextTrack() -> nextTrack
+    1250:1263:boolean previousTrack() -> previousTrack
+    1267:1283:boolean playlistControl(java.lang.String,java.lang.String,java.lang.String) -> playlistControl
+    1287:1301:boolean randomPlay(java.lang.String) -> randomPlay
+    1305:1319:boolean playlistIndex(int) -> playlistIndex
+    1323:1337:boolean playlistRemove(int) -> playlistRemove
+    1341:1356:boolean playlistMove(int,int) -> playlistMove
+    1360:1373:boolean playlistClear() -> playlistClear
+    1377:1391:boolean playlistSave(java.lang.String) -> playlistSave
+    1395:1417:boolean pluginPlaylistControl(uk.org.ngo.squeezer.model.SqueezerPlugin,java.lang.String,java.lang.String) -> pluginPlaylistControl
+    1423:1436:int getSecondsTotal() -> getSecondsTotal
+    1440:1453:int getSecondsElapsed() -> getSecondsElapsed
+    1457:1471:boolean setSecondsElapsed(int) -> setSecondsElapsed
+    1475:1493:uk.org.ngo.squeezer.model.SqueezerSong currentSong() -> currentSong
+    1497:1511:java.lang.String getAlbumArtUrl(java.lang.String) -> getAlbumArtUrl
+    1515:1529:java.lang.String getIconUrl(java.lang.String) -> getIconUrl
+    1537:1551:int adjustVolumeBy(int) -> adjustVolumeBy
+    1557:1571:boolean players(int) -> players
+    1575:1585:void registerPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> registerPlayerListCallback
+    1590:1600:void unregisterPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> unregisterPlayerListCallback
+    1618:1662:boolean albums(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre,uk.org.ngo.squeezer.model.SqueezerSong) -> albums
+    1666:1676:void registerAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> registerAlbumListCallback
+    1681:1691:void unregisterAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> unregisterAlbumListCallback
+    1698:1727:boolean artists(int,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerGenre) -> artists
+    1731:1741:void registerArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> registerArtistListCallback
+    1746:1756:void unregisterArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> unregisterArtistListCallback
+    1763:1777:boolean years(int) -> years
+    1781:1791:void registerYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> registerYearListCallback
+    1796:1806:void unregisterYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> unregisterYearListCallback
+    1813:1827:boolean genres(int) -> genres
+    1831:1841:void registerGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> registerGenreListCallback
+    1846:1856:void unregisterGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> unregisterGenreListCallback
+    1863:1878:boolean musicFolders(int,java.lang.String) -> musicFolders
+    1882:1892:void registerMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> registerMusicFolderListCallback
+    1897:1907:void unregisterMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> unregisterMusicFolderListCallback
+    1914:1958:boolean songs(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre) -> songs
+    1962:1976:boolean currentPlaylist(int) -> currentPlaylist
+    1980:2001:boolean playlistSongs(int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistSongs
+    2005:2015:void registerSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> registerSongListCallback
+    2020:2030:void unregisterSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> unregisterSongListCallback
+    2037:2051:boolean playlists(int) -> playlists
+    2055:2065:void registerPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> registerPlaylistsCallback
+    2070:2080:void unregisterPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> unregisterPlaylistsCallback
+    2087:2097:void registerPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> registerPlaylistMaintenanceCallback
+    2102:2112:void unregisterPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> unregisterPlaylistMaintenanceCallback
+    2117:2131:boolean playlistsNew(java.lang.String) -> playlistsNew
+    2135:2156:boolean playlistsRename(uk.org.ngo.squeezer.model.SqueezerPlaylist,java.lang.String) -> playlistsRename
+    2160:2180:boolean playlistsDelete(uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistsDelete
+    2184:2206:boolean playlistsMove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int,int) -> playlistsMove
+    2210:2231:boolean playlistsRemove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int) -> playlistsRemove
+    2237:2252:boolean search(int,java.lang.String) -> search
+    2258:2272:boolean radios(int) -> radios
+    2276:2290:boolean apps(int) -> apps
+    2294:2304:void registerPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> registerPluginListCallback
+    2309:2319:void unregisterPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> unregisterPluginListCallback
+    2324:2353:boolean pluginItems(int,uk.org.ngo.squeezer.model.SqueezerPlugin,uk.org.ngo.squeezer.model.SqueezerPluginItem,java.lang.String) -> pluginItems
+    2357:2367:void registerPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> registerPluginItemListCallback
+    2372:2382:void unregisterPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> unregisterPluginItemListCallback
 uk.org.ngo.squeezer.service.SqueezeService -> uk.org.ngo.squeezer.service.SqueezeService:
-    java.util.Map itemKeys -> p
     java.util.concurrent.ScheduledThreadPoolExecutor executor -> q
     java.util.concurrent.atomic.AtomicReference playerListCallback -> a
     java.util.concurrent.atomic.AtomicReference albumListCallback -> b
@@ -4359,176 +4471,179 @@ uk.org.ngo.squeezer.service.SqueezeService -> uk.org.ngo.squeezer.service.Squeez
     java.util.concurrent.atomic.AtomicReference playlistMaintenanceCallback -> h
     java.util.concurrent.atomic.AtomicReference pluginListCallback -> i
     java.util.concurrent.atomic.AtomicReference pluginItemListCallback -> j
-    uk.org.ngo.squeezer.service.SqueezerConnectionState connectionState -> k
-    uk.org.ngo.squeezer.service.SqueezerPlayerState playerState -> l
-    uk.org.ngo.squeezer.service.SqueezerCLIImpl cli -> m
+    java.util.concurrent.atomic.AtomicReference musicFolderListCallback -> k
+    uk.org.ngo.squeezer.service.SqueezerConnectionState connectionState -> l
+    uk.org.ngo.squeezer.service.SqueezerPlayerState playerState -> m
+    uk.org.ngo.squeezer.service.SqueezerCLIImpl cli -> n
     uk.org.ngo.squeezer.VolumePanel mVolumePanel -> r
     int scrobbleType -> s
-    boolean debugLogging -> n
-    android.content.SharedPreferences preferences -> o
+    boolean debugLogging -> o
+    android.content.SharedPreferences preferences -> p
     java.util.Map globalHandlers -> t
     java.util.Map prefixedHandlers -> u
     java.util.Map playerSpecificHandlers -> v
     java.util.Map prefixedPlayerSpecificHandlers -> w
     uk.org.ngo.squeezer.service.ISqueezeService$Stub squeezeService -> x
-    75:82:java.util.Map initializeItemKeys() -> initializeItemKeys
-    115:130:void onCreate() -> onCreate
-    133:135:void getPreferences() -> getPreferences
-    139:139:android.os.IBinder onBind(android.content.Intent) -> onBind
-    144:147:void onDestroy() -> onDestroy
-    150:153:void disconnect() -> disconnect
-    161:222:java.util.Map initializeGlobalHandlers() -> initializeGlobalHandlers
-    226:236:java.util.Map initializePrefixedHandlers() -> initializePrefixedHandlers
-    240:288:java.util.Map initializePlayerSpecificHandlers() -> initializePlayerSpecificHandlers
-    292:302:java.util.Map initializePrefixedPlayerSpecificHandlers() -> initializePrefixedPlayerSpecificHandlers
-    311:342:void onLineReceived(java.lang.String) -> onLineReceived
-    345:347:void sendNewVolumeCallback(int) -> sendNewVolumeCallback
-    350:355:void sendNewTimeCallback(int,int) -> sendNewTimeCallback
-    358:368:void parsePlaylistNotification(java.util.List) -> parsePlaylistNotification
-    380:388:void parseMode(java.lang.String) -> parseMode
-    391:405:java.util.HashMap parseTokens(java.util.List) -> parseTokens
-    409:431:void parseStatusLine(java.util.List) -> parseStatusLine
-    434:478:void changeActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> changeActivePlayer
-    489:494:void updatePlayerSubscriptionState() -> updatePlayerSubscriptionState
-    497:502:void onCliPortConnectionEstablished() -> onCliPortConnectionEstablished
-    505:518:void setPlayingState(boolean) -> setPlayingState
-    521:578:void updateOngoingNotification() -> updateOngoingNotification
-    581:588:void sendMusicChangedCallback() -> sendMusicChangedCallback
-    591:594:void clearOngoingNotification() -> clearOngoingNotification
-    65:65:java.util.HashMap access$000(uk.org.ngo.squeezer.service.SqueezeService,java.util.List) -> access$000
-    65:65:void access$100(uk.org.ngo.squeezer.service.SqueezeService,int) -> access$100
-    65:65:void access$200(uk.org.ngo.squeezer.service.SqueezeService,boolean) -> access$200
-    65:65:void access$300(uk.org.ngo.squeezer.service.SqueezeService,java.lang.String) -> access$300
-    65:65:void access$400(uk.org.ngo.squeezer.service.SqueezeService,java.util.List) -> access$400
-    65:65:void access$500(uk.org.ngo.squeezer.service.SqueezeService,java.util.List) -> access$500
-    65:65:void access$600(uk.org.ngo.squeezer.service.SqueezeService) -> access$600
-    65:65:java.util.concurrent.ScheduledThreadPoolExecutor access$700(uk.org.ngo.squeezer.service.SqueezeService) -> access$700
-    65:65:java.util.Map access$800() -> access$800
-    65:65:void access$900(uk.org.ngo.squeezer.service.SqueezeService) -> access$900
-    65:65:void access$1000(uk.org.ngo.squeezer.service.SqueezeService) -> access$1000
+    105:120:void onCreate() -> onCreate
+    123:125:void getPreferences() -> getPreferences
+    129:129:android.os.IBinder onBind(android.content.Intent) -> onBind
+    134:137:void onDestroy() -> onDestroy
+    140:143:void disconnect() -> disconnect
+    151:216:java.util.Map initializeGlobalHandlers() -> initializeGlobalHandlers
+    220:230:java.util.Map initializePrefixedHandlers() -> initializePrefixedHandlers
+    234:282:java.util.Map initializePlayerSpecificHandlers() -> initializePlayerSpecificHandlers
+    286:296:java.util.Map initializePrefixedPlayerSpecificHandlers() -> initializePrefixedPlayerSpecificHandlers
+    305:336:void onLineReceived(java.lang.String) -> onLineReceived
+    339:341:void sendNewVolumeCallback(int) -> sendNewVolumeCallback
+    344:349:void sendNewTimeCallback(int,int) -> sendNewTimeCallback
+    352:362:void parsePlaylistNotification(java.util.List) -> parsePlaylistNotification
+    374:382:void parseMode(java.lang.String) -> parseMode
+    385:399:java.util.HashMap parseTokens(java.util.List) -> parseTokens
+    403:425:void parseStatusLine(java.util.List) -> parseStatusLine
+    428:472:void changeActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> changeActivePlayer
+    483:488:void updatePlayerSubscriptionState() -> updatePlayerSubscriptionState
+    491:497:void onCliPortConnectionEstablished() -> onCliPortConnectionEstablished
+    500:513:void setPlayingState(boolean) -> setPlayingState
+    516:573:void updateOngoingNotification() -> updateOngoingNotification
+    576:583:void sendMusicChangedCallback() -> sendMusicChangedCallback
+    586:589:void clearOngoingNotification() -> clearOngoingNotification
+    67:67:java.util.HashMap access$000(uk.org.ngo.squeezer.service.SqueezeService,java.util.List) -> access$000
+    67:67:void access$100(uk.org.ngo.squeezer.service.SqueezeService,int) -> access$100
+    67:67:void access$200(uk.org.ngo.squeezer.service.SqueezeService,boolean) -> access$200
+    67:67:void access$300(uk.org.ngo.squeezer.service.SqueezeService,java.lang.String) -> access$300
+    67:67:void access$400(uk.org.ngo.squeezer.service.SqueezeService,java.util.List) -> access$400
+    67:67:void access$500(uk.org.ngo.squeezer.service.SqueezeService,java.util.List) -> access$500
+    67:67:void access$600(uk.org.ngo.squeezer.service.SqueezeService) -> access$600
+    67:67:java.util.concurrent.ScheduledThreadPoolExecutor access$700(uk.org.ngo.squeezer.service.SqueezeService) -> access$700
+    67:67:void access$800(uk.org.ngo.squeezer.service.SqueezeService) -> access$800
+    67:67:void access$900(uk.org.ngo.squeezer.service.SqueezeService) -> access$900
 uk.org.ngo.squeezer.service.SqueezeService$1 -> uk.org.ngo.squeezer.service.SqueezeService$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd val$cmd -> a
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> b
-    166:167:void handle(java.util.List) -> handle
+    156:157:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$10 -> uk.org.ngo.squeezer.service.SqueezeService$10:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    270:271:void handle(java.util.List) -> handle
+    264:265:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$11 -> uk.org.ngo.squeezer.service.SqueezeService$11:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    275:280:void handle(java.util.List) -> handle
+    269:274:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$12 -> uk.org.ngo.squeezer.service.SqueezeService$12:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    284:285:void handle(java.util.List) -> handle
+    278:279:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$13 -> uk.org.ngo.squeezer.service.SqueezeService$13:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd val$cmd -> a
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> b
-    297:298:void handle(java.util.List) -> handle
+    291:292:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$14 -> uk.org.ngo.squeezer.service.SqueezeService$14:
     java.lang.String val$playerId -> a
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> b
-    464:469:void run() -> run
+    458:463:void run() -> run
 uk.org.ngo.squeezer.service.SqueezeService$15 -> uk.org.ngo.squeezer.service.SqueezeService$15:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    599:602:void registerCallback(uk.org.ngo.squeezer.IServiceCallback) -> registerCallback
-    605:608:void unregisterCallback(uk.org.ngo.squeezer.IServiceCallback) -> unregisterCallback
-    611:616:int adjustVolumeBy(int) -> adjustVolumeBy
-    620:620:boolean isConnected() -> isConnected
-    624:625:void startConnect(java.lang.String) -> startConnect
-    628:630:void disconnect() -> disconnect
-    633:635:boolean powerOn() -> powerOn
-    639:641:boolean powerOff() -> powerOff
-    645:645:boolean canPowerOn() -> canPowerOn
-    649:649:boolean canPowerOff() -> canPowerOff
-    653:654:boolean canPower() -> canPower
-    658:658:boolean canRandomplay() -> canRandomplay
-    662:675:boolean togglePausePlay() -> togglePausePlay
-    680:684:boolean play() -> play
-    689:692:boolean stop() -> stop
-    696:698:boolean nextTrack() -> nextTrack
-    702:704:boolean previousTrack() -> previousTrack
-    708:710:boolean playlistControl(java.lang.String,java.lang.String,java.lang.String) -> playlistControl
-    715:717:boolean randomPlay(java.lang.String) -> randomPlay
-    721:723:boolean playlistIndex(int) -> playlistIndex
-    727:729:boolean playlistRemove(int) -> playlistRemove
-    733:735:boolean playlistMove(int,int) -> playlistMove
-    739:741:boolean playlistClear() -> playlistClear
-    745:747:boolean playlistSave(java.lang.String) -> playlistSave
-    751:753:boolean pluginPlaylistControl(uk.org.ngo.squeezer.model.SqueezerPlugin,java.lang.String,java.lang.String) -> pluginPlaylistControl
-    758:758:boolean isPlaying() -> isPlaying
-    762:763:void setActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setActivePlayer
-    766:767:java.lang.String getActivePlayerName() -> getActivePlayerName
-    771:771:uk.org.ngo.squeezer.model.SqueezerSong currentSong() -> currentSong
-    775:777:java.lang.String getAlbumArtUrl(java.lang.String) -> getAlbumArtUrl
-    781:781:java.lang.String artworkTrackIdUrl(java.lang.String) -> artworkTrackIdUrl
-    785:787:java.lang.String getIconUrl(java.lang.String) -> getIconUrl
-    791:791:int getSecondsElapsed() -> getSecondsElapsed
-    795:800:boolean setSecondsElapsed(int) -> setSecondsElapsed
-    804:804:int getSecondsTotal() -> getSecondsTotal
-    808:814:void preferenceChanged(java.lang.String) -> preferenceChanged
-    819:821:boolean players(int) -> players
-    826:828:void registerPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> registerPlayerListCallback
-    831:834:void unregisterPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> unregisterPlayerListCallback
-    840:855:boolean albums(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre,uk.org.ngo.squeezer.model.SqueezerSong) -> albums
-    859:861:void registerAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> registerAlbumListCallback
-    864:867:void unregisterAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> unregisterAlbumListCallback
-    873:882:boolean artists(int,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerGenre) -> artists
-    886:888:void registerArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> registerArtistListCallback
-    891:894:void unregisterArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> unregisterArtistListCallback
-    899:901:boolean years(int) -> years
-    905:907:void registerYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> registerYearListCallback
-    910:913:void unregisterYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> unregisterYearListCallback
-    918:920:boolean genres(int) -> genres
-    924:926:void registerGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> registerGenreListCallback
-    929:932:void unregisterGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> unregisterGenreListCallback
-    938:954:boolean songs(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre) -> songs
-    959:961:boolean currentPlaylist(int) -> currentPlaylist
-    966:968:boolean playlistSongs(int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistSongs
-    972:974:void registerSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> registerSongListCallback
-    977:980:void unregisterSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> unregisterSongListCallback
-    985:987:boolean playlists(int) -> playlists
-    991:993:void registerPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> registerPlaylistsCallback
-    996:999:void unregisterPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> unregisterPlaylistsCallback
-    1003:1005:void registerPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> registerPlaylistMaintenanceCallback
-    1008:1010:void unregisterPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> unregisterPlaylistMaintenanceCallback
-    1013:1015:boolean playlistsDelete(uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistsDelete
-    1019:1022:boolean playlistsMove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int,int) -> playlistsMove
-    1026:1028:boolean playlistsNew(java.lang.String) -> playlistsNew
-    1032:1034:boolean playlistsRemove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int) -> playlistsRemove
-    1038:1040:boolean playlistsRename(uk.org.ngo.squeezer.model.SqueezerPlaylist,java.lang.String) -> playlistsRename
-    1046:1051:boolean search(int,java.lang.String) -> search
-    1056:1058:boolean radios(int) -> radios
-    1063:1065:boolean apps(int) -> apps
-    1069:1071:void registerPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> registerPluginListCallback
-    1074:1077:void unregisterPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> unregisterPluginListCallback
-    1082:1089:boolean pluginItems(int,uk.org.ngo.squeezer.model.SqueezerPlugin,uk.org.ngo.squeezer.model.SqueezerPluginItem,java.lang.String) -> pluginItems
-    1093:1095:void registerPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> registerPluginItemListCallback
-    1098:1101:void unregisterPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> unregisterPluginItemListCallback
+    594:597:void registerCallback(uk.org.ngo.squeezer.IServiceCallback) -> registerCallback
+    600:603:void unregisterCallback(uk.org.ngo.squeezer.IServiceCallback) -> unregisterCallback
+    606:611:int adjustVolumeBy(int) -> adjustVolumeBy
+    615:615:boolean isConnected() -> isConnected
+    619:620:void startConnect(java.lang.String) -> startConnect
+    623:625:void disconnect() -> disconnect
+    628:630:boolean powerOn() -> powerOn
+    634:636:boolean powerOff() -> powerOff
+    640:640:boolean canPowerOn() -> canPowerOn
+    644:644:boolean canPowerOff() -> canPowerOff
+    648:649:boolean canPower() -> canPower
+    659:659:boolean canMusicfolder() -> canMusicfolder
+    663:663:boolean canRandomplay() -> canRandomplay
+    667:680:boolean togglePausePlay() -> togglePausePlay
+    685:689:boolean play() -> play
+    694:697:boolean stop() -> stop
+    701:703:boolean nextTrack() -> nextTrack
+    707:709:boolean previousTrack() -> previousTrack
+    714:717:boolean playlistControl(java.lang.String,java.lang.String,java.lang.String) -> playlistControl
+    721:723:boolean randomPlay(java.lang.String) -> randomPlay
+    727:729:boolean playlistIndex(int) -> playlistIndex
+    733:735:boolean playlistRemove(int) -> playlistRemove
+    739:741:boolean playlistMove(int,int) -> playlistMove
+    745:747:boolean playlistClear() -> playlistClear
+    751:753:boolean playlistSave(java.lang.String) -> playlistSave
+    757:759:boolean pluginPlaylistControl(uk.org.ngo.squeezer.model.SqueezerPlugin,java.lang.String,java.lang.String) -> pluginPlaylistControl
+    764:764:boolean isPlaying() -> isPlaying
+    768:769:void setActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setActivePlayer
+    772:773:java.lang.String getActivePlayerName() -> getActivePlayerName
+    777:777:uk.org.ngo.squeezer.model.SqueezerSong currentSong() -> currentSong
+    781:783:java.lang.String getAlbumArtUrl(java.lang.String) -> getAlbumArtUrl
+    787:787:java.lang.String artworkTrackIdUrl(java.lang.String) -> artworkTrackIdUrl
+    791:793:java.lang.String getIconUrl(java.lang.String) -> getIconUrl
+    797:797:int getSecondsElapsed() -> getSecondsElapsed
+    801:806:boolean setSecondsElapsed(int) -> setSecondsElapsed
+    810:810:int getSecondsTotal() -> getSecondsTotal
+    814:820:void preferenceChanged(java.lang.String) -> preferenceChanged
+    825:827:boolean players(int) -> players
+    832:834:void registerPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> registerPlayerListCallback
+    837:840:void unregisterPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> unregisterPlayerListCallback
+    846:861:boolean albums(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre,uk.org.ngo.squeezer.model.SqueezerSong) -> albums
+    865:867:void registerAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> registerAlbumListCallback
+    870:873:void unregisterAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> unregisterAlbumListCallback
+    879:888:boolean artists(int,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerGenre) -> artists
+    892:894:void registerArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> registerArtistListCallback
+    897:900:void unregisterArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> unregisterArtistListCallback
+    905:907:boolean years(int) -> years
+    911:913:void registerYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> registerYearListCallback
+    916:919:void unregisterYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> unregisterYearListCallback
+    924:926:boolean genres(int) -> genres
+    930:932:void registerGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> registerGenreListCallback
+    935:938:void unregisterGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> unregisterGenreListCallback
+    956:967:boolean musicFolders(int,java.lang.String) -> musicFolders
+    972:974:void registerMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> registerMusicFolderListCallback
+    978:981:void unregisterMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> unregisterMusicFolderListCallback
+    986:1002:boolean songs(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre) -> songs
+    1007:1009:boolean currentPlaylist(int) -> currentPlaylist
+    1014:1016:boolean playlistSongs(int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistSongs
+    1020:1022:void registerSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> registerSongListCallback
+    1025:1028:void unregisterSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> unregisterSongListCallback
+    1033:1035:boolean playlists(int) -> playlists
+    1039:1041:void registerPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> registerPlaylistsCallback
+    1044:1047:void unregisterPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> unregisterPlaylistsCallback
+    1051:1053:void registerPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> registerPlaylistMaintenanceCallback
+    1056:1058:void unregisterPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> unregisterPlaylistMaintenanceCallback
+    1061:1063:boolean playlistsDelete(uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistsDelete
+    1067:1070:boolean playlistsMove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int,int) -> playlistsMove
+    1074:1076:boolean playlistsNew(java.lang.String) -> playlistsNew
+    1080:1082:boolean playlistsRemove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int) -> playlistsRemove
+    1086:1088:boolean playlistsRename(uk.org.ngo.squeezer.model.SqueezerPlaylist,java.lang.String) -> playlistsRename
+    1094:1099:boolean search(int,java.lang.String) -> search
+    1104:1106:boolean radios(int) -> radios
+    1111:1113:boolean apps(int) -> apps
+    1117:1119:void registerPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> registerPluginListCallback
+    1122:1125:void unregisterPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> unregisterPluginListCallback
+    1130:1137:boolean pluginItems(int,uk.org.ngo.squeezer.model.SqueezerPlugin,uk.org.ngo.squeezer.model.SqueezerPluginItem,java.lang.String) -> pluginItems
+    1141:1143:void registerPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> registerPluginItemListCallback
+    1146:1149:void unregisterPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> unregisterPluginItemListCallback
 uk.org.ngo.squeezer.service.SqueezeService$2 -> uk.org.ngo.squeezer.service.SqueezeService$2:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    172:205:void handle(java.util.List) -> handle
+    162:195:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$3 -> uk.org.ngo.squeezer.service.SqueezeService$3:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    209:212:void handle(java.util.List) -> handle
+    199:202:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$4 -> uk.org.ngo.squeezer.service.SqueezeService$4:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    216:219:void handle(java.util.List) -> handle
+    206:213:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$5 -> uk.org.ngo.squeezer.service.SqueezeService$5:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd val$cmd -> a
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> b
-    231:232:void handle(java.util.List) -> handle
+    225:226:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$6 -> uk.org.ngo.squeezer.service.SqueezeService$6:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd val$cmd -> a
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> b
-    245:246:void handle(java.util.List) -> handle
+    239:240:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$7 -> uk.org.ngo.squeezer.service.SqueezeService$7:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    251:256:void handle(java.util.List) -> handle
+    245:250:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$8 -> uk.org.ngo.squeezer.service.SqueezeService$8:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    260:261:void handle(java.util.List) -> handle
+    254:255:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$9 -> uk.org.ngo.squeezer.service.SqueezeService$9:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    265:266:void handle(java.util.List) -> handle
+    259:260:void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezeService$SqueezerCmdHandler -> uk.org.ngo.squeezer.service.SqueezeService$SqueezerCmdHandler:
     void handle(java.util.List) -> handle
 uk.org.ngo.squeezer.service.SqueezerCLIImpl -> uk.org.ngo.squeezer.service.SqueezerCLIImpl:
@@ -4539,48 +4654,48 @@ uk.org.ngo.squeezer.service.SqueezerCLIImpl -> uk.org.ngo.squeezer.service.Squee
     int _correlationid -> e
     java.util.Map cmdCorrelationIds -> f
     java.util.Map typeCorrelationIds -> g
-    82:223:uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd[] initializeExtQueryFormatCmds() -> initializeExtQueryFormatCmds
-    227:230:java.util.Map initializeExtQueryFormatCmdMap() -> initializeExtQueryFormatCmdMap
-    242:243:void initialize() -> initialize
-    251:264:void sendCommand(java.lang.String[]) -> sendCommand
-    267:271:void sendPlayerCommand(java.lang.String) -> sendPlayerCommand
-    274:275:boolean checkCorrelation(java.lang.Integer,int) -> checkCorrelation
-    285:286:void cancelRequests(java.lang.Class) -> cancelRequests
-    289:289:boolean checkCorrelation(java.lang.String,int) -> checkCorrelation
-    293:293:boolean checkCorrelation(java.lang.Class,int) -> checkCorrelation
-    312:319:void requestItems(java.lang.String,java.lang.String,int,java.util.List) -> requestItems
-    322:323:void requestItems(java.lang.String,int,java.util.List) -> requestItems
-    326:327:void requestItems(java.lang.String,int) -> requestItems
-    330:334:void requestPlayerItems(java.lang.String,int,java.util.List) -> requestPlayerItems
-    423:516:void parseSqueezerList(uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd,java.util.List) -> parseSqueezerList
-    46:46:uk.org.ngo.squeezer.service.SqueezeService access$000(uk.org.ngo.squeezer.service.SqueezerCLIImpl) -> access$000
+    81:229:uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd[] initializeExtQueryFormatCmds() -> initializeExtQueryFormatCmds
+    233:236:java.util.Map initializeExtQueryFormatCmdMap() -> initializeExtQueryFormatCmdMap
+    248:249:void initialize() -> initialize
+    257:270:void sendCommand(java.lang.String[]) -> sendCommand
+    273:277:void sendPlayerCommand(java.lang.String) -> sendPlayerCommand
+    280:281:boolean checkCorrelation(java.lang.Integer,int) -> checkCorrelation
+    291:292:void cancelRequests(java.lang.Class) -> cancelRequests
+    295:295:boolean checkCorrelation(java.lang.String,int) -> checkCorrelation
+    299:299:boolean checkCorrelation(java.lang.Class,int) -> checkCorrelation
+    318:325:void requestItems(java.lang.String,java.lang.String,int,java.util.List) -> requestItems
+    328:329:void requestItems(java.lang.String,int,java.util.List) -> requestItems
+    332:333:void requestItems(java.lang.String,int) -> requestItems
+    336:340:void requestPlayerItems(java.lang.String,int,java.util.List) -> requestPlayerItems
+    429:522:void parseSqueezerList(uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd,java.util.List) -> parseSqueezerList
+    45:45:uk.org.ngo.squeezer.service.SqueezeService access$000(uk.org.ngo.squeezer.service.SqueezerCLIImpl) -> access$000
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$1:
     uk.org.ngo.squeezer.model.SqueezerPlayer defaultPlayer -> a
     java.lang.String lastConnectedPlayer -> b
     java.util.List players -> c
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> d
-    95:95:java.lang.Class getDataType() -> getDataType
-    99:103:void clear() -> clear
-    106:111:void add(java.util.Map) -> add
-    114:128:boolean processList(boolean,int,int,java.util.Map) -> processList
+    94:94:java.lang.Class getDataType() -> getDataType
+    98:102:void clear() -> clear
+    105:110:void add(java.util.Map) -> add
+    113:127:boolean processList(boolean,int,int,java.util.Map) -> processList
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$1$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$1$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$1 this$1 -> a
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$AlbumListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$AlbumListHandler:
     java.util.List albums -> a
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> b
-    610:610:java.lang.Class getDataType() -> getDataType
-    614:615:void clear() -> clear
-    618:619:void add(java.util.Map) -> add
-    622:630:boolean processList(boolean,int,int,java.util.Map) -> processList
+    616:616:java.lang.Class getDataType() -> getDataType
+    620:621:void clear() -> clear
+    624:625:void add(java.util.Map) -> add
+    628:636:boolean processList(boolean,int,int,java.util.Map) -> processList
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$AlbumListHandler$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$AlbumListHandler$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$AlbumListHandler this$1 -> a
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$ArtistListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$ArtistListHandler:
     java.util.List artists -> a
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> b
-    581:581:java.lang.Class getDataType() -> getDataType
-    585:587:void clear() -> clear
-    590:591:void add(java.util.Map) -> add
-    594:602:boolean processList(boolean,int,int,java.util.Map) -> processList
+    587:587:java.lang.Class getDataType() -> getDataType
+    591:593:void clear() -> clear
+    596:597:void add(java.util.Map) -> add
+    600:608:boolean processList(boolean,int,int,java.util.Map) -> processList
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$ArtistListHandler$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$ArtistListHandler$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$ArtistListHandler this$1 -> a
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd:
@@ -4590,60 +4705,69 @@ uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd -> uk.org.ngo
     java.util.Set taggedParameters -> d
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo[] parserInfos -> e
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> f
-    49:49:uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo[] access$1100(uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd) -> access$1100
-    49:49:java.util.Set access$1500(uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd) -> access$1500
+    48:48:uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo[] access$1200(uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd) -> access$1200
+    48:48:java.util.Set access$1600(uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd) -> access$1600
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$GenreListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$GenreListHandler:
     java.util.List genres -> a
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> b
-    552:552:java.lang.Class getDataType() -> getDataType
-    556:557:void clear() -> clear
-    560:561:void add(java.util.Map) -> add
-    564:572:boolean processList(boolean,int,int,java.util.Map) -> processList
+    558:558:java.lang.Class getDataType() -> getDataType
+    562:563:void clear() -> clear
+    566:567:void add(java.util.Map) -> add
+    570:578:boolean processList(boolean,int,int,java.util.Map) -> processList
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$GenreListHandler$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$GenreListHandler$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$GenreListHandler this$1 -> a
+uk.org.ngo.squeezer.service.SqueezerCLIImpl$MusicFolderListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$MusicFolderListHandler:
+    java.util.List musicFolders -> a
+    uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> b
+    644:644:java.lang.Class getDataType() -> getDataType
+    648:651:void clear() -> clear
+    654:655:void add(java.util.Map) -> add
+    659:669:boolean processList(boolean,int,int,java.util.Map) -> processList
+uk.org.ngo.squeezer.service.SqueezerCLIImpl$MusicFolderListHandler$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$MusicFolderListHandler$1:
+    uk.org.ngo.squeezer.service.SqueezerCLIImpl$MusicFolderListHandler this$1 -> a
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$PlaylistsHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$PlaylistsHandler:
     java.util.List playlists -> a
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> b
-    666:666:java.lang.Class getDataType() -> getDataType
-    670:671:void clear() -> clear
-    674:675:void add(java.util.Map) -> add
-    678:686:boolean processList(boolean,int,int,java.util.Map) -> processList
+    705:705:java.lang.Class getDataType() -> getDataType
+    709:710:void clear() -> clear
+    713:714:void add(java.util.Map) -> add
+    717:725:boolean processList(boolean,int,int,java.util.Map) -> processList
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$PlaylistsHandler$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$PlaylistsHandler$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$PlaylistsHandler this$1 -> a
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginItemListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginItemListHandler:
     java.util.List pluginItems -> a
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> b
-    724:724:java.lang.Class getDataType() -> getDataType
-    728:729:void clear() -> clear
-    732:733:void add(java.util.Map) -> add
-    736:744:boolean processList(boolean,int,int,java.util.Map) -> processList
+    763:763:java.lang.Class getDataType() -> getDataType
+    767:768:void clear() -> clear
+    771:772:void add(java.util.Map) -> add
+    775:783:boolean processList(boolean,int,int,java.util.Map) -> processList
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginItemListHandler$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginItemListHandler$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginItemListHandler this$1 -> a
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginListHandler:
     java.util.List plugins -> a
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> b
-    695:695:java.lang.Class getDataType() -> getDataType
-    699:700:void clear() -> clear
-    703:704:void add(java.util.Map) -> add
-    707:715:boolean processList(boolean,int,int,java.util.Map) -> processList
+    734:734:java.lang.Class getDataType() -> getDataType
+    738:739:void clear() -> clear
+    742:743:void add(java.util.Map) -> add
+    746:754:boolean processList(boolean,int,int,java.util.Map) -> processList
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginListHandler$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginListHandler$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$PluginListHandler this$1 -> a
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$SongListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$SongListHandler:
     java.util.List songs -> a
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> b
-    638:638:java.lang.Class getDataType() -> getDataType
-    642:643:void clear() -> clear
-    646:647:void add(java.util.Map) -> add
-    650:658:boolean processList(boolean,int,int,java.util.Map) -> processList
+    677:677:java.lang.Class getDataType() -> getDataType
+    681:682:void clear() -> clear
+    685:686:void add(java.util.Map) -> add
+    689:697:boolean processList(boolean,int,int,java.util.Map) -> processList
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$SongListHandler$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$SongListHandler$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$SongListHandler this$1 -> a
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo:
     java.lang.String item_delimiter -> a
     java.lang.String count_id -> b
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezerListHandler handler -> c
-    347:347:uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezerListHandler access$1200(uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo) -> access$1200
-    347:347:java.lang.String access$1300(uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo) -> access$1300
-    347:347:java.lang.String access$1400(uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo) -> access$1400
+    353:353:uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezerListHandler access$1300(uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo) -> access$1300
+    353:353:java.lang.String access$1400(uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo) -> access$1400
+    353:353:java.lang.String access$1500(uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo) -> access$1500
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezerListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezerListHandler:
     java.lang.Class getDataType() -> getDataType
     void clear() -> clear
@@ -4652,63 +4776,66 @@ uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezerListHandler -> uk.org.ngo.sq
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$YearListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$YearListHandler:
     java.util.List years -> a
     uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> b
-    524:524:java.lang.Class getDataType() -> getDataType
-    528:529:void clear() -> clear
-    532:533:void add(java.util.Map) -> add
-    536:544:boolean processList(boolean,int,int,java.util.Map) -> processList
+    530:530:java.lang.Class getDataType() -> getDataType
+    534:535:void clear() -> clear
+    538:539:void add(java.util.Map) -> add
+    542:550:boolean processList(boolean,int,int,java.util.Map) -> processList
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$YearListHandler$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$YearListHandler$1:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$YearListHandler this$1 -> a
 uk.org.ngo.squeezer.service.SqueezerConnectionState -> uk.org.ngo.squeezer.service.SqueezerConnectionState:
     java.util.concurrent.atomic.AtomicInteger currentConnectionGeneration -> a
     java.util.concurrent.atomic.AtomicReference callback -> b
     java.util.concurrent.atomic.AtomicBoolean isConnected -> c
-    java.util.concurrent.atomic.AtomicBoolean canRandomplay -> d
-    java.util.concurrent.atomic.AtomicReference socketRef -> e
-    java.util.concurrent.atomic.AtomicReference socketWriter -> f
-    java.util.concurrent.atomic.AtomicReference activePlayer -> g
-    java.util.concurrent.atomic.AtomicReference defaultPlayer -> h
-    java.util.concurrent.atomic.AtomicReference currentHost -> i
-    java.util.concurrent.atomic.AtomicReference httpPort -> j
-    java.util.concurrent.atomic.AtomicReference cliPort -> k
-    android.net.wifi.WifiManager$WifiLock wifiLock -> l
-    64:65:void setWifiLock(android.net.wifi.WifiManager$WifiLock) -> setWifiLock
-    69:87:void updateWifiLock(boolean) -> updateWifiLock
-    93:108:void disconnect() -> disconnect
-    111:121:void setConnectionState(boolean,boolean) -> setConnectionState
-    124:124:uk.org.ngo.squeezer.IServiceCallback getCallback() -> getCallback
-    128:129:void setCallback(uk.org.ngo.squeezer.IServiceCallback) -> setCallback
-    132:133:void callbackCompareAndSet(uk.org.ngo.squeezer.IServiceCallback,uk.org.ngo.squeezer.IServiceCallback) -> callbackCompareAndSet
-    136:136:uk.org.ngo.squeezer.model.SqueezerPlayer getActivePlayer() -> getActivePlayer
-    140:141:void setActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setActivePlayer
-    148:149:void setDefaultPlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setDefaultPlayer
-    152:152:java.io.PrintWriter getSocketWriter() -> getSocketWriter
-    166:168:void setHttpPort(java.lang.Integer) -> setHttpPort
-    171:172:void setCanRandomplay(boolean) -> setCanRandomplay
-    175:175:boolean canRandomplay() -> canRandomplay
-    179:179:boolean isConnected() -> isConnected
-    183:185:void startListeningThread(uk.org.ngo.squeezer.service.SqueezeService) -> startListeningThread
-    236:281:void startConnect(uk.org.ngo.squeezer.service.SqueezeService,java.util.concurrent.ScheduledThreadPoolExecutor,java.lang.String) -> startConnect
-    284:291:java.lang.String parseHost(java.lang.String) -> parseHost
-    295:306:int parsePort(java.lang.String) -> parsePort
-    311:311:java.lang.Integer getHttpPort() -> getHttpPort
-    315:315:java.lang.String getCurrentHost() -> getCurrentHost
-    37:37:java.util.concurrent.atomic.AtomicInteger access$100(uk.org.ngo.squeezer.service.SqueezerConnectionState) -> access$100
-    37:37:java.util.concurrent.atomic.AtomicReference access$200(uk.org.ngo.squeezer.service.SqueezerConnectionState) -> access$200
-    37:37:java.util.concurrent.atomic.AtomicReference access$300(uk.org.ngo.squeezer.service.SqueezerConnectionState) -> access$300
-    37:37:void access$400(uk.org.ngo.squeezer.service.SqueezerConnectionState,boolean,boolean) -> access$400
+    java.util.concurrent.atomic.AtomicBoolean mCanMusicfolder -> d
+    java.util.concurrent.atomic.AtomicBoolean canRandomplay -> e
+    java.util.concurrent.atomic.AtomicReference socketRef -> f
+    java.util.concurrent.atomic.AtomicReference socketWriter -> g
+    java.util.concurrent.atomic.AtomicReference activePlayer -> h
+    java.util.concurrent.atomic.AtomicReference defaultPlayer -> i
+    java.util.concurrent.atomic.AtomicReference currentHost -> j
+    java.util.concurrent.atomic.AtomicReference httpPort -> k
+    java.util.concurrent.atomic.AtomicReference cliPort -> l
+    android.net.wifi.WifiManager$WifiLock wifiLock -> m
+    66:67:void setWifiLock(android.net.wifi.WifiManager$WifiLock) -> setWifiLock
+    71:89:void updateWifiLock(boolean) -> updateWifiLock
+    95:110:void disconnect() -> disconnect
+    113:123:void setConnectionState(boolean,boolean) -> setConnectionState
+    126:126:uk.org.ngo.squeezer.IServiceCallback getCallback() -> getCallback
+    130:131:void setCallback(uk.org.ngo.squeezer.IServiceCallback) -> setCallback
+    134:135:void callbackCompareAndSet(uk.org.ngo.squeezer.IServiceCallback,uk.org.ngo.squeezer.IServiceCallback) -> callbackCompareAndSet
+    138:138:uk.org.ngo.squeezer.model.SqueezerPlayer getActivePlayer() -> getActivePlayer
+    142:143:void setActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setActivePlayer
+    150:151:void setDefaultPlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setDefaultPlayer
+    154:154:java.io.PrintWriter getSocketWriter() -> getSocketWriter
+    168:170:void setHttpPort(java.lang.Integer) -> setHttpPort
+    173:174:void setCanMusicfolder(boolean) -> setCanMusicfolder
+    177:177:boolean canMusicfolder() -> canMusicfolder
+    181:182:void setCanRandomplay(boolean) -> setCanRandomplay
+    185:185:boolean canRandomplay() -> canRandomplay
+    189:189:boolean isConnected() -> isConnected
+    193:195:void startListeningThread(uk.org.ngo.squeezer.service.SqueezeService) -> startListeningThread
+    246:291:void startConnect(uk.org.ngo.squeezer.service.SqueezeService,java.util.concurrent.ScheduledThreadPoolExecutor,java.lang.String) -> startConnect
+    294:301:java.lang.String parseHost(java.lang.String) -> parseHost
+    305:316:int parsePort(java.lang.String) -> parsePort
+    321:321:java.lang.Integer getHttpPort() -> getHttpPort
+    325:325:java.lang.String getCurrentHost() -> getCurrentHost
+    39:39:java.util.concurrent.atomic.AtomicInteger access$100(uk.org.ngo.squeezer.service.SqueezerConnectionState) -> access$100
+    39:39:java.util.concurrent.atomic.AtomicReference access$200(uk.org.ngo.squeezer.service.SqueezerConnectionState) -> access$200
+    39:39:java.util.concurrent.atomic.AtomicReference access$300(uk.org.ngo.squeezer.service.SqueezerConnectionState) -> access$300
+    39:39:void access$400(uk.org.ngo.squeezer.service.SqueezerConnectionState,boolean,boolean) -> access$400
 uk.org.ngo.squeezer.service.SqueezerConnectionState$1 -> uk.org.ngo.squeezer.service.SqueezerConnectionState$1:
     uk.org.ngo.squeezer.service.SqueezeService val$service -> a
     java.lang.String val$cleanHostPort -> b
     java.lang.String val$host -> c
     int val$port -> d
     uk.org.ngo.squeezer.service.SqueezerConnectionState this$0 -> e
-    256:278:void run() -> run
+    266:288:void run() -> run
 uk.org.ngo.squeezer.service.SqueezerConnectionState$ListeningThread -> uk.org.ngo.squeezer.service.SqueezerConnectionState$ListeningThread:
     uk.org.ngo.squeezer.service.SqueezeService service -> a
     java.net.Socket socket -> b
     int generationNumber -> c
     uk.org.ngo.squeezer.service.SqueezerConnectionState this$0 -> d
-    201:230:void run() -> run
+    211:240:void run() -> run
 uk.org.ngo.squeezer.service.SqueezerPlayerState -> uk.org.ngo.squeezer.service.SqueezerPlayerState:
     java.util.concurrent.atomic.AtomicBoolean isPlaying -> a
     java.util.concurrent.atomic.AtomicBoolean isPoweredOn -> b

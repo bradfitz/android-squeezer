@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * View for one entry in a {@link SqueezerMusicFolderListActivity}.
@@ -44,8 +45,11 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     private final static String TAG = "SqueezerMusicFolderView";
     private final LayoutInflater mLayoutInflater;
 
+    SqueezerItemListActivity mContext;
+
     public SqueezerMusicFolderView(SqueezerItemListActivity activity) {
         super(activity);
+        mContext = activity;
         mLayoutInflater = activity.getLayoutInflater();
     }
 
@@ -81,7 +85,15 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     }
 
     public void onItemSelected(int index, SqueezerMusicFolderItem item) throws RemoteException {
-        SqueezerMusicFolderListActivity.show(getActivity(), item);
+        if (item.getType().equals("folder")) {
+            SqueezerMusicFolderListActivity.show(getActivity(), item);
+            return;
+        }
+
+        // XXX: This duplicates code in SqueezerBaseItemView::doItemContext()
+        mContext.play(item);
+        Toast.makeText(mContext, mContext.getString(R.string.ITEM_PLAYING, item.getName()),
+                Toast.LENGTH_SHORT).show();
     };
 
     public void setupContextMenu(ContextMenu menu, int index, SqueezerMusicFolderItem item) {

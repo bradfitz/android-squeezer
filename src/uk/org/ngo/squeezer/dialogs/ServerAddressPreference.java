@@ -127,7 +127,7 @@ public class ServerAddressPreference extends DialogPreference {
             });
         } else {
             TextView scan_msg = (TextView) view.findViewById(R.id.scan_msg);
-            scan_msg.setText("Scanning is disabled, because WiFi is not connected.");
+            scan_msg.setText(mContext.getText(R.string.settings_server_scanning_disabled_msg));
             mScanBtn.setEnabled(false);
         }
     }
@@ -140,6 +140,10 @@ public class ServerAddressPreference extends DialogPreference {
      */
     void onScanStart() {
         Log.v("DIALOG", "Start scanning");
+
+        // TODO: The Android way would appear to be to have an 'X' widget
+        // on the right of the progress bar that would cancel the scan (and
+        // hide the scan_button.
         mScanBtn.setText(R.string.settings_server_scan_stop);
 
         mServersSpinner.setVisibility(View.GONE);
@@ -279,6 +283,10 @@ public class ServerAddressPreference extends DialogPreference {
 
                 if (socket.isConnected()) {
                     mDiscoveredServers.add(addrStr); // Note the address
+
+                    // TODO: Indicate this in the UI somehow (increment a
+                    // counter?)
+
                     try {
                         socket.close();
                     } catch (IOException e) {
