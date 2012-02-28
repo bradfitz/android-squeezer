@@ -239,7 +239,22 @@ public class ServerAddressPreference extends DialogPreference {
      * @author nik
      */
     private class scanNetworkTask extends AsyncTask<Void, Long, Void> {
-        String TAG = "scanNetworkTask";
+        private final String TAG = "scanNetworkTask";
+
+        /** UDP port to broadcast discovery requests to. */
+        private final int DISCOVERY_PORT = 3483;
+
+        /** Maximum time to wait between discovery attempts (ms). */
+        private final int DISCOVERY_ATTEMPT_TIMEOUT = 500;
+
+        /**
+         * Maximum total time to wait during discovery (ms).
+         * <p>
+         * If you change this or DISCOVERY_ATTEMPT_TIMEOUT then you will need to
+         * adjust android:max and android:secondaryProgress in
+         * server_address_dialog.xml.
+         */
+        private final int DISCOVERY_TOTAL_TIMEOUT = 10000;
 
         @Override
         protected void onPreExecute() {
@@ -292,17 +307,16 @@ public class ServerAddressPreference extends DialogPreference {
             try {
                 InetAddress broadcastAddr = InetAddress.getByName("255.255.255.255");
 
-                socket = new DatagramSocket();// 3483);
-                DatagramPacket discoveryPacket = new DatagramPacket(data, data.length, broadcastAddr, 3483);
+                socket = new DatagramSocket();
+                DatagramPacket discoveryPacket = new DatagramPacket(data, data.length,
+                        broadcastAddr, DISCOVERY_PORT);
 
                 byte[] buf = new byte[512];
                 DatagramPacket responsePacket = new DatagramPacket(buf, buf.length);
 
-                // Wait up to 500ms after each send, and scan for 10 seconds in
-                // total.
-                socket.setSoTimeout(500);
+                socket.setSoTimeout(DISCOVERY_ATTEMPT_TIMEOUT);
                 long startTime = System.currentTimeMillis();
-                long endTime = startTime + 10000;
+                long endTime = startTime + DISCOVERY_TOTAL_TIMEOUT;
                 long now;
 
                 socket.send(discoveryPacket);
@@ -337,14 +351,14 @@ public class ServerAddressPreference extends DialogPreference {
                             i += 4;
 
                             // i now pointing at the length of the NAME value.
-                            String name = new String(buf, i+1, buf[i]);
+                            String name = new String(buf, i + 1, buf[i]);
                             mDiscoveredServers.put(name, serverAddr);
                         }
                     } else {
                         socket.send(discoveryPacket);
                     }
 
-                    publishProgress((now - startTime) / 500);
+                    publishProgress((now - startTime) / DISCOVERY_ATTEMPT_TIMEOUT);
                 }
             } catch (SocketException e) {
                 // new DatagramSocket(3483)
@@ -371,9 +385,8 @@ public class ServerAddressPreference extends DialogPreference {
 
         /**
          * Update the progress bar. The main progress value corresponds to how
-         * many servers have been discovered (up to 20), the secondary progress
-         * value corresponds to how far through the 10 second discovery process
-         * we are, in 500ms chunks.
+         * many servers have been discovered, the secondary progress value
+         * corresponds to how far through the discovery process we are.
          */
         @Override
         protected void onProgressUpdate(Long... values) {
