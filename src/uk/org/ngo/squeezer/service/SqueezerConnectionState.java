@@ -85,6 +85,14 @@ class SqueezerConnectionState {
                 //
                 // Catching the exception (which seems harmless) seems better
                 // than requesting an additional permission.
+
+                // Seen a crash here with
+                //
+                // java.lang.RuntimeException: WifiLock under-locked
+                // Squeezer_WifiLock
+                //
+                // Both crashes occurred when the wifi was disabled, on HTC Hero
+                // devices running 2.1-update1.
             } catch (SecurityException e) {
                 Log.v(TAG, "Caught odd SecurityException releasing wifilock");
             }
