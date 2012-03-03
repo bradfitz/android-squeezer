@@ -24,12 +24,17 @@
     <string name="menu_item_settings_label">Settings</string>
     <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
+    <string name="pref_cat_server">Server settings</string>
     <string name="settings_serveraddr_title">Server Address</string>
     <string name="settings_serveraddr_summary">IP address or name of Squeezebox Server, e.g. 10.0.0.5.</string>
     <string name="settings_server_prompt">Choose a server</string>
     <string name="settings_server_scan_start">Start scan</string>
     <string name="settings_server_scan_stop">Stop scanning</string>
     <string name="settings_server_scan_msg">Or press \'Start scan\' to scan the network for servers.</string>
+    <string name="settings_username_title">User name</string>
+    <string name="settings_username_summary">Optional SqueezeBox Server user name.</string>
+    <string name="settings_password_title">Password</string>
+    <string name="settings_password_summary">Optional SqueezeBox Server password.</string>
     <string name="settings_autoconnect_title">Auto-connect</string>
     <string name="settings_autoconnect_summary">Offer to enable WiFi, and on Wifi availability, try to connect.</string>
     <string name="menu_item_disconnect">Disconnect</string>

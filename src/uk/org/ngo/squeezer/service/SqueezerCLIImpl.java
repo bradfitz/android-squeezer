@@ -39,6 +39,8 @@ import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -95,7 +97,8 @@ class SqueezerCLIImpl {
 		        		}
 
 		        		public void clear() {
-				        	lastConnectedPlayer = service.preferences.getString(Preferences.KEY_LASTPLAYER, null);
+		        	        final SharedPreferences preferences = service.getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
+				        	lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
 		        			defaultPlayer = null;
 				        	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 			                players = new ArrayList<SqueezerPlayer>(){private static final long serialVersionUID = 4283732322286492895L;};

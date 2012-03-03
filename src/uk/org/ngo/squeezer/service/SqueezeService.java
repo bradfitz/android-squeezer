@@ -99,9 +99,9 @@ public class SqueezeService extends Service {
     private static final int SCROBBLE_SLS = 2;
 
     int scrobbleType;
+    boolean mUpdateOngoingNotification = false;
     boolean debugLogging = false;
 
-    SharedPreferences preferences;
 
     @Override
     public void onCreate() {
@@ -116,15 +116,16 @@ public class SqueezeService extends Service {
         connectionState.setWifiLock(((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(
                 WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
 
-        preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
         getPreferences();
 
         cli.initialize();
     }
 
 	private void getPreferences() {
+        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
 		scrobbleType = Integer.parseInt(preferences.getString(Preferences.KEY_SCROBBLE, "0"));
-		debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
+        debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
+        mUpdateOngoingNotification = preferences.getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false);
 	}
 
 	@Override
@@ -143,8 +144,8 @@ public class SqueezeService extends Service {
         disconnect(false);
     }
 
-    void disconnect(boolean isIoError) {
-        connectionState.disconnect(!isIoError && mHandshakeComplete == false);
+    void disconnect(boolean isServerDisconnect) {
+        connectionState.disconnect(isServerDisconnect && mHandshakeComplete == false);
         mHandshakeComplete = false;
         clearOngoingNotification();
         playerState.clear();
@@ -562,14 +563,13 @@ public class SqueezeService extends Service {
      * instead of as documented
      * <pre>
      * login user wrongpassword
-     * login user ******
      * (Connection terminted)
      * </pre>
      * therefore a disconnect when handshake (the next step after authentication)
      * is not completed, is considered an authentication failure.
      */
-    void onCliPortConnectionEstablished() {
-        cli.sendCommand("login test test");
+    void onCliPortConnectionEstablished(final String userName, final String password) {
+        cli.sendCommand("login " + Util.encode(userName) + " " + Util.encode(password));
     }
 
     /**
@@ -613,7 +613,7 @@ public class SqueezeService extends Service {
     private void updateOngoingNotification() {
         boolean playing = playerState.isPlaying();
         if (!playing) {
-            if (!preferences.getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false)) {
+            if (!mUpdateOngoingNotification) {
                 clearOngoingNotification();
                 return;
             }
@@ -738,8 +738,8 @@ public class SqueezeService extends Service {
         	return connectionState.isConnected();
         }
 
-        public void startConnect(String hostPort) throws RemoteException {
-        	connectionState.startConnect(SqueezeService.this, executor, hostPort);
+        public void startConnect(String hostPort, String userName, String password) throws RemoteException {
+        	connectionState.startConnect(SqueezeService.this, executor, hostPort, userName, password);
         }
 
         public void disconnect() throws RemoteException {

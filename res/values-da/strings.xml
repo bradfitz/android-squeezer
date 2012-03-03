@@ -24,9 +24,13 @@
     <string name="menu_item_settings_label">Indstillinger</string>
     <string name="menu_item_about_label">Om</string>
     <string name="activity_settings_name">Indstillinger</string>
+    <string name="pref_cat_server">Server indstillinger</string>
     <string name="settings_serveraddr_title">Server adresse</string>
-    <string name="settings_serveraddr_format">I formatet host:port</string>
     <string name="settings_serveraddr_summary">IP addresse på SqueezeBox Server, f.eks. 10.0.0.5.</string>
+    <string name="settings_username_title">Brugernavn</string>
+    <string name="settings_username_summary">Eventuelt SqueezeBox Server brugernavn.</string>
+    <string name="settings_password_title">Adgangskode</string>
+    <string name="settings_password_summary">Eventuel SqueezeBox Server adgangskode.</string>
     <string name="settings_autoconnect_title">Forbind automatisk</string>
     <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
     <string name="menu_item_disconnect">Afbryd</string>

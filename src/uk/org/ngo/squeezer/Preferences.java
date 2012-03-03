@@ -19,8 +19,14 @@ package uk.org.ngo.squeezer;
 public final class Preferences {
 	public static final String NAME = "Squeezer";
 
-	// e.g. "10.0.0.81:9090"
-	public static final String KEY_SERVERADDR = "squeezer.serveraddr";
+    // e.g. "10.0.0.81:9090"
+    public static final String KEY_SERVERADDR = "squeezer.serveraddr";
+
+    // Optional Squeezebox Server user name
+    public static final String KEY_USERNAME = "squeezer.username";
+
+    // Optional Squeezebox Server password
+    public static final String KEY_PASSWORD = "squeezer.password";
 
 	// The playerId that we were last connected to. e.g. "00:04:20:17:04:7f"
     public static final String KEY_LASTPLAYER = "squeezer.lastplayer";
