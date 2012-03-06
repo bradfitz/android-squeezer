@@ -47,7 +47,7 @@
     <string name="menu_item_playlists_new">Ny afspilningsliste</string>
     <string name="menu_item_playlist_clear">Ryd afspilningsliste</string>
     <string name="menu_item_playlist_save">Gem afspilningsliste</string>
-    <string name="about_title">Om squeezer v%s</string>
+    <string name="about_title">Squeezer v%s</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
@@ -79,6 +79,11 @@
     <string name="genre_label">Genre</string>
     <string name="year_label">År</string>
     <string name="filter_label">Søgetekst</string>
+
+    <!-- Dialog buttons -->
+    <string name="dialog_positive_ok">OK</string>
+    <string name="dialog_negative_cancel">Annuller</string>
+    <string name="dialog_license">Licens</string>
 
 	<string name="CONTEXTMENU_BROWSE_SONGS">Vis sange</string>
 	<string name="CONTEXTMENU_BROWSE_ALBUMS">Vis album</string>

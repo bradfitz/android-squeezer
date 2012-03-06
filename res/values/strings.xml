@@ -47,7 +47,7 @@
     <string name="menu_item_playlists_new">New playlist</string>
     <string name="menu_item_playlist_clear">Clear current playlist</string>
     <string name="menu_item_playlist_save">Save current playlist</string>
-    <string name="about_title">About Squeezer v%s</string>
+    <string name="about_title">Squeezer v%s</string>
     <string name="connecting_text">Connecting</string>
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
     <string name="connection_failed_text">Connection failed. Check settings.</string>
@@ -84,15 +84,14 @@
     <string name="unknown_album">Unknown album</string>
     <string name="unknown_artist">Unknown artist</string>
 
-    <string name="about_text">&lt;p&gt;&lt;b&gt;Copyright &amp;#169; 2009 Google Inc.  All Rights Reserved&lt;br /&gt;
-Copyright &amp;#169; 2011 Kurt Aaholst.  All Rights Reserved.&lt;/b&gt;&lt;/p&gt;
-   
-&lt;p&gt;http://code.google.com/p/android-squeezer/&lt;/p&gt;
+    <!-- Dialog buttons -->
+    <string name="dialog_positive_ok">OK</string>
+    <string name="dialog_negative_cancel">Cancel</string>
+    <string name="dialog_license">License</string>
 
-&lt;p&gt;android-squeezer@googlegroups.com&lt;/p&gt;
+    <string name="copyright_text">Copyright &#169; 2009 Google Inc.  All Rights Reserved\nCopyright &#169; 2011 Kurt Aaholst.  All Rights Reserved.</string>
 
-
-&lt;p&gt;Apache License&lt;br /&gt;
+    <string name="license_text">&lt;p&gt;Apache License&lt;br /&gt;
 Version 2.0, January 2004&lt;br /&gt;
 http://www.apache.org/licenses/&lt;/p&gt;
 
