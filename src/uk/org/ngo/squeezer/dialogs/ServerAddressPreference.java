@@ -31,6 +31,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -70,10 +71,6 @@ public class ServerAddressPreference extends DialogPreference {
 
     private scanNetworkTask mScanTask;
     private boolean mScanInProgress = false;
-
-    private final ConnectivityManager mConnectivityManager =
-            (ConnectivityManager) Squeezer.getContext()
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
 
     /** Map server names to IP addresses. */
     private final TreeMap<String, String> mDiscoveredServers = new TreeMap<String, String>();
@@ -120,9 +117,15 @@ public class ServerAddressPreference extends DialogPreference {
         mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
 
+
         // Only support network scanning on WiFi.
-        if (mConnectivityManager.getActiveNetworkInfo().getType()
-                == ConnectivityManager.TYPE_WIFI) {
+        //
+        // Seen a crash in previous versions of this code that suggests that
+        // getActiveNetworkInfo() can return null, so play safe here.
+        ConnectivityManager cm = (ConnectivityManager) Squeezer.getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
             mScanBtn.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     if (mScanInProgress == false) {
