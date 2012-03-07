@@ -37,7 +37,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 class SqueezerConnectionState {
-    private static final String TAG = "SqueezeService";
+    private static final String TAG = "SqueezeConnectionState";
 
     // Incremented once per new connection and given to the Thread
     // that's listening on the socket.  So if it dies and it's not the
