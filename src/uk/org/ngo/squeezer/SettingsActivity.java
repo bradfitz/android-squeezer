@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -34,7 +35,7 @@ import android.preference.PreferenceActivity;
 import android.util.Log;
 
 public class SettingsActivity extends PreferenceActivity implements
-		OnPreferenceChangeListener {
+        OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
 	private final String TAG = "SettingsActivity";
 
     private ISqueezeService serviceStub = null;
@@ -60,17 +61,7 @@ public class SettingsActivity extends PreferenceActivity implements
         addrPref.setOnPreferenceChangeListener(this);
 
         SharedPreferences preferences = getPreferenceManager().getSharedPreferences();
-        preferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(
-                    SharedPreferences sharedPreferences, String key) {
-                    Log.v(TAG, "Preference changed: " + key);
-                    if (serviceStub != null) {
-                        try {
-                            serviceStub.preferenceChanged(key);
-                        } catch (RemoteException e) {}
-                    }
-            }
-        });
+        preferences.registerOnSharedPreferenceChangeListener(this);
 
         String currentCliAddr = preferences.getString(Preferences.KEY_SERVERADDR, "");
         updateAddressSummary(currentCliAddr);
@@ -113,6 +104,19 @@ public class SettingsActivity extends PreferenceActivity implements
 
 		return false;
 	}
+
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.v(TAG, "Preference changed: " + key);
+        if (serviceStub != null) {
+            try {
+                serviceStub.preferenceChanged(key);
+            } catch (RemoteException e) {
+                Log.v(TAG, "serviceStub.preferenceChanged() failed: " + e.toString());
+            }
+        } else {
+            Log.v(TAG, "serviceStub is null!");
+        }
+    }
 
     public static void show(Context context) {
         final Intent intent = new Intent(context, SettingsActivity.class);

@@ -816,9 +816,15 @@ public class SqueezeService extends Service {
                 updateOngoingNotification();
                 return;
             }
+
+            // If the server address changed then disconnect.
+            if (Preferences.KEY_SERVERADDR.equals(key)) {
+                disconnect();
+                return;
+            }
+
             getPreferences();
         }
-
 
         /* Start an async fetch of the SqueezeboxServer's players */
         public boolean players(int start) throws RemoteException {
