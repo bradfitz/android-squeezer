@@ -1,3 +1,20 @@
+0.7.1
+=====
+
+*   Increased the speed of network scanning by a factor of ~ 12.  If multiple
+    servers are present on the network then show their configured names, when
+    choosing between them, instead of IP addresses.
+
+*   Added a Dutch translation, contributed by Sebastian van Winkel.
+
+*   Fixed a bug where changing the server's address would not be picked up, and
+    Squeezer would continue to try and use the old server address.
+
+*   Fixed a crash when the device has no active network connections.
+
+*   Fixed a crash when displaying the "Enabling Wi-Fi" dialog.
+
+
 0.7
 ===
 
