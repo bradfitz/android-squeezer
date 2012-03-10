@@ -81,8 +81,6 @@
     <string name="filter_label">Søgetekst</string>
 
     <!-- Dialog buttons -->
-    <string name="dialog_positive_ok">OK</string>
-    <string name="dialog_negative_cancel">Annuller</string>
     <string name="dialog_license">Licens</string>
 
 	<string name="CONTEXTMENU_BROWSE_SONGS">Vis sange</string>

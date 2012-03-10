@@ -85,8 +85,6 @@
     <string name="unknown_artist">Unknown artist</string>
 
     <!-- Dialog buttons -->
-    <string name="dialog_positive_ok">OK</string>
-    <string name="dialog_negative_cancel">Cancel</string>
     <string name="dialog_license">License</string>
 
     <string name="copyright_text">Copyright &#169; 2009 Google Inc.  All Rights Reserved\nCopyright &#169; 2011 Kurt Aaholst.  All Rights Reserved.</string>

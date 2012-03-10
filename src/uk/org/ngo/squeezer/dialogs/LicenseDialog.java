@@ -29,7 +29,7 @@ public class LicenseDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(Html.fromHtml((String) getText(R.string.license_text)));
-        builder.setPositiveButton(R.string.dialog_positive_ok, null);
+        builder.setPositiveButton(android.R.string.ok, null);
         return builder.create();
     }
 }

@@ -46,7 +46,7 @@ public class AboutDialog extends DialogFragment {
 
         Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
-        builder.setPositiveButton(R.string.dialog_positive_ok, null);
+        builder.setPositiveButton(android.R.string.ok, null);
         builder.setNegativeButton(R.string.dialog_license, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 new LicenseDialog()
