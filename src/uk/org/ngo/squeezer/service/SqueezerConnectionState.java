@@ -20,7 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.Authenticator;
 import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -281,6 +283,12 @@ class SqueezerConnectionState {
                 	startListeningThread(service);
                     setDefaultPlayer(null);
                     service.onCliPortConnectionEstablished(userName, password);
+                    Authenticator.setDefault(new Authenticator() {
+                        @Override
+                        public PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(userName, password.toCharArray());
+                        }
+                    });
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
                     setConnectionState(false, true, false);
