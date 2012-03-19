@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
+import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
 import uk.org.ngo.squeezer.dialogs.SqueezerAuthenticationDialog;
 import uk.org.ngo.squeezer.framework.HasUiThread;
 import uk.org.ngo.squeezer.framework.SqueezerIconUpdater;
@@ -479,7 +480,6 @@ public class NowPlayingFragment extends Fragment implements
             });
         }
 
-        // XXX: Is this correct? How does the Fragment track WiFi availability?
         if (isAutoConnect(getSharedPreferences()))
             mActivity.registerReceiver(broadcastReceiver, new IntentFilter(
                     ConnectivityManager.CONNECTIVITY_ACTION));
@@ -802,17 +802,16 @@ public class NowPlayingFragment extends Fragment implements
                 if (ipPort == null)
                     return;
 
+                // If we are configured to automatically connect on Wi-Fi availability
+                // we will also give the user the opportunity to enable Wi-Fi
                 if (isAutoConnect(preferences)) {
                     WifiManager wifiManager = (WifiManager) mActivity
                             .getSystemService(Context.WIFI_SERVICE);
                     if (!wifiManager.isWifiEnabled()) {
-                        // TODO: Understand and fix this commented out block.
-                        /*
-                         * new EnableWifiDialog()
-                         * .show(getSupportFragmentManager(),
-                         * "EnableWifiDialog");
-                         */
-                        return; // We will come back here when Wi-Fi is ready
+                        new EnableWifiDialog().show(getFragmentManager(), "EnableWifiDialog");
+                        return;
+                        // When a Wi-Fi connection is made this method will be called again by the
+                        // broadcastReceiver
                     }
                 }
 
