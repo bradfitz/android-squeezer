@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import uk.org.ngo.squeezer.dialogs.AboutDialog;
 import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
 import uk.org.ngo.squeezer.dialogs.SqueezerAuthenticationDialog;
@@ -743,9 +744,7 @@ public class NowPlayingFragment extends Fragment implements
                 SqueezerPlayerListActivity.show(mActivity);
                 return true;
             case R.id.menu_item_about:
-                // XXX: Need to correct this (or push it in to the activity).
-
-                // new AboutDialog().show(getSupportFragmentManager(), "AboutDialog");
+                new AboutDialog().show(getFragmentManager(), "AboutDialog");
                 return true;
         }
         return false;
