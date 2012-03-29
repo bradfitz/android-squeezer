@@ -170,7 +170,7 @@
         <item>Musik</item>
         <item>Internetradio</item>
 <!--         <item>Mine programmer</item> -->
-<!--         <item>Favoritter</item> -->
+        <item>Favoritter</item>
     </string-array>
 
     <string-array name="music_items">
