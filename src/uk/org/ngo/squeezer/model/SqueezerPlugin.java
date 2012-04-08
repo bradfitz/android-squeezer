@@ -25,6 +25,8 @@ import android.os.Parcel;
 
 
 public class SqueezerPlugin extends SqueezerItem {
+    public static SqueezerPlugin FAVORITE = new SqueezerPlugin("favorites");
+
 	private String name;
 	@Override public String getName() { return name; }
 	public SqueezerPlugin setName(String name) { this.name = name; return this; }
@@ -41,6 +43,10 @@ public class SqueezerPlugin extends SqueezerItem {
 	public String getType() { return type; }
 	public void setType(String type) { this.type = type; }
 	public boolean isSearchable() { return "xmlbrowser_search".equals(type); }
+
+	private SqueezerPlugin(String cmd) {
+	    setId(cmd);
+    }
 
 	public SqueezerPlugin(Map<String, String> record) {
 		setId(record.get("cmd"));
@@ -66,7 +72,7 @@ public class SqueezerPlugin extends SqueezerItem {
 		icon = source.readString();
 		weight = source.readInt();
 	}
-	public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(getId());
 		dest.writeString(name);
 		dest.writeString(type);

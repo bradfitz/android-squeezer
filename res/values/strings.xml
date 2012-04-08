@@ -371,7 +371,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item>My Music</item>
         <item>Internet Radio</item>
 <!--         <item>My Apps</item> -->
-<!--         <item>Favorites</item> -->
+        <item>Favorites</item>
     </string-array>
 
     <string-array name="music_items">
