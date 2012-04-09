@@ -27,6 +27,7 @@ import uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
@@ -44,11 +45,12 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
 	private static final int ALBUMS = 1;
 	private static final int SONGS = 2;
 	private static final int GENRES = 3;
-	private static final int YEARS = 4;
-    private static final int MUSIC_FOLDER = 5;
-    private static final int RANDOM_MIX = 6;
-    private static final int PLAYLISTS = 7;
-    private static final int SEARCH = 8;
+    private static final int YEARS = 4;
+    private static final int NEW_MUSIC = 5;
+    private static final int MUSIC_FOLDER = 6;
+    private static final int RANDOM_MIX = 7;
+    private static final int PLAYLISTS = 8;
+    private static final int SEARCH = 9;
 
     private boolean mCanMusicfolder = false;
     private boolean mCanRandomplay = false;
@@ -72,8 +74,9 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
         final String[] musicItems = getResources().getStringArray(R.array.music_items);
         final int[] musicIcons = new int[] {
                 R.drawable.ic_artists, R.drawable.ic_albums, R.drawable.ic_songs,
-                R.drawable.ic_genres, R.drawable.ic_years, R.drawable.ic_music_folder,
-                R.drawable.ic_random, R.drawable.ic_playlists, R.drawable.ic_search
+                R.drawable.ic_genres, R.drawable.ic_years,  R.drawable.ic_new_music,
+                R.drawable.ic_music_folder, R.drawable.ic_random, R.drawable.ic_playlists, 
+                R.drawable.ic_search
         };
 
         if (getService() != null) {
@@ -123,14 +126,17 @@ public class SqueezerMusicActivity extends SqueezerBaseActivity {
 			case GENRES:
 				SqueezerGenreListActivity.show(SqueezerMusicActivity.this);
 				break;
-			case YEARS:
-				SqueezerYearListActivity.show(SqueezerMusicActivity.this);
-				break;
-                case MUSIC_FOLDER:
-                    SqueezerMusicFolderListActivity.show(SqueezerMusicActivity.this);
-                    break;
-                case RANDOM_MIX:
-				SqueezerRandomplayActivity.show(SqueezerMusicActivity.this);
+            case YEARS:
+                SqueezerYearListActivity.show(SqueezerMusicActivity.this);
+                break;
+            case NEW_MUSIC:
+                SqueezerAlbumListActivity.show(SqueezerMusicActivity.this, AlbumsSortOrder.__new);
+                break;
+            case MUSIC_FOLDER:
+                SqueezerMusicFolderListActivity.show(SqueezerMusicActivity.this);
+                break;
+            case RANDOM_MIX:
+                SqueezerRandomplayActivity.show(SqueezerMusicActivity.this);
 				break;
 			case PLAYLISTS:
 				SqueezerPlaylistsActivity.show(SqueezerMusicActivity.this);
