@@ -40,6 +40,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	protected static final int CONTEXTMENU_BROWSE_ALBUM_SONGS = 6;
 	protected static final int CONTEXTMENU_BROWSE_ARTIST_ALBUMS = 7;
 	protected static final int CONTEXTMENU_BROWSE_ARTIST_SONGS = 8;
+    protected static final int CONTEXTMENU_DOWNLOAD_ITEM = 9;
 
 	private final SqueezerItemListActivity activity;
 	private SqueezerItemAdapter<T> adapter;

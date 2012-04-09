@@ -91,6 +91,8 @@ interface ISqueezeService {
         String getAlbumArtUrl(String artworkTrackId);
         String getIconUrl(String icon);
 
+        String getSongDownloadUrl(String songTrackId);
+
         // Returns new (predicted) volume.  Typical deltas are +10 or -10.
         // Note the volume changed callback will also still be run with
         // the correct value as returned by the server later.

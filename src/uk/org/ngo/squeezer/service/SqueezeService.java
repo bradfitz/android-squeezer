@@ -787,6 +787,24 @@ public class SqueezeService extends Service {
 			return "/music/" + artworkTrackId + "/cover.jpg";
         }
 
+        /**
+         * Returns a URL to download a song.
+         * 
+         * @param songId the song ID
+         * @return The URL (as a string)
+         */
+        public String getSongDownloadUrl(String songId) throws RemoteException {
+            Integer port = connectionState.getHttpPort();
+            if (port == null || port == 0)
+                return "";
+            return "http://" + connectionState.getCurrentHost() + ":" + port
+                    + songDownloadUrl(songId);
+        }
+
+        private String songDownloadUrl(String songId) {
+            return "/music/" + songId + "/download";
+        }
+
         public String getIconUrl(String icon) throws RemoteException {
             Integer port = connectionState.getHttpPort();
             if (port == null || port == 0) return "";

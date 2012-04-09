@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.itemlists;
 
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
@@ -29,9 +30,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import uk.org.ngo.squeezer.R;
-
 public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
+    private static final String TAG = "SqueezerSongView";
+
 	private final LayoutInflater layoutInflater;
 
 	private boolean browseByAlbum;
@@ -87,6 +88,7 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 		menu.add(Menu.NONE, CONTEXTMENU_PLAY_ITEM, 4, R.string.CONTEXTMENU_PLAY_ITEM);
 		menu.add(Menu.NONE, CONTEXTMENU_ADD_ITEM, 5, R.string.CONTEXTMENU_ADD_ITEM);
 		menu.add(Menu.NONE, CONTEXTMENU_INSERT_ITEM, 6, R.string.CONTEXTMENU_INSERT_ITEM);
+        menu.add(Menu.NONE, CONTEXTMENU_DOWNLOAD_ITEM, 7, R.string.CONTEXTMENU_DOWNLOAD_ITEM);
 	};
 
 	@Override
@@ -101,6 +103,10 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 		case CONTEXTMENU_BROWSE_ARTIST_SONGS:
 			SqueezerSongListActivity.show(getActivity(), new SqueezerArtist(selectedItem.getArtist_id(), selectedItem.getArtist()));
 			return true;
+            case CONTEXTMENU_DOWNLOAD_ITEM:
+                ((SqueezerAbstractSongListActivity) getActivity()).downloadSong(selectedItem
+                        .getId());
+                return true;
 		}
 		return super.doItemContext(menuItem, index, selectedItem);
 	};

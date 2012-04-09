@@ -273,6 +273,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 	<string name="CONTEXTMENU_PLAY_ITEM">Play</string>
 	<string name="CONTEXTMENU_ADD_ITEM">Add to Playlist</string>
 	<string name="CONTEXTMENU_INSERT_ITEM">Play after the currently playing song</string>
+    <string name="CONTEXTMENU_DOWNLOAD_ITEM">Download</string>
 
     <string name="PLAYLIST_CONTEXTMENU_REMOVE_ITEM">Remove from playlist</string>
     <string name="PLAYLIST_CONTEXTMENU_MOVE_UP">Move up</string>
