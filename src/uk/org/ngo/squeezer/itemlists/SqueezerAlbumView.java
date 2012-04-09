@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
@@ -26,8 +27,6 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import uk.org.ngo.squeezer.R;
 
 public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 	private final LayoutInflater layoutInflater;
@@ -68,12 +67,13 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 		SqueezerActivity.show(getActivity());
 	}
 
+    // XXX: Make this a menu resource.
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerAlbum item) {
 		menu.setHeaderTitle(item.getName());
 		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_SONGS, 0, R.string.CONTEXTMENU_BROWSE_SONGS);
 		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ARTISTS, 2, R.string.CONTEXTMENU_BROWSE_ARTISTS);
-		menu.add(Menu.NONE, CONTEXTMENU_PLAY_ITEM, 3, R.string.CONTEXTMENU_PLAY_ITEM);
-		menu.add(Menu.NONE, CONTEXTMENU_ADD_ITEM, 4, R.string.CONTEXTMENU_ADD_ITEM);
+        menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
+        menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
 	};
 
 	public String getQuantityString(int quantity) {

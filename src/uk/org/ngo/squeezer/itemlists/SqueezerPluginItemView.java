@@ -79,30 +79,39 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 		}
 	}
 
+    // XXX: Make this a menu resource.
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerPluginItem item) {
 		if (!item.isHasitems()) {
 			menu.setHeaderTitle(item.getName());
-			menu.add(Menu.NONE, CONTEXTMENU_PLAY_ITEM, 1, R.string.CONTEXTMENU_PLAY_ITEM);
-			menu.add(Menu.NONE, CONTEXTMENU_ADD_ITEM, 2, R.string.CONTEXTMENU_ADD_ITEM);
-			menu.add(Menu.NONE, CONTEXTMENU_INSERT_ITEM, 3, R.string.CONTEXTMENU_INSERT_ITEM);
+            menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
+            menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
+            menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
 		}
 	}
 
 	@Override
 	public boolean doItemContext(MenuItem menuItem, int index, SqueezerPluginItem selectedItem) throws RemoteException {
 		switch (menuItem.getItemId()) {
-		case CONTEXTMENU_PLAY_ITEM:
-			if (activity.play(selectedItem))
-				Toast.makeText(activity, activity.getString(R.string.ITEM_PLAYING, selectedItem.getName()), Toast.LENGTH_SHORT).show();
-			return true;
-		case CONTEXTMENU_ADD_ITEM:
-			if (activity.add(selectedItem))
-				Toast.makeText(activity, activity.getString(R.string.ITEM_ADDED, selectedItem.getName()), Toast.LENGTH_SHORT).show();
-			return true;
-		case CONTEXTMENU_INSERT_ITEM:
-			if (activity.insert(selectedItem))
-				Toast.makeText(activity, activity.getString(R.string.ITEM_INSERTED, selectedItem.getName()), Toast.LENGTH_SHORT).show();
-			return true;
+            case R.id.play_now:
+                if (activity.play(selectedItem))
+                    Toast.makeText(activity,
+                            activity.getString(R.string.ITEM_PLAYING, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.add_to_playlist:
+                if (activity.add(selectedItem))
+                    Toast.makeText(activity,
+                            activity.getString(R.string.ITEM_ADDED, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.play_next:
+                if (activity.insert(selectedItem))
+                    Toast.makeText(activity,
+                            activity.getString(R.string.ITEM_INSERTED, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
+                return true;
 		}
 		return false;
 	}

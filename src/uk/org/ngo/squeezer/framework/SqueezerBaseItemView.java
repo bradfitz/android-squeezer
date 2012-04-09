@@ -34,13 +34,9 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	protected static final int CONTEXTMENU_BROWSE_SONGS = 0;
 	protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 	protected static final int CONTEXTMENU_BROWSE_ARTISTS = 2;
-	protected static final int CONTEXTMENU_PLAY_ITEM = 3;
-	protected static final int CONTEXTMENU_ADD_ITEM = 4;
-	protected static final int CONTEXTMENU_INSERT_ITEM = 5;
 	protected static final int CONTEXTMENU_BROWSE_ALBUM_SONGS = 6;
 	protected static final int CONTEXTMENU_BROWSE_ARTIST_ALBUMS = 7;
 	protected static final int CONTEXTMENU_BROWSE_ARTIST_SONGS = 8;
-    protected static final int CONTEXTMENU_DOWNLOAD_ITEM = 9;
 
 	private final SqueezerItemListActivity activity;
 	private SqueezerItemAdapter<T> adapter;
@@ -115,18 +111,25 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		case CONTEXTMENU_BROWSE_ARTISTS:
 			SqueezerArtistListActivity.show(activity, selectedItem);
 			return true;
-		case CONTEXTMENU_PLAY_ITEM:
+
+            case R.id.play_now:
                 if (activity.play((SqueezerPlaylistItem) selectedItem))
-				Toast.makeText(activity, activity.getString(R.string.ITEM_PLAYING, selectedItem.getName()), Toast.LENGTH_SHORT).show();
-			return true;
-		case CONTEXTMENU_ADD_ITEM:
+                    Toast.makeText(activity,
+                            activity.getString(R.string.ITEM_PLAYING, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.add_to_playlist:
                 if (activity.add((SqueezerPlaylistItem) selectedItem))
 				Toast.makeText(activity, activity.getString(R.string.ITEM_ADDED, selectedItem.getName()), Toast.LENGTH_SHORT).show();
-			return true;
-		case CONTEXTMENU_INSERT_ITEM:
+                return true;
+
+            case R.id.play_next:
                 if (activity.insert((SqueezerPlaylistItem) selectedItem))
-				Toast.makeText(activity, activity.getString(R.string.ITEM_INSERTED, selectedItem.getName()), Toast.LENGTH_SHORT).show();
-			return true;
+                    Toast.makeText(activity,
+                            activity.getString(R.string.ITEM_INSERTED, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
+                return true;
 		}
 		return false;
 	}
