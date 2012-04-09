@@ -542,33 +542,35 @@ public class SqueezeService extends Service {
 
         if (scrobbleType != SCROBBLE_NONE) {
         	SqueezerSong s = playerState.getCurrentSong();
-        	Intent i = new Intent();
-
-        	switch (scrobbleType) {
-	        case SCROBBLE_SCROBBLEDROID:
-	        	// http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
-	        	i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
-	        	i.putExtra("playing", playing);
-	        	i.putExtra("track", songName);
-	        	i.putExtra("album", s.getAlbum());
-	        	i.putExtra("artist", s.getArtist());
-	        	i.putExtra("secs", playerState.getCurrentSongDuration());
-	        	i.putExtra("source", "P");
-	        	break;
-	        case SCROBBLE_SLS:
-	        	// http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
-	        	i.setAction("com.adam.aslfms.notify.playstatechanged");
-	        	i.putExtra("state", playing ? 0 : 2);
-	        	i.putExtra("app-name", getText(R.string.app_name));
-                    i.putExtra("app-package", "uk.org.ngo.squeezer");
-	        	i.putExtra("track", songName);
-	        	i.putExtra("album", s.getAlbum());
-	        	i.putExtra("artist", s.getArtist());
-	        	i.putExtra("duration", playerState.getCurrentSongDuration());
-	        	i.putExtra("source", "P");
-	        	break;
+        	if (s != null) {
+            	Intent i = new Intent();
+    
+            	switch (scrobbleType) {
+    	        case SCROBBLE_SCROBBLEDROID:
+    	        	// http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
+    	        	i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
+    	        	i.putExtra("playing", playing);
+    	        	i.putExtra("track", songName);
+    	        	i.putExtra("album", s.getAlbum());
+    	        	i.putExtra("artist", s.getArtist());
+    	        	i.putExtra("secs", playerState.getCurrentSongDuration());
+    	        	i.putExtra("source", "P");
+    	        	break;
+    	        case SCROBBLE_SLS:
+    	        	// http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
+    	        	i.setAction("com.adam.aslfms.notify.playstatechanged");
+    	        	i.putExtra("state", playing ? 0 : 2);
+    	        	i.putExtra("app-name", getText(R.string.app_name));
+                        i.putExtra("app-package", "uk.org.ngo.squeezer");
+    	        	i.putExtra("track", songName);
+    	        	i.putExtra("album", s.getAlbum());
+    	        	i.putExtra("artist", s.getArtist());
+    	        	i.putExtra("duration", playerState.getCurrentSongDuration());
+    	        	i.putExtra("source", "P");
+    	        	break;
+            	}
+            	sendBroadcast(i);
         	}
-        	sendBroadcast(i);
         }
     }
 

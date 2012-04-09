@@ -18,9 +18,11 @@ package uk.org.ngo.squeezer;
 
 
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
+import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -49,7 +51,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private void setHomeMenu() {
         int[] icons = new int[] {
                 R.drawable.ic_now_playing, R.drawable.ic_my_music,
-                R.drawable.ic_internet_radio, R.drawable.ic_my_apps,
+                R.drawable.ic_internet_radio, /*R.drawable.ic_my_apps,*/
                 R.drawable.ic_favorites
         };
         listView.setAdapter(new IconRowAdapter(this, getResources().getStringArray(
@@ -62,7 +64,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 		private static final int MUSIC = 1;
 		private static final int INTERNET_RADIO = 2;
 		private static final int APPS = 3;
-		private static final int FAVORITES = 4;
+		private static final int FAVORITES = 3;/*4*/
 
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			switch (position) {
@@ -79,14 +81,13 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                 // Log.e("MyApp", sCrashString.toString());
                 SqueezerRadioListActivity.show(SqueezerHomeActivity.this);
                 break;
-            case APPS:
+//            case APPS:
                 // TODO (kaa) implement
                 // Currently hidden, by commenting out the entry in strings.xml.
                 // SqueezerApplicationListActivity.show(SqueezerHomeActivity.this);
-                break;
+                // break;
             case FAVORITES:
-                // Currently hidden, by commenting out the entry in strings.xml.
-                // TODO: Implement
+                SqueezerPluginItemListActivity.show(SqueezerHomeActivity.this, SqueezerPlugin.FAVORITE);
 				break;
 			}
 		}
