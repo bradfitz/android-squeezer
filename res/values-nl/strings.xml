@@ -191,7 +191,7 @@
         <item>Mijn Muziek</item>
         <item>Internet Radio</item>
 <!--         <item>Mijn Apps</item> -->
-<!--         <item>Favorieten</item> -->
+        <item>Favorieten</item>
     </string-array>
 
     <string-array name="music_items">
