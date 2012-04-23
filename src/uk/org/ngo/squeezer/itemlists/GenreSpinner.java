@@ -82,7 +82,7 @@ public class GenreSpinner {
 					if (adapter == null) {
                         SqueezerGenreView itemView = new SqueezerGenreView(activity) {
                             @Override
-                            public View getAdapterView(View convertView, SqueezerGenre item) {
+                            public View getAdapterView(View convertView, int index, SqueezerGenre item) {
                                 return Util.getSpinnerItemView(getActivity(), convertView,
                                         item.getName());
                             }

@@ -444,7 +444,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
     // Should only be called from the UI thread.
     private void updateAlbumArtIfNeeded(SqueezerSong song) {
-        if (Util.atomicSongUpdated(currentSong, song))
+        if (Util.atomicReferenceUpdated(currentSong, song))
         	iconUpdater.updateIcon(albumArt, song, song != null ? song.getArtworkUrl(getService()) : null);
     }
 

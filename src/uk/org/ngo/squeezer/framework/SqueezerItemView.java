@@ -56,7 +56,7 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	 * @param item
 	 * @return
 	 */
-	View getAdapterView(View convertView, T item);
+	View getAdapterView(View convertView, int index, T item);
 
     /**
      * <p>

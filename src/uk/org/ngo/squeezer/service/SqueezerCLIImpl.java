@@ -688,6 +688,8 @@ class SqueezerCLIImpl {
 		public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 			if (service.songListCallback.get() != null) {
 				try {
+				    //TODO use parameters to update the current player state
+//				    service.playerState.update(parameters);
 					service.songListCallback.get().onSongsReceived(count, start, songs);
 					return true;
 				} catch (RemoteException e) {
@@ -731,7 +733,7 @@ class SqueezerCLIImpl {
 		List<SqueezerPlugin> plugins;
 
 		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerPlaylist.class;
+			return SqueezerPlugin.class;
 		}
 
 		public void clear() {
@@ -760,7 +762,7 @@ class SqueezerCLIImpl {
 		List<SqueezerPluginItem> pluginItems;
 
 		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerPlaylist.class;
+			return SqueezerPluginItem.class;
 		}
 
 		public void clear() {

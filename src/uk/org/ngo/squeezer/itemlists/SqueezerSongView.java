@@ -46,7 +46,7 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 	}
 
 	@Override
-	public View getAdapterView(View convertView, SqueezerSong item) {
+	public View getAdapterView(View convertView, int index, SqueezerSong item) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {

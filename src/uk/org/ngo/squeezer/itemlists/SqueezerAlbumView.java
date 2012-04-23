@@ -38,7 +38,7 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 	}
 
 	@Override
-	public View getAdapterView(View convertView, SqueezerAlbum item) {
+	public View getAdapterView(View convertView, int index, SqueezerAlbum item) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {

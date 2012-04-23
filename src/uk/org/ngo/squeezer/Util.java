@@ -23,7 +23,6 @@ import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
-import uk.org.ngo.squeezer.model.SqueezerSong;
 import android.app.Activity;
 import android.view.View;
 import android.widget.TextView;
@@ -36,36 +35,14 @@ public class Util {
         return string == null ? "" : string;
     }
 
-    public static int getAtomicInteger(AtomicReference<Integer> ref, int defaultValue) {
-    	Integer integer = ref.get();
-    	return integer == null ? 0 : integer;
-    }
-
     /**
      * Update target, if it's different from newValue.
      * @param target
      * @param newValue
      * @return true if target is updated. Otherwise return false.
      */
-	public static boolean atomicStringUpdated(AtomicReference<String> target, String newValue) {
-		String currentValue = target.get();
-		if (currentValue == null && newValue == null)
-			return false;
-		if (currentValue == null || !currentValue.equals(newValue)) {
-			target.set(newValue);
-			return true;
-		}
-		return false;
-	}
-
-    /**
-     * Update target, if it's different from newValue.
-     * @param target
-     * @param newValue
-     * @return true if target is updated. Otherwise return false.
-     */
-	public static boolean atomicSongUpdated(AtomicReference<SqueezerSong> target, SqueezerSong newValue) {
-    	SqueezerSong currentValue = target.get();
+	public static <T> boolean atomicReferenceUpdated(AtomicReference<T> target, T newValue) {
+    	T currentValue = target.get();
 		if (currentValue == null && newValue == null)
 			return false;
 		if (currentValue == null || !currentValue.equals(newValue)) {

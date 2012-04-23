@@ -28,6 +28,7 @@ import uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePluginListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
@@ -54,6 +55,9 @@ interface ISqueezeService {
 
 		// Call this to change the player we are controlling
 	    void setActivePlayer(in SqueezerPlayer player);
+
+		// Returns the player we are currently controlling
+	    SqueezerPlayer getActivePlayer();
 
 		// Returns the empty string (not null) if no player is set. 
         String getActivePlayerName();
@@ -87,6 +91,7 @@ interface ISqueezeService {
         int getSecondsElapsed();
         boolean setSecondsElapsed(int seconds);
         
+        SqueezerPlayerState getPlayerState();
         SqueezerSong currentSong();
         String getAlbumArtUrl(String artworkTrackId);
         String getIconUrl(String icon);

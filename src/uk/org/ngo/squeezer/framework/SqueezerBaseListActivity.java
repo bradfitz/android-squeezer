@@ -150,6 +150,14 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		return itemAdapter == null ? (itemAdapter = createItemListAdapter(getItemView())) : itemAdapter;
 	}
 
+	/**
+	 * @return The {@link ListView} used by this activity
+	 */
+    public ListView getListView() {
+        return listView;
+    }
+
+
     protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T> itemView) {
 		return new SqueezerItemListAdapter<T>(itemView);
 	}

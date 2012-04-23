@@ -90,7 +90,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		return creator;
 	}
 
-	public View getAdapterView(View convertView, T item) {
+	public View getAdapterView(View convertView, int index, T item) {
 		return Util.getListItemView(getActivity(), convertView, item.getName());
 	}
 

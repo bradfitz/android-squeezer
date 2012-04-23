@@ -46,6 +46,8 @@ import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.PlayerStateChanged;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
@@ -139,7 +141,7 @@ public class SqueezeService extends Service {
     void disconnect() {
     	connectionState.disconnect();
         clearOngoingNotification();
-        playerState.clear();
+        playerState = new SqueezerPlayerState();
     }
 
 
@@ -401,26 +403,17 @@ public class SqueezeService extends Service {
 
     private void parseStatusLine(List<String> tokens) {
 		HashMap<String, String> tokenMap = parseTokens(tokens);
+        PlayerStateChanged stateChanged = playerState.update(tokenMap);
 
-	    boolean musicHasChanged = false;
-	    musicHasChanged |= playerState.setCurrentSongUpdated(new SqueezerSong(tokenMap));
+		parseMode(tokenMap.get("mode"));
 
-        playerState.setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
-
-        parseMode(tokenMap.get("mode"));
-
-        if (musicHasChanged) {
+        if (stateChanged.musicHasChanged) {
             updateOngoingNotification();
             sendMusicChangedCallback();
         }
 
-	    int time = Util.parseDecimalIntOrZero(tokenMap.get("time"));
-	    int duration = Util.parseDecimalIntOrZero(tokenMap.get("duration"));
-        int lastTime = playerState.getCurrentTimeSecond(0);
-        if (musicHasChanged || time != lastTime) {
-            playerState.setCurrentTimeSecond(time);
-            playerState.setCurrentSongDuration(duration);
-            sendNewTimeCallback(time, duration);
+        if (stateChanged.timeHasChanged) {
+            sendNewTimeCallback(playerState.getCurrentTimeSecond(), playerState.getCurrentSongDuration());
         }
     }
 
@@ -770,9 +763,17 @@ public class SqueezeService extends Service {
             changeActivePlayer(player);
         }
 
+        public SqueezerPlayer getActivePlayer() throws RemoteException {
+            return connectionState.getActivePlayer();
+        }
+
         public String getActivePlayerName() throws RemoteException {
             SqueezerPlayer player = connectionState.getActivePlayer();
             return (player != null ? player.getName() : null);
+        }
+
+        public SqueezerPlayerState getPlayerState() throws RemoteException {
+            return playerState;
         }
 
         public SqueezerSong currentSong() throws RemoteException {
@@ -796,7 +797,7 @@ public class SqueezeService extends Service {
         }
 
         public int getSecondsElapsed() throws RemoteException {
-        	return playerState.getCurrentTimeSecond(0);
+        	return playerState.getCurrentTimeSecond();
         }
 
         public boolean setSecondsElapsed(int seconds) throws RemoteException {
@@ -809,7 +810,7 @@ public class SqueezeService extends Service {
         }
 
         public int getSecondsTotal() throws RemoteException {
-            return playerState.getCurrentSongDuration(0);
+            return playerState.getCurrentSongDuration();
         }
 
         public void preferenceChanged(String key) throws RemoteException {

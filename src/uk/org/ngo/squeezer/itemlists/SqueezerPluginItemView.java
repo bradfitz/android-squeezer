@@ -40,7 +40,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 	}
 
 	@Override
-	public View getAdapterView(View convertView, SqueezerPluginItem item) {
+	public View getAdapterView(View convertView, int index, SqueezerPluginItem item) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {

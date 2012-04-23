@@ -42,7 +42,6 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     // this class displays are packaged with the app, not downloaded from the
     // server.
 
-    private final static String TAG = "SqueezerMusicFolderView";
     private final LayoutInflater mLayoutInflater;
 
     SqueezerItemListActivity mContext;
@@ -54,7 +53,7 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     }
 
     @Override
-    public View getAdapterView(View convertView, SqueezerMusicFolderItem item) {
+    public View getAdapterView(View convertView, int index, SqueezerMusicFolderItem item) {
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {

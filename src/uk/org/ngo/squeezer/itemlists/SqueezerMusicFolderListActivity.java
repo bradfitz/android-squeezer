@@ -39,7 +39,6 @@ import android.os.RemoteException;
  * @author nik
  */
 public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<SqueezerMusicFolderItem> {
-    private static final String TAG = "SqueezerMusicFolderListActivity";
 
     /** The folder to view. The root folder if null. */
     SqueezerMusicFolderItem mFolder;

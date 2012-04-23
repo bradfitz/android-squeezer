@@ -82,7 +82,7 @@ public class YearSpinner {
 					if (adapter == null) {
 						SqueezerYearView itemView = new SqueezerYearView(activity) {
 							@Override
-							public View getAdapterView(View convertView, SqueezerYear item) {
+							public View getAdapterView(View convertView, int index, SqueezerYear item) {
 								return Util.getSpinnerItemView(getActivity(), convertView, item.getName());
 							}
 							@Override

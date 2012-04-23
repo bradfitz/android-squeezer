@@ -20,10 +20,7 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.model.SqueezerSong;
-
 import android.os.RemoteException;
-
-import uk.org.ngo.squeezer.itemlists.IServiceSongListCallback;
 
 public abstract class SqueezerAbstractSongListActivity extends SqueezerBaseListActivity<SqueezerSong> {
 

@@ -115,7 +115,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         T item = getItem(position);
         if (item != null)
-            return itemView.getAdapterView(convertView, item);
+            return itemView.getAdapterView(convertView, position, item);
 
         return itemView.getAdapterView(convertView,
                 (position == 0 && emptyItem ? "" : loadingText));
@@ -200,7 +200,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 * Called when the number of items in the list changes.
 	 * The default implementation is empty.
 	 */
-	protected void updateHeader() {
+	protected void onCountUpdated() {
 	}
 
 	/**
@@ -222,7 +222,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		start += offset;
 		if (count == 0 || count != getCount()) {
 			this.count = count;
-			updateHeader();
+			onCountUpdated();
 		}
 		setItems(start, items);
 

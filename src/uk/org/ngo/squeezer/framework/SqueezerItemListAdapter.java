@@ -36,7 +36,7 @@ public class SqueezerItemListAdapter<T extends SqueezerItem> extends SqueezerIte
 	}
 
 	@Override
-	protected void updateHeader() {
+	protected void onCountUpdated() {
 		getActivity().setTitle(getHeader());
 	}
 
