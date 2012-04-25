@@ -1128,9 +1128,9 @@ public class SqueezeService extends Service {
 		}
 
 		public void unregisterPluginListCallback(IServicePluginListCallback callback) throws RemoteException {
-            Log.v(TAG, "SongListCallback detached.");
+            Log.v(TAG, "PluginListCallback detached.");
 	    	SqueezeService.this.pluginListCallback.compareAndSet(callback, null);
-			cli.cancelRequests(SqueezerSong.class);
+			cli.cancelRequests(SqueezerPlugin.class);
 		}
 
 
@@ -1152,9 +1152,9 @@ public class SqueezeService extends Service {
 		}
 
 		public void unregisterPluginItemListCallback(IServicePluginItemListCallback callback) throws RemoteException {
-            Log.v(TAG, "SongListCallback detached.");
+            Log.v(TAG, "PluginItemListCallback detached.");
 	    	SqueezeService.this.pluginItemListCallback.compareAndSet(callback, null);
-			cli.cancelRequests(SqueezerSong.class);
+			cli.cancelRequests(SqueezerPluginItem.class);
 		}
 
 	};
