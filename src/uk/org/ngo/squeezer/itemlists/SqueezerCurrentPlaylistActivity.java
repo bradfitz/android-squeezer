@@ -53,7 +53,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 
 		    @Override
 		    public android.view.View getAdapterView(android.view.View convertView, int index, SqueezerSong item) {
-                View view = super.getAdapterView(convertView, index, item);
+                View view = super.getView(convertView, item, index ==  currentPlaylistIndex);
                 view.setBackgroundResource(index ==  currentPlaylistIndex ? R.drawable.list_item_background_current : R.drawable.list_item_background_normal);
 		        return view;
 		    };
@@ -146,9 +146,9 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
         public void onSongsReceived(int count, int start, List<SqueezerSong> items) throws RemoteException {
             currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
             onItemsReceived(count, start, items);
-            // Initially position the list at the current playing song.
-            // Do it again once it has loaded because it then newly displayed
-            // items may push the current song  outside the displayed area.
+            // Initially position the list at the currently playing song.
+            // Do it again once it has loaded because the newly displayed items
+            // may push the current song  outside the displayed area.
             if (start == 0 || (start <= currentPlaylistIndex && currentPlaylistIndex < start + items.size()))
                 selectCurrentSong(currentPlaylistIndex, start);
         }

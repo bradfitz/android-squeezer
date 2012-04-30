@@ -51,21 +51,21 @@
 		        	android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
 		 			android:gravity="center_horizontal"
-		 			android:textAppearance="?android:attr/textAppearanceMedium"/>
+		 			android:textAppearance="@style/SqueezerTextItem"/>
 
 		        <TextView android:id="@+id/albumname"
                     android:hint="@string/unknown_album"
 		            android:gravity="center_horizontal"
 		            android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
-		            android:textAppearance="?android:attr/textAppearanceSmall" />
+		            android:textAppearance="@style/SqueezerTextItemSmall" />
 				
 		        <TextView android:id="@+id/artistname"
                     android:hint="@string/unknown_artist"
 		            android:gravity="center_horizontal"		            
 		            android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
-		            android:textAppearance="?android:attr/textAppearanceSmall" />
+		            android:textAppearance="@style/SqueezerTextItemSmall" />
 			</LinearLayout>
 
 			<LinearLayout
@@ -113,7 +113,7 @@
 	        android:orientation="horizontal">
 	        
 	        <TextView android:id="@+id/currenttime"
-	            android:textAppearance="?android:attr/textAppearanceMedium"
+	            android:textAppearance="@style/SqueezerTextItem"
 	            android:textSize="14sp"
 	            android:textStyle="bold"
 	            android:shadowColor="#ff000000"
@@ -137,7 +137,7 @@
 		        android:paddingBottom="4dp" />
 		        
 	        <TextView android:id="@+id/totaltime"
-	            android:textAppearance="?android:attr/textAppearanceMedium"
+	            android:textAppearance="@style/SqueezerTextItem"
 	            android:textSize="14sp"
 	            android:textStyle="bold"
 	            android:shadowColor="#ff000000"

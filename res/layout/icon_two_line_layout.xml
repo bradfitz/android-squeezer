@@ -44,7 +44,7 @@
          android:paddingRight="9dp"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
-         android:textAppearance="?android:attr/textAppearanceMedium"
+         android:textAppearance="@style/SqueezerTextItem"
       />
 
       <TextView android:id="@+id/text2"
@@ -52,7 +52,7 @@
          android:paddingRight="9dp"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
-         android:textAppearance="?android:attr/textAppearanceSmall"
+         android:textAppearance="@style/SqueezerTextItemSmall"
       />
    </LinearLayout>
 </LinearLayout>

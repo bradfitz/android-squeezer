@@ -27,7 +27,7 @@
     <TextView android:id="@android:id/message"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/SqueezerTextItem"
         android:layout_marginBottom="4dp" />
 
     <EditText
@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/SqueezerTextItem"
         android:text="@string/settings_server_scan_msg" />
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

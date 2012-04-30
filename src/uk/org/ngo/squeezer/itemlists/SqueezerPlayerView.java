@@ -54,6 +54,7 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 			viewHolder = (ViewHolder) convertView.getTag();
 
 		viewHolder.label.setText(item.getName());
+		viewHolder.label.setTextAppearance(getActivity(), item.equals(activity.getActivePlayer()) ? R.style.SqueezerCurrentTextItem : R.style.SqueezerTextItem);
 		viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
 
 		convertView.setBackgroundResource(item.equals(activity.getActivePlayer()) ? R.drawable.list_item_background_current : R.drawable.list_item_background_normal);
