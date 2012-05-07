@@ -66,6 +66,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private final AtomicBoolean isPlaying = new AtomicBoolean(false);
     private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
     private final AtomicBoolean connectInProgress = new AtomicBoolean(false);
+    private final AtomicBoolean broadcastReceiverRegistered = new AtomicBoolean(false);
 
     private TextView albumText;
     private TextView artistText;
@@ -382,8 +383,10 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             updateUIFromServiceState();
         }
 
-        if (isAutoConnect())
+        if (isAutoConnect()) {
             registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+            broadcastReceiverRegistered.set(true);
+        }
     }
 
     // Should only be called from the UI thread.
@@ -544,7 +547,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             }
         }
         if (isAutoConnect())
-            unregisterReceiver(broadcastReceiver);
+            if (broadcastReceiverRegistered.get())
+                unregisterReceiver(broadcastReceiver);
         super.onPause();
     }
 
