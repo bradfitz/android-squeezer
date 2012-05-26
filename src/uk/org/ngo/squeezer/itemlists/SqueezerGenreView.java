@@ -42,9 +42,9 @@ public class SqueezerGenreView extends SqueezerBaseItemView<SqueezerGenre> {
     // XXX: Make this a menu resource.
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerGenre item) {
 		menu.setHeaderTitle(item.getName());
-		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_SONGS, 0, R.string.CONTEXTMENU_BROWSE_SONGS);
+        menu.add(Menu.NONE, R.id.browse_songs, 0, R.string.CONTEXTMENU_BROWSE_SONGS);
 		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ALBUMS, 1, R.string.CONTEXTMENU_BROWSE_ALBUMS);
-		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ARTISTS, 2, R.string.CONTEXTMENU_BROWSE_ARTISTS);
+        menu.add(Menu.NONE, R.id.browse_artists, 2, R.string.CONTEXTMENU_BROWSE_ARTISTS);
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
 	};

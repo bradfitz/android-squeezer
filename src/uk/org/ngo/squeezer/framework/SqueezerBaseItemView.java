@@ -31,12 +31,7 @@ import android.view.View;
 import android.widget.Toast;
 
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
-	protected static final int CONTEXTMENU_BROWSE_SONGS = 0;
-	protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
-	protected static final int CONTEXTMENU_BROWSE_ARTISTS = 2;
-	protected static final int CONTEXTMENU_BROWSE_ALBUM_SONGS = 6;
-	protected static final int CONTEXTMENU_BROWSE_ARTIST_ALBUMS = 7;
-	protected static final int CONTEXTMENU_BROWSE_ARTIST_SONGS = 8;
+    protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 
 	private final SqueezerItemListActivity activity;
 	private SqueezerItemAdapter<T> adapter;
@@ -102,15 +97,17 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	 */
 	public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) throws RemoteException {
 		switch (menuItem.getItemId()) {
-		case CONTEXTMENU_BROWSE_SONGS:
-			SqueezerSongListActivity.show(activity, selectedItem);
-			return true;
+            case R.id.browse_songs:
+                SqueezerSongListActivity.show(activity, selectedItem);
+                return true;
+
 		case CONTEXTMENU_BROWSE_ALBUMS:
 			SqueezerAlbumListActivity.show(activity, selectedItem);
 			return true;
-		case CONTEXTMENU_BROWSE_ARTISTS:
-			SqueezerArtistListActivity.show(activity, selectedItem);
-			return true;
+
+            case R.id.browse_artists:
+                SqueezerArtistListActivity.show(activity, selectedItem);
+                return true;
 
             case R.id.play_now:
                 if (activity.play((SqueezerPlaylistItem) selectedItem))
