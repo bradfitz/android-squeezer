@@ -6,7 +6,7 @@ from your Android phone.
 
 Features include:
 
-*   Now playing, artwork, seeking within tracks.
+*   Now playing, artwork, seeking within tracks, volume control.
 
 *   Browse the library by artist, album, song title, genre, year, or playlist.
 

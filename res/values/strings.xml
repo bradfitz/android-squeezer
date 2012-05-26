@@ -84,6 +84,9 @@
     <string name="unknown_album">Unknown album</string>
     <string name="unknown_artist">Unknown artist</string>
 
+    <string name="tips_title">Tips</string>
+    <string name="tip_volume">Use your device\'s hardware volume controls to change the playing volume.\n\nTry it now.</string>
+
     <!-- Dialog buttons -->
     <string name="dialog_license">License</string>
 

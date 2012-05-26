@@ -1,3 +1,13 @@
+0.8
+===
+
+*   Support browsing and playing favourites on the Squeezeserver.
+
+*   Add a startup tip about how to control volume.
+
+*   Fixed a crash caused by trying to scrobble when a song wasn't playing.
+
+
 0.7.1
 =====
 

@@ -32,9 +32,13 @@ android.support.v4.accessibilityservice.AccessibilityServiceInfoCompatIcs -> and
     37:37:java.lang.String getId(android.accessibilityservice.AccessibilityServiceInfo) -> getId
     41:41:android.content.pm.ResolveInfo getResolveInfo(android.accessibilityservice.AccessibilityServiceInfo) -> getResolveInfo
     45:45:java.lang.String getSettingsActivityName(android.accessibilityservice.AccessibilityServiceInfo) -> getSettingsActivityName
+android.support.v4.app.ActivityCompat -> android.support.v4.app.ActivityCompat:
+    61:65:boolean invalidateOptionsMenu(android.app.Activity) -> invalidateOptionsMenu
+    94:98:boolean startActivities(android.app.Activity,android.content.Intent[]) -> startActivities
 android.support.v4.app.ActivityCompatHoneycomb -> android.support.v4.app.ActivityCompatHoneycomb:
-    29:30:void invalidateOptionsMenu(android.app.Activity) -> invalidateOptionsMenu
-    34:35:void dump(android.app.Activity,java.lang.String,java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[]) -> dump
+    30:31:void invalidateOptionsMenu(android.app.Activity) -> invalidateOptionsMenu
+    34:35:void startActivities(android.app.Activity,android.content.Intent[]) -> startActivities
+    39:40:void dump(android.app.Activity,java.lang.String,java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[]) -> dump
 android.support.v4.app.BackStackRecord -> android.support.v4.app.BackStackRecord:
     java.lang.String TAG -> TAG
     android.support.v4.app.FragmentManagerImpl mManager -> mManager
@@ -343,17 +347,17 @@ android.support.v4.app.FragmentActivity -> android.support.v4.app.FragmentActivi
     533:539:void onStop() -> onStop
     550:550:java.lang.Object onRetainCustomNonConfigurationInstance() -> onRetainCustomNonConfigurationInstance
     558:560:java.lang.Object getLastCustomNonConfigurationInstance() -> getLastCustomNonConfigurationInstance
-    564:574:void supportInvalidateOptionsMenu() -> supportInvalidateOptionsMenu
-    587:609:void dump(java.lang.String,java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[]) -> dump
-    612:618:void doReallyStop(boolean) -> doReallyStop
-    628:640:void onReallyStop() -> onReallyStop
-    650:650:void onAttachFragment(android.support.v4.app.Fragment) -> onAttachFragment
-    657:657:android.support.v4.app.FragmentManager getSupportFragmentManager() -> getSupportFragmentManager
-    666:670:void startActivityForResult(android.content.Intent,int) -> startActivityForResult
-    677:685:void startActivityFromFragment(android.support.v4.app.Fragment,android.content.Intent,int) -> startActivityFromFragment
-    689:696:void invalidateSupportFragmentIndex(int) -> invalidateSupportFragmentIndex
-    706:711:android.support.v4.app.LoaderManager getSupportLoaderManager() -> getSupportLoaderManager
-    715:727:android.support.v4.app.LoaderManagerImpl getLoaderManager(int,boolean,boolean) -> getLoaderManager
+    569:579:void supportInvalidateOptionsMenu() -> supportInvalidateOptionsMenu
+    592:614:void dump(java.lang.String,java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[]) -> dump
+    617:623:void doReallyStop(boolean) -> doReallyStop
+    633:645:void onReallyStop() -> onReallyStop
+    655:655:void onAttachFragment(android.support.v4.app.Fragment) -> onAttachFragment
+    662:662:android.support.v4.app.FragmentManager getSupportFragmentManager() -> getSupportFragmentManager
+    671:675:void startActivityForResult(android.content.Intent,int) -> startActivityForResult
+    682:690:void startActivityFromFragment(android.support.v4.app.Fragment,android.content.Intent,int) -> startActivityFromFragment
+    694:701:void invalidateSupportFragmentIndex(int) -> invalidateSupportFragmentIndex
+    711:716:android.support.v4.app.LoaderManager getSupportLoaderManager() -> getSupportLoaderManager
+    720:732:android.support.v4.app.LoaderManagerImpl getLoaderManager(int,boolean,boolean) -> getLoaderManager
 android.support.v4.app.FragmentActivity$1 -> android.support.v4.app.FragmentActivity$1:
     android.support.v4.app.FragmentActivity this$0 -> this$0
     82:95:void handleMessage(android.os.Message) -> handleMessage
@@ -713,7 +717,7 @@ android.support.v4.app.LoaderManagerImpl -> android.support.v4.app.LoaderManager
     boolean mCreatingLoader -> mCreatingLoader
     480:481:void updateActivity(android.support.v4.app.FragmentActivity) -> updateActivity
     485:488:android.support.v4.app.LoaderManagerImpl$LoaderInfo createLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks) -> createLoader
-    494:499:android.support.v4.app.LoaderManagerImpl$LoaderInfo createAndInstallLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks) -> createAndInstallLoader
+    494:497:android.support.v4.app.LoaderManagerImpl$LoaderInfo createAndInstallLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks) -> createAndInstallLoader
     504:511:void installLoader(android.support.v4.app.LoaderManagerImpl$LoaderInfo) -> installLoader
     539:561:android.support.v4.content.Loader initLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks) -> initLoader
     589:643:android.support.v4.content.Loader restartLoader(int,android.os.Bundle,android.support.v4.app.LoaderManager$LoaderCallbacks) -> restartLoader
@@ -755,13 +759,166 @@ android.support.v4.app.LoaderManagerImpl$LoaderInfo -> android.support.v4.app.Lo
     415:432:void callOnLoadFinished(android.support.v4.content.Loader,java.lang.Object) -> callOnLoadFinished
     436:444:java.lang.String toString() -> toString
     448:471:void dump(java.lang.String,java.io.FileDescriptor,java.io.PrintWriter,java.lang.String[]) -> dump
+android.support.v4.app.NavUtils -> android.support.v4.app.NavUtils:
+    java.lang.String TAG -> TAG
+    java.lang.String PARENT_ACTIVITY -> PARENT_ACTIVITY
+    54:55:boolean shouldUpRecreateTask(android.app.Activity,android.content.Intent) -> shouldUpRecreateTask
+    71:82:void navigateUpFromSameTask(android.app.Activity) -> navigateUpFromSameTask
+    98:101:void navigateUpTo(android.app.Activity,android.content.Intent) -> navigateUpTo
+    112:114:android.content.Intent getParentActivityIntent(android.app.Activity) -> getParentActivityIntent
+    129:132:android.content.Intent getParentActivityIntent(android.content.Context,java.lang.Class) -> getParentActivityIntent
+    147:152:android.content.Intent getParentActivityIntent(android.content.Context,android.content.ComponentName) -> getParentActivityIntent
+    166:169:java.lang.String getParentActivityName(android.app.Activity) -> getParentActivityName
+    184:192:java.lang.String getParentActivityName(android.content.Context,android.content.ComponentName) -> getParentActivityName
 android.support.v4.app.NoSaveStateFrameLayout -> android.support.v4.app.NoSaveStateFrameLayout:
     32:41:android.view.ViewGroup wrap(android.view.View) -> wrap
     53:54:void dispatchSaveInstanceState(android.util.SparseArray) -> dispatchSaveInstanceState
     61:62:void dispatchRestoreInstanceState(android.util.SparseArray) -> dispatchRestoreInstanceState
+android.support.v4.app.NotificationCompat -> android.support.v4.app.NotificationCompat:
+    int FLAG_HIGH_PRIORITY -> FLAG_HIGH_PRIORITY
+    android.support.v4.app.NotificationCompat$NotificationCompatImpl IMPL -> IMPL
+    29:29:android.support.v4.app.NotificationCompat$NotificationCompatImpl access$000() -> access$000
+android.support.v4.app.NotificationCompat$Builder -> android.support.v4.app.NotificationCompat$Builder:
+    android.content.Context mContext -> mContext
+    java.lang.CharSequence mContentTitle -> mContentTitle
+    java.lang.CharSequence mContentText -> mContentText
+    android.app.PendingIntent mContentIntent -> mContentIntent
+    android.app.PendingIntent mFullScreenIntent -> mFullScreenIntent
+    android.widget.RemoteViews mTickerView -> mTickerView
+    android.graphics.Bitmap mLargeIcon -> mLargeIcon
+    java.lang.CharSequence mContentInfo -> mContentInfo
+    int mNumber -> mNumber
+    android.app.Notification mNotification -> mNotification
+    113:114:android.support.v4.app.NotificationCompat$Builder setWhen(long) -> setWhen
+    125:126:android.support.v4.app.NotificationCompat$Builder setSmallIcon(int) -> setSmallIcon
+    140:142:android.support.v4.app.NotificationCompat$Builder setSmallIcon(int,int) -> setSmallIcon
+    149:150:android.support.v4.app.NotificationCompat$Builder setContentTitle(java.lang.CharSequence) -> setContentTitle
+    157:158:android.support.v4.app.NotificationCompat$Builder setContentText(java.lang.CharSequence) -> setContentText
+    167:168:android.support.v4.app.NotificationCompat$Builder setNumber(int) -> setNumber
+    175:176:android.support.v4.app.NotificationCompat$Builder setContentInfo(java.lang.CharSequence) -> setContentInfo
+    195:196:android.support.v4.app.NotificationCompat$Builder setContent(android.widget.RemoteViews) -> setContent
+    208:209:android.support.v4.app.NotificationCompat$Builder setContentIntent(android.app.PendingIntent) -> setContentIntent
+    220:221:android.support.v4.app.NotificationCompat$Builder setDeleteIntent(android.app.PendingIntent) -> setDeleteIntent
+    238:240:android.support.v4.app.NotificationCompat$Builder setFullScreenIntent(android.app.PendingIntent,boolean) -> setFullScreenIntent
+    248:249:android.support.v4.app.NotificationCompat$Builder setTicker(java.lang.CharSequence) -> setTicker
+    258:260:android.support.v4.app.NotificationCompat$Builder setTicker(java.lang.CharSequence,android.widget.RemoteViews) -> setTicker
+    267:268:android.support.v4.app.NotificationCompat$Builder setLargeIcon(android.graphics.Bitmap) -> setLargeIcon
+    275:277:android.support.v4.app.NotificationCompat$Builder setSound(android.net.Uri) -> setSound
+    287:289:android.support.v4.app.NotificationCompat$Builder setSound(android.net.Uri,int) -> setSound
+    299:300:android.support.v4.app.NotificationCompat$Builder setVibrate(long[]) -> setVibrate
+    309:315:android.support.v4.app.NotificationCompat$Builder setLights(int,int,int) -> setLights
+    330:331:android.support.v4.app.NotificationCompat$Builder setOngoing(boolean) -> setOngoing
+    339:340:android.support.v4.app.NotificationCompat$Builder setOnlyAlertOnce(boolean) -> setOnlyAlertOnce
+    350:351:android.support.v4.app.NotificationCompat$Builder setAutoCancel(boolean) -> setAutoCancel
+    365:369:android.support.v4.app.NotificationCompat$Builder setDefaults(int) -> setDefaults
+    373:378:void setFlag(int,boolean) -> setFlag
+    385:385:android.app.Notification getNotification() -> getNotification
+android.support.v4.app.NotificationCompat$NotificationCompatImpl -> android.support.v4.app.NotificationCompat$NotificationCompatImpl:
+    android.app.Notification getNotification(android.support.v4.app.NotificationCompat$Builder) -> getNotification
+android.support.v4.app.NotificationCompat$NotificationCompatImplBase -> android.support.v4.app.NotificationCompat$NotificationCompatImplBase:
+    48:51:android.app.Notification getNotification(android.support.v4.app.NotificationCompat$Builder) -> getNotification
+android.support.v4.app.NotificationCompat$NotificationCompatImplHoneycomb -> android.support.v4.app.NotificationCompat$NotificationCompatImplHoneycomb:
+    57:57:android.app.Notification getNotification(android.support.v4.app.NotificationCompat$Builder) -> getNotification
+android.support.v4.app.NotificationCompatHoneycomb -> android.support.v4.app.NotificationCompatHoneycomb:
+    30:51:android.app.Notification add(android.content.Context,android.app.Notification,java.lang.CharSequence,java.lang.CharSequence,java.lang.CharSequence,android.widget.RemoteViews,int,android.app.PendingIntent,android.app.PendingIntent,android.graphics.Bitmap) -> add
 android.support.v4.app.ServiceCompat -> android.support.v4.app.ServiceCompat:
     int START_STICKY -> START_STICKY
+android.support.v4.app.ShareCompat -> android.support.v4.app.ShareCompat:
+    java.lang.String EXTRA_CALLING_PACKAGE -> EXTRA_CALLING_PACKAGE
+    java.lang.String EXTRA_CALLING_ACTIVITY -> EXTRA_CALLING_ACTIVITY
+    android.support.v4.app.ShareCompat$ShareCompatImpl IMPL -> IMPL
+    117:121:java.lang.String getCallingPackage(android.app.Activity) -> getCallingPackage
+    137:141:android.content.ComponentName getCallingActivity(android.app.Activity) -> getCallingActivity
+    176:177:void configureMenuItem(android.view.MenuItem,android.support.v4.app.ShareCompat$IntentBuilder) -> configureMenuItem
+    188:194:void configureMenuItem(android.view.Menu,int,android.support.v4.app.ShareCompat$IntentBuilder) -> configureMenuItem
+android.support.v4.app.ShareCompat$IntentBuilder -> android.support.v4.app.ShareCompat$IntentBuilder:
+    android.app.Activity mActivity -> mActivity
+    android.content.Intent mIntent -> mIntent
+    java.lang.CharSequence mChooserTitle -> mChooserTitle
+    java.util.ArrayList mToAddresses -> mToAddresses
+    java.util.ArrayList mCcAddresses -> mCcAddresses
+    java.util.ArrayList mBccAddresses -> mBccAddresses
+    java.util.ArrayList mStreams -> mStreams
+    219:219:android.support.v4.app.ShareCompat$IntentBuilder from(android.app.Activity) -> from
+    240:280:android.content.Intent getIntent() -> getIntent
+    284:284:android.app.Activity getActivity() -> getActivity
+    288:296:void combineArrayExtra(java.lang.String,java.util.ArrayList) -> combineArrayExtra
+    300:307:void combineArrayExtra(java.lang.String,java.lang.String[]) -> combineArrayExtra
+    317:317:android.content.Intent createChooserIntent() -> createChooserIntent
+    330:331:void startChooser() -> startChooser
+    340:341:android.support.v4.app.ShareCompat$IntentBuilder setChooserTitle(java.lang.CharSequence) -> setChooserTitle
+    351:351:android.support.v4.app.ShareCompat$IntentBuilder setChooserTitle(int) -> setChooserTitle
+    362:363:android.support.v4.app.ShareCompat$IntentBuilder setType(java.lang.String) -> setType
+    374:375:android.support.v4.app.ShareCompat$IntentBuilder setText(java.lang.CharSequence) -> setText
+    389:394:android.support.v4.app.ShareCompat$IntentBuilder setStream(android.net.Uri) -> setStream
+    409:421:android.support.v4.app.ShareCompat$IntentBuilder addStream(android.net.Uri) -> addStream
+    433:437:android.support.v4.app.ShareCompat$IntentBuilder setEmailTo(java.lang.String[]) -> setEmailTo
+    448:452:android.support.v4.app.ShareCompat$IntentBuilder addEmailTo(java.lang.String) -> addEmailTo
+    463:464:android.support.v4.app.ShareCompat$IntentBuilder addEmailTo(java.lang.String[]) -> addEmailTo
+    476:477:android.support.v4.app.ShareCompat$IntentBuilder setEmailCc(java.lang.String[]) -> setEmailCc
+    488:492:android.support.v4.app.ShareCompat$IntentBuilder addEmailCc(java.lang.String) -> addEmailCc
+    503:504:android.support.v4.app.ShareCompat$IntentBuilder addEmailCc(java.lang.String[]) -> addEmailCc
+    516:517:android.support.v4.app.ShareCompat$IntentBuilder setEmailBcc(java.lang.String[]) -> setEmailBcc
+    528:532:android.support.v4.app.ShareCompat$IntentBuilder addEmailBcc(java.lang.String) -> addEmailBcc
+    543:544:android.support.v4.app.ShareCompat$IntentBuilder addEmailBcc(java.lang.String[]) -> addEmailBcc
+    555:556:android.support.v4.app.ShareCompat$IntentBuilder setSubject(java.lang.String) -> setSubject
+android.support.v4.app.ShareCompat$IntentReader -> android.support.v4.app.ShareCompat$IntentReader:
+    java.lang.String TAG -> TAG
+    android.app.Activity mActivity -> mActivity
+    android.content.Intent mIntent -> mIntent
+    java.lang.String mCallingPackage -> mCallingPackage
+    android.content.ComponentName mCallingActivity -> mCallingActivity
+    java.util.ArrayList mStreams -> mStreams
+    595:595:android.support.v4.app.ShareCompat$IntentReader from(android.app.Activity) -> from
+    614:615:boolean isShareIntent() -> isShareIntent
+    627:627:boolean isSingleShare() -> isSingleShare
+    638:638:boolean isMultipleShare() -> isMultipleShare
+    648:648:java.lang.String getType() -> getType
+    658:658:java.lang.CharSequence getText() -> getText
+    673:673:android.net.Uri getStream() -> getStream
+    686:695:android.net.Uri getStream(int) -> getStream
+    707:713:int getStreamCount() -> getStreamCount
+    723:723:java.lang.String[] getEmailTo() -> getEmailTo
+    733:733:java.lang.String[] getEmailCc() -> getEmailCc
+    743:743:java.lang.String[] getEmailBcc() -> getEmailBcc
+    753:753:java.lang.String getSubject() -> getSubject
+    770:770:java.lang.String getCallingPackage() -> getCallingPackage
+    787:787:android.content.ComponentName getCallingActivity() -> getCallingActivity
+    801:809:android.graphics.drawable.Drawable getCallingActivityIcon() -> getCallingActivityIcon
+    823:831:android.graphics.drawable.Drawable getCallingApplicationIcon() -> getCallingApplicationIcon
+    845:853:java.lang.CharSequence getCallingApplicationLabel() -> getCallingApplicationLabel
+android.support.v4.app.ShareCompat$ShareCompatImpl -> android.support.v4.app.ShareCompat$ShareCompatImpl:
+    void configureMenuItem(android.view.MenuItem,android.support.v4.app.ShareCompat$IntentBuilder) -> configureMenuItem
+android.support.v4.app.ShareCompat$ShareCompatImplBase -> android.support.v4.app.ShareCompat$ShareCompatImplBase:
+    83:84:void configureMenuItem(android.view.MenuItem,android.support.v4.app.ShareCompat$IntentBuilder) -> configureMenuItem
+android.support.v4.app.ShareCompat$ShareCompatImplICS -> android.support.v4.app.ShareCompat$ShareCompatImplICS:
+    89:91:void configureMenuItem(android.view.MenuItem,android.support.v4.app.ShareCompat$IntentBuilder) -> configureMenuItem
+android.support.v4.app.ShareCompatICS -> android.support.v4.app.ShareCompatICS:
+    java.lang.String HISTORY_FILENAME_PREFIX -> HISTORY_FILENAME_PREFIX
+    29:40:void configureMenuItem(android.view.MenuItem,android.app.Activity,android.content.Intent) -> configureMenuItem
 android.support.v4.app.SuperNotCalledException -> android.support.v4.app.SuperNotCalledException:
+android.support.v4.app.TaskStackBuilder -> android.support.v4.app.TaskStackBuilder:
+    java.lang.String TAG -> TAG
+    android.support.v4.app.TaskStackBuilder$TaskStackBuilderImpl IMPL -> IMPL
+    java.util.ArrayList mIntents -> mIntents
+    android.content.Context mSourceContext -> mSourceContext
+    118:118:android.support.v4.app.TaskStackBuilder from(android.content.Context) -> from
+    129:130:android.support.v4.app.TaskStackBuilder addNextIntent(android.content.Intent) -> addNextIntent
+    141:152:android.support.v4.app.TaskStackBuilder addParentStack(android.app.Activity) -> addParentStack
+    163:174:android.support.v4.app.TaskStackBuilder addParentStack(java.lang.Class) -> addParentStack
+    181:181:int getIntentCount() -> getIntentCount
+    193:193:android.content.Intent getIntent(int) -> getIntent
+    197:197:java.util.Iterator iterator() -> iterator
+    209:223:void startActivities() -> startActivities
+    237:238:android.app.PendingIntent getPendingIntent(int,int) -> getPendingIntent
+android.support.v4.app.TaskStackBuilder$TaskStackBuilderImpl -> android.support.v4.app.TaskStackBuilder$TaskStackBuilderImpl:
+    android.app.PendingIntent getPendingIntent(android.content.Context,android.content.Intent[],int,int) -> getPendingIntent
+android.support.v4.app.TaskStackBuilder$TaskStackBuilderImplBase -> android.support.v4.app.TaskStackBuilder$TaskStackBuilderImplBase:
+    77:79:android.app.PendingIntent getPendingIntent(android.content.Context,android.content.Intent[],int,int) -> getPendingIntent
+android.support.v4.app.TaskStackBuilder$TaskStackBuilderImplHoneycomb -> android.support.v4.app.TaskStackBuilder$TaskStackBuilderImplHoneycomb:
+    86:88:android.app.PendingIntent getPendingIntent(android.content.Context,android.content.Intent[],int,int) -> getPendingIntent
+android.support.v4.app.TaskStackBuilderHoneycomb -> android.support.v4.app.TaskStackBuilderHoneycomb:
+    29:29:android.app.PendingIntent getActivitiesPendingIntent(android.content.Context,int,android.content.Intent[],int) -> getActivitiesPendingIntent
 android.support.v4.content.AsyncTaskLoader -> android.support.v4.content.AsyncTaskLoader:
     java.lang.String TAG -> TAG
     boolean DEBUG -> DEBUG
@@ -826,6 +983,8 @@ android.support.v4.content.IntentCompat -> android.support.v4.content.IntentComp
     java.lang.String ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE -> ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE
     java.lang.String EXTRA_CHANGED_PACKAGE_LIST -> EXTRA_CHANGED_PACKAGE_LIST
     java.lang.String EXTRA_CHANGED_UID_LIST -> EXTRA_CHANGED_UID_LIST
+    int FLAG_ACTIVITY_TASK_ON_HOME -> FLAG_ACTIVITY_TASK_ON_HOME
+    int FLAG_ACTIVITY_CLEAR_TASK -> FLAG_ACTIVITY_CLEAR_TASK
 android.support.v4.content.Loader -> android.support.v4.content.Loader:
     int mId -> mId
     android.support.v4.content.Loader$OnLoadCompleteListener mListener -> mListener
@@ -2225,11 +2384,11 @@ android.support.v4.widget.SimpleCursorAdapter$CursorToStringConverter -> android
     java.lang.CharSequence convertToString(android.database.Cursor) -> convertToString
 android.support.v4.widget.SimpleCursorAdapter$ViewBinder -> android.support.v4.widget.SimpleCursorAdapter$ViewBinder:
     boolean setViewValue(android.view.View,android.database.Cursor,int) -> setViewValue
-com.google.android.apps.analytics.AnalyticsParameterEncoder -> com.google.android.apps.analytics.b:
+com.google.android.apps.analytics.AnalyticsParameterEncoder -> com.google.android.apps.analytics.a:
     java.lang.String encode(java.lang.String,java.lang.String) -> a
 com.google.android.apps.analytics.AnalyticsReceiver -> com.google.android.apps.analytics.AnalyticsReceiver:
     void onReceive(android.content.Context,android.content.Intent) -> onReceive
-com.google.android.apps.analytics.CustomVariable -> com.google.android.apps.analytics.h:
+com.google.android.apps.analytics.CustomVariable -> com.google.android.apps.analytics.b:
     int scope -> a
     java.lang.String name -> b
     java.lang.String value -> c
@@ -2238,7 +2397,7 @@ com.google.android.apps.analytics.CustomVariable -> com.google.android.apps.anal
     java.lang.String getName() -> b
     java.lang.String getValue() -> c
     int getIndex() -> d
-com.google.android.apps.analytics.CustomVariableBuffer -> com.google.android.apps.analytics.i:
+com.google.android.apps.analytics.CustomVariableBuffer -> com.google.android.apps.analytics.c:
     com.google.android.apps.analytics.CustomVariable[] customVariables -> a
     boolean isIndexAvailable(int) -> a
     void setCustomVariable(com.google.android.apps.analytics.CustomVariable) -> a
@@ -2246,17 +2405,17 @@ com.google.android.apps.analytics.CustomVariableBuffer -> com.google.android.app
     com.google.android.apps.analytics.CustomVariable[] getCustomVariableArray() -> a
     void throwOnInvalidIndex(int) -> c
     boolean hasCustomVariables() -> b
-com.google.android.apps.analytics.Dispatcher -> com.google.android.apps.analytics.a:
+com.google.android.apps.analytics.Dispatcher -> com.google.android.apps.analytics.d:
     void dispatchHits(com.google.android.apps.analytics.Hit[]) -> a
     void init(com.google.android.apps.analytics.Dispatcher$Callbacks) -> a
     void stop() -> a
     void setDryRun(boolean) -> a
-com.google.android.apps.analytics.Dispatcher$Callbacks -> com.google.android.apps.analytics.aa:
+com.google.android.apps.analytics.Dispatcher$Callbacks -> com.google.android.apps.analytics.e:
     void hitDispatched(long) -> a
     void dispatchFinished() -> a
-com.google.android.apps.analytics.Event -> com.google.android.apps.analytics.v:
-    long eventId -> i
-    java.lang.String accountId -> a
+com.google.android.apps.analytics.Event -> com.google.android.apps.analytics.f:
+    long eventId -> a
+    java.lang.String accountId -> b
     int randomVal -> j
     int timestampFirst -> k
     int timestampPrevious -> l
@@ -2264,13 +2423,13 @@ com.google.android.apps.analytics.Event -> com.google.android.apps.analytics.v:
     int visits -> n
     int userId -> o
     boolean anonymizeIp -> p
-    java.lang.String category -> b
-    java.lang.String action -> c
-    java.lang.String label -> d
-    int value -> e
-    int screenWidth -> f
-    int screenHeight -> g
-    com.google.android.apps.analytics.CustomVariableBuffer customVariableBuffer -> h
+    java.lang.String category -> c
+    java.lang.String action -> d
+    java.lang.String label -> e
+    int value -> f
+    int screenWidth -> g
+    int screenHeight -> h
+    com.google.android.apps.analytics.CustomVariableBuffer customVariableBuffer -> i
     com.google.android.apps.analytics.Transaction transaction -> q
     com.google.android.apps.analytics.Item item -> r
     void setRandomVal(int) -> a
@@ -2293,7 +2452,7 @@ com.google.android.apps.analytics.Event -> com.google.android.apps.analytics.v:
     com.google.android.apps.analytics.Item getItem() -> i
     void setItem(com.google.android.apps.analytics.Item) -> a
     boolean isSessionInitialized() -> j
-com.google.android.apps.analytics.GoogleAnalyticsTracker -> com.google.android.apps.analytics.j:
+com.google.android.apps.analytics.GoogleAnalyticsTracker -> com.google.android.apps.analytics.g:
     com.google.android.apps.analytics.GoogleAnalyticsTracker INSTANCE -> a
     boolean debug -> b
     boolean dryRun -> c
@@ -2325,20 +2484,20 @@ com.google.android.apps.analytics.GoogleAnalyticsTracker -> com.google.android.a
     boolean getDebug() -> e
     android.os.Handler access$000(com.google.android.apps.analytics.GoogleAnalyticsTracker) -> a
     com.google.android.apps.analytics.HitStore access$100(com.google.android.apps.analytics.GoogleAnalyticsTracker) -> b
-com.google.android.apps.analytics.GoogleAnalyticsTracker$1 -> com.google.android.apps.analytics.l:
+com.google.android.apps.analytics.GoogleAnalyticsTracker$1 -> com.google.android.apps.analytics.h:
     com.google.android.apps.analytics.GoogleAnalyticsTracker this$0 -> a
     void run() -> run
-com.google.android.apps.analytics.GoogleAnalyticsTracker$DispatcherCallbacks -> com.google.android.apps.analytics.c:
+com.google.android.apps.analytics.GoogleAnalyticsTracker$DispatcherCallbacks -> com.google.android.apps.analytics.i:
     com.google.android.apps.analytics.GoogleAnalyticsTracker this$0 -> a
     void dispatchFinished() -> a
     void hitDispatched(long) -> a
-com.google.android.apps.analytics.GoogleAnalyticsTracker$DispatcherCallbacks$1 -> com.google.android.apps.analytics.n:
+com.google.android.apps.analytics.GoogleAnalyticsTracker$DispatcherCallbacks$1 -> com.google.android.apps.analytics.j:
     com.google.android.apps.analytics.GoogleAnalyticsTracker$DispatcherCallbacks this$1 -> a
     void run() -> run
-com.google.android.apps.analytics.Hit -> com.google.android.apps.analytics.o:
+com.google.android.apps.analytics.Hit -> com.google.android.apps.analytics.k:
     java.lang.String hitString -> a
     long hitId -> b
-com.google.android.apps.analytics.HitBuilder -> com.google.android.apps.analytics.g:
+com.google.android.apps.analytics.HitBuilder -> com.google.android.apps.analytics.l:
     void appendStringValue(java.lang.StringBuilder,java.lang.String,java.lang.String) -> a
     void appendCurrencyValue(java.lang.StringBuilder,java.lang.String,double) -> a
     java.lang.String constructHitRequestPath(com.google.android.apps.analytics.Event,com.google.android.apps.analytics.Referrer) -> a
@@ -2346,7 +2505,7 @@ com.google.android.apps.analytics.HitBuilder -> com.google.android.apps.analytic
     void createX10Project(com.google.android.apps.analytics.CustomVariable[],java.lang.StringBuilder,int) -> a
     java.lang.String x10Escape(java.lang.String) -> a
     java.lang.String getEscapedCookieString(com.google.android.apps.analytics.Event,com.google.android.apps.analytics.Referrer) -> b
-com.google.android.apps.analytics.HitStore -> com.google.android.apps.analytics.t:
+com.google.android.apps.analytics.HitStore -> com.google.android.apps.analytics.m:
     void putEvent(com.google.android.apps.analytics.Event) -> a
     com.google.android.apps.analytics.Hit[] peekHits() -> a
     void deleteHit(long) -> a
@@ -2355,7 +2514,7 @@ com.google.android.apps.analytics.HitStore -> com.google.android.apps.analytics.
     void startNewVisit() -> c
     void setAnonymizeIp(boolean) -> a
     void setSampleRate(int) -> a
-com.google.android.apps.analytics.Item -> com.google.android.apps.analytics.u:
+com.google.android.apps.analytics.Item -> com.google.android.apps.analytics.n:
     java.lang.String orderId -> a
     java.lang.String itemSKU -> b
     java.lang.String itemName -> c
@@ -2368,7 +2527,7 @@ com.google.android.apps.analytics.Item -> com.google.android.apps.analytics.u:
     java.lang.String getItemCategory() -> d
     double getItemPrice() -> e
     long getItemCount() -> f
-com.google.android.apps.analytics.Item$Builder -> com.google.android.apps.analytics.q:
+com.google.android.apps.analytics.Item$Builder -> com.google.android.apps.analytics.o:
     java.lang.String orderId -> a
     java.lang.String itemSKU -> b
     double itemPrice -> c
@@ -2383,7 +2542,7 @@ com.google.android.apps.analytics.Item$Builder -> com.google.android.apps.analyt
     long access$300(com.google.android.apps.analytics.Item$Builder) -> d
     java.lang.String access$400(com.google.android.apps.analytics.Item$Builder) -> e
     java.lang.String access$500(com.google.android.apps.analytics.Item$Builder) -> f
-com.google.android.apps.analytics.NetworkDispatcher -> com.google.android.apps.analytics.s:
+com.google.android.apps.analytics.NetworkDispatcher -> com.google.android.apps.analytics.p:
     java.lang.String userAgent -> a
     org.apache.http.HttpHost googleAnalyticsHost -> b
     com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread dispatcherThread -> c
@@ -2394,7 +2553,7 @@ com.google.android.apps.analytics.NetworkDispatcher -> com.google.android.apps.a
     boolean isDryRun() -> b
     void stop() -> a
     org.apache.http.HttpHost access$200(com.google.android.apps.analytics.NetworkDispatcher) -> a
-com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread -> com.google.android.apps.analytics.f:
+com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread -> com.google.android.apps.analytics.q:
     android.os.Handler handlerExecuteOnDispatcherThread -> a
     com.google.android.apps.analytics.PipelinedRequester pipelinedRequester -> b
     java.lang.String userAgent -> c
@@ -2421,17 +2580,17 @@ com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread -> com.goog
     int access$1002$78cf9110(com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread) -> k
     com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread$AsyncDispatchTask access$400(com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread) -> l
     int access$502(com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread,int) -> a
-com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread$AsyncDispatchTask -> com.google.android.apps.analytics.d:
-    java.util.LinkedList hits -> a
-    com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread this$0 -> b
+com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread$AsyncDispatchTask -> com.google.android.apps.analytics.r:
+    java.util.LinkedList hits -> b
+    com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread this$0 -> a
     void run() -> run
     com.google.android.apps.analytics.Hit removeNextHit() -> a
-com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread$RequesterCallbacks -> com.google.android.apps.analytics.x:
+com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread$RequesterCallbacks -> com.google.android.apps.analytics.s:
     com.google.android.apps.analytics.NetworkDispatcher$DispatcherThread this$0 -> a
     void pipelineModeChanged$1385ff() -> a
     void requestSent() -> b
     void serverError(int) -> a
-com.google.android.apps.analytics.PersistentHitStore -> com.google.android.apps.analytics.e:
+com.google.android.apps.analytics.PersistentHitStore -> com.google.android.apps.analytics.t:
     com.google.android.apps.analytics.PersistentHitStore$DataBaseHelper databaseHelper -> a
     int storeId -> b
     long timestampFirst -> c
@@ -2475,7 +2634,7 @@ com.google.android.apps.analytics.PersistentHitStore -> com.google.android.apps.
     java.lang.String access$400() -> h
     java.lang.String access$500() -> i
     java.lang.String access$600() -> j
-com.google.android.apps.analytics.PersistentHitStore$DataBaseHelper -> com.google.android.apps.analytics.m:
+com.google.android.apps.analytics.PersistentHitStore$DataBaseHelper -> com.google.android.apps.analytics.u:
     int databaseVersion -> a
     com.google.android.apps.analytics.PersistentHitStore store -> b
     void onCreate(android.database.sqlite.SQLiteDatabase) -> onCreate
@@ -2486,22 +2645,21 @@ com.google.android.apps.analytics.PersistentHitStore$DataBaseHelper -> com.googl
     void migrateEventsToHits(android.database.sqlite.SQLiteDatabase,int) -> a
     void createReferrerTable(android.database.sqlite.SQLiteDatabase) -> d
     void onUpgrade(android.database.sqlite.SQLiteDatabase,int,int) -> onUpgrade
-com.google.android.apps.analytics.PipelinedRequester -> com.google.android.apps.analytics.k:
-    org.apache.http.impl.DefaultHttpClientConnection connection -> b
-    com.google.android.apps.analytics.PipelinedRequester$Callbacks callbacks -> a
+com.google.android.apps.analytics.PipelinedRequester -> com.google.android.apps.analytics.v:
+    org.apache.http.impl.DefaultHttpClientConnection connection -> a
+    com.google.android.apps.analytics.PipelinedRequester$Callbacks callbacks -> b
     int lastStatusCode -> c
     boolean canPipeline -> d
     org.apache.http.HttpHost host -> e
     org.apache.http.conn.scheme.SocketFactory socketFactory -> f
-    void addRequest(org.apache.http.HttpRequest) -> a
     void sendRequests() -> a
     void finishedCurrentRequests() -> b
     void closeConnection() -> c
-com.google.android.apps.analytics.PipelinedRequester$Callbacks -> com.google.android.apps.analytics.y:
+com.google.android.apps.analytics.PipelinedRequester$Callbacks -> com.google.android.apps.analytics.w:
     void pipelineModeChanged$1385ff() -> a
     void serverError(int) -> a
     void requestSent() -> b
-com.google.android.apps.analytics.Referrer -> com.google.android.apps.analytics.r:
+com.google.android.apps.analytics.Referrer -> com.google.android.apps.analytics.x:
     java.lang.String referrer -> a
     long timeStamp -> b
     int visit -> c
@@ -2510,7 +2668,7 @@ com.google.android.apps.analytics.Referrer -> com.google.android.apps.analytics.
     long getTimeStamp() -> b
     int getVisit() -> c
     int getIndex() -> d
-com.google.android.apps.analytics.Transaction -> com.google.android.apps.analytics.p:
+com.google.android.apps.analytics.Transaction -> com.google.android.apps.analytics.y:
     java.lang.String orderId -> a
     java.lang.String storeName -> b
     double totalCost -> c
@@ -2535,7 +2693,7 @@ com.google.android.apps.analytics.Transaction$Builder -> com.google.android.apps
     java.lang.String access$200(com.google.android.apps.analytics.Transaction$Builder) -> c
     double access$300(com.google.android.apps.analytics.Transaction$Builder) -> d
     double access$400(com.google.android.apps.analytics.Transaction$Builder) -> e
-com.google.android.apps.analytics.Utils -> com.google.android.apps.analytics.w:
+com.google.android.apps.analytics.Utils -> com.google.android.apps.analytics.aa:
     java.lang.String addQueueTimeParameter(java.lang.String,long) -> a
 com.pocketjourney.view.TransparentPanel -> com.pocketjourney.view.TransparentPanel:
     android.graphics.Paint innerPaint -> a
@@ -2570,17 +2728,17 @@ org.acra.ACRA -> org.acra.ACRA:
     186:249:void init(android.app.Application) -> init
     257:301:void initAcra() -> initAcra
     304:319:void checkCrashResources() -> checkCrashResources
-    331:336:android.content.SharedPreferences getACRASharedPreferences() -> getACRASharedPreferences
+    331:337:android.content.SharedPreferences getACRASharedPreferences() -> getACRASharedPreferences
     346:346:org.acra.annotation.ReportsCrashes getConfig() -> getConfig
     77:77:void access$000() -> access$000
-org.acra.ACRA$1 -> org.acra.b:
+org.acra.ACRA$1 -> org.acra.a:
     201:220:void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
-org.acra.ACRA$2 -> org.acra.a:
+org.acra.ACRA$2 -> org.acra.b:
     int[] $SwitchMap$org$acra$ReportingInteractionMode -> a
-org.acra.ACRAConfigurationException -> org.acra.s:
-org.acra.Compatibility -> org.acra.q:
+org.acra.ACRAConfigurationException -> org.acra.c:
+org.acra.Compatibility -> org.acra.d:
     40:52:int getAPILevel() -> a
-org.acra.ConfigurationInspector -> org.acra.l:
+org.acra.ConfigurationInspector -> org.acra.e:
     android.util.SparseArray mHardKeyboardHiddenValues -> a
     android.util.SparseArray mKeyboardValues -> b
     android.util.SparseArray mKeyboardHiddenValues -> c
@@ -2593,7 +2751,7 @@ org.acra.ConfigurationInspector -> org.acra.l:
     java.util.HashMap mValueArrays -> j
     120:139:java.lang.String toString(android.content.res.Configuration) -> a
     196:211:java.lang.String activeFlags(android.util.SparseArray,int) -> a
-org.acra.CrashReportData -> org.acra.o:
+org.acra.CrashReportData -> org.acra.f:
     org.acra.CrashReportData defaults -> a
     java.lang.String lineSeparator -> b
     93:130:void dumpString(java.lang.StringBuilder,java.lang.String,boolean) -> a
@@ -2611,25 +2769,25 @@ org.acra.CrashReportDialog -> org.acra.CrashReportDialog:
     48:48:android.widget.EditText access$000(org.acra.CrashReportDialog) -> a
     48:48:android.content.SharedPreferences access$100(org.acra.CrashReportDialog) -> b
     48:48:android.widget.EditText access$200(org.acra.CrashReportDialog) -> c
-org.acra.CrashReportDialog$1 -> org.acra.h:
+org.acra.CrashReportDialog$1 -> org.acra.g:
     org.acra.CrashReportDialog this$0 -> a
     131:161:void onClick(android.view.View) -> onClick
-org.acra.CrashReportDialog$2 -> org.acra.i:
+org.acra.CrashReportDialog$2 -> org.acra.h:
     org.acra.CrashReportDialog this$0 -> a
     171:173:void onClick(android.view.View) -> onClick
-org.acra.DeviceFeaturesCollector -> org.acra.r:
+org.acra.DeviceFeaturesCollector -> org.acra.i:
     35:61:java.lang.String getFeatures(android.content.Context) -> a
-org.acra.DropBoxCollector -> org.acra.c:
+org.acra.DropBoxCollector -> org.acra.j:
     java.lang.String[] SYSTEM_TAGS -> a
     56:124:java.lang.String read(android.content.Context,java.lang.String[]) -> a
-org.acra.DumpSysCollector -> org.acra.f:
+org.acra.DumpSysCollector -> org.acra.k:
     40:60:java.lang.String collectMemInfo() -> a
 org.acra.ErrorReporter -> org.acra.ErrorReporter:
-    boolean enabled -> a
-    java.util.ArrayList mReportSenders -> b
-    org.acra.CrashReportData mCrashProperties -> c
-    java.util.Map mCustomParameters -> d
-    java.lang.String SILENT_SUFFIX -> e
+    boolean enabled -> c
+    java.util.ArrayList mReportSenders -> d
+    org.acra.CrashReportData mCrashProperties -> e
+    java.util.Map mCustomParameters -> a
+    java.lang.String SILENT_SUFFIX -> b
     java.lang.Thread$UncaughtExceptionHandler mDfltExceptionHandler -> f
     org.acra.ErrorReporter mInstanceSingleton -> g
     android.content.Context mContext -> h
@@ -2647,7 +2805,7 @@ org.acra.ErrorReporter -> org.acra.ErrorReporter:
     847:863:void sendCrashReport$5e3fe510(org.acra.CrashReportData) -> a
     878:899:java.lang.String saveCrashReportFile(java.lang.String,org.acra.CrashReportData) -> a
     908:928:java.lang.String[] getCrashReportFilesList() -> h
-    942:976:void checkAndSendReports(android.content.Context,boolean) -> a
+    942:977:void checkAndSendReports(android.content.Context,boolean) -> a
     980:988:org.acra.CrashReportData loadCrashReport(android.content.Context,java.lang.String) -> a
     992:996:void deleteFile(android.content.Context,java.lang.String) -> b
     1005:1006:void setReportingInteractionMode(org.acra.ReportingInteractionMode) -> a
@@ -2660,29 +2818,29 @@ org.acra.ErrorReporter -> org.acra.ErrorReporter:
     1277:1278:void setAppStartDate(android.text.format.Time) -> a
     88:88:android.content.Context access$000() -> f
     88:88:void access$100(android.content.Context,java.lang.String,java.lang.String,java.lang.String) -> a
-org.acra.ErrorReporter$1 -> org.acra.j:
+org.acra.ErrorReporter$1 -> org.acra.l:
     org.acra.ErrorReporter this$0 -> a
     714:717:void run() -> run
-org.acra.ErrorReporter$2 -> org.acra.k:
+org.acra.ErrorReporter$2 -> org.acra.m:
     org.acra.ErrorReporter this$0 -> a
     920:920:boolean accept(java.io.File,java.lang.String) -> accept
-org.acra.ErrorReporter$ReportsSenderWorker -> org.acra.p:
-    java.lang.String mCommentedReportFileName -> a
-    java.lang.String mUserComment -> b
-    java.lang.String mUserEmail -> c
-    boolean mSendOnlySilentReports -> d
-    boolean mApprovePendingReports -> e
-    org.acra.ErrorReporter this$0 -> f
+org.acra.ErrorReporter$ReportsSenderWorker -> org.acra.n:
+    java.lang.String mCommentedReportFileName -> b
+    java.lang.String mUserComment -> c
+    java.lang.String mUserEmail -> d
+    boolean mSendOnlySilentReports -> e
+    boolean mApprovePendingReports -> f
+    org.acra.ErrorReporter this$0 -> a
     135:148:void run() -> run
     175:177:void setUserComment(java.lang.String,java.lang.String) -> a
     188:190:void setUserEmail(java.lang.String,java.lang.String) -> b
     196:197:void setApprovePendingReports() -> a
-org.acra.LogCatCollector -> org.acra.n:
+org.acra.LogCatCollector -> org.acra.o:
     59:97:java.lang.String collectLogCat(java.lang.String) -> a
-org.acra.ReflectionCollector -> org.acra.g:
+org.acra.ReflectionCollector -> org.acra.p:
     39:54:java.lang.String collectConstants(java.lang.Class) -> a
     63:82:java.lang.String collectStaticGettersResults(java.lang.Class) -> b
-org.acra.ReportField -> org.acra.m:
+org.acra.ReportField -> org.acra.q:
     org.acra.ReportField REPORT_ID -> a
     org.acra.ReportField APP_VERSION_CODE -> b
     org.acra.ReportField APP_VERSION_NAME -> c
@@ -2727,12 +2885,12 @@ org.acra.ReportingInteractionMode -> org.acra.ReportingInteractionMode:
     org.acra.ReportingInteractionMode[] $VALUES -> $VALUES
     30:30:org.acra.ReportingInteractionMode[] values() -> values
     30:30:org.acra.ReportingInteractionMode valueOf(java.lang.String) -> valueOf
-org.acra.SettingsCollector -> org.acra.e:
+org.acra.SettingsCollector -> org.acra.r:
     45:65:java.lang.String collectSystemSettings(android.content.Context) -> a
     78:95:java.lang.String collectSecureSettings(android.content.Context) -> b
-org.acra.SharedPreferencesCollector -> org.acra.d:
+org.acra.SharedPreferencesCollector -> org.acra.s:
     13:42:java.lang.String collect(android.content.Context) -> a
-org.acra.annotation.ReportsCrashes -> org.acra.c.a:
+org.acra.annotation.ReportsCrashes -> org.acra.a.a:
     java.lang.String formKey() -> a
     java.lang.String formUri() -> b
     org.acra.ReportingInteractionMode mode() -> c
@@ -2761,11 +2919,11 @@ org.acra.annotation.ReportsCrashes -> org.acra.c.a:
     int socketTimeout() -> z
     boolean forceCloseDialogAfterToast() -> A
     java.lang.String[] additionalSharedPreferences() -> B
-org.acra.sender.EmailIntentSender -> org.acra.b.e:
+org.acra.sender.EmailIntentSender -> org.acra.b.a:
     android.content.Context mContext -> a
     41:51:void send(org.acra.CrashReportData) -> a
     54:64:java.lang.String buildBody(org.acra.CrashReportData) -> b
-org.acra.sender.GoogleFormSender -> org.acra.b.f:
+org.acra.sender.GoogleFormSender -> org.acra.b.b:
     android.net.Uri mFormUri -> a
     52:64:void send(org.acra.CrashReportData) -> a
 org.acra.sender.GoogleFormSender$1 -> org.acra.b.c:
@@ -2774,10 +2932,10 @@ org.acra.sender.HttpPostSender -> org.acra.b.d:
     android.net.Uri mFormUri -> a
     java.util.Map mMapping -> b
     100:106:void send(org.acra.CrashReportData) -> a
-org.acra.sender.ReportSender -> org.acra.b.b:
+org.acra.sender.ReportSender -> org.acra.b.e:
     void send(org.acra.CrashReportData) -> a
-org.acra.sender.ReportSenderException -> org.acra.b.a:
-org.acra.util.BoundedLinkedList -> org.acra.a.c:
+org.acra.sender.ReportSenderException -> org.acra.b.f:
+org.acra.util.BoundedLinkedList -> org.acra.c.a:
     int maxSize -> a
     46:49:boolean add(java.lang.Object) -> add
     59:63:void add(int,java.lang.Object) -> add
@@ -2786,7 +2944,7 @@ org.acra.util.BoundedLinkedList -> org.acra.a.c:
     104:104:void addFirst(java.lang.Object) -> addFirst
     114:115:void addLast(java.lang.Object) -> addLast
     124:130:java.lang.String toString() -> toString
-org.acra.util.FakeSocketFactory -> org.acra.a.d:
+org.acra.util.FakeSocketFactory -> org.acra.c.b:
     javax.net.ssl.SSLContext sslcontext -> a
     28:32:javax.net.ssl.SSLContext createEasySSLContext() -> a
     37:40:javax.net.ssl.SSLContext getSSLContext() -> b
@@ -2794,20 +2952,20 @@ org.acra.util.FakeSocketFactory -> org.acra.a.d:
     68:68:java.net.Socket createSocket() -> createSocket
     73:73:boolean isSecure(java.net.Socket) -> isSecure
     79:79:java.net.Socket createSocket(java.net.Socket,java.lang.String,int,boolean) -> createSocket
-org.acra.util.HttpRequest -> org.acra.a.b:
+org.acra.util.HttpRequest -> org.acra.c.c:
     org.apache.http.impl.client.DefaultHttpClient httpClient -> a
     org.apache.http.protocol.HttpContext localContext -> b
     org.apache.http.client.methods.HttpPost httpPost -> c
-    org.apache.http.client.methods.HttpGet httpGet -> e
-    org.apache.http.auth.UsernamePasswordCredentials creds -> d
-org.acra.util.HttpUtils -> org.acra.a.a:
+    org.apache.http.client.methods.HttpGet httpGet -> d
+    org.apache.http.auth.UsernamePasswordCredentials creds -> e
+org.acra.util.HttpUtils -> org.acra.c.d:
     43:60:void doPost(java.util.Map,java.net.URL,java.lang.String,java.lang.String) -> a
     63:63:boolean isNull(java.lang.String) -> a
-org.acra.util.Installation -> org.acra.a.f:
+org.acra.util.Installation -> org.acra.c.e:
     java.lang.String sID -> a
     31:41:java.lang.String id(android.content.Context) -> a
     45:52:java.lang.String readInstallationFile(java.io.File) -> a
-org.acra.util.NaiveTrustManager -> org.acra.a.e:
+org.acra.util.NaiveTrustManager -> org.acra.c.f:
     34:34:java.security.cert.X509Certificate[] getAcceptedIssuers() -> getAcceptedIssuers
     47:47:void checkClientTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkClientTrusted
     59:59:void checkServerTrusted(java.security.cert.X509Certificate[],java.lang.String) -> checkServerTrusted
@@ -2830,11 +2988,11 @@ uk.org.ngo.squeezer.IServiceCallback$Stub$Proxy -> uk.org.ngo.squeezer.IServiceC
     150:157:void onPlayStatusChanged(boolean) -> onPlayStatusChanged
     162:170:void onTimeInSongChange(int,int) -> onTimeInSongChange
 uk.org.ngo.squeezer.IconRowAdapter -> uk.org.ngo.squeezer.IconRowAdapter:
-    android.app.Activity activity -> a
-    int rowLayout -> b
-    int iconId -> c
-    int textId -> d
-    java.util.List mRows -> e
+    android.app.Activity activity -> b
+    int rowLayout -> c
+    int iconId -> d
+    int textId -> e
+    java.util.List mRows -> a
     44:44:int getCount() -> getCount
     52:52:java.lang.String getItem(int) -> getItem
     56:56:long getItemId(int) -> getItemId
@@ -2920,139 +3078,139 @@ uk.org.ngo.squeezer.SqueezerActivity -> uk.org.ngo.squeezer.SqueezerActivity:
     android.os.Handler uiThreadHandler -> w
     com.google.android.apps.analytics.GoogleAnalyticsTracker tracker -> x
     uk.org.ngo.squeezer.IServiceCallback serviceCallback -> y
-    104:104:void clearConnectingDialog() -> clearConnectingDialog
-    129:129:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
-    134:282:void onCreate(android.os.Bundle) -> onCreate
-    286:324:void setConnected(boolean,boolean) -> setConnected
-    327:338:void updatePlayPauseIcon() -> updatePlayPauseIcon
-    342:351:void setTitleForPlayer(java.lang.String) -> setTitleForPlayer
-    355:367:void onServiceConnected() -> onServiceConnected
-    371:387:void onResume() -> onResume
-    394:412:void updateUIFromServiceState() -> updateUIFromServiceState
-    415:423:void updateTimeDisplayTo(int,int) -> updateTimeDisplayTo
-    427:431:void updateSongInfoFromService() -> updateSongInfoFromService
-    434:443:void updateSongInfo(uk.org.ngo.squeezer.model.SqueezerSong) -> updateSongInfo
-    447:449:void updateAlbumArtIfNeeded(uk.org.ngo.squeezer.model.SqueezerSong) -> updateAlbumArtIfNeeded
-    452:460:int getSecondsElapsed() -> getSecondsElapsed
-    464:472:int getSecondsTotal() -> getSecondsTotal
-    476:484:boolean setSecondsElapsed(int) -> setSecondsElapsed
-    488:496:uk.org.ngo.squeezer.model.SqueezerSong getCurrentSong() -> getCurrentSong
-    501:509:boolean isConnected() -> isConnected
-    513:521:boolean canPowerOn() -> canPowerOn
-    525:533:boolean canPowerOff() -> canPowerOff
-    538:549:void onPause() -> onPause
-    553:554:boolean onSearchRequested() -> onSearchRequested
-    559:560:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
-    565:586:boolean onPrepareOptionsMenu(android.view.Menu) -> onPrepareOptionsMenu
-    591:629:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
-    634:639:java.lang.String getConfiguredCliIpPort() -> getConfiguredCliIpPort
-    644:645:boolean isAutoConnect() -> isAutoConnect
-    650:660:void onUserInitiatesConnect() -> onUserInitiatesConnect
-    663:704:void startVisibleConnection() -> startVisibleConnection
-    707:711:void show(android.content.Context) -> show
-    715:722:void onDestroy() -> onDestroy
+    109:109:void clearConnectingDialog() -> clearConnectingDialog
+    134:134:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
+    139:303:void onCreate(android.os.Bundle) -> onCreate
+    307:345:void setConnected(boolean,boolean) -> setConnected
+    348:359:void updatePlayPauseIcon() -> updatePlayPauseIcon
+    363:372:void setTitleForPlayer(java.lang.String) -> setTitleForPlayer
+    376:388:void onServiceConnected() -> onServiceConnected
+    392:408:void onResume() -> onResume
+    415:433:void updateUIFromServiceState() -> updateUIFromServiceState
+    436:444:void updateTimeDisplayTo(int,int) -> updateTimeDisplayTo
+    448:452:void updateSongInfoFromService() -> updateSongInfoFromService
+    455:464:void updateSongInfo(uk.org.ngo.squeezer.model.SqueezerSong) -> updateSongInfo
+    468:470:void updateAlbumArtIfNeeded(uk.org.ngo.squeezer.model.SqueezerSong) -> updateAlbumArtIfNeeded
+    473:481:int getSecondsElapsed() -> getSecondsElapsed
+    485:493:int getSecondsTotal() -> getSecondsTotal
+    497:505:boolean setSecondsElapsed(int) -> setSecondsElapsed
+    509:517:uk.org.ngo.squeezer.model.SqueezerSong getCurrentSong() -> getCurrentSong
+    522:530:boolean isConnected() -> isConnected
+    534:542:boolean canPowerOn() -> canPowerOn
+    546:554:boolean canPowerOff() -> canPowerOff
+    559:570:void onPause() -> onPause
+    574:575:boolean onSearchRequested() -> onSearchRequested
+    580:581:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    586:607:boolean onPrepareOptionsMenu(android.view.Menu) -> onPrepareOptionsMenu
+    612:650:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
+    655:660:java.lang.String getConfiguredCliIpPort() -> getConfiguredCliIpPort
+    665:666:boolean isAutoConnect() -> isAutoConnect
+    671:681:void onUserInitiatesConnect() -> onUserInitiatesConnect
+    684:725:void startVisibleConnection() -> startVisibleConnection
+    728:732:void show(android.content.Context) -> show
+    736:743:void onDestroy() -> onDestroy
     1:1:java.lang.String access$0(uk.org.ngo.squeezer.SqueezerActivity) -> access$0
-    500:500:boolean access$1(uk.org.ngo.squeezer.SqueezerActivity) -> access$1
-    662:662:void access$2(uk.org.ngo.squeezer.SqueezerActivity) -> access$2
-    108:108:int access$3(uk.org.ngo.squeezer.SqueezerActivity) -> access$3
-    109:109:int access$4(uk.org.ngo.squeezer.SqueezerActivity) -> access$4
-    414:414:void access$5(uk.org.ngo.squeezer.SqueezerActivity,int,int) -> access$5
-    112:112:android.os.Handler access$6(uk.org.ngo.squeezer.SqueezerActivity) -> access$6
-    285:285:void access$7(uk.org.ngo.squeezer.SqueezerActivity,boolean,boolean) -> access$7
-    341:341:void access$8(uk.org.ngo.squeezer.SqueezerActivity,java.lang.String) -> access$8
-    426:426:void access$9(uk.org.ngo.squeezer.SqueezerActivity) -> access$9
-    66:66:java.util.concurrent.atomic.AtomicBoolean access$10(uk.org.ngo.squeezer.SqueezerActivity) -> access$10
-    326:326:void access$11(uk.org.ngo.squeezer.SqueezerActivity) -> access$11
-    108:108:void access$12(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$12
-    109:109:void access$13(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$13
-    65:65:java.util.concurrent.atomic.AtomicBoolean access$14(uk.org.ngo.squeezer.SqueezerActivity) -> access$14
-    648:648:void access$15(uk.org.ngo.squeezer.SqueezerActivity) -> access$15
-    487:487:uk.org.ngo.squeezer.model.SqueezerSong access$16(uk.org.ngo.squeezer.SqueezerActivity) -> access$16
-    73:73:android.widget.TextView access$17(uk.org.ngo.squeezer.SqueezerActivity) -> access$17
-    107:107:void access$18(uk.org.ngo.squeezer.SqueezerActivity,boolean) -> access$18
-    475:475:boolean access$19(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$19
-    77:77:android.widget.ImageButton access$20(uk.org.ngo.squeezer.SqueezerActivity) -> access$20
-    390:390:void access$21(uk.org.ngo.squeezer.SqueezerActivity) -> access$21
-    633:633:java.lang.String access$22(uk.org.ngo.squeezer.SqueezerActivity) -> access$22
-    643:643:boolean access$23(uk.org.ngo.squeezer.SqueezerActivity) -> access$23
-    68:68:java.util.concurrent.atomic.AtomicBoolean access$24(uk.org.ngo.squeezer.SqueezerActivity) -> access$24
-    103:103:void access$25(uk.org.ngo.squeezer.SqueezerActivity,uk.org.ngo.squeezer.dialogs.ConnectingDialog) -> access$25
-    103:103:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$26(uk.org.ngo.squeezer.SqueezerActivity) -> access$26
+    521:521:boolean access$1(uk.org.ngo.squeezer.SqueezerActivity) -> access$1
+    683:683:void access$2(uk.org.ngo.squeezer.SqueezerActivity) -> access$2
+    113:113:int access$3(uk.org.ngo.squeezer.SqueezerActivity) -> access$3
+    114:114:int access$4(uk.org.ngo.squeezer.SqueezerActivity) -> access$4
+    435:435:void access$5(uk.org.ngo.squeezer.SqueezerActivity,int,int) -> access$5
+    117:117:android.os.Handler access$6(uk.org.ngo.squeezer.SqueezerActivity) -> access$6
+    306:306:void access$7(uk.org.ngo.squeezer.SqueezerActivity,boolean,boolean) -> access$7
+    362:362:void access$8(uk.org.ngo.squeezer.SqueezerActivity,java.lang.String) -> access$8
+    447:447:void access$9(uk.org.ngo.squeezer.SqueezerActivity) -> access$9
+    71:71:java.util.concurrent.atomic.AtomicBoolean access$10(uk.org.ngo.squeezer.SqueezerActivity) -> access$10
+    347:347:void access$11(uk.org.ngo.squeezer.SqueezerActivity) -> access$11
+    113:113:void access$12(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$12
+    114:114:void access$13(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$13
+    70:70:java.util.concurrent.atomic.AtomicBoolean access$14(uk.org.ngo.squeezer.SqueezerActivity) -> access$14
+    669:669:void access$15(uk.org.ngo.squeezer.SqueezerActivity) -> access$15
+    508:508:uk.org.ngo.squeezer.model.SqueezerSong access$16(uk.org.ngo.squeezer.SqueezerActivity) -> access$16
+    78:78:android.widget.TextView access$17(uk.org.ngo.squeezer.SqueezerActivity) -> access$17
+    112:112:void access$18(uk.org.ngo.squeezer.SqueezerActivity,boolean) -> access$18
+    496:496:boolean access$19(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$19
+    82:82:android.widget.ImageButton access$20(uk.org.ngo.squeezer.SqueezerActivity) -> access$20
+    411:411:void access$21(uk.org.ngo.squeezer.SqueezerActivity) -> access$21
+    654:654:java.lang.String access$22(uk.org.ngo.squeezer.SqueezerActivity) -> access$22
+    664:664:boolean access$23(uk.org.ngo.squeezer.SqueezerActivity) -> access$23
+    73:73:java.util.concurrent.atomic.AtomicBoolean access$24(uk.org.ngo.squeezer.SqueezerActivity) -> access$24
+    108:108:void access$25(uk.org.ngo.squeezer.SqueezerActivity,uk.org.ngo.squeezer.dialogs.ConnectingDialog) -> access$25
+    108:108:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$26(uk.org.ngo.squeezer.SqueezerActivity) -> access$26
 uk.org.ngo.squeezer.SqueezerActivity$1 -> uk.org.ngo.squeezer.SqueezerActivity$1:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    88:99:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+    93:104:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 uk.org.ngo.squeezer.SqueezerActivity$10 -> uk.org.ngo.squeezer.SqueezerActivity$10:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    232:237:void onClick(android.view.View) -> onClick
+    253:258:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$11 -> uk.org.ngo.squeezer.SqueezerActivity$11:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    242:247:void onClick(android.view.View) -> onClick
+    263:268:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$12 -> uk.org.ngo.squeezer.SqueezerActivity$12:
     uk.org.ngo.squeezer.model.SqueezerSong seekingSong -> a
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> b
-    255:258:void onProgressChanged(android.widget.SeekBar,int,boolean) -> onProgressChanged
-    262:264:void onStartTrackingTouch(android.widget.SeekBar) -> onStartTrackingTouch
-    270:277:void onStopTrackingTouch(android.widget.SeekBar) -> onStopTrackingTouch
+    276:279:void onProgressChanged(android.widget.SeekBar,int,boolean) -> onProgressChanged
+    283:285:void onStartTrackingTouch(android.widget.SeekBar) -> onStartTrackingTouch
+    291:298:void onStopTrackingTouch(android.widget.SeekBar) -> onStopTrackingTouch
 uk.org.ngo.squeezer.SqueezerActivity$13 -> uk.org.ngo.squeezer.SqueezerActivity$13:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    329:336:void run() -> run
+    350:357:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$14 -> uk.org.ngo.squeezer.SqueezerActivity$14:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
     java.lang.String val$playerName -> b
-    344:349:void run() -> run
+    365:370:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$15 -> uk.org.ngo.squeezer.SqueezerActivity$15:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    359:360:void run() -> run
+    380:381:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$16 -> uk.org.ngo.squeezer.SqueezerActivity$16:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    666:702:void run() -> run
+    687:723:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$2 -> uk.org.ngo.squeezer.SqueezerActivity$2:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    119:122:void handleMessage(android.os.Message) -> handleMessage
+    124:127:void handleMessage(android.os.Message) -> handleMessage
 uk.org.ngo.squeezer.SqueezerActivity$3 -> uk.org.ngo.squeezer.SqueezerActivity$3:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    728:734:void onConnectionChanged(boolean,boolean) -> onConnectionChanged
-    738:740:void onPlayerChanged(java.lang.String,java.lang.String) -> onPlayerChanged
-    743:748:void onMusicChanged() -> onMusicChanged
-    752:754:void onPlayStatusChanged(boolean) -> onPlayStatusChanged
-    758:761:void onTimeInSongChange(int,int) -> onTimeInSongChange
-    724:724:uk.org.ngo.squeezer.SqueezerActivity access$0(uk.org.ngo.squeezer.SqueezerActivity$3) -> access$0
+    749:755:void onConnectionChanged(boolean,boolean) -> onConnectionChanged
+    759:761:void onPlayerChanged(java.lang.String,java.lang.String) -> onPlayerChanged
+    764:769:void onMusicChanged() -> onMusicChanged
+    773:775:void onPlayStatusChanged(boolean) -> onPlayStatusChanged
+    779:782:void onTimeInSongChange(int,int) -> onTimeInSongChange
+    745:745:uk.org.ngo.squeezer.SqueezerActivity access$0(uk.org.ngo.squeezer.SqueezerActivity$3) -> access$0
 uk.org.ngo.squeezer.SqueezerActivity$3$1 -> uk.org.ngo.squeezer.SqueezerActivity$3$1:
     uk.org.ngo.squeezer.SqueezerActivity$3 this$1 -> a
     boolean val$isConnected -> b
     boolean val$postConnect -> c
-    731:732:void run() -> run
+    752:753:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$3$2 -> uk.org.ngo.squeezer.SqueezerActivity$3$2:
     uk.org.ngo.squeezer.SqueezerActivity$3 this$1 -> a
-    745:746:void run() -> run
+    766:767:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$4 -> uk.org.ngo.squeezer.SqueezerActivity$4:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    172:174:void onClick(android.view.View) -> onClick
+    193:195:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$5 -> uk.org.ngo.squeezer.SqueezerActivity$5:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    179:181:void onClick(android.view.View) -> onClick
+    200:202:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$6 -> uk.org.ngo.squeezer.SqueezerActivity$6:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    186:199:void onClick(android.view.View) -> onClick
+    207:220:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$7 -> uk.org.ngo.squeezer.SqueezerActivity$7:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    204:208:void onClick(android.view.View) -> onClick
+    225:229:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$8 -> uk.org.ngo.squeezer.SqueezerActivity$8:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    213:217:void onClick(android.view.View) -> onClick
+    234:238:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$9 -> uk.org.ngo.squeezer.SqueezerActivity$9:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    222:227:void onClick(android.view.View) -> onClick
+    243:248:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerHomeActivity -> uk.org.ngo.squeezer.SqueezerHomeActivity:
     android.widget.ListView listView -> a
     android.widget.AdapterView$OnItemClickListener onHomeItemClick -> b
-    38:43:void onCreate(android.os.Bundle) -> onCreate
-    47:47:void onServiceConnected() -> onServiceConnected
-    50:58:void setHomeMenu() -> setHomeMenu
-    96:100:void show(android.content.Context) -> show
+    40:45:void onCreate(android.os.Bundle) -> onCreate
+    49:49:void onServiceConnected() -> onServiceConnected
+    52:60:void setHomeMenu() -> setHomeMenu
+    97:101:void show(android.content.Context) -> show
 uk.org.ngo.squeezer.SqueezerHomeActivity$1 -> uk.org.ngo.squeezer.SqueezerHomeActivity$1:
     uk.org.ngo.squeezer.SqueezerHomeActivity this$0 -> a
-    68:81:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+    70:93:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
 uk.org.ngo.squeezer.SqueezerMusicActivity -> uk.org.ngo.squeezer.SqueezerMusicActivity:
     boolean mCanMusicfolder -> a
     boolean mCanRandomplay -> b
@@ -3237,11 +3395,11 @@ uk.org.ngo.squeezer.dialogs.ServerAddressPreference$MyOnItemSelectedListener -> 
     230:232:void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
     236:236:void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
 uk.org.ngo.squeezer.dialogs.ServerAddressPreference$scanNetworkTask -> uk.org.ngo.squeezer.dialogs.ServerAddressPreference$scanNetworkTask:
-    java.lang.String TAG -> a
-    int DISCOVERY_PORT -> b
-    int DISCOVERY_ATTEMPT_TIMEOUT -> c
-    int DISCOVERY_TOTAL_TIMEOUT -> d
-    uk.org.ngo.squeezer.dialogs.ServerAddressPreference this$0 -> e
+    java.lang.String TAG -> b
+    int DISCOVERY_PORT -> c
+    int DISCOVERY_ATTEMPT_TIMEOUT -> d
+    int DISCOVERY_TOTAL_TIMEOUT -> e
+    uk.org.ngo.squeezer.dialogs.ServerAddressPreference this$0 -> a
     264:267:void onPreExecute() -> onPreExecute
     285:386:java.lang.Void doInBackground(java.lang.Void[]) -> doInBackground
     396:398:void onProgressUpdate(java.lang.Long[]) -> onProgressUpdate
@@ -3250,6 +3408,9 @@ uk.org.ngo.squeezer.dialogs.ServerAddressPreference$scanNetworkTask -> uk.org.ng
     1:1:void onPostExecute(java.lang.Object) -> onPostExecute
     1:1:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
     1:1:void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+uk.org.ngo.squeezer.dialogs.TipsDialog -> uk.org.ngo.squeezer.dialogs.TipsDialog:
+    33:39:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
+    51:57:boolean onKey(android.content.DialogInterface,int,android.view.KeyEvent) -> onKey
 uk.org.ngo.squeezer.framework.SqueezerArtworkItem -> uk.org.ngo.squeezer.framework.SqueezerArtworkItem:
     java.lang.String artwork_track_id -> a
     24:24:java.lang.String getArtwork_track_id() -> getArtwork_track_id
@@ -3429,8 +3590,8 @@ uk.org.ngo.squeezer.itemlists.GenreSpinner -> uk.org.ngo.squeezer.itemlists.Genr
     36:36:android.widget.Spinner access$1(uk.org.ngo.squeezer.itemlists.GenreSpinner) -> access$1
     46:46:void access$2(uk.org.ngo.squeezer.itemlists.GenreSpinner,int) -> access$2
 uk.org.ngo.squeezer.itemlists.GenreSpinner$1 -> uk.org.ngo.squeezer.itemlists.GenreSpinner$1:
-    uk.org.ngo.squeezer.framework.SqueezerItemAdapter adapter -> a
-    uk.org.ngo.squeezer.itemlists.GenreSpinner this$0 -> b
+    uk.org.ngo.squeezer.framework.SqueezerItemAdapter adapter -> b
+    uk.org.ngo.squeezer.itemlists.GenreSpinner this$0 -> a
     80:108:void onGenresReceived(int,int,java.util.List) -> onGenresReceived
     77:77:uk.org.ngo.squeezer.framework.SqueezerItemAdapter access$0(uk.org.ngo.squeezer.itemlists.GenreSpinner$1) -> access$0
     77:77:void access$1(uk.org.ngo.squeezer.itemlists.GenreSpinner$1,uk.org.ngo.squeezer.framework.SqueezerItemAdapter) -> access$1
@@ -3629,9 +3790,9 @@ uk.org.ngo.squeezer.itemlists.SqueezerApplicationView -> uk.org.ngo.squeezer.ite
     1:1:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> setupContextMenu
     1:1:void onItemSelected(int,uk.org.ngo.squeezer.framework.SqueezerItem) -> onItemSelected
 uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity -> uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity:
-    java.lang.String searchString -> a
-    uk.org.ngo.squeezer.model.SqueezerAlbum album -> b
-    uk.org.ngo.squeezer.model.SqueezerGenre genre -> c
+    java.lang.String searchString -> b
+    uk.org.ngo.squeezer.model.SqueezerAlbum album -> c
+    uk.org.ngo.squeezer.model.SqueezerGenre genre -> a
     uk.org.ngo.squeezer.itemlists.GenreSpinner genreSpinner -> d
     uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback artistsListCallback -> e
     39:39:java.lang.String getSearchString() -> getSearchString
@@ -3701,8 +3862,8 @@ uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity$1 -> uk.org.ngo.sq
     uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity this$0 -> a
     125:126:void onMusicFoldersReceived(int,int,java.util.List) -> onMusicFoldersReceived
 uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderView -> uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderView:
-    android.view.LayoutInflater mLayoutInflater -> a
-    uk.org.ngo.squeezer.framework.SqueezerItemListActivity mContext -> b
+    android.view.LayoutInflater mLayoutInflater -> b
+    uk.org.ngo.squeezer.framework.SqueezerItemListActivity mContext -> a
     60:84:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.model.SqueezerMusicFolderItem) -> getAdapterView
     88:97:void onItemSelected(int,uk.org.ngo.squeezer.model.SqueezerMusicFolderItem) -> onItemSelected
     100:104:void setupContextMenu(android.view.ContextMenu,int,uk.org.ngo.squeezer.model.SqueezerMusicFolderItem) -> setupContextMenu
@@ -3852,9 +4013,9 @@ uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$3 -> uk.org.ngo.squ
     78:81:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd -> uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd:
     uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd play -> a
-    uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd load -> d
-    uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd add -> b
-    uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd insert -> c
+    uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd load -> b
+    uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd add -> c
+    uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd insert -> d
     uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd[] ENUM$VALUES -> e
     1:1:uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd[] values() -> values
     1:1:uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistControlCmd valueOf(java.lang.String) -> valueOf
@@ -3978,8 +4139,8 @@ uk.org.ngo.squeezer.itemlists.YearSpinner -> uk.org.ngo.squeezer.itemlists.YearS
     36:36:android.widget.Spinner access$1(uk.org.ngo.squeezer.itemlists.YearSpinner) -> access$1
     46:46:void access$2(uk.org.ngo.squeezer.itemlists.YearSpinner,int) -> access$2
 uk.org.ngo.squeezer.itemlists.YearSpinner$1 -> uk.org.ngo.squeezer.itemlists.YearSpinner$1:
-    uk.org.ngo.squeezer.framework.SqueezerItemAdapter adapter -> a
-    uk.org.ngo.squeezer.itemlists.YearSpinner this$0 -> b
+    uk.org.ngo.squeezer.framework.SqueezerItemAdapter adapter -> b
+    uk.org.ngo.squeezer.itemlists.YearSpinner this$0 -> a
     80:105:void onYearsReceived(int,int,java.util.List) -> onYearsReceived
     77:77:uk.org.ngo.squeezer.framework.SqueezerItemAdapter access$0(uk.org.ngo.squeezer.itemlists.YearSpinner$1) -> access$0
     77:77:void access$1(uk.org.ngo.squeezer.itemlists.YearSpinner$1,uk.org.ngo.squeezer.framework.SqueezerItemAdapter) -> access$1
@@ -4211,19 +4372,20 @@ uk.org.ngo.squeezer.model.SqueezerPlaylist$1 -> uk.org.ngo.squeezer.model.Squeez
     1:1:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
     1:1:java.lang.Object[] newArray(int) -> newArray
 uk.org.ngo.squeezer.model.SqueezerPlugin -> uk.org.ngo.squeezer.model.SqueezerPlugin:
-    java.lang.String name -> a
-    java.lang.String icon -> b
-    int weight -> c
-    java.lang.String type -> d
+    uk.org.ngo.squeezer.model.SqueezerPlugin FAVORITE -> a
+    java.lang.String name -> b
+    java.lang.String icon -> c
+    int weight -> d
+    java.lang.String type -> e
     android.os.Parcelable$Creator CREATOR -> CREATOR
-    29:29:java.lang.String getName() -> getName
-    33:33:java.lang.String getIcon() -> getIcon
-    43:43:boolean isSearchable() -> isSearchable
-    70:75:void writeToParcel(android.os.Parcel,int) -> writeToParcel
-    79:79:java.lang.String toString() -> toString
+    31:31:java.lang.String getName() -> getName
+    35:35:java.lang.String getIcon() -> getIcon
+    45:45:boolean isSearchable() -> isSearchable
+    76:81:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+    85:85:java.lang.String toString() -> toString
 uk.org.ngo.squeezer.model.SqueezerPlugin$1 -> uk.org.ngo.squeezer.model.SqueezerPlugin$1:
-    55:55:uk.org.ngo.squeezer.model.SqueezerPlugin[] newArray(int) -> newArray
-    59:59:uk.org.ngo.squeezer.model.SqueezerPlugin createFromParcel(android.os.Parcel) -> createFromParcel
+    61:61:uk.org.ngo.squeezer.model.SqueezerPlugin[] newArray(int) -> newArray
+    65:65:uk.org.ngo.squeezer.model.SqueezerPlugin createFromParcel(android.os.Parcel) -> createFromParcel
     1:1:java.lang.Object createFromParcel(android.os.Parcel) -> createFromParcel
     1:1:java.lang.Object[] newArray(int) -> newArray
 uk.org.ngo.squeezer.model.SqueezerPluginItem -> uk.org.ngo.squeezer.model.SqueezerPluginItem:
@@ -4450,7 +4612,7 @@ uk.org.ngo.squeezer.service.ISqueezeService$Stub$Proxy -> uk.org.ngo.squeezer.se
     2357:2367:void registerPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> registerPluginItemListCallback
     2372:2382:void unregisterPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> unregisterPluginItemListCallback
 uk.org.ngo.squeezer.service.SqueezeService -> uk.org.ngo.squeezer.service.SqueezeService:
-    java.util.concurrent.ScheduledThreadPoolExecutor executor -> q
+    java.util.concurrent.ScheduledThreadPoolExecutor executor -> r
     java.util.concurrent.atomic.AtomicReference playerListCallback -> a
     java.util.concurrent.atomic.AtomicReference albumListCallback -> b
     java.util.concurrent.atomic.AtomicReference artistListCallback -> c
@@ -4465,10 +4627,10 @@ uk.org.ngo.squeezer.service.SqueezeService -> uk.org.ngo.squeezer.service.Squeez
     uk.org.ngo.squeezer.service.SqueezerConnectionState connectionState -> l
     uk.org.ngo.squeezer.service.SqueezerPlayerState playerState -> m
     uk.org.ngo.squeezer.service.SqueezerCLIImpl cli -> n
-    uk.org.ngo.squeezer.VolumePanel mVolumePanel -> r
-    int scrobbleType -> s
-    boolean debugLogging -> o
-    android.content.SharedPreferences preferences -> p
+    uk.org.ngo.squeezer.VolumePanel mVolumePanel -> s
+    int scrobbleType -> o
+    boolean debugLogging -> p
+    android.content.SharedPreferences preferences -> q
     java.util.Map globalHandlers -> t
     java.util.Map prefixedHandlers -> u
     java.util.Map playerSpecificHandlers -> v
@@ -4494,9 +4656,9 @@ uk.org.ngo.squeezer.service.SqueezeService -> uk.org.ngo.squeezer.service.Squeez
     483:488:void updatePlayerSubscriptionState() -> updatePlayerSubscriptionState
     491:497:void onCliPortConnectionEstablished() -> onCliPortConnectionEstablished
     500:513:void setPlayingState(boolean) -> setPlayingState
-    516:573:void updateOngoingNotification() -> updateOngoingNotification
-    576:583:void sendMusicChangedCallback() -> sendMusicChangedCallback
-    587:589:void clearOngoingNotification() -> clearOngoingNotification
+    516:575:void updateOngoingNotification() -> updateOngoingNotification
+    578:585:void sendMusicChangedCallback() -> sendMusicChangedCallback
+    589:591:void clearOngoingNotification() -> clearOngoingNotification
     475:475:void access$0(uk.org.ngo.squeezer.service.SqueezeService) -> access$0
     74:74:java.util.concurrent.ScheduledThreadPoolExecutor access$1(uk.org.ngo.squeezer.service.SqueezeService) -> access$1
     515:515:void access$2(uk.org.ngo.squeezer.service.SqueezeService) -> access$2
@@ -4509,84 +4671,84 @@ uk.org.ngo.squeezer.service.SqueezeService -> uk.org.ngo.squeezer.service.Squeez
     351:351:void access$9(uk.org.ngo.squeezer.service.SqueezeService,java.util.List) -> access$9
 uk.org.ngo.squeezer.service.SqueezeService$1 -> uk.org.ngo.squeezer.service.SqueezeService$1:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
-    594:597:void registerCallback(uk.org.ngo.squeezer.IServiceCallback) -> registerCallback
-    600:603:void unregisterCallback(uk.org.ngo.squeezer.IServiceCallback) -> unregisterCallback
-    606:611:int adjustVolumeBy(int) -> adjustVolumeBy
-    615:615:boolean isConnected() -> isConnected
-    619:620:void startConnect(java.lang.String) -> startConnect
-    623:625:void disconnect() -> disconnect
-    628:630:boolean powerOn() -> powerOn
-    634:636:boolean powerOff() -> powerOff
-    640:640:boolean canPowerOn() -> canPowerOn
-    644:644:boolean canPowerOff() -> canPowerOff
-    648:649:boolean canPower() -> canPower
-    659:659:boolean canMusicfolder() -> canMusicfolder
-    663:663:boolean canRandomplay() -> canRandomplay
-    667:680:boolean togglePausePlay() -> togglePausePlay
-    685:689:boolean play() -> play
-    694:697:boolean stop() -> stop
-    701:703:boolean nextTrack() -> nextTrack
-    707:709:boolean previousTrack() -> previousTrack
-    714:717:boolean playlistControl(java.lang.String,java.lang.String,java.lang.String) -> playlistControl
-    721:723:boolean randomPlay(java.lang.String) -> randomPlay
-    727:729:boolean playlistIndex(int) -> playlistIndex
-    733:735:boolean playlistRemove(int) -> playlistRemove
-    739:741:boolean playlistMove(int,int) -> playlistMove
-    745:747:boolean playlistClear() -> playlistClear
-    751:753:boolean playlistSave(java.lang.String) -> playlistSave
-    757:759:boolean pluginPlaylistControl(uk.org.ngo.squeezer.model.SqueezerPlugin,java.lang.String,java.lang.String) -> pluginPlaylistControl
-    764:764:boolean isPlaying() -> isPlaying
-    768:769:void setActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setActivePlayer
-    772:773:java.lang.String getActivePlayerName() -> getActivePlayerName
-    777:777:uk.org.ngo.squeezer.model.SqueezerSong currentSong() -> currentSong
-    781:783:java.lang.String getAlbumArtUrl(java.lang.String) -> getAlbumArtUrl
-    787:787:java.lang.String artworkTrackIdUrl(java.lang.String) -> artworkTrackIdUrl
-    791:793:java.lang.String getIconUrl(java.lang.String) -> getIconUrl
-    797:797:int getSecondsElapsed() -> getSecondsElapsed
-    801:806:boolean setSecondsElapsed(int) -> setSecondsElapsed
-    810:810:int getSecondsTotal() -> getSecondsTotal
-    814:827:void preferenceChanged(java.lang.String) -> preferenceChanged
-    831:833:boolean players(int) -> players
-    838:840:void registerPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> registerPlayerListCallback
-    843:846:void unregisterPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> unregisterPlayerListCallback
-    852:867:boolean albums(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre,uk.org.ngo.squeezer.model.SqueezerSong) -> albums
-    871:873:void registerAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> registerAlbumListCallback
-    876:879:void unregisterAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> unregisterAlbumListCallback
-    885:894:boolean artists(int,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerGenre) -> artists
-    898:900:void registerArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> registerArtistListCallback
-    903:906:void unregisterArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> unregisterArtistListCallback
-    911:913:boolean years(int) -> years
-    917:919:void registerYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> registerYearListCallback
-    922:925:void unregisterYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> unregisterYearListCallback
-    930:932:boolean genres(int) -> genres
-    936:938:void registerGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> registerGenreListCallback
-    941:944:void unregisterGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> unregisterGenreListCallback
-    962:973:boolean musicFolders(int,java.lang.String) -> musicFolders
-    978:980:void registerMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> registerMusicFolderListCallback
-    984:987:void unregisterMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> unregisterMusicFolderListCallback
-    992:1008:boolean songs(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre) -> songs
-    1013:1015:boolean currentPlaylist(int) -> currentPlaylist
-    1020:1022:boolean playlistSongs(int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistSongs
-    1026:1028:void registerSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> registerSongListCallback
-    1031:1034:void unregisterSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> unregisterSongListCallback
-    1039:1041:boolean playlists(int) -> playlists
-    1045:1047:void registerPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> registerPlaylistsCallback
-    1050:1053:void unregisterPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> unregisterPlaylistsCallback
-    1057:1059:void registerPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> registerPlaylistMaintenanceCallback
-    1062:1064:void unregisterPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> unregisterPlaylistMaintenanceCallback
-    1067:1069:boolean playlistsDelete(uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistsDelete
-    1073:1076:boolean playlistsMove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int,int) -> playlistsMove
-    1080:1082:boolean playlistsNew(java.lang.String) -> playlistsNew
-    1086:1088:boolean playlistsRemove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int) -> playlistsRemove
-    1092:1094:boolean playlistsRename(uk.org.ngo.squeezer.model.SqueezerPlaylist,java.lang.String) -> playlistsRename
-    1100:1105:boolean search(int,java.lang.String) -> search
-    1110:1112:boolean radios(int) -> radios
-    1117:1119:boolean apps(int) -> apps
-    1123:1125:void registerPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> registerPluginListCallback
-    1128:1131:void unregisterPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> unregisterPluginListCallback
-    1136:1143:boolean pluginItems(int,uk.org.ngo.squeezer.model.SqueezerPlugin,uk.org.ngo.squeezer.model.SqueezerPluginItem,java.lang.String) -> pluginItems
-    1147:1149:void registerPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> registerPluginItemListCallback
-    1152:1155:void unregisterPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> unregisterPluginItemListCallback
+    596:599:void registerCallback(uk.org.ngo.squeezer.IServiceCallback) -> registerCallback
+    602:605:void unregisterCallback(uk.org.ngo.squeezer.IServiceCallback) -> unregisterCallback
+    608:613:int adjustVolumeBy(int) -> adjustVolumeBy
+    617:617:boolean isConnected() -> isConnected
+    621:622:void startConnect(java.lang.String) -> startConnect
+    625:627:void disconnect() -> disconnect
+    630:632:boolean powerOn() -> powerOn
+    636:638:boolean powerOff() -> powerOff
+    642:642:boolean canPowerOn() -> canPowerOn
+    646:646:boolean canPowerOff() -> canPowerOff
+    650:651:boolean canPower() -> canPower
+    661:661:boolean canMusicfolder() -> canMusicfolder
+    665:665:boolean canRandomplay() -> canRandomplay
+    669:682:boolean togglePausePlay() -> togglePausePlay
+    687:691:boolean play() -> play
+    696:699:boolean stop() -> stop
+    703:705:boolean nextTrack() -> nextTrack
+    709:711:boolean previousTrack() -> previousTrack
+    716:719:boolean playlistControl(java.lang.String,java.lang.String,java.lang.String) -> playlistControl
+    723:725:boolean randomPlay(java.lang.String) -> randomPlay
+    729:731:boolean playlistIndex(int) -> playlistIndex
+    735:737:boolean playlistRemove(int) -> playlistRemove
+    741:743:boolean playlistMove(int,int) -> playlistMove
+    747:749:boolean playlistClear() -> playlistClear
+    753:755:boolean playlistSave(java.lang.String) -> playlistSave
+    759:761:boolean pluginPlaylistControl(uk.org.ngo.squeezer.model.SqueezerPlugin,java.lang.String,java.lang.String) -> pluginPlaylistControl
+    766:766:boolean isPlaying() -> isPlaying
+    770:771:void setActivePlayer(uk.org.ngo.squeezer.model.SqueezerPlayer) -> setActivePlayer
+    774:775:java.lang.String getActivePlayerName() -> getActivePlayerName
+    779:779:uk.org.ngo.squeezer.model.SqueezerSong currentSong() -> currentSong
+    783:785:java.lang.String getAlbumArtUrl(java.lang.String) -> getAlbumArtUrl
+    789:789:java.lang.String artworkTrackIdUrl(java.lang.String) -> artworkTrackIdUrl
+    793:795:java.lang.String getIconUrl(java.lang.String) -> getIconUrl
+    799:799:int getSecondsElapsed() -> getSecondsElapsed
+    803:808:boolean setSecondsElapsed(int) -> setSecondsElapsed
+    812:812:int getSecondsTotal() -> getSecondsTotal
+    816:829:void preferenceChanged(java.lang.String) -> preferenceChanged
+    833:835:boolean players(int) -> players
+    840:842:void registerPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> registerPlayerListCallback
+    845:848:void unregisterPlayerListCallback(uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback) -> unregisterPlayerListCallback
+    854:869:boolean albums(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre,uk.org.ngo.squeezer.model.SqueezerSong) -> albums
+    873:875:void registerAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> registerAlbumListCallback
+    878:881:void unregisterAlbumListCallback(uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback) -> unregisterAlbumListCallback
+    887:896:boolean artists(int,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerGenre) -> artists
+    900:902:void registerArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> registerArtistListCallback
+    905:908:void unregisterArtistListCallback(uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback) -> unregisterArtistListCallback
+    913:915:boolean years(int) -> years
+    919:921:void registerYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> registerYearListCallback
+    924:927:void unregisterYearListCallback(uk.org.ngo.squeezer.itemlists.IServiceYearListCallback) -> unregisterYearListCallback
+    932:934:boolean genres(int) -> genres
+    938:940:void registerGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> registerGenreListCallback
+    943:946:void unregisterGenreListCallback(uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback) -> unregisterGenreListCallback
+    964:975:boolean musicFolders(int,java.lang.String) -> musicFolders
+    980:982:void registerMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> registerMusicFolderListCallback
+    986:989:void unregisterMusicFolderListCallback(uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback) -> unregisterMusicFolderListCallback
+    994:1010:boolean songs(int,java.lang.String,java.lang.String,uk.org.ngo.squeezer.model.SqueezerAlbum,uk.org.ngo.squeezer.model.SqueezerArtist,uk.org.ngo.squeezer.model.SqueezerYear,uk.org.ngo.squeezer.model.SqueezerGenre) -> songs
+    1015:1017:boolean currentPlaylist(int) -> currentPlaylist
+    1022:1024:boolean playlistSongs(int,uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistSongs
+    1028:1030:void registerSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> registerSongListCallback
+    1033:1036:void unregisterSongListCallback(uk.org.ngo.squeezer.itemlists.IServiceSongListCallback) -> unregisterSongListCallback
+    1041:1043:boolean playlists(int) -> playlists
+    1047:1049:void registerPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> registerPlaylistsCallback
+    1052:1055:void unregisterPlaylistsCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback) -> unregisterPlaylistsCallback
+    1059:1061:void registerPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> registerPlaylistMaintenanceCallback
+    1064:1066:void unregisterPlaylistMaintenanceCallback(uk.org.ngo.squeezer.itemlists.IServicePlaylistMaintenanceCallback) -> unregisterPlaylistMaintenanceCallback
+    1069:1071:boolean playlistsDelete(uk.org.ngo.squeezer.model.SqueezerPlaylist) -> playlistsDelete
+    1075:1078:boolean playlistsMove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int,int) -> playlistsMove
+    1082:1084:boolean playlistsNew(java.lang.String) -> playlistsNew
+    1088:1090:boolean playlistsRemove(uk.org.ngo.squeezer.model.SqueezerPlaylist,int) -> playlistsRemove
+    1094:1096:boolean playlistsRename(uk.org.ngo.squeezer.model.SqueezerPlaylist,java.lang.String) -> playlistsRename
+    1102:1107:boolean search(int,java.lang.String) -> search
+    1112:1114:boolean radios(int) -> radios
+    1119:1121:boolean apps(int) -> apps
+    1125:1127:void registerPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> registerPluginListCallback
+    1130:1133:void unregisterPluginListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginListCallback) -> unregisterPluginListCallback
+    1138:1145:boolean pluginItems(int,uk.org.ngo.squeezer.model.SqueezerPlugin,uk.org.ngo.squeezer.model.SqueezerPluginItem,java.lang.String) -> pluginItems
+    1149:1151:void registerPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> registerPluginItemListCallback
+    1154:1157:void unregisterPluginItemListCallback(uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback) -> unregisterPluginItemListCallback
 uk.org.ngo.squeezer.service.SqueezeService$10 -> uk.org.ngo.squeezer.service.SqueezeService$10:
     uk.org.ngo.squeezer.service.SqueezeService this$0 -> a
     259:260:void handle(java.util.List) -> handle
@@ -4639,9 +4801,9 @@ uk.org.ngo.squeezer.service.SqueezeService$SqueezerCmdHandler -> uk.org.ngo.sque
 uk.org.ngo.squeezer.service.SqueezerCLIImpl -> uk.org.ngo.squeezer.service.SqueezerCLIImpl:
     uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd[] extQueryFormatCmds -> a
     java.util.Map extQueryFormatCmdMap -> b
-    uk.org.ngo.squeezer.service.SqueezeService service -> c
-    int pageSize -> d
-    int _correlationid -> e
+    uk.org.ngo.squeezer.service.SqueezeService service -> d
+    int pageSize -> e
+    int _correlationid -> c
     java.util.Map cmdCorrelationIds -> f
     java.util.Map typeCorrelationIds -> g
     81:229:uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd[] initializeExtQueryFormatCmds() -> initializeExtQueryFormatCmds
@@ -4662,8 +4824,8 @@ uk.org.ngo.squeezer.service.SqueezerCLIImpl -> uk.org.ngo.squeezer.service.Squee
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$1 -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$1:
     uk.org.ngo.squeezer.model.SqueezerPlayer defaultPlayer -> a
     java.lang.String lastConnectedPlayer -> b
-    java.util.List players -> c
-    uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> d
+    java.util.List players -> d
+    uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> c
     94:94:java.lang.Class getDataType() -> getDataType
     98:102:void clear() -> clear
     105:110:void add(java.util.Map) -> add
@@ -4692,9 +4854,9 @@ uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd -> uk.org.ngo
     boolean playerSpecific -> a
     boolean prefixed -> b
     java.lang.String cmd -> c
-    java.util.Set taggedParameters -> d
-    uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo[] parserInfos -> e
-    uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> f
+    java.util.Set taggedParameters -> e
+    uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo[] parserInfos -> f
+    uk.org.ngo.squeezer.service.SqueezerCLIImpl this$0 -> d
     53:53:uk.org.ngo.squeezer.service.SqueezerCLIImpl$SqueezeParserInfo[] access$2(uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd) -> access$2
     52:52:java.util.Set access$3(uk.org.ngo.squeezer.service.SqueezerCLIImpl$ExtendedQueryFormatCmd) -> access$3
 uk.org.ngo.squeezer.service.SqueezerCLIImpl$GenreListHandler -> uk.org.ngo.squeezer.service.SqueezerCLIImpl$GenreListHandler:
@@ -4821,10 +4983,10 @@ uk.org.ngo.squeezer.service.SqueezerConnectionState$1 -> uk.org.ngo.squeezer.ser
     int val$port -> e
     274:296:void run() -> run
 uk.org.ngo.squeezer.service.SqueezerConnectionState$ListeningThread -> uk.org.ngo.squeezer.service.SqueezerConnectionState$ListeningThread:
-    uk.org.ngo.squeezer.service.SqueezeService service -> a
-    java.net.Socket socket -> b
-    int generationNumber -> c
-    uk.org.ngo.squeezer.service.SqueezerConnectionState this$0 -> d
+    uk.org.ngo.squeezer.service.SqueezeService service -> b
+    java.net.Socket socket -> c
+    int generationNumber -> d
+    uk.org.ngo.squeezer.service.SqueezerConnectionState this$0 -> a
     219:226:void run() -> run
 uk.org.ngo.squeezer.service.SqueezerPlayerState -> uk.org.ngo.squeezer.service.SqueezerPlayerState:
     java.util.concurrent.atomic.AtomicBoolean isPlaying -> a
