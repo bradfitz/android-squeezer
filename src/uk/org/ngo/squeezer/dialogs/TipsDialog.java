@@ -21,38 +21,39 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.DialogInterface.OnKeyListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.KeyEvent;
 import android.view.View;
-import android.widget.TextView;
 
-public class AboutDialog extends DialogFragment {
+public class TipsDialog extends DialogFragment implements OnKeyListener {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final View view = getActivity().getLayoutInflater().inflate(R.layout.about_dialog, null);
-        final TextView titleText = (TextView) view.findViewById(R.id.about_title);
-
-        PackageManager pm = getActivity().getPackageManager();
-        PackageInfo info;
-        try {
-            info = pm.getPackageInfo("uk.org.ngo.squeezer", 0);
-            titleText.setText(getString(R.string.about_title, info.versionName));
-        } catch (NameNotFoundException e) {
-            titleText.setText(getString(R.string.app_name));
-        }
+        final View view = getActivity().getLayoutInflater().inflate(R.layout.tips_dialog, null);
 
         Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         builder.setPositiveButton(android.R.string.ok, null);
-        builder.setNegativeButton(R.string.dialog_license, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                new LicenseDialog()
-                        .show(getActivity().getSupportFragmentManager(), "LicenseDialog");
-            }
-        });
+        builder.setOnKeyListener(this);
         return builder.create();
+    }
+
+    /*
+     * Intercept hardware volume control keys to control Squeezeserver volume.
+     * 
+     * Change the volume when the key is depressed. Suppress the keyUp event,
+     * otherwise you get a notification beep as well as the volume changing.
+     * 
+     * TODO: Do this for all the dialogs.
+     */
+    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                return getActivity().onKeyDown(keyCode, event);
+        }
+
+        return false;
     }
 }

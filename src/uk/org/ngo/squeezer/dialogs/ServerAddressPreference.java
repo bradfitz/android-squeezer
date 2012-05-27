@@ -17,14 +17,21 @@
 package uk.org.ngo.squeezer.dialogs;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.ArrayList;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
+import org.acra.ErrorReporter;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -65,11 +72,9 @@ public class ServerAddressPreference extends DialogPreference {
     private scanNetworkTask mScanTask;
     private boolean mScanInProgress = false;
 
-    private final ConnectivityManager mConnectivityManager =
-            (ConnectivityManager) Squeezer.getContext()
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+    /** Map server names to IP addresses. */
+    private final TreeMap<String, String> mDiscoveredServers = new TreeMap<String, String>();
 
-    private final ArrayList<String> mDiscoveredServers = new ArrayList<String>();
     private ArrayAdapter<String> mAdapter;
 
     private final Context mContext;
@@ -108,14 +113,19 @@ public class ServerAddressPreference extends DialogPreference {
         mServerAddressEditText.setSelection(serveraddr.length());
 
         // Set up the servers spinner.
-        mAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item,
-                mDiscoveredServers);
+        mAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item);
         mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
 
+
         // Only support network scanning on WiFi.
-        if (mConnectivityManager.getActiveNetworkInfo().getType()
-                == ConnectivityManager.TYPE_WIFI) {
+        //
+        // Seen a crash in previous versions of this code that suggests that
+        // getActiveNetworkInfo() can return null, so play safe here.
+        ConnectivityManager cm = (ConnectivityManager) Squeezer.getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
             mScanBtn.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     if (mScanInProgress == false) {
@@ -154,7 +164,7 @@ public class ServerAddressPreference extends DialogPreference {
         mServerAddressEditText.setEnabled(false);
 
         mScanTask = new scanNetworkTask();
-        mScanTask.execute(mContext.getResources().getInteger(R.integer.DefaultPort));
+        mScanTask.execute();
         mScanInProgress = true;
     }
 
@@ -178,10 +188,15 @@ public class ServerAddressPreference extends DialogPreference {
                 break;
             case 1:
                 // Populate the edit text widget with the address found.
-                mServerAddressEditText.setText(mDiscoveredServers.get(0));
+                mServerAddressEditText
+                        .setText(mDiscoveredServers.get(mDiscoveredServers.firstKey()));
                 break;
             default:
                 // Show the spinner so the user can choose a server.
+                mAdapter.clear();
+                for (Entry<String, String> e : mDiscoveredServers.entrySet()) {
+                    mAdapter.add(e.getKey());
+                }
                 mServersSpinner.setVisibility(View.VISIBLE);
                 mServersSpinner.setAdapter(mAdapter);
         }
@@ -212,7 +227,8 @@ public class ServerAddressPreference extends DialogPreference {
     public class MyOnItemSelectedListener implements OnItemSelectedListener {
         public void onItemSelected(AdapterView<?> parent,
                 View view, int pos, long id) {
-            mServerAddressEditText.setText(parent.getItemAtPosition(pos).toString());
+            mServerAddressEditText.setText(mDiscoveredServers.get(parent.getItemAtPosition(pos)
+                    .toString()));
         }
 
         public void onNothingSelected(AdapterView<?> parent) {
@@ -225,8 +241,23 @@ public class ServerAddressPreference extends DialogPreference {
      *
      * @author nik
      */
-    private class scanNetworkTask extends AsyncTask<Integer, Integer, Integer> {
-        String TAG = "scanNetworkTask";
+    private class scanNetworkTask extends AsyncTask<Void, Long, Void> {
+        private final String TAG = "scanNetworkTask";
+
+        /** UDP port to broadcast discovery requests to. */
+        private final int DISCOVERY_PORT = 3483;
+
+        /** Maximum time to wait between discovery attempts (ms). */
+        private final int DISCOVERY_ATTEMPT_TIMEOUT = 500;
+
+        /**
+         * Maximum total time to wait during discovery (ms).
+         * <p>
+         * If you change this or DISCOVERY_ATTEMPT_TIMEOUT then you will need to
+         * adjust android:max and android:secondaryProgress in
+         * server_address_dialog.xml.
+         */
+        private final int DISCOVERY_TOTAL_TIMEOUT = 10000;
 
         @Override
         protected void onPreExecute() {
@@ -236,76 +267,134 @@ public class ServerAddressPreference extends DialogPreference {
         }
 
         /**
-         * Performs a scan of the local network.
-         *
-         * @param ports An array of ports to scan on each host. Only the first
-         *            port is scanned.
+         * Discover Squeezerservers on the local network.
+         * <p>
+         * Do this by sending 20 UDP broadcasts to port 3483 at approximately
+         * 500ms intervals. Squeezeservers are supposed to listen for this, and
+         * respond with a packet that starts 'E' and some information about the
+         * server, including its name.
+         * <p>
+         * Map the name to an IP address and store in mDiscoveredServers for
+         * later use.
+         * <p>
+         * See the Slim::Networking::Discovery module in Squeezeserver for more
+         * details.
          */
         @Override
-        protected Integer doInBackground(Integer... ports) {
+        protected Void doInBackground(Void... unused) {
+            WifiManager.WifiLock wifiLock = null;
+            DatagramSocket socket = null;
+
+            // UDP broadcast data that causes Squeezeservers to reply.  The format
+            // is 'e', followed by null-terminated tags that indicate the data to
+            // return.
+            //
+            // The Squeezeserver uses the size of the request packet to determine
+            // the size of the response packet.
+
+            byte[] request = {
+                    'e', // 'existence' ?
+                    'I', 'P', 'A', 'D', 0, // Include IP address
+                    'N', 'A', 'M', 'E', 0, // Include server name
+                    'J', 'S', 'O', 'N', 0, // Include server port
+            };
+            byte[] data = new byte[512];
+            System.arraycopy(request, 0, data, 0, request.length);
+
             WifiManager wm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-            WifiManager.WifiLock wifiLock = wm.createWifiLock(TAG);
+            wifiLock = wm.createWifiLock(TAG);
 
             Log.v(TAG, "Locking WiFi while scanning");
             wifiLock.acquire();
 
-            WifiInfo wifiInfo = wm.getConnectionInfo();
-            int ip = wifiInfo.getIpAddress();
+            try {
+                InetAddress broadcastAddr = InetAddress.getByName("255.255.255.255");
 
-            // Dumb approach - go from .1 to .254, skipping ourselves.
-            int subnet = ip & 0x00ffffff;
-            int lastOctet;
-            Socket socket;
+                socket = new DatagramSocket();
+                DatagramPacket discoveryPacket = new DatagramPacket(data, data.length,
+                        broadcastAddr, DISCOVERY_PORT);
 
-            for (lastOctet = 1; lastOctet <= 254; lastOctet++) {
-                int addressToCheck = (lastOctet << 24) | subnet;
+                byte[] buf = new byte[512];
+                DatagramPacket responsePacket = new DatagramPacket(buf, buf.length);
 
-                if (addressToCheck == ip)
-                    continue;
+                socket.setSoTimeout(DISCOVERY_ATTEMPT_TIMEOUT);
+                long startTime = System.currentTimeMillis();
+                long endTime = startTime + DISCOVERY_TOTAL_TIMEOUT;
+                long now;
 
-                // Everything else prefers to deal with IP addresses as strings,
-                // so convert here, and use throughout.
-                String addrStr = Formatter.formatIpAddress(addressToCheck);
-                Log.v(TAG, "Will check: " + addrStr);
+                socket.send(discoveryPacket);
 
-                // Check for cancellation before starting any lengthy activity
-                if (isCancelled())
-                    break;
-
-                // Try and connect. Ignore errors, on success close the
-                // socket and note the IP address.
-                socket = new Socket();
-                try {
-                    socket.connect(new InetSocketAddress(addrStr, ports[0]),
-                            500 /* ms timeout */);
-                } catch (IOException e) {
-                } // Expected, can be ignored.
-
-                if (socket.isConnected()) {
-                    mDiscoveredServers.add(addrStr); // Note the address
-
-                    // TODO: Indicate this in the UI somehow (increment a
-                    // counter?)
+                while ((now = System.currentTimeMillis()) <= endTime) {
+                    boolean timedOut = false;
 
                     try {
-                        socket.close();
+                        socket.receive(responsePacket);
                     } catch (IOException e) {
-                    } // Expected, can be ignored.
+                        timedOut = true;
+                    }
 
+                    if (!timedOut) {
+                        if (buf[0] == (byte) 'E') {
+                            String serverAddr = responsePacket.getAddress().getHostAddress();
+
+                            // Blocks of data are TAG/LENGTH/VALUE, where TAG is
+                            // a 4 byte string identifying the item, LENGTH is the
+                            // length of the VALUE (e.g., reading \t means the value
+                            // is 9 bytes, and VALUE is the actual value.
+
+                            // Find the 'NAME' block
+                            int i = 1;
+                            while (buf[i] != 'N') {
+                                i += 4;
+                                i += buf[i] + 2;
+                            }
+
+                            // Now at first block that starts 'N', should be
+                            // NAME.
+                            i += 4;
+
+                            // i now pointing at the length of the NAME value.
+                            String name = new String(buf, i + 1, buf[i]);
+                            mDiscoveredServers.put(name, serverAddr);
+                        }
+                    } else {
+                        socket.send(discoveryPacket);
+                    }
+
+                    publishProgress((now - startTime) / DISCOVERY_ATTEMPT_TIMEOUT);
                 }
-
-                // Send message that we've checked this one.
-                publishProgress(lastOctet);
+            } catch (SocketException e) {
+                // new DatagramSocket(3483)
+                ErrorReporter.getInstance().handleException(e);
+            } catch (UnknownHostException e) {
+                // InetAddress.getByName()
+                ErrorReporter.getInstance().handleException(e);
+            } catch (IOException e) {
+                // socket.send()
+                ErrorReporter.getInstance().handleException(e);
             }
 
+            if (socket != null)
+                socket.close();
+
             Log.v(TAG, "Scanning complete, unlocking WiFi");
-            wifiLock.release();
-            return lastOctet;
+            if (wifiLock != null)
+                wifiLock.release();
+
+            // For testing that multiple servers are handled correctly.
+            // mDiscoveredServers.put("Dummy", "127.0.0.1");
+            return null;
         }
 
+        /**
+         * Update the progress bar. The main progress value corresponds to how
+         * many servers have been discovered, the secondary progress value
+         * corresponds to how far through the discovery process we are.
+         */
         @Override
-        protected void onProgressUpdate(Integer... values) {
-            mScanProgressBar.setProgress(values[0]);
+        protected void onProgressUpdate(Long... values) {
+            mScanProgressBar.setSecondaryProgress(values[0].intValue());
+            mScanProgressBar.setProgress(Math.min(mDiscoveredServers.size(), 20));
         }
 
         @Override
@@ -315,7 +404,7 @@ public class ServerAddressPreference extends DialogPreference {
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
+        protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             onScanFinish();
         }

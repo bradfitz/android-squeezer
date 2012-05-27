@@ -21,38 +21,18 @@ import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
-
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class NowPlayingActivity extends SqueezerBaseActivity {
     protected static final int HOME_REQUESTCODE = 0;
     private final String TAG = "NowPlayingActivity";
 
-    private GoogleAnalyticsTracker tracker;
-
     /** Called when the activity is first created. */
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.now_playing);
-
-        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
-
-        // Enable Analytics if the option is on, and we're not running in debug
-        // mode so that debug tests don't pollute the stats.
-        if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
-            if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0) {
-                Log.v("NowPlayingActivity", "Tracking page view 'NowPlayingActivity");
-                // Start the tracker in manual dispatch mode...
-                tracker = GoogleAnalyticsTracker.getInstance();
-                tracker.startNewSession("UA-26457780-1", this);
-                tracker.trackPageView("NowPlayingActivity");
-            }
-        }
 
         MenuFragment.add(this, SqueezerMenuFragment.class);
     }
@@ -86,16 +66,5 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
 				.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(intent);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        // Send analytics stats (if enabled).
-        if (tracker != null) {
-            tracker.dispatch();
-            tracker.stopSession();
-        }
     }
 }

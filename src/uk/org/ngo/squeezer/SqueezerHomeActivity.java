@@ -20,19 +20,26 @@ package uk.org.ngo.squeezer;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.org.ngo.squeezer.dialogs.TipsDialog;
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerGenreListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
+import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -40,6 +47,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private final String TAG = "SqueezerHomeActivity";
@@ -60,12 +69,44 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private boolean mCanRandomplay = false;
     private ListView listView;
 
+    private GoogleAnalyticsTracker tracker;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
         MenuFragment.add(this, SqueezerMenuFragment.class);
+
+        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+
+        // Enable Analytics if the option is on, and we're not running in debug
+        // mode so that debug tests don't pollute the stats.
+        if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
+            if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0) {
+                Log.v("NowPlayingActivity", "Tracking page view 'SqueezerHomeActivity");
+                // Start the tracker in manual dispatch mode...
+                tracker = GoogleAnalyticsTracker.getInstance();
+                tracker.startNewSession("UA-26457780-1", this);
+                tracker.trackPageView("SqueezerHomeActivity");
+            }
+        }
+
+        // Show a tip about volume controls, if this is the first time this app
+        // has run. TODO: Add more robust and general 'tips' functionality.
+        PackageInfo pInfo;
+        try {
+            pInfo = getPackageManager().getPackageInfo(getPackageName(),
+                    PackageManager.GET_META_DATA);
+            if (preferences.getLong("lastRunVersionCode", 0) < pInfo.versionCode) {
+                new TipsDialog().show(getSupportFragmentManager(), "TipsDialog");
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putLong("lastRunVersionCode", pInfo.versionCode);
+                editor.commit();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            // Nothing to do, don't crash.
+        }
     }
 
     @Override
@@ -149,13 +190,15 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
-        for (int i = ARTISTS; i <= INTERNET_RADIO; i++) { // APPS & FAVORITES
-                                                          // not implemented
+        for (int i = ARTISTS; i <= FAVORITES; i++) {
             if (i == MUSIC_FOLDER && !mCanMusicfolder)
                 continue;
 
             if (i == RANDOM_MIX && !mCanRandomplay)
                 continue;
+
+            if (i == APPS)
+                continue; // APPS not implemented.
 
             rows.add(new IconRowAdapter.IconRow(i, items[i], icons[i]));
         }
@@ -207,9 +250,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                     // SqueezerApplicationListActivity.show(SqueezerHomeActivity.this);
                     break;
                 case FAVORITES:
-                    // Currently hidden, by commenting out the entry in
-                    // strings.xml.
-                    // TODO: Implement
+                    SqueezerPluginItemListActivity.show(SqueezerHomeActivity.this, SqueezerPlugin.FAVORITE);
                     break;
 			}
 		}
@@ -226,6 +267,17 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         }
 
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Send analytics stats (if enabled).
+        if (tracker != null) {
+            tracker.dispatch();
+            tracker.stopSession();
+        }
     }
 
 	public static void show(Context context) {

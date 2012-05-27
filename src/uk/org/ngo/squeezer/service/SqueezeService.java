@@ -605,34 +605,37 @@ public class SqueezeService extends Service {
         nm.notify(PLAYBACKSERVICE_STATUS, status);
 
         if (scrobbleType != SCROBBLE_NONE) {
-        	SqueezerSong s = playerState.getCurrentSong();
-        	Intent i = new Intent();
+            SqueezerSong s = playerState.getCurrentSong();
+            if (s != null) {
+                Intent i = new Intent();
 
-        	switch (scrobbleType) {
-	        case SCROBBLE_SCROBBLEDROID:
-	        	// http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
-	        	i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
-	        	i.putExtra("playing", playing);
-	        	i.putExtra("track", songName);
-	        	i.putExtra("album", s.getAlbum());
-	        	i.putExtra("artist", s.getArtist());
-	        	i.putExtra("secs", playerState.getCurrentSongDuration());
-	        	i.putExtra("source", "P");
-	        	break;
-	        case SCROBBLE_SLS:
-	        	// http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
-	        	i.setAction("com.adam.aslfms.notify.playstatechanged");
-	        	i.putExtra("state", playing ? 0 : 2);
-	        	i.putExtra("app-name", getText(R.string.app_name));
-                    i.putExtra("app-package", "uk.org.ngo.squeezer");
-	        	i.putExtra("track", songName);
-	        	i.putExtra("album", s.getAlbum());
-	        	i.putExtra("artist", s.getArtist());
-	        	i.putExtra("duration", playerState.getCurrentSongDuration());
-	        	i.putExtra("source", "P");
-	        	break;
-        	}
-        	sendBroadcast(i);
+                switch (scrobbleType) {
+                    case SCROBBLE_SCROBBLEDROID:
+                        // http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
+                        i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
+                        i.putExtra("playing", playing);
+                        i.putExtra("track", songName);
+                        i.putExtra("album", s.getAlbum());
+                        i.putExtra("artist", s.getArtist());
+                        i.putExtra("secs", playerState.getCurrentSongDuration());
+                        i.putExtra("source", "P");
+                        break;
+
+                    case SCROBBLE_SLS:
+                        // http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
+                        i.setAction("com.adam.aslfms.notify.playstatechanged");
+                        i.putExtra("state", playing ? 0 : 2);
+                        i.putExtra("app-name", getText(R.string.app_name));
+                        i.putExtra("app-package", "uk.org.ngo.squeezer");
+                        i.putExtra("track", songName);
+                        i.putExtra("album", s.getAlbum());
+                        i.putExtra("artist", s.getArtist());
+                        i.putExtra("duration", playerState.getCurrentSongDuration());
+                        i.putExtra("source", "P");
+                        break;
+                }
+                sendBroadcast(i);
+            }
         }
     }
 
@@ -808,6 +811,11 @@ public class SqueezeService extends Service {
             return true;
         }
 
+        /**
+         * Start playing the song in the current playlist at the given index.
+         *
+         * @param index the index to jump to
+         */
         public boolean playlistIndex(int index) throws RemoteException {
             if (!isConnected()) return false;
             cli.sendPlayerCommand("playlist index " + index);
@@ -876,6 +884,24 @@ public class SqueezeService extends Service {
 			return "/music/" + artworkTrackId + "/cover.jpg";
         }
 
+        /**
+         * Returns a URL to download a song.
+         *
+         * @param songId the song ID
+         * @return The URL (as a string)
+         */
+        public String getSongDownloadUrl(String songId) throws RemoteException {
+            Integer port = connectionState.getHttpPort();
+            if (port == null || port == 0)
+                return "";
+            return "http://" + connectionState.getCurrentHost() + ":" + port
+                    + songDownloadUrl(songId);
+        }
+
+        private String songDownloadUrl(String songId) {
+            return "/music/" + songId + "/download";
+        }
+
         public String getIconUrl(String icon) throws RemoteException {
             Integer port = connectionState.getHttpPort();
             if (port == null || port == 0) return "";
@@ -905,9 +931,15 @@ public class SqueezeService extends Service {
                 updateOngoingNotification();
                 return;
             }
+
+            // If the server address changed then disconnect.
+            if (Preferences.KEY_SERVERADDR.equals(key)) {
+                disconnect();
+                return;
+            }
+
             getPreferences();
         }
-
 
         /* Start an async fetch of the SqueezeboxServer's players */
         public boolean players(int start) throws RemoteException {

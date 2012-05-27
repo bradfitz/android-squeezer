@@ -29,7 +29,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.Toast;
 
 /**
  * Common base class for all activities in the squeezer
@@ -143,26 +142,27 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         return false;
     }
 
+    // This section is just an easier way to call squeeze service
 
-	// This section is just an easier way to call squeeze service
+    public boolean play(SqueezerPlaylistItem item) throws RemoteException {
+        return playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
+    }
 
-    public void play(SqueezerPlaylistItem item) throws RemoteException {
-		playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
-	}
+    public boolean add(SqueezerPlaylistItem item) throws RemoteException {
+        return playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
+    }
 
-    public void add(SqueezerPlaylistItem item) throws RemoteException {
-		playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
-	}
+    public boolean insert(SqueezerPlaylistItem item) throws RemoteException {
+        return playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
+    }
 
-    public void insert(SqueezerPlaylistItem item) throws RemoteException {
-		playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
-	}
-
-    private void playlistControl(PlaylistControlCmd cmd, SqueezerPlaylistItem item, int resId)
+    private boolean playlistControl(PlaylistControlCmd cmd, SqueezerPlaylistItem item, int resId)
             throws RemoteException {
-        if (service == null) return;
+        if (service == null)
+            return false;
+
         service.playlistControl(cmd.name(), item.getPlaylistTag(), item.getId());
-        Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
+        return true;
     }
 
     private enum PlaylistControlCmd {

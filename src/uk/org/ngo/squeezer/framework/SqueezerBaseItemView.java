@@ -28,17 +28,10 @@ import android.os.Parcelable.Creator;
 import android.os.RemoteException;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
-	protected static final int CONTEXTMENU_BROWSE_SONGS = 0;
-	protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
-	protected static final int CONTEXTMENU_BROWSE_ARTISTS = 2;
-	protected static final int CONTEXTMENU_PLAY_ITEM = 3;
-	protected static final int CONTEXTMENU_ADD_ITEM = 4;
-	protected static final int CONTEXTMENU_INSERT_ITEM = 5;
-	protected static final int CONTEXTMENU_BROWSE_ALBUM_SONGS = 6;
-	protected static final int CONTEXTMENU_BROWSE_ARTIST_ALBUMS = 7;
-	protected static final int CONTEXTMENU_BROWSE_ARTIST_SONGS = 8;
+    protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 
 	private final SqueezerItemListActivity activity;
 	private SqueezerItemAdapter<T> adapter;
@@ -97,30 +90,43 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, label);
 	}
 
+
 	/**
 	 * The default context menu handler handles some common actions.
 	 * Each action must be set up in {@link #setupContextMenu(android.view.ContextMenu, int, SqueezerItem)}
 	 */
 	public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) throws RemoteException {
 		switch (menuItem.getItemId()) {
-		case CONTEXTMENU_BROWSE_SONGS:
-			SqueezerSongListActivity.show(activity, selectedItem);
-			return true;
+            case R.id.browse_songs:
+                SqueezerSongListActivity.show(activity, selectedItem);
+                return true;
+
 		case CONTEXTMENU_BROWSE_ALBUMS:
 			SqueezerAlbumListActivity.show(activity, selectedItem);
 			return true;
-		case CONTEXTMENU_BROWSE_ARTISTS:
-			SqueezerArtistListActivity.show(activity, selectedItem);
-			return true;
-		case CONTEXTMENU_PLAY_ITEM:
-			activity.play((SqueezerPlaylistItem) selectedItem);
-			return true;
-		case CONTEXTMENU_ADD_ITEM:
-			activity.add((SqueezerPlaylistItem) selectedItem);
-			return true;
-		case CONTEXTMENU_INSERT_ITEM:
-			activity.insert((SqueezerPlaylistItem) selectedItem);
-			return true;
+
+            case R.id.browse_artists:
+                SqueezerArtistListActivity.show(activity, selectedItem);
+                return true;
+
+            case R.id.play_now:
+                if (activity.play((SqueezerPlaylistItem) selectedItem))
+                    Toast.makeText(activity,
+                            activity.getString(R.string.ITEM_PLAYING, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.add_to_playlist:
+                if (activity.add((SqueezerPlaylistItem) selectedItem))
+				Toast.makeText(activity, activity.getString(R.string.ITEM_ADDED, selectedItem.getName()), Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.play_next:
+                if (activity.insert((SqueezerPlaylistItem) selectedItem))
+                    Toast.makeText(activity,
+                            activity.getString(R.string.ITEM_INSERTED, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
+                return true;
 		}
 		return false;
 	}

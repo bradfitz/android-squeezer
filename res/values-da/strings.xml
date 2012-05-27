@@ -44,9 +44,9 @@
     <string name="menu_item_sort">Sortér</string>
     <string name="menu_item_delete">Slet</string>
     <string name="menu_item_rename">Omdøb</string>
-    <string name="menu_item_playlists_new">Ny</string>
-    <string name="menu_item_playlist_clear">Ryd</string>
-    <string name="menu_item_playlist_save">Gem</string>
+    <string name="menu_item_playlists_new">Ny afspilningsliste</string>
+    <string name="menu_item_playlist_clear">Ryd afspilningsliste</string>
+    <string name="menu_item_playlist_save">Gem afspilningsliste</string>
     <string name="about_title">Om squeezer v%s</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
@@ -79,6 +79,12 @@
     <string name="genre_label">Genre</string>
     <string name="year_label">År</string>
     <string name="filter_label">Søgetekst</string>
+    <string name="unknown_track">Ukendt sang</string>
+    <string name="unknown_album">Ukendt album</string>
+    <string name="unknown_artist">Ukendt kunster</string>
+
+    <!-- Dialog buttons -->
+    <string name="dialog_license">Licens</string>
 
 	<string name="CONTEXTMENU_BROWSE_SONGS">Vis sange</string>
 	<string name="CONTEXTMENU_BROWSE_ALBUMS">Vis album</string>
@@ -158,7 +164,6 @@
         <item quantity="other">programmer</item>
     </plurals>
 
-
     <string-array name="home_items">
         <item>Kunstnere</item>
         <item>Album</item>
@@ -170,7 +175,8 @@
         <item>Afspilningslister</item>
         <item>Internetradio</item>
 <!--         <item>Mine programmer</item> -->
-<!--         <item>Favoritter</item> -->
+        <item>Favoritter</item>
+        <item>Søg</item>
     </string-array>
 
     <string-array name="randomplay_items">

@@ -96,11 +96,12 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
                 Toast.LENGTH_SHORT).show();
     };
 
+    // XXX: Make this a menu resource.
     public void setupContextMenu(ContextMenu menu, int index, SqueezerMusicFolderItem item) {
         menu.setHeaderTitle(item.getName());
-        menu.add(Menu.NONE, CONTEXTMENU_PLAY_ITEM, 3, R.string.CONTEXTMENU_PLAY_ITEM);
-        menu.add(Menu.NONE, CONTEXTMENU_ADD_ITEM, 4, R.string.CONTEXTMENU_ADD_ITEM);
-        menu.add(Menu.NONE, CONTEXTMENU_INSERT_ITEM, 5, R.string.CONTEXTMENU_INSERT_ITEM);
+        menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
+        menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
+        menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
     };
 
     public String getQuantityString(int quantity) {

@@ -65,7 +65,8 @@
             android:layout_width="fill_parent"
             android:layout_gravity="center_vertical"
             android:paddingLeft="4dp"
-            android:max="254"
+            android:max="20"
+            android:secondaryProgress="20"
             android:visibility="gone" />
 
 	    <Spinner
