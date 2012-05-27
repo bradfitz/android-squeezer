@@ -40,14 +40,12 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
-import android.view.View.OnKeyListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class SqueezerSearchActivity extends SqueezerItemListActivity {
@@ -61,7 +59,6 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search_layout);
 
-		ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
 		loadingLabel = (TextView) findViewById(R.id.loading_label);
 		final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
 
@@ -69,23 +66,15 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		resultsExpandableListView = (ExpandableListView) findViewById(R.id.search_expandable_list);
 		resultsExpandableListView.setAdapter( searchResultsAdapter );
 
-		searchCriteriaText.setOnKeyListener(new OnKeyListener() {
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-					doSearch(searchCriteriaText.getText().toString());
-					return true;
-				}
-				return false;
-			}
-		});
-
-        searchButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-            	if (getService() != null) {
-            		doSearch(searchCriteriaText.getText().toString());
-            	}
-			}
-		});
+        searchCriteriaText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    doSearch(searchCriteriaText.getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
 
         resultsExpandableListView.setOnChildClickListener( new OnChildClickListener() {
 			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
