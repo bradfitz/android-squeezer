@@ -162,5 +162,4 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
     public void showOrderDialog() {
         new SqueezerSongOrderDialog().show(this.getSupportFragmentManager(), "OrderDialog");
     }
-
 }

@@ -16,13 +16,12 @@
 
 package uk.org.ngo.squeezer.framework;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import android.os.RemoteException;
+import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,7 +56,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 * list.
 	 */
 	private int count;
-	private final Map<Integer, T[]> pages = new HashMap<Integer, T[]>();
+    private final SparseArray<T[]> pages = new SparseArray<T[]>();
 
 	/**
 	 *  This is set if the list shall start with an empty item.

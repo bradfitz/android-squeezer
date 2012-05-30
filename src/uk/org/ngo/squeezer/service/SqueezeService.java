@@ -537,7 +537,7 @@ public class SqueezeService extends Service {
         	SqueezerSong s = playerState.getCurrentSong();
         	if (s != null) {
             	Intent i = new Intent();
-    
+
             	switch (scrobbleType) {
     	        case SCROBBLE_SCROBBLEDROID:
     	        	// http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
@@ -718,6 +718,11 @@ public class SqueezeService extends Service {
             return true;
         }
 
+        /**
+         * Start playing the song in the current playlist at the given index.
+         *
+         * @param index the index to jump to
+         */
         public boolean playlistIndex(int index) throws RemoteException {
             if (!isConnected()) return false;
             cli.sendPlayerCommand("playlist index " + index);
@@ -788,6 +793,24 @@ public class SqueezeService extends Service {
 
         private String artworkTrackIdUrl(String artworkTrackId) {
 			return "/music/" + artworkTrackId + "/cover.jpg";
+        }
+
+        /**
+         * Returns a URL to download a song.
+         *
+         * @param songId the song ID
+         * @return The URL (as a string)
+         */
+        public String getSongDownloadUrl(String songId) throws RemoteException {
+            Integer port = connectionState.getHttpPort();
+            if (port == null || port == 0)
+                return "";
+            return "http://" + connectionState.getCurrentHost() + ":" + port
+                    + songDownloadUrl(songId);
+        }
+
+        private String songDownloadUrl(String songId) {
+            return "/music/" + songId + "/download";
         }
 
         public String getIconUrl(String icon) throws RemoteException {

@@ -44,7 +44,7 @@
                 android:layout_alignParentRight="true"
        			android:id="@+id/curplaylist" 
        			android:layout_marginTop="14dp"/>
-		</RelativeLayout>>
+		</RelativeLayout>
 		
    		<TextView android:id="@+id/trackname"
             android:hint="@string/unknown_track"

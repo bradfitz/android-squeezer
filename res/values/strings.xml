@@ -84,6 +84,9 @@
     <string name="unknown_album">Unknown album</string>
     <string name="unknown_artist">Unknown artist</string>
 
+    <string name="tips_title">Tips</string>
+    <string name="tip_volume">Use your device\'s hardware volume controls to change the playing volume.\n\nTry it now.</string>
+
     <!-- Dialog buttons -->
     <string name="dialog_license">License</string>
 
@@ -273,6 +276,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 	<string name="CONTEXTMENU_PLAY_ITEM">Play</string>
 	<string name="CONTEXTMENU_ADD_ITEM">Add to Playlist</string>
 	<string name="CONTEXTMENU_INSERT_ITEM">Play after the currently playing song</string>
+    <string name="CONTEXTMENU_DOWNLOAD_ITEM">Download</string>
 
     <string name="PLAYLIST_CONTEXTMENU_REMOVE_ITEM">Remove from playlist</string>
     <string name="PLAYLIST_CONTEXTMENU_MOVE_UP">Move up</string>

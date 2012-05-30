@@ -34,18 +34,14 @@
 		android:layout_height="wrap_content"
 		android:orientation="horizontal">
 
-		<EditText
-		 	android:id="@+id/search_input"
-		 	android:hint="@+string/search_hint_text"
-		 	android:inputType="textNoSuggestions"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1" />
-		<ImageButton 
-			android:id="@+id/search_button" 
-			android:src="@drawable/ic_btn_search"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+        <EditText
+            android:id="@+id/search_input"
+            android:hint="@+string/search_hint_text"
+            android:imeOptions="actionSearch"
+            android:inputType="textNoSuggestions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 	</LinearLayout>
 	<ExpandableListView 
 		android:id="@+id/search_expandable_list"

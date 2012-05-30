@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import uk.org.ngo.squeezer.dialogs.AboutDialog;
 import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
+import uk.org.ngo.squeezer.dialogs.TipsDialog;
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.framework.SqueezerIconUpdater;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
@@ -38,6 +39,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
@@ -60,6 +63,8 @@ import android.widget.Toast;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 public class SqueezerActivity extends SqueezerBaseActivity {
+    private static final String TAG = "SqueezerActivity";
+
     protected static final int HOME_REQUESTCODE = 0;
 
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
@@ -147,6 +152,22 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 tracker.startNewSession("UA-26457780-1", this);
                 tracker.trackPageView("SqueezerActivity");
             }
+        }
+
+        // Show a tip about volume controls, if this is the first time this app
+        // has run. TODO: Add more robust and general 'tips' functionality.
+        PackageInfo pInfo;
+        try {
+            pInfo = getPackageManager().getPackageInfo(getPackageName(),
+                    PackageManager.GET_META_DATA);
+            if (preferences.getLong("lastRunVersionCode", 0) < pInfo.versionCode) {
+                new TipsDialog().show(getSupportFragmentManager(), "TipsDialog");
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putLong("lastRunVersionCode", pInfo.versionCode);
+                editor.commit();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            // Nothing to do, don't crash.
         }
 
         albumText = (TextView) findViewById(R.id.albumname);
