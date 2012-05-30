@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.ImageDownloader;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
@@ -44,14 +45,16 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 	private boolean browseByArtist;
 	public void setBrowseByArtist(boolean browseByArtist) { this.browseByArtist = browseByArtist; }
 
+    private final ImageDownloader imageDownloader = new ImageDownloader();
+
 	public SqueezerSongView(SqueezerItemListActivity activity) {
 		super(activity);
 		layoutInflater = activity.getLayoutInflater();
 	}
 
 	@Override
-	public View getAdapterView(View convertView, SqueezerSong item) {
-		ViewHolder viewHolder;
+    public View getAdapterView(View convertView, final SqueezerSong item) {
+        final ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
 			convertView = layoutInflater.inflate(R.layout.icon_two_line_layout, null);
@@ -71,7 +74,8 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 			if (item.getYear() != 0) text2 = item.getYear() + " - " + text2;
 		}
 		viewHolder.label2.setText(text2);
-		updateIcon(viewHolder.icon, item, item.getArtworkUrl(getActivity().getService()));
+
+        imageDownloader.downloadUrlToImageView(item.getArtworkUrl(getActivity().getService()), viewHolder.icon);
 
 		return convertView;
 	}
