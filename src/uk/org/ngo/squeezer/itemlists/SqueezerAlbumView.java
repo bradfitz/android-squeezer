@@ -60,7 +60,7 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 			if (item.getYear() != 0) text2 += " - " + item.getYear();
 		}
 		viewHolder.label2.setText(text2);
-		updateAlbumArt(viewHolder.icon, item);
+		setIconToTrackArtwork(viewHolder.icon, item);
 
 		return convertView;
 	}

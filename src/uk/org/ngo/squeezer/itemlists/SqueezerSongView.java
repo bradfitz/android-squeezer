@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.itemlists;
 
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.ImageDownloader;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
@@ -34,7 +33,7 @@ import android.widget.TextView;
 /**
  * A view that shows a single song with its artwork, and a context menu.
  */
-public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
+public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
     private static final String TAG = "SqueezerSongView";
 
 	private final LayoutInflater layoutInflater;
@@ -44,8 +43,6 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 
 	private boolean browseByArtist;
 	public void setBrowseByArtist(boolean browseByArtist) { this.browseByArtist = browseByArtist; }
-
-    private final ImageDownloader imageDownloader = new ImageDownloader();
 
 	public SqueezerSongView(SqueezerItemListActivity activity) {
 		super(activity);
@@ -75,7 +72,7 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 		}
 		viewHolder.label2.setText(text2);
 
-        imageDownloader.downloadUrlToImageView(item.getArtworkUrl(getActivity().getService()), viewHolder.icon);
+		setIconToTrackArtwork(viewHolder.icon, item);
 
 		return convertView;
 	}

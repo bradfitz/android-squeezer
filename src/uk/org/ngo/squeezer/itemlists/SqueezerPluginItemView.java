@@ -56,7 +56,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
         }
 
 		viewHolder.label.setText(item.getName());
-		updateIcon(viewHolder.icon, item, item.getImage());
+		downloadUrlToImageView(item.getIcon(), viewHolder.icon);
 
 		return convertView;
 	}

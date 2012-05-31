@@ -16,17 +16,16 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public abstract class SqueezerPluginView extends SqueezerIconicItemView<SqueezerPlugin> {
 	private final LayoutInflater layoutInflater;
@@ -50,7 +49,7 @@ public abstract class SqueezerPluginView extends SqueezerIconicItemView<Squeezer
 			viewHolder = (ViewHolder) convertView.getTag();
 
 		viewHolder.label.setText(item.getName());
-		updateIcon(viewHolder.icon, item, getIconUrl(item.getIcon()));
+		downloadUrlToImageView(getIconUrl(item.getIcon()), viewHolder.icon);
 
 		return convertView;
 	}

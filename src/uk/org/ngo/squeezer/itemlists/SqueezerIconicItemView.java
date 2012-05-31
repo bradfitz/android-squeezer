@@ -16,27 +16,32 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import uk.org.ngo.squeezer.framework.ImageDownloader;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
-import uk.org.ngo.squeezer.framework.SqueezerIconUpdater;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import android.widget.ImageView;
 
 /**
- * An item view with associated icon where the image is remote.
+ * Represents the view hierarchy for a single {@link SqueezerItem} subclass,
+ * where the item has an icon associated with it.
  * 
  * @param <T>
  */
 public abstract class SqueezerIconicItemView<T extends SqueezerItem> extends SqueezerBaseItemView<T> {
-	private final SqueezerIconUpdater<T> iconUpdater;
+    private final ImageDownloader imageDownloader = new ImageDownloader();
 
-	public SqueezerIconicItemView(SqueezerItemListActivity activity) {
-		super(activity);
-		iconUpdater = new SqueezerIconUpdater<T>(activity);
+    public SqueezerIconicItemView(SqueezerItemListActivity activity) {
+        super(activity);
+    }
+
+    /**
+     * Asynchronously downloads the given URL to the ImageView.
+     * 
+     * @param url URL to download
+     * @param imageView imageview to attach it to
+     */
+	protected void downloadUrlToImageView(final String url, ImageView imageView) {
+	    imageDownloader.downloadUrlToImageView(url, imageView);
 	}
-
-	protected void updateIcon(final ImageView icon, final Object item, final String urlString) {
-		iconUpdater.updateIcon(icon, item, urlString);
-	}
-
 }

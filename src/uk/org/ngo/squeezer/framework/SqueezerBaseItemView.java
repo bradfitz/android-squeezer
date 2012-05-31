@@ -30,6 +30,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+/**
+ * Represents the view hierarchy for a single {@link SqueezerItem} subclass.
+ * <p>
+ * The view has a context menu.
+ * 
+ *  @param <T> the SqueezerItem subclass this view represents.
+ */
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
     protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 

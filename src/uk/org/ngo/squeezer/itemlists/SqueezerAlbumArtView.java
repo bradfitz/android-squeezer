@@ -27,14 +27,27 @@ import android.widget.ImageView;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
+/**
+ * Represents the view hierarchy for a single {@link SqueezerItem} subclass.
+ * where the item has track artwork associated with it.
+ * 
+ * @param <T>
+ */
 public abstract class SqueezerAlbumArtView<T extends SqueezerItem> extends SqueezerIconicItemView<T> {
 	public SqueezerAlbumArtView(SqueezerItemListActivity activity) {
 		super(activity);
 	}
 
-	protected void updateAlbumArt(final ImageView icon, final SqueezerArtworkItem item) {
+	/**
+	 * Fetches artwork associated with a given item and attaches it to
+	 * an image.
+	 * 
+	 * @param icon the image to update
+	 * @param item the item that contains artwork
+	 */
+	protected void setIconToTrackArtwork(final ImageView icon, final SqueezerArtworkItem item) {
 		icon.setImageResource(R.drawable.icon_album_noart);
-		updateIcon(icon, item, getAlbumArtUrl(item.getArtwork_track_id()));
+		downloadUrlToImageView(getAlbumArtUrl(item.getArtwork_track_id()), icon);
 	}
 
 	private String getAlbumArtUrl(String artwork_track_id) {
