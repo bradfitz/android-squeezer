@@ -7,7 +7,23 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-
+/**
+ * A fragment that implements a "Filter" menu.
+ * <p>
+ * Activities that host this fragment must implement
+ * {@link #SqueezerFilterableListActivity}.
+ * 
+ * <pre>
+ * {@code
+ * public void onCreate(Bundle savedInstanceState) {
+ *     ...
+ *     MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
+ * }
+ * 
+ * public void showFilterDialog() {
+ * }
+ * </pre>
+ */
 public class SqueezerFilterMenuItemFragment extends MenuFragment {
     SqueezerFilterableListActivity activity;
 
@@ -34,9 +50,19 @@ public class SqueezerFilterMenuItemFragment extends MenuFragment {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Interface that activities that host this fragment must implement.
+     */
     public interface SqueezerFilterableListActivity {
+        /**
+         * Show a dialog allowing the user to specify how to filter the results.
+         */
         public void showFilterDialog();
+
+        /**
+         * Ensure that the activity that hosts this fragment derives from
+         * FragmentActivity.
+         */
         FragmentManager getSupportFragmentManager();
     }
-
 }
