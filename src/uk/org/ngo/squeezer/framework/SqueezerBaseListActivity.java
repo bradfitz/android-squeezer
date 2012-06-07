@@ -70,6 +70,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     			T item = getItemAdapter().getItem(position);
     			if (item != null && item.getId() != null) {
     	   			try {
+                        // XXX: Why does this need to be itemView?
+                        // Using "view" should suffice.
     					itemView.onItemSelected(position, item);
     	            } catch (RemoteException e) {
     	                Log.e(getTag(), "Error from default action for '" + item + "': " + e);
@@ -110,6 +112,17 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
 		if (getService() != null) {
 			try {
+                // XXX: Why is doItemContext() a method on the view? Shouldn't
+                // that be a method on the adapter?
+                //
+                // Is this because we don't have per-type adapters, there's one
+                // adapter used for everything, so the logic ends up in the
+                // view?
+                //
+                // In that case, could doItemContext() be a static class method?
+                //
+                // Or maybe we call through a method on the adapter which would
+                // take care of this?
 				return itemView.doItemContext(menuItem, menuInfo.position, selectedItem);
 			} catch (RemoteException e) {
                 Log.e(getTag(), "Error context menu action '"+ menuInfo + "' for '" + selectedItem + "': " + e);
