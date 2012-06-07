@@ -16,7 +16,10 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import java.util.List;
+
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistSaveDialog;
@@ -28,67 +31,86 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
-public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListActivity {
-	private static final int PLAYLIST_CONTEXTMENU_PLAY_ITEM = 0;
-	private static final int PLAYLIST_CONTEXTMENU_REMOVE_ITEM = 1;
-	private static final int PLAYLIST_CONTEXTMENU_MOVE_UP = 2;
-	private static final int PLAYLIST_CONTEXTMENU_MOVE_DOWN = 3;
-	private static final int PLAYLIST_CONTEXTMENU_MOVE = 4;
+/**
+ * Activity that shows the songs in the current playlist.
+ */
+public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<SqueezerSong> {
 
 	public static void show(Context context) {
 	    final Intent intent = new Intent(context, SqueezerCurrentPlaylistActivity.class);
 	    context.startActivity(intent);
 	}
 
-	@Override
+    private int currentPlaylistIndex;
+
+    @Override
 	public SqueezerItemView<SqueezerSong> createItemView() {
 		return new SqueezerSongView(this) {
 
+		    @Override
+		    public android.view.View getAdapterView(android.view.View convertView, int index, SqueezerSong item) {
+                View view = super.getView(convertView, item, index ==  currentPlaylistIndex);
+                view.setBackgroundResource(index ==  currentPlaylistIndex ? R.drawable.list_item_background_current : R.drawable.list_item_background_normal);
+		        return view;
+		    };
+		    
+            /**
+             * Jumps to whichever song the user chose.
+             */
 			@Override
 			public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
 				getActivity().getService().playlistIndex(index);
 				getActivity().finish();
 			}
 
-			@Override
-			public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {
-				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_PLAY_ITEM, 1, R.string.CONTEXTMENU_PLAY_ITEM);
-				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_REMOVE_ITEM, 2, R.string.PLAYLIST_CONTEXTMENU_REMOVE_ITEM);
-				if (index > 0)
-					menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_MOVE_UP, 3, R.string.PLAYLIST_CONTEXTMENU_MOVE_UP);
-				if (index < getAdapter().getCount()-1)
-					menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_MOVE_DOWN, 4, R.string.PLAYLIST_CONTEXTMENU_MOVE_DOWN);
-				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_MOVE, 5, R.string.PLAYLIST_CONTEXTMENU_MOVE);
-			}
+            @Override
+            public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {
+                super.setupContextMenu(menu, index, item);
 
-			@Override
-			public boolean doItemContext(MenuItem menuItem, int index, SqueezerSong selectedItem) throws RemoteException {
-				switch (menuItem.getItemId()) {
-				case PLAYLIST_CONTEXTMENU_PLAY_ITEM:
-					getService().playlistIndex(index);
-					return true;
-				case PLAYLIST_CONTEXTMENU_REMOVE_ITEM:
-					getService().playlistRemove(index);
-					orderItems();
-					return true;
-				case PLAYLIST_CONTEXTMENU_MOVE_UP:
-					getService().playlistMove(index, index-1);
-					orderItems();
-					return true;
-				case PLAYLIST_CONTEXTMENU_MOVE_DOWN:
-					getService().playlistMove(index, index+1);
-					orderItems();
-					return true;
-				case PLAYLIST_CONTEXTMENU_MOVE:
+                menu.setGroupVisible(R.id.group_playlist, true);
+
+                if (index == 0)
+                    menu.findItem(R.id.playlist_move_up).setVisible(false);
+
+                if (index == getAdapter().getCount() - 1)
+                    menu.findItem(R.id.playlist_move_down).setVisible(false);
+            }
+
+            @Override
+            public boolean doItemContext(MenuItem menuItem, int index, SqueezerSong selectedItem)
+                    throws RemoteException {
+                switch (menuItem.getItemId()) {
+                    case R.id.play_now:
+                        getService().playlistIndex(index);
+                        return true;
+
+                    case R.id.remove_from_playlist:
+                        getService().playlistRemove(index);
+                        orderItems();
+                        return true;
+
+                    case R.id.playlist_move_up:
+                        getService().playlistMove(index, index - 1);
+                        orderItems();
+                        return true;
+
+                    case R.id.playlist_move_down:
+                        getService().playlistMove(index, index + 1);
+                        orderItems();
+                        return true;
+
+                    case R.id.playlist_move:
                         SqueezerPlaylistItemMoveDialog.addTo(SqueezerCurrentPlaylistActivity.this,
                                 index);
-					return true;
-				}
-				return false;
-			};
-		};
-	}
+                        return true;
+                }
+
+                return super.doItemContext(menuItem, index, selectedItem);
+            };
+        };
+    }
 
 	@Override
 	protected void orderPage(int start) throws RemoteException {
@@ -132,5 +154,35 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
         return null;
     }
 
+	@Override
+    protected void registerCallback() throws RemoteException {
+        getService().registerSongListCallback(songListCallback);
+    }
+
+    @Override
+    protected void unregisterCallback() throws RemoteException {
+        getService().unregisterSongListCallback(songListCallback);
+    }
+
+    private final IServiceSongListCallback songListCallback = new IServiceSongListCallback.Stub() {
+        public void onSongsReceived(int count, int start, List<SqueezerSong> items) throws RemoteException {
+            currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
+            onItemsReceived(count, start, items);
+            // Initially position the list at the currently playing song.
+            // Do it again once it has loaded because the newly displayed items
+            // may push the current song outside the displayed area.
+            if (start == 0 || (start <= currentPlaylistIndex && currentPlaylistIndex < start + items.size()))
+                selectCurrentSong(currentPlaylistIndex, start);
+        }
+    };
+
+    private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
+        Log.i(getTag(), "set selection(" +start + "): "+ currentPlaylistIndex);
+	    getListView().post(new Runnable() {
+            public void run() {
+                getListView().setSelectionFromTop(currentPlaylistIndex, 0);
+            }
+        });
+    }
 
 }

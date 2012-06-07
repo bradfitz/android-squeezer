@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
- Copyright (c) 2011 Google Inc.  All Rights Reserved.
+ Copyright (c) 2012 Kurt Aaholst <kaaholst@gmail.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,12 +16,9 @@
  limitations under the License.
 -->
 
-<TextView
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent"
-  android:padding="4dp"
-  android:scrollbars = "vertical"
-  android:textColor="@android:color/secondary_text_light_nodisable"
-  />
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:state_window_focused="false" android:state_selected="true" android:drawable="@android:color/transparent" /> 
+  <item android:state_selected="true" android:drawable="@android:color/transparent" /> 
+  <item android:state_pressed="true" android:state_selected="false" android:drawable="@android:color/transparent" /> 
+  <item android:state_selected="false" android:drawable="@android:color/black" />
+</selector>

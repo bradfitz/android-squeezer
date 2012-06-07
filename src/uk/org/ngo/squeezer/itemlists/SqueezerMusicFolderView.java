@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * View for one entry in a {@link SqueezerMusicFolderListActivity}.
@@ -41,16 +42,18 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     // this class displays are packaged with the app, not downloaded from the
     // server.
 
-    private final static String TAG = "SqueezerMusicFolderView";
     private final LayoutInflater mLayoutInflater;
+
+    SqueezerItemListActivity mContext;
 
     public SqueezerMusicFolderView(SqueezerItemListActivity activity) {
         super(activity);
+        mContext = activity;
         mLayoutInflater = activity.getLayoutInflater();
     }
 
     @Override
-    public View getAdapterView(View convertView, SqueezerMusicFolderItem item) {
+    public View getAdapterView(View convertView, int index, SqueezerMusicFolderItem item) {
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
@@ -81,14 +84,23 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     }
 
     public void onItemSelected(int index, SqueezerMusicFolderItem item) throws RemoteException {
-        SqueezerMusicFolderListActivity.show(getActivity(), item);
+        if (item.getType().equals("folder")) {
+            SqueezerMusicFolderListActivity.show(getActivity(), item);
+            return;
+        }
+
+        // XXX: This duplicates code in SqueezerBaseItemView::doItemContext()
+        mContext.play(item);
+        Toast.makeText(mContext, mContext.getString(R.string.ITEM_PLAYING, item.getName()),
+                Toast.LENGTH_SHORT).show();
     };
 
+    // XXX: Make this a menu resource.
     public void setupContextMenu(ContextMenu menu, int index, SqueezerMusicFolderItem item) {
         menu.setHeaderTitle(item.getName());
-        menu.add(Menu.NONE, CONTEXTMENU_PLAY_ITEM, 3, R.string.CONTEXTMENU_PLAY_ITEM);
-        menu.add(Menu.NONE, CONTEXTMENU_ADD_ITEM, 4, R.string.CONTEXTMENU_ADD_ITEM);
-        menu.add(Menu.NONE, CONTEXTMENU_INSERT_ITEM, 5, R.string.CONTEXTMENU_INSERT_ITEM);
+        menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
+        menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
+        menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
     };
 
     public String getQuantityString(int quantity) {

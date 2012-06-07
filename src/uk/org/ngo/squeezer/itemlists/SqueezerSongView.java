@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.itemlists;
 
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
@@ -24,13 +25,14 @@ import uk.org.ngo.squeezer.model.SqueezerSong;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import uk.org.ngo.squeezer.R;
-
+/**
+ * A view that shows a single song with its artwork, and a context menu.
+ */
 public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 	private final LayoutInflater layoutInflater;
 
@@ -46,62 +48,88 @@ public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
 	}
 
 	@Override
-	public View getAdapterView(View convertView, SqueezerSong item) {
-		ViewHolder viewHolder;
-
-		if (convertView == null || convertView.getTag() == null) {
-			convertView = layoutInflater.inflate(R.layout.icon_two_line_layout, null);
-			viewHolder = new ViewHolder();
-			viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
-			viewHolder.label2 = (TextView) convertView.findViewById(R.id.text2);
-			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-			convertView.setTag(viewHolder);
-		} else
-			viewHolder = (ViewHolder) convertView.getTag();
-
-		viewHolder.label1.setText(item.getName());
-		String text2 = "";
-		if (item.getId() != null) {
-			if (item.getArtist() != null) text2 += item.getArtist();
-			if (item.getAlbum() != null) text2 += " - " + item.getAlbum();
-			if (item.getYear() != 0) text2 = item.getYear() + " - " + text2;
-		}
-		viewHolder.label2.setText(text2);
-		updateIcon(viewHolder.icon, item, item.getArtworkUrl(getActivity().getService()));
-
-		return convertView;
+	public View getAdapterView(View convertView, int index, SqueezerSong item) {
+	    return getView(convertView, item, false);
 	}
+
+	protected View getView(View convertView, SqueezerSong item, boolean isCurrent) {
+        ViewHolder viewHolder;
+
+        if (convertView == null || convertView.getTag() == null) {
+            convertView = layoutInflater.inflate(R.layout.icon_two_line_layout, null);
+            viewHolder = new ViewHolder();
+            viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
+            viewHolder.label2 = (TextView) convertView.findViewById(R.id.text2);
+            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            convertView.setTag(viewHolder);
+        } else
+            viewHolder = (ViewHolder) convertView.getTag();
+
+        viewHolder.label1.setText(item.getName());
+        viewHolder.label1.setTextAppearance(getActivity(), isCurrent ? R.style.SqueezerCurrentTextItem : R.style.SqueezerTextItem);
+        String text2 = "";
+        if (item.getId() != null) {
+            if (item.getArtist() != null) text2 += item.getArtist();
+            if (item.getAlbum() != null) text2 += " - " + item.getAlbum();
+            if (item.getYear() != 0) text2 = item.getYear() + " - " + text2;
+        }
+        viewHolder.label2.setText(text2);
+        viewHolder.label2.setTextAppearance(getActivity(), isCurrent ? R.style.SqueezerCurrentTextItemSmall : R.style.SqueezerTextItemSmall);
+        updateIcon(viewHolder.icon, item, item.getArtworkUrl(getActivity().getService()));
+
+        return convertView;
+    }
 
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
 		getActivity().insert(item);
 	}
 
+    /**
+     * Creates the context menu for a song by inflating R.menu.songcontextmenu.
+     * <p>
+     * Subclasses that show songs in playlists should call through to this
+     * first, then adjust the visibility of R.id.group_playlist.
+     */
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.songcontextmenu, menu);
+
 		menu.setHeaderTitle(item.getName());
-		if (item.getAlbum_id() != null && !browseByAlbum)
-			menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ALBUM_SONGS, 1, R.string.CONTEXTMENU_BROWSE_ALBUM_SONGS);
-		if (item.getArtist_id() != null)
-			menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ARTIST_ALBUMS, 2, R.string.CONTEXTMENU_BROWSE_ARTIST_ALBUMS);
-		if (item.getArtist_id() != null && !browseByArtist)
-			menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ARTIST_SONGS, 3, R.string.CONTEXTMENU_BROWSE_ARTIST_SONGS);
-		menu.add(Menu.NONE, CONTEXTMENU_PLAY_ITEM, 4, R.string.CONTEXTMENU_PLAY_ITEM);
-		menu.add(Menu.NONE, CONTEXTMENU_ADD_ITEM, 5, R.string.CONTEXTMENU_ADD_ITEM);
-		menu.add(Menu.NONE, CONTEXTMENU_INSERT_ITEM, 6, R.string.CONTEXTMENU_INSERT_ITEM);
-	};
+
+        if (item.getAlbum_id() != null && !browseByAlbum)
+            menu.findItem(R.id.view_this_album).setVisible(true);
+
+        if (item.getArtist_id() != null)
+            menu.findItem(R.id.view_albums_by_song).setVisible(true);
+
+        if (item.getArtist_id() != null && !browseByArtist)
+            menu.findItem(R.id.view_songs_by_artist).setVisible(true);
+    }
 
 	@Override
 	public boolean doItemContext(android.view.MenuItem menuItem, int index, SqueezerSong selectedItem) throws RemoteException {
 		switch (menuItem.getItemId()) {
-		case CONTEXTMENU_BROWSE_ALBUM_SONGS:
-			SqueezerSongListActivity.show(getActivity(), new SqueezerAlbum(selectedItem.getAlbum_id(), selectedItem.getAlbum()));
-			return true;
-		case CONTEXTMENU_BROWSE_ARTIST_ALBUMS:
-			SqueezerAlbumListActivity.show(getActivity(), new SqueezerArtist(selectedItem.getArtist_id(), selectedItem.getArtist()));
-			return true;
-		case CONTEXTMENU_BROWSE_ARTIST_SONGS:
-			SqueezerSongListActivity.show(getActivity(), new SqueezerArtist(selectedItem.getArtist_id(), selectedItem.getArtist()));
-			return true;
+            case R.id.view_this_album:
+                SqueezerSongListActivity.show(getActivity(),
+                        new SqueezerAlbum(selectedItem.getAlbum_id(), selectedItem.getAlbum()));
+                return true;
+
+            case R.id.view_albums_by_song:
+                SqueezerAlbumListActivity.show(getActivity(),
+                        new SqueezerArtist(selectedItem.getArtist_id(), selectedItem.getArtist()));
+                return true;
+
+            case R.id.view_songs_by_artist:
+                SqueezerSongListActivity.show(getActivity(),
+                        new SqueezerArtist(selectedItem.getArtist_id(), selectedItem.getArtist()));
+                return true;
+
+            case R.id.download:
+                ((SqueezerAbstractSongListActivity) getActivity()).downloadSong(selectedItem
+                        .getId());
+                return true;
 		}
+
 		return super.doItemContext(menuItem, index, selectedItem);
 	};
 

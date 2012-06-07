@@ -30,15 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
-	protected static final int CONTEXTMENU_BROWSE_SONGS = 0;
-	protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
-	protected static final int CONTEXTMENU_BROWSE_ARTISTS = 2;
-	protected static final int CONTEXTMENU_PLAY_ITEM = 3;
-	protected static final int CONTEXTMENU_ADD_ITEM = 4;
-	protected static final int CONTEXTMENU_INSERT_ITEM = 5;
-	protected static final int CONTEXTMENU_BROWSE_ALBUM_SONGS = 6;
-	protected static final int CONTEXTMENU_BROWSE_ARTIST_ALBUMS = 7;
-	protected static final int CONTEXTMENU_BROWSE_ARTIST_SONGS = 8;
+    protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 
 	private final SqueezerItemListActivity activity;
 	private SqueezerItemAdapter<T> adapter;
@@ -89,7 +81,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		return creator;
 	}
 
-	public View getAdapterView(View convertView, T item) {
+	public View getAdapterView(View convertView, int index, T item) {
 		return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, item.getName());
 	}
 
@@ -103,24 +95,29 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	 */
 	public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) throws RemoteException {
 		switch (menuItem.getItemId()) {
-		case CONTEXTMENU_BROWSE_SONGS:
-			SqueezerSongListActivity.show(activity, selectedItem);
-			return true;
+            case R.id.browse_songs:
+                SqueezerSongListActivity.show(activity, selectedItem);
+                return true;
+
 		case CONTEXTMENU_BROWSE_ALBUMS:
 			SqueezerAlbumListActivity.show(activity, selectedItem);
 			return true;
-		case CONTEXTMENU_BROWSE_ARTISTS:
-			SqueezerArtistListActivity.show(activity, selectedItem);
-			return true;
-		case CONTEXTMENU_PLAY_ITEM:
-			activity.play((SqueezerPlaylistItem) selectedItem);
-			return true;
-		case CONTEXTMENU_ADD_ITEM:
-			activity.add((SqueezerPlaylistItem) selectedItem);
-			return true;
-		case CONTEXTMENU_INSERT_ITEM:
-			activity.insert((SqueezerPlaylistItem) selectedItem);
-			return true;
+
+            case R.id.browse_artists:
+                SqueezerArtistListActivity.show(activity, selectedItem);
+                return true;
+
+            case R.id.play_now:
+                activity.play((SqueezerPlaylistItem) selectedItem);
+                return true;
+
+            case R.id.add_to_playlist:
+                activity.add((SqueezerPlaylistItem) selectedItem);
+                return true;
+
+            case R.id.play_next:
+                activity.insert((SqueezerPlaylistItem) selectedItem);
+                return true;
 		}
 		return false;
 	}

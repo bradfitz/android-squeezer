@@ -47,15 +47,15 @@ public class Util {
      * @param newValue
      * @return true if target is updated. Otherwise return false.
      */
-    public static <T> boolean atomicReferenceUpdated(AtomicReference<T> target, T newValue) {
-        T currentValue = target.get();
-        if (currentValue == null && newValue == null)
-            return false;
-        if (currentValue == null || !currentValue.equals(newValue)) {
-            target.set(newValue);
-            return true;
-        }
-        return false;
+	public static <T> boolean atomicReferenceUpdated(AtomicReference<T> target, T newValue) {
+    	T currentValue = target.get();
+		if (currentValue == null && newValue == null)
+			return false;
+		if (currentValue == null || !currentValue.equals(newValue)) {
+			target.set(newValue);
+			return true;
+		}
+		return false;
     }
 
     public static int parseDecimalInt(String value, int defaultValue) {

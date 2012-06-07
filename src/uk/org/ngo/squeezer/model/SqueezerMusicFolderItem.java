@@ -26,7 +26,7 @@ import android.os.Parcel;
  * <p>
  * An item has a name and a type. The name is free text, the type may be one of
  * "track", "folder", "playlist", or "unknown".
- * 
+ *
  * @author nik
  */
 public class SqueezerMusicFolderItem extends SqueezerPlaylistItem {
@@ -50,8 +50,6 @@ public class SqueezerMusicFolderItem extends SqueezerPlaylistItem {
 
     private String name;
 
-    /** The folder item's type, "track", "folder", "playlist", "unknown". */
-    private String type;
 
     @Override
     public String getName() {
@@ -62,6 +60,10 @@ public class SqueezerMusicFolderItem extends SqueezerPlaylistItem {
         this.name = name;
         return this;
     }
+
+    /** The folder item's type, "track", "folder", "playlist", "unknown". */
+    // XXX: Should be an enum.
+    private String type;
 
     public String getType() {
         return type;

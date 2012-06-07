@@ -1,3 +1,30 @@
+0.8
+===
+
+*   Support browsing and playing favourites on the Squeezeserver.
+
+*   Add a startup tip about how to control volume.
+
+*   Fixed a crash caused by trying to scrobble when a song wasn't playing.
+
+
+0.7.1
+=====
+
+*   Increased the speed of network scanning by a factor of ~ 12.  If multiple
+    servers are present on the network then show their configured names, when
+    choosing between them, instead of IP addresses.
+
+*   Added a Dutch translation, contributed by Sebastian van Winkel.
+
+*   Fixed a bug where changing the server's address would not be picked up, and
+    Squeezer would continue to try and use the old server address.
+
+*   Fixed a crash when the device has no active network connections.
+
+*   Fixed a crash when displaying the "Enabling Wi-Fi" dialog.
+
+
 0.7
 ===
 
@@ -28,7 +55,7 @@
 *   Included higher resolution icons for devices with a higher display density,
     such as the Galaxy Nexus.
 
-*   Fixed a rare crash when releasing the WiFi lock.
+*   Fixed a rare crash when releasing the Wi-Fi lock.
 
 *   The hardware volume controls now work from all activities, not just the Now
     Playing activity.  This fixes issue 20

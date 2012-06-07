@@ -31,13 +31,13 @@ import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
+import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
@@ -56,13 +56,13 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 		SqueezerItemAdapter<?>[] adapters = {
 			new SqueezerItemAdapter<SqueezerSong>(new SqueezerSongView(activity) {
 				@Override
-				public View getAdapterView(View convertView, SqueezerSong item) {
+				public View getAdapterView(View convertView, int index, SqueezerSong item) {
 					return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, item.getName());
 				}
 			}),
 			new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerAlbumView(activity) {
 				@Override
-				public View getAdapterView(View convertView, SqueezerAlbum item) {
+				public View getAdapterView(View convertView, int index, SqueezerAlbum item) {
 					return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, item.getName());
 				}
 			}),
@@ -130,17 +130,27 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 		return groupPosition;
 	}
 
-	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-		View row = activity.getLayoutInflater().inflate(R.layout.group_item, null);
+    public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
+            ViewGroup parent) {
+        View row = activity.getLayoutInflater().inflate(R.layout.group_item, null);
 
-		TextView label = (TextView) row.findViewById(R.id.label);
-		label.setText(childAdapters[groupPosition].getHeader());
+        TextView label = (TextView) row.findViewById(R.id.label);
+        label.setText(childAdapters[groupPosition].getHeader());
 
-		ImageView icon = (ImageView) row.findViewById(R.id.icon);
-		icon.setImageResource(groupIcons[groupPosition]);
+        // Build the icon to display next to the text.
+        //
+        // Take the normal icon (at 48dp) and scale it to 28dp, or 58% of its
+        // original size. Then set it as the left-most compound drawable.
 
-		return (row);
-	}
+        Drawable icon = Squeezer.getContext().getResources().getDrawable(groupIcons[groupPosition]);
+        int w = icon.getIntrinsicWidth();
+        int h = icon.getIntrinsicHeight();
+        icon.setBounds(0, 0, (int) Math.ceil(w * 0.58), (int) Math.ceil(h * 0.58));
+
+        label.setCompoundDrawables(icon, null, null, null);
+
+        return (row);
+    }
 
 	public boolean hasStableIds() {
 		return false;

@@ -38,7 +38,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/SqueezerTextItem"
         android:textStyle="bold"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
@@ -50,7 +50,7 @@
         android:gravity="left"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textAppearance="@style/SqueezerTextItemSmall"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"
@@ -61,7 +61,7 @@
         android:gravity="left"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textAppearance="@style/SqueezerTextItemSmall"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"
@@ -85,7 +85,7 @@
         android:orientation="horizontal">
 
         <TextView android:id="@+id/currenttime"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="@style/SqueezerTextItemSmall"
             android:layout_gravity="left|center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
             style="@android:style/MediaButton.Next" />
 
         <TextView android:id="@+id/totaltime"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="@style/SqueezerTextItemSmall"
             android:layout_gravity="right|center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

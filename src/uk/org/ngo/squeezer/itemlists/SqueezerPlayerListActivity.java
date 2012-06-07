@@ -29,8 +29,13 @@ import android.os.RemoteException;
 import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
 
 public class SqueezerPlayerListActivity extends SqueezerBaseListActivity<SqueezerPlayer> {
+	private SqueezerPlayer activePlayer;
 
-	@Override
+    public SqueezerPlayer getActivePlayer() {
+        return activePlayer;
+    }
+
+    @Override
 	public SqueezerItemView<SqueezerPlayer> createItemView() {
 		return new SqueezerPlayerView(this);
 	}
@@ -57,6 +62,7 @@ public class SqueezerPlayerListActivity extends SqueezerBaseListActivity<Squeeze
 
     private final IServicePlayerListCallback playerListCallback = new IServicePlayerListCallback.Stub() {
 		public void onPlayersReceived(int count, int start, List<SqueezerPlayer> items) throws RemoteException {
+		    activePlayer = getService().getActivePlayer();
 			onItemsReceived(count, start, items);
 		}
     };

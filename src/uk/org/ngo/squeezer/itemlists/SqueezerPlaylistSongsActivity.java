@@ -34,14 +34,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActivity {
-	private static final int PLAYLIST_CONTEXTMENU_PLAY_ITEM = 0;
-	private static final int PLAYLIST_CONTEXTMENU_ADD_ITEM = 1;
-	private static final int PLAYLIST_CONTEXTMENU_INSERT_ITEM = 2;
-	private static final int PLAYLIST_CONTEXTMENU_REMOVE_ITEM = 3;
-	private static final int PLAYLIST_CONTEXTMENU_MOVE_UP = 4;
-	private static final int PLAYLIST_CONTEXTMENU_MOVE_DOWN = 5;
-	private static final int PLAYLIST_CONTEXTMENU_MOVE = 6;
-
 	public static void show(Context context, SqueezerPlaylist playlist) {
 	    final Intent intent = new Intent(context, SqueezerPlaylistSongsActivity.class);
 	    intent.putExtra("playlist", playlist);
@@ -63,54 +55,63 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
         }
     }
 
-	@Override
-	public SqueezerItemView<SqueezerSong> createItemView() {
-		return new SqueezerSongView(this) {
-			@Override
-			public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {
-				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_PLAY_ITEM, 1, R.string.CONTEXTMENU_PLAY_ITEM);
-				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_ADD_ITEM, 2, R.string.CONTEXTMENU_ADD_ITEM);
-				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_INSERT_ITEM, 3, R.string.CONTEXTMENU_INSERT_ITEM);
-				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_REMOVE_ITEM, 4, R.string.PLAYLIST_CONTEXTMENU_REMOVE_ITEM);
-				if (index > 0)
-					menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_MOVE_UP, 5, R.string.PLAYLIST_CONTEXTMENU_MOVE_UP);
-				if (index < getAdapter().getCount()-1)
-					menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_MOVE_DOWN, 6, R.string.PLAYLIST_CONTEXTMENU_MOVE_DOWN);
-				menu.add(Menu.NONE, PLAYLIST_CONTEXTMENU_MOVE, 7, R.string.PLAYLIST_CONTEXTMENU_MOVE);
-			}
+    @Override
+    public SqueezerItemView<SqueezerSong> createItemView() {
+        return new SqueezerSongView(this) {
+            @Override
+            public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {
+                super.setupContextMenu(menu, index, item);
 
-			@Override
-			public boolean doItemContext(MenuItem menuItem, int index, SqueezerSong selectedItem) throws RemoteException {
-				switch (menuItem.getItemId()) {
-				case PLAYLIST_CONTEXTMENU_PLAY_ITEM:
-					play(selectedItem);
-					return true;
-				case PLAYLIST_CONTEXTMENU_ADD_ITEM:
-					add(selectedItem);
-					return true;
-				case PLAYLIST_CONTEXTMENU_INSERT_ITEM:
-					insert(selectedItem);
-					return true;
-				case PLAYLIST_CONTEXTMENU_REMOVE_ITEM:
-					getService().playlistsRemove(playlist, index);
-					orderItems();
-					return true;
-				case PLAYLIST_CONTEXTMENU_MOVE_UP:
-					getService().playlistsMove(playlist, index, index-1);
-					orderItems();
-					return true;
-				case PLAYLIST_CONTEXTMENU_MOVE_DOWN:
-					getService().playlistsMove(playlist, index, index+1);
-					orderItems();
-					return true;
-				case PLAYLIST_CONTEXTMENU_MOVE:
-				    SqueezerPlaylistItemMoveDialog.addTo(SqueezerPlaylistSongsActivity.this, playlist, index);
-					return true;
-				}
-				return false;
-			};
-		};
-	}
+                menu.setGroupVisible(R.id.group_playlist, true);
+
+                if (index == 0)
+                    menu.findItem(R.id.playlist_move_up).setVisible(false);
+
+                if (index == getAdapter().getCount() - 1)
+                    menu.findItem(R.id.playlist_move_down).setVisible(false);
+            }
+
+            @Override
+            public boolean doItemContext(MenuItem menuItem, int index, SqueezerSong selectedItem)
+                    throws RemoteException {
+                switch (menuItem.getItemId()) {
+                    case R.id.play_now:
+                        play(selectedItem);
+                        return true;
+
+                    case R.id.add_to_playlist:
+                        add(selectedItem);
+                        return true;
+
+                    case R.id.play_next:
+                        insert(selectedItem);
+                        return true;
+
+                    case R.id.remove_from_playlist:
+                        getService().playlistsRemove(playlist, index);
+                        orderItems();
+                        return true;
+
+                    case R.id.playlist_move_up:
+                        getService().playlistsMove(playlist, index, index - 1);
+                        orderItems();
+                        return true;
+
+                    case R.id.playlist_move_down:
+                        getService().playlistsMove(playlist, index, index + 1);
+                        orderItems();
+                        return true;
+
+                    case R.id.playlist_move:
+                        SqueezerPlaylistItemMoveDialog.addTo(SqueezerPlaylistSongsActivity.this,
+                                playlist, index);
+                        return true;
+                }
+
+                return super.doItemContext(menuItem, index, selectedItem);
+            };
+        };
+    }
 
 	@Override
 	public void prepareActivity(Bundle extras) {

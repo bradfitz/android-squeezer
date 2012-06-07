@@ -19,10 +19,9 @@ package uk.org.ngo.squeezer.itemlists;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
-import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
-
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -30,19 +29,19 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import uk.org.ngo.squeezer.R;
-
 public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 	private final LayoutInflater layoutInflater;
+    private SqueezerPlayerListActivity activity;
 	private static final Map<String, Integer> modelIcons = initializeModelIcons();
 
-	public SqueezerPlayerView(SqueezerItemListActivity activity) {
+	public SqueezerPlayerView(SqueezerPlayerListActivity activity) {
 		super(activity);
+		this.activity = activity;
 		layoutInflater = activity.getLayoutInflater();
 	}
 
 	@Override
-	public View getAdapterView(View convertView, SqueezerPlayer item) {
+	public View getAdapterView(View convertView, int index, SqueezerPlayer item) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
@@ -55,8 +54,10 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 			viewHolder = (ViewHolder) convertView.getTag();
 
 		viewHolder.label.setText(item.getName());
+		viewHolder.label.setTextAppearance(getActivity(), item.equals(activity.getActivePlayer()) ? R.style.SqueezerCurrentTextItem : R.style.SqueezerTextItem);
 		viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
 
+		convertView.setBackgroundResource(item.equals(activity.getActivePlayer()) ? R.drawable.list_item_background_current : R.drawable.list_item_background_normal);
 		return convertView;
 	}
 

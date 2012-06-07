@@ -20,19 +20,29 @@ package uk.org.ngo.squeezer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
+import uk.org.ngo.squeezer.dialogs.TipsDialog;
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerGenreListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
+import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -49,16 +59,20 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private static final int SONGS = 2;
     private static final int GENRES = 3;
     private static final int YEARS = 4;
-    private static final int MUSIC_FOLDER = 5;
-    private static final int RANDOM_MIX = 6;
-    private static final int PLAYLISTS = 7;
-    private static final int INTERNET_RADIO = 8;
-    private static final int APPS = 9;
+    private static final int NEW_MUSIC = 5;
+    private static final int MUSIC_FOLDER = 6;
+    private static final int RANDOM_MIX = 7;
+    private static final int PLAYLISTS = 8;
+    private static final int INTERNET_RADIO = 9;
     private static final int FAVORITES = 10;
+    private static final int APPS = 11;
 
     private boolean mCanMusicfolder = false;
     private boolean mCanRandomplay = false;
     private ListView listView;
+
+    private GoogleAnalyticsTracker tracker;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,6 +80,36 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
         MenuFragment.add(this, SqueezerMenuFragment.class);
+
+        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+
+        // Enable Analytics if the option is on, and we're not running in debug
+        // mode so that debug tests don't pollute the stats.
+        if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
+            if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0) {
+                Log.v("NowPlayingActivity", "Tracking page view 'SqueezerHomeActivity");
+                // Start the tracker in manual dispatch mode...
+                tracker = GoogleAnalyticsTracker.getInstance();
+                tracker.startNewSession("UA-26457780-1", this);
+                tracker.trackPageView("SqueezerHomeActivity");
+            }
+        }
+
+        // Show a tip about volume controls, if this is the first time this app
+        // has run. TODO: Add more robust and general 'tips' functionality.
+        PackageInfo pInfo;
+        try {
+            pInfo = getPackageManager().getPackageInfo(getPackageName(),
+                    PackageManager.GET_META_DATA);
+            if (preferences.getLong("lastRunVersionCode", 0) < pInfo.versionCode) {
+                new TipsDialog().show(getSupportFragmentManager(), "TipsDialog");
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putLong("lastRunVersionCode", pInfo.versionCode);
+                editor.commit();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            // Nothing to do, don't crash.
+        }
     }
 
     @Override
@@ -125,12 +169,13 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                 R.drawable.ic_artists,
                 R.drawable.ic_albums, R.drawable.ic_songs,
                 R.drawable.ic_genres, R.drawable.ic_years,
+                R.drawable.ic_new_music,
                 R.drawable.ic_music_folder, R.drawable.ic_random,
                 R.drawable.ic_playlists, R.drawable.ic_internet_radio,
-                R.drawable.ic_my_apps, R.drawable.ic_favorites
+                R.drawable.ic_favorites, R.drawable.ic_my_apps
         };
 
-        String[] items = getResources().getStringArray(R.array.home_items);;
+        String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
             try {
@@ -149,7 +194,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
-        for (int i = ARTISTS; i <= INTERNET_RADIO; i++) { // APPS & FAVORITES
+        for (int i = ARTISTS; i <= FAVORITES; i++) { // APPS & FAVORITES
                                                           // not implemented
             if (i == MUSIC_FOLDER && !mCanMusicfolder)
                 continue;
@@ -166,7 +211,6 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 
 	private final OnItemClickListener onHomeItemClick = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
             switch ((int) id) {
                 case ARTISTS:
                     SqueezerArtistListActivity.show(SqueezerHomeActivity.this);
@@ -182,6 +226,9 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                     break;
                 case YEARS:
                     SqueezerYearListActivity.show(SqueezerHomeActivity.this);
+                    break;
+                case NEW_MUSIC:
+                    SqueezerAlbumListActivity.show(SqueezerHomeActivity.this, AlbumsSortOrder.__new);
                     break;
                 case MUSIC_FOLDER:
                     SqueezerMusicFolderListActivity.show(SqueezerHomeActivity.this);
@@ -200,16 +247,14 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                     // Log.e("MyApp", sCrashString.toString());
                     SqueezerRadioListActivity.show(SqueezerHomeActivity.this);
                     break;
+                case FAVORITES:
+                    SqueezerPluginItemListActivity.show(SqueezerHomeActivity.this, SqueezerPlugin.FAVORITE);
+                    break;
                 case APPS:
                     // TODO (kaa) implement
                     // Currently hidden, by commenting out the entry in
                     // strings.xml.
                     // SqueezerApplicationListActivity.show(SqueezerHomeActivity.this);
-                    break;
-                case FAVORITES:
-                    // Currently hidden, by commenting out the entry in
-                    // strings.xml.
-                    // TODO: Implement
                     break;
 			}
 		}

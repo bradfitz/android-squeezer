@@ -2,6 +2,7 @@ package uk.org.ngo.squeezer.itemlists.dialogs;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerAbstractSongListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import android.app.Dialog;
@@ -11,7 +12,7 @@ import android.text.InputType;
 import android.util.Log;
 
 public class SqueezerPlaylistItemMoveDialog extends SqueezerBaseEditTextDialog {
-    private SqueezerAbstractSongListActivity activity;
+    private SqueezerBaseListActivity<?> activity;
     private int fromIndex;
     private SqueezerPlaylist playlist;
 
@@ -48,7 +49,7 @@ public class SqueezerPlaylistItemMoveDialog extends SqueezerBaseEditTextDialog {
         return false;
     }
 
-    public static void addTo(SqueezerAbstractSongListActivity activity, int fromIndex) {
+    public static void addTo(SqueezerBaseListActivity<?> activity, int fromIndex) {
         SqueezerPlaylistItemMoveDialog dialog = new SqueezerPlaylistItemMoveDialog();
         Bundle args = new Bundle();
         args.putInt("fromIndex", fromIndex);
@@ -56,7 +57,7 @@ public class SqueezerPlaylistItemMoveDialog extends SqueezerBaseEditTextDialog {
         dialog.show(activity.getSupportFragmentManager(), "MoveDialog");
     }
 
-    public static void addTo(SqueezerAbstractSongListActivity activity, SqueezerPlaylist playlist, int fromIndex) {
+    public static void addTo(SqueezerBaseListActivity<?> activity, SqueezerPlaylist playlist, int fromIndex) {
         SqueezerPlaylistItemMoveDialog dialog = new SqueezerPlaylistItemMoveDialog();
         Bundle args = new Bundle();
         args.putInt("fromIndex", fromIndex);

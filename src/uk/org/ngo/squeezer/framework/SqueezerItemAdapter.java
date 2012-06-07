@@ -16,13 +16,12 @@
 
 package uk.org.ngo.squeezer.framework;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import android.os.RemoteException;
+import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,7 +56,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 * list.
 	 */
 	private int count;
-	private final Map<Integer, T[]> pages = new HashMap<Integer, T[]>();
+    private final SparseArray<T[]> pages = new SparseArray<T[]>();
 
 	/**
 	 *  This is set if the list shall start with an empty item.
@@ -115,7 +114,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         T item = getItem(position);
         if (item != null)
-            return itemView.getAdapterView(convertView, item);
+            return itemView.getAdapterView(convertView, position, item);
 
         return itemView.getAdapterView(convertView,
                 (position == 0 && emptyItem ? "" : loadingText));
@@ -184,6 +183,11 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		return position;
 	}
 
+    /**
+     * Generates a string suitable for use as an activity's title.
+     *
+     * @return the title.
+     */
 	public String getHeader() {
 		String item_text = getQuantityString(getCount());
 		String header = getActivity().getString(R.string.browse_items_text, item_text, getCount());
@@ -195,7 +199,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 * Called when the number of items in the list changes.
 	 * The default implementation is empty.
 	 */
-	protected void updateHeader() {
+	protected void onCountUpdated() {
 	}
 
 	/**
@@ -217,7 +221,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		start += offset;
 		if (count == 0 || count != getCount()) {
 			this.count = count;
-			updateHeader();
+			onCountUpdated();
 		}
 		setItems(start, items);
 

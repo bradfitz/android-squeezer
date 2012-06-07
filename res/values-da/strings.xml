@@ -31,6 +31,11 @@
     <string name="settings_username_summary">Eventuelt SqueezeBox Server brugernavn.</string>
     <string name="settings_password_title">Adgangskode</string>
     <string name="settings_password_summary">Eventuel SqueezeBox Server adgangskode.</string>
+    <string name="settings_server_prompt">Vælg en server</string>
+    <string name="settings_server_scan_start">Start scanning</string>
+    <string name="settings_server_scan_stop">Afbryd scanning</string>
+    <string name="settings_server_scan_msg">Eller tryk \'Start scanning\' for at scanne netværket for servere.</string>
+    <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke er forbundet.</string>
     <string name="settings_autoconnect_title">Forbind automatisk</string>
     <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
     <string name="menu_item_disconnect">Afbryd</string>
@@ -47,7 +52,7 @@
     <string name="menu_item_playlists_new">Ny</string>
     <string name="menu_item_playlist_clear">Ryd</string>
     <string name="menu_item_playlist_save">Gem</string>
-    <string name="about_title">Om squeezer v%s</string>
+    <string name="about_title">Squeezer v%s</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
@@ -81,6 +86,12 @@
     <string name="genre_label">Genre</string>
     <string name="year_label">År</string>
     <string name="filter_label">Søgetekst</string>
+    <string name="unknown_track">Ukendt sang</string>
+    <string name="unknown_album">Ukendt album</string>
+    <string name="unknown_artist">Ukendt kunster</string>
+
+    <!-- Dialog buttons -->
+    <string name="dialog_license">Licens</string>
 
 	<string name="CONTEXTMENU_BROWSE_SONGS">Vis sange</string>
 	<string name="CONTEXTMENU_BROWSE_ALBUMS">Vis album</string>
@@ -125,6 +136,11 @@
         <item quantity="other">genrer</item>
     </plurals>
 
+    <plurals name="musicfolder">
+        <item quantity="one">musikmappe</item>
+        <item quantity="other">musikmapper</item>
+    </plurals>
+
     <plurals name="year">
         <item quantity="one">år</item>
         <item quantity="other">år</item>
@@ -162,13 +178,14 @@
         <item>Alle Sange</item>
         <item>Genrer</item>
         <item>År</item>
+        <item>Nye numre</item>
         <item>Musikmappe</item>
         <item>Tilfældigt miks</item>
         <item>Afspilningslister</item>
         <item>Internetradio</item>
-<!--         <item>Mine programmer</item> -->
-<!--         <item>Favoritter</item> -->
-    </string-array>
+		<item>Favoritter</item>
+        <item>Mine programmer</item>
+	</string-array>
 
     <string-array name="randomplay_items">
         <item>Miks baseret på tilfældige numre</item>

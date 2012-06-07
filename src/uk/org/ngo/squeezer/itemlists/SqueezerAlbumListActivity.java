@@ -91,6 +91,8 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
                     genre = extras.getParcelable(key);
                 } else if (SqueezerSong.class.getName().equals(key)) {
                     song = extras.getParcelable(key);
+                } else if (AlbumsSortOrder.class.getName().equals(key)) {
+                    sortOrder = AlbumsSortOrder.valueOf(extras.getString(key));
 				} else
 					Log.e(getTag(), "Unexpected extra value: " + key + "("
 							+ extras.get(key).getClass().getName() + ")");
@@ -122,6 +124,7 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 
 	public void setSortOrder(AlbumsSortOrder sortOrder) {
 		this.sortOrder = sortOrder;
+		getIntent().putExtra(AlbumsSortOrder.class.getName(), sortOrder.name());
 		orderItems();
 	}
 
@@ -139,9 +142,14 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
     }
 
     public static void show(Context context, SqueezerItem... items) {
+        show(context, AlbumsSortOrder.album, items);
+    }
+
+    public static void show(Context context, AlbumsSortOrder sortOrder, SqueezerItem... items) {
         final Intent intent = new Intent(context, SqueezerAlbumListActivity.class);
+        intent.putExtra(AlbumsSortOrder.class.getName(), sortOrder.name());
         for (SqueezerItem item: items)
-        	intent.putExtra(item.getClass().getName(), item);
+            intent.putExtra(item.getClass().getName(), item);
         context.startActivity(intent);
     }
 

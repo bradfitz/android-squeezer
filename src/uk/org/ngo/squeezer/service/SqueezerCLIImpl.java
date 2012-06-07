@@ -39,8 +39,6 @@ import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -66,11 +64,11 @@ class SqueezerCLIImpl {
 			this(playerSpecific, false, cmd, taggedParameters, parserInfos);
 		}
 
-		public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters, String itemDelimiter, SqueezerListHandler handler) {
+		public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters, String itemDelimiter, SqueezerListHandler<? extends SqueezerItem> handler) {
 			this(false, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
 		}
 
-		public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters, SqueezerListHandler handler) {
+		public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters, SqueezerListHandler<? extends SqueezerItem> handler) {
 			this(false, cmd, taggedParameters, new SqueezeParserInfo(handler));
 		}
 
@@ -87,42 +85,38 @@ class SqueezerCLIImpl {
 					"players",
 					new HashSet<String>(Arrays.asList("playerprefs", "charset")),
 					"playerid",
-		        	new SqueezerListHandler() {
+		        	new SqueezerBaseListHandler<SqueezerPlayer>() {
 						SqueezerPlayer defaultPlayer;
 			        	String lastConnectedPlayer;
-		                private List<SqueezerPlayer> players;
 
-		        		public Class<? extends SqueezerItem> getDataType() {
-		        			return SqueezerPlayer.class;
-		        		}
-
-		        		public void clear() {
-		        	        final SharedPreferences preferences = service.getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
-				        	lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
+		        		@Override
+                        public void clear() {
+				        	lastConnectedPlayer = service.preferences.getString(Preferences.KEY_LASTPLAYER, null);
 		        			defaultPlayer = null;
 				        	Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
-			                players = new ArrayList<SqueezerPlayer>(){private static final long serialVersionUID = 4283732322286492895L;};
+				        	super.clear();
 		        		}
 
-						public void add(Map<String, String> record) {
+						@Override
+                        public void add(Map<String, String> record) {
 							SqueezerPlayer player = new SqueezerPlayer(record);
 							// Discover the last connected player (if any, otherwise just pick the first one)
 							if (defaultPlayer == null || player.getId().equals(lastConnectedPlayer))
 								defaultPlayer = player;
-			                players.add(player);
+			                items.add(player);
 						}
 
 						public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 							if (service.playerListCallback.get() != null) {
 								// If the player list activity is active, pass the discovered players to it
 								try {
-									service.playerListCallback.get().onPlayersReceived(count, start, players);
+									service.playerListCallback.get().onPlayersReceived(count, start, items);
 								} catch (RemoteException e) {
 									Log.e(TAG, e.toString());
 									return false;
 								}
 							} else
-							if (start + players.size() >= count) {
+							if (start + items.size() >= count) {
 								// Otherwise set the last connected player as the active player
 					        	if (defaultPlayer != null)
 					        		service.changeActivePlayer(defaultPlayer);
@@ -266,7 +260,6 @@ class SqueezerCLIImpl {
         } else {
             // Get it into one packet by deferring flushing...
             for (String command : commands) {
-                Log.v(TAG, "Send: " + command);
                 writer.print(command + "\n");
             }
             writer.flush();
@@ -365,66 +358,29 @@ class SqueezerCLIImpl {
     private static class SqueezeParserInfo {
     	private final String item_delimiter;
     	private final String count_id;
-    	private final SqueezerListHandler handler;
+    	private final SqueezerListHandler<? extends SqueezerItem> handler;
 
     	/**
     	 * @param countId The label for the tag which contains the total number of results, normally "count".
     	 * @param itemDelimiter As defined for each extended query format command in the squeezeserver CLI documentation.
     	 * @param handler Callback to receive the parsed data.
     	 */
-    	public SqueezeParserInfo(String countId, String itemDelimiter, SqueezerListHandler handler) {
+    	public SqueezeParserInfo(String countId, String itemDelimiter, SqueezerListHandler<? extends SqueezerItem> handler) {
 			count_id = countId;
 			item_delimiter = itemDelimiter;
 			this.handler = handler;
 		}
 
-    	public SqueezeParserInfo(String itemDelimiter, SqueezerListHandler handler) {
+    	public SqueezeParserInfo(String itemDelimiter, SqueezerListHandler<? extends SqueezerItem> handler) {
     		this("count", itemDelimiter, handler);
     	}
 
-    	public SqueezeParserInfo(SqueezerListHandler handler) {
+    	public SqueezeParserInfo(SqueezerListHandler<? extends SqueezerItem> handler) {
     		this("id", handler);
     	}
     }
 
     /**
-     * <p>
-     * Implement this and give it to {@link SqueezerCLIImpl#parseSqueezerList(List, SqueezerListHandler)} for each
-     * extended query format command you wish to support.
-     * </p>
-     * @author Kurt Aaholst
-     */
-	private static interface SqueezerListHandler {
-		/**
-		 * @return The type of item this handler can handle
-		 */
-		Class<? extends SqueezerItem> getDataType();
-
-		/**
-		 * Prepare for parsing an extended query format response
-		 */
-		void clear();
-
-		/**
-		 * Called for each item received in the current reply. Just store this internally.
-		 * @param record
-		 */
-		void add(Map<String, String> record);
-
-		/**
-		 * Called when the current reply is completely parsed. Pass the information on to your activity now. If there are
-		 * any more data, it is automatically ordered by {@link SqueezerCLIImpl#parseSqueezerList(List, SqueezerListHandler)}
-		 * @param rescan Set if SqueezeServer is currently doing a scan of the music library.
-		 * @param count Total number of result for the current query.
-		 * @param max The current configured default maximum list size.
-		 * @param start Offset for the current list in total results.
-		 * @return
-		 */
-		boolean processList(boolean rescan, int count, int start, Map<String, String> parameters);
-	}
-
-
-	/**
 	 * <h1>Generic method to parse replies for queries in extended query format</h1>
 	 * <p>
 	 * This is the control center for asynchronous and paging receiving of data from SqueezeServer.<br/>
@@ -534,26 +490,12 @@ class SqueezerCLIImpl {
 	}
 
 
-    private class YearListHandler implements SqueezerListHandler {
-		List<SqueezerYear> years;
-
-
-		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerYear.class;
-		}
-
-		public void clear() {
-			years = new ArrayList<SqueezerYear>(){private static final long serialVersionUID = 1321113152942485275L;};
-		}
-
-		public void add(Map<String, String> record) {
-			years.add(new SqueezerYear(record));
-		}
+    private class YearListHandler extends SqueezerBaseListHandler<SqueezerYear> {
 
 		public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 			if (service.yearListCallback.get() != null) {
 				try {
-					service.yearListCallback.get().onYearsReceived(count, start, years);
+					service.yearListCallback.get().onYearsReceived(count, start, items);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -563,25 +505,12 @@ class SqueezerCLIImpl {
 		}
 	}
 
-    private class GenreListHandler implements SqueezerListHandler {
-		List<SqueezerGenre> genres;
-
-		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerGenre.class;
-		}
-
-		public void clear() {
-			genres = new ArrayList<SqueezerGenre>(){private static final long serialVersionUID = 581979365656327794L;};
-		}
-
-		public void add(Map<String, String> record) {
-			genres.add(new SqueezerGenre(record));
-		}
+    private class GenreListHandler extends SqueezerBaseListHandler<SqueezerGenre> {
 
 		public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 			if (service.genreListCallback.get() != null) {
 				try {
-					service.genreListCallback.get().onGenresReceived(count, start, genres);
+					service.genreListCallback.get().onGenresReceived(count, start, items);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -592,26 +521,12 @@ class SqueezerCLIImpl {
 
 	}
 
-	private class ArtistListHandler implements SqueezerListHandler {
-		List<SqueezerArtist> artists;
-
-		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerArtist.class;
-		}
-
-		public void clear() {
-			artists = new ArrayList<SqueezerArtist>(){private static final long serialVersionUID = 3995870292581536540L;};
-
-		}
-
-		public void add(Map<String, String> record) {
-			artists.add(new SqueezerArtist(record));
-		}
+	private class ArtistListHandler extends SqueezerBaseListHandler<SqueezerArtist> {
 
 		public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 			if (service.artistListCallback.get() != null) {
 				try {
-					service.artistListCallback.get().onArtistsReceived(count, start, artists);
+					service.artistListCallback.get().onArtistsReceived(count, start, items);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -621,25 +536,12 @@ class SqueezerCLIImpl {
 		}
 	}
 
-	private class AlbumListHandler implements SqueezerListHandler {
-		List<SqueezerAlbum> albums;
-
-		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerAlbum.class;
-		}
-
-		public void clear() {
-			albums = new ArrayList<SqueezerAlbum>(){private static final long serialVersionUID = 3702842875796811666L;};
-		}
-
-		public void add(Map<String, String> record) {
-			albums.add(new SqueezerAlbum(record));
-		}
+	private class AlbumListHandler extends SqueezerBaseListHandler<SqueezerAlbum> {
 
 		public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 			if (service.albumListCallback.get() != null) {
 				try {
-					service.albumListCallback.get().onAlbumsReceived(count, start, albums);
+					service.albumListCallback.get().onAlbumsReceived(count, start, items);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -649,29 +551,14 @@ class SqueezerCLIImpl {
 		}
 	}
 
-    private class MusicFolderListHandler implements SqueezerListHandler {
-        List<SqueezerMusicFolderItem> musicFolders;
-
-        public Class<? extends SqueezerItem> getDataType() {
-            return SqueezerMusicFolderItem.class;
-        }
-
-        public void clear() {
-            musicFolders = new ArrayList<SqueezerMusicFolderItem>() {
-                private static final long serialVersionUID = 3167368005259913925L;
-            };
-        }
-
-        public void add(Map<String, String> record) {
-            musicFolders.add(new SqueezerMusicFolderItem(record));
-        }
+    private class MusicFolderListHandler extends SqueezerBaseListHandler<SqueezerMusicFolderItem> {
 
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
             if (service.musicFolderListCallback.get() != null) {
                 try {
                     service.musicFolderListCallback.get().onMusicFoldersReceived(count, start,
-                            musicFolders);
+                            items);
                     return true;
                 } catch (RemoteException e) {
                     Log.e(TAG, e.toString());
@@ -682,25 +569,14 @@ class SqueezerCLIImpl {
         }
     }
 
-	private class SongListHandler implements SqueezerListHandler {
-		List<SqueezerSong> songs;
-
-		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerSong.class;
-		}
-
-		public void clear() {
-			songs = new ArrayList<SqueezerSong>(){private static final long serialVersionUID = -6269354970999944842L;};
-		}
-
-		public void add(Map<String, String> record) {
-			songs.add(new SqueezerSong(record));
-		}
+	private class SongListHandler extends SqueezerBaseListHandler<SqueezerSong> {
 
 		public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 			if (service.songListCallback.get() != null) {
 				try {
-					service.songListCallback.get().onSongsReceived(count, start, songs);
+				    //TODO use parameters to update the current player state
+//				    service.playerState.update(parameters);
+					service.songListCallback.get().onSongsReceived(count, start, items);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -710,25 +586,12 @@ class SqueezerCLIImpl {
 		}
 	}
 
-    private class PlaylistsHandler implements SqueezerListHandler {
-		List<SqueezerPlaylist> playlists;
-
-		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerPlaylist.class;
-		}
-
-		public void clear() {
-			playlists = new ArrayList<SqueezerPlaylist>(){ private static final long serialVersionUID = 3636348382591470060L; };
-		}
-
-		public void add(Map<String, String> record) {
-			playlists.add(new SqueezerPlaylist(record));
-		}
+    private class PlaylistsHandler extends SqueezerBaseListHandler<SqueezerPlaylist> {
 
 		public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 			if (service.playlistsCallback.get() != null) {
 				try {
-					service.playlistsCallback.get().onPlaylistsReceived(count, start, playlists);
+					service.playlistsCallback.get().onPlaylistsReceived(count, start, items);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -739,25 +602,12 @@ class SqueezerCLIImpl {
 
 	}
 
-    private class PluginListHandler implements SqueezerListHandler {
-		List<SqueezerPlugin> plugins;
-
-		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerPlaylist.class;
-		}
-
-		public void clear() {
-			plugins = new ArrayList<SqueezerPlugin>(){ private static final long serialVersionUID = -8342580963244363146L; };
-		}
-
-		public void add(Map<String, String> record) {
-			plugins.add(new SqueezerPlugin(record));
-		}
+    private class PluginListHandler extends SqueezerBaseListHandler<SqueezerPlugin> {
 
 		public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 			if (service.pluginListCallback.get() != null) {
 				try {
-					service.pluginListCallback.get().onPluginsReceived(count, start, plugins);
+					service.pluginListCallback.get().onPluginsReceived(count, start, items);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
@@ -768,25 +618,12 @@ class SqueezerCLIImpl {
 
 	}
 
-    private class PluginItemListHandler implements SqueezerListHandler {
-		List<SqueezerPluginItem> pluginItems;
-
-		public Class<? extends SqueezerItem> getDataType() {
-			return SqueezerPlaylist.class;
-		}
-
-		public void clear() {
-			pluginItems = new ArrayList<SqueezerPluginItem>(){ private static final long serialVersionUID = -2162255134145627211L; };
-		}
-
-		public void add(Map<String, String> record) {
-			pluginItems.add(new SqueezerPluginItem(record));
-		}
+    private class PluginItemListHandler extends SqueezerBaseListHandler<SqueezerPluginItem> {
 
 		public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
 			if (service.pluginItemListCallback.get() != null) {
 				try {
-					service.pluginItemListCallback.get().onPluginItemsReceived(count, start, parameters, pluginItems);
+					service.pluginItemListCallback.get().onPluginItemsReceived(count, start, parameters, items);
 					return true;
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());

@@ -42,7 +42,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="left"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="@style/SqueezerTextItem"
             android:textStyle="bold"
             android:lines="1"
             android:ellipsize="marquee" />
@@ -52,7 +52,7 @@
             android:gravity="left"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="@style/SqueezerTextItemSmall"
             android:lines="1"
             android:ellipsize="marquee" />
     </LinearLayout>
@@ -89,7 +89,7 @@ the heights in the <fragment> element in the containing layout as well...
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="@style/SqueezerTextItem"
         android:textStyle="bold"
         android:layout_toRightOf="@id/album"
         android:lines="1"
@@ -100,7 +100,7 @@ the heights in the <fragment> element in the containing layout as well...
         android:gravity="left"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textAppearance="@style/SqueezerTextItemSmall"
         android:layout_toRightOf="@id/album"
         android:layout_below="@id/trackname"
         android:lines="1"
