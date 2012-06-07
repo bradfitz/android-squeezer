@@ -68,9 +68,9 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 */
 	private final String loadingText;
 
-	/*
-	 * Number of elements to by fetched at a time
-	 */
+    /**
+     * Number of elements to by fetched at a time
+     */
 	private int pageSize;
 	public int getPageSize() { return pageSize; }
 
