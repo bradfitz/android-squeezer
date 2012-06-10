@@ -59,8 +59,9 @@
     <string name="connection_failed_text">Connection failed. Check settings.</string>
     <string name="login_failed_text">Login failed. Enter user name and password.</string>
     <string name="disconnected_text">Disconnected.</string>
-    <string name="wifi_disabled_text">Wi-Fi is disabled</string>
-    <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. Please wait for an active Wi-Fi connection. \nTurn on Wi-Fi now?</string>
+    <string name="wifi_disabled_text">Wifi is disabled</string>
+    <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device.\nWhen an active Wi-Fi connection is made, Squeezer will automatically try to connect to your SqueezeBox Server.\nTurn on Wifi now?</string>
+    <string name="wifi_enabled_text">Wi-Fi is enabled. Please wait for an active Wi-Fi connection.</string>
     <string name="notification_playing_text">%s playing</string>
     <string name="notification_connected_text">%s connected</string>
     <string name="filter_text_hint">Search for %s</string>

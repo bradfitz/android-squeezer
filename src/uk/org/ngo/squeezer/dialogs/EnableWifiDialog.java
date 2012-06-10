@@ -9,6 +9,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
+import android.widget.Toast;
 
 public class EnableWifiDialog extends DialogFragment {
 
@@ -19,10 +20,13 @@ public class EnableWifiDialog extends DialogFragment {
         builder.setMessage(R.string.enable_wifi_text);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                WifiManager wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+                WifiManager wifiManager = (WifiManager) getActivity().getSystemService(
+                        Context.WIFI_SERVICE);
                 if (!wifiManager.isWifiEnabled()) {
                     Log.v(getTag(), "Enabling Wifi");
                     wifiManager.setWifiEnabled(true);
+                    Toast.makeText(getActivity(), R.string.wifi_enabled_text, Toast.LENGTH_LONG)
+                            .show();
                 }
             }
         });

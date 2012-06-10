@@ -59,7 +59,8 @@
     <string name="login_failed_text">Login mislykkedes, indtast brugernavn og adgangskode.</string>
     <string name="disconnected_text">Afbrudt.</string>
     <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
-    <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed. Vent venligst på en aktiv Wi-Fi-forbindelse. \nSlå Wi-Fi til?</string>
+    <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed.\nNår der opnås en aktiv forbindelse, vil Squeezer automatisk forsøge at forbinde til din SqueezeBox server.\nSlå Wi-Fi til?</string>
+    <string name="wifi_enabled_text">Wi-Fi er aktiveret. Vent venligst på en aktiv Wi-Fi-forbindelse.</string>
     <string name="notification_playing_text">%s spiller</string>
     <string name="notification_connected_text">%s forbundet</string>
     <string name="filter_text_hint">Søg efter %s</string>

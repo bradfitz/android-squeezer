@@ -30,12 +30,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import uk.org.ngo.squeezer.IServiceCallback;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import android.net.wifi.WifiManager;
-import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -49,10 +47,6 @@ class SqueezerConnectionState {
     private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
 
     // Connection state:
-    // XXX: Why is the callback list part of SqueezerConnectionState and not
-    // SqueezerService?
-    private final RemoteCallbackList<IServiceCallback> mServiceCallbacks = new RemoteCallbackList<IServiceCallback>();
-
 	private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
 	private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
@@ -105,7 +99,7 @@ class SqueezerConnectionState {
         }
     }
 
-    void disconnect(boolean loginFailed) {
+    void disconnect(SqueezeService service, boolean loginFailed) {
         Log.v(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
         currentConnectionGeneration.incrementAndGet();
         Socket socket = socketRef.get();
@@ -118,21 +112,21 @@ class SqueezerConnectionState {
         socketWriter.set(null);
         isConnected.set(false);
 
-        setConnectionState(false, false, loginFailed);
+        setConnectionState(service, false, false, loginFailed);
 
         httpPort.set(null);
         activePlayer.set(null);
     }
 
-    private void setConnectionState(boolean currentState, boolean postConnect, boolean loginFailed) {
+    private void setConnectionState(SqueezeService service, boolean currentState, boolean postConnect, boolean loginFailed) {
         isConnected.set(currentState);
 
-        int i = mServiceCallbacks.beginBroadcast();
+        int i = service.mServiceCallbacks.beginBroadcast();
         while (i > 0) {
             i--;
             try {
                 Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
-                mServiceCallbacks.getBroadcastItem(i)
+                service.mServiceCallbacks.getBroadcastItem(i)
                         .onConnectionChanged(currentState, postConnect, loginFailed);
                 Log.d(TAG, "post-call setting callback connection state.");
 
@@ -141,19 +135,7 @@ class SqueezerConnectionState {
                 // the dead object for us.
             }
         }
-        mServiceCallbacks.finishBroadcast();
-    }
-
-    RemoteCallbackList<IServiceCallback> getCallbacks() {
-        return mServiceCallbacks;
-    }
-
-    void setCallback(IServiceCallback callback) {
-        mServiceCallbacks.register(callback);
-    }
-
-    void removeCallback(IServiceCallback callback) {
-        mServiceCallbacks.unregister(callback);
+        service.mServiceCallbacks.finishBroadcast();
     }
 
     SqueezerPlayer getActivePlayer() {
@@ -286,7 +268,7 @@ class SqueezerConnectionState {
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                     Log.d(TAG, "writer == " + socketWriter.get());
-                    setConnectionState(true, true, false);
+                    setConnectionState(service, true, true, false);
                     Log.d(TAG, "connection state broadcasted true.");
                 	startListeningThread(service);
                     setDefaultPlayer(null);
@@ -299,10 +281,10 @@ class SqueezerConnectionState {
                     });
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
-                    setConnectionState(false, true, false);
+                    setConnectionState(service, false, true, false);
                 } catch (IOException e) {
                     Log.e(TAG, "IOException connecting to: " + cleanHostPort);
-                    setConnectionState(false, true, false);
+                    setConnectionState(service, false, true, false);
                 }
             }
 
