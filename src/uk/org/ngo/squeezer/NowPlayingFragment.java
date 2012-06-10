@@ -406,7 +406,7 @@ public class NowPlayingFragment extends Fragment implements
         updatePlayPauseIcon();
         updateUIForPlayer();
     }
-    
+
     private void setConnected() {
         setConnected(isConnected(), false, false);
     }

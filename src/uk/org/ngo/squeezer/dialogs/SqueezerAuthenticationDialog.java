@@ -43,5 +43,4 @@ public class SqueezerAuthenticationDialog extends DialogFragment {
 
         return builder.create();
     }
-    
 }
