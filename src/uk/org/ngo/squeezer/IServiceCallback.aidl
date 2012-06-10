@@ -23,7 +23,8 @@ oneway interface IServiceCallback {
   void onPlayerChanged(in String playerId, in String playerName);
 
   // postConnect is only true for the very first callback after a new initial connect.
-  void onConnectionChanged(boolean isConnected, boolean postConnect);
+  // loginFailed is true if the server disconnects before handshaking is completed
+  void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed);
 
   // Handshaking with the server has completed.
   void onHandshakeCompleted();

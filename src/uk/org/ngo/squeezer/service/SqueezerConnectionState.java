@@ -20,7 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.Authenticator;
 import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -38,7 +40,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 class SqueezerConnectionState {
-    private static final String TAG = "SqueezeConnectionState";
+    private static final String TAG = "SqueezerConnectionState";
 
     // Incremented once per new connection and given to the Thread
     // that's listening on the socket.  So if it dies and it's not the
@@ -103,8 +105,8 @@ class SqueezerConnectionState {
         }
     }
 
-    void disconnect() {
-        Log.v(TAG, "disconnect");
+    void disconnect(boolean loginFailed) {
+        Log.v(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
         currentConnectionGeneration.incrementAndGet();
         Socket socket = socketRef.get();
         if (socket != null) {
@@ -116,13 +118,13 @@ class SqueezerConnectionState {
         socketWriter.set(null);
         isConnected.set(false);
 
-        setConnectionState(false, false);
+        setConnectionState(false, false, loginFailed);
 
         httpPort.set(null);
         activePlayer.set(null);
     }
 
-    private void setConnectionState(boolean currentState, boolean postConnect) {
+    private void setConnectionState(boolean currentState, boolean postConnect, boolean loginFailed) {
         isConnected.set(currentState);
 
         int i = mServiceCallbacks.beginBroadcast();
@@ -131,7 +133,7 @@ class SqueezerConnectionState {
             try {
                 Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
                 mServiceCallbacks.getBroadcastItem(i)
-                        .onConnectionChanged(currentState, postConnect);
+                        .onConnectionChanged(currentState, postConnect, loginFailed);
                 Log.d(TAG, "post-call setting callback connection state.");
 
             } catch (RemoteException e) {
@@ -239,7 +241,7 @@ class SqueezerConnectionState {
                     // else we should notify about it.
                     if (currentConnectionGeneration.get() == generationNumber) {
                         Log.v(TAG, "Server disconnected; exception=" + exception);
-                        service.disconnect();
+                        service.disconnect(exception == null);
                     } else {
                         // Who cares.
                         Log.v(TAG, "Old generation connection disconnected, as expected.");
@@ -251,7 +253,7 @@ class SqueezerConnectionState {
         }
     }
 
-    void startConnect(final SqueezeService service, ScheduledThreadPoolExecutor executor, String hostPort) throws RemoteException {
+    void startConnect(final SqueezeService service, ScheduledThreadPoolExecutor executor, String hostPort, final String userName, final String password) throws RemoteException {
         Log.v(TAG, "startConnect");
         // Common mistakes, based on crash reports...
         if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
@@ -284,17 +286,23 @@ class SqueezerConnectionState {
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                     Log.d(TAG, "writer == " + socketWriter.get());
-                    setConnectionState(true, true);
+                    setConnectionState(true, true, false);
                     Log.d(TAG, "connection state broadcasted true.");
                 	startListeningThread(service);
                     setDefaultPlayer(null);
-                    service.onCliPortConnectionEstablished();
+                    service.onCliPortConnectionEstablished(userName, password);
+                    Authenticator.setDefault(new Authenticator() {
+                        @Override
+                        public PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(userName, password.toCharArray());
+                        }
+                    });
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
-                    setConnectionState(false, true);
+                    setConnectionState(false, true, false);
                 } catch (IOException e) {
                     Log.e(TAG, "IOException connecting to: " + cleanHostPort);
-                    setConnectionState(false, true);
+                    setConnectionState(false, true, false);
                 }
             }
 

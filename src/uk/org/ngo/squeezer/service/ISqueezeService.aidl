@@ -45,7 +45,7 @@ interface ISqueezeService {
 
 	    // Instructing the service to connect to the SqueezeCenter server:
 	    // hostPort is the port of the CLI interface.
-		void startConnect(String hostPort);
+		void startConnect(String hostPort, String userName, String password);
 		void disconnect();
         boolean isConnected();
         

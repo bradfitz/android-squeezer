@@ -24,6 +24,7 @@
     <string name="menu_item_settings_label">Indstillinger</string>
     <string name="menu_item_about_label">Om</string>
     <string name="activity_settings_name">Indstillinger</string>
+    <string name="pref_cat_server">Server indstillinger</string>
     <string name="settings_serveraddr_title">Server adresse</string>
     <string name="settings_serveraddr_summary">IP addresse på SqueezeBox Server, f.eks. 10.0.0.5.</string>
     <string name="settings_server_prompt">Vælg en server</string>
@@ -31,6 +32,10 @@
     <string name="settings_server_scan_stop">Afbryd scanning</string>
     <string name="settings_server_scan_msg">Eller tryk \'Start scanning\' for at scanne netværket for servere.</string>
     <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke er forbundet.</string>
+    <string name="settings_username_title">Brugernavn</string>
+    <string name="settings_username_summary">Eventuelt SqueezeBox Server brugernavn.</string>
+    <string name="settings_password_title">Adgangskode</string>
+    <string name="settings_password_summary">Eventuel SqueezeBox Server adgangskode.</string>
     <string name="settings_autoconnect_title">Forbind automatisk</string>
     <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
     <string name="menu_item_disconnect">Afbryd</string>
@@ -51,6 +56,7 @@
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
+    <string name="login_failed_text">Login mislykkedes, indtast brugernavn og adgangskode.</string>
     <string name="disconnected_text">Afbrudt.</string>
     <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
     <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed. Vent venligst på en aktiv Wi-Fi-forbindelse. \nSlå Wi-Fi til?</string>

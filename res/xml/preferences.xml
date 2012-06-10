@@ -18,6 +18,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                  android:key="first_preferencescreen">
 
+  <PreferenceCategory
+    android:title="@string/pref_cat_server">
+
    <!-- TODO: Something that only allowed IP:port here would be nice,
         instead of using the normal keyboard. -->
    <uk.org.ngo.squeezer.dialogs.ServerAddressPreference
@@ -26,6 +29,18 @@
      android:summary="@string/settings_serveraddr_summary"
      android:dialogMessage="@string/settings_serveraddr_summary"
      android:persistent="true" />
+
+   <EditTextPreference
+     android:key="squeezer.username"
+     android:title="@string/settings_username_title"
+     android:summary="@string/settings_username_summary" />
+
+   <EditTextPreference
+     android:key="squeezer.password"
+     android:title="@string/settings_password_title"
+     android:password="true"
+     android:summary="@string/settings_password_summary" />
+  </PreferenceCategory>
 
   <CheckBoxPreference
      android:key="squeezer.autoconnect"

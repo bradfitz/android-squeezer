@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
+import uk.org.ngo.squeezer.dialogs.SqueezerAuthenticationDialog;
 import uk.org.ngo.squeezer.framework.HasUiThread;
 import uk.org.ngo.squeezer.framework.SqueezerIconUpdater;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
@@ -47,6 +48,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -64,7 +66,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NowPlayingFragment extends android.support.v4.app.Fragment implements
+public class NowPlayingFragment extends Fragment implements
         HasUiThread {
     private final String TAG = "NowPlayingFragment";
 
@@ -182,7 +184,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         setHasOptionsMenu(true);
 
         // Set up a server connection, if it is not present
-        if (getConfiguredCliIpPort() == null)
+        if (getConfiguredCliIpPort(getSharedPreferences()) == null)
             SettingsActivity.show(mActivity);
     }
 
@@ -339,8 +341,8 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
     }
 
     // Should only be called the UI thread.
-    private void setConnected(boolean connected, boolean postConnect) {
-        Log.v(TAG, "setConnected(" + connected + ", " + postConnect + ")");
+    private void setConnected(boolean connected, boolean postConnect, boolean loginFailure) {
+        Log.v(TAG, "setConnected(" + connected + ", " + postConnect + ", " + loginFailure + ")");
         if (postConnect) {
             connectInProgress.set(false);
             if (connectingDialog != null) {
@@ -357,6 +359,10 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
                         Toast.LENGTH_LONG)
                         .show();
             }
+        }
+        if (loginFailure) {
+            Toast.makeText(mActivity, getText(R.string.login_failed_text), Toast.LENGTH_LONG).show();
+            new SqueezerAuthenticationDialog().show(mActivity.getSupportFragmentManager(), "AuthenticationDialog");
         }
 
         // These are all set at the same time, so one check is sufficient
@@ -397,6 +403,10 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         }
         updatePlayPauseIcon();
         updateUIForPlayer();
+    }
+
+    private void setConnected() {
+        setConnected(isConnected(), false, false);
     }
 
     private void updatePlayPauseIcon() {
@@ -470,7 +480,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         }
 
         // XXX: Is this correct? How does the Fragment track WiFi availability?
-        if (isAutoConnect())
+        if (isAutoConnect(getSharedPreferences()))
             mActivity.registerReceiver(broadcastReceiver, new IntentFilter(
                     ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -485,7 +495,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         // the initial display, as changing the prev/next buttons to empty
         // doesn't seem to work in onCreate. (LayoutInflator still running?)
         Log.d(TAG, "updateUIFromServiceState");
-        setConnected(isConnected(), false);
+        setConnected();
     }
 
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
@@ -656,7 +666,7 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
                 Log.e(TAG, "Service exception in onPause(): " + e);
             }
         }
-        if (isAutoConnect())
+        if (isAutoConnect(getSharedPreferences()))
             mActivity.unregisterReceiver(broadcastReceiver);
         super.onPause();
     }
@@ -741,25 +751,37 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         return false;
     }
 
-    // Returns null if not configured.
-    private String getConfiguredCliIpPort() {
-        final SharedPreferences preferences = mActivity.getSharedPreferences(Preferences.NAME, 0);
-        final String ipPort = preferences.getString(Preferences.KEY_SERVERADDR, null);
-        if (ipPort == null || ipPort.length() == 0) {
-            return null;
-        }
-        return ipPort;
+    private SharedPreferences getSharedPreferences() {
+        return mActivity.getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
     }
 
-    // Returns null if not configured.
-    private boolean isAutoConnect() {
-        final SharedPreferences preferences = mActivity.getSharedPreferences(Preferences.NAME, 0);
+    private String getConfiguredCliIpPort(final SharedPreferences preferences) {
+        return getStringPreference(preferences, Preferences.KEY_SERVERADDR, null);
+    }
+
+    private String getConfiguredUserName(final SharedPreferences preferences) {
+        return getStringPreference(preferences, Preferences.KEY_USERNAME, "test");
+    }
+
+    private String getConfiguredPassword(final SharedPreferences preferences) {
+        return getStringPreference(preferences, Preferences.KEY_PASSWORD, "test1");
+    }
+
+    private String getStringPreference(final SharedPreferences preferences, String preference, String defaultValue) {
+        final String pref = preferences.getString(preference, null);
+        if (pref == null || pref.length() == 0) {
+            return defaultValue;
+        }
+        return pref;
+    }
+
+    private boolean isAutoConnect(final SharedPreferences preferences) {
         return preferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true);
     }
 
     private void onUserInitiatesConnect() {
         // Set up a server connection, if it is not present
-        if (getConfiguredCliIpPort() == null) {
+        if (getConfiguredCliIpPort(getSharedPreferences()) == null) {
             SettingsActivity.show(mActivity);
             return;
         }
@@ -771,15 +793,16 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
         startVisibleConnection();
     }
 
-    private void startVisibleConnection() {
+    public void startVisibleConnection() {
         Log.v(TAG, "startVisibleConnection..., connectInProgress: " + connectInProgress.get());
         uiThreadHandler.post(new Runnable() {
             public void run() {
-                String ipPort = getConfiguredCliIpPort();
+                SharedPreferences preferences = getSharedPreferences();
+                String ipPort = getConfiguredCliIpPort(preferences);
                 if (ipPort == null)
                     return;
 
-                if (isAutoConnect()) {
+                if (isAutoConnect(preferences)) {
                     WifiManager wifiManager = (WifiManager) mActivity
                             .getSystemService(Context.WIFI_SERVICE);
                     if (!wifiManager.isWifiEnabled()) {
@@ -802,7 +825,8 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
                     Log.v(TAG, "startConnect, ipPort: " + ipPort);
                     connectInProgress.set(true);
                     try {
-                        mService.startConnect(ipPort);
+                        getConfiguredCliIpPort(preferences);
+                        mService.startConnect(ipPort, getConfiguredUserName(preferences), getConfiguredPassword(preferences));
                     } catch (RemoteException e) {
                         Toast.makeText(mActivity, "startConnection error: " + e,
                                 Toast.LENGTH_LONG).show();
@@ -820,12 +844,13 @@ public class NowPlayingFragment extends android.support.v4.app.Fragment implemen
 
     private final IServiceCallback serviceCallback = new IServiceCallback.Stub() {
         public void onConnectionChanged(final boolean isConnected,
-                                        final boolean postConnect)
+                                        final boolean postConnect,
+                                        final boolean loginFailed)
                        throws RemoteException {
             Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
             uiThreadHandler.post(new Runnable() {
                 public void run() {
-                    setConnected(isConnected, postConnect);
+                    setConnected(isConnected, postConnect, loginFailed);
                 }
             });
         }
