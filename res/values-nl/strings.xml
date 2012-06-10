@@ -192,16 +192,12 @@
         <item>Nummers</item>
         <item>Genres</item>
         <item>Jaren</item>
-        <item>New music</item>
         <item>Muziek Mappen</item>
         <item>Willekeurige mix</item>
         <item>Playlisten</item>
         <item>Internet Radio</item>
+        <item>My Apps</item>
         <item>Favorieten</item>
-        <item>Mijn Apps</item>
-    </string-array>
-
-    <string-array name="music_items">
     </string-array>
 
     <string-array name="randomplay_items">

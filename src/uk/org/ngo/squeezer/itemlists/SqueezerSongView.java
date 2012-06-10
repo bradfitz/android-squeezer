@@ -34,6 +34,8 @@ import android.widget.TextView;
  * A view that shows a single song with its artwork, and a context menu.
  */
 public class SqueezerSongView extends SqueezerIconicItemView<SqueezerSong> {
+    private static final String TAG = "SqueezerSongView";
+
 	private final LayoutInflater layoutInflater;
 
 	private boolean browseByAlbum;

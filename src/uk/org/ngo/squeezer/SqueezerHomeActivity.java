@@ -20,8 +20,6 @@ package uk.org.ngo.squeezer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 import uk.org.ngo.squeezer.dialogs.TipsDialog;
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
@@ -51,6 +49,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
+
 public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private final String TAG = "SqueezerHomeActivity";
 
@@ -72,7 +72,6 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private ListView listView;
 
     private GoogleAnalyticsTracker tracker;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -194,13 +193,15 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
-        for (int i = ARTISTS; i <= FAVORITES; i++) { // APPS & FAVORITES
-                                                          // not implemented
+        for (int i = ARTISTS; i <= FAVORITES; i++) {
             if (i == MUSIC_FOLDER && !mCanMusicfolder)
                 continue;
 
             if (i == RANDOM_MIX && !mCanRandomplay)
                 continue;
+
+            if (i == APPS)
+                continue; // APPS not implemented.
 
             rows.add(new IconRowAdapter.IconRow(i, items[i], icons[i]));
         }
@@ -271,6 +272,17 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         }
 
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Send analytics stats (if enabled).
+        if (tracker != null) {
+            tracker.dispatch();
+            tracker.stopSession();
+        }
     }
 
 	public static void show(Context context) {

@@ -47,18 +47,18 @@
         android:id="@+id/menu_item_players"
         android:title="@string/menu_item_players"
         android:alphabeticShortcut="z"
-        android:icon="@+drawable/ic_action_choose_player"
+        android:icon="@+drawable/ic_menu_choose_player"
         android:showAsAction="ifRoom|withText"
     />
     <item
         android:id="@+id/menu_item_playlist"
         android:title="@string/menu_item_playlist"
         android:alphabeticShortcut="p"
-        android:icon="@+drawable/ic_mp_current_playlist_btn"
+        android:icon="@+drawable/ic_menu_playlist"
         android:showAsAction="ifRoom|withText"
     />
     <item
-        android:icon="@drawable/ic_action_search"
+        android:icon="@drawable/ic_menu_search"
         android:id="@+id/menu_item_search"
         android:title="@string/menu_item_search_label"
         android:alphabeticShortcut="s"

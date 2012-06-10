@@ -28,6 +28,7 @@ import android.os.Parcelable.Creator;
 import android.os.RemoteException;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
     protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
@@ -88,6 +89,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 	public View getAdapterView(View convertView, String label) {
 		return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, label);
 	}
+
 
 	/**
 	 * The default context menu handler handles some common actions.
