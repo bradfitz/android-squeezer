@@ -48,7 +48,7 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 	private SqueezerSearchActivity activity;
 
 	private SqueezerItemAdapter<? extends SqueezerItem>[] childAdapters;
-	private final Map<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>> childAdapterMap = new HashMap<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>>();
+	private final Map<Class<? extends SqueezerItem>, SqueezerItemAdapter<? extends SqueezerItem>> childAdapterMap = new HashMap<Class<? extends SqueezerItem>, SqueezerItemAdapter<? extends SqueezerItem>>();
 
 
 	public SqueezerSearchAdapter(SqueezerSearchActivity activity) {
@@ -80,8 +80,7 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends SqueezerItem> void updateItems(int count, int start, List<T> items) {
-		Class<T> clazz = (Class<T>) ReflectUtil.getGenericClass(items.getClass(), List.class, 0);
+	public <T extends SqueezerItem> void updateItems(int count, int start, List<T> items, Class<T> clazz) {
 		SqueezerItemAdapter<T> adapter = (SqueezerItemAdapter<T>)childAdapterMap.get(clazz);
 		adapter.update(count, start, items);
 		notifyDataSetChanged();
