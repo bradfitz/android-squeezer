@@ -27,9 +27,11 @@ import java.util.TreeMap;
 
 import org.acra.ErrorReporter;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -69,6 +71,9 @@ public class ServerAddressPreference extends DialogPreference {
     private ProgressBar mScanProgressBar;
     private Spinner mServersSpinner;
 
+    private EditText userNameEditText;
+    private EditText passwordEditText;
+
     private scanNetworkTask mScanTask;
     private boolean mScanInProgress = false;
 
@@ -93,6 +98,11 @@ public class ServerAddressPreference extends DialogPreference {
         mScanBtn = (Button) view.findViewById(R.id.scan_btn);
         mScanProgressBar = (ProgressBar) view.findViewById(R.id.scan_progress);
         mServersSpinner = (Spinner) view.findViewById(R.id.found_servers);
+
+        userNameEditText = (EditText) view.findViewById(R.id.username);
+        userNameEditText.setText(getSharedPreferences().getString(Preferences.KEY_USERNAME, null));
+        passwordEditText = (EditText) view.findViewById(R.id.password);
+        passwordEditText.setText(getSharedPreferences().getString(Preferences.KEY_PASSWORD, null));
 
         // If there's no server address configured then set the default text
         // in the edit box to our IP address, trimmed of the last octet.
@@ -215,6 +225,12 @@ public class ServerAddressPreference extends DialogPreference {
         if (positiveResult) {
             String addr = mServerAddressEditText.getText().toString();
             persistString(addr);
+
+            SharedPreferences.Editor editor = getEditor();
+            editor.putString(Preferences.KEY_USERNAME, userNameEditText.getText().toString());
+            editor.putString(Preferences.KEY_PASSWORD, passwordEditText.getText().toString());
+            editor.commit();
+
             callChangeListener(addr);
         }
     }
