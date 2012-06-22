@@ -205,7 +205,7 @@
         <item>Album mix</item>
         <item>Artiest mix</item>
         <item>Jaar mix</item>
-        <item>Kies genres</item>
+        <!-- <item>Kies genres</item> -->
     </string-array>
 
 </resources>

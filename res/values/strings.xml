@@ -397,7 +397,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item>Album mix</item>
         <item>Artist mix</item>
         <item>Year mix</item>
-        <item>Choose genres</item>
+        <!-- <item>Choose genres</item> -->
     </string-array>
 
 </resources>

@@ -53,7 +53,10 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
 		String[] values = getResources().getStringArray(R.array.randomplay_items);
 		int[] icons = new int[values.length];
         Arrays.fill(icons, R.drawable.ic_random);
-        icons[icons.length - 1] = R.drawable.ic_genres;
+
+        // XXX: Implement the "Choose the genres that the random mix will be
+        // drawn from" functionality.
+        // icons[icons.length - 1] = R.drawable.ic_genres;
 		listView.setAdapter(new IconRowAdapter(this, values, icons));
 		listView.setOnItemClickListener(onRandomplayItemClick);
 	}
