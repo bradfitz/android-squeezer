@@ -21,7 +21,6 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import android.os.RemoteException;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,12 +30,10 @@ import android.widget.Toast;
 
 public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPluginItem> {
 	private final SqueezerPluginItemListActivity activity;
-	private final LayoutInflater layoutInflater;
 
 	public SqueezerPluginItemView(SqueezerPluginItemListActivity activity) {
 		super(activity);
 		this.activity = activity;
-		layoutInflater = activity.getLayoutInflater();
 	}
 
 	@Override
@@ -44,7 +41,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
-            convertView = layoutInflater.inflate(R.layout.icon_large_row_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
 
             viewHolder = new ViewHolder();
 			viewHolder.label = (TextView) convertView.findViewById(R.id.label);

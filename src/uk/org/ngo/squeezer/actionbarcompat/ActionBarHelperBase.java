@@ -25,6 +25,8 @@ import java.util.Map;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.XmlResourceParser;
@@ -52,9 +54,6 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Util;
 
 /**
  * A class that implements the action bar pattern for pre-Honeycomb devices.
@@ -190,7 +189,8 @@ public class ActionBarHelperBase extends ActionBarHelper {
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
-            View itemView = Util.getListItemView(mActivity.getLayoutInflater(), R.layout.list_item, convertView, items.get(position).getTitle());
+            View itemView = Util.getListItemView(mActivity.getLayoutInflater(), R.layout.textview,
+                    convertView, items.get(position).getTitle());
             itemView.setEnabled(items.get(position).isEnabled());
             return itemView;
         }

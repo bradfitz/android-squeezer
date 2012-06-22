@@ -22,9 +22,10 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import android.os.RemoteException;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,14 +44,12 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     // server.
 
     private final static String TAG = "SqueezerMusicFolderView";
-    private final LayoutInflater mLayoutInflater;
 
     SqueezerItemListActivity mContext;
 
     public SqueezerMusicFolderView(SqueezerItemListActivity activity) {
         super(activity);
         mContext = activity;
-        mLayoutInflater = activity.getLayoutInflater();
     }
 
     @Override
@@ -58,10 +57,11 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
-            convertView = mLayoutInflater.inflate(R.layout.icon_large_row_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
             viewHolder = new ViewHolder();
-            viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+            viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -80,6 +80,13 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
             icon_resource = R.drawable.ic_playlists;
 
         viewHolder.icon.setImageResource(icon_resource);
+
+        viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
+        viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                v.showContextMenu();
+            }
+        });
 
         return convertView;
     }
@@ -111,5 +118,6 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     private static class ViewHolder {
         TextView label;
         ImageView icon;
+        ImageView btnContextMenu;
     }
 }

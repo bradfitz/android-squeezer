@@ -19,26 +19,21 @@ package uk.org.ngo.squeezer.itemlists;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
-
 import android.os.RemoteException;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import uk.org.ngo.squeezer.R;
-
 public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
-	private final LayoutInflater layoutInflater;
 	private static final Map<String, Integer> modelIcons = initializeModelIcons();
 
 	public SqueezerPlayerView(SqueezerItemListActivity activity) {
 		super(activity);
-		layoutInflater = activity.getLayoutInflater();
 	}
 
 	@Override
@@ -46,7 +41,7 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
-			convertView = layoutInflater.inflate(R.layout.icon_large_row_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
 			viewHolder = new ViewHolder();
 			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
