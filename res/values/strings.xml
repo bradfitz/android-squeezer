@@ -53,7 +53,7 @@
     <string name="menu_item_playlists_new">New playlist</string>
     <string name="menu_item_playlist_clear">Clear current playlist</string>
     <string name="menu_item_playlist_save">Save current playlist</string>
-    <string name="about_title">About Squeezer v%s</string>
+    <string name="about_title">Squeezer v%s</string>
     <string name="connecting_text">Connecting</string>
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
     <string name="connection_failed_text">Connection failed. Check settings.</string>
