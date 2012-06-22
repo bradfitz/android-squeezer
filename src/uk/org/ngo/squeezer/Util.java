@@ -111,6 +111,16 @@ public class Util {
         }
     }
 
+    /**
+     * Helper method to return a view for a listitem that consists of a single
+     * TextView.
+     * 
+     * @param layoutInflater
+     * @param id
+     * @param convertView
+     * @param label
+     * @return
+     */
     public static View getListItemView(LayoutInflater layoutInflater, int id, View convertView,
             CharSequence label) {
         TextView view;
