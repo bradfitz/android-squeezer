@@ -1,0 +1,98 @@
+0.8
+===
+
+*   Support browsing and playing favourites on the Squeezeserver.
+
+*   Add a startup tip about how to control volume.
+
+*   Fixed a crash caused by trying to scrobble when a song wasn't playing.
+
+
+0.7.1
+=====
+
+*   Increased the speed of network scanning by a factor of ~ 12.  If multiple
+    servers are present on the network then show their configured names, when
+    choosing between them, instead of IP addresses.
+
+*   Added a Dutch translation, contributed by Sebastian van Winkel.
+
+*   Fixed a bug where changing the server's address would not be picked up, and
+    Squeezer would continue to try and use the old server address.
+
+*   Fixed a crash when the device has no active network connections.
+
+*   Fixed a crash when displaying the "Enabling Wi-Fi" dialog.
+
+
+0.7
+===
+
+*   Added support for browsing the Squeezeserver's music folder (if the server
+    includes this feature).
+
+*   Added support for scanning the local network to find compatible Squeezeservers,
+    as an alternative to entering IP addresses by hand.
+
+*   Fixed a crash caused by pressing the "back" key while the "Connecting..."
+    dialog was showing.
+
+*   Fixed a crash when renaming or deleting playlists.
+
+*   Fixed a bug where duplicated items might appear on the menu.
+
+
+0.6.2
+=====
+
+*   Fix crashes on orientation change, and assorted Honeycomb crashes after incorrect
+    API selection.
+
+
+0.6.1
+=====
+
+*   Included higher resolution icons for devices with a higher display density,
+    such as the Galaxy Nexus.
+
+*   Fixed a rare crash when releasing the Wi-Fi lock.
+
+*   The hardware volume controls now work from all activities, not just the Now
+    Playing activity.  This fixes issue 20
+    (http://code.google.com/p/android-squeezer/issues/detail?id=20).
+
+*   The "Settings" menu option is now visible in all activities, not just the Now
+    Playing activity.  This fixes issue 23
+    (http://code.google.com/p/android-squeezer/issues/detail?id=23).
+
+
+0.6
+===
+
+*   Browse the library.
+
+    Full support for browsing by artist, album, song, genre, or year.  Also use 
+    Internet radio stations.
+    
+*   Search.
+
+    Search your library by artist, album, song, and genre.
+    
+*   Playlists.
+
+    Create, modify, and delete playlists on the server.
+
+*   Scrobble the currently playing track to Last.fm.
+
+*   "Now playing" UI.
+
+    Larger album artwork, and the current artist and album are now links to searches
+    for more songs by the same artist / from the same album.  There is also a
+    "landscape" optimised UI.
+
+*   "Scrub" through the currently playing track using the seekbar.
+
+*   Control the player's volume using your device's hardware volume keys.
+
+*   Error reporting.  If Squeezer encounters an error you can (optionally) submit
+    an error report to the developers.

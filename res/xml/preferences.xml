@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-   Copyright (C) 2009 Brad Fitzpatrick <brad@danga.com>
+   Copyright (C) 2009 Google Inc.  All Rights Reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -18,22 +18,19 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                  android:key="first_preferencescreen">
 
-  <CheckBoxPreference
-     android:key="squeezer.autodiscover"
-     android:title="Auto-discover server"
-     android:summary="NOTDONE Auto-scan for the squeeze server."
-     android:persistent="true" />
-
-   <EditTextPreference
+   <!-- TODO: Something that only allowed IP:port here would be nice,
+        instead of using the normal keyboard. -->
+   <uk.org.ngo.squeezer.dialogs.ServerAddressPreference
      android:key="squeezer.serveraddr"
      android:title="@string/settings_serveraddr_title"
      android:summary="@string/settings_serveraddr_summary"
+     android:dialogMessage="@string/settings_serveraddr_summary"
      android:persistent="true" />
 
   <CheckBoxPreference
      android:key="squeezer.autoconnect"
-     android:title="Auto-connect"
-     android:summary="On Wifi availability, try to connect."
+     android:title="@string/settings_autoconnect_title"
+     android:summary="@string/settings_autoconnect_summary"
      android:persistent="true" />
 
   <CheckBoxPreference
@@ -42,9 +39,41 @@
      android:summary="Show notification while connected, even when not playing music."
      android:persistent="true" />
 
-  <CheckBoxPreference
-     android:key="squeezer.debuglogging"
-     android:title="Debug Logging"
-     android:summary="Keep this off, unless you're debugging something."
-     android:persistent="true" />
+  <ListPreference
+     android:key="squeezer.scrobble"
+     android:title="Scrobbling"
+     android:summary="Scrobble song information to Last.fm"
+     android:persistent="true"
+     android:entries="@array/scrobblePrefItems"
+     android:entryValues="@array/scrobblePrefValues"
+     android:defaultValue="0"
+    />
+
+  <PreferenceCategory
+    android:title="@string/pref_cat_error_reports">
+
+    <CheckBoxPreference android:key="acra.enable"
+        android:title="@string/pref_disable_acra"
+        android:summaryOn="@string/pref_acra_enabled"
+        android:summaryOff="@string/pref_acra_disabled"
+        android:defaultValue="true"/>
+
+    <CheckBoxPreference android:key="acra.alwaysaccept"
+        android:title="@string/pref_acra_alwaysaccept"
+        android:summaryOn="@string/pref_acra_alwaysaccept_enabled"
+        android:summaryOff="@string/pref_acra_alwaysaccept_disabled"
+        android:defaultValue="false"/>
+
+    <CheckBoxPreference android:key="squeezer.analytics.enabled"
+        android:title="@string/pref_analytics_enable"
+        android:summaryOn="@string/pref_analytics_enable_enabled"
+        android:summaryOff="@string/pref_analytics_enable_disabled"
+        android:defaultValue="true"/>
+
+<!--   <CheckBoxPreference -->
+<!--      android:key="squeezer.debuglogging" -->
+<!--      android:title="Debug Logging" -->
+<!--      android:summary="Keep this off, unless you're debugging something." -->
+<!--      android:persistent="true" /> -->
+  </PreferenceCategory>
 </PreferenceScreen>

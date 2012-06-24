@@ -8,3 +8,4 @@ build.properties
 src/com/danga/squeezer/IServiceCallback.java
 src/com/danga/squeezer/ISqueezeService.java
 src/com/danga/squeezer/R.java
+/ant.properties

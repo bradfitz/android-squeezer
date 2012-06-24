@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
-   Copyright (C) 2009 Brad Fitzpatrick <brad@danga.com>
+   Copyright (C) 2009 Google Inc.  All Rights Reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -14,6 +15,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_item_connect"
@@ -34,7 +36,7 @@
     <item
         android:id="@+id/menu_item_players"
         android:title="@string/menu_item_players"
-        android:alphabeticShortcut="z" />
+        android:alphabeticShortcut="z" android:icon="@+drawable/icon_choose_player"/>
     <item
         android:icon="@android:drawable/ic_menu_search"
         android:id="@+id/menu_item_search"

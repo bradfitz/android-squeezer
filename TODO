@@ -3,16 +3,12 @@
 
 * Deal with orientation change.  Include widescreen layout xml.
 
-* Browsing music & all that.
-
 * Pandora like/dislike buttons.
 
 * Pandora disable back button when in Pandora mode.
 
 * Wait for Wifi when connection fails & try again.  (auto-kick
   Wifi too...?)
-
-* Auto-connect when Wifi state becomes available.
 
 * screen/sleep lock option? "party remote mode"
 
