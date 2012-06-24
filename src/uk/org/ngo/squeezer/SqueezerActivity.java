@@ -19,6 +19,8 @@ package uk.org.ngo.squeezer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.acra.ErrorReporter;
+
 import uk.org.ngo.squeezer.dialogs.AboutDialog;
 import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
@@ -32,6 +34,7 @@ import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -43,6 +46,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -607,6 +611,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         players.setEnabled(connected);
         MenuItem search = menu.findItem(R.id.menu_item_search);
         search.setEnabled(connected);
+        MenuItem download = menu.findItem(R.id.menu_item_download);
+        download.setEnabled(connected);
 
     	return true;
     }
@@ -650,6 +656,22 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         case R.id.menu_item_about:
             new AboutDialog().show(getSupportFragmentManager(), "AboutDialog");
             return true;
+
+            case R.id.menu_item_download:
+                // XXX: Very similar to code in SqueezerAbstractSong, should
+                // try and refactor in to something the service can do.
+                try {
+                    ISqueezeService service = getService();
+                    String songId = service.currentSong().getId();
+                    String url = service.getSongDownloadUrl(songId);
+
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(i);
+                } catch (RemoteException e) {
+                    ErrorReporter.getInstance().handleException(e);
+                    e.printStackTrace();
+                }
+                return true;
         }
         return super.onMenuItemSelected(featureId, item);
     }
