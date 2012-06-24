@@ -50,6 +50,7 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 		NowPlayingActivity.show(getActivity());
 	}
 
+    // XXX: Make this a menu resource.
 	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlaylist item) {
 		menu.setHeaderTitle(item.getName());
 		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_DELETE_ITEM, 0, R.string.menu_item_delete);

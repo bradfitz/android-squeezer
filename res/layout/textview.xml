@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
- Copyright (c) 2009 Google Inc.  All Rights Reserved.
+ Copyright 2012 Google Inc.  All Rights Reserved.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
  limitations under the License.
 -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-    <fragment android:name="uk.org.ngo.squeezer.NowPlayingFragment"
-        android:id="@+id/now_playing_fragment"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
-</merge>
 
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/text1"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:padding="8dp"
+  android:textAppearance="?android:attr/textAppearanceMedium" />

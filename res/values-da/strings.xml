@@ -190,7 +190,7 @@
         <item>Miks baseret på tilfældigt album</item>
         <item>Miks baseret på tilfældig kunster</item>
         <item>Miks baseret på tilfældigt årstal</item>
-        <item>Vælg genrer</item>
+        <!-- <item>Vælg genrer</item> -->
     </string-array>
 
 </resources>

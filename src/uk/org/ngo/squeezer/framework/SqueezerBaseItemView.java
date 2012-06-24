@@ -26,102 +26,166 @@ import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
     protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 
-	private final SqueezerItemListActivity activity;
-	private SqueezerItemAdapter<T> adapter;
-	private Class<T> itemClass;
-	private Creator<T> creator;
+    private final SqueezerItemListActivity mActivity;
+    private final LayoutInflater mLayoutInflater;
 
-	public SqueezerBaseItemView(SqueezerItemListActivity activity) {
-		this.activity = activity;
-	}
+    private SqueezerItemAdapter<T> mAdapter;
+	private Class<T> mItemClass;
+    private Creator<T> mCreator;
 
-	public SqueezerItemListActivity getActivity() {
-		return activity;
-	}
+    public SqueezerBaseItemView(SqueezerItemListActivity activity) {
+        this.mActivity = activity;
+        mLayoutInflater = activity.getLayoutInflater();
+    }
 
-	public SqueezerItemAdapter<T> getAdapter() {
-		return adapter;
-	}
+    public SqueezerItemListActivity getActivity() {
+        return mActivity;
+    }
 
-	public void setAdapter(SqueezerItemAdapter<T> adapter) {
-		this.adapter = adapter;
-	}
+    public SqueezerItemAdapter<T> getAdapter() {
+        return mAdapter;
+    }
 
-	@SuppressWarnings("unchecked")
-	public Class<T> getItemClass() {
-		if (itemClass  == null) {
-			itemClass = (Class<T>) ReflectUtil.getGenericClass(getClass(), SqueezerItemView.class, 0);
-			if (itemClass  == null)
-				throw new RuntimeException("Could not read generic argument for: " + getClass());
-		}
-		return itemClass;
-	}
+    public void setAdapter(SqueezerItemAdapter<T> adapter) {
+        this.mAdapter = adapter;
+    }
 
-	@SuppressWarnings("unchecked")
-	public Creator<T> getCreator() {
-		if (creator == null) {
-			Field field;
-			try {
-				field = getItemClass().getField("CREATOR");
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-			try {
-				creator = (Creator<T>) field.get(null);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return creator;
-	}
+    public LayoutInflater getLayoutInflater() {
+        return mLayoutInflater;
+    }
 
-	public View getAdapterView(View convertView, int index, T item) {
-		return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, item.getName());
-	}
+    @SuppressWarnings("unchecked")
+    public Class<T> getItemClass() {
+        if (mItemClass == null) {
+            mItemClass = (Class<T>) ReflectUtil.getGenericClass(getClass(), SqueezerItemView.class,
+                    0);
+            if (mItemClass == null)
+                throw new RuntimeException("Could not read generic argument for: " + getClass());
+        }
+        return mItemClass;
+    }
 
-	public View getAdapterView(View convertView, String label) {
-		return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, label);
-	}
+    @SuppressWarnings("unchecked")
+    public Creator<T> getCreator() {
+        if (mCreator == null) {
+            Field field;
+            try {
+                field = getItemClass().getField("CREATOR");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                mCreator = (Creator<T>) field.get(null);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return mCreator;
+    }
 
+    protected String getTag() {
+        return getClass().getSimpleName();
+    }
 
-	/**
-	 * The default context menu handler handles some common actions.
-	 * Each action must be set up in {@link #setupContextMenu(android.view.ContextMenu, int, SqueezerItem)}
-	 */
-	public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) throws RemoteException {
-		switch (menuItem.getItemId()) {
+    public View getAdapterView(View convertView, int index, T item) {
+        return getDefaultAdapterView(convertView, index, item);
+    }
+
+    /**
+     * Create a view with a textview for the item description, and a button
+     * that, when clicked, displays the context menu.
+     */
+    public View getDefaultAdapterView(View convertView, int index, T item) {
+        ViewHolder viewHolder;
+
+        if (convertView == null || convertView.getTag() == null) {
+            convertView = mLayoutInflater.inflate(R.layout.list_item, null);
+            viewHolder = new ViewHolder();
+            viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
+            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+        viewHolder.label1.setText(item.getName());
+
+        viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
+        viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                v.showContextMenu();
+            }
+        });
+
+        return convertView;
+    }
+
+    public View getAdapterView(View convertView, String label) {
+        return Util.getListItemView(mLayoutInflater, R.layout.textview, convertView, label);
+    }
+
+    /**
+     * A ViewHolder for listitems that consist of a single textview and an
+     * imagebutton for the context menu.
+     */
+    private static class ViewHolder {
+        TextView label1;
+        ImageButton btnContextMenu;
+    }
+
+    /**
+     * The default context menu handler handles some common actions. Each action
+     * must be set up in
+     * {@link #setupContextMenu(android.view.ContextMenu, int, SqueezerItem)}
+     */
+    public boolean doItemContext(MenuItem menuItem, int index, T selectedItem)
+            throws RemoteException {
+        switch (menuItem.getItemId()) {
             case R.id.browse_songs:
-                SqueezerSongListActivity.show(activity, selectedItem);
+                SqueezerSongListActivity.show(mActivity, selectedItem);
                 return true;
 
-		case CONTEXTMENU_BROWSE_ALBUMS:
-			SqueezerAlbumListActivity.show(activity, selectedItem);
-			return true;
+            case CONTEXTMENU_BROWSE_ALBUMS:
+                SqueezerAlbumListActivity.show(mActivity, selectedItem);
+                return true;
 
             case R.id.browse_artists:
-                SqueezerArtistListActivity.show(activity, selectedItem);
+                SqueezerArtistListActivity.show(mActivity, selectedItem);
                 return true;
 
             case R.id.play_now:
-                activity.play((SqueezerPlaylistItem) selectedItem);
+                if (mActivity.play((SqueezerPlaylistItem) selectedItem))
+                    Toast.makeText(mActivity,
+                            mActivity.getString(R.string.ITEM_PLAYING, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.add_to_playlist:
-                activity.add((SqueezerPlaylistItem) selectedItem);
+                if (mActivity.add((SqueezerPlaylistItem) selectedItem))
+                    Toast.makeText(mActivity,
+                            mActivity.getString(R.string.ITEM_ADDED, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.play_next:
-                activity.insert((SqueezerPlaylistItem) selectedItem);
+                if (mActivity.insert((SqueezerPlaylistItem) selectedItem))
+                    Toast.makeText(mActivity,
+                            mActivity.getString(R.string.ITEM_INSERTED, selectedItem.getName()),
+                            Toast.LENGTH_SHORT).show();
                 return true;
-		}
-		return false;
-	}
+        }
+        return false;
+    }
 
 }

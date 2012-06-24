@@ -171,10 +171,10 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                 R.drawable.ic_new_music,
                 R.drawable.ic_music_folder, R.drawable.ic_random,
                 R.drawable.ic_playlists, R.drawable.ic_internet_radio,
-                R.drawable.ic_favorites, R.drawable.ic_my_apps
+                R.drawable.ic_my_apps, R.drawable.ic_favorites
         };
 
-        String[] items = getResources().getStringArray(R.array.home_items);
+        String[] items = getResources().getStringArray(R.array.home_items);;
 
         if (getService() != null) {
             try {
@@ -212,6 +212,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 
 	private final OnItemClickListener onHomeItemClick = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
             switch ((int) id) {
                 case ARTISTS:
                     SqueezerArtistListActivity.show(SqueezerHomeActivity.this);
@@ -248,14 +249,14 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                     // Log.e("MyApp", sCrashString.toString());
                     SqueezerRadioListActivity.show(SqueezerHomeActivity.this);
                     break;
-                case FAVORITES:
-                    SqueezerPluginItemListActivity.show(SqueezerHomeActivity.this, SqueezerPlugin.FAVORITE);
-                    break;
                 case APPS:
                     // TODO (kaa) implement
                     // Currently hidden, by commenting out the entry in
                     // strings.xml.
                     // SqueezerApplicationListActivity.show(SqueezerHomeActivity.this);
+                    break;
+                case FAVORITES:
+                    SqueezerPluginItemListActivity.show(SqueezerHomeActivity.this, SqueezerPlugin.FAVORITE);
                     break;
 			}
 		}

@@ -22,9 +22,10 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import android.os.RemoteException;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,11 +33,8 @@ import android.widget.TextView;
  * Shows a single album with its artwork, and a context menu.
  */
 public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
-	private final LayoutInflater layoutInflater;
-
 	public SqueezerAlbumView(SqueezerItemListActivity activity) {
 		super(activity);
-		layoutInflater = activity.getLayoutInflater();
 	}
 
 	@Override
@@ -44,14 +42,16 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
-			convertView = layoutInflater.inflate(R.layout.icon_two_line_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_two_line, null);
 			viewHolder = new ViewHolder();
 			viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
 			viewHolder.label2 = (TextView) convertView.findViewById(R.id.text2);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
 			convertView.setTag(viewHolder);
-		} else
+        } else {
 			viewHolder = (ViewHolder) convertView.getTag();
+        }
 
 		viewHolder.label1.setText(item.getName());
 		String text2 = "";
@@ -60,7 +60,15 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 			if (item.getYear() != 0) text2 += " - " + item.getYear();
 		}
 		viewHolder.label2.setText(text2);
-		updateAlbumArt(viewHolder.icon, item);
+
+        viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
+        viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                v.showContextMenu();
+            }
+        });
+
+        updateAlbumArt(viewHolder.icon, item);
 
 		return convertView;
 	}
@@ -89,6 +97,7 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 		TextView label1;
 		TextView label2;
 		ImageView icon;
+        ImageButton btnContextMenu;
 	}
 
 }

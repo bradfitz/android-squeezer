@@ -680,10 +680,9 @@ public class NowPlayingFragment extends Fragment implements
     // return false;
     // }
 
-    /*
-     * @see
-     * android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu,
-     * android.view.MenuInflater)
+    /**
+     * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu,
+     *      android.view.MenuInflater)
      */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

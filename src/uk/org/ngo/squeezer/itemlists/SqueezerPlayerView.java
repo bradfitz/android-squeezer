@@ -24,28 +24,25 @@ import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import android.os.RemoteException;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
-	private final LayoutInflater layoutInflater;
-    private SqueezerPlayerListActivity activity;
 	private static final Map<String, Integer> modelIcons = initializeModelIcons();
+    private SqueezerPlayerListActivity activity;
 
-	public SqueezerPlayerView(SqueezerPlayerListActivity activity) {
-		super(activity);
-		this.activity = activity;
-		layoutInflater = activity.getLayoutInflater();
-	}
+    public SqueezerPlayerView(SqueezerPlayerListActivity activity) {
+        super(activity);
+        this.activity = activity;
+    }
 
 	@Override
 	public View getAdapterView(View convertView, int index, SqueezerPlayer item) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
-			convertView = layoutInflater.inflate(R.layout.icon_large_row_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
 			viewHolder = new ViewHolder();
 			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
