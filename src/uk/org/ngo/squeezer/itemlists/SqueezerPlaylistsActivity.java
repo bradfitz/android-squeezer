@@ -25,6 +25,7 @@ import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsNewDialog;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
@@ -36,6 +37,16 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 	private SqueezerPlaylist currentPlaylist;
     private String oldname;
     public SqueezerPlaylist getCurrentPlaylist() { return currentPlaylist; }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            currentPlaylist = extras.getParcelable("currentPlaylist");
+        }
+    }
 
     /**
      * Set the playlist to be used as context
@@ -87,13 +98,6 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().playlists(start);
-	}
-
-	@Override
-	public void prepareActivity(android.os.Bundle extras) {
-        if (extras != null) {
-            currentPlaylist = extras.getParcelable("currentPlaylist");
-        }
 	}
 
     @Override

@@ -34,6 +34,16 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            playlist = extras.getParcelable("playlist");
+        }
+    }
+
 	public static void show(Context context, SqueezerPlaylist playlist) {
 	    final Intent intent = new Intent(context, SqueezerPlaylistSongsActivity.class);
 	    intent.putExtra("playlist", playlist);
@@ -112,11 +122,6 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
             };
         };
     }
-
-	@Override
-	public void prepareActivity(Bundle extras) {
-	    playlist = extras.getParcelable("playlist");
-	}
 
 	@Override
 	protected void orderPage(int start) throws RemoteException {

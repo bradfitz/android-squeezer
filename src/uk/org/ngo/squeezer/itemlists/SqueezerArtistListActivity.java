@@ -56,30 +56,29 @@ public class SqueezerArtistListActivity extends SqueezerBaseListActivity<Squeeze
 	    genreSpinner = new GenreSpinner(this, this, spinner);
 	}
 
-
     @Override
 	public SqueezerItemView<SqueezerArtist> createItemView() {
 		return new SqueezerArtistView(this);
 	}
 
-	@Override
-	public void prepareActivity(Bundle extras) {
-		if (extras != null)
-			for (String key : extras.keySet()) {
-				if (SqueezerAlbum.class.getName().equals(key)) {
-					album = extras.getParcelable(key);
-				} else if (SqueezerGenre.class.getName().equals(key)) {
-					genre = extras.getParcelable(key);
-				} else
-					Log.e(getTag(), "Unexpected extra value: " + key + "("
-							+ extras.get(key).getClass().getName() + ")");
-			}
-	}
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            for (String key : extras.keySet()) {
+                if (SqueezerAlbum.class.getName().equals(key)) {
+                    album = extras.getParcelable(key);
+                } else if (SqueezerGenre.class.getName().equals(key)) {
+                    genre = extras.getParcelable(key);
+                } else
+                    Log.e(getTag(), "Unexpected extra value: " + key + "("
+                            + extras.get(key).getClass().getName() + ")");
+            }
+        }
     };
 
 	@Override

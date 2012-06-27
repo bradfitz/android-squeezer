@@ -88,8 +88,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		});
 
 		listView.setOnScrollListener(this);
-
-		prepareActivity(getIntent().getExtras());
 	}
 
 
@@ -97,13 +95,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	 * @return A new view logic to be used by this activity
 	 */
 	abstract protected SqueezerItemView<T> createItemView();
-
-	/**
-	 * Initial setup of this activity.
-	 * @param extras Optionally use this information to setup the activity. (may be null)
-	 */
-	public void prepareActivity(Bundle extras) {
-	}
 
 	@Override
 	public final boolean onContextItemSelected(MenuItem menuItem) {

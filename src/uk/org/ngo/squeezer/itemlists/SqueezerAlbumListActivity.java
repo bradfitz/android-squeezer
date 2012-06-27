@@ -85,23 +85,30 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 		return new SqueezerAlbumView(this);
 	}
 
-	@Override
-	public void prepareActivity(Bundle extras) {
-		if (extras != null)
-			for (String key : extras.keySet()) {
-				if (SqueezerArtist.class.getName().equals(key)) {
-					artist = extras.getParcelable(key);
-				} else if (SqueezerYear.class.getName().equals(key)) {
-					year = extras.getParcelable(key);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
+        MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            for (String key : extras.keySet()) {
+                if (SqueezerArtist.class.getName().equals(key)) {
+                    artist = extras.getParcelable(key);
+                } else if (SqueezerYear.class.getName().equals(key)) {
+                    year = extras.getParcelable(key);
                 } else if (SqueezerGenre.class.getName().equals(key)) {
                     genre = extras.getParcelable(key);
                 } else if (SqueezerSong.class.getName().equals(key)) {
                     song = extras.getParcelable(key);
-				} else
-					Log.e(getTag(), "Unexpected extra value: " + key + "("
-							+ extras.get(key).getClass().getName() + ")");
-			}
-	}
+                } else
+                    Log.e(getTag(), "Unexpected extra value: " + key + "("
+                            + extras.get(key).getClass().getName() + ")");
+            }
+        }
+    }
 
 	@Override
 	protected void registerCallback() throws RemoteException {
@@ -130,13 +137,6 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 		this.sortOrder = sortOrder;
 		orderItems();
 	}
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
-        MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
-    };
 
     @Override
     public boolean onSearchRequested() {
