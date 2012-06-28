@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistSaveDialog;
@@ -51,15 +52,16 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerAbstractSongListAct
 			}
 
             @Override
-            public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {
-                super.setupContextMenu(menu, index, item);
+            public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item,
+                    SqueezerItemAdapter<SqueezerSong> adapter) {
+                super.setupContextMenu(menu, index, item, adapter);
 
                 menu.setGroupVisible(R.id.group_playlist, true);
 
                 if (index == 0)
                     menu.findItem(R.id.playlist_move_up).setVisible(false);
 
-                if (index == getAdapter().getCount() - 1)
+                if (index == adapter.getCount() - 1)
                     menu.findItem(R.id.playlist_move_down).setVisible(false);
             }
 

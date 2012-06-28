@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SqueezerActivity;
+import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import android.os.RemoteException;
 import android.view.ContextMenu;
@@ -80,7 +81,8 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 	}
 
     // XXX: Make this a menu resource.
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerPluginItem item) {
+    public void setupContextMenu(ContextMenu menu, int index, SqueezerPluginItem item,
+            SqueezerItemAdapter<SqueezerPluginItem> adapter) {
 		if (!item.isHasitems()) {
 			menu.setHeaderTitle(item.getName());
             menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);

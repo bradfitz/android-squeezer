@@ -19,18 +19,17 @@ package uk.org.ngo.squeezer.itemlists;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
+import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
-
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import uk.org.ngo.squeezer.R;
 
 public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 	private final LayoutInflater layoutInflater;
@@ -65,8 +64,9 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		getActivity().finish();
 	};
 
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlayer item) {
-	}
+    public void setupContextMenu(ContextMenu menu, int index, SqueezerPlayer item,
+            SqueezerItemAdapter<SqueezerPlayer> adapter) {
+    }
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.player, quantity);

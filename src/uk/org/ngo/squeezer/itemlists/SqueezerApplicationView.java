@@ -16,11 +16,11 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import android.view.ContextMenu;
-
-import uk.org.ngo.squeezer.R;
 
 public class SqueezerApplicationView extends SqueezerPluginView {
 	public SqueezerApplicationView(SqueezerItemListActivity activity) {
@@ -35,7 +35,8 @@ public class SqueezerApplicationView extends SqueezerPluginView {
 		//TODO what to do?
 	}
 
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlugin item) {
+    public void setupContextMenu(ContextMenu menu, int index, SqueezerPlugin item,
+            SqueezerItemAdapter<SqueezerPlugin> adapter) {
 		//TODO what to do?
 	}
 

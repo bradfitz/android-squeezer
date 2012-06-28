@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
+import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import android.os.RemoteException;
@@ -97,12 +98,13 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     };
 
     // XXX: Make this a menu resource.
-    public void setupContextMenu(ContextMenu menu, int index, SqueezerMusicFolderItem item) {
+    public void setupContextMenu(ContextMenu menu, int index, SqueezerMusicFolderItem item,
+            SqueezerItemAdapter<SqueezerMusicFolderItem> adapter) {
         menu.setHeaderTitle(item.getName());
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
         menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
-    };
+    }
 
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.musicfolder, quantity);

@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
@@ -87,7 +88,8 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
      * Subclasses that show songs in playlists should call through to this
      * first, then adjust the visibility of R.id.group_playlist.
      */
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {
+    public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item,
+            SqueezerItemAdapter<SqueezerSong> adapter) {
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.songcontextmenu, menu);
 

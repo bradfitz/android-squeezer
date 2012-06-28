@@ -85,7 +85,6 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 */
 	public SqueezerItemAdapter(SqueezerItemView<T> itemView, boolean emptyItem) {
 		this.itemView = itemView;
-		itemView.setAdapter(this);
 		this.emptyItem = emptyItem;
 		loadingText = itemView.getActivity().getString(R.string.loading_text);
 		pageSize = itemView.getActivity().getResources().getInteger(R.integer.PageSize);
@@ -131,7 +130,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	public void setupContextMenu(ContextMenu menu, int position) {
 		final T selectedItem = getItem(position);
 		if (selectedItem != null && selectedItem.getId() != null) {
-			itemView.setupContextMenu(menu, position, selectedItem);
+            itemView.setupContextMenu(menu, position, selectedItem, this);
 		}
 	}
 

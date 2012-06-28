@@ -79,12 +79,6 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	Creator<T> getCreator();
 
 	/**
-	 * Set the adapter which uses this view logic
-	 * @param adapter
-	 */
-	void setAdapter(SqueezerItemAdapter<T> adapter);
-
-	/**
 	 * Implement the action to be taken when an item is selected.
 	 * @param index Position in the list of the selected item.
 	 * @param item The selected item. This may be null if
@@ -97,7 +91,7 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	 * <p>Leave this empty if there shall be no context menu.
 	 * @see OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, android.view.ContextMenu.ContextMenuInfo)
 	 */
-	void setupContextMenu(ContextMenu menu, int index, T item);
+    void setupContextMenu(ContextMenu menu, int index, T item, SqueezerItemAdapter<T> adapter);
 
 	/**
 	 * Perform the selected action from the context menu for the selected item.

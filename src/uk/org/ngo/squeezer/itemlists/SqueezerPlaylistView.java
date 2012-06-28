@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlists;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
+import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsDeleteDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsRenameDialog;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
@@ -50,7 +51,8 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 		SqueezerActivity.show(getActivity());
 	}
 
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlaylist item) {
+    public void setupContextMenu(ContextMenu menu, int index, SqueezerPlaylist item,
+            SqueezerItemAdapter<SqueezerPlaylist> adapter) {
 		menu.setHeaderTitle(item.getName());
 		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_DELETE_ITEM, 0, R.string.menu_item_delete);
 		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_RENAME_ITEM, 1, R.string.menu_item_rename);

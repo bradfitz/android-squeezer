@@ -41,7 +41,6 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
     protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 
 	private final SqueezerItemListActivity activity;
-	private SqueezerItemAdapter<T> adapter;
 	private Class<T> itemClass;
 	private Creator<T> creator;
 
@@ -51,14 +50,6 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 
 	public SqueezerItemListActivity getActivity() {
 		return activity;
-	}
-
-	public SqueezerItemAdapter<T> getAdapter() {
-		return adapter;
-	}
-
-	public void setAdapter(SqueezerItemAdapter<T> adapter) {
-		this.adapter = adapter;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -96,7 +87,6 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
     public View getAdapterView(View convertView, String label) {
         return Util.getListItemView(getActivity(), convertView, label);
     }
-
 
 	/**
 	 * The default context menu handler handles some common actions.

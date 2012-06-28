@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SqueezerActivity;
+import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import android.os.RemoteException;
@@ -74,7 +75,8 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
      * Creates the context menu for an album by inflating
      * R.menu.albumcontextmenu.
      */
-    public void setupContextMenu(ContextMenu menu, int index, SqueezerAlbum item) {
+    public void setupContextMenu(ContextMenu menu, int index, SqueezerAlbum item,
+            SqueezerItemAdapter<SqueezerAlbum> adapter) {
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.albumcontextmenu, menu);
 
@@ -90,5 +92,4 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 		TextView label2;
 		ImageView icon;
 	}
-
 }
