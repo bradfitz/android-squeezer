@@ -96,31 +96,21 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	 */
 	abstract protected SqueezerItemView<T> createItemView();
 
-	@Override
-	public final boolean onContextItemSelected(MenuItem menuItem) {
-		AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
-		final T selectedItem = getItemAdapter().getItem(menuInfo.position);
+    @Override
+    public final boolean onContextItemSelected(MenuItem menuItem) {
+        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 
-		if (getService() != null) {
-			try {
-                // XXX: Why is doItemContext() a method on the view? Shouldn't
-                // that be a method on the adapter?
-                //
-                // Is this because we don't have per-type adapters, there's one
-                // adapter used for everything, so the logic ends up in the
-                // view?
-                //
-                // In that case, could doItemContext() be a static class method?
-                //
-                // Or maybe we call through a method on the adapter which would
-                // take care of this?
-				return itemView.doItemContext(menuItem, menuInfo.position, selectedItem);
-			} catch (RemoteException e) {
-                Log.e(getTag(), "Error context menu action '"+ menuInfo + "' for '" + selectedItem + "': " + e);
-			}
-		}
-		return false;
-	}
+        if (getService() != null) {
+            try {
+                return itemAdapter.doItemContext(menuItem, menuInfo.position);
+            } catch (RemoteException e) {
+                Log.e(getTag(), "Error context menu action '" + menuInfo + "' for '"
+                        + menuInfo.position + "': " + e);
+            }
+        }
+
+        return super.onContextItemSelected(menuItem);
+    }
 
 	@Override
 	protected void onServiceConnected() throws RemoteException {
