@@ -32,10 +32,9 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 
 /**
- * <p>
- * This class defines the common minimum, which any activity browsing the SqueezeServer's database
- * must implement.
- * </p>
+ * This class defines the common minimum, which any activity browsing the
+ * SqueezeServer's database must implement.
+ * 
  * @author Kurt Aaholst
  */
 public abstract class SqueezerItemListActivity extends SqueezerBaseActivity implements OnScrollListener {
@@ -95,8 +94,6 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
 		orderedPages.clear();
 		maybeOrderPage(0);
 	}
-
-
 
 	private boolean listBusy;
 	public boolean isListBusy() { return listBusy; }
