@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistDeleteDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistItemMoveDialog;
@@ -32,6 +31,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActivity {
@@ -70,16 +70,15 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
     public SqueezerItemView<SqueezerSong> createItemView() {
         return new SqueezerSongView(this) {
             @Override
-            public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item,
-                    SqueezerItemAdapter<SqueezerSong> adapter) {
-                super.setupContextMenu(menu, index, item, adapter);
+            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+                super.onCreateContextMenu(menu, v, menuInfo);
 
                 menu.setGroupVisible(R.id.group_playlist, true);
 
-                if (index == 0)
+                if (menuInfo.position == 0)
                     menu.findItem(R.id.playlist_move_up).setVisible(false);
 
-                if (index == adapter.getCount() - 1)
+                if (menuInfo.position == menuInfo.adapter.getCount() - 1)
                     menu.findItem(R.id.playlist_move_down).setVisible(false);
             }
 

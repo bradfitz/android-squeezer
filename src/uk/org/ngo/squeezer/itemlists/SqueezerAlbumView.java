@@ -18,13 +18,11 @@ package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SqueezerActivity;
-import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -75,13 +73,11 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
      * Creates the context menu for an album by inflating
      * R.menu.albumcontextmenu.
      */
-    public void setupContextMenu(ContextMenu menu, int index, SqueezerAlbum item,
-            SqueezerItemAdapter<SqueezerAlbum> adapter) {
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.albumcontextmenu, menu);
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.setHeaderTitle(item.getName());
-    };
+        menuInfo.menuInflater.inflate(R.menu.albumcontextmenu, menu);
+    }
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.album, quantity);

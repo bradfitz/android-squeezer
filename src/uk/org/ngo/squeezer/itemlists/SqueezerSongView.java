@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.itemlists;
 
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
@@ -26,7 +25,6 @@ import uk.org.ngo.squeezer.model.SqueezerSong;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -88,20 +86,18 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
      * Subclasses that show songs in playlists should call through to this
      * first, then adjust the visibility of R.id.group_playlist.
      */
-    public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item,
-            SqueezerItemAdapter<SqueezerSong> adapter) {
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.songcontextmenu, menu);
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
 
-		menu.setHeaderTitle(item.getName());
+        menuInfo.menuInflater.inflate(R.menu.songcontextmenu, menu);
 
-        if (item.getAlbum_id() != null && !browseByAlbum)
+        if (((SqueezerSong) menuInfo.item).getAlbum_id() != null && !browseByAlbum)
             menu.findItem(R.id.view_this_album).setVisible(true);
 
-        if (item.getArtist_id() != null)
+        if (((SqueezerSong) menuInfo.item).getArtist_id() != null)
             menu.findItem(R.id.view_albums_by_song).setVisible(true);
 
-        if (item.getArtist_id() != null && !browseByArtist)
+        if (((SqueezerSong) menuInfo.item).getArtist_id() != null && !browseByArtist)
             menu.findItem(R.id.view_songs_by_artist).setVisible(true);
     }
 

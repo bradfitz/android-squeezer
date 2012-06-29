@@ -131,12 +131,25 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
 		return itemView.getActivity();
 	}
 
+    /**
+     * Creates the context menu for the selected item by calling
+     * {@link SqueezerItemView.onCreateContextMenu} which the subclass should
+     * have specialised.
+     * <p>
+     * Unpacks the {@link ContextMenu.ContextMenuInfo} passed to this method,
+     * and creates a {@link SqueezerItemView.ContextMenuInfo} suitable for
+     * passing to subclasses of {@link SqueezerBaseItemView}.
+     */
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
         final T selectedItem = getItem(adapterMenuInfo.position);
 
+        SqueezerItemView.ContextMenuInfo c = new SqueezerItemView.ContextMenuInfo(
+                adapterMenuInfo.position, selectedItem, this,
+                getActivity().getMenuInflater());
+
         if (selectedItem != null && selectedItem.getId() != null) {
-            itemView.setupContextMenu(menu, adapterMenuInfo.position, selectedItem, this);
+            itemView.onCreateContextMenu(menu, v, c);
         }
     }
 

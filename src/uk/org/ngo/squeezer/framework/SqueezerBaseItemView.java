@@ -26,6 +26,7 @@ import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
+import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -86,6 +87,11 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 
     public View getAdapterView(View convertView, String label) {
         return Util.getListItemView(getActivity(), convertView, label);
+    }
+
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            SqueezerItemView.ContextMenuInfo menuInfo) {
+        menu.setHeaderTitle(menuInfo.item.getName());
     }
 
 	/**
