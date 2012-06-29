@@ -70,6 +70,8 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
                 super.setupContextMenu(menu, index, item);
 
                 menu.setGroupVisible(R.id.group_playlist, true);
+                menu.findItem(R.id.add_to_playlist).setVisible(false);
+                menu.findItem(R.id.play_next).setVisible(false);
 
                 if (index == 0)
                     menu.findItem(R.id.playlist_move_up).setVisible(false);
