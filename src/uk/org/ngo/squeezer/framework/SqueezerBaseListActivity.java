@@ -23,10 +23,8 @@ import uk.org.ngo.squeezer.R;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -67,6 +65,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
     	listView.setOnItemClickListener(new OnItemClickListener() {
     		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // XXX: Adapter should implement onItemClickListener and pass
+                // this down to the views.
     			T item = getItemAdapter().getItem(position);
     			if (item != null && item.getId() != null) {
     	   			try {
@@ -80,12 +80,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     		}
     	});
 
-		listView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-				AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
-				getItemAdapter().setupContextMenu(menu, adapterMenuInfo.position);
-			}
-		});
+        // Delegate context menu creation to the adapter.
+        listView.setOnCreateContextMenuListener(getItemAdapter());
 
 		listView.setOnScrollListener(this);
 	}

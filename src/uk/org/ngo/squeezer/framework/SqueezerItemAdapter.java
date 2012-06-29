@@ -25,7 +25,9 @@ import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 
 
@@ -42,7 +44,9 @@ import android.widget.BaseAdapter;
  * @see SqueezerItemView
  * @author Kurt Aaholst
  */
-public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
+public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter implements
+        OnCreateContextMenuListener
+{
 
 	/**
 	 * View logic for this adapter
@@ -127,12 +131,14 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		return itemView.getActivity();
 	}
 
-	public void setupContextMenu(ContextMenu menu, int position) {
-		final T selectedItem = getItem(position);
-		if (selectedItem != null && selectedItem.getId() != null) {
-            itemView.setupContextMenu(menu, position, selectedItem, this);
-		}
-	}
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
+        final T selectedItem = getItem(adapterMenuInfo.position);
+
+        if (selectedItem != null && selectedItem.getId() != null) {
+            itemView.setupContextMenu(menu, adapterMenuInfo.position, selectedItem, this);
+        }
+    }
 
 	public boolean doItemContext(MenuItem menuItem, int position) throws RemoteException {
 		return itemView.doItemContext(menuItem, position, getItem(position));
