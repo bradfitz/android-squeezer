@@ -164,7 +164,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
         super.onPause();
     }
 
-	static void show(Context context) {
+	public static void show(Context context) {
 		final Intent intent = new Intent(context, SqueezerSearchActivity.class)
 				.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);

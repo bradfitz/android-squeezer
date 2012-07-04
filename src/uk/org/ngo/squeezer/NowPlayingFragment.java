@@ -672,14 +672,6 @@ public class NowPlayingFragment extends Fragment implements
         super.onPause();
     }
 
-    // @Override
-    // public boolean onSearchRequested() {
-    // if (isConnected()) {
-    // SqueezerSearchActivity.show(mActivity);
-    // }
-    // return false;
-    // }
-
     /**
      * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu,
      *      android.view.MenuInflater)

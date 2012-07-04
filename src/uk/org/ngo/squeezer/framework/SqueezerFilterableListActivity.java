@@ -29,10 +29,4 @@ public abstract class SqueezerFilterableListActivity<T extends SqueezerItem>
         MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
     };
 
-    @Override
-    public boolean onSearchRequested() {
-        showFilterDialog();
-        return false;
-    }
-
 }

@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.framework;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.SqueezerSearchActivity;
 import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -94,6 +95,19 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         }
     }
 
+	/**
+	 * Setup the action when the user presses the device SEARCH button.
+	 * <p> The default action for squeezer activities is to open up the
+	 * {@link SqueezerSearchActivity}. 
+	 */
+    @Override
+    public boolean onSearchRequested() {
+        if (isConnected()) {
+            SqueezerSearchActivity.show(this);
+        }
+        return false;
+    }
+
 
     /*
      * Intercept hardware volume control keys to control Squeezeserver
@@ -141,6 +155,22 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         }
         return false;
     }
+
+    
+    // Safe accessors
+
+    public boolean isConnected() {
+        if (service == null) {
+            return false;
+        }
+        try {
+            return service.isConnected();
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Service exception in isConnected(): " + e);
+        }
+        return false;
+    }
+    
 
     // This section is just an easier way to call squeeze service
 
