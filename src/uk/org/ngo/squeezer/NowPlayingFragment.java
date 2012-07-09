@@ -700,7 +700,7 @@ public class NowPlayingFragment extends Fragment implements
                 SettingsActivity.show(mActivity);
                 return true;
             case R.id.menu_item_search:
-                SqueezerSearchActivity.show(mActivity);
+                mActivity.onSearchRequested();
                 return true;
             case R.id.menu_item_connect:
                 onUserInitiatesConnect();

@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.framework;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.SqueezerSearchActivity;
 import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -96,16 +95,12 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
     }
 
 	/**
-	 * Setup the action when the user presses the device SEARCH button.
-	 * <p> The default action for squeezer activities is to open up the
-	 * {@link SqueezerSearchActivity}. 
+	 * Block searches, when we are not connected 
 	 */
     @Override
     public boolean onSearchRequested() {
-        if (isConnected()) {
-            SqueezerSearchActivity.show(this);
-        }
-        return false;
+        if (!isConnected()) return false;
+        return super.onSearchRequested();
     }
 
 
