@@ -24,6 +24,8 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,11 +43,12 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
 
             viewHolder = new ViewHolder();
-			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+			viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
 
 			convertView.setTag(viewHolder);
         } else {
@@ -54,6 +57,14 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 
 		viewHolder.label.setText(item.getName());
 		updateIcon(viewHolder.icon, item, item.getImage());
+        if (!item.isHasitems()) {
+            viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
+            viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    v.showContextMenu();
+                }
+            });
+        }
 
 		return convertView;
 	}
@@ -61,6 +72,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 	private static class ViewHolder {
 		TextView label;
 		ImageView icon;
+        ImageButton btnContextMenu;
 	}
 
 	public String getQuantityString(int quantity) {
