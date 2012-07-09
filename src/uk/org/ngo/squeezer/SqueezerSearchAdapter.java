@@ -57,13 +57,13 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter {
 			new SqueezerItemAdapter<SqueezerSong>(new SqueezerSongView(activity) {
 				@Override
 				public View getAdapterView(View convertView, int index, SqueezerSong item) {
-					return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, item.getName());
+				    return getDefaultAdapterView(convertView, index, item);
 				}
 			}),
 			new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerAlbumView(activity) {
 				@Override
 				public View getAdapterView(View convertView, int index, SqueezerAlbum item) {
-					return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.list_item, convertView, item.getName());
+				    return getDefaultAdapterView(convertView, index, item);
 				}
 			}),
 			new SqueezerItemAdapter<SqueezerArtist>(new SqueezerArtistView(activity)),
