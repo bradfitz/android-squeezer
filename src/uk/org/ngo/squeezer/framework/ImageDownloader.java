@@ -28,20 +28,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Squeezer;
-import uk.org.ngo.squeezer.framework.ImageDownloader.BitmapDownloaderTask;
+import uk.org.ngo.squeezer.util.ImageCache;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.support.v4.util.LruCache;
 import android.util.Log;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 /**
@@ -59,26 +50,9 @@ import android.widget.ImageView;
  * performance.
  */
 public class ImageDownloader {
-    private static final String LOG_TAG = "ImageDownloader";
+    private static final String TAG = "ImageDownloader";
 
-    /** Cache size, 1MiB. TODO: Size based on available memory. */
-    private static final int mMemoryCacheSize = 1 * 1024 * 1024;
-
-    /** A memory cache of bitmaps, sized to mMemoryCacheSize bytes. */
-    private static final LruCache<String, Bitmap> mMemoryCache = new LruCache<String, Bitmap>(
-            mMemoryCacheSize) {
-        /**
-         * Measure cache by the size of bitmaps in it, not the count.
-         *
-         * @see android.support.v4.util.LruCache#sizeOf(java.lang.Object,
-         *      java.lang.Object)
-         */
-        @Override
-        protected int sizeOf(String key, Bitmap bitmap) {
-            // .getByteCount() not available in API 7.
-            return bitmap.getRowBytes() * bitmap.getHeight();
-        }
-    };
+    private static ImageCache sImageCache = ImageCache.getInstance();
 
     /**
      * Maps a URL to a set of one or more ImageViews that must be updated when
@@ -87,28 +61,27 @@ public class ImageDownloader {
     private static final Hashtable<String, HashSet<WeakReference<ImageView>>> sDownloadsInFlight = new Hashtable<String, HashSet<WeakReference<ImageView>>>();
 
     /**
-     * Downloads the specified image from the Internet and binds it to the
-     * provided {@link ImageView}. The binding is immediate if the image is
-     * found in the cache and will be done asynchronously otherwise. A null
-     * bitmap will be associated to the ImageView if an error occurs.
-     *
+     * Downloads the specified image from the url and binds it to the provided
+     * {@link ImageView}. The binding is immediate if the image is found in the
+     * cache and will be done asynchronously otherwise. A null bitmap will be
+     * associated to the ImageView if an error occurs.
+     * 
      * @param url the URL of the image to download
      * @param imageView the ImageView to bind the downloaded image to
      */
     public void downloadUrlToImageView(String url, ImageView imageView) {
-        // State sanity: url is guaranteed to never be null in
-        // DownloadedDrawable and cache keys.
         if (url == null) {
             imageView.setImageDrawable(null);
             return;
         }
 
-        resetPurgeTimer();
-        Bitmap bitmap = mMemoryCache.get(url);
+        sImageCache.resetPurgeTimer();
+        Bitmap bitmap = sImageCache.get(url);
 
         if (bitmap == null) {
+            Log.v(TAG, "Cache miss: " + url);
             // Associate the URL with the image.
-            imageView.setImageDrawable(new DownloadedDrawable(url));
+            imageView.setTag(url);
 
             synchronized (sDownloadsInFlight) {
                 // If we're already downloading this URL then add the ImageView
@@ -127,27 +100,7 @@ public class ImageDownloader {
             }
         } else {
             imageView.setImageBitmap(bitmap);
-            Animation anim = AnimationUtils.loadAnimation(Squeezer.getContext(), R.anim.fade_in);
-            imageView.startAnimation(anim);
         }
-    }
-
-    /**
-     * Retrieves the URL associated with the {@link ImageView}.
-     *
-     * @param imageView the imageView
-     * @return the URL attached to the {@link DownloadedDrawable} associated
-     *         with imageView, or null if no URL is associated.
-     */
-    private static String getUrl(ImageView imageView) {
-        if (imageView != null) {
-            Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof DownloadedDrawable) {
-                DownloadedDrawable downloadedDrawable = (DownloadedDrawable) drawable;
-                return downloadedDrawable.getUrl();
-            }
-        }
-        return null;
     }
 
     /**
@@ -189,13 +142,13 @@ public class ImageDownloader {
             }
         } catch (IOException e) {
             getRequest.abort();
-            Log.w(LOG_TAG, "I/O error while retrieving bitmap from " + url, e);
+            Log.w(TAG, "I/O error while retrieving bitmap from " + url, e);
         } catch (IllegalStateException e) {
             getRequest.abort();
-            Log.w(LOG_TAG, "Incorrect URL: " + url);
+            Log.w(TAG, "Incorrect URL: " + url);
         } catch (Exception e) {
             getRequest.abort();
-            Log.w(LOG_TAG, "Error while retrieving bitmap from " + url, e);
+            Log.w(TAG, "Error while retrieving bitmap from " + url, e);
         }
         return null;
     }
@@ -273,7 +226,7 @@ public class ImageDownloader {
                 bitmap = null;
             }
 
-            addBitmapToCache(mUrl, bitmap);
+            sImageCache.put(mUrl, bitmap);
 
             // Iterate over all the imageviews that were associated with this URL.
             // Set them to the bitmap, if and only if they're still associated
@@ -281,90 +234,18 @@ public class ImageDownloader {
             synchronized (sDownloadsInFlight) {
                 for (WeakReference<ImageView> imageViewReference : sDownloadsInFlight.get(mUrl)) {
                     ImageView imageView = imageViewReference.get();
-                    String url = getUrl(imageView);
 
-                    if (url != null && url.equals(mUrl)) {
-                        imageView.setImageBitmap(bitmap);
-                        Animation anim = AnimationUtils.loadAnimation(Squeezer.getContext(),
-                                R.anim.fade_in);
-                        imageView.startAnimation(anim);
+                    if (imageView != null) {
+                        String url = (String) imageView.getTag();
+
+                        if (url != null && url.equals(mUrl)) {
+                            imageView.setImageBitmap(bitmap);
+                        }
                     }
                 }
 
                 sDownloadsInFlight.remove(mUrl);
             }
         }
-    }
-
-    /**
-     * A fake Drawable that will be attached to the imageView while the download
-     * is in progress.
-     * <p>
-     * Contains a reference to the URL that should be loaded in to the
-     * ImageView, so that if it's recycled with a new URL we can check.
-     *
-     * @see BitmapDownloaderTask.onPostExecute
-     */
-    static class DownloadedDrawable extends ColorDrawable {
-        private final String mUrl;
-
-        /**
-         * Constructs a black drawable, and associates it with the URL.
-         *
-         * @param url the URL to associate with this drawable.
-         */
-        public DownloadedDrawable(String url) {
-            super(Color.BLACK);
-            mUrl = url;
-        }
-
-        /**
-         * Returns the URL associated with this drawable.
-         *
-         * @return the URL
-         */
-        public String getUrl() {
-            return mUrl;
-        }
-    }
-
-    /*
-     * Cache-related fields and methods.
-     */
-
-    /** How many milliseconds of inactivity to wait before purging the cache. */
-    private static final int DELAY_BEFORE_PURGE = 10 * 1000;
-
-    private final Handler purgeHandler = new Handler();
-
-    /**
-     * Clears the memory cache.
-     */
-    private final Runnable purger = new Runnable() {
-        public void run() {
-            mMemoryCache.evictAll();
-        }
-    };
-
-    /**
-     * Adds this bitmap to the cache, keyed off the URL.
-     *
-     * @param url the URL this bitmap was downloaded from
-     * @param bitmap the downloaded bitmap.
-     */
-    private void addBitmapToCache(String url, Bitmap bitmap) {
-        if (bitmap != null) {
-            synchronized (mMemoryCache) {
-                mMemoryCache.put(url, bitmap);
-            }
-        }
-    }
-
-    /**
-     * Clears the timer that purges the cache, and sets a new one.
-     */
-    private void resetPurgeTimer() {
-        purgeHandler.removeCallbacks(purger);
-        purgeHandler.postDelayed(purger, DELAY_BEFORE_PURGE);
     }
 }

@@ -41,7 +41,7 @@ import android.widget.Toast;
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
     protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 
-	private final SqueezerItemListActivity activity;
+    protected final SqueezerItemListActivity activity;
 	private Class<T> itemClass;
 	private Creator<T> creator;
 
@@ -81,10 +81,16 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		return creator;
 	}
 
+    /**
+     * Returns a view suitable for displaying the item.
+     */
 	public View getAdapterView(View convertView, T item) {
 		return Util.getListItemView(getActivity(), convertView, item.getName());
 	}
 
+    /**
+     * Returns a view suitable for displaying the "Loading..." text.
+     */
     public View getAdapterView(View convertView, String label) {
         return Util.getListItemView(getActivity(), convertView, label);
     }

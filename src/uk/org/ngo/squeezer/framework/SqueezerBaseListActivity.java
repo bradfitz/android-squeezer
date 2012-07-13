@@ -50,7 +50,6 @@ import android.widget.TextView;
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
 	private SqueezerItemAdapter<T> itemAdapter;
-	private ListView listView;
 	private TextView loadingLabel;
 	private SqueezerItemView<T> itemView;
 
@@ -59,11 +58,11 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.item_list);
-		listView = (ListView) findViewById(R.id.item_list);
+        mListView = (ListView) findViewById(R.id.item_list);
 		loadingLabel = (TextView) findViewById(R.id.loading_label);
 		itemView = createItemView();
 
-    	listView.setOnItemClickListener(new OnItemClickListener() {
+        mListView.setOnItemClickListener(new OnItemClickListener() {
     		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // XXX: Adapter should implement onItemClickListener and pass
                 // this down to the views.
@@ -81,9 +80,10 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     	});
 
         // Delegate context menu creation to the adapter.
-        listView.setOnCreateContextMenuListener(getItemAdapter());
+        mListView.setOnCreateContextMenuListener(getItemAdapter());
 
-		listView.setOnScrollListener(this);
+        mListView.setOnScrollListener(new ScrollManager());
+        mListView.setOnTouchListener(new FingerTracker());
 	}
 
 
@@ -150,7 +150,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	 */
 	public void orderItems() {
 		reorderItems();
-		listView.setVisibility(View.GONE);
+        mListView.setVisibility(View.GONE);
 		loadingLabel.setVisibility(View.VISIBLE);
 		clearItemListAdapter();
 	}
@@ -158,7 +158,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	public void onItemsReceived(final int count, final int start, final List<T> items) {
 		getUIThreadHandler().post(new Runnable() {
 			public void run() {
-				listView.setVisibility(View.VISIBLE);
+                mListView.setVisibility(View.VISIBLE);
 				loadingLabel.setVisibility(View.GONE);
 				getItemAdapter().update(count, start, items);
 			}
@@ -170,7 +170,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	 * @param listAdapter
 	 */
 	private void clearItemListAdapter() {
-		listView.setAdapter(getItemAdapter());
+        mListView.setAdapter(getItemAdapter());
 	}
 
 }

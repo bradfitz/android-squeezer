@@ -21,15 +21,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.itemlists.SqueezerAlbumArtView;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.ImageCache;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
+import android.widget.ListView;
 
 /**
  * This class defines the common minimum, which any activity browsing the
@@ -37,7 +42,23 @@ import android.widget.AbsListView.OnScrollListener;
  * 
  * @author Kurt Aaholst
  */
-public abstract class SqueezerItemListActivity extends SqueezerBaseActivity implements OnScrollListener {
+public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
+
+    /** Indicates that album artwork can be updated. */
+    public static final int MESSAGE_UPDATE_ALBUM_ARTWORK = 0;
+
+    /** How long to wait before showing album artwork, in ms. */
+    public static final int DELAY_SHOW_ALBUM_ARTWORK = 250;
+
+    protected final Handler mScrollHandler = new ScrollHandler();
+
+    /** The last known scroll state. */
+    protected int mScrollState = ScrollManager.SCROLL_STATE_IDLE;
+
+    protected ListView mListView;
+
+    /** Is the user no longer touching the screen? */
+    private boolean mFingerUp = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +90,6 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
      */
 	protected abstract void orderPage(int start) throws RemoteException;
 
-
 	private final Set<Integer> orderedPages = new HashSet<Integer>();
 
 	/**
@@ -77,7 +97,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
 	 * @param pagePosition
 	 */
 	public void maybeOrderPage(int pagePosition) {
-		if (!listBusy && !orderedPages.contains(pagePosition)) {
+        if (!orderedPages.contains(pagePosition)) {
 			orderedPages.add(pagePosition);
 			try {
 				orderPage(pagePosition);
@@ -95,30 +115,113 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
 		maybeOrderPage(0);
 	}
 
-	private boolean listBusy;
-	public boolean isListBusy() { return listBusy; }
+    /** An update of the artwork to be displayed is pending */
+    public boolean mArtworkUpdateIsPending;
 
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
-        switch (scrollState) {
-        case OnScrollListener.SCROLL_STATE_IDLE:
-        	listBusy = false;
-
-        	int pageSize = getResources().getInteger(R.integer.PageSize);
-        	int pos = (view.getFirstVisiblePosition() / pageSize) * pageSize;
-        	int end = view.getFirstVisiblePosition() + view.getChildCount();
-        	while (pos < end) {
-        		maybeOrderPage(pos);
-        		pos += pageSize;
-        	}
-        	break;
-        case OnScrollListener.SCROLL_STATE_FLING:
-        case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-        	listBusy = true;
-        	break;
-        }
- 	}
-
-	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+    public int getScrollState() {
+	    return mScrollState;
 	}
 
+    public boolean isArtworkUpdatePending() {
+        return mArtworkUpdateIsPending;
+    }
+
+    protected class ScrollManager implements AbsListView.OnScrollListener {
+        public ScrollManager() {
+        }
+
+        /**
+         * If the user has stopped flinging, start showing album artwork,
+         * optionally with a delay if their finger is still on the screen. Allow
+         * disk access in the cache.
+         * <p>
+         * If they've started flinging then stop any pending artwork update
+         * messages, and pause cache disk access.
+         */
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+            if (mScrollState == SCROLL_STATE_FLING && scrollState != SCROLL_STATE_FLING) {
+                final Handler handler = mScrollHandler;
+                final Message message = handler.obtainMessage(MESSAGE_UPDATE_ALBUM_ARTWORK,
+                        SqueezerItemListActivity.this);
+                handler.removeMessages(MESSAGE_UPDATE_ALBUM_ARTWORK);
+                handler.sendMessageDelayed(message, mFingerUp ? 0 : DELAY_SHOW_ALBUM_ARTWORK);
+                mArtworkUpdateIsPending = true;
+                ImageCache.getInstance().setPauseDiskAccess(false);
+            } else if (scrollState == SCROLL_STATE_FLING) {
+                mArtworkUpdateIsPending = false;
+                mScrollHandler.removeMessages(MESSAGE_UPDATE_ALBUM_ARTWORK);
+                ImageCache.getInstance().setPauseDiskAccess(true);
+            }
+
+            mScrollState = scrollState;
+        }
+
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+                int totalItemCount) {
+        }
+    }
+
+    protected static class ScrollHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_UPDATE_ALBUM_ARTWORK:
+                    ((SqueezerItemListActivity) msg.obj).updateAlbumArtwork();
+                    break;
+            }
+        }
+    }
+
+    protected class FingerTracker implements View.OnTouchListener {
+        public boolean onTouch(View view, MotionEvent event) {
+            final int action = event.getAction();
+            mFingerUp = action == MotionEvent.ACTION_UP || action ==
+                    MotionEvent.ACTION_CANCEL;
+            if (mFingerUp && mScrollState != ScrollManager.SCROLL_STATE_FLING) {
+                sendUpdateArtwork();
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Sends an immediate message that displayed artwork must be refreshed,
+     * overriding any delayed messages that may be in the queue.
+     */
+    private void sendUpdateArtwork() {
+        Handler handler = mScrollHandler;
+        Message message = handler.obtainMessage(MESSAGE_UPDATE_ALBUM_ARTWORK,
+                SqueezerItemListActivity.this);
+        handler.removeMessages(MESSAGE_UPDATE_ALBUM_ARTWORK);
+        mArtworkUpdateIsPending = true;
+        handler.sendMessage(message);
+    }
+
+    private final ImageDownloader imageDownloader = new ImageDownloader();
+
+    public void updateAlbumArtwork() {
+        mArtworkUpdateIsPending = false;
+        final ListView listview = mListView;
+        if (listview == null) {
+            // XXX: This can be null in the search results expandable list.
+            // Maybe we need a ArtworkItemListActivity (or move to fragments
+            // here?)
+            return;
+        }
+
+        final int count = listview.getChildCount();
+
+        for (int i = 0; i < count; i++) {
+            final View view = listview.getChildAt(i);
+            final SqueezerAlbumArtView.ViewHolder holder = (SqueezerAlbumArtView.ViewHolder) view
+                    .getTag();
+
+            if (holder != null && holder.updateArtwork) {
+                imageDownloader.downloadUrlToImageView(holder.artworkUrl, holder.icon);
+                holder.updateArtwork = false;
+            }
+        }
+
+        mListView.invalidate();
+    }
 }

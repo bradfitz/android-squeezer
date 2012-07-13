@@ -24,18 +24,15 @@ import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import android.os.RemoteException;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 /**
  * A view that shows a single song with its artwork, and a context menu.
  */
 public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
-    private static final String TAG = "SqueezerSongView";
 
-	private final LayoutInflater layoutInflater;
+    @SuppressWarnings("unused")
+    private static final String TAG = "SqueezerSongView";
 
 	private boolean browseByAlbum;
 	public void setBrowseByAlbum(boolean browseByAlbum) { this.browseByAlbum = browseByAlbum; }
@@ -43,38 +40,27 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 	private boolean browseByArtist;
 	public void setBrowseByArtist(boolean browseByArtist) { this.browseByArtist = browseByArtist; }
 
-	public SqueezerSongView(SqueezerItemListActivity activity) {
-		super(activity);
-		layoutInflater = activity.getLayoutInflater();
-	}
+    public SqueezerSongView(SqueezerItemListActivity activity) {
+        super(activity);
+    }
 
-	@Override
-    public View getAdapterView(View convertView, final SqueezerSong item) {
-        final ViewHolder viewHolder;
+    @Override
+    public void setItemViewText(ViewHolder viewHolder, SqueezerSong item) {
+        viewHolder.text1.setText(item.getName());
 
-		if (convertView == null || convertView.getTag() == null) {
-			convertView = layoutInflater.inflate(R.layout.icon_two_line_layout, null);
-			viewHolder = new ViewHolder();
-			viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
-			viewHolder.label2 = (TextView) convertView.findViewById(R.id.text2);
-			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-			convertView.setTag(viewHolder);
-		} else
-			viewHolder = (ViewHolder) convertView.getTag();
+        String text2 = "";
+        if (item.getId() != null) {
+            if (item.getArtist() != null)
+                text2 += item.getArtist();
 
-		viewHolder.label1.setText(item.getName());
-		String text2 = "";
-		if (item.getId() != null) {
-			if (item.getArtist() != null) text2 += item.getArtist();
-			if (item.getAlbum() != null) text2 += " - " + item.getAlbum();
-			if (item.getYear() != 0) text2 = item.getYear() + " - " + text2;
-		}
-		viewHolder.label2.setText(text2);
+            if (item.getAlbum() != null)
+                text2 += " - " + item.getAlbum();
 
-		setIconToTrackArtwork(viewHolder.icon, item);
-
-		return convertView;
-	}
+            if (item.getYear() != 0)
+                text2 = item.getYear() + " - " + text2;
+        }
+        viewHolder.text2.setText(text2);
+    }
 
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
 		getActivity().insert(item);
@@ -86,6 +72,7 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
      * Subclasses that show songs in playlists should call through to this
      * first, then adjust the visibility of R.id.group_playlist.
      */
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
@@ -131,11 +118,4 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.song, quantity);
 	}
-
-	private static class ViewHolder {
-		TextView label1;
-		TextView label2;
-		ImageView icon;
-	}
-
 }

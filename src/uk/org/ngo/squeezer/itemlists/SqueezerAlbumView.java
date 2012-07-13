@@ -22,47 +22,27 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import android.os.RemoteException;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 /**
  * Shows a single album with its artwork, and a context menu.
  */
 public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
-	private final LayoutInflater layoutInflater;
+    public SqueezerAlbumView(SqueezerItemListActivity activity) {
+        super(activity);
+    }
 
-	public SqueezerAlbumView(SqueezerItemListActivity activity) {
-		super(activity);
-		layoutInflater = activity.getLayoutInflater();
-	}
-
-	@Override
-	public View getAdapterView(View convertView, SqueezerAlbum item) {
-		ViewHolder viewHolder;
-
-		if (convertView == null || convertView.getTag() == null) {
-			convertView = layoutInflater.inflate(R.layout.icon_two_line_layout, null);
-			viewHolder = new ViewHolder();
-			viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
-			viewHolder.label2 = (TextView) convertView.findViewById(R.id.text2);
-			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-			convertView.setTag(viewHolder);
-		} else
-			viewHolder = (ViewHolder) convertView.getTag();
-
-		viewHolder.label1.setText(item.getName());
-		String text2 = "";
-		if (item.getId() != null) {
-			text2 = item.getArtist();
-			if (item.getYear() != 0) text2 += " - " + item.getYear();
-		}
-		viewHolder.label2.setText(text2);
-		setIconToTrackArtwork(viewHolder.icon, item);
-
-		return convertView;
-	}
+    @Override
+    public void setItemViewText(ViewHolder viewHolder, SqueezerAlbum item) {
+        viewHolder.text1.setText(item.getName());
+        String text2 = "";
+        if (item.getId() != null) {
+            text2 = item.getArtist();
+            if (item.getYear() != 0)
+                text2 += " - " + item.getYear();
+        }
+        viewHolder.text2.setText(text2);
+    }
 
 	public void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
 		getActivity().play(item);
@@ -73,6 +53,7 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
      * Creates the context menu for an album by inflating
      * R.menu.albumcontextmenu.
      */
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
@@ -83,9 +64,5 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 		return getActivity().getResources().getQuantityString(R.plurals.album, quantity);
 	}
 
-    private static class ViewHolder {
-		TextView label1;
-		TextView label2;
-		ImageView icon;
-	}
+
 }
