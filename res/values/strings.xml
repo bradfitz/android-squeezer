@@ -289,10 +289,12 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
   
     <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s allready exists</string>
 
+    <!-- Album sort orders -->
 	<string name="albums_sort_order_album">Album</string>
 	<string name="albums_sort_order_artflow">Artist, Year, Album</string>
     <string name="albums_sort_order_new">New music</string>
 
+    <!-- Song sort orders -->
 	<string name="songs_sort_order_title">Title</string>
 	<string name="songs_sort_order_tracknum">Track</string>
 

@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import uk.org.ngo.squeezer.util.ImageFetcher;
+
 /**
  * Specialization of {@link SqueezerItemAdapter} to be used in
  * {@link SqueezerBaseListActivity}.
@@ -28,12 +30,13 @@ package uk.org.ngo.squeezer.framework;
  */
 public class SqueezerItemListAdapter<T extends SqueezerItem> extends SqueezerItemAdapter<T> {
 
-	/**
-	 * Calls {@link SqueezerItemAdapter#SqueezerBaseAdapter(SqueezerItemView, int)}
-	 */
-	public SqueezerItemListAdapter(SqueezerItemView<T> itemView) {
-		super(itemView);
-	}
+    /**
+     * Calls
+     * {@link SqueezerItemAdapter#SqueezerBaseAdapter(SqueezerItemView, ImageFetcher)}
+     */
+    public SqueezerItemListAdapter(SqueezerItemView<T> itemView, ImageFetcher imageFetcher) {
+        super(itemView, imageFetcher);
+    }
 
 	@Override
 	protected void onCountUpdated() {

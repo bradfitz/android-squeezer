@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
@@ -82,7 +83,8 @@ public class GenreSpinner {
 					if (adapter == null) {
                         SqueezerGenreView itemView = new SqueezerGenreView(activity) {
                             @Override
-                            public View getAdapterView(View convertView, int index, SqueezerGenre item) {
+                            public View getAdapterView(View convertView, SqueezerGenre item,
+                                    ImageFetcher unused) {
                                 return Util.getSpinnerItemView(getActivity(), convertView,
                                         item.getName());
                             }
@@ -93,7 +95,7 @@ public class GenreSpinner {
                             };
 
 						};
-						adapter = new SqueezerItemAdapter<SqueezerGenre>(itemView, true);
+                        adapter = new SqueezerItemAdapter<SqueezerGenre>(itemView, true, null);
 						spinner.setAdapter(adapter);
 					}
 					adapter.update(count, start, list);

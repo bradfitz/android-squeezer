@@ -16,8 +16,11 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
-import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
+import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,19 +28,16 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.service.ISqueezeService;
-
 public abstract class SqueezerPluginView extends SqueezerIconicItemView<SqueezerPlugin> {
 	private final LayoutInflater layoutInflater;
 
-	public SqueezerPluginView(SqueezerItemListActivity activity) {
+    public SqueezerPluginView(SqueezerBaseListActivity<SqueezerPlugin> activity) {
 		super(activity);
-		layoutInflater = activity.getLayoutInflater();
+        layoutInflater = activity.getLayoutInflater();
 	}
 
 	@Override
-	public View getAdapterView(View convertView, int index, SqueezerPlugin item) {
+    public View getAdapterView(View convertView, SqueezerPlugin item, ImageFetcher imageFetcher) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
@@ -50,7 +50,8 @@ public abstract class SqueezerPluginView extends SqueezerIconicItemView<Squeezer
 			viewHolder = (ViewHolder) convertView.getTag();
 
 		viewHolder.label.setText(item.getName());
-		updateIcon(viewHolder.icon, item, getIconUrl(item.getIcon()));
+        imageFetcher.loadThumbnailImage(getIconUrl(item.getIcon()), viewHolder.icon,
+                ICON_PENDING_ARTWORK);
 
 		return convertView;
 	}

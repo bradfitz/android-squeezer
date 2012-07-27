@@ -35,12 +35,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -96,19 +93,8 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 			}
 		});
 
-        resultsExpandableListView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-				ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuInfo;
-				long packedPosition = contextMenuInfo.packedPosition;
-				if (ExpandableListView.getPackedPositionType(packedPosition) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-					int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-					int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-					searchResultsAdapter.setupContextMenu(menu, groupPosition, childPosition);
-				}
-			}
-		});
-
-        resultsExpandableListView.setOnScrollListener(this);
+        resultsExpandableListView.setOnCreateContextMenuListener(searchResultsAdapter);
+        resultsExpandableListView.setOnScrollListener(new ScrollListener());
 	};
 
 	@Override

@@ -22,8 +22,8 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -41,7 +41,7 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 	}
 
 	@Override
-	public View getAdapterView(View convertView, int index, SqueezerPlayer item) {
+    public View getAdapterView(View convertView, SqueezerPlayer item, ImageFetcher imageFetcher) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
@@ -65,9 +65,6 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		getActivity().getService().setActivePlayer(item);
 		getActivity().finish();
 	};
-
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlayer item) {
-	}
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.player, quantity);

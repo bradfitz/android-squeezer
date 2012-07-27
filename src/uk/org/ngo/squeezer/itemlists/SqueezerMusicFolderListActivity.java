@@ -63,7 +63,10 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
      * Extract the folder to view (if provided).
      */
     @Override
-    public void prepareActivity(Bundle extras) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
         if (extras != null) {
             mFolder = extras.getParcelable(SqueezerMusicFolderItem.class.getName());
             setTitle(mFolder.getName());

@@ -17,7 +17,10 @@
 package uk.org.ngo.squeezer.framework;
 
 
-
+/**
+ * A SqueezerItem that has associated artwork.
+ * 
+ */
 public abstract class SqueezerArtworkItem extends SqueezerPlaylistItem {
 
 	private String artwork_track_id;
