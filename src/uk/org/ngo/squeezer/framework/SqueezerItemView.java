@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.framework;
 
 
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Parcelable.Creator;
@@ -50,14 +51,18 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	 */
 	String getQuantityString(int quantity);
 
-	/**
-	 * <p>Called by {@link Adapter#getView(int, View, ViewGroup)}
-	 *
-	 * @param convertView
-	 * @param item
-	 * @return
-	 */
-	View getAdapterView(View convertView, T item);
+    /**
+     * Get a View that displays the data at the specified position in the data
+     * set. {@see Adapter#getView(int, View, android.view.ViewGroup)}
+     * 
+     * @param convertView The old view to reuse, per
+     *            {@link Adapter#getView(int, View, android.view.ViewGroup)}
+     * @param item The item to display.
+     * @param imageFetcher An {@link ImageFetcher} configured to load image
+     *            thumbnails.
+     * @return A View corresponding to the data from the specified item.
+     */
+    View getAdapterView(View convertView, T item, ImageFetcher mImageFetcher);
 
     /**
      * <p>

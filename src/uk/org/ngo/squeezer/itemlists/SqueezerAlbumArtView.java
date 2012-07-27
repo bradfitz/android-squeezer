@@ -22,13 +22,11 @@ import uk.org.ngo.squeezer.framework.SqueezerArtworkItem;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.util.ImageCache;
-import android.graphics.Bitmap;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -42,21 +40,13 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
         SqueezerIconicItemView<T> {
     LayoutInflater mLayoutInflater;
 
-    /** The icon to display when there's no artwork for this item */
-    private static final int ICON_NO_ARTWORK = R.drawable.icon_album_noart_143;
-
-    /** The icon to display when artwork exists, but has not been loaded yet */
-    private static final int ICON_PENDING_ARTWORK = R.drawable.icon_album_noart_143;
-
-    private static ImageCache sImageCache = ImageCache.getInstance();
-
     public SqueezerAlbumArtView(SqueezerItemListActivity activity) {
 		super(activity);
         mLayoutInflater = activity.getLayoutInflater();
 	}
 
     @Override
-    public View getAdapterView(View convertView, T item) {
+    public View getAdapterView(View convertView, T item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
@@ -73,31 +63,12 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
 
         viewHolder.artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
 
-        // If there's no artwork then use the "no art" resource, and note
-        // that there's no artwork to fetch.
         if (viewHolder.artworkUrl == null) {
             viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
-            viewHolder.updateArtwork = false;
         } else {
-            // Check the cache to see if the image is there, and set
-            // it immediately if it is.
-            Bitmap b = sImageCache.getFast(viewHolder.artworkUrl);
-            if (b != null) {
-                viewHolder.icon.setImageBitmap(b);
-                viewHolder.updateArtwork = false;
-            } else {
-                // If flinging or an update is pending then note the artwork
-                // needs to be updated, but do nothing else.
-                if (activity.isArtworkUpdatePending()
-                        || activity.getScrollState() == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                    viewHolder.icon.setImageResource(ICON_PENDING_ARTWORK);
-                    viewHolder.updateArtwork = true;
-                } else {
-                    // Not flinging, no pending updates, go ahead and update the
-                    // artwork now.
-                    downloadUrlToImageView(viewHolder.artworkUrl, viewHolder.icon);
-                    viewHolder.updateArtwork = false;
-                }
+            if (imageFetcher != null) {
+                imageFetcher.loadThumbnailImage(viewHolder.artworkUrl, viewHolder.icon,
+                        ICON_PENDING_ARTWORK);
             }
         }
 

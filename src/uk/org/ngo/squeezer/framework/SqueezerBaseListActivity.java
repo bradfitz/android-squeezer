@@ -20,11 +20,15 @@ package uk.org.ngo.squeezer.framework;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.util.ImageFetcher.ImageFetcherParams;
+import uk.org.ngo.squeezer.util.UIUtils;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -53,6 +57,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	private TextView loadingLabel;
 	private SqueezerItemView<T> itemView;
 
+    /** An ImageFetcher for loading thumbnails. */
+    private ImageFetcher mImageFetcher;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -79,13 +85,20 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     		}
     	});
 
+        mListView.setOnScrollListener(new ScrollListener());
+
+        // Set up the image fetcher, max art size is 128K.
+        ImageFetcherParams params = new ImageFetcherParams();
+        params.mMaxThumbnailBytes = 128 * 1024 * 1024; // 128K
+        mImageFetcher = UIUtils.getImageFetcher(this, params);
+
         // Delegate context menu creation to the adapter.
         mListView.setOnCreateContextMenuListener(getItemAdapter());
-
-        mListView.setOnScrollListener(new ScrollManager());
-        mListView.setOnTouchListener(new FingerTracker());
 	}
 
+    public ImageFetcher getImageFetcher() {
+        return mImageFetcher;
+    }
 
 	/**
 	 * @return A new view logic to be used by this activity
@@ -126,22 +139,33 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         super.onPause();
     }
 
-	/**
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mImageFetcher != null) {
+            mImageFetcher.closeCache();
+        }
+    }
+
+    /**
      * @return The current {@link SqueezerItemView}, creating it if necessary
-	 */
+     */
     public SqueezerItemView<T> getItemView() {
         return itemView == null ? (itemView = createItemView()) : itemView;
     }
 
-	/**
-	 * @return The current {@link SqueezerItemAdapter}, creating it if necesary
-	 */
-	public SqueezerItemAdapter<T> getItemAdapter() {
-		return itemAdapter == null ? (itemAdapter = createItemListAdapter(getItemView())) : itemAdapter;
-	}
+    /**
+     * @return The current {@link SqueezerItemAdapter}, creating it if
+     *         necessary.
+     */
+    public SqueezerItemAdapter<T> getItemAdapter() {
+        return itemAdapter == null ? (itemAdapter = createItemListAdapter(getItemView()))
+                : itemAdapter;
+    }
 
     protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T> itemView) {
-		return new SqueezerItemListAdapter<T>(itemView);
+        return new SqueezerItemListAdapter<T>(itemView, mImageFetcher);
 	}
 
 	/**
@@ -173,4 +197,25 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         mListView.setAdapter(getItemAdapter());
 	}
 
+    protected class ScrollListener extends SqueezerItemListActivity.ScrollListener {
+        ScrollListener() {
+            super();
+        }
+
+        /**
+         * Pauses cache disk fetches if the user is flinging the list, or if
+         * their finger is still on the screen.
+         */
+        @Override
+        public void onScrollStateChanged(AbsListView listView, int scrollState) {
+            super.onScrollStateChanged(listView, scrollState);
+
+            if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING ||
+                scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                mImageFetcher.setPauseDiskCache(true);
+            } else {
+                mImageFetcher.setPauseDiskCache(false);
+            }
+        }
+    }
 }

@@ -36,13 +36,18 @@ public class SqueezerPluginItem extends SqueezerItem {
 	public void setDescription(String description) { this.description = description; }
 
 	/** Relative URL to the icon to use for this item. */
-	private String icon;
+    private String image;
 
-	/**
-	 * @return the relative URL to the icon to use for this item
-	 */
-	public String getIcon() { return icon; }
-	public void setIcon(String icon) { this.icon = icon; }
+	    /**
+     * @return the absolute URL to the icon to use for this item
+     */
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 
 	private boolean hasitems;
 	public boolean isHasitems() { return hasitems; }
@@ -57,7 +62,7 @@ public class SqueezerPluginItem extends SqueezerItem {
 		name = record.containsKey("name") ? record.get("name") : record.get("title");
 		description = record.get("description");
 		type = record.get("type");
-		icon = record.get("icon");
+        image = record.get("image");
 		hasitems = (Util.parseDecimalIntOrZero(record.get("hasitems")) != 0);
 	}
 
@@ -75,7 +80,7 @@ public class SqueezerPluginItem extends SqueezerItem {
 		name = source.readString();
 		description = source.readString();
 		type = source.readString();
-		icon = source.readString();
+        image = source.readString();
 		hasitems = (source.readInt() != 0);
 	}
 	public void writeToParcel(Parcel dest, int flags) {
@@ -83,7 +88,7 @@ public class SqueezerPluginItem extends SqueezerItem {
 		dest.writeString(name);
 		dest.writeString(description);
 		dest.writeString(type);
-		dest.writeString(icon);
+        dest.writeString(image);
 		dest.writeInt(hasitems ? 1 : 0);
 	}
 

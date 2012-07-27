@@ -21,7 +21,6 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
-import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
@@ -45,11 +44,6 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
 	public SqueezerItemView<SqueezerPluginItem> createItemView() {
 		return new SqueezerPluginItemView(this);
 	}
-
-	@Override
-	protected SqueezerItemAdapter<SqueezerPluginItem> createItemListAdapter(SqueezerItemView<SqueezerPluginItem> itemView) {
-		return new SqueezerItemAdapter<SqueezerPluginItem>(itemView);
-	};
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {

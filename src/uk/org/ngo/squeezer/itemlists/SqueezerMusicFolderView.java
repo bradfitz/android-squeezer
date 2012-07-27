@@ -20,6 +20,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -54,7 +55,8 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     }
 
     @Override
-    public View getAdapterView(View convertView, SqueezerMusicFolderItem item) {
+    public View getAdapterView(View convertView, SqueezerMusicFolderItem item,
+            ImageFetcher imageFetcher) {
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
@@ -97,6 +99,7 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     };
 
     // XXX: Make this a menu resource.
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 

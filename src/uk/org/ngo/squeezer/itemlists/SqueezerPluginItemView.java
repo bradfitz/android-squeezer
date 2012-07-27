@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlists;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -40,7 +41,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 	}
 
 	@Override
-	public View getAdapterView(View convertView, SqueezerPluginItem item) {
+    public View getAdapterView(View convertView, SqueezerPluginItem item, ImageFetcher imageFetcher) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
@@ -56,8 +57,15 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
         }
 
 		viewHolder.label.setText(item.getName());
-		downloadUrlToImageView(item.getIcon(), viewHolder.icon);
 
+        if (imageFetcher != null) {
+            if (item.getImage() == null) {
+                viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
+            } else {
+                imageFetcher.loadThumbnailImage(item.getImage(), viewHolder.icon,
+                        ICON_PENDING_ARTWORK);
+            }
+        }
 		return convertView;
 	}
 
@@ -80,6 +88,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 	}
 
     // XXX: Make this a menu resource.
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         if (!((SqueezerPluginItem) menuInfo.item).isHasitems()) {
             super.onCreateContextMenu(menu, v, menuInfo);

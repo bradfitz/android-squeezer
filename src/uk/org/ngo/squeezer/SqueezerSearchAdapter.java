@@ -31,6 +31,7 @@ import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.view.ContextMenu;
@@ -51,7 +52,7 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
             R.drawable.ic_songs, R.drawable.ic_albums, R.drawable.ic_artists, R.drawable.ic_genres
     };
 
-	private SqueezerSearchActivity activity;
+	private final SqueezerSearchActivity activity;
 
 	private SqueezerItemAdapter<? extends SqueezerItem>[] childAdapters;
 	private final Map<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>> childAdapterMap = new HashMap<Class<?>, SqueezerItemAdapter<? extends SqueezerItem>>();
@@ -62,13 +63,15 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
 		SqueezerItemAdapter<?>[] adapters = {
 			new SqueezerItemAdapter<SqueezerSong>(new SqueezerSongView(activity) {
 				@Override
-				public View getAdapterView(View convertView, SqueezerSong item) {
+                    public View getAdapterView(View convertView, SqueezerSong item,
+                            ImageFetcher unused) {
 					return Util.getListItemView(getActivity(), convertView, item.getName());
 				}
 			}),
 			new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerAlbumView(activity) {
 				@Override
-				public View getAdapterView(View convertView, SqueezerAlbum item) {
+                    public View getAdapterView(View convertView, SqueezerAlbum item,
+                            ImageFetcher unused) {
 					return Util.getListItemView(getActivity(), convertView, item.getName());
 				}
 			}),

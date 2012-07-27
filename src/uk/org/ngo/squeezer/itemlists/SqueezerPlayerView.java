@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,7 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 	}
 
 	@Override
-	public View getAdapterView(View convertView, SqueezerPlayer item) {
+    public View getAdapterView(View convertView, SqueezerPlayer item, ImageFetcher imageFetcher) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {

@@ -24,7 +24,6 @@ import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
 import uk.org.ngo.squeezer.dialogs.TipsDialog;
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
-import uk.org.ngo.squeezer.framework.SqueezerIconUpdater;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlayerListActivity;
@@ -33,6 +32,9 @@ import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.util.ImageFetcher.ImageFetcherParams;
+import uk.org.ngo.squeezer.util.UIUtils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -85,8 +87,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private ImageView albumArt;
     private SeekBar seekBar;
 
-    private final SqueezerIconUpdater<SqueezerSong> iconUpdater = new SqueezerIconUpdater<SqueezerSong>(this);
-
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -114,6 +114,11 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private volatile int secondsTotal;
     private final static int UPDATE_TIME = 1;
 
+    private GoogleAnalyticsTracker tracker;
+
+    /** ImageFetcher for (large) album cover art. */
+    private ImageFetcher mLargeImageFetcher;
+
     private final Handler uiThreadHandler = new Handler() {
         // Normally I'm lazy and just post Runnables to the uiThreadHandler
         // but time updating is special enough (it happens every second) to
@@ -126,8 +131,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             }
         }
     };
-
-    private GoogleAnalyticsTracker tracker;
 
     @Override
 	public Handler getUIThreadHandler() {
@@ -300,6 +303,11 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
         // Set up a server connection, if it is not present
         if (getConfiguredCliIpPort() == null) SettingsActivity.show(this);
+
+        // Set up the image fetcher, max cover art size is 512K.
+        ImageFetcherParams params = new ImageFetcherParams();
+        params.mMaxThumbnailBytes = 512 * 1024 * 1024; // 512K
+        mLargeImageFetcher = UIUtils.getImageFetcher(this, params);
     }
 
     // Should only be called the UI thread.
@@ -460,13 +468,19 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             artistText.setText("");
             albumText.setText("");
             trackText.setText("");
-    	}
+        }
     }
 
     // Should only be called from the UI thread.
     private void updateAlbumArtIfNeeded(SqueezerSong song) {
-        if (Util.atomicSongUpdated(currentSong, song))
-        	iconUpdater.updateIcon(albumArt, song, song != null ? song.getArtworkUrl(getService()) : null);
+        if (Util.atomicSongUpdated(currentSong, song)) {
+            if (song == null || song.getArtworkUrl(getService()) == null) {
+                albumArt.setImageResource(R.drawable.icon_album_noart_143);
+                return;
+            }
+
+            mLargeImageFetcher.loadImage(song.getArtworkUrl(getService()), albumArt);
+        }
     }
 
     private int getSecondsElapsed() {
@@ -567,6 +581,15 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         if (isAutoConnect())
             unregisterReceiver(broadcastReceiver);
         super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mLargeImageFetcher != null) {
+            mLargeImageFetcher.closeCache();
+        }
     }
 
 	@Override

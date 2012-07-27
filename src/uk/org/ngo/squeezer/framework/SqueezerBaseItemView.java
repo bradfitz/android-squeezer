@@ -24,6 +24,7 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
 import android.view.ContextMenu;
@@ -81,12 +82,9 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 		return creator;
 	}
 
-    /**
-     * Returns a view suitable for displaying the item.
-     */
-	public View getAdapterView(View convertView, T item) {
-		return Util.getListItemView(getActivity(), convertView, item.getName());
-	}
+    public View getAdapterView(View convertView, T item, ImageFetcher imageFetcher) {
+        return Util.getListItemView(getActivity(), convertView, item.getName());
+    }
 
     /**
      * Returns a view suitable for displaying the "Loading..." text.

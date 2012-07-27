@@ -18,13 +18,18 @@ package uk.org.ngo.squeezer.framework;
 
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.UIUtils;
+import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -64,6 +69,21 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
             service = null;
         };
     };
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // XXX: Hack to work around NetworkOnMainThreadException. Hack
+        // not necessary on the actionbar branch, and should be removed
+        // after the actionbar branch is merged in to master.
+        if (UIUtils.hasHoneycomb()) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork()
+                    .build();
+            StrictMode.setThreadPolicy(policy);
+        }
+    }
 
     @Override
     public void onResume() {

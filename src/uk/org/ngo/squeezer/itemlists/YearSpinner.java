@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerYear;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
@@ -82,7 +83,8 @@ public class YearSpinner {
 					if (adapter == null) {
 						SqueezerYearView itemView = new SqueezerYearView(activity) {
 							@Override
-							public View getAdapterView(View convertView, SqueezerYear item) {
+                            public View getAdapterView(View convertView, SqueezerYear item,
+                                    ImageFetcher unused) {
 								return Util.getSpinnerItemView(getActivity(), convertView, item.getName());
 							}
 							@Override
@@ -90,7 +92,7 @@ public class YearSpinner {
 								return Util.getSpinnerItemView(getActivity(), convertView, label);
 							};
 						};
-						adapter = new SqueezerItemAdapter<SqueezerYear>(itemView, true);
+                        adapter = new SqueezerItemAdapter<SqueezerYear>(itemView, true, null);
 						spinner.setAdapter(adapter);
 					}
 					adapter.update(count, start, list);

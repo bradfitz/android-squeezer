@@ -16,11 +16,10 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
-import uk.org.ngo.squeezer.framework.ImageDownloader;
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
-import android.widget.ImageView;
 
 /**
  * Represents the view hierarchy for a single {@link SqueezerItem} subclass,
@@ -29,19 +28,13 @@ import android.widget.ImageView;
  * @param <T>
  */
 public abstract class SqueezerIconicItemView<T extends SqueezerItem> extends SqueezerBaseItemView<T> {
-    private final ImageDownloader imageDownloader = new ImageDownloader();
+    /** The icon to display when there's no artwork for this item */
+    protected static final int ICON_NO_ARTWORK = R.drawable.icon_album_noart_143;
+
+    /** The icon to display when artwork exists, but has not been loaded yet */
+    protected static final int ICON_PENDING_ARTWORK = R.drawable.icon_album_noart_143;
 
     public SqueezerIconicItemView(SqueezerItemListActivity activity) {
         super(activity);
     }
-
-    /**
-     * Asynchronously downloads the given URL to the ImageView.
-     * 
-     * @param url URL to download
-     * @param imageView imageview to attach it to
-     */
-	protected void downloadUrlToImageView(final String url, ImageView imageView) {
-	    imageDownloader.downloadUrlToImageView(url, imageView);
-	}
 }

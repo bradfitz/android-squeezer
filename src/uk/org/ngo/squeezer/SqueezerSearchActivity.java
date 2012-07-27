@@ -94,7 +94,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		});
 
         resultsExpandableListView.setOnCreateContextMenuListener(searchResultsAdapter);
-        resultsExpandableListView.setOnScrollListener(new ScrollManager());
+        resultsExpandableListView.setOnScrollListener(new ScrollListener());
 	};
 
 	@Override
