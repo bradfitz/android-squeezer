@@ -18,21 +18,16 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/menu_item_download"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/menu_item_download"
+        android:alphabeticShortcut="o" />
+
+    <item
         android:id="@+id/menu_item_connect"
         android:icon="@android:drawable/presence_online"
         android:title="@string/menu_item_connect"
         android:alphabeticShortcut="c" />
-    <item
-        android:id="@+id/menu_item_disconnect"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
-        android:title="@string/menu_item_disconnect"
-        android:alphabeticShortcut="d" />
-    <item
-     	android:id="@+id/menu_item_poweron"
-     	android:title="@string/menu_item_poweron" android:icon="@android:drawable/ic_lock_power_off"/>
-    <item 
-    	android:id="@+id/menu_item_poweroff"
-    	android:title="@string/menu_item_poweroff" android:icon="@android:drawable/ic_lock_power_off"/>
     <item
         android:id="@+id/menu_item_players"
         android:title="@string/menu_item_players"
@@ -52,5 +47,15 @@
         android:id="@+id/menu_item_settings"
         android:title="@string/menu_item_settings_label"
         android:alphabeticShortcut="p" />
-
+   <item
+        android:id="@+id/menu_item_disconnect"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="@string/menu_item_disconnect"
+        android:alphabeticShortcut="d" />
+    <item
+        android:id="@+id/menu_item_poweron"
+        android:title="@string/menu_item_poweron" android:icon="@android:drawable/ic_lock_power_off"/>
+    <item
+        android:id="@+id/menu_item_poweroff"
+        android:title="@string/menu_item_poweroff" android:icon="@android:drawable/ic_lock_power_off"/>
 </menu>
