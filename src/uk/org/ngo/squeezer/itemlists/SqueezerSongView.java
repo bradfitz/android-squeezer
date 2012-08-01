@@ -35,7 +35,6 @@ import android.widget.TextView;
  * A view that shows a single song with its artwork, and a context menu.
  */
 public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
-    private static final String TAG = "SqueezerSongView";
 
 	private boolean browseByAlbum;
 	public void setBrowseByAlbum(boolean browseByAlbum) { this.browseByAlbum = browseByAlbum; }
@@ -49,6 +48,10 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 
 	@Override
 	public View getAdapterView(View convertView, int index, SqueezerSong item) {
+	    return getView(convertView, item, false);
+	}
+	
+    protected View getView(View convertView, SqueezerSong item, boolean isCurrent) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
@@ -64,6 +67,7 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
         }
 
 		viewHolder.label1.setText(item.getName());
+		viewHolder.label1.setTextAppearance(getActivity(), isCurrent ? R.style.SqueezerCurrentTextItem : R.style.SqueezerTextItem);
 		String text2 = "";
 		if (item.getId() != null) {
 			if (item.getArtist() != null) text2 += item.getArtist();
@@ -71,6 +75,7 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 			if (item.getYear() != 0) text2 = item.getYear() + " - " + text2;
 		}
 		viewHolder.label2.setText(text2);
+        viewHolder.label2.setTextAppearance(getActivity(), isCurrent ? R.style.SqueezerCurrentTextItem : R.style.SqueezerTextItem);
 
         viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
         viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
@@ -83,34 +88,6 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 
 		return convertView;
 	}
-
-	protected View getView(View convertView, SqueezerSong item, boolean isCurrent) {
-        ViewHolder viewHolder;
-
-        if (convertView == null || convertView.getTag() == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_two_line, null);
-            viewHolder = new ViewHolder();
-            viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
-            viewHolder.label2 = (TextView) convertView.findViewById(R.id.text2);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-            convertView.setTag(viewHolder);
-        } else
-            viewHolder = (ViewHolder) convertView.getTag();
-
-        viewHolder.label1.setText(item.getName());
-        viewHolder.label1.setTextAppearance(getActivity(), isCurrent ? R.style.SqueezerCurrentTextItem : R.style.SqueezerTextItem);
-        String text2 = "";
-        if (item.getId() != null) {
-            if (item.getArtist() != null) text2 += item.getArtist();
-            if (item.getAlbum() != null) text2 += " - " + item.getAlbum();
-            if (item.getYear() != 0) text2 = item.getYear() + " - " + text2;
-        }
-        viewHolder.label2.setText(text2);
-        viewHolder.label2.setTextAppearance(getActivity(), isCurrent ? R.style.SqueezerCurrentTextItemSmall : R.style.SqueezerTextItemSmall);
-        updateIcon(viewHolder.icon, item, item.getArtworkUrl(getActivity().getService()));
-
-        return convertView;
-    }
 
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
 		getActivity().insert(item);

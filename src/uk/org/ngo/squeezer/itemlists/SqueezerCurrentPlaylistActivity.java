@@ -50,7 +50,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 		return new SqueezerSongView(this) {
 
 		    @Override
-		    public android.view.View getAdapterView(android.view.View convertView, int index, SqueezerSong item) {
+		    public View getAdapterView(View convertView, int index, SqueezerSong item) {
                 View view = super.getView(convertView, item, index ==  currentPlaylistIndex);
                 view.setBackgroundResource(index ==  currentPlaylistIndex ? R.drawable.list_item_background_current : R.drawable.list_item_background_normal);
 		        return view;
