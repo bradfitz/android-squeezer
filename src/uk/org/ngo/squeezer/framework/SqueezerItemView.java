@@ -17,11 +17,13 @@
 package uk.org.ngo.squeezer.framework;
 
 
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
 import android.view.ContextMenu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
@@ -49,14 +51,18 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	 */
 	String getQuantityString(int quantity);
 
-	/**
-	 * <p>Called by {@link Adapter#getView(int, View, ViewGroup)}
-	 *
-	 * @param convertView
-	 * @param item
-	 * @return
-	 */
-	View getAdapterView(View convertView, T item);
+    /**
+     * Get a View that displays the data at the specified position in the data
+     * set. {@see Adapter#getView(int, View, android.view.ViewGroup)}
+     * 
+     * @param convertView The old view to reuse, per
+     *            {@link Adapter#getView(int, View, android.view.ViewGroup)}
+     * @param item The item to display.
+     * @param imageFetcher An {@link ImageFetcher} configured to load image
+     *            thumbnails.
+     * @return A View corresponding to the data from the specified item.
+     */
+    View getAdapterView(View convertView, T item, ImageFetcher mImageFetcher);
 
     /**
      * <p>
@@ -79,12 +85,6 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	Creator<T> getCreator();
 
 	/**
-	 * Set the adapter which uses this view logic
-	 * @param adapter
-	 */
-	void setAdapter(SqueezerItemAdapter<T> adapter);
-
-	/**
 	 * Implement the action to be taken when an item is selected.
 	 * @param index Position in the list of the selected item.
 	 * @param item The selected item. This may be null if
@@ -92,12 +92,24 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	 */
 	void onItemSelected(int index, T item) throws RemoteException;
 
-	/**
-	 * <p>Setup the context menu for the current {@link SqueezerItem} implementation
-	 * <p>Leave this empty if there shall be no context menu.
-	 * @see OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, android.view.ContextMenu.ContextMenuInfo)
-	 */
-	void setupContextMenu(ContextMenu menu, int index, T item);
+    /**
+     * Creates the context menu, and sets the menu's title to the name of the
+     * item that it is the context menu.
+     * <p>
+     * Subclasses with no context menu should override this method and do
+     * nothing.
+     * <p>
+     * Subclasses with a context menu should call this method, then inflate
+     * their context menu and perform any adjustments to it before returning.
+     * 
+     * @param menu
+     * @param v
+     * @param menuInfo
+     * @see OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View,
+     *      android.view.ContextMenu.ContextMenuInfo)
+     */
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            SqueezerItemView.ContextMenuInfo menuInfo);
 
 	/**
 	 * Perform the selected action from the context menu for the selected item.
@@ -110,4 +122,43 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	 */
 	public boolean doItemContext(MenuItem menuItem, int index, T selectedItems) throws RemoteException;
 
+    /**
+     * Extra menu information provided to the
+     * {@link android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, ContextMenuInfo) }
+     * callback when a context menu is brought up for this SqueezerItemView.
+     */
+    public static class ContextMenuInfo implements ContextMenu.ContextMenuInfo {
+
+        /**
+         * The position in the adapter for which the context menu is being
+         * displayed.
+         */
+        public int position;
+
+        /**
+         * The {@link SqueezerItem} for which the context menu is being
+         * displayed.
+         */
+        public SqueezerItem item;
+
+        /**
+         * The {@link SqueezerItemAdapter} that is bridging the content to the
+         * listview.
+         */
+        public SqueezerItemAdapter<?> adapter;
+
+        /**
+         * A {@link android.view.MenuInflater} that can be used to inflate a
+         * menu resource.
+         */
+        public MenuInflater menuInflater;
+
+        public ContextMenuInfo(int position, SqueezerItem item, SqueezerItemAdapter<?> adapter,
+                MenuInflater menuInflater) {
+            this.position = position;
+            this.item = item;
+            this.adapter = adapter;
+            this.menuInflater = menuInflater;
+        }
+    }
 }

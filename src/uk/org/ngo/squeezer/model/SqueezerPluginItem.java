@@ -20,10 +20,12 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
-
 import android.os.Parcel;
 
-
+/**
+ * Represents a single item in a plugin.
+ *
+ */
 public class SqueezerPluginItem extends SqueezerItem {
 	private String name;
 	@Override public String getName() { return name; }
@@ -33,9 +35,19 @@ public class SqueezerPluginItem extends SqueezerItem {
 	public String getDescription() { return description; }
 	public void setDescription(String description) { this.description = description; }
 
-	private String image;
-	public String getImage() { return image; }
-	public void setImage(String icon) { this.image = icon; }
+	/** Relative URL to the icon to use for this item. */
+    private String image;
+
+	    /**
+     * @return the absolute URL to the icon to use for this item
+     */
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 
 	private boolean hasitems;
 	public boolean isHasitems() { return hasitems; }
@@ -50,7 +62,7 @@ public class SqueezerPluginItem extends SqueezerItem {
 		name = record.containsKey("name") ? record.get("name") : record.get("title");
 		description = record.get("description");
 		type = record.get("type");
-		image = record.get("image");
+        image = record.get("image");
 		hasitems = (Util.parseDecimalIntOrZero(record.get("hasitems")) != 0);
 	}
 
@@ -68,7 +80,7 @@ public class SqueezerPluginItem extends SqueezerItem {
 		name = source.readString();
 		description = source.readString();
 		type = source.readString();
-		image = source.readString();
+        image = source.readString();
 		hasitems = (source.readInt() != 0);
 	}
 	public void writeToParcel(Parcel dest, int flags) {
@@ -76,7 +88,7 @@ public class SqueezerPluginItem extends SqueezerItem {
 		dest.writeString(name);
 		dest.writeString(description);
 		dest.writeString(type);
-		dest.writeString(image);
+        dest.writeString(image);
 		dest.writeInt(hasitems ? 1 : 0);
 	}
 

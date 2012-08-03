@@ -14,18 +14,5 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.framework;
-
-import uk.org.ngo.squeezer.menu.MenuFragment;
-import uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment;
-
-public abstract class SqueezerOrderableListActivity<T extends SqueezerItem>
-        extends SqueezerFilterableListActivity<T>
-        implements SqueezerOrderMenuItemFragment.SqueezerOrderableListActivity {
-
-    @Override
-    public void onCreate(android.os.Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
-    };
-}
+package uk.org.ngo.squeezer.model;
+parcelable SqueezerPlayerState;

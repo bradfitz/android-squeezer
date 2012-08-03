@@ -63,8 +63,8 @@ public class ActionBarHelperBase extends ActionBarHelper {
     private static final String MENU_ATTR_ID = "id";
     private static final String MENU_ATTR_SHOW_AS_ACTION = "showAsAction";
 
-    private Map<Integer, View> mActionBarItems = new HashMap<Integer, View>();
-    private List<MenuItem> mOverflowItems = new ArrayList<MenuItem>();
+    private final Map<Integer, View> mActionBarItems = new HashMap<Integer, View>();
+    private final List<MenuItem> mOverflowItems = new ArrayList<MenuItem>();
     private Menu mSimpleMenu;
     private ViewGroup mActionBarCompat;
     protected Drawable mHomeIcon;
@@ -189,8 +189,8 @@ public class ActionBarHelperBase extends ActionBarHelper {
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
-            View itemView = Util.getListItemView(mActivity.getLayoutInflater(), R.layout.textview,
-                    convertView, items.get(position).getTitle());
+            View itemView = Util.getListItemView(mActivity,
+                    convertView, (String) items.get(position).getTitle());
             itemView.setEnabled(items.get(position).isEnabled());
             return itemView;
         }

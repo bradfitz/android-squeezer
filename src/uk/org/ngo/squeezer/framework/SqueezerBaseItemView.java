@@ -24,8 +24,10 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +36,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * Represents the view hierarchy for a single {@link SqueezerItem} subclass.
+ * <p>
+ * The view has a context menu.
+ * 
+ *  @param <T> the SqueezerItem subclass this view represents.
+ */
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
     protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 
@@ -131,8 +140,20 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         return convertView;
     }
 
+    public View getAdapterView(View convertView, T item, ImageFetcher imageFetcher) {
+        return Util.getListItemView(getActivity(), convertView, item.getName());
+    }
+
+    /**
+     * Returns a view suitable for displaying the "Loading..." text.
+     */
     public View getAdapterView(View convertView, String label) {
-        return Util.getListItemView(mLayoutInflater, R.layout.textview, convertView, label);
+        return Util.getListItemView(mActivity, convertView, label);
+    }
+
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            SqueezerItemView.ContextMenuInfo menuInfo) {
+        menu.setHeaderTitle(menuInfo.item.getName());
     }
 
     /**
@@ -187,5 +208,4 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         }
         return false;
     }
-
 }

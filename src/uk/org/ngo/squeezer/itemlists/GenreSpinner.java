@@ -24,6 +24,7 @@ import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
@@ -81,18 +82,21 @@ public class GenreSpinner {
 			callback.getUIThreadHandler().post(new Runnable() {
 				public void run() {
 					if (adapter == null) {
-						SqueezerGenreView itemView = new SqueezerGenreView(activity) {
-							@Override
-							public View getAdapterView(View convertView, SqueezerGenre item) {
-								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, item.getName());
-							}
-							@Override
-							public View getAdapterView(View convertView, String label) {
-								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, label);
-							};
+                        SqueezerGenreView itemView = new SqueezerGenreView(activity) {
+                            @Override
+                            public View getAdapterView(View convertView, SqueezerGenre item,
+                                    ImageFetcher unused) {
+                                return Util.getSpinnerItemView(getActivity(), convertView,
+                                        item.getName());
+                            }
+
+                            @Override
+                            public View getAdapterView(View convertView, String label) {
+                                return Util.getSpinnerItemView(getActivity(), convertView, label);
+                            };
 
 						};
-						adapter = new SqueezerItemAdapter<SqueezerGenre>(itemView, true);
+                        adapter = new SqueezerItemAdapter<SqueezerGenre>(itemView, true, null);
 						spinner.setAdapter(adapter);
 					}
 					adapter.update(count, start, list);

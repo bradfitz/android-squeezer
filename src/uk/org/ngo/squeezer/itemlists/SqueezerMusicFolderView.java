@@ -20,9 +20,11 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -53,7 +55,8 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     }
 
     @Override
-    public View getAdapterView(View convertView, SqueezerMusicFolderItem item) {
+    public View getAdapterView(View convertView, SqueezerMusicFolderItem item,
+            ImageFetcher imageFetcher) {
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
@@ -104,12 +107,30 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     };
 
     // XXX: Make this a menu resource.
-    public void setupContextMenu(ContextMenu menu, int index, SqueezerMusicFolderItem item) {
-        menu.setHeaderTitle(item.getName());
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
         menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
-    };
+
+        if (((SqueezerMusicFolderItem) menuInfo.item).getType().equals("track")) {
+            menu.add(Menu.NONE, R.id.download, Menu.NONE, R.string.CONTEXTMENU_DOWNLOAD_ITEM);
+        }
+    }
+
+    @Override
+    public boolean doItemContext(MenuItem menuItem, int index, SqueezerMusicFolderItem selectedItem)
+            throws RemoteException {
+        switch (menuItem.getItemId()) {
+            case R.id.download:
+                ((SqueezerMusicFolderListActivity) getActivity())
+                        .downloadSong(selectedItem.getId());
+                return true;
+        }
+        return super.doItemContext(menuItem, index, selectedItem);
+    }
 
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.musicfolder, quantity);

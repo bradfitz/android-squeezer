@@ -18,11 +18,14 @@ package uk.org.ngo.squeezer.itemlists;
 
 import java.util.List;
 
-import uk.org.ngo.squeezer.framework.SqueezerFilterableListActivity;
+import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerArtistFilterDialog;
+import uk.org.ngo.squeezer.menu.MenuFragment;
+import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment;
+import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment.SqueezerFilterableListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
@@ -33,7 +36,8 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Spinner;
 
-public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<SqueezerArtist> implements GenreSpinnerCallback{
+public class SqueezerArtistListActivity extends SqueezerBaseListActivity<SqueezerArtist> implements
+        GenreSpinnerCallback, SqueezerFilterableListActivity {
 
     private String searchString = null;
     public String getSearchString() { return searchString; }
@@ -52,25 +56,30 @@ public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<S
 	    genreSpinner = new GenreSpinner(this, this, spinner);
 	}
 
-
     @Override
 	public SqueezerItemView<SqueezerArtist> createItemView() {
 		return new SqueezerArtistView(this);
 	}
 
-	@Override
-	public void prepareActivity(Bundle extras) {
-		if (extras != null)
-			for (String key : extras.keySet()) {
-				if (SqueezerAlbum.class.getName().equals(key)) {
-					album = extras.getParcelable(key);
-				} else if (SqueezerGenre.class.getName().equals(key)) {
-					genre = extras.getParcelable(key);
-				} else
-					Log.e(getTag(), "Unexpected extra value: " + key + "("
-							+ extras.get(key).getClass().getName() + ")");
-			}
-	}
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            for (String key : extras.keySet()) {
+                if (SqueezerAlbum.class.getName().equals(key)) {
+                    album = extras.getParcelable(key);
+                } else if (SqueezerGenre.class.getName().equals(key)) {
+                    genre = extras.getParcelable(key);
+                } else
+                    Log.e(getTag(), "Unexpected extra value: " + key + "("
+                            + extras.get(key).getClass().getName() + ")");
+            }
+        }
+    };
 
 	@Override
 	protected void registerCallback() throws RemoteException {
@@ -88,6 +97,12 @@ public class SqueezerArtistListActivity extends SqueezerFilterableListActivity<S
 	protected void orderPage(int start) throws RemoteException {
 		getService().artists(start, getSearchString(), album, genre);
 	}
+
+    @Override
+    public boolean onSearchRequested() {
+        showFilterDialog();
+        return false;
+    }
 
     public void showFilterDialog() {
         new SqueezerArtistFilterDialog().show(getSupportFragmentManager(), "ArtistFilterDialog");

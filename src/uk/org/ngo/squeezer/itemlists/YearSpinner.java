@@ -18,12 +18,12 @@ package uk.org.ngo.squeezer.itemlists;
 
 import java.util.List;
 
-import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerYear;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
@@ -83,15 +83,16 @@ public class YearSpinner {
 					if (adapter == null) {
 						SqueezerYearView itemView = new SqueezerYearView(activity) {
 							@Override
-							public View getAdapterView(View convertView, SqueezerYear item) {
-								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, item.getName());
+                            public View getAdapterView(View convertView, SqueezerYear item,
+                                    ImageFetcher unused) {
+								return Util.getSpinnerItemView(getActivity(), convertView, item.getName());
 							}
 							@Override
 							public View getAdapterView(View convertView, String label) {
-								return Util.getListItemView(getActivity().getLayoutInflater(), R.layout.spinner_item, convertView, label);
+                                return Util.getSpinnerItemView(getActivity(), convertView, label);
 							};
 						};
-						adapter = new SqueezerItemAdapter<SqueezerYear>(itemView, true);
+                        adapter = new SqueezerItemAdapter<SqueezerYear>(itemView, true, null);
 						spinner.setAdapter(adapter);
 					}
 					adapter.update(count, start, list);

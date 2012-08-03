@@ -31,9 +31,20 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            playlist = extras.getParcelable("playlist");
+        }
+    }
+
 	public static void show(Context context, SqueezerPlaylist playlist) {
 	    final Intent intent = new Intent(context, SqueezerPlaylistSongsActivity.class);
 	    intent.putExtra("playlist", playlist);
@@ -59,15 +70,15 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
     public SqueezerItemView<SqueezerSong> createItemView() {
         return new SqueezerSongView(this) {
             @Override
-            public void setupContextMenu(ContextMenu menu, int index, SqueezerSong item) {
-                super.setupContextMenu(menu, index, item);
+            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+                super.onCreateContextMenu(menu, v, menuInfo);
 
                 menu.setGroupVisible(R.id.group_playlist, true);
 
-                if (index == 0)
+                if (menuInfo.position == 0)
                     menu.findItem(R.id.playlist_move_up).setVisible(false);
 
-                if (index == getAdapter().getCount() - 1)
+                if (menuInfo.position == menuInfo.adapter.getCount() - 1)
                     menu.findItem(R.id.playlist_move_down).setVisible(false);
             }
 
@@ -112,11 +123,6 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
             };
         };
     }
-
-	@Override
-	public void prepareActivity(Bundle extras) {
-	    playlist = extras.getParcelable("playlist");
-	}
 
 	@Override
 	protected void orderPage(int start) throws RemoteException {

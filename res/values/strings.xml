@@ -36,6 +36,7 @@
     <string name="settings_username_summary">Optional SqueezeBox Server user name.</string>
     <string name="settings_password_title">Password</string>
     <string name="settings_password_summary">Optional SqueezeBox Server password.</string>
+    <string name="settings_server_scan_progress">Scanning for servers&#8230;</string>
     <string name="settings_autoconnect_title">Auto-connect</string>
     <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability, try to connect.</string>
     <string name="menu_item_disconnect">Disconnect</string>
@@ -44,6 +45,7 @@
     <string name="menu_item_poweroff">Power off</string>
     <string name="menu_item_main">Now playing</string>
     <string name="menu_item_home">Main Menu</string>
+    <string name="menu_item_download">Download</string>
     <string name="menu_item_fetch_all">Fetch remaining</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sort order</string>
@@ -59,7 +61,7 @@
     <string name="connection_failed_text">Connection failed. Check settings.</string>
     <string name="login_failed_text">Login failed. Enter user name and password.</string>
     <string name="disconnected_text">Disconnected.</string>
-    <string name="wifi_disabled_text">Wifi is disabled</string>
+    <string name="wifi_disabled_text">Wi-Fi is disabled</string>
     <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device.\nWhen an active Wi-Fi connection is made, Squeezer will automatically try to connect to your SqueezeBox Server.\nTurn on Wifi now?</string>
     <string name="wifi_enabled_text">Wi-Fi is enabled. Please wait for an active Wi-Fi connection.</string>
     <string name="notification_playing_text">%s playing</string>
@@ -297,10 +299,12 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
   
     <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s allready exists</string>
 
+    <!-- Album sort orders -->
 	<string name="albums_sort_order_album">Album</string>
 	<string name="albums_sort_order_artflow">Artist, Year, Album</string>
     <string name="albums_sort_order_new">New music</string>
 
+    <!-- Song sort orders -->
 	<string name="songs_sort_order_title">Title</string>
 	<string name="songs_sort_order_tracknum">Track</string>
 
@@ -384,6 +388,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item>Songs</item>
         <item>Genres</item>
         <item>Years</item>
+        <item>New Music</item>
         <item>Music Folder</item>
         <item>Random mix</item>
         <item>Playlists</item>
