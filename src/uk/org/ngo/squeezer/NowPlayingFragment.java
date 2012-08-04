@@ -24,7 +24,6 @@ import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
 import uk.org.ngo.squeezer.dialogs.SqueezerAuthenticationDialog;
 import uk.org.ngo.squeezer.framework.HasUiThread;
-import uk.org.ngo.squeezer.framework.SqueezerIconUpdater;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlayerListActivity;
@@ -34,6 +33,9 @@ import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.util.ImageFetcher.ImageFetcherParams;
+import uk.org.ngo.squeezer.util.UIUtils;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -96,14 +98,14 @@ public class NowPlayingFragment extends Fragment implements
     private ImageView albumArt;
     private SeekBar seekBar;
 
-    private final SqueezerIconUpdater<SqueezerSong> iconUpdater = new SqueezerIconUpdater<SqueezerSong>(
-            this);
-
     // Updating the seekbar
     private boolean updateSeekBar = true;
     private int secondsIn;
     private int secondsTotal;
     private final static int UPDATE_TIME = 1;
+
+    /** ImageFetcher for (large) album cover art */
+    private ImageFetcher mLargeImageFetcher;
 
     private final Handler uiThreadHandler = new Handler() {
         // Normally I'm lazy and just post Runnables to the uiThreadHandler
@@ -211,6 +213,11 @@ public class NowPlayingFragment extends Fragment implements
         albumArt = (ImageView) v.findViewById(R.id.album);
         trackText = (TextView) v.findViewById(R.id.trackname);
         albumText = (TextView) v.findViewById(R.id.albumname);
+
+        // Set up the image fetcher, max cover art size is 512K.
+        ImageFetcherParams params = new ImageFetcherParams();
+        params.mMaxThumbnailBytes = 512 * 1024 * 1024; // 512K
+        mLargeImageFetcher = UIUtils.getImageFetcher(mActivity, params);
 
         if (mFullHeightLayout) {
             /*
@@ -540,9 +547,12 @@ public class NowPlayingFragment extends Fragment implements
     private void updateAlbumArtIfNeeded(SqueezerSong song) {
         Log.v(TAG, "updateAlbumArtIfNeeded");
         if (Util.atomicReferenceUpdated(currentSong, song)) {
-            Log.v(TAG, "Calling updateIcon()");
-            iconUpdater.updateIcon(albumArt, song, song != null ? song.getArtworkUrl(mService)
-                    : null);
+            if (song == null || song.getArtworkUrl(mService) == null) {
+                albumArt.setImageResource(R.drawable.icon_album_noart_143);
+                return;
+            }
+
+            mLargeImageFetcher.loadImage(song.getArtworkUrl(mService), albumArt);
         }
     }
 
@@ -587,7 +597,7 @@ public class NowPlayingFragment extends Fragment implements
             return null;
         }
         try {
-            return mService.getCurrentSong();
+            return mService.currentSong();
         } catch (RemoteException e) {
             Log.e(TAG, "Service exception in getCurrentSong(): " + e);
         }

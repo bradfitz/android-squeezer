@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.model.SqueezerYear;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.View;
 
 public class SqueezerYearView extends SqueezerBaseItemView<SqueezerYear> {
 
@@ -39,12 +40,13 @@ public class SqueezerYearView extends SqueezerBaseItemView<SqueezerYear> {
 	}
 
     // XXX: Make this a menu resource.
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerYear item) {
-		menu.setHeaderTitle(item.getId());
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
         menu.add(Menu.NONE, R.id.browse_songs, 0, R.string.CONTEXTMENU_BROWSE_SONGS);
 		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ALBUMS, 1, R.string.CONTEXTMENU_BROWSE_ALBUMS);
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
-	};
-
+	}
 }

@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/message"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="@style/SqueezerTextItem" />
 
     </LinearLayout>
 
@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/additional_message"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="@style/SqueezerTextItemSmall" />
 
     <ImageView
         android:id="@+id/ringer_stream_icon"

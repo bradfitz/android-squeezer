@@ -28,7 +28,6 @@ public class SqueezerPlaylistSaveDialog extends SqueezerBaseEditTextDialog {
         return dialog;
     };
 
-
     @Override
     protected boolean commit(String name) {
         try {
@@ -46,6 +45,4 @@ public class SqueezerPlaylistSaveDialog extends SqueezerBaseEditTextDialog {
         dialog.setArguments(args);
         dialog.show(activity.getSupportFragmentManager(), "SaveDialog");
     }
-
-
 }

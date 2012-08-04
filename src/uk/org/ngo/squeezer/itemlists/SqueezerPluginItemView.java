@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlists;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -36,8 +37,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 		this.activity = activity;
 	}
 
-	@Override
-	public View getAdapterView(View convertView, SqueezerPluginItem item) {
+    public View getAdapterView(View convertView, SqueezerPluginItem item, ImageFetcher imageFetcher) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
@@ -53,10 +53,38 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
         }
 
 		viewHolder.label.setText(item.getName());
-		updateIcon(viewHolder.icon, item, item.getImage());
 
+        if (imageFetcher != null) {
+            if (item.getImage() == null) {
+                viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
+            } else {
+                imageFetcher.loadThumbnailImage(item.getImage(), viewHolder.icon,
+                        ICON_PENDING_ARTWORK);
+            }
+        }
 		return convertView;
 	}
+
+    @Override
+    public View getAdapterView(View convertView, String label) {
+        ViewHolder viewHolder;
+
+        if (convertView == null || convertView.getTag() == null) {
+            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
+
+            viewHolder = new ViewHolder();
+            viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+        viewHolder.label.setText(label);
+
+        return convertView;
+    }
 
 	private static class ViewHolder {
 		TextView label;
@@ -77,14 +105,16 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 	}
 
     // XXX: Make this a menu resource.
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerPluginItem item) {
-		if (!item.isHasitems()) {
-			menu.setHeaderTitle(item.getName());
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        if (!((SqueezerPluginItem) menuInfo.item).isHasitems()) {
+            super.onCreateContextMenu(menu, v, menuInfo);
+
             menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
             menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
             menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
-		}
-	}
+        }
+    }
 
 	@Override
 	public boolean doItemContext(MenuItem menuItem, int index, SqueezerPluginItem selectedItem) throws RemoteException {

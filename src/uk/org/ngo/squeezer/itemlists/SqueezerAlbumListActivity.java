@@ -18,14 +18,19 @@ package uk.org.ngo.squeezer.itemlists;
 
 import java.util.List;
 
+import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
-import uk.org.ngo.squeezer.framework.SqueezerOrderableListActivity;
 import uk.org.ngo.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import uk.org.ngo.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumFilterDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.menu.MenuFragment;
+import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment;
+import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment.SqueezerFilterableListActivity;
+import uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment;
+import uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment.SqueezerOrderableListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
@@ -39,8 +44,9 @@ import android.util.Log;
 import android.widget.Spinner;
 
 
-public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<SqueezerAlbum>
-		implements GenreSpinnerCallback, YearSpinnerCallback {
+public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<SqueezerAlbum>
+        implements GenreSpinnerCallback, YearSpinnerCallback,
+        SqueezerFilterableListActivity, SqueezerOrderableListActivity {
 
 	private AlbumsSortOrder sortOrder = AlbumsSortOrder.album;
 
@@ -79,23 +85,32 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 		return new SqueezerAlbumView(this);
 	}
 
-	@Override
-	public void prepareActivity(Bundle extras) {
-		if (extras != null)
-			for (String key : extras.keySet()) {
-				if (SqueezerArtist.class.getName().equals(key)) {
-					artist = extras.getParcelable(key);
-				} else if (SqueezerYear.class.getName().equals(key)) {
-					year = extras.getParcelable(key);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
+        MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            for (String key : extras.keySet()) {
+                if (SqueezerArtist.class.getName().equals(key)) {
+                    artist = extras.getParcelable(key);
+                } else if (SqueezerYear.class.getName().equals(key)) {
+                    year = extras.getParcelable(key);
                 } else if (SqueezerGenre.class.getName().equals(key)) {
                     genre = extras.getParcelable(key);
                 } else if (SqueezerSong.class.getName().equals(key)) {
                     song = extras.getParcelable(key);
-				} else
-					Log.e(getTag(), "Unexpected extra value: " + key + "("
-							+ extras.get(key).getClass().getName() + ")");
-			}
-	}
+                } else if (AlbumsSortOrder.class.getName().equals(key)) {
+                    sortOrder = AlbumsSortOrder.valueOf(extras.getString(key));
+                } else
+                    Log.e(getTag(), "Unexpected extra value: " + key + "("
+                            + extras.get(key).getClass().getName() + ")");
+            }
+        }
+    }
 
 	@Override
 	protected void registerCallback() throws RemoteException {
@@ -122,13 +137,15 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
 
 	public void setSortOrder(AlbumsSortOrder sortOrder) {
 		this.sortOrder = sortOrder;
+		getIntent().putExtra(AlbumsSortOrder.class.getName(), sortOrder.name());
 		orderItems();
 	}
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    };
+    public boolean onSearchRequested() {
+        showFilterDialog();
+        return false;
+    }
 
     public void showFilterDialog() {
         new SqueezerAlbumFilterDialog().show(getSupportFragmentManager(), "AlbumFilterDialog");
@@ -139,9 +156,14 @@ public class SqueezerAlbumListActivity extends SqueezerOrderableListActivity<Squ
     }
 
     public static void show(Context context, SqueezerItem... items) {
+        show(context, AlbumsSortOrder.album, items);
+    }
+
+    public static void show(Context context, AlbumsSortOrder sortOrder, SqueezerItem... items) {
         final Intent intent = new Intent(context, SqueezerAlbumListActivity.class);
+        intent.putExtra(AlbumsSortOrder.class.getName(), sortOrder.name());
         for (SqueezerItem item: items)
-        	intent.putExtra(item.getClass().getName(), item);
+            intent.putExtra(item.getClass().getName(), item);
         context.startActivity(intent);
     }
 

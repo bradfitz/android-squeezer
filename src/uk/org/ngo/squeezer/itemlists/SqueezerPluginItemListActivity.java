@@ -19,12 +19,11 @@ package uk.org.ngo.squeezer.itemlists;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
-import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,9 +34,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
-
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback;
 
 public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<SqueezerPluginItem>{
 	private SqueezerPlugin plugin;
@@ -50,37 +46,38 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
 	}
 
 	@Override
-	protected SqueezerItemAdapter<SqueezerPluginItem> createItemListAdapter(SqueezerItemView<SqueezerPluginItem> itemView) {
-		return new SqueezerItemAdapter<SqueezerPluginItem>(itemView);
-	};
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	@Override
-	public void prepareActivity(Bundle extras) {
-		plugin = extras.getParcelable(SqueezerPlugin.class.getName());
-		parent = extras.getParcelable(SqueezerPluginItem.class.getName());
-		findViewById(R.id.search_view).setVisibility(plugin.isSearchable() ? View.VISIBLE : View.GONE);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            plugin = extras.getParcelable(SqueezerPlugin.class.getName());
+            parent = extras.getParcelable(SqueezerPluginItem.class.getName());
+            findViewById(R.id.search_view).setVisibility(
+                    plugin.isSearchable() ? View.VISIBLE : View.GONE);
 
-		ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
-		final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
+            ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+            final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
 
-		searchCriteriaText.setOnKeyListener(new OnKeyListener() {
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-					orderItems(searchCriteriaText.getText().toString());
-					return true;
-				}
-				return false;
-			}
-		});
+            searchCriteriaText.setOnKeyListener(new OnKeyListener() {
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if ((event.getAction() == KeyEvent.ACTION_DOWN)
+                            && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                        orderItems(searchCriteriaText.getText().toString());
+                        return true;
+                    }
+                    return false;
+                }
+            });
 
-        searchButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-            	if (getService() != null) {
-					orderItems(searchCriteriaText.getText().toString());
-            	}
-			}
-		});
-
+            searchButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    if (getService() != null) {
+                        orderItems(searchCriteriaText.getText().toString());
+                    }
+                }
+            });
+        }
 	}
 
 	private void orderItems(String searchString) {

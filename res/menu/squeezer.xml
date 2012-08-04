@@ -18,29 +18,16 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/menu_item_download"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/menu_item_download"
+        android:alphabeticShortcut="o" />
+
+    <item
         android:id="@+id/menu_item_connect"
         android:icon="@drawable/presence_online"
         android:title="@string/menu_item_connect"
         android:alphabeticShortcut="c"
-        android:showAsAction="never|withText"
-    />
-    <item
-        android:id="@+id/menu_item_disconnect"
-        android:icon="@drawable/ic_action_disconnect"
-        android:title="@string/menu_item_disconnect"
-        android:alphabeticShortcut="d"
-        android:showAsAction="never|withText"
-    />
-    <item
-        android:id="@+id/menu_item_poweron"
-        android:title="@string/menu_item_poweron"
-        android:icon="@drawable/ic_action_power"
-        android:showAsAction="never|withText"
-    />
-    <item 
-        android:id="@+id/menu_item_poweroff"
-        android:title="@string/menu_item_poweroff"
-        android:icon="@drawable/ic_action_power"
         android:showAsAction="never|withText"
     />
     <item
@@ -68,7 +55,21 @@
         android:icon="@android:drawable/ic_menu_info_details"
         android:id="@+id/menu_item_about"
         android:title="@string/menu_item_about_label"
-        android:alphabeticShortcut="a"
-        android:showAsAction="never|withText"
-    />
+        android:alphabeticShortcut="a" />
+    <item
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:id="@+id/menu_item_settings"
+        android:title="@string/menu_item_settings_label"
+        android:alphabeticShortcut="p" />
+   <item
+        android:id="@+id/menu_item_disconnect"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="@string/menu_item_disconnect"
+        android:alphabeticShortcut="d" />
+    <item
+        android:id="@+id/menu_item_poweron"
+        android:title="@string/menu_item_poweron" android:icon="@android:drawable/ic_lock_power_off"/>
+    <item
+        android:id="@+id/menu_item_poweroff"
+        android:title="@string/menu_item_poweroff" android:icon="@android:drawable/ic_lock_power_off"/>
 </menu>

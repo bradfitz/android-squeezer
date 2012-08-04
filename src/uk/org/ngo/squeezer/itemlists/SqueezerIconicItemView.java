@@ -16,27 +16,28 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
-import uk.org.ngo.squeezer.framework.SqueezerIconUpdater;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
-import android.widget.ImageView;
 
 /**
- * An item view with associated icon where the image is remote.
+ * Represents the view hierarchy for a single {@link SqueezerItem} subclass,
+ * where the item has an icon associated with it.
  * 
  * @param <T>
  */
 public abstract class SqueezerIconicItemView<T extends SqueezerItem> extends SqueezerBaseItemView<T> {
-	private final SqueezerIconUpdater<T> iconUpdater;
+    // XXX: Make these resources, and get rid of this class.
 
-	public SqueezerIconicItemView(SqueezerItemListActivity activity) {
-		super(activity);
-		iconUpdater = new SqueezerIconUpdater<T>(activity);
-	}
+    /** The icon to display when there's no artwork for this item */
+    protected static final int ICON_NO_ARTWORK = R.drawable.icon_album_noart_143;
 
-	protected void updateIcon(final ImageView icon, final Object item, final String urlString) {
-		iconUpdater.updateIcon(icon, item, urlString);
-	}
+    /** The icon to display when artwork exists, but has not been loaded yet */
+    protected static final int ICON_PENDING_ARTWORK = R.drawable.icon_album_noart_143;
+
+    public SqueezerIconicItemView(SqueezerItemListActivity activity) {
+        super(activity);
+    }
 
 }

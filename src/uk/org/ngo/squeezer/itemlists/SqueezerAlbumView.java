@@ -22,56 +22,34 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import android.os.RemoteException;
 import android.view.ContextMenu;
-import android.view.MenuInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 /**
  * Shows a single album with its artwork, and a context menu.
  */
 public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
-	public SqueezerAlbumView(SqueezerItemListActivity activity) {
-		super(activity);
-	}
+    public SqueezerAlbumView(SqueezerItemListActivity activity) {
+        super(activity);
+    }
 
-	@Override
-	public View getAdapterView(View convertView, SqueezerAlbum item) {
-		ViewHolder viewHolder;
+    public void bindView(ViewHolder viewHolder, SqueezerAlbum item) {
+        viewHolder.text1.setText(item.getName());
 
-		if (convertView == null || convertView.getTag() == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_two_line, null);
-			viewHolder = new ViewHolder();
-			viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
-			viewHolder.label2 = (TextView) convertView.findViewById(R.id.text2);
-			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
-			convertView.setTag(viewHolder);
-        } else {
-			viewHolder = (ViewHolder) convertView.getTag();
-        }
-
-		viewHolder.label1.setText(item.getName());
-		String text2 = "";
-		if (item.getId() != null) {
-			text2 = item.getArtist();
-			if (item.getYear() != 0) text2 += " - " + item.getYear();
-		}
-		viewHolder.label2.setText(text2);
-
-        viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
-        viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                v.showContextMenu();
+        // Might be null if we're using the one-line layout
+        if (viewHolder.text2 != null) {
+            String text2 = "";
+            if (item.getId() != null) {
+                text2 = item.getArtist();
+                if (item.getYear() != 0)
+                    text2 += " - " + item.getYear();
             }
-        });
+            viewHolder.text2.setText(text2);
+        }
+    }
 
-        updateAlbumArt(viewHolder.icon, item);
-
-		return convertView;
-	}
+    public void bindView(ViewHolder viewHolder, String text) {
+        viewHolder.text1.setText(text);
+    }
 
 	public void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
 		getActivity().play(item);
@@ -82,22 +60,14 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
      * Creates the context menu for an album by inflating
      * R.menu.albumcontextmenu.
      */
-    public void setupContextMenu(ContextMenu menu, int index, SqueezerAlbum item) {
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.albumcontextmenu, menu);
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.setHeaderTitle(item.getName());
-    };
+        menuInfo.menuInflater.inflate(R.menu.albumcontextmenu, menu);
+    }
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.album, quantity);
 	}
-
-    private static class ViewHolder {
-		TextView label1;
-		TextView label2;
-		ImageView icon;
-        ImageButton btnContextMenu;
-	}
-
 }

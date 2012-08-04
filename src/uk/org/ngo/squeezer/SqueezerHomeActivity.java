@@ -31,6 +31,7 @@ import uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
@@ -58,12 +59,13 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private static final int SONGS = 2;
     private static final int GENRES = 3;
     private static final int YEARS = 4;
-    private static final int MUSIC_FOLDER = 5;
-    private static final int RANDOM_MIX = 6;
-    private static final int PLAYLISTS = 7;
-    private static final int INTERNET_RADIO = 8;
-    private static final int APPS = 9;
-    private static final int FAVORITES = 10;
+    private static final int NEW_MUSIC = 5;
+    private static final int MUSIC_FOLDER = 6;
+    private static final int RANDOM_MIX = 7;
+    private static final int PLAYLISTS = 8;
+    private static final int INTERNET_RADIO = 9;
+    private static final int APPS = 10;
+    private static final int FAVORITES = 11;
 
     private boolean mCanMusicfolder = false;
     private boolean mCanRandomplay = false;
@@ -165,7 +167,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         int[] icons = new int[] {
                 R.drawable.ic_artists,
                 R.drawable.ic_albums, R.drawable.ic_songs,
-                R.drawable.ic_genres, R.drawable.ic_years,
+                R.drawable.ic_genres, R.drawable.ic_years, R.drawable.ic_new_music,
                 R.drawable.ic_music_folder, R.drawable.ic_random,
                 R.drawable.ic_playlists, R.drawable.ic_internet_radio,
                 R.drawable.ic_my_apps, R.drawable.ic_favorites
@@ -225,6 +227,10 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                     break;
                 case YEARS:
                     SqueezerYearListActivity.show(SqueezerHomeActivity.this);
+                    break;
+                case NEW_MUSIC:
+                    SqueezerAlbumListActivity.show(SqueezerHomeActivity.this,
+                            AlbumsSortOrder.__new);
                     break;
                 case MUSIC_FOLDER:
                     SqueezerMusicFolderListActivity.show(SqueezerHomeActivity.this);

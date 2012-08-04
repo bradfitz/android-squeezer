@@ -23,7 +23,7 @@ import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
-import android.view.LayoutInflater;
+import android.app.Activity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -40,9 +40,9 @@ public class Util {
     	return integer == null ? 0 : integer;
     }
 
+
     /**
      * Update target, if it's different from newValue.
-     * @param <T>
      * @param target
      * @param newValue
      * @return true if target is updated. Otherwise return false.
@@ -111,25 +111,13 @@ public class Util {
         }
     }
 
-    /**
-     * Helper method to return a view for a listitem that consists of a single
-     * TextView.
-     * 
-     * @param layoutInflater
-     * @param id
-     * @param convertView
-     * @param label
-     * @return
-     */
-    public static View getListItemView(LayoutInflater layoutInflater, int id, View convertView,
-            CharSequence label) {
+    public static View getSpinnerItemView(Activity activity, View convertView, String label) {
         TextView view;
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
-                : layoutInflater.inflate(id, null));
+                : activity.getLayoutInflater().inflate(R.layout.spinner_item, null));
         view.setText(label);
         return view;
     }
-
 }

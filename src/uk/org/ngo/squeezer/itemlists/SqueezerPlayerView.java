@@ -21,23 +21,25 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
-import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
-import android.view.ContextMenu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 	private static final Map<String, Integer> modelIcons = initializeModelIcons();
+    private final SqueezerPlayerListActivity activity;
 
-	public SqueezerPlayerView(SqueezerItemListActivity activity) {
-		super(activity);
-	}
+    public SqueezerPlayerView(SqueezerPlayerListActivity activity) {
+        super(activity);
+        this.activity = activity;
+    }
 
 	@Override
-	public View getAdapterView(View convertView, SqueezerPlayer item) {
+    public View getAdapterView(View convertView, SqueezerPlayer item,
+            ImageFetcher unused) {
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
@@ -50,8 +52,14 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 			viewHolder = (ViewHolder) convertView.getTag();
 
 		viewHolder.label.setText(item.getName());
+        viewHolder.label.setTextAppearance(activity,
+                item.equals(activity.getActivePlayer()) ? R.style.SqueezerCurrentTextItem
+                        : R.style.SqueezerTextItem);
 		viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
 
+        convertView
+                .setBackgroundResource(item.equals(activity.getActivePlayer()) ? R.drawable.list_item_background_current
+                        : R.drawable.list_item_background_normal);
 		return convertView;
 	}
 
@@ -59,9 +67,6 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		getActivity().getService().setActivePlayer(item);
 		getActivity().finish();
 	};
-
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlayer item) {
-	}
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.player, quantity);
@@ -92,5 +97,4 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		TextView label;
 		ImageView icon;
 	}
-
 }

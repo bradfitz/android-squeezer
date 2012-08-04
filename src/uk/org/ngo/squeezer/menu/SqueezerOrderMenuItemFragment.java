@@ -7,7 +7,23 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-
+/**
+ * A fragment that implements a "Sort" menu.
+ * <p>
+ * Activities that host this fragment must implement
+ * {@link #SqueezerOrderableListActivity}.
+ * 
+ * <pre>
+ * {@code
+ * public void onCreate(Bundle savedInstanceState) {
+ *     ...
+ *     MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
+ * }
+ * 
+ * public void showOrderDialog() {
+ * }
+ * </pre>
+ */
 public class SqueezerOrderMenuItemFragment extends MenuFragment {
     SqueezerOrderableListActivity activity;
 
@@ -34,8 +50,19 @@ public class SqueezerOrderMenuItemFragment extends MenuFragment {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Interface that activities that host this fragment must implement.
+     */
     public interface SqueezerOrderableListActivity {
+        /**
+         * Show a dialog allowing the user to choose the sort order.
+         */
         public void showOrderDialog();
+
+        /**
+         * Ensure that the activity that hosts this fragment derives from
+         * FragmentActivity.
+         */
         FragmentManager getSupportFragmentManager();
     }
 
