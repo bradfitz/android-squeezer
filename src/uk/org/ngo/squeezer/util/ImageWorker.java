@@ -34,7 +34,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
@@ -395,11 +394,9 @@ public abstract class ImageWorker {
             // Use TransitionDrawable to fade in.
             final TransitionDrawable td =
                     new TransitionDrawable(new Drawable[] {
-                            new ColorDrawable(android.R.color.transparent),
+                            imageView.getDrawable(),
                             new BitmapDrawable(mContext.getResources(), bitmap)
                     });
-            //noinspection deprecation
-            imageView.setBackgroundDrawable(imageView.getDrawable());
             imageView.setImageDrawable(td);
             td.startTransition(FADE_IN_TIME);
         } else {
