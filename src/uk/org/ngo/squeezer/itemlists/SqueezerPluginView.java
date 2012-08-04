@@ -32,17 +32,20 @@ public abstract class SqueezerPluginView extends SqueezerIconicItemView<Squeezer
 		super(activity);
 	}
 
+    @Override
     public View getAdapterView(View convertView, SqueezerPlugin item, ImageFetcher imageFetcher) {
 		ViewHolder viewHolder;
 
-		if (convertView == null || convertView.getTag() == null) {
+        if (convertView == null || convertView.getTag() == null
+                || !ViewHolder.class.isAssignableFrom(convertView.getClass())) {
             convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
 			viewHolder = new ViewHolder();
 			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
 			convertView.setTag(viewHolder);
-		} else
+        } else {
 			viewHolder = (ViewHolder) convertView.getTag();
+        }
 
 		viewHolder.label.setText(item.getName());
         imageFetcher.loadThumbnailImage(getIconUrl(item.getIcon()), viewHolder.icon,
