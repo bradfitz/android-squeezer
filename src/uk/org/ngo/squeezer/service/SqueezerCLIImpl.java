@@ -248,9 +248,21 @@ class SqueezerCLIImpl {
 
 	// All requests are tagged with a correlation id, which can be used when
 	// asynchronous responses are received.
-    int _correlationid = 0;
+    private int _correlationid = 0;
 
-    synchronized void sendCommand(String... commands) {
+
+    /**
+     * Send the supplied commands to the SqueezeboxServer.
+     * <p>
+     * <b>All</b> data to the server goes through this method
+     * <p>
+     * <b>Note</b> don't call this from the main (UI) thread. If you are unsure
+     * if you are on the main thread, then use {@link #sendCommand(String...)}
+     * instead.
+     * 
+     * @param commands List of commands to send
+     */
+    synchronized void sendCommandImmediately(String... commands) {
         if (commands.length == 0) return;
         PrintWriter writer = service.connectionState.getSocketWriter();
         if (writer == null) return;
@@ -266,20 +278,51 @@ class SqueezerCLIImpl {
         }
     }
 
+    /**
+     * Send the supplied commands to the SqueezeboxServer.
+     * <p>
+     * This method takes care to avoid performing network operations on the main thread.
+     * Use {@link #sendCommandImmediately(String...)} if you are sure you are not on the main thread
+     * (eg if called from the listening thread).
+     *  
+     * @param commands List of commands to send
+     */
+    void sendCommand(final String... commands) {
+        if (service.mainThread == Thread.currentThread()) {
+            sendCommandImmediately(commands);
+            
+        } else {
+            service.executor.execute(new Runnable() {
+                public void run() {
+                    sendCommandImmediately(commands);
+                }
+            });
+        }
+    }
+
+    /**
+     * Send the specified command for the active player to the SqueezeboxServer
+     * 
+     * @param command The command to send
+     */
     void sendPlayerCommand(final String command) {
         if (service.connectionState.getActivePlayer() == null) {
             return;
         }
-        service.executor.execute(new Runnable() {
-            public void run() {
-                sendCommand(Util.encode(service.connectionState.getActivePlayer().getId()) + " " + command);
-            }
-        });
+        sendCommand(Util.encode(service.connectionState.getActivePlayer().getId()) + " " + command);
     }
 
-    boolean checkCorrelation(Integer registeredCorralationId, int currentCorrelationId) {
-    	if (registeredCorralationId == null) return true;
-    	return (currentCorrelationId >= registeredCorralationId);
+    /**
+     * Check whether this response is obsolete, i.e. if the correlation id
+     * for the current response is lower than the last registered minimum.
+     * 
+     * @param registeredCorrelationId Minimum correlation id
+     * @param currentCorrelationId The correlation id of the current response
+     * @return True if the response is valid
+     */
+    boolean checkCorrelation(Integer registeredCorrelationId, int currentCorrelationId) {
+    	if (registeredCorrelationId == null) return true;
+    	return (currentCorrelationId >= registeredCorrelationId);
     }
 
 
@@ -288,20 +331,42 @@ class SqueezerCLIImpl {
     private final Map<String, Integer> cmdCorrelationIds = new HashMap<String, Integer>();
     private final Map<Class<?>, Integer> typeCorrelationIds = new HashMap<Class<?>, Integer>();
 
+    /**
+     * Call this when a callback for received SqueezeboxServer items are
+     * unregistered.
+     * <p>Responses which come in after this time, i.e. which have a correlation id
+     * lower than the current, are ignored.
+     * 
+     * @param clazz Type of the callback which are unregistered
+     */
     void cancelRequests(Class<?> clazz) {
 		typeCorrelationIds.put(clazz, _correlationid);
     }
 
+    /**
+     * Check whether this response is obsolete.
+     * 
+     * @param cmd Type of the request
+     * @param correlationid The correlation id of the current response
+     * @return True if the response is valid
+     */
     private boolean checkCorrelation(String cmd, int correlationid) {
     	return checkCorrelation(cmdCorrelationIds.get(cmd), correlationid);
     }
 
+    /**
+     * Check whether this response is obsolete.
+     * 
+     * @param type Type of the callback to receive the items
+     * @param correlationid The correlation id of the current response
+     * @return True if the response is valid
+     */
     private boolean checkCorrelation(Class<? extends SqueezerItem> type, int correlationid) {
     	return checkCorrelation(typeCorrelationIds.get(type), correlationid);
     }
 
     /**
-     * Send an asynchronous request to SqueezeboxServer for the specified items.
+     * Send an asynchronous request to the SqueezeboxServer for the specified items.
      * <p>
      * If start is zero, it means the the list is being reordered, which will make any pending
      * replies, for the given items, obsolete.
@@ -322,11 +387,7 @@ class SqueezerCLIImpl {
 		if (parameters != null)
 			for (String parameter: parameters)
 				sb.append(" " + Util.encode(parameter));
-		service.executor.execute(new Runnable() {
-            public void run() {
-                sendCommand(sb.toString());
-            }
-        });
+        sendCommand(sb.toString());
 	}
 
 	void requestItems(String cmd, int start, List<String> parameters) {
@@ -484,7 +545,7 @@ class SqueezerCLIImpl {
 				StringBuilder cmdline = new StringBuilder(cmd.cmd + " "	+ end + " " + count);
 				for (String parameter : taggedParameters.values())
 					cmdline.append(" " + parameter);
-				sendCommand(playerid + prefix + cmdline.toString());
+				sendCommandImmediately(playerid + prefix + cmdline.toString());
 			}
 		}
 	}

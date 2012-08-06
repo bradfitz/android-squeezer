@@ -75,6 +75,7 @@ public class SqueezeService extends Service {
     private static final String SONGTAGS = "asleyjJxK";
 
     final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+    Thread mainThread;
 
     private boolean mHandshakeComplete = false;
 
@@ -111,6 +112,9 @@ public class SqueezeService extends Service {
     @Override
     public void onCreate() {
     	super.onCreate();
+    	
+    	// Get the main thread
+    	mainThread = Thread.currentThread();
 
     	// Create the volume panel
     	mVolumePanel = new VolumePanel(this.getApplicationContext());
@@ -200,7 +204,7 @@ public class SqueezeService extends Service {
 								}
 							}
 						} else
-							cli.sendCommand("playlists rename playlist_id:" + tokenMap.get("playlist_id") + " newname:" + Util.encode(tokenMap.get("newname")));
+							cli.sendCommandImmediately("playlists rename playlist_id:" + tokenMap.get("playlist_id") + " newname:" + Util.encode(tokenMap.get("newname")));
 					}
 				} else if ("tracks".equals(tokens.get(1)))
 					cli.parseSqueezerList(cli.extQueryFormatCmdMap.get("playlists tracks"), tokens);
@@ -564,7 +568,7 @@ public class SqueezeService extends Service {
      * is not completed, is considered an authentication failure.
      */
     void onCliPortConnectionEstablished(final String userName, final String password) {
-        cli.sendCommand("login " + Util.encode(userName) + " " + Util.encode(password));
+        cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
     }
 
     /**
@@ -572,7 +576,7 @@ public class SqueezeService extends Service {
      * and start listening for asynchronous updates of server state.
      */
     void onAuthenticated() {
-        cli.sendCommand("listen 1",
+        cli.sendCommandImmediately("listen 1",
                 "players 0 1",   // initiate an async player fetch
                 "can musicfolder ?", // learn music folder browsing support
                 "can randomplay ?",   // learn random play function functionality
@@ -1302,6 +1306,6 @@ public class SqueezeService extends Service {
 	    	SqueezeService.this.pluginItemListCallback.compareAndSet(callback, null);
 			cli.cancelRequests(SqueezerPluginItem.class);
 		}
-
 	};
+
 }
