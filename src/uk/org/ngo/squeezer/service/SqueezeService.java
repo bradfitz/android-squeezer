@@ -53,6 +53,7 @@ import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
+import uk.org.ngo.squeezer.util.Scrobble;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -93,15 +94,11 @@ public class SqueezeService extends Service {
 
     private VolumePanel mVolumePanel;
 
-    private static final int SCROBBLE_NONE = 0;
-    private static final int SCROBBLE_SCROBBLEDROID = 1;
-    private static final int SCROBBLE_SLS = 2;
+    /** Is scrobbling enabled? */
+    private boolean scrobblingEnabled;
 
-    /** The current scrobble mode */
-    private int scrobbleMode;
-
-    /** The previous scrobble mode */
-    private int prevScrobbleMode;
+    /** Was scrobbling enabled? */
+    private boolean scrobblingPreviouslyEnabled;
 
     boolean debugLogging = false;
 
@@ -126,10 +123,10 @@ public class SqueezeService extends Service {
         cli.initialize();
     }
 
-	private void getPreferences() {
-		scrobbleMode = Integer.parseInt(preferences.getString(Preferences.KEY_SCROBBLE, "0"));
-		debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
-	}
+    private void getPreferences() {
+        scrobblingEnabled = preferences.getBoolean(Preferences.KEY_SCROBBLE_ENABLED, false);
+        debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
+    }
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -478,7 +475,7 @@ public class SqueezeService extends Service {
     	// Note: If scrobbling is turned on then that counts as caring
     	// about second-to-second updates -- otherwise we miss events from
     	// buttons on the player, the web interface, and so on
-        if (connectionState.getCallback() != null || (scrobbleMode != SCROBBLE_NONE)) {
+        if (connectionState.getCallback() != null || scrobblingEnabled) {
             cli.sendPlayerCommand("status - 1 subscribe:1 tags:" + SONGTAGS);
         } else {
             cli.sendPlayerCommand("status - 1 subscribe:-");
@@ -519,38 +516,34 @@ public class SqueezeService extends Service {
         // Update scrobble state, if either we're currently scrobbling, or we
         // were (to catch the case where we started scrobbling a song, and the
         // user went in to settings to disable scrobbling).
-        if (scrobbleMode != SCROBBLE_NONE || prevScrobbleMode != SCROBBLE_NONE) {
-            prevScrobbleMode = scrobbleMode;
+        if (scrobblingEnabled || scrobblingPreviouslyEnabled) {
+            scrobblingPreviouslyEnabled = scrobblingEnabled;
             SqueezerSong s = playerState.getCurrentSong();
 
             if (s != null) {
                 Log.v(TAG, "Scrobbling, playing is: " + playing);
                 Intent i = new Intent();
 
-                switch (scrobbleMode) {
-                    case SCROBBLE_SCROBBLEDROID:
-                        // http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
-                        i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
-                        i.putExtra("playing", playing);
-                        i.putExtra("track", songName);
-                        i.putExtra("album", s.getAlbum());
-                        i.putExtra("artist", s.getArtist());
-                        i.putExtra("secs", playerState.getCurrentSongDuration());
-                        i.putExtra("source", "P");
-                        break;
-
-                    case SCROBBLE_SLS:
-                        // http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
-                        i.setAction("com.adam.aslfms.notify.playstatechanged");
-                        i.putExtra("state", playing ? 0 : 2);
-                        i.putExtra("app-name", getText(R.string.app_name));
-                        i.putExtra("app-package", "uk.org.ngo.squeezer");
-                        i.putExtra("track", songName);
-                        i.putExtra("album", s.getAlbum());
-                        i.putExtra("artist", s.getArtist());
-                        i.putExtra("duration", playerState.getCurrentSongDuration());
-                        i.putExtra("source", "P");
-                        break;
+                if (Scrobble.haveScrobbleDroid()) {
+                    // http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
+                    i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
+                    i.putExtra("playing", playing);
+                    i.putExtra("track", songName);
+                    i.putExtra("album", s.getAlbum());
+                    i.putExtra("artist", s.getArtist());
+                    i.putExtra("secs", playerState.getCurrentSongDuration());
+                    i.putExtra("source", "P");
+                } else if (Scrobble.haveSls()) {
+                    // http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
+                    i.setAction("com.adam.aslfms.notify.playstatechanged");
+                    i.putExtra("state", playing ? 0 : 2);
+                    i.putExtra("app-name", getText(R.string.app_name));
+                    i.putExtra("app-package", "uk.org.ngo.squeezer");
+                    i.putExtra("track", songName);
+                    i.putExtra("album", s.getAlbum());
+                    i.putExtra("artist", s.getArtist());
+                    i.putExtra("duration", playerState.getCurrentSongDuration());
+                    i.putExtra("source", "P");
                 }
                 sendBroadcast(i);
             }

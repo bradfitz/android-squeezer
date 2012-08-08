@@ -34,6 +34,12 @@
     <string name="settings_server_scan_progress">Scanning for servers&#8230;</string>
     <string name="settings_autoconnect_title">Auto-connect</string>
     <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability, try to connect.</string>
+
+    <string name="settings_scrobble_title">Scrobble to Last.fm</string>
+    <string name="settings_scrobble_on">Song information is sent to Last.fm</string>
+    <string name="settings_scrobble_off">Song information is not sent to Last.fm</string>
+    <string name="settings_scrobble_noapp">No apps that can scrobble are installed</string>
+
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
     <string name="menu_item_poweron">Power on</string>

@@ -39,15 +39,12 @@
      android:summary="Show notification while connected, even when not playing music."
      android:persistent="true" />
 
-  <ListPreference
-     android:key="squeezer.scrobble"
-     android:title="Scrobbling"
-     android:summary="Scrobble song information to Last.fm"
-     android:persistent="true"
-     android:entries="@array/scrobblePrefItems"
-     android:entryValues="@array/scrobblePrefValues"
-     android:defaultValue="0"
-    />
+  <CheckBoxPreference
+     android:key="squeezer.scrobble.enabled"
+     android:title="@string/settings_scrobble_title"
+     android:summaryOn="@string/settings_scrobble_on"
+     android:summaryOff="@string/settings_scrobble_off"
+     android:persistent="true" />
 
   <PreferenceCategory
     android:title="@string/pref_cat_error_reports">
