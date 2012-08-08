@@ -63,17 +63,17 @@ public class IconRowAdapter extends BaseAdapter {
      * <code>items</code> and <code>icons</item> must be the same size.
      * 
      * @param context
-     * @param apps Item text.
+     * @param items Item text.
      * @param images Image resources.
      */
-    public IconRowAdapter(Activity context, CharSequence[] apps, int[] icons) {
-		this.activity = context;
+    public IconRowAdapter(Activity context, CharSequence[] items, int[] icons) {
+        this.activity = context;
 
         // Convert to a list of IconRow.
-        for (int i = 0; i < apps.length; i++) {
-            mRows.add(new IconRow(i, apps[i], icons[i]));
-		}
-	}
+        for (int i = 0; i < items.length; i++) {
+            mRows.add(new IconRow(i, items[i], icons[i]));
+        }
+    }
 
     /**
      * Creates an IconRowAdapter from the list of <code>rows</code>.
@@ -114,9 +114,9 @@ public class IconRowAdapter extends BaseAdapter {
         private CharSequence mText;
         private int mIcon;
 
-        IconRow(long id, CharSequence apps, int icon) {
+        IconRow(long id, CharSequence text, int icon) {
             mId = id;
-            mText = apps;
+            mText = text;
             mIcon = icon;
         }
 
