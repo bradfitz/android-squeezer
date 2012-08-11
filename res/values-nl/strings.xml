@@ -31,14 +31,22 @@
     <string name="settings_server_scan_stop">Stop scan</string>
     <string name="settings_server_scan_msg">Of druk \'Start scan\' om het netwerk voor servers te scannen.</string>
     <string name="settings_server_scanning_disabled_msg">Scannen is uitgeschakeld, omdat het WiFi niet is verbonden.</string>
+    <string name="settings_server_scan_progress">Zoeken naar servers&#8230;</string>
     <string name="settings_autoconnect_title">Automatisch verbinden.</string>
     <string name="settings_autoconnect_summary">Biedt aan Wi-Fi in te schakelen, en bij Wi-Fi beschikbaarheid, probeer te verbinden.</string>
+
+    <string name="settings_scrobble_title">Scrobbelen naar Last.fm</string>
+    <string name="settings_scrobble_on">Informatie van liedje is verzonden naar Last.fm</string>
+    <string name="settings_scrobble_off">Informatie van liedje is niet verzonden naar Last.fm</string>
+    <string name="settings_scrobble_noapp">Er zijn geen apps om te scrobbelen geïnstalleerd</string>
+
     <string name="menu_item_disconnect">Verbreek contact</string>
     <string name="menu_item_connect">Verbind</string>
     <string name="menu_item_poweron">Aanzetten</string>
     <string name="menu_item_poweroff">Schakel uit</string>
     <string name="menu_item_main">Speelt nu</string>
     <string name="menu_item_home">Hoofdmenu</string>
+    <string name="menu_item_download">Download</string>
     <string name="menu_item_fetch_all">Download resterend</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sorteer volgorde</string>
@@ -84,6 +92,9 @@
     <string name="unknown_album">Onbekend album</string>
     <string name="unknown_artist">Onbekend artiest</string>
 
+    <string name="tips_title">Tips</string>
+    <string name="tip_volume">Gebruik de volume knoppen van uw apparaat om het afspeel volume te veranderen. Probeer het nu uit.</string>
+
     <string name="CONTEXTMENU_BROWSE_SONGS">Blader liedjes</string>
     <string name="CONTEXTMENU_BROWSE_ALBUMS">Blader albums</string>
     <string name="CONTEXTMENU_BROWSE_ARTISTS">Blader artiesten</string>
@@ -93,6 +104,7 @@
     <string name="CONTEXTMENU_PLAY_ITEM">Speel af</string>
     <string name="CONTEXTMENU_ADD_ITEM">Voeg toe aan Playlist</string>
     <string name="CONTEXTMENU_INSERT_ITEM">Speel af na huidige liedje</string>
+    <string name="CONTEXTMENU_DOWNLOAD_ITEM">Download</string>
 
     <string name="PLAYLIST_CONTEXTMENU_REMOVE_ITEM">Verwijder van playlist</string>
     <string name="PLAYLIST_CONTEXTMENU_MOVE_UP">Verplaats naar boven</string>
