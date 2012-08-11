@@ -1,3 +1,25 @@
+0.9
+===
+
+*   Support for browsing and playing "New Music" on the Squeezeserver.
+
+*   You can now download tracks to your device from the "Now Playing",
+    "Music Folders" screens, and everywhere a song is shown.
+
+*   Significantly sped up downloading album artwork from the Squeezeserver,
+    and made scrolling through songs and albums much smoother.
+
+*   Highlight the currently playing track when viewing playlists.
+
+*   Simplified options when scrobbling, and link to suitable apps in
+    Google Play if the user tries to scrobble without an app installed.
+
+*   Fixed a memory leak when scanning for servers, and made the scanning
+    faster.
+
+*   Fixed a bug when moving songs in playlists.
+
+
 0.8
 ===
 
