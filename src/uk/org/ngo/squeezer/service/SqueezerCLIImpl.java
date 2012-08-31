@@ -288,9 +288,8 @@ class SqueezerCLIImpl {
      * @param commands List of commands to send
      */
     void sendCommand(final String... commands) {
-        if (service.mainThread == Thread.currentThread()) {
+        if (service.mainThread != Thread.currentThread()) {
             sendCommandImmediately(commands);
-            
         } else {
             service.executor.execute(new Runnable() {
                 public void run() {
