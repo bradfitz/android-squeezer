@@ -49,13 +49,15 @@
         android:alphabeticShortcut="z"
         android:icon="@+drawable/ic_menu_choose_player"
         android:showAsAction="ifRoom|withText"
+        android:orderInCategory="3"
     />
     <item
         android:id="@+id/menu_item_playlist"
         android:title="@string/menu_item_playlist"
         android:alphabeticShortcut="p"
         android:icon="@+drawable/ic_menu_playlist"
-        android:showAsAction="ifRoom|withText"
+        android:showAsAction="always|withText"
+        android:orderInCategory="2"
     />
     <item
         android:icon="@drawable/ic_menu_search"
@@ -63,6 +65,7 @@
         android:title="@string/menu_item_search_label"
         android:alphabeticShortcut="s"
         android:showAsAction="ifRoom"
+        android:orderInCategory="1"
     />
     <item
         android:icon="@android:drawable/ic_menu_info_details"
