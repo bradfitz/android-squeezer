@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -67,27 +66,27 @@ public class ImageFetcher extends ImageWorker {
     }
 
     public void loadThumbnailImage(String key, ImageView imageView, Bitmap loadingBitmap) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, loadingBitmap);
+        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL, imageView), imageView, loadingBitmap);
     }
 
     public void loadThumbnailImage(String key, ImageView imageView, int resId) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, resId);
+        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL, imageView), imageView, resId);
     }
 
     public void loadThumbnailImage(String key, ImageView imageView) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL), imageView, mLoadingBitmap);
+        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL, imageView), imageView, mLoadingBitmap);
     }
 
     public void loadImage(String key, ImageView imageView, Bitmap loadingBitmap) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL), imageView, loadingBitmap);
+        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL, imageView), imageView, loadingBitmap);
     }
 
     public void loadImage(String key, ImageView imageView, int resId) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL), imageView, resId);
+        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL, imageView), imageView, resId);
     }
 
     public void loadImage(String key, ImageView imageView) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL), imageView, mLoadingBitmap);
+        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL, imageView), imageView, mLoadingBitmap);
     }
 
     public void setParams(ImageFetcherParams params) {
@@ -116,88 +115,60 @@ public class ImageFetcher extends ImageWorker {
      * @param key The key to load the bitmap, in this case, a regular http URL
      * @return The downloaded and resized bitmap
      */
-    private Bitmap processBitmap(String key, int type) {
-        Log.d(TAG, "processBitmap - " + key);
-
-        if (type == ImageData.IMAGE_TYPE_NORMAL) {
-            final File f = downloadBitmapToFile(mContext, key, mFetcherParams.mHttpCacheDir);
-            if (f != null) {
-                // Return a sampled down version
-                final Bitmap bitmap = decodeSampledBitmapFromFile(
-                        f.toString(), mFetcherParams.mImageWidth, mFetcherParams.mImageHeight);
-                f.delete();
-                return bitmap;
-            }
-        } else if (type == ImageData.IMAGE_TYPE_THUMBNAIL) {
-
-            final byte[] bitmapBytes = downloadBitmapToMemory(mContext, key,
-                    mFetcherParams.mMaxThumbnailBytes);
-
-            if (bitmapBytes != null) {
-                // Caution: we don't check the size of the bitmap here, we are relying on the output
-                // of downloadBitmapToMemory to not exceed our memory limits and load a huge bitmap
-                // into memory.
-                return BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
-            }
-        }
-        return null;
-    }
-
     @Override
     protected Bitmap processBitmap(Object key) {
         final ImageData imageData = (ImageData) key;
-        return processBitmap(imageData.mKey, imageData.mType);
+        Log.d(TAG, "processBitmap - " + key);
+
+        if (imageData.mType == ImageData.IMAGE_TYPE_NORMAL) {
+            final File f = downloadBitmapToFile(mContext, imageData.mKey, mFetcherParams.mHttpCacheDir);
+            if (f != null) {
+                // Return a sampled down version
+                final Bitmap bitmap = decodeSampledBitmapFromFile(
+                        f.toString(), imageData.mWidth, imageData.mHeight);
+                f.delete();
+                return bitmap;
+            }
+        } else if (imageData.mType == ImageData.IMAGE_TYPE_THUMBNAIL) {
+            return downloadBitmapToMemory(imageData.mKey, imageData.mWidth, imageData.mHeight);
+        }
+        return null;
     }
+    
 
     /**
-     * Download a bitmap from a URL, write it to a disk and return the File pointer. This
-     * implementation uses a simple disk cache.
+     * Download a bitmap from a URL and decode it to the requested size.
      *
-     * @param context The context to use
      * @param urlString The URL to fetch
-     * @param maxBytes The maximum number of bytes to read before returning null to protect against
-     *                 OutOfMemory exceptions.
-     * @return A File pointing to the fetched bitmap
+     * @param reqWidth Requested width of the decoded bitmap
+     * @param reqHeight  Requested height of the decoded bitmap
+     * @return The decoded bitmap
      */
-    public static byte[] downloadBitmapToMemory(Context context, String urlString, int maxBytes) {
-
+    private static Bitmap downloadBitmapToMemory(String urlString, int reqWidth, int reqHeight) {
         disableConnectionReuseIfNecessary();
-        HttpURLConnection urlConnection = null;
-        ByteArrayOutputStream out = null;
         InputStream in = null;
 
         try {
             final URL url = new URL(urlString);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                return null;
-            }
-            in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE_BYTES);
-            out = new ByteArrayOutputStream(IO_BUFFER_SIZE_BYTES);
 
-            final byte[] buffer = new byte[128];
-            int total = 0;
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                total += bytesRead;
-                if (total > maxBytes) {
-                    Log.v(TAG, "Image at " + urlString + " exceeded " + maxBytes);
-                    return null;
-                }
-                out.write(buffer, 0, bytesRead);
-            }
-            return out.toByteArray();
+            // First decode with inJustDecodeBounds=true to check dimensions
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            in = (InputStream) url.getContent();
+            BitmapFactory.decodeStream(in, null, options);
+            in.close();
 
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+            // Decode with inSampleSize set
+            in = (InputStream) url.getContent();
+            options.inJustDecodeBounds = false;
+            return BitmapFactory.decodeStream(in, null, options);
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmapToMemory - " + e);
         } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
             try {
-                if (out != null) {
-                    out.close();
-                }
                 if (in != null) {
                     in.close();
                 }
@@ -381,10 +352,14 @@ public class ImageFetcher extends ImageWorker {
         public static final int IMAGE_TYPE_NORMAL = 1;
         public String mKey;
         public int mType;
+        public int mWidth;
+        public int mHeight;
 
-        public ImageData(String key, int type) {
+        public ImageData(String key, int type, ImageView imageView) {
             mKey = key;
             mType = type;
+            mWidth = imageView.getWidth();
+            mHeight = imageView.getHeight();
         }
 
         @Override
