@@ -94,15 +94,14 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         }
     }
 
-	/**
-	 * Block searches, when we are not connected 
-	 */
+    /**
+     * Block searches, when we are not connected.
+     */
     @Override
     public boolean onSearchRequested() {
         if (!isConnected()) return false;
         return super.onSearchRequested();
     }
-
 
     /*
      * Intercept hardware volume control keys to control Squeezeserver
@@ -151,7 +150,6 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         return false;
     }
 
-    
     // Safe accessors
 
     public boolean isConnected() {
@@ -165,7 +163,6 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         }
         return false;
     }
-    
 
     // This section is just an easier way to call squeeze service
 

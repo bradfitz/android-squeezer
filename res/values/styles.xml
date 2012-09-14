@@ -76,5 +76,4 @@
     <style name="SqueezerCurrentTextItemSmall" parent="style/SqueezerTextItemSmall">
         <item name="android:textStyle">bold</item>
     </style>
-
 </resources>

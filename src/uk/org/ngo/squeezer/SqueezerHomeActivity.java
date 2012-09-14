@@ -167,11 +167,10 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         int[] icons = new int[] {
                 R.drawable.ic_artists,
                 R.drawable.ic_albums, R.drawable.ic_songs,
-                R.drawable.ic_genres, R.drawable.ic_years,
-                R.drawable.ic_new_music,
+                R.drawable.ic_genres, R.drawable.ic_years, R.drawable.ic_new_music,
                 R.drawable.ic_music_folder, R.drawable.ic_random,
                 R.drawable.ic_playlists, R.drawable.ic_internet_radio,
-                R.drawable.ic_favorites, R.drawable.ic_my_apps
+                R.drawable.ic_favorites, R.drawable.ic_my_apps,
         };
 
         String[] items = getResources().getStringArray(R.array.home_items);;
@@ -230,7 +229,8 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                     SqueezerYearListActivity.show(SqueezerHomeActivity.this);
                     break;
                 case NEW_MUSIC:
-                    SqueezerAlbumListActivity.show(SqueezerHomeActivity.this, AlbumsSortOrder.__new);
+                    SqueezerAlbumListActivity.show(SqueezerHomeActivity.this,
+                            AlbumsSortOrder.__new);
                     break;
                 case MUSIC_FOLDER:
                     SqueezerMusicFolderListActivity.show(SqueezerHomeActivity.this);

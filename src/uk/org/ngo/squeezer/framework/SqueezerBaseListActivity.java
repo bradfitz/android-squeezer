@@ -20,13 +20,15 @@ package uk.org.ngo.squeezer.framework;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.util.ImageFetcher.ImageFetcherParams;
+import uk.org.ngo.squeezer.util.UIUtils;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -51,26 +53,29 @@ import android.widget.ListView;
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
 	private SqueezerItemAdapter<T> itemAdapter;
-	private ListView listView;
     private View loadingLabel;
 	private SqueezerItemView<T> itemView;
 
+    /** An ImageFetcher for loading thumbnails. */
+    protected ImageFetcher mImageFetcher;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.item_list);
-		listView = (ListView) findViewById(R.id.item_list);
+		mListView = (ListView) findViewById(R.id.item_list);
         loadingLabel = findViewById(R.id.loading_label);
         itemView = createItemView();
-        itemAdapter = createItemListAdapter(itemView);
-        listView.setAdapter(itemAdapter);
 
-    	listView.setOnItemClickListener(new OnItemClickListener() {
+        mListView.setOnItemClickListener(new OnItemClickListener() {
     		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // XXX: Adapter should implement onItemClickListener and pass
+                // this down to the views.
     			T item = getItemAdapter().getItem(position);
     			if (item != null && item.getId() != null) {
     	   			try {
+                        // XXX: Why does this need to be itemView?
+                        // Using "view" should suffice.
     					itemView.onItemSelected(position, item);
     	            } catch (RemoteException e) {
     	                Log.e(getTag(), "Error from default action for '" + item + "': " + e);
@@ -79,45 +84,41 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     		}
     	});
 
-		listView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-				AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
-				getItemAdapter().setupContextMenu(menu, adapterMenuInfo.position);
-			}
-		});
+        mListView.setOnScrollListener(new ScrollListener());
 
-		listView.setOnScrollListener(this);
+        // Set up the image fetcher, max art size is 128K.
+        ImageFetcherParams params = new ImageFetcherParams();
+        params.mMaxThumbnailBytes = 128 * 1024 * 1024; // 128K
+        mImageFetcher = UIUtils.getImageFetcher(this, params);
 
-		prepareActivity(getIntent().getExtras());
+        // Delegate context menu creation to the adapter.
+        mListView.setOnCreateContextMenuListener(getItemAdapter());
 	}
 
+    public ImageFetcher getImageFetcher() {
+        return mImageFetcher;
+    }
 
 	/**
 	 * @return A new view logic to be used by this activity
 	 */
 	abstract protected SqueezerItemView<T> createItemView();
 
-	/**
-	 * Initial setup of this activity.
-	 * @param extras Optionally use this information to setup the activity. (may be null)
-	 */
-	public void prepareActivity(Bundle extras) {
-	}
+    @Override
+    public final boolean onContextItemSelected(MenuItem menuItem) {
+        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 
-	@Override
-	public final boolean onContextItemSelected(MenuItem menuItem) {
-		AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
-		final T selectedItem = getItemAdapter().getItem(menuInfo.position);
+        if (getService() != null) {
+            try {
+                return itemAdapter.doItemContext(menuItem, menuInfo.position);
+            } catch (RemoteException e) {
+                Log.e(getTag(), "Error context menu action '" + menuInfo + "' for '"
+                        + menuInfo.position + "': " + e);
+            }
+        }
 
-		if (getService() != null) {
-			try {
-				return itemView.doItemContext(menuItem, menuInfo.position, selectedItem);
-			} catch (RemoteException e) {
-                Log.e(getTag(), "Error context menu action '"+ menuInfo + "' for '" + selectedItem + "': " + e);
-			}
-		}
-		return false;
-	}
+        return super.onContextItemSelected(menuItem);
+    }
 
 	@Override
 	protected void onServiceConnected() throws RemoteException {
@@ -137,30 +138,41 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         super.onPause();
     }
 
-	/**
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mImageFetcher != null) {
+            mImageFetcher.closeCache();
+        }
+    }
+
+    /**
      * @return The current {@link SqueezerItemView}, creating it if necessary
-	 */
+     */
     public SqueezerItemView<T> getItemView() {
         return itemView == null ? (itemView = createItemView()) : itemView;
     }
 
-	/**
-	 * @return The current {@link SqueezerItemAdapter}, creating it if necesary
-	 */
-	public SqueezerItemAdapter<T> getItemAdapter() {
-		return itemAdapter == null ? (itemAdapter = createItemListAdapter(getItemView())) : itemAdapter;
-	}
+    /**
+     * @return The current {@link SqueezerItemAdapter}, creating it if
+     *         necessary.
+     */
+    public SqueezerItemAdapter<T> getItemAdapter() {
+        return itemAdapter == null ? (itemAdapter = createItemListAdapter(getItemView()))
+                : itemAdapter;
+    }
 
 	/**
 	 * @return The {@link ListView} used by this activity
 	 */
     public ListView getListView() {
-        return listView;
+        return mListView;
     }
 
 
     protected SqueezerItemAdapter<T> createItemListAdapter(SqueezerItemView<T> itemView) {
-		return new SqueezerItemListAdapter<T>(itemView);
+        return new SqueezerItemListAdapter<T>(itemView, mImageFetcher);
 	}
 
 	/**
@@ -169,7 +181,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	 */
 	public void orderItems() {
 		reorderItems();
-		listView.setVisibility(View.GONE);
+        mListView.setVisibility(View.GONE);
 		loadingLabel.setVisibility(View.VISIBLE);
 		clearItemListAdapter();
 	}
@@ -177,7 +189,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	public void onItemsReceived(final int count, final int start, final List<T> items) {
 		getUIThreadHandler().post(new Runnable() {
 			public void run() {
-				listView.setVisibility(View.VISIBLE);
+                mListView.setVisibility(View.VISIBLE);
 				loadingLabel.setVisibility(View.GONE);
 				getItemAdapter().update(count, start, items);
 			}
@@ -189,7 +201,28 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	 * @param listAdapter
 	 */
 	private void clearItemListAdapter() {
-		listView.setAdapter(getItemAdapter());
+        mListView.setAdapter(getItemAdapter());
 	}
 
+    protected class ScrollListener extends SqueezerItemListActivity.ScrollListener {
+        ScrollListener() {
+            super();
+        }
+
+        /**
+         * Pauses cache disk fetches if the user is flinging the list, or if
+         * their finger is still on the screen.
+         */
+        @Override
+        public void onScrollStateChanged(AbsListView listView, int scrollState) {
+            super.onScrollStateChanged(listView, scrollState);
+
+            if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING ||
+                scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                mImageFetcher.setPauseDiskCache(true);
+            } else {
+                mImageFetcher.setPauseDiskCache(false);
+            }
+        }
+    }
 }

@@ -26,6 +26,7 @@ import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 
 public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist> {
@@ -51,14 +52,16 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 	}
 
     // XXX: Make this a menu resource.
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerPlaylist item) {
-		menu.setHeaderTitle(item.getName());
-		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_DELETE_ITEM, 0, R.string.menu_item_delete);
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_DELETE_ITEM, 0, R.string.menu_item_delete);
 		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_RENAME_ITEM, 1, R.string.menu_item_rename);
 		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_BROWSE_SONGS, 2, R.string.CONTEXTMENU_BROWSE_SONGS);
 		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_PLAY_ITEM, 3, R.string.CONTEXTMENU_PLAY_ITEM);
 		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_ADD_ITEM, 4, R.string.CONTEXTMENU_ADD_ITEM);
-	};
+    }
 
 	@Override
 	public boolean doItemContext(MenuItem menuItem, int index, SqueezerPlaylist selectedItem) throws RemoteException {

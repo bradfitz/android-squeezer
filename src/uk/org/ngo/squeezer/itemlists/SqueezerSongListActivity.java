@@ -77,6 +77,32 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 
 	private SqueezerSongView songViewLogic;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
+        MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null)
+            for (String key : extras.keySet()) {
+                if (SqueezerAlbum.class.getName().equals(key)) {
+                    album = extras.getParcelable(key);
+                    sortOrder = SongsSortOrder.tracknum;
+                } else if (SqueezerArtist.class.getName().equals(key)) {
+                    artist = extras.getParcelable(key);
+                } else if (SqueezerYear.class.getName().equals(key)) {
+                    year = extras.getParcelable(key);
+                } else if (SqueezerGenre.class.getName().equals(key)) {
+                    genre = extras.getParcelable(key);
+                } else
+                    Log.e(getTag(), "Unexpected extra value: " + key + "("
+                            + extras.get(key).getClass().getName() + ")");
+            }
+        songViewLogic.setBrowseByAlbum(album != null);
+        songViewLogic.setBrowseByArtist(artist != null);
+    }
 
     public static void show(Context context, SqueezerItem... items) {
 	    final Intent intent = new Intent(context, SqueezerSongListActivity.class);
@@ -90,27 +116,6 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 	public SqueezerItemView<SqueezerSong> createItemView() {
 		songViewLogic = new SqueezerSongView(this);
 		return songViewLogic;
-	}
-
-	@Override
-	public void prepareActivity(Bundle extras) {
-		if (extras != null)
-			for (String key : extras.keySet()) {
-				if (SqueezerAlbum.class.getName().equals(key)) {
-					album = extras.getParcelable(key);
-					sortOrder = SongsSortOrder.tracknum;
-				} else if (SqueezerArtist.class.getName().equals(key)) {
-					artist = extras.getParcelable(key);
-				} else if (SqueezerYear.class.getName().equals(key)) {
-					year = extras.getParcelable(key);
-				} else if (SqueezerGenre.class.getName().equals(key)) {
-					genre = extras.getParcelable(key);
-				} else
-					Log.e(getTag(), "Unexpected extra value: " + key + "("
-							+ extras.get(key).getClass().getName() + ")");
-			}
-		songViewLogic.setBrowseByAlbum(album != null);
-		songViewLogic.setBrowseByArtist(artist != null);
 	}
 
 	@Override
@@ -143,11 +148,10 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 	}
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
-        MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
-    };
+    public boolean onSearchRequested() {
+        showFilterDialog();
+        return false;
+    }
 
     public void showFilterDialog() {
         new SqueezerSongFilterDialog().show(getSupportFragmentManager(), "SongFilterDialog");

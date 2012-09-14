@@ -36,11 +36,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
@@ -56,9 +53,9 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search_layout);
 
-		loadingLabel = findViewById(R.id.loading_label);
+        loadingLabel = findViewById(R.id.loading_label);
 
-		searchResultsAdapter = new SqueezerSearchAdapter(this);
+        searchResultsAdapter = new SqueezerSearchAdapter(this);
 		resultsExpandableListView = (ExpandableListView) findViewById(R.id.search_expandable_list);
 		resultsExpandableListView.setAdapter( searchResultsAdapter );
 
@@ -82,36 +79,25 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 			}
 		});
 
-        resultsExpandableListView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-				ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuInfo;
-				long packedPosition = contextMenuInfo.packedPosition;
-				if (ExpandableListView.getPackedPositionType(packedPosition) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-					int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-					int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-					searchResultsAdapter.setupContextMenu(menu, groupPosition, childPosition);
-				}
-			}
-		});
+        resultsExpandableListView.setOnCreateContextMenuListener(searchResultsAdapter);
+        resultsExpandableListView.setOnScrollListener(new ScrollListener());
 
-        resultsExpandableListView.setOnScrollListener(this);
-        
         handleIntent(getIntent());
 	};
-	
-	@Override
-	protected void onNewIntent(Intent intent) {
-	    setIntent(intent);
-	    handleIntent(intent);
-	}
 
-	private void handleIntent(Intent intent) {
-	    if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-	      String query = intent.getStringExtra(SearchManager.QUERY);
-	      doSearch(query);
-	    }
-	}
-	
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            doSearch(query);
+        }
+    }
+
 	@Override
 	protected void registerCallback() throws RemoteException {
 		getService().registerArtistListCallback(artistsCallback);
@@ -165,12 +151,11 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
         super.onPause();
     }
 
-	public static void show(Context context) {
-		final Intent intent = new Intent(context, SqueezerSearchActivity.class)
-				.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+    public static void show(Context context) {
+        final Intent intent = new Intent(context, SqueezerSearchActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
-
 
 	@Override
 	protected void orderPage(int start) {
@@ -204,7 +189,6 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 			}
 		});
 	}
-
 
     private final IServiceArtistListCallback artistsCallback = new IServiceArtistListCallback.Stub() {
 		public void onArtistsReceived(int count, int start, List<SqueezerArtist> items) throws RemoteException {

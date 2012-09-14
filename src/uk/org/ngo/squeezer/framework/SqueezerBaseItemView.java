@@ -20,12 +20,13 @@ import java.lang.reflect.Field;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.ReflectUtil;
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +35,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * Represents the view hierarchy for a single {@link SqueezerItem} subclass.
+ * <p>
+ * The view has a context menu.
+ * 
+ *  @param <T> the SqueezerItem subclass this view represents.
+ */
 public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements SqueezerItemView<T> {
     protected static final int CONTEXTMENU_BROWSE_ALBUMS = 1;
 
@@ -98,28 +106,39 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         return getClass().getSimpleName();
     }
 
-    public View getAdapterView(View convertView, int index, T item) {
-        return getDefaultAdapterView(convertView, index, item);
+    public View getAdapterView(View convertView, T item, ImageFetcher unused) {
+        return getDefaultAdapterView(convertView, item.getName());
+    }
+
+    public View getAdapterView(View convertView, String label) {
+        return getDefaultAdapterView(convertView, label);
+    }
+
+    public void bindView(ViewHolder viewHolder, T item) {
+        bindView(viewHolder, item.getName());
+    }
+
+    public void bindView(ViewHolder viewHolder, String text) {
+        viewHolder.text1.setText(text);
     }
 
     /**
      * Create a view with a textview for the item description, and a button
      * that, when clicked, displays the context menu.
      */
-    public View getDefaultAdapterView(View convertView, int index, T item) {
+    public View getDefaultAdapterView(View convertView, String text) {
         ViewHolder viewHolder;
 
-        if (convertView == null || convertView.getTag() == null) {
+        if (convertView == null || convertView.getTag() == null
+                || !ViewHolder.class.isAssignableFrom(convertView.getClass())) {
             convertView = mLayoutInflater.inflate(R.layout.list_item, null);
             viewHolder = new ViewHolder();
-            viewHolder.label1 = (TextView) convertView.findViewById(R.id.text1);
+            viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-
-        viewHolder.label1.setText(item.getName());
 
         viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
         viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
@@ -128,20 +147,15 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
             }
         });
 
+        bindView(viewHolder, text);
+
         return convertView;
     }
 
-    public View getAdapterView(View convertView, String label) {
-        return Util.getListItemView(mLayoutInflater, R.layout.textview, convertView, label);
-    }
 
-    /**
-     * A ViewHolder for listitems that consist of a single textview and an
-     * imagebutton for the context menu.
-     */
-    private static class ViewHolder {
-        TextView label1;
-        ImageButton btnContextMenu;
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            SqueezerItemView.ContextMenuInfo menuInfo) {
+        menu.setHeaderTitle(menuInfo.item.getName());
     }
 
     /**
@@ -187,5 +201,4 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         }
         return false;
     }
-
 }

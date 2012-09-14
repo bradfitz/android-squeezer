@@ -37,6 +37,7 @@ public class SqueezerPlayerState implements Parcelable {
             return new SqueezerPlayerState(source);
         }
     };
+
     private SqueezerPlayerState(Parcel source) {
         playing = (source.readByte() == 1);
         poweredOn = (source.readByte() == 1);
@@ -45,6 +46,7 @@ public class SqueezerPlayerState implements Parcelable {
         currentTimeSecond = source.readInt();
         currentSongDuration = source.readInt();
     }
+
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte(playing ? (byte)1 : (byte)0);
         dest.writeByte(poweredOn ? (byte)1 : (byte)0);
@@ -58,7 +60,6 @@ public class SqueezerPlayerState implements Parcelable {
         return 0;
     }
 
-    
     private boolean playing;
     private boolean poweredOn;
 
@@ -68,29 +69,34 @@ public class SqueezerPlayerState implements Parcelable {
     private int currentTimeSecond;
     private int currentSongDuration;
 
+    public boolean isPlaying() {
+        return playing;
+    }
 
-	public boolean isPlaying() {
-		return playing;
-	}
     public SqueezerPlayerState setPlaying(boolean state) {
-    	playing = state;
-    	return this;
+        playing = state;
+        return this;
     }
 
     public boolean isPoweredOn() {
-		return poweredOn;
-	}
-    private boolean setPoweredOn(boolean state) {
-        boolean result = (poweredOn != state);
-    	poweredOn = state;
-    	return result;
+        return poweredOn;
+    }
+    public SqueezerPlayerState setPoweredOn(boolean state) {
+        poweredOn = state;
+        return this;
     }
 
     public SqueezerSong getCurrentSong() {
-    	return currentSong;
+        return currentSong;
     }
+
     public String getCurrentSongName() {
-    	return (currentSong != null) ? currentSong.getName() :  "";
+        return (currentSong != null) ? currentSong.getName() : "";
+    }
+
+    public SqueezerPlayerState setCurrentSong(SqueezerSong song) {
+        currentSong = song;
+        return this;
     }
 
     public String getCurrentPlaylist() {
@@ -101,13 +107,32 @@ public class SqueezerPlayerState implements Parcelable {
         return currentPlaylistIndex;
     }
 
+    public void setCurrentPlaylist(String playlist) {
+        currentPlaylist = playlist;
+    }
+
+    public SqueezerPlayerState setCurrentPlaylistIndex(int value) {
+        currentPlaylistIndex = value;
+        return this;
+    }
+
     public int getCurrentTimeSecond() {
         return currentTimeSecond;
     }
 
-	public int getCurrentSongDuration() {
-		return currentSongDuration;
-	}
+    public SqueezerPlayerState setCurrentTimeSecond(int value) {
+        currentTimeSecond = value;
+        return this;
+    }
+
+    public int getCurrentSongDuration() {
+        return currentSongDuration;
+    }
+
+    public SqueezerPlayerState setCurrentSongDuration(int value) {
+        currentSongDuration = value;
+        return this;
+    }
 
     public PlayerStateChanged update(Map<String, String> tokenMap) {
         PlayerStateChanged playerStateChanged = new PlayerStateChanged();
@@ -116,23 +141,25 @@ public class SqueezerPlayerState implements Parcelable {
         playerStateChanged.musicHasChanged = !newSong.equals(currentSong);
         if (playerStateChanged.musicHasChanged) currentSong = newSong;
 
-        playerStateChanged.powerStatusChanged = setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
+        boolean power = Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1;
+        playerStateChanged.powerHasChanged = power == poweredOn;
+        setPoweredOn(power);
 
         currentPlaylist = tokenMap.get("playlist_name");
-        
+
         int lastTime = getCurrentTimeSecond();
         currentTimeSecond = Util.parseDecimalIntOrZero(tokenMap.get("time"));
         currentSongDuration = Util.parseDecimalIntOrZero(tokenMap.get("duration"));
         currentPlaylistIndex = Util.parseDecimalIntOrZero(tokenMap.get("playlist_cur_index"));
         playerStateChanged.timeHasChanged = (currentTimeSecond != lastTime);
-        
+
         return playerStateChanged;
     }
 
     public class PlayerStateChanged {
-        public boolean powerStatusChanged;
         public boolean musicHasChanged;
         public boolean timeHasChanged;
+        public boolean powerHasChanged;
     }
 
 }

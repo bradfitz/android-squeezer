@@ -20,9 +20,11 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -43,6 +45,7 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     // this class displays are packaged with the app, not downloaded from the
     // server.
 
+    @SuppressWarnings("unused")
     private final static String TAG = "SqueezerMusicFolderView";
 
     SqueezerItemListActivity mContext;
@@ -53,7 +56,8 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     }
 
     @Override
-    public View getAdapterView(View convertView, int index, SqueezerMusicFolderItem item) {
+    public View getAdapterView(View convertView, SqueezerMusicFolderItem item,
+            ImageFetcher unused) {
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
@@ -91,6 +95,35 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
         return convertView;
     }
 
+    @Override
+    public View getAdapterView(View convertView, String label) {
+        ViewHolder viewHolder;
+
+        if (convertView == null || convertView.getTag() == null) {
+            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
+            viewHolder = new ViewHolder();
+            viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
+            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+        viewHolder.label.setText(label);
+
+        viewHolder.icon.setImageResource(R.drawable.ic_unknown);
+
+        viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
+        viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                v.showContextMenu();
+            }
+        });
+
+        return convertView;
+    }
+
     public void onItemSelected(int index, SqueezerMusicFolderItem item) throws RemoteException {
         if (item.getType().equals("folder")) {
             SqueezerMusicFolderListActivity.show(getActivity(), item);
@@ -104,12 +137,30 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     };
 
     // XXX: Make this a menu resource.
-    public void setupContextMenu(ContextMenu menu, int index, SqueezerMusicFolderItem item) {
-        menu.setHeaderTitle(item.getName());
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
         menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
-    };
+
+        if (((SqueezerMusicFolderItem) menuInfo.item).getType().equals("track")) {
+            menu.add(Menu.NONE, R.id.download, Menu.NONE, R.string.CONTEXTMENU_DOWNLOAD_ITEM);
+        }
+    }
+
+    @Override
+    public boolean doItemContext(MenuItem menuItem, int index, SqueezerMusicFolderItem selectedItem)
+            throws RemoteException {
+        switch (menuItem.getItemId()) {
+            case R.id.download:
+                ((SqueezerMusicFolderListActivity) getActivity())
+                        .downloadSong(selectedItem.getId());
+                return true;
+        }
+        return super.doItemContext(menuItem, index, selectedItem);
+    }
 
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.musicfolder, quantity);

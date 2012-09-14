@@ -20,12 +20,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 
 
@@ -42,12 +45,13 @@ import android.widget.BaseAdapter;
  * @see SqueezerItemView
  * @author Kurt Aaholst
  */
-public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
-
+public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter implements
+        OnCreateContextMenuListener
+{
 	/**
 	 * View logic for this adapter
 	 */
-	private final SqueezerItemView<T> itemView;
+    private final SqueezerItemView<T> mItemView;
 
 	/**
 	 * List of items, possibly headed with an empty item.
@@ -61,87 +65,127 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	/**
 	 *  This is set if the list shall start with an empty item.
 	 */
-	private final boolean emptyItem;
+	private final boolean mEmptyItem;
 
 	/**
 	 * Text to display before the items are received from SqueezeServer
 	 */
 	private final String loadingText;
 
-	/*
-	 * Number of elements to by fetched at a time
-	 */
+    /**
+     * Number of elements to by fetched at a time
+     */
 	private int pageSize;
+
+    /** ImageFetcher for thumbnails */
+    private ImageFetcher mImageFetcher;
+
 	public int getPageSize() { return pageSize; }
 
-	/**
-	 * Creates a new adapter. Initially the item list is populated with items displaying the
-	 * localized "loading" text. Call {@link #update(int, int, int, List)} as items arrives
-	 * from SqueezeServer.
-	 *
-	 * @param itemView The {@link SqueezerItemView} to use with this adapter
-	 * @param count The number of items this adapter initially contains.
-	 * @param emptyItem If set the list of items shall start with an empty item
-	 */
-	public SqueezerItemAdapter(SqueezerItemView<T> itemView, boolean emptyItem) {
-		this.itemView = itemView;
-		itemView.setAdapter(this);
-		this.emptyItem = emptyItem;
+    /**
+     * Creates a new adapter. Initially the item list is populated with items
+     * displaying the localized "loading" text. Call
+     * {@link #update(int, int, int, List)} as items arrives from SqueezeServer.
+     * 
+     * @param itemView The {@link SqueezerItemView} to use with this adapter
+     * @param emptyItem If set the list of items shall start with an empty item
+     * @param imageFetcher ImageFetcher to use for loading thumbnails
+     */
+    public SqueezerItemAdapter(SqueezerItemView<T> itemView, boolean emptyItem,
+            ImageFetcher imageFetcher) {
+        mItemView = itemView;
+        mEmptyItem = emptyItem;
+        mImageFetcher = imageFetcher;
 		loadingText = itemView.getActivity().getString(R.string.loading_text);
 		pageSize = itemView.getActivity().getResources().getInteger(R.integer.PageSize);
 		pages.clear();
 	}
 
-	/**
-	 * Calls {@link #SqueezerBaseAdapter(SqueezerItemView, int, boolean)}, with emptyItem = false
-	 */
-	public SqueezerItemAdapter(SqueezerItemView<T> itemView) {
-		this(itemView, false);
-	}
+    /**
+     * Calls
+     * {@link #SqueezerBaseAdapter(SqueezerItemView, boolean, ImageFetcher)},
+     * with emptyItem = false
+     */
+    public SqueezerItemAdapter(SqueezerItemView<T> itemView, ImageFetcher imageFetcher) {
+        this(itemView, false, imageFetcher);
+    }
 
-	private int pageNumber(int position) {
+    /**
+     * Calls
+     * {@link #SqueezerBaseAdapter(SqueezerItemView, boolean, ImageFetcher)},
+     * with emptyItem = false and a null ImageFetcher.
+     */
+    public SqueezerItemAdapter(SqueezerItemView<T> itemView) {
+        this(itemView, false, null);
+    }
+
+    private int pageNumber(int position) {
 		return position / pageSize;
 	}
 
-	/**
-	 * Removes all items from this adapter leaving it empty.
-	 */
-	public void clear() {
-		this.count = (emptyItem ? 1 : 0);
-		pages.clear();
-	}
+    /**
+     * Removes all items from this adapter leaving it empty.
+     */
+    public void clear() {
+        this.count = (mEmptyItem ? 1 : 0);
+        pages.clear();
+    }
 
     public View getView(int position, View convertView, ViewGroup parent) {
         T item = getItem(position);
-        if (item != null)
-            return itemView.getAdapterView(convertView, position, item);
+        if (item != null) {
+            // XXX: This is ugly -- not all adapters need an ImageFetcher.
+            // We should really have subclasses of types in the model classes,
+            // with the hierarchy probably being:
+            //
+            // [basic item] -> [item with artwork] -> [artwork is downloaded]
+            //
+            // instead of special-casing whether or not mImageFetcher is null
+            // in getAdapterView().
+            return mItemView.getAdapterView(convertView, item, mImageFetcher);
+        }
 
-        return itemView.getAdapterView(convertView,
-                (position == 0 && emptyItem ? "" : loadingText));
+        return mItemView.getAdapterView(convertView,
+                (position == 0 && mEmptyItem ? "" : loadingText));
     }
 
-	public String getQuantityString(int size) {
-		return itemView.getQuantityString(size);
-	}
+    public String getQuantityString(int size) {
+        return mItemView.getQuantityString(size);
+    }
 
-	public SqueezerItemListActivity getActivity() {
-		return itemView.getActivity();
-	}
+    public SqueezerItemListActivity getActivity() {
+        return mItemView.getActivity();
+    }
 
-	public void setupContextMenu(ContextMenu menu, int position) {
-		final T selectedItem = getItem(position);
-		if (selectedItem != null && selectedItem.getId() != null) {
-			itemView.setupContextMenu(menu, position, selectedItem);
-		}
-	}
+    /**
+     * Creates the context menu for the selected item by calling
+     * {@link SqueezerItemView.onCreateContextMenu} which the subclass should
+     * have specialised.
+     * <p>
+     * Unpacks the {@link ContextMenu.ContextMenuInfo} passed to this method,
+     * and creates a {@link SqueezerItemView.ContextMenuInfo} suitable for
+     * passing to subclasses of {@link SqueezerBaseItemView}.
+     */
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
+        final T selectedItem = getItem(adapterMenuInfo.position);
 
-	public boolean doItemContext(MenuItem menuItem, int position) throws RemoteException {
-		return itemView.doItemContext(menuItem, position, getItem(position));
-	}
+        SqueezerItemView.ContextMenuInfo c = new SqueezerItemView.ContextMenuInfo(
+                adapterMenuInfo.position, selectedItem, this,
+                getActivity().getMenuInflater());
 
-	public SqueezerItemView<T> getItemView() {
-		return itemView;
-	}
+        if (selectedItem != null && selectedItem.getId() != null) {
+            mItemView.onCreateContextMenu(menu, v, c);
+        }
+    }
+
+    public boolean doItemContext(MenuItem menuItem, int position) throws RemoteException {
+        return mItemView.doItemContext(menuItem, position, getItem(position));
+    }
+
+    public SqueezerItemView<T> getItemView() {
+        return mItemView;
+    }
 
 	public int getCount() {
 		return count;
@@ -173,7 +217,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	public T getItem(int position) {
 		T item = getPage(position)[position % pageSize];
 		if (item == null) {
-			if (emptyItem) position--;
+			if (mEmptyItem) position--;
 			getActivity().maybeOrderPage(pageNumber(position) * pageSize);
 		}
 		return item;
@@ -216,7 +260,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 	 *            New items to insert in the main list
 	 */
 	public void update(int count, int start, List<T> items) {
-		int offset = (emptyItem ? 1 : 0);
+		int offset = (mEmptyItem ? 1 : 0);
 		count += offset;
 		start += offset;
 		if (count == 0 || count != getCount()) {
@@ -241,8 +285,8 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter {
 		return 0;
 	}
 
-	protected T[] arrayInstance(int size) {
-		return itemView.getCreator().newArray(size);
-	}
+    protected T[] arrayInstance(int size) {
+        return mItemView.getCreator().newArray(size);
+    }
 
 }

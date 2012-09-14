@@ -23,7 +23,7 @@ import uk.org.ngo.squeezer.model.SqueezerGenre;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
-
+import android.view.View;
 
 public class SqueezerGenreView extends SqueezerBaseItemView<SqueezerGenre> {
 
@@ -40,8 +40,9 @@ public class SqueezerGenreView extends SqueezerBaseItemView<SqueezerGenre> {
 	}
 
     // XXX: Make this a menu resource.
-	public void setupContextMenu(ContextMenu menu, int index, SqueezerGenre item) {
-		menu.setHeaderTitle(item.getName());
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
         menu.add(Menu.NONE, R.id.browse_songs, 0, R.string.CONTEXTMENU_BROWSE_SONGS);
 		menu.add(Menu.NONE, CONTEXTMENU_BROWSE_ALBUMS, 1, R.string.CONTEXTMENU_BROWSE_ALBUMS);
         menu.add(Menu.NONE, R.id.browse_artists, 2, R.string.CONTEXTMENU_BROWSE_ARTISTS);

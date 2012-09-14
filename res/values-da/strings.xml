@@ -184,7 +184,7 @@
         <item>Internetradio</item>
         <item>Favoritter</item>
         <item>Mine programmer</item>
-        </string-array>
+    </string-array>
 
     <string-array name="randomplay_items">
         <item>Miks baseret på tilfældige numre</item>

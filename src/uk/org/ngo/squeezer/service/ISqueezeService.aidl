@@ -56,8 +56,8 @@ interface ISqueezeService {
 		// Call this to change the player we are controlling
 	    void setActivePlayer(in SqueezerPlayer player);
 
-		// Returns the player we are currently controlling
-	    SqueezerPlayer getActivePlayer();
+    // Returns the player we are currently controlling
+    SqueezerPlayer getActivePlayer();
 
 		// Returns the empty string (not null) if no player is set. 
         String getActivePlayerName();
@@ -91,9 +91,9 @@ interface ISqueezeService {
         int getSecondsElapsed();
         boolean setSecondsElapsed(int seconds);
         
-        SqueezerSong getCurrentSong();
+    SqueezerPlayerState getPlayerState();
+    SqueezerSong getCurrentSong();
         String getCurrentPlaylist();
-        SqueezerPlayerState getPlayerState();
         String getAlbumArtUrl(String artworkTrackId);
         String getIconUrl(String icon);
 

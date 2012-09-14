@@ -49,7 +49,7 @@ limitations under the License.
         </LinearLayout>
 
         <TextView
-            style="?android:attr/textAppearanceSmall"
+            style="@style/SqueezerTextItemSmall"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
             android:paddingTop="8dp"
@@ -58,28 +58,28 @@ limitations under the License.
 
         <TextView
             android:text="Team"
-            style="?android:attr/textAppearanceMedium"
+            style="@style/SqueezerTextItem"
             android:paddingTop="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <TextView
             android:text="Kurt Aaholst\nNik Clayton\nBrad Fitzpatrick"
-            style="?android:attr/textAppearanceSmall"
+            style="@style/SqueezerTextItemSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="8dp" />
 
         <TextView
             android:text="Support"
-            style="?android:attr/textAppearanceMedium"
+            style="@style/SqueezerTextItem"
             android:paddingTop="16dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <TextView
             android:text="http://groups.google.com/group/android-squeezer\n\nhttp://code.google.com/p/android-squeezer/"
-            style="?android:attr/textAppearanceSmall"
+            style="@style/SqueezerTextItemSmall"
             android:autoLink="web"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

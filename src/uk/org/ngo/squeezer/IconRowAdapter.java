@@ -48,7 +48,7 @@ public class IconRowAdapter extends BaseAdapter {
         return mRows.get(position).getIcon();
 	}
 
-	public String getItem(int position) {
+    public CharSequence getItem(int position) {
         return mRows.get(position).getText();
 	}
 
@@ -66,14 +66,14 @@ public class IconRowAdapter extends BaseAdapter {
      * @param items Item text.
      * @param images Image resources.
      */
-    public IconRowAdapter(Activity context, String[] items, int[] icons) {
-		this.activity = context;
+    public IconRowAdapter(Activity context, CharSequence[] items, int[] icons) {
+        this.activity = context;
 
         // Convert to a list of IconRow.
         for (int i = 0; i < items.length; i++) {
             mRows.add(new IconRow(i, items[i], icons[i]));
-		}
-	}
+        }
+    }
 
     /**
      * Creates an IconRowAdapter from the list of <code>rows</code>.
@@ -108,15 +108,13 @@ public class IconRowAdapter extends BaseAdapter {
      * The identifier should be unique across all rows in a given
      * {@link IconRowAdapter}, and will be used as the <code>id</code> paramter
      * to the <code>OnItemClickListener</code>.
-     * 
-     * @author nik
      */
     public static class IconRow {
         private long mId;
-        private String mText;
+        private CharSequence mText;
         private int mIcon;
 
-        IconRow(long id, String text, int icon) {
+        IconRow(long id, CharSequence text, int icon) {
             mId = id;
             mText = text;
             mIcon = icon;
@@ -130,7 +128,7 @@ public class IconRowAdapter extends BaseAdapter {
             mId = id;
         }
 
-        public String getText() {
+        public CharSequence getText() {
             return mText;
         }
 

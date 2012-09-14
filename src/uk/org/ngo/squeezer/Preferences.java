@@ -38,7 +38,14 @@ public final class Preferences {
     public static final String KEY_NOTIFY_OF_CONNECTION = "squeezer.notifyofconnection";
 
     // Do we scrobble track information?
+    // Deprecated, retained for compatibility when upgrading. Was an int, of
+    // either 0 == No scrobbling, 1 == use ScrobbleDroid API, 2 == use SLS API
     public static final String KEY_SCROBBLE = "squeezer.scrobble";
+
+    // Do we scrobble track information (if a scrobble service is available)?
+    //
+    // Type of underlying preference is bool / CheckBox
+    public static final String KEY_SCROBBLE_ENABLED = "squeezer.scrobble.enabled";
 
     public static final String KEY_DEBUG_LOGGING = "squeezer.debuglogging";
 
