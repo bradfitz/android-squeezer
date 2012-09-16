@@ -40,9 +40,9 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 	@Override
     public View getAdapterView(View convertView, SqueezerPlayer item,
             ImageFetcher unused) {
-		ViewHolder viewHolder;
+		ViewHolder viewHolder = (convertView != null && convertView.getTag() instanceof ViewHolder) ? (ViewHolder)convertView.getTag() : null;
 
-		if (convertView == null || convertView.getTag() == null) {
+		if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
 			viewHolder = new ViewHolder();
 			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
