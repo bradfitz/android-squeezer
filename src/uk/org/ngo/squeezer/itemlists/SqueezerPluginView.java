@@ -36,6 +36,7 @@ public abstract class SqueezerPluginView extends SqueezerIconicItemView<Squeezer
     public View getAdapterView(View convertView, SqueezerPlugin item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (convertView != null && convertView.getTag() instanceof ViewHolder) ? (ViewHolder)convertView.getTag() : null;
 
+
         if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
 			viewHolder = new ViewHolder();

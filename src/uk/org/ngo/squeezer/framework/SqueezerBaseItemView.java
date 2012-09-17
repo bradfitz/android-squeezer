@@ -110,6 +110,9 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         return getDefaultAdapterView(convertView, item.getName());
     }
 
+    /**
+     * Returns a view suitable for displaying the "Loading..." text.
+     */
     public View getAdapterView(View convertView, String label) {
         return getDefaultAdapterView(convertView, label);
     }

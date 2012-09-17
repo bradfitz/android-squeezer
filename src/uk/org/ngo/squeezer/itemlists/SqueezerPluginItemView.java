@@ -41,13 +41,13 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 
     @Override
     public View getAdapterView(View convertView, SqueezerPluginItem item, ImageFetcher imageFetcher) {
-		ViewHolder viewHolder;
+        ViewHolder viewHolder = (convertView != null && convertView.getTag() instanceof ViewHolder) ? (ViewHolder)convertView.getTag() : null;
 
-		if (convertView == null || convertView.getTag() == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
+		if (viewHolder == null) {
+            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
 
             viewHolder = new ViewHolder();
-			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+			viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
             viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
 
@@ -57,7 +57,15 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
         }
 
 		viewHolder.label.setText(item.getName());
-
+        if (!item.isHasitems()) {
+            viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
+            viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    v.showContextMenu();
+                }
+            });
+        }
+        
         if (imageFetcher != null) {
             if (item.getImage() == null) {
                 viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
@@ -74,11 +82,12 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
 
             viewHolder = new ViewHolder();
-            viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+            viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
 
             convertView.setTag(viewHolder);
         } else {
