@@ -39,14 +39,15 @@ import android.widget.ListView;
  * SqueezeServer data type. The data type is defined by the generic type
  * argument, and must be an extension of {@link SqueezerItem}. You must provide
  * an {@link SqueezerItemView} to provide the view logic used by this activity.
- * This is done by implementing
- * {@link SqueezerItemListActivity#createItemView()}.
+ * This is done by implementing {@link #createItemView()}.
  * <p>
  * When the activity is first created ({@link #onCreate(Bundle)}), an empty
  * {@link SqueezerItemListAdapter} is created using the provided
- * {@link SqueezerItemView}. See {@link SqueezerItemListActivity} for see
- * details of ordering and receiving of list items from SqueezeServer, and
- * handling of item selection.
+ * {@link SqueezerItemView}.
+ * <p>
+ * See {@link SqueezerItemListActivity} for details
+ * of ordering and receiving of list items from SqueezeServer, and handling
+ * of item selection.
  * 
  * @param <T> Denotes the class of the items this class should list
  * @author Kurt Aaholst

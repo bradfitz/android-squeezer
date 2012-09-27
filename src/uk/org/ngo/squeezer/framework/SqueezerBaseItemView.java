@@ -106,42 +106,17 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         return getClass().getSimpleName();
     }
 
+    /**
+     * <p>Returns a view suitable for displaying the data of item in a list.
+     * Item may not be null.
+     * <p>Override this method and {@link #getAdapterView(String)} if your
+     * extension uses a different layout.
+     */
     public View getAdapterView(View convertView, T item, ImageFetcher unused) {
-        return getDefaultAdapterView(convertView, item.getName());
-    }
+        View view = getAdapterView(convertView);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-    /**
-     * Returns a view suitable for displaying the "Loading..." text.
-     */
-    public View getAdapterView(View convertView, String label) {
-        return getDefaultAdapterView(convertView, label);
-    }
-
-    public void bindView(ViewHolder viewHolder, T item) {
-        bindView(viewHolder, item.getName());
-    }
-
-    public void bindView(ViewHolder viewHolder, String text) {
-        viewHolder.text1.setText(text);
-    }
-
-    /**
-     * Create a view with a textview for the item description, and a button
-     * that, when clicked, displays the context menu.
-     */
-    public View getDefaultAdapterView(View convertView, String text) {
-        ViewHolder viewHolder;
-
-        if (convertView == null || convertView.getTag() == null
-                || !ViewHolder.class.isAssignableFrom(convertView.getClass())) {
-            convertView = mLayoutInflater.inflate(R.layout.list_item, null);
-            viewHolder = new ViewHolder();
-            viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
-            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
+        viewHolder.text1.setText(item.getName());
 
         viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
         viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
@@ -149,8 +124,43 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
                 v.showContextMenu();
             }
         });
+        
+        return view;
+    }
 
-        bindView(viewHolder, text);
+    /**
+     * <p>Returns a view suitable for displaying the "Loading..." text.
+     * <p>Override this method and {@link #getAdapterView(View, SqueezerItem, ImageFetcher)}
+     * if your extension uses a different layout.
+     */
+    public View getAdapterView(View convertView, String label) {
+        View view = getAdapterView(convertView);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+        viewHolder.text1.setText(label);
+        viewHolder.btnContextMenu.setVisibility(View.GONE);
+
+        return view;
+    }
+
+    /**
+     * <p>Figure out if the convertView can be reused, otherwise create a new view.
+     * 
+     * @param convertView View to reuse if possible
+     * @return convertView if it can be reused, or a new view
+     */
+    private View getAdapterView(View convertView) {
+        ViewHolder viewHolder = (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
+                ? (ViewHolder) convertView.getTag()
+                : null;
+
+        if (viewHolder == null) {
+            convertView = mLayoutInflater.inflate(R.layout.list_item, null);
+            viewHolder = new ViewHolder();
+            viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
+            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
+            convertView.setTag(viewHolder);
+        }
 
         return convertView;
     }

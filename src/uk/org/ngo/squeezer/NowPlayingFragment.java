@@ -389,7 +389,7 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         if (!connected) {
-            albumArt.setImageResource(R.drawable.icon_album_noart_143);
+            albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
             updateSongInfo(null);
 
             if (mFullHeightLayout) {
@@ -548,7 +548,7 @@ public class NowPlayingFragment extends Fragment implements
         Log.v(TAG, "updateAlbumArtIfNeeded");
         if (Util.atomicReferenceUpdated(currentSong, song)) {
             if (song == null || song.getArtworkUrl(mService) == null) {
-                albumArt.setImageResource(R.drawable.icon_album_noart_143);
+                albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
                 return;
             }
 

@@ -27,7 +27,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
-import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -35,11 +34,18 @@ import android.widget.TextView;
 
 /**
  * Defines view logic for a {@link SqueezerItem}
+ * <p>
+ * We keep this here because we don't want to pollute the model with view related 
+ * stuff.
+ * <p>
+ * Currently this is the only logic class you have to implement for each SqueezeServer
+ * data type, so it contains a few methods, which are not strictly view related.
+ * <p>
+ * {@link SqueezerBaseItemView} implements all the common functionality, an some
+ * sensible defaults.
  *
+ * @param <T> Denotes the class of the item this class implements view logic for
  * @author Kurt Aaholst
- *
- * @param <T>
- *            Denotes the class of the item this class implements view logic for
  */
 public interface SqueezerItemView<T extends SqueezerItem> {
 
@@ -55,7 +61,7 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 
     /**
      * Get a View that displays the data at the specified position in the data
-     * set. {@see Adapter#getView(int, View, android.view.ViewGroup)}
+     * set. See {@link SqueezerItemAdapter#getView(int, View, android.view.ViewGroup)}
      * 
      * @param convertView The old view to reuse, per
      *            {@link Adapter#getView(int, View, android.view.ViewGroup)}
@@ -66,15 +72,13 @@ public interface SqueezerItemView<T extends SqueezerItem> {
      */
     View getAdapterView(View convertView, T item, ImageFetcher mImageFetcher);
 
-    void bindView(ViewHolder viewHolder, T item);
-
-    void bindView(ViewHolder viewHolder, String text);
-
     /**
-     * Called by {@link Adapter#getView(int, View, ViewGroup)}
+     * Get a view suitable for displaying the supplied (static) text.
+     * See {@link SqueezerItemAdapter#getView(int, View, android.view.ViewGroup)}
      * 
-     * @param convertView
-     * @param item
+     * @param convertView The old view to reuse, per
+     *            {@link Adapter#getView(int, View, android.view.ViewGroup)}
+     * @param label Text to display
      * @return
      */
     View getAdapterView(View convertView, String label);

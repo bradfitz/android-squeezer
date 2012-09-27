@@ -41,24 +41,22 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
         super(activity);
     }
 
-    public void bindView(ViewHolder viewHolder, SqueezerSong item) {
-        viewHolder.text1.setText(item.getName());
+    @Override
+    public void bindView(View view, SqueezerSong item) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        // Might be null if we're using the one-line layout
-        if (viewHolder.text2 != null) {
-            String text2 = "";
-            if (item.getId() != null) {
-                if (item.getArtist() != null)
-                    text2 += item.getArtist();
+        String text2 = "";
+        if (item.getId() != null) {
+            if (item.getArtist() != null)
+                text2 += item.getArtist();
 
-                if (item.getAlbum() != null)
-                    text2 += " - " + item.getAlbum();
+            if (item.getAlbum() != null)
+                text2 += " - " + item.getAlbum();
 
-                if (item.getYear() != 0)
-                    text2 = item.getYear() + " - " + text2;
-            }
-            viewHolder.text2.setText(text2);
+            if (item.getYear() != 0)
+                text2 = item.getYear() + " - " + text2;
         }
+        viewHolder.text2.setText(text2);
     }
 
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
