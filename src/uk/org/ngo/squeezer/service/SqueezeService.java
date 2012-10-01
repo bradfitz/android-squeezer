@@ -921,9 +921,7 @@ public class SqueezeService extends Service {
         }
 
         public String getAlbumArtUrl(String artworkTrackId) throws RemoteException {
-            Integer port = connectionState.getHttpPort();
-            if (port == null || port == 0) return "";
-			return "http://" + connectionState.getCurrentHost() + ":" + port + artworkTrackIdUrl(artworkTrackId);
+            return getAbsoluteUrl(artworkTrackIdUrl(artworkTrackId));
         }
 
         private String artworkTrackIdUrl(String artworkTrackId) {
@@ -937,11 +935,7 @@ public class SqueezeService extends Service {
          * @return The URL (as a string)
          */
         public String getSongDownloadUrl(String songId) throws RemoteException {
-            Integer port = connectionState.getHttpPort();
-            if (port == null || port == 0)
-                return "";
-            return "http://" + connectionState.getCurrentHost() + ":" + port
-                    + songDownloadUrl(songId);
+            return getAbsoluteUrl(songDownloadUrl(songId));
         }
 
         private String songDownloadUrl(String songId) {
@@ -949,9 +943,13 @@ public class SqueezeService extends Service {
         }
 
         public String getIconUrl(String icon) throws RemoteException {
+            return getAbsoluteUrl('/' + icon);
+        }
+        
+        private String getAbsoluteUrl(String relativeUrl) {
             Integer port = connectionState.getHttpPort();
             if (port == null || port == 0) return "";
-			return "http://" + connectionState.getCurrentHost() + ":" + port + '/' + icon;
+            return "http://" + connectionState.getCurrentHost() + ":" + port + relativeUrl;
         }
 
         public int getSecondsElapsed() throws RemoteException {

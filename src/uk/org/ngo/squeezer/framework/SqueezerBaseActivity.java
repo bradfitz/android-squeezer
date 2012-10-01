@@ -168,6 +168,18 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         return false;
     }
 
+    public String getIconUrl(String icon) {
+        if (service == null || icon == null) {
+            return null;
+        }
+        try {
+            return service.getIconUrl(icon);
+        } catch (RemoteException e) {
+            Log.e(getClass().getSimpleName(), "Error requesting icon url: " + e);
+            return null;
+        }
+    }
+
     // This section is just an easier way to call squeeze service
 
     public boolean play(SqueezerPlaylistItem item) throws RemoteException {

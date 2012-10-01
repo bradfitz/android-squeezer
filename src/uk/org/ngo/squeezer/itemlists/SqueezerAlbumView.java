@@ -20,6 +20,7 @@ import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.View;
@@ -33,7 +34,7 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
     }
 
     @Override
-    protected void bindView(View view, SqueezerAlbum item) {
+    protected void bindView(View view, SqueezerAlbum item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         String text2 = "";
@@ -41,6 +42,14 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
             text2 = item.getArtist();
             if (item.getYear() != 0)
                 text2 += " - " + item.getYear();
+        }
+
+        String artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
+        if (artworkUrl == null) {
+            viewHolder.icon.setImageResource(R.drawable.icon_album_noart);
+        } else {
+            imageFetcher.loadThumbnailImage(artworkUrl, viewHolder.icon,
+                    R.drawable.icon_pending_artwork);
         }
         viewHolder.text2.setText(text2);
     }

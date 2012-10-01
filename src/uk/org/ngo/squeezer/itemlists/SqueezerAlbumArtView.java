@@ -59,14 +59,6 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
 
         viewHolder.text1.setText(item.getName());
 
-        viewHolder.artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
-        if (viewHolder.artworkUrl == null) {
-            viewHolder.icon.setImageResource(R.drawable.icon_album_noart);
-        } else {
-            imageFetcher.loadThumbnailImage(viewHolder.artworkUrl, viewHolder.icon,
-                    R.drawable.icon_pending_artwork);
-        }
-
         viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
         viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -74,11 +66,11 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
             }
         });
 
-        bindView(view, item);
+        bindView(view, item, imageFetcher);
         return view;
     }
 
-    abstract protected void bindView(View view, T item);
+    abstract protected void bindView(View view, T item, ImageFetcher imageFetcher);
 
     @Override
     public View getAdapterView(View convertView, String label) {
@@ -141,6 +133,5 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
         // XXX: These are public so code in SqueezerItemListActivity can see
         // them. This should be refactored.
         public ImageView icon;
-        public String artworkUrl;
     }
 }

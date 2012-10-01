@@ -20,10 +20,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import android.os.RemoteException;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -48,24 +45,10 @@ public abstract class SqueezerPluginView extends SqueezerBaseItemView<SqueezerPl
         }
 
 		viewHolder.label.setText(item.getName());
-        imageFetcher.loadThumbnailImage(getIconUrl(item.getIcon()), viewHolder.icon,
+        imageFetcher.loadThumbnailImage(getActivity().getIconUrl(item.getIcon()), viewHolder.icon,
                 R.drawable.icon_pending_artwork);
 
 		return convertView;
-	}
-
-	private String getIconUrl(String icon) {
-		if (icon == null) return null;
-
-		ISqueezeService service = getActivity().getService();
-		if (service == null) return null;
-
-		try {
-			return service.getIconUrl(icon);
-		} catch (RemoteException e) {
-			Log.e(getClass().getSimpleName(), "Error requesting icon url: " + e);
-			return null;
-		}
 	}
 
 	private static class ViewHolder {

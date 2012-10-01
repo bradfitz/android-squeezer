@@ -389,10 +389,10 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         if (!connected) {
-            albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
             updateSongInfo(null);
 
             if (mFullHeightLayout) {
+                albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
                 nextButton.setImageResource(0);
                 prevButton.setImageResource(0);
                 artistText.setText(getText(R.string.disconnected_text));
@@ -400,7 +400,8 @@ public class NowPlayingFragment extends Fragment implements
                 totalTime.setText("--:--");
                 seekBar.setEnabled(false);
                 seekBar.setProgress(0);
-            }
+            } else
+                albumArt.setImageResource(R.drawable.icon_album_noart);
         } else {
             updateSongInfoFromService();
 
@@ -548,7 +549,14 @@ public class NowPlayingFragment extends Fragment implements
         Log.v(TAG, "updateAlbumArtIfNeeded");
         if (Util.atomicReferenceUpdated(currentSong, song)) {
             if (song == null || song.getArtworkUrl(mService) == null) {
-                albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
+                if (mFullHeightLayout)
+                    albumArt.setImageResource(song != null && song.isRemote() 
+                            ? R.drawable.icon_iradio_noart_fullscreen
+                            : R.drawable.icon_album_noart_fullscreen);
+                else
+                    albumArt.setImageResource(song != null && song.isRemote() 
+                            ? R.drawable.icon_iradio_noart
+                            : R.drawable.icon_album_noart);
                 return;
             }
 

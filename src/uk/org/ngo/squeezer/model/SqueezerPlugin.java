@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.model;
 
 import java.util.Map;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 
@@ -25,15 +26,25 @@ import android.os.Parcel;
 
 
 public class SqueezerPlugin extends SqueezerItem {
-    public static SqueezerPlugin FAVORITE = new SqueezerPlugin("favorites");
+    public static SqueezerPlugin FAVORITE = new SqueezerPlugin("favorites", R.drawable.icon_favorites);
 
 	private String name;
 	@Override public String getName() { return name; }
 	public SqueezerPlugin setName(String name) { this.name = name; return this; }
 
-	private String icon;
-	public String getIcon() { return icon; }
-	public void setIcon(String icon) { this.icon = icon; }
+    private String icon;
+    /**
+     * @return Relative URL path to an icon for this radio or music service, for example "plugins/Picks/html/images/icon.png"
+     */
+    public String getIcon() { return icon; }
+    public void setIcon(String icon) { this.icon = icon; }
+
+    private int iconResource;
+    /**
+     * @return Icon resource for this plugin if it is embedded in the Squeezer app, or null.
+     */
+    public int getIconResource() { return iconResource; }
+    public void setIconResource(int iconResource) { this.iconResource = iconResource; }
 
 	private int weight;
 	public int getWeight() { return weight; }
@@ -44,8 +55,9 @@ public class SqueezerPlugin extends SqueezerItem {
 	public void setType(String type) { this.type = type; }
 	public boolean isSearchable() { return "xmlbrowser_search".equals(type); }
 
-	private SqueezerPlugin(String cmd) {
+	private SqueezerPlugin(String cmd, int iconResource) {
 	    setId(cmd);
+	    setIconResource(iconResource);
     }
 
 	public SqueezerPlugin(Map<String, String> record) {
@@ -70,6 +82,7 @@ public class SqueezerPlugin extends SqueezerItem {
 		name = source.readString();
 		type = source.readString();
 		icon = source.readString();
+		iconResource = source.readInt();
 		weight = source.readInt();
 	}
     public void writeToParcel(Parcel dest, int flags) {
@@ -77,6 +90,7 @@ public class SqueezerPlugin extends SqueezerItem {
 		dest.writeString(name);
 		dest.writeString(type);
 		dest.writeString(icon);
+		dest.writeInt(iconResource);
 		dest.writeInt(weight);
 	}
 
