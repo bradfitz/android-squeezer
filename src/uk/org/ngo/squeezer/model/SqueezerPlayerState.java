@@ -142,7 +142,7 @@ public class SqueezerPlayerState implements Parcelable {
         if (playerStateChanged.musicHasChanged) currentSong = newSong;
 
         boolean power = Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1;
-        playerStateChanged.powerHasChanged = power == poweredOn;
+        playerStateChanged.powerHasChanged = (power != poweredOn);
         setPoweredOn(power);
 
         currentPlaylist = tokenMap.get("playlist_name");
