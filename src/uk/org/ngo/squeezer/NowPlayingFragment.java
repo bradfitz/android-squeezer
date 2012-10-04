@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
 import uk.org.ngo.squeezer.dialogs.AboutDialog;
 import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
@@ -53,7 +54,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -74,7 +74,7 @@ public class NowPlayingFragment extends Fragment implements
         HasUiThread {
     private final String TAG = "NowPlayingFragment";
 
-    private FragmentActivity mActivity;
+    private ActionBarActivity mActivity;
     private ISqueezeService mService = null;
 
     private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
@@ -179,7 +179,7 @@ public class NowPlayingFragment extends Fragment implements
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mActivity = (FragmentActivity) activity;
+        mActivity = (ActionBarActivity) activity;
     };
 
     @Override
@@ -702,13 +702,13 @@ public class NowPlayingFragment extends Fragment implements
         MenuInflater i = mActivity.getMenuInflater();
         i.inflate(R.menu.squeezer, menu);
 
-        connectButton = menu.findItem(R.id.menu_item_connect);
-        disconnectButton = menu.findItem(R.id.menu_item_disconnect);
-        poweronButton = menu.findItem(R.id.menu_item_poweron);
-        poweroffButton = menu.findItem(R.id.menu_item_poweroff);
-        playersButton = menu.findItem(R.id.menu_item_players);
-        playlistButton = menu.findItem(R.id.menu_item_playlist);
-        searchButton = menu.findItem(R.id.menu_item_search);
+        connectButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_connect);
+        disconnectButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_disconnect);
+        poweronButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweron);
+        poweroffButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweroff);
+        playersButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_players);
+        playlistButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_playlist);
+        searchButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_search);
     }
 
     @Override
