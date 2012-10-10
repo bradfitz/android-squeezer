@@ -19,15 +19,18 @@ package uk.org.ngo.squeezer.actionbarcompat;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
 import android.view.MenuInflater;
 
 /**
- * A base activity that defers common functionality across app activities to an {@link
- * ActionBarHelper}.
+ * A base activity that defers common functionality across app activities to an
+ * {@link ActionBarHelper}.
  * <p>
- * NOTE:<br>
- * showAsAction=withText is not currently supported.<br>
- * showAsAction=ifRoom is currently always in the overflow menu
+ * NOTE: If you wish to dynamically mark menu items as enabled/disabled or
+ * change their visibility, it is necessary to use {@link ActionBarHelper#
+ * findItem(int)} instead of {@link Menu#findItem(int)}.
+ * <p>
+ * NOTE: showAsAction=withText is not currently supported.
  * <p>
  * NOTE: this may used with the Android Compatibility Package by extending
  * android.support.v4.app.FragmentActivity instead of {@link Activity}.

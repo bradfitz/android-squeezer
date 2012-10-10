@@ -17,6 +17,8 @@
 package uk.org.ngo.squeezer.actionbarcompat;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -49,7 +51,8 @@ public class ActionBarHelperBase extends ActionBarHelper {
     private static final String MENU_ATTR_ID = "id";
     private static final String MENU_ATTR_SHOW_AS_ACTION = "showAsAction";
 
-    private SparseArray<View> mActionBarItems = new SparseArray<View>();
+    public Set<Integer> optionsMenuResources;
+    private SparseArray<View> mActionBarItems ;
     private Menu mSimpleMenu;
     private ViewGroup mActionBarCompat;
     protected Drawable mHomeIcon;
@@ -67,13 +70,23 @@ public class ActionBarHelperBase extends ActionBarHelper {
     /**{@inheritDoc}*/
     @Override
     public void onPostCreate(Bundle savedInstanceState) {
+        // Prepare the action bar with an app icon area and a view control area.
         mActivity.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
                 R.layout.actionbar_compat);
         setupActionBar();
 
+        // Force an inflation of the options menu into our simple menu.
+        // We also store the menu resources which participates in the options
+        // menu. This is necessary because when inflating something other than
+        // the options menu (e.g. a context menu), no action should be perform-
+        // ed by the action bar helpers.
         mSimpleMenu = new SimpleMenu(this);
+        optionsMenuResources = new HashSet<Integer>();
         mActivity.onCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, mSimpleMenu);
         mActivity.onPrepareOptionsMenu(mSimpleMenu);
+
+        // Populate the action bar with the configured items
+        mActionBarItems = new SparseArray<View>();
         for (int i = 0; i < mSimpleMenu.size(); i++) {
             SimpleMenuItem item = (SimpleMenuItem) mSimpleMenu.getItem(i);
             if (item.isActionBar())
@@ -283,16 +296,17 @@ public class ActionBarHelperBase extends ActionBarHelper {
         @Override
         public void inflate(int menuRes, Menu menu) {
             mInflater.inflate(menuRes, menu);
-            if (menu == mSimpleMenu)
+            if (menu == mSimpleMenu) {
                 loadActionBarMetadata(menuRes);
-            else {
+                optionsMenuResources.add(menuRes);
+            } else if (optionsMenuResources.contains(menuRes)) {
                 mOptionsMenu = menu;
                 // Hide on-screen action items from the options menu.
                 for (int i = 0; i < mSimpleMenu.size(); i++) {
                     SimpleMenuItem item = (SimpleMenuItem) mSimpleMenu.getItem(i);
                     MenuItem menuItem = menu.findItem(item.getItemId());
                     // Items populated by a fragment may not be found
-                    if (menuItem != null)  {
+                    if (menuItem != null) {
                         if (item.isActionBar()) {
                             menuItem.setVisible(false);
                         } else {
