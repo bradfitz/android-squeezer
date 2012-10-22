@@ -272,7 +272,7 @@ class SqueezerCLIImpl {
         if (writer == null) return;
         if (commands.length == 1) {
             Log.v(TAG, "SENDING: " + commands[0]);
-			writer.println(commands[0] + " correlationid:" + _correlationid++);
+			writer.println(commands[0]);
         } else {
             // Get it into one packet by deferring flushing...
             for (String command : commands) {
@@ -390,7 +390,7 @@ class SqueezerCLIImpl {
 		if (parameters != null)
 			for (String parameter: parameters)
 				sb.append(" " + Util.encode(parameter));
-        sendCommand(sb.toString());
+        sendCommand(sb.toString() + " correlationid:" + _correlationid++);
 	}
 
 	void requestItems(String cmd, int start, List<String> parameters) {
@@ -498,9 +498,10 @@ class SqueezerCLIImpl {
 
 			if (key.equals("rescan"))
 				rescan = (Util.parseDecimalIntOrZero(value) == 1);
-			else if (key.equals("correlationid"))
+			else if (key.equals("correlationid")) {
 				correlationid = Util.parseDecimalIntOrZero(value);
-			else if (key.equals("actions")) // Apparently squeezer returns some commands which are included in the count of the current request
+                taggedParameters.put(key, token);
+			} else if (key.equals("actions")) // Apparently squeezer returns some commands which are included in the count of the current request
 				actionsCount++;
 			if (countIdSet.contains(key))
 				counts.put(key, Util.parseDecimalIntOrZero(value));

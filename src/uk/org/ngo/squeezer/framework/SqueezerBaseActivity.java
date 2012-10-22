@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.SqueezerServerString;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -175,8 +176,18 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         try {
             return service.getIconUrl(icon);
         } catch (RemoteException e) {
-            Log.e(getClass().getSimpleName(), "Error requesting icon url: " + e);
+            Log.e(getClass().getSimpleName(), "Error requesting icon url '" + icon + "': " + e);
             return null;
+        }
+    }
+    
+    public String getServerString(SqueezerServerString stringToken) {
+        try {
+            return service.getString(stringToken.ordinal());
+        } catch (RemoteException e) {
+            Log.e(getClass().getSimpleName(), "Error requesting server string '" + stringToken + "': " + e);
+            e.printStackTrace();
+            return stringToken.name();
         }
     }
 

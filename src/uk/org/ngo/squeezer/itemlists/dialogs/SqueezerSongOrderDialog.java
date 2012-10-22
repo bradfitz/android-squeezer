@@ -15,8 +15,9 @@ public class SqueezerSongOrderDialog extends DialogFragment {
         final SqueezerSongListActivity activity = (SqueezerSongListActivity) getActivity();
 
         String[] sortOrderStrings = new String[SongsSortOrder.values().length];
-        sortOrderStrings[SongsSortOrder.title.ordinal()] = getString(R.string.songs_sort_order_title);
-        sortOrderStrings[SongsSortOrder.tracknum.ordinal()] = getString(R.string.songs_sort_order_tracknum);
+        for (SongsSortOrder sortOrder : SongsSortOrder.values()) {
+            sortOrderStrings[sortOrder.ordinal()] = getString(sortOrder.stringResource);
+        }
 
         int checkedItem = activity.getSortOrder().ordinal();
 
@@ -37,13 +38,20 @@ public class SqueezerSongOrderDialog extends DialogFragment {
      * Values must correspond with the string expected by the server. Any '__'
      * in the strings will be removed.
      */
-    // TODO: Make this a class, or extend the enum so that it knows which
-    // strings to use, etc.
     public enum SongsSortOrder {
-        title,
-        tracknum;
+        title(R.string.songs_sort_order_title),
+        tracknum(R.string.songs_sort_order_tracknum);
         // TODO: At least some versions of the server support "albumtrack",
         // is that useful?
+        
+        /**
+         * The text to use for this ordering
+         */
+        private int stringResource;
+
+        private SongsSortOrder(int stringResource) {
+            this.stringResource = stringResource;
+        }
     }
 
 }

@@ -49,7 +49,8 @@ class SqueezerConnectionState {
     // Connection state:
 	private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
-	private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
+    private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
+    private final AtomicReference<String> preferredAlbumSort = new AtomicReference<String>("album");
 	private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
 	private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
 	private final AtomicReference<SqueezerPlayer> activePlayer = new AtomicReference<SqueezerPlayer>();
@@ -178,6 +179,14 @@ class SqueezerConnectionState {
 	boolean canRandomplay() {
 		return canRandomplay.get();
 	}
+
+    public void setPreferedAlbumSort(String value) {
+        preferredAlbumSort.set(value);
+    }
+    
+    public String getPreferredAlbumSort() {
+        return preferredAlbumSort.get();
+    }
 
 	boolean isConnected() {
 		return isConnected.get();
