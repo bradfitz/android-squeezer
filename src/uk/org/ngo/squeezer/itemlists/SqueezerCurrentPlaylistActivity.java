@@ -45,7 +45,8 @@ import android.view.ViewGroup;
  */
 public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<SqueezerSong> {
 	public static void show(Context context) {
-	    final Intent intent = new Intent(context, SqueezerCurrentPlaylistActivity.class);
+        final Intent intent = new Intent(context, SqueezerCurrentPlaylistActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 	    context.startActivity(intent);
 	}
 

@@ -56,7 +56,8 @@ public class SqueezerPlayerListActivity extends SqueezerBaseListActivity<Squeeze
 	}
 
 	public static void show(Context context) {
-        final Intent intent = new Intent(context, SqueezerPlayerListActivity.class);
+        final Intent intent = new Intent(context, SqueezerPlayerListActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
 
