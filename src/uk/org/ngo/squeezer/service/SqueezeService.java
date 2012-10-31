@@ -26,6 +26,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.IServiceCallback;
+import uk.org.ngo.squeezer.IServiceHandshakeCallback;
+import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -82,6 +84,8 @@ public class SqueezeService extends Service {
     private boolean mHandshakeComplete = false;
 
     final RemoteCallbackList<IServiceCallback> mServiceCallbacks = new RemoteCallbackList<IServiceCallback>();
+    final RemoteCallbackList<IServiceMusicChangedCallback> mMusicChangedCallbacks = new RemoteCallbackList<IServiceMusicChangedCallback>();
+    final RemoteCallbackList<IServiceHandshakeCallback> mHandshakeCallbacks = new RemoteCallbackList<IServiceHandshakeCallback>();
     final AtomicReference<IServicePlayerListCallback> playerListCallback = new AtomicReference<IServicePlayerListCallback>();
 	final AtomicReference<IServiceAlbumListCallback> albumListCallback = new AtomicReference<IServiceAlbumListCallback>();
 	final AtomicReference<IServiceArtistListCallback> artistListCallback = new AtomicReference<IServiceArtistListCallback>();
@@ -272,17 +276,17 @@ public class SqueezeService extends Service {
                 mHandshakeComplete = true;
                 strings();
 
-                int i = mServiceCallbacks.beginBroadcast();
+                int i = mHandshakeCallbacks.beginBroadcast();
                 while (i > 0) {
                     i--;
                     try {
-                        mServiceCallbacks.getBroadcastItem(i).onHandshakeCompleted();
+                        mHandshakeCallbacks.getBroadcastItem(i).onHandshakeCompleted();
                     } catch (RemoteException e) {
                         // The RemoteCallbackList will take care of removing
                         // the dead object for us.
                     }
                 }
-                mServiceCallbacks.finishBroadcast();
+                mHandshakeCallbacks.finishBroadcast();
             }
         });
 
@@ -709,17 +713,17 @@ public class SqueezeService extends Service {
     }
 
     private void sendMusicChangedCallback() {
-        int i = mServiceCallbacks.beginBroadcast();
+        int i = mMusicChangedCallbacks.beginBroadcast();
         while (i > 0) {
             i--;
             try {
-                mServiceCallbacks.getBroadcastItem(i).onMusicChanged();
+                mMusicChangedCallbacks.getBroadcastItem(i).onMusicChanged();
             } catch (RemoteException e) {
                 // The RemoteCallbackList will take care of removing
                 // the dead object for us.
             }
         }
-        mServiceCallbacks.finishBroadcast();
+        mMusicChangedCallbacks.finishBroadcast();
     }
 
     private void clearOngoingNotification() {
@@ -745,21 +749,35 @@ public class SqueezeService extends Service {
     private final ISqueezeService.Stub squeezeService = new ISqueezeService.Stub() {
 
         public void registerCallback(IServiceCallback callback) throws RemoteException {
-            Log.v(TAG, "Callback attached.");
             mServiceCallbacks.register(callback);
-	    	updatePlayerSubscriptionState();
+            updatePlayerSubscriptionState();
+        }
+
+	    public void unregisterCallback(IServiceCallback callback) throws RemoteException {
+            mServiceCallbacks.unregister(callback);
+            updatePlayerSubscriptionState();
+	    }
+
+        public void registerMusicChangedCallback(IServiceMusicChangedCallback callback) throws RemoteException {
+            mMusicChangedCallbacks.register(callback);
+        }
+
+        public void unregisterMusicChangedCallback(IServiceMusicChangedCallback callback) throws RemoteException {
+            mMusicChangedCallbacks.unregister(callback);
+        }
+
+        public void registerHandshakeCallback(IServiceHandshakeCallback callback) throws RemoteException {
+            mHandshakeCallbacks.register(callback);
 
             // Call onHandshakeCompleted() immediately if handshaking is done.
             if (mHandshakeComplete) {
                 callback.onHandshakeCompleted();
             }
-	    }
+        }
 
-	    public void unregisterCallback(IServiceCallback callback) throws RemoteException {
-            Log.v(TAG, "Callback detached.");
-            mServiceCallbacks.unregister(callback);
-            updatePlayerSubscriptionState();
-	    }
+        public void unregisterHandshakeCallback(IServiceHandshakeCallback callback) throws RemoteException {
+            mHandshakeCallbacks.unregister(callback);
+        }
 
 	    public int adjustVolumeBy(int delta) throws RemoteException {
             if (delta > 0) {

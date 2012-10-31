@@ -17,6 +17,8 @@
 package uk.org.ngo.squeezer.service;
 
 import uk.org.ngo.squeezer.IServiceCallback;
+import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
+import uk.org.ngo.squeezer.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
@@ -40,9 +42,17 @@ import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 
 interface ISqueezeService {
-	    // For the activity to get callbacks on interesting events:
+	    // For the activity to get callbacks on interesting events
 	    void registerCallback(IServiceCallback callback);
         void unregisterCallback(IServiceCallback callback);
+
+	    // For the activity to get callback when music changes
+	    void registerMusicChangedCallback(IServiceMusicChangedCallback callback);
+        void unregisterMusicChangedCallback(IServiceMusicChangedCallback callback);
+
+	    // For the activity to get callback when handshake completes
+	    void registerHandshakeCallback(IServiceHandshakeCallback callback);
+        void unregisterHandshakeCallback(IServiceHandshakeCallback callback);
 
 	    // Instructing the service to connect to the SqueezeCenter server:
 	    // hostPort is the port of the CLI interface.

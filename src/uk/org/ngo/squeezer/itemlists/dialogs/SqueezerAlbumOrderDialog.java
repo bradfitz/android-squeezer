@@ -2,7 +2,6 @@ package uk.org.ngo.squeezer.itemlists.dialogs;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezerServerString;
 import android.app.AlertDialog;
 import android.app.Dialog;

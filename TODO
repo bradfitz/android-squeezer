@@ -1,6 +1,3 @@
-* Cache album art's Drawable from Activity#onRetainNonConfigurationInstance()
-  so it doesn't need to be re-retrieved from the network.
-
 * Pandora like/dislike buttons.
 
 * Pandora disable back button when in Pandora mode.

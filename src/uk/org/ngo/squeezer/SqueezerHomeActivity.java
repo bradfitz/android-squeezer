@@ -113,16 +113,11 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 
     @Override
     protected void onServiceConnected() throws RemoteException {
-        getService().registerCallback(mCallback);
+        getService().registerHandshakeCallback(mCallback);
     }
 
 
-    private final IServiceCallback mCallback = new IServiceCallback.Stub() {
-        public void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailure)
-                throws RemoteException {
-            // XXX: The UI needs to change at this point, since none of the
-            // options are valid if we're not connected.
-        }
+    private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback.Stub() {
 
         /**
          * Sets the menu after handshaking with the SqueezeServer has completed.
@@ -140,22 +135,6 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
             });
         }
 
-        // Nothing to do when these events happen.
-
-        public void onMusicChanged() throws RemoteException {
-        }
-
-        public void onPlayerChanged(String playerId, String playerName) throws RemoteException {
-        }
-
-        public void onPlayStatusChanged(boolean isPlaying) throws RemoteException {
-        }
-
-        public void onTimeInSongChange(int secondsIn, int secondsTotal) throws RemoteException {
-        }
-
-        public void onPowerStatusChanged() throws RemoteException {
-        }
     };
 
     /**
@@ -266,7 +245,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     public void onPause() {
         if (getService() != null) {
             try {
-                getService().unregisterCallback(mCallback);
+                getService().unregisterHandshakeCallback(mCallback);
             } catch (RemoteException e) {
                 Log.e(TAG, "Service exception in onPause(): " + e);
             }
