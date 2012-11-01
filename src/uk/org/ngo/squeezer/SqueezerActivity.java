@@ -685,6 +685,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 // try and refactor in to something the service can do.
                 try {
                     ISqueezeService service = getService();
+                    // XXX: NPE here if there's no current song. If there's
+                    // no current song then the menu item shouldn't appear.
                     String songId = service.currentSong().getId();
                     String url = service.getSongDownloadUrl(songId);
 
