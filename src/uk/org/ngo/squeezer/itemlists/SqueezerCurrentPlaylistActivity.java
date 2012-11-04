@@ -208,7 +208,11 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     private final IServiceMusicChangedCallback musicChangedCallback = new IServiceMusicChangedCallback.Stub() {
         public void onMusicChanged() throws RemoteException {
             currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
-            getItemAdapter().notifyDataSetChanged();
+            getUIThreadHandler().post(new Runnable() {
+                public void run() {
+                    getItemAdapter().notifyDataSetChanged();
+                }
+            });
         }
     };
 
