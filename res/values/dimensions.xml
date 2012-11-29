@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="album_art_icon_width">64dp</dimen>
+    <dimen name="album_art_icon_height">64dp</dimen>
+</resources>

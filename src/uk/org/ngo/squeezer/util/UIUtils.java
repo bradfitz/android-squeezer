@@ -16,34 +16,16 @@
 
 package uk.org.ngo.squeezer.util;
 
-import uk.org.ngo.squeezer.util.ImageFetcher.ImageFetcherParams;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 /**
  * An assortment of UI helpers.
  */
 public class UIUtils {
-    public static ImageFetcher getImageFetcher(final FragmentActivity activity) {
-        // The ImageFetcher takes care of loading remote images into our ImageView
-        ImageFetcher fetcher = new ImageFetcher(activity);
-        fetcher.setImageCache(ImageCache.findOrCreateCache(activity, "imageFetcher"));
-        return fetcher;
-    }
-
-    public static ImageFetcher getImageFetcher(final FragmentActivity activity,
-            ImageFetcherParams params) {
-        // The ImageFetcher takes care of loading remote images into our
-        // ImageView
-        ImageFetcher fetcher = new ImageFetcher(activity, params);
-        fetcher.setImageCache(ImageCache.findOrCreateCache(activity, "imageFetcher"));
-        return fetcher;
-    }
-
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static void setActivatedCompat(View view, boolean activated) {
         if (hasHoneycomb()) {

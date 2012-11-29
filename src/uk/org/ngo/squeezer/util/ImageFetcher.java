@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,302 +19,262 @@ package uk.org.ngo.squeezer.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import uk.org.ngo.squeezer.BuildConfig;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.util.Log;
-import android.widget.ImageView;
 
 /**
- * A subclass of {@link ImageWorker} that fetches images from a URL.
+ * A simple subclass of {@link ImageResizer} that fetches and resizes images fetched from a URL.
  */
-public class ImageFetcher extends ImageWorker {
-    private static final String TAG = ImageFetcher.class.getSimpleName();
+public class ImageFetcher extends ImageResizer {
+    private static final String TAG = "ImageFetcher";
+    private static final int HTTP_CACHE_SIZE = 10 * 1024 * 1024; // 10MB
+    private static final String HTTP_CACHE_DIR = "http";
+    private static final int IO_BUFFER_SIZE = 8 * 1024;
 
-    @SuppressWarnings("PointlessArithmeticExpression")
-    public static final int IO_BUFFER_SIZE_BYTES = 1 * 1024; // 1KB
-
-    private ImageFetcherParams mFetcherParams;
-
-    // Default fetcher params
-    private static final int DEFAULT_MAX_THUMBNAIL_BYTES = 70 * 1024; // 70KB
-    private static final int DEFAULT_MAX_IMAGE_HEIGHT = 1024;
-    private static final int DEFAULT_MAX_IMAGE_WIDTH = 1024;
-    private static final int DEFAULT_HTTP_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
-    private static final String DEFAULT_HTTP_CACHE_DIR = "http";
+    private DiskLruCache mHttpDiskCache;
+    private File mHttpCacheDir;
+    private boolean mHttpDiskCacheStarting = true;
+    private final Object mHttpDiskCacheLock = new Object();
+    private static final int DISK_CACHE_INDEX = 0;
 
     /**
-     * Create an ImageFetcher specifying custom parameters.
+     * Initialize providing a target image width and height for the processing images.
+     *
+     * @param context
+     * @param imageWidth
+     * @param imageHeight
      */
-    public ImageFetcher(Context context, ImageFetcherParams params) {
-        super(context);
-        setParams(params);
-    }
-
-    /**
-     * Create an ImageFetcher using default parameters.
-     */
-    public ImageFetcher(Context context) {
-        super(context);
-        setParams(new ImageFetcherParams());
-    }
-
-    public void loadThumbnailImage(String key, ImageView imageView, Bitmap loadingBitmap) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL, imageView), imageView, loadingBitmap);
-    }
-
-    public void loadThumbnailImage(String key, ImageView imageView, int resId) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL, imageView), imageView, resId);
-    }
-
-    public void loadThumbnailImage(String key, ImageView imageView) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_THUMBNAIL, imageView), imageView, mLoadingBitmap);
-    }
-
-    public void loadImage(String key, ImageView imageView, Bitmap loadingBitmap) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL, imageView), imageView, loadingBitmap);
-    }
-
-    public void loadImage(String key, ImageView imageView, int resId) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL, imageView), imageView, resId);
-    }
-
-    public void loadImage(String key, ImageView imageView) {
-        loadImage(new ImageData(key, ImageData.IMAGE_TYPE_NORMAL, imageView), imageView, mLoadingBitmap);
-    }
-
-    public void setParams(ImageFetcherParams params) {
-        mFetcherParams = params;
+    public ImageFetcher(Context context, int imageWidth, int imageHeight) {
+        super(context, imageWidth, imageHeight);
+        init(context);
     }
 
     /**
-     * Set the target image width and height.
+     * Initialize providing a single target image size (used for both width and height);
+     *
+     * @param context
+     * @param imageSize
      */
-    public void setImageSize(int width, int height) {
-        mFetcherParams.mImageWidth = width;
-        mFetcherParams.mImageHeight = height;
+    public ImageFetcher(Context context, int imageSize) {
+        super(context, imageSize);
+        init(context);
     }
 
-    /**
-     * Set the target image size (width and height will be the same).
-     */
-    public void setImageSize(int size) {
-        setImageSize(size, size);
+    private void init(Context context) {
+        mHttpCacheDir = ImageCache.getDiskCacheDir(context, HTTP_CACHE_DIR);
     }
+
+    @Override
+    protected void initDiskCacheInternal() {
+        super.initDiskCacheInternal();
+        initHttpDiskCache();
+    }
+
+    private void initHttpDiskCache() {
+        if (!mHttpCacheDir.exists()) {
+            mHttpCacheDir.mkdirs();
+        }
+        synchronized (mHttpDiskCacheLock) {
+            if (ImageCache.getUsableSpace(mHttpCacheDir) > HTTP_CACHE_SIZE) {
+                try {
+                    mHttpDiskCache = DiskLruCache.open(mHttpCacheDir, 1, 1, HTTP_CACHE_SIZE);
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "HTTP cache initialized");
+                    }
+                } catch (IOException e) {
+                    mHttpDiskCache = null;
+                }
+            }
+            mHttpDiskCacheStarting = false;
+            mHttpDiskCacheLock.notifyAll();
+        }
+    }
+
+    @Override
+    protected void clearCacheInternal() {
+        super.clearCacheInternal();
+        synchronized (mHttpDiskCacheLock) {
+            if (mHttpDiskCache != null && !mHttpDiskCache.isClosed()) {
+                try {
+                    mHttpDiskCache.delete();
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "HTTP cache cleared");
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "clearCacheInternal - " + e);
+                }
+                mHttpDiskCache = null;
+                mHttpDiskCacheStarting = true;
+                initHttpDiskCache();
+            }
+        }
+    }
+
+    @Override
+    protected void flushCacheInternal() {
+        super.flushCacheInternal();
+        synchronized (mHttpDiskCacheLock) {
+            if (mHttpDiskCache != null) {
+                try {
+                    mHttpDiskCache.flush();
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "HTTP cache flushed");
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "flush - " + e);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void closeCacheInternal() {
+        super.closeCacheInternal();
+        synchronized (mHttpDiskCacheLock) {
+            if (mHttpDiskCache != null) {
+                try {
+                    if (!mHttpDiskCache.isClosed()) {
+                        mHttpDiskCache.close();
+                        mHttpDiskCache = null;
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "HTTP cache closed");
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "closeCacheInternal - " + e);
+                }
+            }
+        }
+    }
+
 
     /**
      * The main process method, which will be called by the ImageWorker in the AsyncTask background
      * thread.
      *
-     * @param key The key to load the bitmap, in this case, a regular http URL
+     * @param data The data to load the bitmap, in this case, a regular http URL
      * @return The downloaded and resized bitmap
      */
-    @Override
-    protected Bitmap processBitmap(Object key) {
-        final ImageData imageData = (ImageData) key;
-        Log.d(TAG, "processBitmap - " + key);
-
-        if (imageData.mType == ImageData.IMAGE_TYPE_NORMAL) {
-            final File f = downloadBitmapToFile(mContext, imageData.mKey, mFetcherParams.mHttpCacheDir);
-            if (f != null) {
-                // Return a sampled down version
-                final Bitmap bitmap = decodeSampledBitmapFromFile(
-                        f.toString(), imageData.mWidth, imageData.mHeight);
-                f.delete();
-                return bitmap;
-            }
-        } else if (imageData.mType == ImageData.IMAGE_TYPE_THUMBNAIL) {
-            return downloadBitmapToMemory(imageData.mKey, imageData.mWidth, imageData.mHeight);
+    private Bitmap processBitmap(String data) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "processBitmap - " + data);
         }
-        return null;
-    }
-    
 
-    /**
-     * Download a bitmap from a URL and decode it to the requested size.
-     *
-     * @param urlString The URL to fetch
-     * @param reqWidth Requested width of the decoded bitmap
-     * @param reqHeight  Requested height of the decoded bitmap
-     * @return The decoded bitmap
-     */
-    private static Bitmap downloadBitmapToMemory(String urlString, int reqWidth, int reqHeight) {
-        disableConnectionReuseIfNecessary();
-        InputStream in = null;
+        final String key = ImageCache.hashKeyForDisk(data);
+        FileDescriptor fileDescriptor = null;
+        FileInputStream fileInputStream = null;
+        DiskLruCache.Snapshot snapshot;
+        synchronized (mHttpDiskCacheLock) {
+            // Wait for disk cache to initialize
+            while (mHttpDiskCacheStarting) {
+                try {
+                    mHttpDiskCacheLock.wait();
+                } catch (InterruptedException e) {}
+            }
 
-        try {
-            final URL url = new URL(urlString);
-
-            // First decode with inJustDecodeBounds=true to check dimensions
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            in = (InputStream) url.getContent();
-            BitmapFactory.decodeStream(in, null, options);
-            in.close();
-
-            // Calculate inSampleSize
-            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-            // Decode with inSampleSize set
-            in = (InputStream) url.getContent();
-            options.inJustDecodeBounds = false;
-            return BitmapFactory.decodeStream(in, null, options);
-        } catch (final IOException e) {
-            Log.e(TAG, "Error in downloadBitmapToMemory - " + e);
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
+            if (mHttpDiskCache != null) {
+                try {
+                    snapshot = mHttpDiskCache.get(key);
+                    if (snapshot == null) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "processBitmap, not found in http cache, downloading...");
+                        }
+                        DiskLruCache.Editor editor = mHttpDiskCache.edit(key);
+                        if (editor != null) {
+                            if (downloadUrlToStream(data,
+                                    editor.newOutputStream(DISK_CACHE_INDEX))) {
+                                editor.commit();
+                            } else {
+                                editor.abort();
+                            }
+                        }
+                        snapshot = mHttpDiskCache.get(key);
+                    }
+                    if (snapshot != null) {
+                        fileInputStream =
+                                (FileInputStream) snapshot.getInputStream(DISK_CACHE_INDEX);
+                        fileDescriptor = fileInputStream.getFD();
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "processBitmap - " + e);
+                } catch (IllegalStateException e) {
+                    Log.e(TAG, "processBitmap - " + e);
+                } finally {
+                    if (fileDescriptor == null && fileInputStream != null) {
+                        try {
+                            fileInputStream.close();
+                        } catch (IOException e) {}
+                    }
                 }
-            } catch (final IOException e) {
-                Log.e(TAG, "Error in downloadBitmapToMemory - " + e);
             }
         }
-        return null;
+
+        Bitmap bitmap = null;
+        if (fileDescriptor != null) {
+            bitmap = decodeSampledBitmapFromDescriptor(fileDescriptor, mImageWidth, mImageHeight);
+        }
+        if (fileInputStream != null) {
+            try {
+                fileInputStream.close();
+            } catch (IOException e) {}
+        }
+        return bitmap;
     }
 
+    @Override
+    protected Bitmap processBitmap(Object data) {
+        return processBitmap(String.valueOf(data));
+    }
 
     /**
-     * Download a bitmap from a URL, write it to a disk and return the File pointer. This
-     * implementation uses a simple disk cache.
+     * Download a bitmap from a URL and write the content to an output stream.
      *
-     * @param context The context to use
      * @param urlString The URL to fetch
-     * @return A File pointing to the fetched bitmap
+     * @return true if successful, false otherwise
      */
-    public static File downloadBitmapToFile(Context context, String urlString, String uniqueName) {
-        final File cacheDir = ImageCache.getDiskCacheDir(context, uniqueName);
-
-        if (!cacheDir.exists()) {
-            cacheDir.mkdir();
-        }
-
-        Log.v(TAG, "downloadBitmap - downloading - " + urlString);
-
+    public boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
         disableConnectionReuseIfNecessary();
         HttpURLConnection urlConnection = null;
         BufferedOutputStream out = null;
+        BufferedInputStream in = null;
 
         try {
-            Log.v(TAG, "cacheDir:" + cacheDir);
-            final File tempFile = File.createTempFile("bitmap", null, cacheDir);
-
             final URL url = new URL(urlString);
             urlConnection = (HttpURLConnection) url.openConnection();
-            if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                return null;
-            }
-            final InputStream in =
-                    new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE_BYTES);
-            out = new BufferedOutputStream(new FileOutputStream(tempFile), IO_BUFFER_SIZE_BYTES);
+            in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE);
+            out = new BufferedOutputStream(outputStream, IO_BUFFER_SIZE);
 
             int b;
             while ((b = in.read()) != -1) {
                 out.write(b);
             }
-
-            return tempFile;
-
+            return true;
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmap - " + e);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
-            if (out != null) {
-                try {
+            try {
+                if (out != null) {
                     out.close();
-                } catch (final IOException e) {
-                    Log.e(TAG, "Error in downloadBitmap - " + e);
                 }
-            }
+                if (in != null) {
+                    in.close();
+                }
+            } catch (final IOException e) {}
         }
-
-        return null;
-    }
-
-    /**
-     * Decode and sample down a bitmap from a file to the requested width and
-     * height.
-     *
-     * @param filename The full path of the file to decode
-     * @param reqWidth The requested width of the resulting bitmap
-     * @param reqHeight The requested height of the resulting bitmap
-     * @return A bitmap sampled down from the original with the same aspect
-     *         ratio and dimensions that are equal to or greater than the
-     *         requested width and height
-     */
-    public static synchronized Bitmap decodeSampledBitmapFromFile(String filename,
-            int reqWidth, int reqHeight) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(filename, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(filename, options);
-    }
-
-    /**
-     * Calculate an inSampleSize for use in a
-     * {@link android.graphics.BitmapFactory.Options} object when decoding
-     * bitmaps using the decode* methods from {@link BitmapFactory}. This
-     * implementation calculates the closest inSampleSize that will result in
-     * the final decoded bitmap having a width and height equal to or larger
-     * than the requested width and height. This implementation does not ensure
-     * a power of 2 is returned for inSampleSize which can be faster when
-     * decoding but results in a larger bitmap which isn't as useful for caching
-     * purposes.
-     *
-     * @param options An options object with out* params already populated (run
-     *            through a decode* method with inJustDecodeBounds==true
-     * @param reqWidth The requested width of the resulting bitmap
-     * @param reqHeight The requested height of the resulting bitmap
-     * @return The value to be used for inSampleSize
-     */
-    public static int calculateInSampleSize(BitmapFactory.Options options,
-            int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-            if (width > height) {
-                inSampleSize = Math.round((float) height / (float) reqHeight);
-            } else {
-                inSampleSize = Math.round((float) width / (float) reqWidth);
-            }
-
-            // This offers some additional logic in case the image has a strange
-            // aspect ratio. For example, a panorama may have a much larger
-            // width than height. In these cases the total pixels might still
-            // end up being too large to fit comfortably in memory, so we should
-            // be more aggressive with sample down the image (=larger
-            // inSampleSize).
-
-            final float totalPixels = width * height;
-
-            // Anything more than 2x the requested pixels we'll sample down
-            // further.
-            final float totalReqPixelsCap = reqWidth * reqHeight * 2;
-
-            while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
-                inSampleSize++;
-            }
-        }
-        return inSampleSize;
+        return false;
     }
 
     /**
@@ -323,48 +283,8 @@ public class ImageFetcher extends ImageWorker {
      */
     public static void disableConnectionReuseIfNecessary() {
         // HTTP connection reuse which was buggy pre-froyo
-        if (hasHttpConnectionBug()) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
             System.setProperty("http.keepAlive", "false");
-        }
-    }
-
-    /**
-     * Check if OS version has a http URLConnection bug. See here for more
-     * information:
-     * http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-     *
-     * @return true if this OS version is affected, false otherwise
-     */
-    public static boolean hasHttpConnectionBug() {
-        return !UIUtils.hasFroyo();
-    }
-
-    public static class ImageFetcherParams {
-        public int mImageWidth = DEFAULT_MAX_IMAGE_WIDTH;
-        public int mImageHeight = DEFAULT_MAX_IMAGE_HEIGHT;
-        public int mMaxThumbnailBytes = DEFAULT_MAX_THUMBNAIL_BYTES;
-        public int mHttpCacheSize = DEFAULT_HTTP_CACHE_SIZE;
-        public String mHttpCacheDir = DEFAULT_HTTP_CACHE_DIR;
-    }
-
-    private static class ImageData {
-        public static final int IMAGE_TYPE_THUMBNAIL = 0;
-        public static final int IMAGE_TYPE_NORMAL = 1;
-        public String mKey;
-        public int mType;
-        public int mWidth;
-        public int mHeight;
-
-        public ImageData(String key, int type, ImageView imageView) {
-            mKey = key;
-            mType = type;
-            mWidth = imageView.getWidth();
-            mHeight = imageView.getHeight();
-        }
-
-        @Override
-        public String toString() {
-            return mKey;
         }
     }
 }

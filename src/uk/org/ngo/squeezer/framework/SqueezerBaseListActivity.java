@@ -20,11 +20,11 @@ package uk.org.ngo.squeezer.framework;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.util.ImageFetcher.ImageFetcherParams;
-import uk.org.ngo.squeezer.util.UIUtils;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -87,10 +87,14 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
         mListView.setOnScrollListener(new ScrollListener());
 
-        // Set up the image fetcher, max art size is 128K.
-        ImageFetcherParams params = new ImageFetcherParams();
-        params.mMaxThumbnailBytes = 128 * 1024 * 1024; // 128K
-        mImageFetcher = UIUtils.getImageFetcher(this, params);
+        // Get an ImageFetcher to scale artwork to the size of the icon view.
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int iconSize = (int) (metrics.density *
+                Math.max(R.dimen.album_art_icon_height, R.dimen.album_art_icon_width));
+        mImageFetcher = new ImageFetcher(this, iconSize);
+        ImageCacheParams imageCacheparams = new ImageCacheParams(this, "thumbnails");
+        mImageFetcher.addImageCache(getSupportFragmentManager(), imageCacheparams);
 
         // Delegate context menu creation to the adapter.
         mListView.setOnCreateContextMenuListener(getItemAdapter());
@@ -220,9 +224,9 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
             if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING ||
                 scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                mImageFetcher.setPauseDiskCache(true);
+                mImageFetcher.setPauseWork(true);
             } else {
-                mImageFetcher.setPauseDiskCache(false);
+                mImageFetcher.setPauseWork(false);
             }
         }
     }

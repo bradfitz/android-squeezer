@@ -32,9 +32,8 @@ import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.util.ImageFetcher.ImageFetcherParams;
-import uk.org.ngo.squeezer.util.UIUtils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -304,11 +303,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
         // Set up a server connection, if it is not present
         if (getConfiguredCliIpPort() == null) SettingsActivity.show(this);
-
-        // Set up the image fetcher, max cover art size is 512K.
-        ImageFetcherParams params = new ImageFetcherParams();
-        params.mMaxThumbnailBytes = 512 * 1024 * 1024; // 512K
-        mLargeImageFetcher = UIUtils.getImageFetcher(this, params);
     }
 
     // Should only be called the UI thread.
@@ -417,6 +411,23 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             broadcastReceiverRegistered.set(true);
         }
     }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        // At this point the albumArt view should be fully laid out (and
+        // measured), so use its width to add an image cache of the
+        // appropriate size to the image fetcher.
+        if (mLargeImageFetcher == null) {
+            int artWidth = albumArt.getWidth();
+            Log.v(TAG, "artWidth: " + artWidth);
+            mLargeImageFetcher = new ImageFetcher(this, artWidth);
+            ImageCacheParams imageCacheParams = new ImageCacheParams(this, "artwork");
+            mLargeImageFetcher.addImageCache(getSupportFragmentManager(), imageCacheParams);
+        }
+    }
+
 
     // Should only be called from the UI thread.
     private void updateUIFromServiceState() {
