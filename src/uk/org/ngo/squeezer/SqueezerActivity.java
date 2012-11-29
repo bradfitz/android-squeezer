@@ -425,6 +425,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             mLargeImageFetcher = new ImageFetcher(this, artWidth);
             ImageCacheParams imageCacheParams = new ImageCacheParams(this, "artwork");
             mLargeImageFetcher.addImageCache(getSupportFragmentManager(), imageCacheParams);
+            
+            // We may have postponed the album art update until the image fetcher is ready
+            updateAlbumArtIfNeeded(getCurrentSong());
         }
     }
 
@@ -487,6 +490,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
     // Should only be called from the UI thread.
     private void updateAlbumArtIfNeeded(SqueezerSong song) {
+        // If the image fetcher is not ready we have to abort and return here when it's ready
+        if (mLargeImageFetcher == null) return;
+        
         if (Util.atomicReferenceUpdated(currentSong, song)) {
             if (song == null || song.getArtworkUrl(getService()) == null) {
                 albumArt.setImageResource(R.drawable.icon_album_noart_143);
