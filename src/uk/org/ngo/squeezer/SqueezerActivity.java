@@ -19,8 +19,6 @@ package uk.org.ngo.squeezer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.acra.ErrorReporter;
-
 import uk.org.ngo.squeezer.dialogs.AboutDialog;
 import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
@@ -33,7 +31,6 @@ import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -47,7 +44,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -646,7 +642,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         MenuItem search = menu.findItem(R.id.menu_item_search);
         search.setEnabled(connected);
         MenuItem download = menu.findItem(R.id.menu_item_download);
-        download.setEnabled(connected);
+        download.setEnabled(connected && getCurrentSong() != null);
 
     	return true;
     }
@@ -691,23 +687,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             new AboutDialog().show(getSupportFragmentManager(), "AboutDialog");
             return true;
 
-            case R.id.menu_item_download:
-                // XXX: Very similar to code in SqueezerAbstractSong, should
-                // try and refactor in to something the service can do.
-                try {
-                    ISqueezeService service = getService();
-                    // XXX: NPE here if there's no current song. If there's
-                    // no current song then the menu item shouldn't appear.
-                    String songId = service.currentSong().getId();
-                    String url = service.getSongDownloadUrl(songId);
-
-                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(i);
-                } catch (RemoteException e) {
-                    ErrorReporter.getInstance().handleException(e);
-                    e.printStackTrace();
-                }
-                return true;
+        case R.id.menu_item_download:
+            downloadSong(getCurrentSong());
+            return true;
         }
         return super.onMenuItemSelected(featureId, item);
     }
