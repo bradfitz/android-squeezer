@@ -27,12 +27,14 @@ import java.util.TreeMap;
 
 import org.acra.ErrorReporter;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.util.UIUtils;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -64,6 +66,8 @@ public class ServerAddressPreference extends DialogPreference {
     private Spinner mServersSpinner;
 
     private ScanNetworkTask mScanNetworkTask;
+    private EditText userNameEditText;
+    private EditText passwordEditText;
 
     /** Map server names to IP addresses. */
     private TreeMap<String, String> mDiscoveredServers;
@@ -86,6 +90,11 @@ public class ServerAddressPreference extends DialogPreference {
         mServerAddressEditText = (EditText) view.findViewById(R.id.server_address);
         mScanBtn = (Button) view.findViewById(R.id.scan_btn);
         mServersSpinner = (Spinner) view.findViewById(R.id.found_servers);
+
+        userNameEditText = (EditText) view.findViewById(R.id.username);
+        userNameEditText.setText(getSharedPreferences().getString(Preferences.KEY_USERNAME, null));
+        passwordEditText = (EditText) view.findViewById(R.id.password);
+        passwordEditText.setText(getSharedPreferences().getString(Preferences.KEY_PASSWORD, null));
 
         // If there's no server address configured then set the default text
         // in the edit box to our IP address, trimmed of the last octet.
@@ -208,6 +217,12 @@ public class ServerAddressPreference extends DialogPreference {
         if (positiveResult) {
             String addr = mServerAddressEditText.getText().toString();
             persistString(addr);
+
+            SharedPreferences.Editor editor = getEditor();
+            editor.putString(Preferences.KEY_USERNAME, userNameEditText.getText().toString());
+            editor.putString(Preferences.KEY_PASSWORD, passwordEditText.getText().toString());
+            editor.commit();
+
             callChangeListener(addr);
         }
     }
@@ -344,8 +359,9 @@ public class ServerAddressPreference extends DialogPreference {
 
                             // Blocks of data are TAG/LENGTH/VALUE, where TAG is
                             // a 4 byte string identifying the item, LENGTH is
-                            // the length of the VALUE (e.g., reading \t means the
-                            // value is 9 bytes, and VALUE is the actual value.
+                            // the length of the VALUE (e.g., reading \t means
+                            // the value is 9 bytes, and VALUE is the actual
+                            // value.
 
                             // Find the 'NAME' block
                             int i = 1;
@@ -386,7 +402,7 @@ public class ServerAddressPreference extends DialogPreference {
                 wifiLock.release();
 
             // For testing that multiple servers are handled correctly.
-            // mServerMap.put("Dummy 2", "127.0.0.2");
+            // mServerMap.put("Dummy", "127.0.0.1");
             return null;
         }
 

@@ -16,53 +16,89 @@
  limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="wrap_content"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp">
+    android:layout_width="fill_parent">
 
-    <!-- This is filled by the 'dialogMessage' attribute on DialogPreference: -->
-    <TextView android:id="@android:id/message"
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/SqueezerTextItem"
-        android:layout_marginBottom="4dp" />
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
 
-    <EditText
-        android:id="@+id/server_address"
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:inputType="textNoSuggestions"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp" />
+        <!-- This is filled by the 'dialogMessage' attribute on DialogPreference: -->
+        <TextView android:id="@android:id/message"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/SqueezerTextItem"
+            android:layout_marginBottom="4dp" />
 
-    <TextView android:id="@+id/scan_msg"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:textAppearance="@style/SqueezerTextItem"
-        android:text="@string/settings_server_scan_msg" />
+        <EditText
+            android:id="@+id/server_address"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:inputType="textNoSuggestions"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        <TextView android:id="@+id/scan_msg"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textAppearance="@style/SqueezerTextItem"
+            android:text="@string/settings_server_scan_msg" />
 
-	    <Button
-	        android:id="@+id/scan_btn"
-	        android:layout_height="wrap_content"
-	        android:layout_width="wrap_content"
-	        android:text="@string/settings_server_scan_start" />
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
 
-        <!-- Spinner has visibility controlled in code. -->
-	    <Spinner
-	        android:id="@+id/found_servers"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:prompt="@string/settings_server_prompt"
-	        android:visibility="gone" />
+            <Button
+                android:id="@+id/scan_btn"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/settings_server_scan_start" />
+
+            <!-- Spinner has visibility controlled in code. -->
+            <Spinner
+                android:id="@+id/found_servers"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/settings_server_prompt"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <TextView
+            android:text="@string/settings_username_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/SqueezerTextItem"
+            android:layout_marginBottom="4dp" />
+        <EditText
+            android:id="@+id/username"
+            android:hint="@string/settings_username_hint"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:inputType="textNoSuggestions"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:text="@string/settings_password_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/SqueezerTextItem"
+            android:layout_marginBottom="4dp" />
+        <EditText
+            android:id="@+id/password"
+            android:hint="@string/settings_password_hint"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:inputType="textPassword"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
     </LinearLayout>
-</LinearLayout>
+</ScrollView>

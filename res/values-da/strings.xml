@@ -33,9 +33,9 @@
     <string name="settings_server_scan_msg">Eller tryk \'Start scanning\' for at scanne netværket for servere.</string>
     <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke er forbundet.</string>
     <string name="settings_username_title">Brugernavn</string>
-    <string name="settings_username_summary">Eventuelt SqueezeBox Server brugernavn.</string>
+    <string name="settings_username_hint">Eventuelt SqueezeBox Server brugernavn.</string>
     <string name="settings_password_title">Adgangskode</string>
-    <string name="settings_password_summary">Eventuel SqueezeBox Server adgangskode.</string>
+    <string name="settings_password_hint">Eventuel SqueezeBox Server adgangskode.</string>
     <string name="settings_autoconnect_title">Forbind automatisk</string>
     <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
     <string name="menu_item_disconnect">Afbryd</string>

@@ -29,17 +29,6 @@
      android:summary="@string/settings_serveraddr_summary"
      android:dialogMessage="@string/settings_serveraddr_summary"
      android:persistent="true" />
-
-   <EditTextPreference
-     android:key="squeezer.username"
-     android:title="@string/settings_username_title"
-     android:summary="@string/settings_username_summary" />
-
-   <EditTextPreference
-     android:key="squeezer.password"
-     android:title="@string/settings_password_title"
-     android:password="true"
-     android:summary="@string/settings_password_summary" />
   </PreferenceCategory>
 
   <CheckBoxPreference
