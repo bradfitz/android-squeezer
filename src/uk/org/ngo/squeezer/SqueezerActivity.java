@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -119,15 +120,24 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     /** ImageFetcher for (large) album cover art. */
     private ImageFetcher mLargeImageFetcher;
 
-    private final Handler uiThreadHandler = new Handler() {
+    private final Handler uiThreadHandler = new UiThreadHandler(this);
+
+    private final static class UiThreadHandler extends Handler {
+        WeakReference<SqueezerActivity> mActivity;
+
+        UiThreadHandler(SqueezerActivity activity) {
+            mActivity = new WeakReference<SqueezerActivity>(activity);
+        }
+
         // Normally I'm lazy and just post Runnables to the uiThreadHandler
         // but time updating is special enough (it happens every second) to
         // take care not to allocate so much memory which forces Dalvik to GC
         // all the time.
         @Override
-        public void handleMessage (Message msg) {
-            if (msg.what == UPDATE_TIME) {
-                updateTimeDisplayTo(secondsIn, secondsTotal);
+        public void handleMessage(Message message) {
+            if (message.what == UPDATE_TIME) {
+                mActivity.get().updateTimeDisplayTo(mActivity.get().secondsIn,
+                        mActivity.get().secondsTotal);
             }
         }
     };
