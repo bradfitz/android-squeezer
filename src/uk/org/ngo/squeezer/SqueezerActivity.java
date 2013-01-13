@@ -34,6 +34,7 @@ import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.widget.CacheableImageView;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -55,7 +56,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -84,7 +84,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private ImageButton playPauseButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
-    private ImageView albumArt;
+    private CacheableImageView albumArt;
     private SeekBar seekBar;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -180,7 +180,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         playPauseButton = (ImageButton) findViewById(R.id.pause);
         nextButton = (ImageButton) findViewById(R.id.next);
         prevButton = (ImageButton) findViewById(R.id.prev);
-        albumArt = (ImageView) findViewById(R.id.album);
+        albumArt = (CacheableImageView) findViewById(R.id.album);
         currentTime = (TextView) findViewById(R.id.currenttime);
         totalTime = (TextView) findViewById(R.id.totaltime);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
@@ -192,20 +192,23 @@ public class SqueezerActivity extends SqueezerBaseActivity {
          * attribute.
          */
 		homeButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
+			@Override
+            public void onClick(View v) {
                 if (!isConnected()) return;
 				SqueezerHomeActivity.show(SqueezerActivity.this);
 			}
 		});
 
 		curPlayListButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
+			@Override
+            public void onClick(View v) {
                 if (!isConnected()) return;
 				SqueezerCurrentPlaylistActivity.show(SqueezerActivity.this);
 			}
 		});
 
         playPauseButton.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     if (getService() == null) return;
                     try {
@@ -224,6 +227,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 	    });
 
         nextButton.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 if (getService() == null) return;
                 try {
@@ -233,6 +237,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         });
 
         prevButton.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 if (getService() == null) return;
                 try {
@@ -242,7 +247,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         });
 
         artistText.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
+			@Override
+            public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
 					if (!song.isRemote())
@@ -252,7 +258,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 		});
 
         albumText.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
+			@Override
+            public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
 					if (!song.isRemote())
@@ -262,7 +269,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 		});
 
         trackText.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
+			@Override
+            public void onClick(View v) {
 				SqueezerSong song = getCurrentSong();
 				if (song != null) {
 					if (!song.isRemote())
@@ -275,14 +283,16 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         	SqueezerSong seekingSong;
 
         	// Update the time indicator to reflect the dragged thumb position.
-			public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
+			@Override
+            public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
 				if (fromUser) {
 			        currentTime.setText(Util.makeTimeString(progress));
 				}
 			}
 
 			// Disable updates when user drags the thumb.
-			public void onStartTrackingTouch(SeekBar s) {
+			@Override
+            public void onStartTrackingTouch(SeekBar s) {
 				seekingSong = getCurrentSong();
 				updateSeekBar = false;
 			}
@@ -290,7 +300,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 			// Re-enable updates.  If the current song is the same as when
 			// we started seeking then jump to the new point in the track,
 			// otherwise ignore the seek.
-			public void onStopTrackingTouch(SeekBar s) {
+			@Override
+            public void onStopTrackingTouch(SeekBar s) {
 				SqueezerSong thisSong = getCurrentSong();
 
 				updateSeekBar = true;
@@ -349,6 +360,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
     private void updatePlayPauseIcon() {
         uiThreadHandler.post(new Runnable() {
+            @Override
             public void run() {
                 if (!isConnected.get()) {
                     playPauseButton.setImageResource(android.R.drawable.presence_online);  // green circle
@@ -364,6 +376,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     // May be called from any thread.
     private void setTitleForPlayer(final String playerName) {
         uiThreadHandler.post(new Runnable() {
+            @Override
             public void run() {
                 if (playerName != null && !"".equals(playerName)) {
                     setTitle(getText(R.string.app_name) + ": " + playerName);
@@ -379,7 +392,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     	Log.v(getTag(), "Service bound");
         getService().registerCallback(serviceCallback);
     	uiThreadHandler.post(new Runnable() {
-    	    public void run() {
+            @Override
+            public void run() {
     	        updateUIFromServiceState();
     	    }
     	});
@@ -424,6 +438,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             Log.v(TAG, "artWidth: " + artWidth);
             mLargeImageFetcher = new ImageFetcher(this, artWidth);
             ImageCacheParams imageCacheParams = new ImageCacheParams(this, "artwork");
+            imageCacheParams.setMemCacheSizePercent(this, 0.5f);
             mLargeImageFetcher.addImageCache(getSupportFragmentManager(), imageCacheParams);
 
             // We may have postponed the album art update until the image
@@ -734,6 +749,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private void startVisibleConnection() {
         Log.v(getTag(), "startVisibleConnection..., connectInProgress: " + connectInProgress.get());
         uiThreadHandler.post(new Runnable() {
+            @Override
             public void run() {
                 String ipPort = getConfiguredCliIpPort();
                 if (ipPort == null)
@@ -794,37 +810,44 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     }
 
     private final IServiceCallback serviceCallback = new IServiceCallback.Stub() {
+        @Override
         public void onConnectionChanged(final boolean isConnected,
                                         final boolean postConnect)
                        throws RemoteException {
                 Log.v(getTag(), "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
                 uiThreadHandler.post(new Runnable() {
+                        @Override
                         public void run() {
                             setConnected(isConnected, postConnect);
                         }
                     });
             }
 
+            @Override
             public void onPlayerChanged(final String playerId,
                                         final String playerName) throws RemoteException {
                 Log.v(getTag(), "player now " + playerId + ": " + playerName);
                 setTitleForPlayer(playerName);
             }
 
+            @Override
             public void onMusicChanged() throws RemoteException {
                 uiThreadHandler.post(new Runnable() {
+                        @Override
                         public void run() {
                             updateSongInfoFromService();
                         }
                     });
             }
 
+            @Override
             public void onPlayStatusChanged(boolean newStatus)
                 throws RemoteException {
                 isPlaying.set(newStatus);
                 updatePlayPauseIcon();
             }
 
+            @Override
             public void onTimeInSongChange(final int secondsIn, final int secondsTotal)
                     throws RemoteException {
                 SqueezerActivity.this.secondsIn = secondsIn;

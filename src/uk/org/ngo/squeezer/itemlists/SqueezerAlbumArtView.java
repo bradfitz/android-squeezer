@@ -23,17 +23,17 @@ import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.widget.CacheableImageView;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
  * Represents the view hierarchy for a single {@link SqueezerItem} subclass.
  * where the item has track artwork associated with it.
- * 
+ *
  * @param <T>
  */
 public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extends
@@ -54,13 +54,13 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
             viewHolder = new ViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.icon = (CacheableImageView) convertView.findViewById(R.id.icon);
             convertView.setTag(viewHolder);
-        } else
+        } else {
             viewHolder = (ViewHolder) convertView.getTag();
+        }
 
         setItemViewText(viewHolder, item);
-
         viewHolder.artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
 
         if (viewHolder.artworkUrl == null) {
@@ -84,7 +84,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
             viewHolder = new ViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.icon = (CacheableImageView) convertView.findViewById(R.id.icon);
             convertView.setTag(viewHolder);
         } else
             viewHolder = (ViewHolder) convertView.getTag();
@@ -98,7 +98,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
 
     /**
      * Sets the text1 and text2 properties of the viewHolder from the item.
-     * 
+     *
      * @param viewHolder
      * @param item
      */
@@ -107,7 +107,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
     /**
      * Returns the URL to download the specified album artwork, or null if the
      * artwork does not exist, or there was a problem with the service.
-     * 
+     *
      * @param artwork_track_id
      * @return
      */
@@ -133,7 +133,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
 
         // XXX: These are public so code in SqueezerItemListActivity can see
         // them. This should be refactored.
-        public ImageView icon;
+        public CacheableImageView icon;
         public String artworkUrl;
         public boolean updateArtwork;
     }

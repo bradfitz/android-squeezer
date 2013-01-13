@@ -21,11 +21,11 @@ import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.widget.CacheableImageView;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 public abstract class SqueezerPluginView extends SqueezerIconicItemView<SqueezerPlugin> {
@@ -44,7 +44,7 @@ public abstract class SqueezerPluginView extends SqueezerIconicItemView<Squeezer
 			convertView = layoutInflater.inflate(R.layout.icon_large_row_layout, null);
 			viewHolder = new ViewHolder();
 			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
-			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.icon = (CacheableImageView) convertView.findViewById(R.id.icon);
 			convertView.setTag(viewHolder);
 		} else
 			viewHolder = (ViewHolder) convertView.getTag();
@@ -72,7 +72,7 @@ public abstract class SqueezerPluginView extends SqueezerIconicItemView<Squeezer
 
 	private static class ViewHolder {
 		TextView label;
-		ImageView icon;
+        CacheableImageView icon;
 	}
 
 }

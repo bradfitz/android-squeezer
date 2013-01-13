@@ -48,7 +48,7 @@ import android.widget.TextView;
  * {@link SqueezerItemView}. See {@link SqueezerItemListActivity} for see
  * details of ordering and receiving of list items from SqueezeServer, and
  * handling of item selection.
- * 
+ *
  * @param <T> Denotes the class of the items this class should list
  * @author Kurt Aaholst
  */
@@ -69,7 +69,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		itemView = createItemView();
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
-    		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // XXX: Adapter should implement onItemClickListener and pass
                 // this down to the views.
     			T item = getItemAdapter().getItem(position);
@@ -93,8 +94,9 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         int iconSize = (int) (metrics.density *
                 Math.max(R.dimen.album_art_icon_height, R.dimen.album_art_icon_width));
         mImageFetcher = new ImageFetcher(this, iconSize);
-        ImageCacheParams imageCacheparams = new ImageCacheParams(this, "thumbnails");
-        mImageFetcher.addImageCache(getSupportFragmentManager(), imageCacheparams);
+        ImageCacheParams imageCacheParams = new ImageCacheParams(this, "artwork");
+        imageCacheParams.setMemCacheSizePercent(this, 0.5f);
+        mImageFetcher.addImageCache(getSupportFragmentManager(), imageCacheParams);
 
         // Delegate context menu creation to the adapter.
         mListView.setOnCreateContextMenuListener(getItemAdapter());
@@ -193,7 +195,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
 	public void onItemsReceived(final int count, final int start, final List<T> items) {
 		getUIThreadHandler().post(new Runnable() {
-			public void run() {
+			@Override
+            public void run() {
                 mListView.setVisibility(View.VISIBLE);
 				loadingLabel.setVisibility(View.GONE);
 				getItemAdapter().update(count, start, items);

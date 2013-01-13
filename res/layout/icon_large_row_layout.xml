@@ -25,7 +25,7 @@
    android:paddingTop="4dp"
    android:paddingBottom="4dp"
 >
-   <ImageView
+   <uk.org.ngo.squeezer.widget.CacheableImageView
       android:id="@+id/icon"
       android:layout_width="48dp"
       android:layout_height="48dp"

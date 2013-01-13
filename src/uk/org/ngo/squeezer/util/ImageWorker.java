@@ -19,6 +19,8 @@ package uk.org.ngo.squeezer.util;
 import java.lang.ref.WeakReference;
 
 import uk.org.ngo.squeezer.BuildConfig;
+import uk.org.ngo.squeezer.widget.CacheableBitmapWrapper;
+import uk.org.ngo.squeezer.widget.CacheableImageView;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -70,20 +72,24 @@ public abstract class ImageWorker {
      * @param data The URL of the image to download.
      * @param imageView The ImageView to bind the downloaded image to.
      */
-    public void loadImage(Object data, ImageView imageView) {
+    public void loadImage(Object data, CacheableImageView imageView) {
         if (data == null) {
             return;
         }
 
         Bitmap bitmap = null;
+        CacheableBitmapWrapper wrapper = null;
 
         if (mImageCache != null) {
-            bitmap = mImageCache.getBitmapFromMemCache(String.valueOf(data));
+            wrapper = mImageCache.getBitmapFromMemCache(String.valueOf(data));
+            if (wrapper != null) {
+                bitmap = wrapper.getBitmap();
+            }
         }
 
         if (bitmap != null) {
             // Bitmap found in memory cache
-            imageView.setImageBitmap(bitmap);
+            imageView.setImageCachedBitmap(wrapper);
         } else if (cancelPotentialWork(data, imageView)) {
             final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
             final AsyncDrawable asyncDrawable =
