@@ -295,7 +295,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 	<string name="ITEM_ADDED">Added %s to the current playlist</string>
 	<string name="ITEM_INSERTED">%s is inserted to be played immediately after the current song in the current playlist</string>
   
-    <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s allready exists</string>
+    <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s already exists</string>
 
     <!-- Album sort orders -->
 	<string name="albums_sort_order_album">Album</string>
