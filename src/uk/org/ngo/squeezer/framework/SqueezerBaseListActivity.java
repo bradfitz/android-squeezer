@@ -22,6 +22,7 @@ import java.util.List;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
@@ -90,9 +91,11 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
         // Get an ImageFetcher to scale artwork to the size of the icon view.
         DisplayMetrics metrics = new DisplayMetrics();
+        Resources resources = getResources();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         int iconSize = (int) (metrics.density *
-                Math.max(R.dimen.album_art_icon_height, R.dimen.album_art_icon_width));
+                Math.max(resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
+                        resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
         mImageFetcher = new ImageFetcher(this, iconSize);
         ImageCacheParams imageCacheParams = new ImageCacheParams(this, "artwork");
         imageCacheParams.setMemCacheSizePercent(this, 0.5f);
