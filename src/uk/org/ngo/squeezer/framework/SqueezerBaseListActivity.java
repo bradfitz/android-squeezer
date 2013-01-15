@@ -95,7 +95,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
         mImageFetcher = new ImageFetcher(this, iconSize);
         ImageCacheParams imageCacheParams = new ImageCacheParams(this, "artwork");
-        imageCacheParams.setMemCacheSizePercent(this, 0.5f);
+        imageCacheParams.setMemCacheSizePercent(this, 0.2f);
         mImageFetcher.addImageCache(getSupportFragmentManager(), imageCacheParams);
 
         // Delegate context menu creation to the adapter.
