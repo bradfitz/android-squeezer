@@ -17,6 +17,7 @@ package uk.org.ngo.squeezer.widget;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -32,6 +33,26 @@ public class CacheableImageView extends ImageView {
 
     public CacheableImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    /**
+     * onDraw() is occasionally called after the bitmap has been recycled. This should not happen.
+     * If it does, just return.
+     */
+    @Override
+    protected void onDraw(Canvas canvas) {
+        final Drawable drawable = getDrawable();
+
+        if (drawable != null) {
+            if (Bitmap.class.isAssignableFrom(drawable.getClass())) {
+                final Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+                if (bitmap != null && bitmap.isRecycled()) {
+                    return;
+                }
+            }
+        }
+
+        super.onDraw(canvas);
     }
 
     /**
