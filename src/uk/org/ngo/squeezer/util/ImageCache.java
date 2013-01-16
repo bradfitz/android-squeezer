@@ -180,12 +180,39 @@ public class ImageCache {
             return;
         }
 
+        addBitmapToMemoryCache(data, bitmap);
+        addBitmapToDiskCache(data, bitmap);
+    }
+
+    /**
+     * Adds a bitmap to the memory cache.
+     * 
+     * @param data Unique identifier for the bitmap to store
+     * @param bitmap The bitmap to store
+     */
+    public void addBitmapToMemoryCache(String data, Bitmap bitmap) {
+        if (data == null || bitmap == null) {
+            return;
+        }
+
         CacheableBitmapWrapper wrapper = new CacheableBitmapWrapper(data, bitmap);
 
         // Add to memory cache
         if (mMemoryCache != null && mMemoryCache.get(data) == null) {
             wrapper.setCached(true);
             mMemoryCache.put(data, wrapper);
+        }
+    }
+
+    /**
+     * Adds a bitmap to the disk cache.
+     * 
+     * @param data Unique identifier for the bitmap to store
+     * @param bitmap The bitmap to store
+     */
+    public void addBitmapToDiskCache(String data, Bitmap bitmap) {
+        if (data == null || bitmap == null) {
+            return;
         }
 
         synchronized (mDiskCacheLock) {
@@ -216,7 +243,8 @@ public class ImageCache {
                         if (out != null) {
                             out.close();
                         }
-                    } catch (IOException e) {}
+                    } catch (IOException e) {
+                    }
                 }
             }
         }
