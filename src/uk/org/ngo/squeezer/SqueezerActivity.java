@@ -52,6 +52,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -118,7 +119,13 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private GoogleAnalyticsTracker tracker;
 
     /** ImageFetcher for (large) album cover art. */
-    private ImageFetcher mLargeImageFetcher;
+    private ImageFetcher mImageFetcher;
+
+    /** ImageCache parameters for the album art. */
+    private ImageCacheParams mImageCacheParams;
+
+    /** Is this the first time the app has run? */
+    private boolean mFirstRun = false;
 
     private final Handler uiThreadHandler = new UiThreadHandler(this);
 
@@ -173,6 +180,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             pInfo = getPackageManager().getPackageInfo(getPackageName(),
                     PackageManager.GET_META_DATA);
             if (preferences.getLong("lastRunVersionCode", 0) < pInfo.versionCode) {
+                mFirstRun = true;
                 new TipsDialog().show(getSupportFragmentManager(), "TipsDialog");
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putLong("lastRunVersionCode", pInfo.versionCode);
@@ -181,6 +189,16 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         } catch (PackageManager.NameNotFoundException e) {
             // Nothing to do, don't crash.
         }
+
+        // Calculate the size of the album art to display, which will be the shorter
+        // of the device's two dimensions.
+        Display display = getWindowManager().getDefaultDisplay();
+        int albumArtSize = Math.min(display.getWidth(), display.getHeight());
+
+        // Create the image fetcher, use 20% of the device's RAM for the memory cache.
+        mImageFetcher = new ImageFetcher(this, albumArtSize);
+        mImageCacheParams = new ImageCacheParams(this, "artwork");
+        mImageCacheParams.setMemCacheSizePercent(this, 0.2f);
 
         albumText = (TextView) findViewById(R.id.albumname);
         artistText = (TextView) findViewById(R.id.artistname);
@@ -419,6 +437,15 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         super.onResume();
         Log.d(getTag(), "onResume...");
 
+        // Add the image cache to the image fetcher
+        mImageFetcher.addImageCache(getSupportFragmentManager(), mImageCacheParams);
+
+        // The old cache directory may not be compatible with this
+        // version, so clear it to be on the safe side.
+        if (mFirstRun) {
+            mImageFetcher.clearCache();
+        }
+
         // Start it and have it run forever (until it shuts itself down).
         // This is required so swapping out the activity (and unbinding the
         // service connection in onPause) doesn't cause the service to be
@@ -435,28 +462,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
             broadcastReceiverRegistered.set(true);
         }
     }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-
-        // At this point the albumArt view should be fully laid out (and
-        // measured), so use its width to add an image cache of the
-        // appropriate size to the image fetcher.
-        if (mLargeImageFetcher == null) {
-            int artWidth = albumArt.getWidth();
-            Log.v(TAG, "artWidth: " + artWidth);
-            mLargeImageFetcher = new ImageFetcher(this, artWidth);
-            ImageCacheParams imageCacheParams = new ImageCacheParams(this, "artwork");
-            imageCacheParams.setMemCacheSizePercent(this, 0.5f);
-            mLargeImageFetcher.addImageCache(getSupportFragmentManager(), imageCacheParams);
-
-            // We may have postponed the album art update until the image
-            // fetcher is ready.
-            updateAlbumArtIfNeeded(getCurrentSong());
-        }
-    }
-
 
     // Should only be called from the UI thread.
     private void updateUIFromServiceState() {
@@ -517,7 +522,8 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     // Should only be called from the UI thread.
     private void updateAlbumArtIfNeeded(SqueezerSong song) {
         // If the image fetcher is not ready we have to abort and return here when it's ready
-        if (mLargeImageFetcher == null) return;
+        if (mImageFetcher == null)
+            return;
 
         if (Util.atomicReferenceUpdated(currentSong, song)) {
             if (song == null || song.getArtworkUrl(getService()) == null) {
@@ -525,7 +531,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 return;
             }
 
-            mLargeImageFetcher.loadImage(song.getArtworkUrl(getService()), albumArt);
+            mImageFetcher.loadImage(song.getArtworkUrl(getService()), albumArt);
         }
     }
 
@@ -624,6 +630,9 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 Log.e(getTag(), "Service exception in onPause(): " + e);
             }
         }
+
+        mImageFetcher.closeCache();
+
         if (isAutoConnect())
             if (broadcastReceiverRegistered.get())
                 unregisterReceiver(broadcastReceiver);
@@ -634,9 +643,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     public void onStop() {
         super.onStop();
 
-        if (mLargeImageFetcher != null) {
-            mLargeImageFetcher.closeCache();
-        }
     }
 
 	@Override
@@ -865,5 +871,4 @@ public class SqueezerActivity extends SqueezerBaseActivity {
                 uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
             }
         };
-
 }

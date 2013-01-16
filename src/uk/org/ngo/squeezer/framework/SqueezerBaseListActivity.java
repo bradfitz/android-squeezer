@@ -60,6 +60,9 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     /** An ImageFetcher for loading thumbnails. */
     protected ImageFetcher mImageFetcher;
 
+    /** ImageCache parameters for the album art. */
+    private ImageCacheParams mImageCacheParams;
+
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -90,13 +93,12 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
         // Get an ImageFetcher to scale artwork to the size of the icon view.
         Resources resources = getResources();
-        int iconSize = (int) (Math.max(
+        int iconSize = (Math.max(
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
         mImageFetcher = new ImageFetcher(this, iconSize);
-        ImageCacheParams imageCacheParams = new ImageCacheParams(this, "artwork");
-        imageCacheParams.setMemCacheSizePercent(this, 0.2f);
-        mImageFetcher.addImageCache(getSupportFragmentManager(), imageCacheParams);
+        mImageCacheParams = new ImageCacheParams(this, "artwork");
+        mImageCacheParams.setMemCacheSizePercent(this, 0.2f);
 
         // Delegate context menu creation to the adapter.
         mListView.setOnCreateContextMenuListener(getItemAdapter());
@@ -133,8 +135,17 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		orderItems();
 	}
 
-	@Override
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mImageFetcher.addImageCache(getSupportFragmentManager(), mImageCacheParams);
+    }
+
+    @Override
     public void onPause() {
+        mImageFetcher.closeCache();
+
         if (getService() != null) {
         	try {
 				unregisterCallback();
