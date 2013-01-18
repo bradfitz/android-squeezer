@@ -20,7 +20,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.ImageView;
 
 public class CacheableImageView extends ImageView {
@@ -43,16 +45,40 @@ public class CacheableImageView extends ImageView {
     protected void onDraw(Canvas canvas) {
         final Drawable drawable = getDrawable();
 
-        if (drawable != null) {
-            if (Bitmap.class.isAssignableFrom(drawable.getClass())) {
-                final Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-                if (bitmap != null && bitmap.isRecycled()) {
+        if (drawableContainsRecycledBitmap(drawable))
+            return;
+
+        if (drawable instanceof LayerDrawable) {
+            // Iterate over the layers in the drawable (should be only two since this
+            // should be a TransitionDrawable, but just in case...). Perform the same
+            // isRecycled() check to make sure it's safe to use the bitmap. If it's not,
+            // return.
+            for (int i = 0, l = ((LayerDrawable) drawable).getNumberOfLayers(); i < l; i++) {
+                if (drawableContainsRecycledBitmap(((LayerDrawable) drawable).getDrawable(i)))
                     return;
-                }
             }
         }
 
         super.onDraw(canvas);
+    }
+
+    /**
+     * Check to see if a Drawable contains a recycled bitmap.
+     * 
+     * @param drawable The Drawable to check
+     * @return true if contains a recycled bitmap, false otherwise (either the bitmap is not
+     *         recycled, or the drawable did not contain a bitmap).
+     */
+    private boolean drawableContainsRecycledBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            final Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            if (bitmap != null && bitmap.isRecycled()) {
+                Log.v("CacheableImageView", "Trying to draw with a recycled bitmap");
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
