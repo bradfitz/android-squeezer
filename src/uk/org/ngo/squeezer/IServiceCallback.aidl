@@ -24,8 +24,10 @@ oneway interface IServiceCallback {
   // loginFailed is true if the server disconnects before handshaking is completed
   void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed);
   
-  void onPlayStatusChanged(boolean isPlaying);
+  void onPlayStatusChanged(String playStatus);
+  void onShuffleStatusChanged(int shuffleStatus);
+  void onRepeatStatusChanged(int repeatStatus);
   void onTimeInSongChange(int secondsIn, int secondsTotal);
-  void onPowerStatusChanged();
+  void onPowerStatusChanged(boolean canPowerOn, boolean canPowerOff);
 }
 

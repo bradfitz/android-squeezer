@@ -27,6 +27,7 @@ import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumArtView.ViewHolder;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistSaveDialog;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.content.Context;
@@ -206,8 +207,8 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     }
 
     private final IServiceMusicChangedCallback musicChangedCallback = new IServiceMusicChangedCallback.Stub() {
-        public void onMusicChanged() throws RemoteException {
-            currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
+        public void onMusicChanged(SqueezerPlayerState playerState) throws RemoteException {
+            currentPlaylistIndex = playerState.getCurrentPlaylistIndex();
             getUIThreadHandler().post(new Runnable() {
                 public void run() {
                     getItemAdapter().notifyDataSetChanged();

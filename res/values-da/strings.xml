@@ -18,6 +18,7 @@
 
 <resources>
     <string name="app_name">Squeezer</string>
+    <string name="disabled">Deaktiveret</string>
     <string name="volume">%s lydstyrke</string>
     <string name="menu_item_players">Afspillere</string>
     <string name="menu_item_search_label">Søg</string>
@@ -37,9 +38,11 @@
     <string name="settings_password_title">Adgangskode</string>
     <string name="settings_password_hint">Eventuel SqueezeBox Server adgangskode.</string>
     <string name="settings_server_scan_progress">Scanner efter servere&#8230;</string>
+    <string name="settings_fadeinsecs_title">Indtoningsperiode</string>
+    <string name="settings_fadeinsecs_summary">Angiv hvor mange sekunder der indtones. Angiv 0 for at deaktivere indtoning.</string>
     <string name="settings_autoconnect_title">Forbind automatisk</string>
     <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
-
+    
     <string name="settings_scrobble_title">Scrobble til Last.fm</string>
     <string name="settings_scrobble_on">Sang information sendes til Last.fm</string>
     <string name="settings_scrobble_off">Sang information sendes ikke til Last.fm</string>
@@ -156,6 +159,11 @@
     <string name="pref_analytics_enable">Send brugsstatistikker</string>
     <string name="pref_analytics_enable_enabled">Anonyme brugsstatistikker indsamles ved hjælp af Google Analytics.</string>
     <string name="pref_analytics_enable_disabled">Ingen brugsstatistikker indsamles.</string>
+
+    <plurals name="seconds">
+        <item quantity="one">sekund</item>
+        <item quantity="other">sekunder</item>
+    </plurals>
 
     <plurals name="artist">
         <item quantity="one">kunstner</item>

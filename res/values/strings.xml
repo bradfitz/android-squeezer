@@ -18,6 +18,7 @@
 
 <resources>
     <string name="app_name">Squeezer</string>
+    <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
     <string name="menu_item_players">Players</string>
     <string name="menu_item_search_label">Search</string>
@@ -36,6 +37,8 @@
     <string name="settings_username_hint">User name (optional)</string>
     <string name="settings_password_hint">Password (optional)</string>
     <string name="settings_server_scan_progress">Scanning for servers&#8230;</string>
+    <string name="settings_fadeinsecs_title">Fade in duration</string>
+    <string name="settings_fadeinsecs_summary">Enter the amount of time to take to fade in when unpausing, in seconds. Enter 0 to disable fade in.</string>
     <string name="settings_autoconnect_title">Auto-connect</string>
     <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability, try to connect.</string>
 
@@ -332,11 +335,16 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="pref_analytics_enable_enabled">Anonymous usage statistics are collected using Google Analytics.</string>
     <string name="pref_analytics_enable_disabled">No usage statistics are collected.</string>
 
+    <plurals name="seconds">
+        <item quantity="one">second</item>
+        <item quantity="other">seconds</item>
+    </plurals>
+
     <plurals name="artist">
         <item quantity="one">artist</item>
         <item quantity="other">artists</item>
     </plurals>
-
+    
     <plurals name="album">
         <item quantity="one">album</item>
         <item quantity="other">albums</item>

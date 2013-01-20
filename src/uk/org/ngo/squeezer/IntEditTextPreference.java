@@ -36,11 +36,11 @@ public class IntEditTextPreference extends EditTextPreference {
 
     @Override
     protected String getPersistedString(String defaultReturnValue) {
-        return String.valueOf(getPersistedInt(-1));
+        return String.valueOf(getPersistedInt(0));
     }
 
     @Override
     protected boolean persistString(String value) {
-        return persistInt(Integer.valueOf(value));
+        return persistInt(Util.parseDecimalIntOrZero(value));
     }
 }

@@ -86,12 +86,13 @@ interface ISqueezeService {
         boolean canMusicfolder();
         boolean canRandomplay();
         String preferredAlbumSort();
-        boolean isPlaying();
         boolean togglePausePlay();
         boolean play();
         boolean stop();
         boolean nextTrack();
         boolean previousTrack();
+        boolean toggleShuffle();
+        boolean toggleRepeat();
         boolean playlistControl(String cmd, String className, String id);
         boolean randomPlay(String type);
         boolean playlistIndex(int index);
@@ -101,23 +102,16 @@ interface ISqueezeService {
         boolean playlistSave(String name);
         boolean pluginPlaylistControl(in SqueezerPlugin plugin, String cmd, String id);
         
-        // Return 0 if unknown:
-        int getSecondsTotal();
-        int getSecondsElapsed();
         boolean setSecondsElapsed(int seconds);
         
         SqueezerPlayerState getPlayerState();
-        SqueezerSong getCurrentSong();
         String getCurrentPlaylist();
         String getAlbumArtUrl(String artworkTrackId);
         String getIconUrl(String icon);
 
         String getSongDownloadUrl(String songTrackId);
 
-        // Returns new (predicted) volume.  Typical deltas are +10 or -10.
-        // Note the volume changed callback will also still be run with
-        // the correct value as returned by the server later.
-        int adjustVolumeBy(int delta);
+        void adjustVolumeBy(int delta);
         
         // Player list
         boolean players(int start);
