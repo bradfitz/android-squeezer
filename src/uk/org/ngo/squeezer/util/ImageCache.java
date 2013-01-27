@@ -24,7 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import uk.org.ngo.squeezer.BuildConfig;
-import uk.org.ngo.squeezer.widget.CacheableBitmapWrapper;
+import uk.org.ngo.squeezer.graphics.drawable.CacheableBitmapDrawable;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -195,7 +195,7 @@ public class ImageCache {
             return;
         }
 
-        CacheableBitmapWrapper wrapper = new CacheableBitmapWrapper(data, bitmap);
+        CacheableBitmapDrawable wrapper = new CacheableBitmapDrawable(data, bitmap);
 
         // Add to memory cache
         if (mMemoryCache != null && mMemoryCache.get(data) == null) {
@@ -256,8 +256,8 @@ public class ImageCache {
      * @param data Unique identifier for which item to get
      * @return The bitmap if found in cache, null otherwise
      */
-    public CacheableBitmapWrapper getBitmapFromMemCache(String data) {
-        CacheableBitmapWrapper wrapper = null;
+    public CacheableBitmapDrawable getBitmapFromMemCache(String data) {
+        CacheableBitmapDrawable wrapper = null;
 
         if (mMemoryCache != null) {
             wrapper = mMemoryCache.get(data);

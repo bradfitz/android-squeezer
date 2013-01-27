@@ -15,19 +15,26 @@
  *******************************************************************************/
 package uk.org.ngo.squeezer.widget;
 
+import uk.org.ngo.squeezer.graphics.drawable.CacheableBitmapDrawable;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
+import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.ImageView;
 
 public class CacheableImageView extends ImageView {
 
-    private CacheableBitmapWrapper mDisplayedBitmapWrapper;
+    private static void onDrawableSet(Drawable drawable) {
+        if (drawable instanceof CacheableBitmapDrawable) {
+            ((CacheableBitmapDrawable) drawable).setBeingUsed(true);
+        }
+    }
+
+    private static void onDrawableUnset(final Drawable drawable) {
+        if (drawable instanceof CacheableBitmapDrawable) {
+            ((CacheableBitmapDrawable) drawable).setBeingUsed(false);
+        }
+    }
 
     public CacheableImageView(Context context) {
         super(context);
@@ -37,86 +44,31 @@ public class CacheableImageView extends ImageView {
         super(context, attrs);
     }
 
-    /**
-     * onDraw() is occasionally called after the bitmap has been recycled. This should not happen.
-     * If it does, just return.
-     */
-    @Override
-    protected void onDraw(Canvas canvas) {
-        final Drawable drawable = getDrawable();
-
-        if (drawableContainsRecycledBitmap(drawable))
-            return;
-
-        if (drawable instanceof LayerDrawable) {
-            // Iterate over the layers in the drawable (should be only two since this
-            // should be a TransitionDrawable, but just in case...). Perform the same
-            // isRecycled() check to make sure it's safe to use the bitmap. If it's not,
-            // return.
-            for (int i = 0, l = ((LayerDrawable) drawable).getNumberOfLayers(); i < l; i++) {
-                if (drawableContainsRecycledBitmap(((LayerDrawable) drawable).getDrawable(i)))
-                    return;
-            }
-        }
-
-        super.onDraw(canvas);
-    }
-
-    /**
-     * Check to see if a Drawable contains a recycled bitmap.
-     * 
-     * @param drawable The Drawable to check
-     * @return true if contains a recycled bitmap, false otherwise (either the bitmap is not
-     *         recycled, or the drawable did not contain a bitmap).
-     */
-    private boolean drawableContainsRecycledBitmap(Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
-            final Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-            if (bitmap != null && bitmap.isRecycled()) {
-                Log.v("CacheableImageView", "Trying to draw with a recycled bitmap");
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Sets the current {@code CacheableBitmapWrapper}, and displays it Bitmap.
-     *
-     * @param wrapper - Wrapper to display.s
-     */
-    public void setImageCachedBitmap(final CacheableBitmapWrapper wrapper) {
-        if (null != wrapper) {
-            wrapper.setBeingUsed(true);
-            setImageDrawable(new BitmapDrawable(getResources(), wrapper.getBitmap()));
-        } else {
-            setImageDrawable(null);
-        }
-
-        // Finally, set our new BitmapWrapper
-        mDisplayedBitmapWrapper = wrapper;
-    }
-
-    @Override
-    public void setImageBitmap(Bitmap bm) {
-        setImageCachedBitmap(new CacheableBitmapWrapper(bm));
-    }
-
     @Override
     public void setImageDrawable(Drawable drawable) {
+        final Drawable previousDrawable = getDrawable();
+
+        // Set new Drawable
         super.setImageDrawable(drawable);
-        resetCachedDrawable();
+
+        if (drawable != previousDrawable) {
+            onDrawableSet(drawable);
+            onDrawableUnset(previousDrawable);
+        }
     }
 
     @Override
     public void setImageResource(int resId) {
+        final Drawable previousDrawable = getDrawable();
         super.setImageResource(resId);
-        resetCachedDrawable();
+        onDrawableUnset(previousDrawable);
     }
 
-    public CacheableBitmapWrapper getCachedBitmapWrapper() {
-        return mDisplayedBitmapWrapper;
+    @Override
+    public void setImageURI(Uri uri) {
+        final Drawable previousDrawable = getDrawable();
+        super.setImageURI(uri);
+        onDrawableUnset(previousDrawable);
     }
 
     @Override
@@ -125,17 +77,6 @@ public class CacheableImageView extends ImageView {
 
         // Will cause displayed bitmap wrapper to be 'free-able'
         setImageDrawable(null);
-    }
-
-    /**
-     * Called when the current cached bitmap has been removed. This method will
-     * remove the displayed flag and remove this objects reference to it.
-     */
-    private void resetCachedDrawable() {
-        if (null != mDisplayedBitmapWrapper) {
-            mDisplayedBitmapWrapper.setBeingUsed(false);
-            mDisplayedBitmapWrapper = null;
-        }
     }
 
 }

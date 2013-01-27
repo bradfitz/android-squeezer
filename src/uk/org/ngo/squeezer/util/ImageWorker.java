@@ -19,7 +19,7 @@ package uk.org.ngo.squeezer.util;
 import java.lang.ref.WeakReference;
 
 import uk.org.ngo.squeezer.BuildConfig;
-import uk.org.ngo.squeezer.widget.CacheableBitmapWrapper;
+import uk.org.ngo.squeezer.graphics.drawable.CacheableBitmapDrawable;
 import uk.org.ngo.squeezer.widget.CacheableImageView;
 import android.content.Context;
 import android.content.res.Resources;
@@ -78,7 +78,7 @@ public abstract class ImageWorker {
         }
 
         Bitmap bitmap = null;
-        CacheableBitmapWrapper wrapper = null;
+        CacheableBitmapDrawable wrapper = null;
 
         if (mImageCache != null) {
             wrapper = mImageCache.getBitmapFromMemCache(String.valueOf(data));
@@ -89,7 +89,7 @@ public abstract class ImageWorker {
 
         if (bitmap != null) {
             // Bitmap found in memory cache
-            imageView.setImageCachedBitmap(wrapper);
+            imageView.setImageDrawable(wrapper);
         } else if (cancelPotentialWork(data, imageView)) {
             final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
             final AsyncDrawable asyncDrawable =
