@@ -266,6 +266,7 @@ class SqueezerConnectionState {
 
         // Start the off-thread connect.
         executor.execute(new Runnable() {
+            @Override
             public void run() {
                 service.disconnect();
                 Socket socket = new Socket();
