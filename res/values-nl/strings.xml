@@ -143,9 +143,28 @@
     <string name="pref_analytics_enable">Verzend gebruiks-statistieken</string>
     <string name="pref_analytics_enable_enabled">Anonieme gebruiks-statistieken zijn verzameld met behulp van Google Analytics.</string>
     <string name="pref_analytics_enable_disabled">Geen gebruiks-statistieken zijn verzameld.</string>
+    
+    <string name="home_item_artists">Artiesten</string>
+    <string name="home_item_albums">Albums</string>
+    <string name="home_item_songs">Nummers</string>
+    <string name="home_item_genres">Genres</string>
+    <string name="home_item_years">Jaren</string>
+    <string name="home_item_new_music">New music</string>
+    <string name="home_item_music_folder">Muziek Mappen</string>
+    <string name="home_item_random_mix">Willekeurige mix</string>
+    <string name="home_item_playlists">Playlisten</string>
+    <string name="home_item_radios">Internet Radio</string>
+    <string name="home_item_favorites">Favorieten</string>
+    <string name="home_item_my_apps">My Apps</string>
 
+    <string name="randomplay_item_song_mix">Nummer mix</string>
+    <string name="randomplay_item_album_mix">Album mix</string>
+    <string name="randomplay_item_artist_mix">Artist mix</string>
+    <string name="randomplay_item_year_mix">Jaar mix</string>
+    <string name="randomplay_item_choose_genres">Kies genres</string>
+    
     <plurals name="artist">
-        <item quantity="one">Artiest</item>
+        <item quantity="one">artiest</item>
         <item quantity="other">artiesten</item>
     </plurals>
 
@@ -193,28 +212,5 @@
         <item quantity="one">applicatie</item>
         <item quantity="other">applicaties</item>
     </plurals>
-
-    <string-array name="home_items">
-        <item>Artiesten</item>
-        <item>Albums</item>
-        <item>Nummers</item>
-        <item>Genres</item>
-        <item>Jaren</item>
-        <item>New music</item>
-        <item>Muziek Mappen</item>
-        <item>Willekeurige mix</item>
-        <item>Playlisten</item>
-        <item>Internet Radio</item>
-        <item>Favorieten</item>
-        <item>My Apps</item>
-    </string-array>
-
-    <string-array name="randomplay_items">
-        <item>Nummer mix</item>
-        <item>Album mix</item>
-        <item>Artiest mix</item>
-        <item>Jaar mix</item>
-        <!-- <item>Kies genres</item> -->
-    </string-array>
 
 </resources>
