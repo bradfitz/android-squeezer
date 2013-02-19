@@ -27,7 +27,7 @@ import android.util.Log;
 public class CacheableBitmapDrawable extends BitmapDrawable {
 
     static final String LOG_TAG = "CacheableBitmapDrawable";
-    private static final int UNUSED_DRAWABLE_RECYCLE_DELAY_MS = 1000;
+    private static final int UNUSED_DRAWABLE_RECYCLE_DELAY_MS = 2000;
 
     private final String mUrl;
 
@@ -39,6 +39,9 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
 
     // Number of caches currently referencing the wrapper
     private int mCacheCount;
+
+    // The CheckStateRunnable currently being delayed
+    private Runnable mCheckStateRunnable;
 
     // Handler which may be used later
     private static final Handler sHandler = new Handler(Looper.getMainLooper());
@@ -79,7 +82,7 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
 
     /**
      * Returns true when this wrapper has a bitmap and the bitmap has not been recycled.
-     * 
+     *
      * @return true - if the bitmap has not been recycled.
      */
     public synchronized boolean hasValidBitmap() {
@@ -106,7 +109,7 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
 
     /**
      * Used to signal to the Drawable whether it is being used or not.
-     * 
+     *
      * @param beingUsed - true if being used, false if not.
      */
     public synchronized void setBeingUsed(boolean beingUsed) {
@@ -121,7 +124,7 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
 
     /**
      * Used to signal to the wrapper whether it is being referenced by a cache or not.
-     * 
+     *
      * @param added - true if the wrapper has been added to a cache, false if removed.
      */
     public synchronized void setCached(boolean added) {
@@ -131,6 +134,14 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
             mCacheCount--;
         }
         checkState();
+    }
+
+    private void cancelCheckStateCallback() {
+        if (null != mCheckStateRunnable) {
+            Log.d(LOG_TAG, "Cancelling checkState() callback for: " + mUrl);
+            sHandler.removeCallbacks(mCheckStateRunnable);
+            mCheckStateRunnable = null;
+        }
     }
 
     /**
@@ -151,9 +162,9 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
      * <li>If it has not been displayed, and <code>ignoreBeenDisplayed</code> is <code>true</code>,
      * it is recycled straight away.</li>
      * </ul>
-     * 
+     *
      * @see Constants#UNUSED_DRAWABLE_RECYCLE_DELAY_MS
-     * 
+     *
      * @param ignoreBeenDisplayed - Whether to ignore the 'has been displayed' flag when deciding
      *            whether to recycle() now.
      */
@@ -162,22 +173,36 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
                 "checkState(). Been Displayed: %b, Displaying: %d, Caching: %d, URL: %s",
                 mHasBeenDisplayed, mDisplayingCount, mCacheCount, mUrl));
 
-        // We only want to recycle if it has been displayed.
-        if (mCacheCount <= 0 && mDisplayingCount <= 0 && hasValidBitmap()) {
+        if (mCacheCount <= 0 && mDisplayingCount <= 0) {
+            // We're not being referenced or used anywhere
+
+            // Cancel the callback, if one is queued.
+            cancelCheckStateCallback();
+
+            if (hasValidBitmap()) {
+                /**
+                 * If we have been displayed or we don't care whether we have been or not, then
+                 * recycle() now. Otherwise, we retry in UNUSED_DRAWABLE_RECYCLE_DELAY_MS.
+                 */
+                if (mHasBeenDisplayed || ignoreBeenDisplayed) {
+                    Log.d(LOG_TAG, "Recycling bitmap with url: " + mUrl);
+                    getBitmap().recycle();
+                } else {
+                    Log.d(LOG_TAG,
+                            "Unused Bitmap which hasn't been displayed, delaying recycle(): "
+                                    + mUrl);
+                    mCheckStateRunnable = new CheckStateRunnable(this);
+                    sHandler.postDelayed(mCheckStateRunnable, UNUSED_DRAWABLE_RECYCLE_DELAY_MS);
+                }
+            }
+        } else {
+            // We're being referenced (by either a cache or used somewhere)
 
             /**
-             * If we have been displayed or we don't care whether we have been or not, then
-             * recycle() now. Otherwise, we retry in 1 second.
+             * If mCheckStateRunnable isn't null, then a checkState() call has been queued
+             * previously. As we're being used now, cancel the callback.
              */
-            if (mHasBeenDisplayed || ignoreBeenDisplayed) {
-                Log.d(LOG_TAG, "Recycling bitmap with url: " + mUrl);
-                getBitmap().recycle();
-            } else {
-                Log.d(LOG_TAG,
-                        "Unused Bitmap which hasn't been displayed, delaying recycle(): "
-                                + mUrl);
-                sHandler.postDelayed(new CheckStateRunnable(this), UNUSED_DRAWABLE_RECYCLE_DELAY_MS);
-            }
+            cancelCheckStateCallback();
         }
     }
 
