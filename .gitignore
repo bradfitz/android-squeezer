@@ -3,7 +3,6 @@
 *.apk
 bin
 gen
-.classpath
 local.properties
 build.properties
 .classpath
