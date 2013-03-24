@@ -629,7 +629,7 @@ public class SqueezeService extends Service {
         } else {
             status.setLatestEventInfo(this, getString(R.string.notification_connected_text, playerName), "-", pIntent);
             status.flags |= Notification.FLAG_ONGOING_EVENT;
-            status.icon = R.drawable.logo;
+            status.icon = R.drawable.ic_launcher;
         }
         nm.notify(PLAYBACKSERVICE_STATUS, status);
 

@@ -76,7 +76,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
     @Override
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActionBarHelper().setIcon(R.drawable.ic_action_now_playing);
+        getActionBarHelper().setIcon(R.drawable.ic_launcher);
     };
 
     @Override
