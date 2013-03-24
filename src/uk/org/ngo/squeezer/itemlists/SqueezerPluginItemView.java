@@ -20,13 +20,13 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.widget.CacheableImageView;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,7 +49,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 
             viewHolder = new ViewHolder();
 			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
-            viewHolder.icon = (CacheableImageView) convertView.findViewById(R.id.icon);
+            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
 
 			convertView.setTag(viewHolder);
         } else {
@@ -71,7 +71,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 
 	private static class ViewHolder {
 		TextView label;
-        CacheableImageView icon;
+        ImageView icon;
 	}
 
 	@Override

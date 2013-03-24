@@ -19,8 +19,6 @@ package uk.org.ngo.squeezer.util;
 import java.lang.ref.WeakReference;
 
 import uk.org.ngo.squeezer.BuildConfig;
-import uk.org.ngo.squeezer.graphics.drawable.CacheableBitmapDrawable;
-import uk.org.ngo.squeezer.widget.CacheableImageView;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -72,24 +70,20 @@ public abstract class ImageWorker {
      * @param data The URL of the image to download.
      * @param imageView The ImageView to bind the downloaded image to.
      */
-    public void loadImage(Object data, CacheableImageView imageView) {
+    public void loadImage(Object data, ImageView imageView) {
         if (data == null) {
             return;
         }
 
         Bitmap bitmap = null;
-        CacheableBitmapDrawable wrapper = null;
 
         if (mImageCache != null) {
-            wrapper = mImageCache.getBitmapFromMemCache(String.valueOf(data));
-            if (wrapper != null) {
-                bitmap = wrapper.getBitmap();
-            }
+            bitmap = mImageCache.getBitmapFromMemCache(String.valueOf(data));
         }
 
         if (bitmap != null) {
             // Bitmap found in memory cache
-            imageView.setImageDrawable(wrapper);
+            imageView.setImageBitmap(bitmap);
         } else if (cancelPotentialWork(data, imageView)) {
             final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
             final AsyncDrawable asyncDrawable =
@@ -184,10 +178,9 @@ public abstract class ImageWorker {
     }
 
     /**
-     * Returns true if the current work has been canceled or if there was no work in
-     * progress on this image view.
-     * Returns false if the work in progress deals with the same data. The work is not
-     * stopped in that case.
+     * Returns true if the current work has been cancelled or if there was no work in progress on
+     * this image view. Returns false if the work in progress deals with the same data. The work is
+     * not stopped in that case.
      */
     public static boolean cancelPotentialWork(Object data, ImageView imageView) {
         final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
@@ -360,11 +353,11 @@ public abstract class ImageWorker {
      */
     private void setImageBitmap(ImageView imageView, Bitmap bitmap) {
         if (mFadeInBitmap) {
-            // Transition drawable with a transparent drwabale and the final bitmap
+            // Transition drawable with a transparent drawable and the final bitmap
             final TransitionDrawable td =
                     new TransitionDrawable(new Drawable[] {
                             new ColorDrawable(android.R.color.transparent),
-                            new BitmapDrawable(mResources, bitmap)
+                    new BitmapDrawable(mResources, bitmap)
                     });
             // Set background to loading bitmap
             imageView.setBackgroundDrawable(
@@ -373,7 +366,7 @@ public abstract class ImageWorker {
             imageView.setImageDrawable(td);
             td.startTransition(FADE_IN_TIME);
         } else {
-            imageView.setImageBitmap(bitmap);
+            imageView.setImageDrawable(new BitmapDrawable(mResources, bitmap));
         }
     }
 

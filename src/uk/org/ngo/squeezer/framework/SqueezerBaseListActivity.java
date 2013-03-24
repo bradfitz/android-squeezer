@@ -29,9 +29,11 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -91,6 +93,17 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
         mListView.setOnScrollListener(new ScrollListener());
 
+        mListView.setRecyclerListener(new RecyclerListener() {
+            @Override
+            public void onMovedToScrapHeap(View view) {
+                // Release strong reference when a view is recycled
+                final ImageView imageView = (ImageView) view.findViewById(R.id.icon);
+                if (imageView != null) {
+                    imageView.setImageBitmap(null);
+                }
+            }
+        });
+
         // Get an ImageFetcher to scale artwork to the size of the icon view.
         Resources resources = getResources();
         int iconSize = (Math.max(
@@ -98,7 +111,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
         mImageFetcher = new ImageFetcher(this, iconSize);
         mImageCacheParams = new ImageCacheParams(this, "artwork");
-        mImageCacheParams.setMemCacheSizePercent(this, 0.2f);
+        mImageCacheParams.setMemCacheSizePercent(this, 0.12f);
 
         // Delegate context menu creation to the adapter.
         mListView.setOnCreateContextMenuListener(getItemAdapter());

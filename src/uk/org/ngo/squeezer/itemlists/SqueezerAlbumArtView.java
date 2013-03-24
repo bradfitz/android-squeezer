@@ -23,11 +23,11 @@ import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.widget.CacheableImageView;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -54,7 +54,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
             viewHolder = new ViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
-            viewHolder.icon = (CacheableImageView) convertView.findViewById(R.id.icon);
+            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -84,7 +84,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
             viewHolder = new ViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
-            viewHolder.icon = (CacheableImageView) convertView.findViewById(R.id.icon);
+            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
             convertView.setTag(viewHolder);
         } else
             viewHolder = (ViewHolder) convertView.getTag();
@@ -133,7 +133,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
 
         // XXX: These are public so code in SqueezerItemListActivity can see
         // them. This should be refactored.
-        public CacheableImageView icon;
+        public ImageView icon;
         public String artworkUrl;
         public boolean updateArtwork;
     }

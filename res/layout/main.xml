@@ -17,7 +17,7 @@
 -->
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root_layout">
-	<uk.org.ngo.squeezer.widget.CacheableImageView android:layout_width="fill_parent" android:id="@+id/album" android:layout_height="fill_parent" android:cropToPadding="false" android:scaleType="fitCenter" />
+	<ImageView android:layout_width="fill_parent" android:id="@+id/album" android:layout_height="fill_parent" android:cropToPadding="false" android:scaleType="fitCenter" />
 
 		<com.pocketjourney.view.TransparentPanel
 			android:gravity="top"

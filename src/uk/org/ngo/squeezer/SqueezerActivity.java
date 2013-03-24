@@ -35,7 +35,6 @@ import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.widget.CacheableImageView;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -58,6 +57,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -86,7 +86,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
     private ImageButton playPauseButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
-    private CacheableImageView albumArt;
+    private ImageView albumArt;
     private SeekBar seekBar;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -208,7 +208,7 @@ public class SqueezerActivity extends SqueezerBaseActivity {
         playPauseButton = (ImageButton) findViewById(R.id.pause);
         nextButton = (ImageButton) findViewById(R.id.next);
         prevButton = (ImageButton) findViewById(R.id.prev);
-        albumArt = (CacheableImageView) findViewById(R.id.album);
+        albumArt = (ImageView) findViewById(R.id.album);
         currentTime = (TextView) findViewById(R.id.currenttime);
         totalTime = (TextView) findViewById(R.id.totaltime);
         seekBar = (SeekBar) findViewById(R.id.seekbar);

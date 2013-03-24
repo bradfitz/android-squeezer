@@ -24,7 +24,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import uk.org.ngo.squeezer.BuildConfig;
-import uk.org.ngo.squeezer.graphics.drawable.CacheableBitmapDrawable;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -36,6 +35,7 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.util.LruCache;
 import android.util.Log;
 
 /**
@@ -62,7 +62,7 @@ public class ImageCache {
     private static final boolean DEFAULT_INIT_DISK_CACHE_ON_CREATE = false;
 
     private DiskLruCache mDiskLruCache;
-    private BitmapMemoryLruCache mMemoryCache;
+    private LruCache<String, Bitmap> mMemoryCache;
     private ImageCacheParams mCacheParams;
     private final Object mDiskCacheLock = new Object();
     private boolean mDiskCacheStarting = true;
@@ -125,7 +125,12 @@ public class ImageCache {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Memory cache created (size = " + mCacheParams.memCacheSize + ")");
             }
-            mMemoryCache = new BitmapMemoryLruCache(mCacheParams.memCacheSize);
+            mMemoryCache = new LruCache<String, Bitmap>(mCacheParams.memCacheSize) {
+                @Override
+                protected int sizeOf(String key, Bitmap bitmap) {
+                    return (bitmap.getRowBytes() * bitmap.getHeight());
+                }
+            };
         }
 
         // By default the disk cache is not initialized here as it should be initialized
@@ -186,7 +191,7 @@ public class ImageCache {
 
     /**
      * Adds a bitmap to the memory cache.
-     * 
+     *
      * @param data Unique identifier for the bitmap to store
      * @param bitmap The bitmap to store
      */
@@ -195,18 +200,15 @@ public class ImageCache {
             return;
         }
 
-        CacheableBitmapDrawable wrapper = new CacheableBitmapDrawable(data, bitmap);
-
         // Add to memory cache
         if (mMemoryCache != null && mMemoryCache.get(data) == null) {
-            wrapper.setCached(true);
-            mMemoryCache.put(data, wrapper);
+            mMemoryCache.put(data, bitmap);
         }
     }
 
     /**
      * Adds a bitmap to the disk cache.
-     * 
+     *
      * @param data Unique identifier for the bitmap to store
      * @param bitmap The bitmap to store
      */
@@ -256,20 +258,13 @@ public class ImageCache {
      * @param data Unique identifier for which item to get
      * @return The bitmap if found in cache, null otherwise
      */
-    public CacheableBitmapDrawable getBitmapFromMemCache(String data) {
-        CacheableBitmapDrawable wrapper = null;
+    public Bitmap getBitmapFromMemCache(String data) {
+        Bitmap bitmap = null;
 
         if (mMemoryCache != null) {
-            wrapper = mMemoryCache.get(data);
-
-            // Wrapper might exist, but now contains an invalid bitmap. If so,
-            // remove it from the cache.
-            if (wrapper != null && !wrapper.hasValidBitmap()) {
-                mMemoryCache.remove(data);
-                wrapper = null;
-            }
+            bitmap = mMemoryCache.get(data);
         }
-        return wrapper;
+        return bitmap;
     }
 
     /**
