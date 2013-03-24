@@ -263,6 +263,18 @@ public class ImageCache {
 
         if (mMemoryCache != null) {
             bitmap = mMemoryCache.get(data);
+
+            /*
+            Log.v(TAG, String.format(
+                    "Cache stats: h: %d m: %d (%.2f%%) p: %d e: %d, size: %d of %d (%.2f%%)",
+                    mMemoryCache.hitCount(),
+                    mMemoryCache.missCount(),
+                    ((float) mMemoryCache.hitCount()
+                            / (mMemoryCache.hitCount() + mMemoryCache.missCount()) * 100),
+                    mMemoryCache.putCount(),
+                    mMemoryCache.evictionCount(), mMemoryCache.size(), mMemoryCache.maxSize(),
+                    ((float) mMemoryCache.size() / mMemoryCache.maxSize()) * 100));
+            */
         }
         return bitmap;
     }
