@@ -30,7 +30,7 @@
 
     <EditText
       android:id="@+id/search_input"
-      android:hint="@+string/search_hint_text"
+      android:hint="@string/search_text_hint"
       android:inputType="textNoSuggestions"
       android:layout_width="0dp"
       android:layout_height="wrap_content"

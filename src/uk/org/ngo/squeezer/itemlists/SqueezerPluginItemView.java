@@ -25,6 +25,8 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,11 +43,12 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 		ViewHolder viewHolder;
 
 		if (convertView == null || convertView.getTag() == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
 
             viewHolder = new ViewHolder();
-			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+			viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
 
 			convertView.setTag(viewHolder);
         } else {
@@ -53,6 +56,15 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
         }
 
 		viewHolder.label.setText(item.getName());
+
+        if (!item.isHasitems()) {
+            viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
+            viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    v.showContextMenu();
+                }
+            });
+        }
 
         if (imageFetcher != null) {
             if (item.getImage() == null) {
@@ -70,12 +82,12 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
 
             viewHolder = new ViewHolder();
-            viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+            viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-
+            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -83,12 +95,13 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 
         viewHolder.label.setText(label);
 
-        return convertView;
-    }
+		return convertView;
+	}
 
 	private static class ViewHolder {
 		TextView label;
 		ImageView icon;
+        ImageButton btnContextMenu;
 	}
 
 	public String getQuantityString(int quantity) {
@@ -113,8 +126,8 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
             menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
             menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
             menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
-        }
-    }
+		}
+	}
 
 	@Override
 	public boolean doItemContext(MenuItem menuItem, int index, SqueezerPluginItem selectedItem) throws RemoteException {

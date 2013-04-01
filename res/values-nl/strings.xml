@@ -57,7 +57,8 @@
     <string name="notification_playing_text">%s Speelt af</string>
     <string name="notification_connected_text">%s Verbonden</string>
     <string name="filter_text_hint">Zoek naar %s</string>
-    <string name="search_hint_text">Zoek voor artiest, album, genre of lied titel.</string>
+    <string name="search_text_hint">Vul zoek tekst in</string>
+    <string name="search_music_library_hint">Zoek voor artiest, album, genre of lied titel.</string>
     <string name="move_to_dialog_title">Verplaats lied nummer %s</string>
     <string name="move_to_index_hint">Vul nieuwe positie voor nummer in</string>
     <string name="save_playlist_title">Bewaar playlist</string>
