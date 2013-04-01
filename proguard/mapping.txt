@@ -3588,141 +3588,143 @@ uk.org.ngo.squeezer.SqueezerActivity -> uk.org.ngo.squeezer.SqueezerActivity:
     int secondsIn -> u
     int secondsTotal -> v
     com.google.android.apps.analytics.GoogleAnalyticsTracker tracker -> w
-    uk.org.ngo.squeezer.util.ImageFetcher mLargeImageFetcher -> x
-    android.os.Handler uiThreadHandler -> y
-    uk.org.ngo.squeezer.IServiceCallback serviceCallback -> z
-    114:114:void clearConnectingDialog() -> clearConnectingDialog
-    142:142:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
-    147:316:void onCreate(android.os.Bundle) -> onCreate
-    320:358:void setConnected(boolean,boolean) -> setConnected
-    361:372:void updatePlayPauseIcon() -> updatePlayPauseIcon
-    376:385:void setTitleForPlayer(java.lang.String) -> setTitleForPlayer
-    389:401:void onServiceConnected() -> onServiceConnected
-    405:423:void onResume() -> onResume
-    430:448:void updateUIFromServiceState() -> updateUIFromServiceState
-    451:459:void updateTimeDisplayTo(int,int) -> updateTimeDisplayTo
-    463:467:void updateSongInfoFromService() -> updateSongInfoFromService
-    470:479:void updateSongInfo(uk.org.ngo.squeezer.model.SqueezerSong) -> updateSongInfo
-    483:491:void updateAlbumArtIfNeeded(uk.org.ngo.squeezer.model.SqueezerSong) -> updateAlbumArtIfNeeded
-    494:502:int getSecondsElapsed() -> getSecondsElapsed
-    506:514:int getSecondsTotal() -> getSecondsTotal
-    518:526:boolean setSecondsElapsed(int) -> setSecondsElapsed
-    530:538:uk.org.ngo.squeezer.model.SqueezerSong getCurrentSong() -> getCurrentSong
-    543:551:boolean isConnected() -> isConnected
-    555:563:boolean canPowerOn() -> canPowerOn
-    567:575:boolean canPowerOff() -> canPowerOff
-    580:592:void onPause() -> onPause
-    596:601:void onStop() -> onStop
-    605:606:boolean onSearchRequested() -> onSearchRequested
-    611:612:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
-    617:640:boolean onPrepareOptionsMenu(android.view.Menu) -> onPrepareOptionsMenu
-    645:699:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
-    704:709:java.lang.String getConfiguredCliIpPort() -> getConfiguredCliIpPort
-    714:715:boolean isAutoConnect() -> isAutoConnect
-    720:730:void onUserInitiatesConnect() -> onUserInitiatesConnect
-    733:774:void startVisibleConnection() -> startVisibleConnection
-    777:781:void show(android.content.Context) -> show
-    785:792:void onDestroy() -> onDestroy
-    71:71:java.lang.String access$000(uk.org.ngo.squeezer.SqueezerActivity) -> access$000
-    71:71:boolean access$100(uk.org.ngo.squeezer.SqueezerActivity) -> access$100
-    71:71:java.lang.String access$200(uk.org.ngo.squeezer.SqueezerActivity) -> access$200
-    71:71:void access$300(uk.org.ngo.squeezer.SqueezerActivity) -> access$300
-    71:71:int access$400(uk.org.ngo.squeezer.SqueezerActivity) -> access$400
-    71:71:int access$500(uk.org.ngo.squeezer.SqueezerActivity) -> access$500
-    71:71:void access$600(uk.org.ngo.squeezer.SqueezerActivity,int,int) -> access$600
-    71:71:java.util.concurrent.atomic.AtomicBoolean access$700(uk.org.ngo.squeezer.SqueezerActivity) -> access$700
-    71:71:java.lang.String access$800(uk.org.ngo.squeezer.SqueezerActivity) -> access$800
-    71:71:void access$900(uk.org.ngo.squeezer.SqueezerActivity) -> access$900
-    71:71:java.lang.String access$1000(uk.org.ngo.squeezer.SqueezerActivity) -> access$1000
-    71:71:uk.org.ngo.squeezer.model.SqueezerSong access$1100(uk.org.ngo.squeezer.SqueezerActivity) -> access$1100
-    71:71:android.widget.TextView access$1200(uk.org.ngo.squeezer.SqueezerActivity) -> access$1200
-    71:71:boolean access$1302(uk.org.ngo.squeezer.SqueezerActivity,boolean) -> access$1302
-    71:71:boolean access$1400(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$1400
-    71:71:android.widget.ImageButton access$1500(uk.org.ngo.squeezer.SqueezerActivity) -> access$1500
-    71:71:java.util.concurrent.atomic.AtomicBoolean access$1600(uk.org.ngo.squeezer.SqueezerActivity) -> access$1600
-    71:71:void access$1700(uk.org.ngo.squeezer.SqueezerActivity) -> access$1700
-    71:71:java.lang.String access$1800(uk.org.ngo.squeezer.SqueezerActivity) -> access$1800
-    71:71:boolean access$1900(uk.org.ngo.squeezer.SqueezerActivity) -> access$1900
-    71:71:java.lang.String access$2000(uk.org.ngo.squeezer.SqueezerActivity) -> access$2000
-    71:71:java.util.concurrent.atomic.AtomicBoolean access$2100(uk.org.ngo.squeezer.SqueezerActivity) -> access$2100
-    71:71:java.lang.String access$2200(uk.org.ngo.squeezer.SqueezerActivity) -> access$2200
-    71:71:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$2302(uk.org.ngo.squeezer.SqueezerActivity,uk.org.ngo.squeezer.dialogs.ConnectingDialog) -> access$2302
-    71:71:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$2300(uk.org.ngo.squeezer.SqueezerActivity) -> access$2300
-    71:71:java.lang.String access$2400(uk.org.ngo.squeezer.SqueezerActivity) -> access$2400
-    71:71:java.lang.String access$2500(uk.org.ngo.squeezer.SqueezerActivity) -> access$2500
-    71:71:java.lang.String access$2600(uk.org.ngo.squeezer.SqueezerActivity) -> access$2600
-    71:71:void access$2700(uk.org.ngo.squeezer.SqueezerActivity,boolean,boolean) -> access$2700
-    71:71:android.os.Handler access$2800(uk.org.ngo.squeezer.SqueezerActivity) -> access$2800
-    71:71:java.lang.String access$2900(uk.org.ngo.squeezer.SqueezerActivity) -> access$2900
-    71:71:void access$3000(uk.org.ngo.squeezer.SqueezerActivity,java.lang.String) -> access$3000
-    71:71:void access$3100(uk.org.ngo.squeezer.SqueezerActivity) -> access$3100
-    71:71:void access$3200(uk.org.ngo.squeezer.SqueezerActivity) -> access$3200
-    71:71:int access$402(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$402
-    71:71:int access$502(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$502
+    uk.org.ngo.squeezer.util.ImageFetcher mImageFetcher -> x
+    uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams mImageCacheParams -> y
+    boolean mFirstRun -> z
+    android.os.Handler uiThreadHandler -> A
+    uk.org.ngo.squeezer.IServiceCallback serviceCallback -> B
+    111:111:void clearConnectingDialog() -> clearConnectingDialog
+    154:154:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
+    159:345:void onCreate(android.os.Bundle) -> onCreate
+    349:387:void setConnected(boolean,boolean) -> setConnected
+    390:402:void updatePlayPauseIcon() -> updatePlayPauseIcon
+    406:416:void setTitleForPlayer(java.lang.String) -> setTitleForPlayer
+    420:433:void onServiceConnected() -> onServiceConnected
+    437:464:void onResume() -> onResume
+    471:489:void updateUIFromServiceState() -> updateUIFromServiceState
+    492:500:void updateTimeDisplayTo(int,int) -> updateTimeDisplayTo
+    504:508:void updateSongInfoFromService() -> updateSongInfoFromService
+    511:520:void updateSongInfo(uk.org.ngo.squeezer.model.SqueezerSong) -> updateSongInfo
+    525:536:void updateAlbumArtIfNeeded(uk.org.ngo.squeezer.model.SqueezerSong) -> updateAlbumArtIfNeeded
+    539:547:int getSecondsElapsed() -> getSecondsElapsed
+    551:559:int getSecondsTotal() -> getSecondsTotal
+    563:571:boolean setSecondsElapsed(int) -> setSecondsElapsed
+    575:583:uk.org.ngo.squeezer.model.SqueezerSong getCurrentSong() -> getCurrentSong
+    588:596:boolean isConnected() -> isConnected
+    600:608:boolean canPowerOn() -> canPowerOn
+    612:620:boolean canPowerOff() -> canPowerOff
+    625:640:void onPause() -> onPause
+    644:646:void onStop() -> onStop
+    650:651:boolean onSearchRequested() -> onSearchRequested
+    656:657:boolean onCreateOptionsMenu(android.view.Menu) -> onCreateOptionsMenu
+    662:685:boolean onPrepareOptionsMenu(android.view.Menu) -> onPrepareOptionsMenu
+    690:732:boolean onMenuItemSelected(int,android.view.MenuItem) -> onMenuItemSelected
+    737:742:java.lang.String getConfiguredCliIpPort() -> getConfiguredCliIpPort
+    747:748:boolean isAutoConnect() -> isAutoConnect
+    753:763:void onUserInitiatesConnect() -> onUserInitiatesConnect
+    766:808:void startVisibleConnection() -> startVisibleConnection
+    811:815:void show(android.content.Context) -> show
+    819:826:void onDestroy() -> onDestroy
+    68:68:java.lang.String access$000(uk.org.ngo.squeezer.SqueezerActivity) -> access$000
+    68:68:boolean access$100(uk.org.ngo.squeezer.SqueezerActivity) -> access$100
+    68:68:java.lang.String access$200(uk.org.ngo.squeezer.SqueezerActivity) -> access$200
+    68:68:void access$300(uk.org.ngo.squeezer.SqueezerActivity) -> access$300
+    68:68:int access$400(uk.org.ngo.squeezer.SqueezerActivity) -> access$400
+    68:68:int access$500(uk.org.ngo.squeezer.SqueezerActivity) -> access$500
+    68:68:void access$600(uk.org.ngo.squeezer.SqueezerActivity,int,int) -> access$600
+    68:68:java.util.concurrent.atomic.AtomicBoolean access$700(uk.org.ngo.squeezer.SqueezerActivity) -> access$700
+    68:68:java.lang.String access$800(uk.org.ngo.squeezer.SqueezerActivity) -> access$800
+    68:68:void access$900(uk.org.ngo.squeezer.SqueezerActivity) -> access$900
+    68:68:java.lang.String access$1000(uk.org.ngo.squeezer.SqueezerActivity) -> access$1000
+    68:68:uk.org.ngo.squeezer.model.SqueezerSong access$1100(uk.org.ngo.squeezer.SqueezerActivity) -> access$1100
+    68:68:android.widget.TextView access$1200(uk.org.ngo.squeezer.SqueezerActivity) -> access$1200
+    68:68:boolean access$1302(uk.org.ngo.squeezer.SqueezerActivity,boolean) -> access$1302
+    68:68:boolean access$1400(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$1400
+    68:68:android.widget.ImageButton access$1500(uk.org.ngo.squeezer.SqueezerActivity) -> access$1500
+    68:68:java.util.concurrent.atomic.AtomicBoolean access$1600(uk.org.ngo.squeezer.SqueezerActivity) -> access$1600
+    68:68:void access$1700(uk.org.ngo.squeezer.SqueezerActivity) -> access$1700
+    68:68:java.lang.String access$1800(uk.org.ngo.squeezer.SqueezerActivity) -> access$1800
+    68:68:boolean access$1900(uk.org.ngo.squeezer.SqueezerActivity) -> access$1900
+    68:68:java.lang.String access$2000(uk.org.ngo.squeezer.SqueezerActivity) -> access$2000
+    68:68:java.util.concurrent.atomic.AtomicBoolean access$2100(uk.org.ngo.squeezer.SqueezerActivity) -> access$2100
+    68:68:java.lang.String access$2200(uk.org.ngo.squeezer.SqueezerActivity) -> access$2200
+    68:68:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$2302(uk.org.ngo.squeezer.SqueezerActivity,uk.org.ngo.squeezer.dialogs.ConnectingDialog) -> access$2302
+    68:68:uk.org.ngo.squeezer.dialogs.ConnectingDialog access$2300(uk.org.ngo.squeezer.SqueezerActivity) -> access$2300
+    68:68:java.lang.String access$2400(uk.org.ngo.squeezer.SqueezerActivity) -> access$2400
+    68:68:java.lang.String access$2500(uk.org.ngo.squeezer.SqueezerActivity) -> access$2500
+    68:68:java.lang.String access$2600(uk.org.ngo.squeezer.SqueezerActivity) -> access$2600
+    68:68:void access$2700(uk.org.ngo.squeezer.SqueezerActivity,boolean,boolean) -> access$2700
+    68:68:android.os.Handler access$2800(uk.org.ngo.squeezer.SqueezerActivity) -> access$2800
+    68:68:java.lang.String access$2900(uk.org.ngo.squeezer.SqueezerActivity) -> access$2900
+    68:68:void access$3000(uk.org.ngo.squeezer.SqueezerActivity,java.lang.String) -> access$3000
+    68:68:void access$3100(uk.org.ngo.squeezer.SqueezerActivity) -> access$3100
+    68:68:void access$3200(uk.org.ngo.squeezer.SqueezerActivity) -> access$3200
+    68:68:int access$402(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$402
+    68:68:int access$502(uk.org.ngo.squeezer.SqueezerActivity,int) -> access$502
 uk.org.ngo.squeezer.SqueezerActivity$1 -> uk.org.ngo.squeezer.SqueezerActivity$1:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    98:109:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+    95:106:void onReceive(android.content.Context,android.content.Intent) -> onReceive
 uk.org.ngo.squeezer.SqueezerActivity$10 -> uk.org.ngo.squeezer.SqueezerActivity$10:
-    uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    271:276:void onClick(android.view.View) -> onClick
-uk.org.ngo.squeezer.SqueezerActivity$11 -> uk.org.ngo.squeezer.SqueezerActivity$11:
     uk.org.ngo.squeezer.model.SqueezerSong seekingSong -> a
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> b
-    284:287:void onProgressChanged(android.widget.SeekBar,int,boolean) -> onProgressChanged
-    291:293:void onStartTrackingTouch(android.widget.SeekBar) -> onStartTrackingTouch
-    299:306:void onStopTrackingTouch(android.widget.SeekBar) -> onStopTrackingTouch
-uk.org.ngo.squeezer.SqueezerActivity$12 -> uk.org.ngo.squeezer.SqueezerActivity$12:
+    316:319:void onProgressChanged(android.widget.SeekBar,int,boolean) -> onProgressChanged
+    324:326:void onStartTrackingTouch(android.widget.SeekBar) -> onStartTrackingTouch
+    333:340:void onStopTrackingTouch(android.widget.SeekBar) -> onStopTrackingTouch
+uk.org.ngo.squeezer.SqueezerActivity$11 -> uk.org.ngo.squeezer.SqueezerActivity$11:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    363:370:void run() -> run
-uk.org.ngo.squeezer.SqueezerActivity$13 -> uk.org.ngo.squeezer.SqueezerActivity$13:
+    393:400:void run() -> run
+uk.org.ngo.squeezer.SqueezerActivity$12 -> uk.org.ngo.squeezer.SqueezerActivity$12:
     java.lang.String val$playerName -> a
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> b
-    378:383:void run() -> run
+    409:414:void run() -> run
+uk.org.ngo.squeezer.SqueezerActivity$13 -> uk.org.ngo.squeezer.SqueezerActivity$13:
+    uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
+    425:426:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$14 -> uk.org.ngo.squeezer.SqueezerActivity$14:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    393:394:void run() -> run
+    770:806:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$15 -> uk.org.ngo.squeezer.SqueezerActivity$15:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    736:772:void run() -> run
-uk.org.ngo.squeezer.SqueezerActivity$16 -> uk.org.ngo.squeezer.SqueezerActivity$16:
-    uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    798:804:void onConnectionChanged(boolean,boolean) -> onConnectionChanged
-    808:810:void onPlayerChanged(java.lang.String,java.lang.String) -> onPlayerChanged
-    813:818:void onMusicChanged() -> onMusicChanged
-    822:824:void onPlayStatusChanged(boolean) -> onPlayStatusChanged
-    828:831:void onTimeInSongChange(int,int) -> onTimeInSongChange
-uk.org.ngo.squeezer.SqueezerActivity$16$1 -> uk.org.ngo.squeezer.SqueezerActivity$16$1:
+    833:840:void onConnectionChanged(boolean,boolean) -> onConnectionChanged
+    845:847:void onPlayerChanged(java.lang.String,java.lang.String) -> onPlayerChanged
+    851:857:void onMusicChanged() -> onMusicChanged
+    862:864:void onPlayStatusChanged(boolean) -> onPlayStatusChanged
+    869:872:void onTimeInSongChange(int,int) -> onTimeInSongChange
+uk.org.ngo.squeezer.SqueezerActivity$15$1 -> uk.org.ngo.squeezer.SqueezerActivity$15$1:
     boolean val$isConnected -> a
     boolean val$postConnect -> b
-    uk.org.ngo.squeezer.SqueezerActivity$16 this$1 -> c
-    801:802:void run() -> run
-uk.org.ngo.squeezer.SqueezerActivity$16$2 -> uk.org.ngo.squeezer.SqueezerActivity$16$2:
-    uk.org.ngo.squeezer.SqueezerActivity$16 this$1 -> a
-    815:816:void run() -> run
+    uk.org.ngo.squeezer.SqueezerActivity$15 this$1 -> c
+    837:838:void run() -> run
+uk.org.ngo.squeezer.SqueezerActivity$15$2 -> uk.org.ngo.squeezer.SqueezerActivity$15$2:
+    uk.org.ngo.squeezer.SqueezerActivity$15 this$1 -> a
+    854:855:void run() -> run
 uk.org.ngo.squeezer.SqueezerActivity$2 -> uk.org.ngo.squeezer.SqueezerActivity$2:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    134:137:void handleMessage(android.os.Message) -> handleMessage
+    225:227:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$3 -> uk.org.ngo.squeezer.SqueezerActivity$3:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    201:203:void onClick(android.view.View) -> onClick
+    233:235:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$4 -> uk.org.ngo.squeezer.SqueezerActivity$4:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    208:210:void onClick(android.view.View) -> onClick
+    241:254:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$5 -> uk.org.ngo.squeezer.SqueezerActivity$5:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    215:228:void onClick(android.view.View) -> onClick
+    260:264:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$6 -> uk.org.ngo.squeezer.SqueezerActivity$6:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    233:237:void onClick(android.view.View) -> onClick
+    270:274:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$7 -> uk.org.ngo.squeezer.SqueezerActivity$7:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    242:246:void onClick(android.view.View) -> onClick
+    280:285:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$8 -> uk.org.ngo.squeezer.SqueezerActivity$8:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    251:256:void onClick(android.view.View) -> onClick
+    291:296:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.SqueezerActivity$9 -> uk.org.ngo.squeezer.SqueezerActivity$9:
     uk.org.ngo.squeezer.SqueezerActivity this$0 -> a
-    261:266:void onClick(android.view.View) -> onClick
+    302:307:void onClick(android.view.View) -> onClick
+uk.org.ngo.squeezer.SqueezerActivity$UiThreadHandler -> uk.org.ngo.squeezer.SqueezerActivity$UiThreadHandler:
+    java.lang.ref.WeakReference mActivity -> a
+    145:149:void handleMessage(android.os.Message) -> handleMessage
 uk.org.ngo.squeezer.SqueezerHomeActivity -> uk.org.ngo.squeezer.SqueezerHomeActivity:
     android.widget.ListView listView -> a
     android.widget.AdapterView$OnItemClickListener onHomeItemClick -> b
@@ -3898,11 +3900,11 @@ uk.org.ngo.squeezer.dialogs.ServerAddressPreference -> uk.org.ngo.squeezer.dialo
     android.app.ProgressDialog mProgressDialog -> h
     84:131:void onBindDialogView(android.view.View) -> onBindDialogView
     137:141:void startNetworkScan() -> startNetworkScan
-    148:160:void createProgressDialog() -> createProgressDialog
-    166:168:void updateProgress(int,int) -> updateProgress
-    174:198:void onScanFinished() -> onScanFinished
-    203:213:void onDialogClosed(boolean) -> onDialogClosed
-    222:227:android.os.Parcelable onSaveInstanceState() -> onSaveInstanceState
+    148:159:void createProgressDialog() -> createProgressDialog
+    165:167:void updateProgress(int,int) -> updateProgress
+    173:197:void onScanFinished() -> onScanFinished
+    202:212:void onDialogClosed(boolean) -> onDialogClosed
+    221:226:android.os.Parcelable onSaveInstanceState() -> onSaveInstanceState
     61:61:java.util.TreeMap access$100(uk.org.ngo.squeezer.dialogs.ServerAddressPreference) -> access$100
     61:61:android.widget.EditText access$200(uk.org.ngo.squeezer.dialogs.ServerAddressPreference) -> access$200
     61:61:void access$300(uk.org.ngo.squeezer.dialogs.ServerAddressPreference,int,int) -> access$300
@@ -3911,8 +3913,8 @@ uk.org.ngo.squeezer.dialogs.ServerAddressPreference$1 -> uk.org.ngo.squeezer.dia
     123:124:void onClick(android.view.View) -> onClick
 uk.org.ngo.squeezer.dialogs.ServerAddressPreference$MyOnItemSelectedListener -> uk.org.ngo.squeezer.dialogs.ServerAddressPreference$MyOnItemSelectedListener:
     uk.org.ngo.squeezer.dialogs.ServerAddressPreference this$0 -> a
-    236:238:void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
-    242:242:void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
+    235:237:void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
+    241:241:void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
 uk.org.ngo.squeezer.dialogs.ServerAddressPreference$ScanNetworkTask -> uk.org.ngo.squeezer.dialogs.ServerAddressPreference$ScanNetworkTask:
     java.lang.String TAG -> b
     android.content.Context mContext -> c
@@ -3921,16 +3923,16 @@ uk.org.ngo.squeezer.dialogs.ServerAddressPreference$ScanNetworkTask -> uk.org.ng
     int DISCOVERY_PORT -> f
     int MAX_DISCOVERY_ATTEMPTS -> a
     int DISCOVERY_ATTEMPT_TIMEOUT -> g
-    287:390:java.lang.Void doInBackground(java.lang.Void[]) -> doInBackground
-    400:401:void onProgressUpdate(java.lang.Integer[]) -> onProgressUpdate
-    405:406:void onCancelled(java.lang.Void) -> onCancelled
-    410:411:void onPostExecute(java.lang.Void) -> onPostExecute
-    414:414:java.util.TreeMap getDiscoveredServers() -> getDiscoveredServers
-    248:248:void onCancelled(java.lang.Object) -> onCancelled
-    248:248:void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
-    248:248:void onPostExecute(java.lang.Object) -> onPostExecute
-    248:248:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-    248:248:java.util.TreeMap access$000(uk.org.ngo.squeezer.dialogs.ServerAddressPreference$ScanNetworkTask) -> access$000
+    286:389:java.lang.Void doInBackground(java.lang.Void[]) -> doInBackground
+    399:400:void onProgressUpdate(java.lang.Integer[]) -> onProgressUpdate
+    404:405:void onCancelled(java.lang.Void) -> onCancelled
+    409:410:void onPostExecute(java.lang.Void) -> onPostExecute
+    413:413:java.util.TreeMap getDiscoveredServers() -> getDiscoveredServers
+    247:247:void onCancelled(java.lang.Object) -> onCancelled
+    247:247:void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+    247:247:void onPostExecute(java.lang.Object) -> onPostExecute
+    247:247:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    247:247:java.util.TreeMap access$000(uk.org.ngo.squeezer.dialogs.ServerAddressPreference$ScanNetworkTask) -> access$000
 uk.org.ngo.squeezer.dialogs.TipsDialog -> uk.org.ngo.squeezer.dialogs.TipsDialog:
     33:39:android.app.Dialog onCreateDialog(android.os.Bundle) -> onCreateDialog
     51:57:boolean onKey(android.content.DialogInterface,int,android.view.KeyEvent) -> onKey
@@ -3943,34 +3945,35 @@ uk.org.ngo.squeezer.framework.SqueezerBaseActivity -> uk.org.ngo.squeezer.framew
     android.os.Handler uiThreadHandler -> b
     android.content.ServiceConnection serviceConnection -> c
     void onServiceConnected() -> onServiceConnected
-    52:52:java.lang.String getTag() -> getTag
-    59:59:uk.org.ngo.squeezer.service.ISqueezeService getService() -> getService
-    79:89:void onCreate(android.os.Bundle) -> onCreate
-    93:96:void onResume() -> onResume
-    100:104:void onPause() -> onPause
-    110:110:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
-    124:133:boolean onKeyDown(int,android.view.KeyEvent) -> onKeyDown
-    138:144:boolean onKeyUp(int,android.view.KeyEvent) -> onKeyUp
-    148:158:boolean changeVolumeBy(int) -> changeVolumeBy
-    165:165:boolean play(uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> play
-    169:169:boolean add(uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> add
-    173:173:boolean insert(uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> insert
-    178:182:boolean playlistControl(uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd,uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> playlistControl
-    199:207:void downloadSong(java.lang.String) -> downloadSong
-    45:45:uk.org.ngo.squeezer.service.ISqueezeService access$002(uk.org.ngo.squeezer.framework.SqueezerBaseActivity,uk.org.ngo.squeezer.service.ISqueezeService) -> access$002
+    53:53:java.lang.String getTag() -> getTag
+    60:60:uk.org.ngo.squeezer.service.ISqueezeService getService() -> getService
+    80:90:void onCreate(android.os.Bundle) -> onCreate
+    94:97:void onResume() -> onResume
+    101:105:void onPause() -> onPause
+    111:111:android.os.Handler getUIThreadHandler() -> getUIThreadHandler
+    125:134:boolean onKeyDown(int,android.view.KeyEvent) -> onKeyDown
+    139:145:boolean onKeyUp(int,android.view.KeyEvent) -> onKeyUp
+    149:159:boolean changeVolumeBy(int) -> changeVolumeBy
+    166:166:boolean play(uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> play
+    170:170:boolean add(uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> add
+    174:174:boolean insert(uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> insert
+    179:183:boolean playlistControl(uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd,uk.org.ngo.squeezer.framework.SqueezerPlaylistItem) -> playlistControl
+    193:195:void downloadSong(uk.org.ngo.squeezer.model.SqueezerSong) -> downloadSong
+    204:222:void downloadSong(java.lang.String) -> downloadSong
+    46:46:uk.org.ngo.squeezer.service.ISqueezeService access$002(uk.org.ngo.squeezer.framework.SqueezerBaseActivity,uk.org.ngo.squeezer.service.ISqueezeService) -> access$002
 uk.org.ngo.squeezer.framework.SqueezerBaseActivity$1 -> uk.org.ngo.squeezer.framework.SqueezerBaseActivity$1:
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity this$0 -> a
 uk.org.ngo.squeezer.framework.SqueezerBaseActivity$2 -> uk.org.ngo.squeezer.framework.SqueezerBaseActivity$2:
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity this$0 -> a
-    64:70:void onServiceConnected(android.content.ComponentName,android.os.IBinder) -> onServiceConnected
-    72:73:void onServiceDisconnected(android.content.ComponentName) -> onServiceDisconnected
+    65:71:void onServiceConnected(android.content.ComponentName,android.os.IBinder) -> onServiceConnected
+    73:74:void onServiceDisconnected(android.content.ComponentName) -> onServiceDisconnected
 uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd -> uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd:
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd load -> a
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd add -> b
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd insert -> c
     uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd[] $VALUES -> d
-    209:209:uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd[] values() -> values
-    209:209:uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd valueOf(java.lang.String) -> valueOf
+    224:224:uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd[] values() -> values
+    224:224:uk.org.ngo.squeezer.framework.SqueezerBaseActivity$PlaylistControlCmd valueOf(java.lang.String) -> valueOf
 uk.org.ngo.squeezer.framework.SqueezerBaseItemView -> uk.org.ngo.squeezer.framework.SqueezerBaseItemView:
     uk.org.ngo.squeezer.framework.SqueezerItemListActivity activity -> b
     java.lang.Class itemClass -> a
@@ -3987,33 +3990,38 @@ uk.org.ngo.squeezer.framework.SqueezerBaseListActivity -> uk.org.ngo.squeezer.fr
     android.widget.TextView loadingLabel -> d
     uk.org.ngo.squeezer.framework.SqueezerItemView itemView -> e
     uk.org.ngo.squeezer.util.ImageFetcher mImageFetcher -> a
-    65:97:void onCreate(android.os.Bundle) -> onCreate
+    uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams mImageCacheParams -> f
+    71:120:void onCreate(android.os.Bundle) -> onCreate
     uk.org.ngo.squeezer.framework.SqueezerItemView createItemView() -> createItemView
-    110:121:boolean onContextItemSelected(android.view.MenuItem) -> onContextItemSelected
-    126:128:void onServiceConnected() -> onServiceConnected
-    132:140:void onPause() -> onPause
-    144:149:void onStop() -> onStop
-    155:155:uk.org.ngo.squeezer.framework.SqueezerItemView getItemView() -> getItemView
-    163:163:uk.org.ngo.squeezer.framework.SqueezerItemAdapter getItemAdapter() -> getItemAdapter
-    171:171:android.widget.ListView getListView() -> getListView
-    176:176:uk.org.ngo.squeezer.framework.SqueezerItemAdapter createItemListAdapter(uk.org.ngo.squeezer.framework.SqueezerItemView) -> createItemListAdapter
-    184:188:void orderItems() -> orderItems
-    191:198:void onItemsReceived(int,int,java.util.List) -> onItemsReceived
-    205:206:void clearItemListAdapter() -> clearItemListAdapter
-    55:55:uk.org.ngo.squeezer.framework.SqueezerItemView access$000(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$000
-    55:55:android.widget.TextView access$100(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$100
+    133:144:boolean onContextItemSelected(android.view.MenuItem) -> onContextItemSelected
+    149:151:void onServiceConnected() -> onServiceConnected
+    155:158:void onResume() -> onResume
+    162:172:void onPause() -> onPause
+    176:181:void onStop() -> onStop
+    187:187:uk.org.ngo.squeezer.framework.SqueezerItemView getItemView() -> getItemView
+    195:195:uk.org.ngo.squeezer.framework.SqueezerItemAdapter getItemAdapter() -> getItemAdapter
+    203:203:android.widget.ListView getListView() -> getListView
+    208:208:uk.org.ngo.squeezer.framework.SqueezerItemAdapter createItemListAdapter(uk.org.ngo.squeezer.framework.SqueezerItemView) -> createItemListAdapter
+    216:220:void orderItems() -> orderItems
+    223:231:void onItemsReceived(int,int,java.util.List) -> onItemsReceived
+    238:239:void clearItemListAdapter() -> clearItemListAdapter
+    58:58:uk.org.ngo.squeezer.framework.SqueezerItemView access$000(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$000
+    58:58:android.widget.TextView access$100(uk.org.ngo.squeezer.framework.SqueezerBaseListActivity) -> access$100
 uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$1 -> uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$1:
     uk.org.ngo.squeezer.framework.SqueezerBaseListActivity this$0 -> a
-    75:85:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+    82:92:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
 uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$2 -> uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$2:
+    uk.org.ngo.squeezer.framework.SqueezerBaseListActivity this$0 -> a
+    101:105:void onMovedToScrapHeap(android.view.View) -> onMovedToScrapHeap
+uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$3 -> uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$3:
     int val$count -> a
     int val$start -> b
     java.util.List val$items -> c
     uk.org.ngo.squeezer.framework.SqueezerBaseListActivity this$0 -> d
-    193:196:void run() -> run
+    226:229:void run() -> run
 uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$ScrollListener -> uk.org.ngo.squeezer.framework.SqueezerBaseListActivity$ScrollListener:
     uk.org.ngo.squeezer.framework.SqueezerBaseListActivity this$0 -> a
-    219:227:void onScrollStateChanged(android.widget.AbsListView,int) -> onScrollStateChanged
+    252:260:void onScrollStateChanged(android.widget.AbsListView,int) -> onScrollStateChanged
 uk.org.ngo.squeezer.framework.SqueezerItem -> uk.org.ngo.squeezer.framework.SqueezerItem:
     java.lang.String id -> a
     32:32:void setId(java.lang.String) -> setId
@@ -4249,10 +4257,10 @@ uk.org.ngo.squeezer.itemlists.SqueezerAbstractSongListActivity$1 -> uk.org.ngo.s
     39:40:void onSongsReceived(int,int,java.util.List) -> onSongsReceived
 uk.org.ngo.squeezer.itemlists.SqueezerAlbumArtView -> uk.org.ngo.squeezer.itemlists.SqueezerAlbumArtView:
     android.view.LayoutInflater mLayoutInflater -> c
-    52:75:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.framework.SqueezerArtworkItem,uk.org.ngo.squeezer.util.ImageFetcher) -> getAdapterView
-    82:96:android.view.View getAdapterView(android.view.View,java.lang.String) -> getAdapterView
+    52:74:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.framework.SqueezerArtworkItem,uk.org.ngo.squeezer.util.ImageFetcher) -> getAdapterView
+    81:95:android.view.View getAdapterView(android.view.View,java.lang.String) -> getAdapterView
     void setItemViewText(uk.org.ngo.squeezer.itemlists.SqueezerAlbumArtView$ViewHolder,uk.org.ngo.squeezer.framework.SqueezerArtworkItem) -> setItemViewText
-    115:126:java.lang.String getAlbumArtUrl(java.lang.String) -> getAlbumArtUrl
+    114:125:java.lang.String getAlbumArtUrl(java.lang.String) -> getAlbumArtUrl
     39:39:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.framework.SqueezerItem,uk.org.ngo.squeezer.util.ImageFetcher) -> getAdapterView
 uk.org.ngo.squeezer.itemlists.SqueezerAlbumArtView$ViewHolder -> uk.org.ngo.squeezer.itemlists.SqueezerAlbumArtView$ViewHolder:
     android.widget.TextView text1 -> a
@@ -4564,11 +4572,11 @@ uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity$PluginPlaylistContr
 uk.org.ngo.squeezer.itemlists.SqueezerPluginItemView -> uk.org.ngo.squeezer.itemlists.SqueezerPluginItemView:
     uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity activity -> a
     android.view.LayoutInflater layoutInflater -> c
-    47:69:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.model.SqueezerPluginItem,uk.org.ngo.squeezer.util.ImageFetcher) -> getAdapterView
+    47:68:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.model.SqueezerPluginItem,uk.org.ngo.squeezer.util.ImageFetcher) -> getAdapterView
     78:78:java.lang.String getQuantityString(int) -> getQuantityString
-    82:88:void onItemSelected(int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> onItemSelected
-    93:100:void onCreateContextMenu(android.view.ContextMenu,android.view.View,uk.org.ngo.squeezer.framework.SqueezerItemView$ContextMenuInfo) -> onCreateContextMenu
-    104:126:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> doItemContext
+    83:89:void onItemSelected(int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> onItemSelected
+    94:101:void onCreateContextMenu(android.view.ContextMenu,android.view.View,uk.org.ngo.squeezer.framework.SqueezerItemView$ContextMenuInfo) -> onCreateContextMenu
+    105:127:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.model.SqueezerPluginItem) -> doItemContext
     33:33:boolean doItemContext(android.view.MenuItem,int,uk.org.ngo.squeezer.framework.SqueezerItem) -> doItemContext
     33:33:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.framework.SqueezerItem,uk.org.ngo.squeezer.util.ImageFetcher) -> getAdapterView
     33:33:void onItemSelected(int,uk.org.ngo.squeezer.framework.SqueezerItem) -> onItemSelected
@@ -4585,8 +4593,8 @@ uk.org.ngo.squeezer.itemlists.SqueezerPluginListActivity$1 -> uk.org.ngo.squeeze
     32:33:void onPluginsReceived(int,int,java.util.List) -> onPluginsReceived
 uk.org.ngo.squeezer.itemlists.SqueezerPluginView -> uk.org.ngo.squeezer.itemlists.SqueezerPluginView:
     android.view.LayoutInflater layoutInflater -> a
-    43:56:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.model.SqueezerPlugin,uk.org.ngo.squeezer.util.ImageFetcher) -> getAdapterView
-    60:69:java.lang.String getIconUrl(java.lang.String) -> getIconUrl
+    43:55:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.model.SqueezerPlugin,uk.org.ngo.squeezer.util.ImageFetcher) -> getAdapterView
+    59:68:java.lang.String getIconUrl(java.lang.String) -> getIconUrl
     31:31:android.view.View getAdapterView(android.view.View,uk.org.ngo.squeezer.framework.SqueezerItem,uk.org.ngo.squeezer.util.ImageFetcher) -> getAdapterView
 uk.org.ngo.squeezer.itemlists.SqueezerPluginView$1 -> uk.org.ngo.squeezer.itemlists.SqueezerPluginView$1:
 uk.org.ngo.squeezer.itemlists.SqueezerPluginView$ViewHolder -> uk.org.ngo.squeezer.itemlists.SqueezerPluginView$ViewHolder:
@@ -5518,7 +5526,71 @@ uk.org.ngo.squeezer.service.SqueezerListHandler -> uk.org.ngo.squeezer.service.S
     void clear() -> clear
     void add(java.util.Map) -> add
     boolean processList(boolean,int,int,java.util.Map) -> processList
-uk.org.ngo.squeezer.util.ICSDiskLruCache -> uk.org.ngo.squeezer.util.ICSDiskLruCache:
+uk.org.ngo.squeezer.util.AsyncTask -> uk.org.ngo.squeezer.util.AsyncTask:
+    java.util.concurrent.ThreadFactory sThreadFactory -> d
+    java.util.concurrent.BlockingQueue sPoolWorkQueue -> e
+    java.util.concurrent.Executor THREAD_POOL_EXECUTOR -> a
+    java.util.concurrent.Executor SERIAL_EXECUTOR -> b
+    java.util.concurrent.Executor DUAL_THREAD_EXECUTOR -> c
+    uk.org.ngo.squeezer.util.AsyncTask$InternalHandler sHandler -> f
+    java.util.concurrent.Executor sDefaultExecutor -> g
+    uk.org.ngo.squeezer.util.AsyncTask$WorkerRunnable mWorker -> h
+    java.util.concurrent.FutureTask mFuture -> i
+    uk.org.ngo.squeezer.util.AsyncTask$Status mStatus -> j
+    java.util.concurrent.atomic.AtomicBoolean mCancelled -> k
+    java.util.concurrent.atomic.AtomicBoolean mTaskInvoked -> l
+    335:339:void postResultIfNotInvoked(java.lang.Object) -> postResultIfNotInvoked
+    343:346:java.lang.Object postResult(java.lang.Object) -> postResult
+    java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    383:383:void onPreExecute() -> onPreExecute
+    399:399:void onPostExecute(java.lang.Object) -> onPostExecute
+    412:412:void onProgressUpdate(java.lang.Object[]) -> onProgressUpdate
+    430:431:void onCancelled(java.lang.Object) -> onCancelled
+    446:446:void onCancelled() -> onCancelled
+    459:459:boolean isCancelled() -> isCancelled
+    492:493:boolean cancel(boolean) -> cancel
+    560:560:uk.org.ngo.squeezer.util.AsyncTask execute(java.lang.Object[]) -> execute
+    598:617:uk.org.ngo.squeezer.util.AsyncTask executeOnExecutor(java.util.concurrent.Executor,java.lang.Object[]) -> executeOnExecutor
+    654:660:void finish(java.lang.Object) -> finish
+    197:197:java.util.concurrent.atomic.AtomicBoolean access$300(uk.org.ngo.squeezer.util.AsyncTask) -> access$300
+    197:197:java.lang.Object access$400(uk.org.ngo.squeezer.util.AsyncTask,java.lang.Object) -> access$400
+    197:197:void access$500(uk.org.ngo.squeezer.util.AsyncTask,java.lang.Object) -> access$500
+    197:197:void access$600(uk.org.ngo.squeezer.util.AsyncTask,java.lang.Object) -> access$600
+uk.org.ngo.squeezer.util.AsyncTask$1 -> uk.org.ngo.squeezer.util.AsyncTask$1:
+    java.util.concurrent.atomic.AtomicInteger mCount -> a
+    208:208:java.lang.Thread newThread(java.lang.Runnable) -> newThread
+uk.org.ngo.squeezer.util.AsyncTask$2 -> uk.org.ngo.squeezer.util.AsyncTask$2:
+    uk.org.ngo.squeezer.util.AsyncTask this$0 -> a
+    309:313:java.lang.Object call() -> call
+uk.org.ngo.squeezer.util.AsyncTask$3 -> uk.org.ngo.squeezer.util.AsyncTask$3:
+    uk.org.ngo.squeezer.util.AsyncTask this$0 -> a
+    321:330:void done() -> done
+uk.org.ngo.squeezer.util.AsyncTask$4 -> uk.org.ngo.squeezer.util.AsyncTask$4:
+    int[] $SwitchMap$uk$org$ngo$squeezer$util$AsyncTask$Status -> a
+uk.org.ngo.squeezer.util.AsyncTask$AsyncTaskResult -> uk.org.ngo.squeezer.util.AsyncTask$AsyncTaskResult:
+    uk.org.ngo.squeezer.util.AsyncTask mTask -> a
+    java.lang.Object[] mData -> b
+uk.org.ngo.squeezer.util.AsyncTask$InternalHandler -> uk.org.ngo.squeezer.util.AsyncTask$InternalHandler:
+    666:676:void handleMessage(android.os.Message) -> handleMessage
+uk.org.ngo.squeezer.util.AsyncTask$SerialExecutor -> uk.org.ngo.squeezer.util.AsyncTask$SerialExecutor:
+    java.util.ArrayDeque mTasks -> a
+    java.lang.Runnable mActive -> b
+    253:265:void execute(java.lang.Runnable) -> execute
+    268:271:void scheduleNext() -> scheduleNext
+uk.org.ngo.squeezer.util.AsyncTask$SerialExecutor$1 -> uk.org.ngo.squeezer.util.AsyncTask$SerialExecutor$1:
+    java.lang.Runnable val$r -> a
+    uk.org.ngo.squeezer.util.AsyncTask$SerialExecutor this$0 -> b
+    256:258:void run() -> run
+uk.org.ngo.squeezer.util.AsyncTask$Status -> uk.org.ngo.squeezer.util.AsyncTask$Status:
+    uk.org.ngo.squeezer.util.AsyncTask$Status PENDING -> a
+    uk.org.ngo.squeezer.util.AsyncTask$Status RUNNING -> b
+    uk.org.ngo.squeezer.util.AsyncTask$Status FINISHED -> c
+    uk.org.ngo.squeezer.util.AsyncTask$Status[] $VALUES -> d
+    278:278:uk.org.ngo.squeezer.util.AsyncTask$Status[] values() -> values
+    278:278:uk.org.ngo.squeezer.util.AsyncTask$Status valueOf(java.lang.String) -> valueOf
+uk.org.ngo.squeezer.util.AsyncTask$WorkerRunnable -> uk.org.ngo.squeezer.util.AsyncTask$WorkerRunnable:
+    java.lang.Object[] mParams -> b
+uk.org.ngo.squeezer.util.DiskLruCache -> uk.org.ngo.squeezer.util.DiskLruCache:
     java.nio.charset.Charset UTF_8 -> a
     java.io.File directory -> b
     java.io.File journalFile -> c
@@ -5530,189 +5602,205 @@ uk.org.ngo.squeezer.util.ICSDiskLruCache -> uk.org.ngo.squeezer.util.ICSDiskLruC
     java.io.Writer journalWriter -> i
     java.util.LinkedHashMap lruEntries -> j
     int redundantOpCount -> k
-    java.util.concurrent.ExecutorService executorService -> l
-    java.util.concurrent.Callable cleanupCallable -> m
-    113:121:void closeQuietly(java.io.Closeable) -> closeQuietly
-    129:141:void deleteContents(java.io.File) -> deleteContents
-    155:170:java.lang.String readAsciiLine(java.io.InputStream) -> readAsciiLine
-    195:206:java.lang.Object[] copyOfRange(java.lang.Object[],int,int) -> copyOfRange
-    301:329:uk.org.ngo.squeezer.util.ICSDiskLruCache open(java.io.File,int,int,long) -> open
-    333:357:void readJournal() -> readJournal
-    362:390:void readJournalLine(java.lang.String) -> readJournalLine
-    397:413:void processJournal() -> processJournal
-    420:446:void rebuildJournal() -> rebuildJournal
-    459:462:void deleteIfExists(java.io.File) -> deleteIfExists
-    470:502:uk.org.ngo.squeezer.util.ICSDiskLruCache$Snapshot get(java.lang.String) -> get
-    510:526:uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor edit(java.lang.String) -> edit
-    554:598:void completeEdit(uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor,boolean) -> completeEdit
-    605:605:boolean journalRebuildRequired() -> journalRebuildRequired
-    617:641:boolean remove(java.lang.String) -> remove
-    648:648:boolean isClosed() -> isClosed
-    652:655:void checkNotClosed() -> checkNotClosed
-    661:664:void flush() -> flush
-    670:681:void close() -> close
-    684:690:void trimToSize() -> trimToSize
-    698:700:void delete() -> delete
-    703:707:void validateKey(java.lang.String) -> validateKey
-    96:96:java.io.Writer access$000(uk.org.ngo.squeezer.util.ICSDiskLruCache) -> access$000
-    96:96:void access$100(uk.org.ngo.squeezer.util.ICSDiskLruCache) -> access$100
-    96:96:boolean access$200(uk.org.ngo.squeezer.util.ICSDiskLruCache) -> access$200
-    96:96:void access$300(uk.org.ngo.squeezer.util.ICSDiskLruCache) -> access$300
-    96:96:int access$402(uk.org.ngo.squeezer.util.ICSDiskLruCache,int) -> access$402
-    96:96:void access$1700(uk.org.ngo.squeezer.util.ICSDiskLruCache,uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor,boolean) -> access$1700
-    96:96:int access$1900(uk.org.ngo.squeezer.util.ICSDiskLruCache) -> access$1900
-    96:96:java.io.File access$2000(uk.org.ngo.squeezer.util.ICSDiskLruCache) -> access$2000
-uk.org.ngo.squeezer.util.ICSDiskLruCache$1 -> uk.org.ngo.squeezer.util.ICSDiskLruCache$1:
-    uk.org.ngo.squeezer.util.ICSDiskLruCache this$0 -> a
-    266:276:java.lang.Void call() -> call
-    264:264:java.lang.Object call() -> call
-uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor -> uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor:
-    uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry entry -> b
+    long nextSequenceNumber -> l
+    java.util.concurrent.ExecutorService executorService -> m
+    java.util.concurrent.Callable cleanupCallable -> n
+    176:188:java.lang.Object[] copyOfRange(java.lang.Object[],int,int) -> copyOfRange
+    218:233:java.lang.String readAsciiLine(java.io.InputStream) -> readAsciiLine
+    240:248:void closeQuietly(java.io.Closeable) -> closeQuietly
+    255:267:void deleteContents(java.io.File) -> deleteContents
+    309:336:uk.org.ngo.squeezer.util.DiskLruCache open(java.io.File,int,int,long) -> open
+    340:364:void readJournal() -> readJournal
+    369:397:void readJournalLine(java.lang.String) -> readJournalLine
+    404:420:void processJournal() -> processJournal
+    427:453:void rebuildJournal() -> rebuildJournal
+    463:466:void deleteIfExists(java.io.File) -> deleteIfExists
+    474:506:uk.org.ngo.squeezer.util.DiskLruCache$Snapshot get(java.lang.String) -> get
+    514:514:uk.org.ngo.squeezer.util.DiskLruCache$Editor edit(java.lang.String) -> edit
+    518:538:uk.org.ngo.squeezer.util.DiskLruCache$Editor edit(java.lang.String,long) -> edit
+    566:613:void completeEdit(uk.org.ngo.squeezer.util.DiskLruCache$Editor,boolean) -> completeEdit
+    620:620:boolean journalRebuildRequired() -> journalRebuildRequired
+    632:656:boolean remove(java.lang.String) -> remove
+    663:663:boolean isClosed() -> isClosed
+    667:670:void checkNotClosed() -> checkNotClosed
+    676:679:void flush() -> flush
+    685:696:void close() -> close
+    699:704:void trimToSize() -> trimToSize
+    712:714:void delete() -> delete
+    717:721:void validateKey(java.lang.String) -> validateKey
+    100:100:java.io.Writer access$000(uk.org.ngo.squeezer.util.DiskLruCache) -> access$000
+    100:100:void access$100(uk.org.ngo.squeezer.util.DiskLruCache) -> access$100
+    100:100:boolean access$200(uk.org.ngo.squeezer.util.DiskLruCache) -> access$200
+    100:100:void access$300(uk.org.ngo.squeezer.util.DiskLruCache) -> access$300
+    100:100:int access$402(uk.org.ngo.squeezer.util.DiskLruCache,int) -> access$402
+    100:100:void access$1900(uk.org.ngo.squeezer.util.DiskLruCache,uk.org.ngo.squeezer.util.DiskLruCache$Editor,boolean) -> access$1900
+    100:100:int access$2100(uk.org.ngo.squeezer.util.DiskLruCache) -> access$2100
+    100:100:java.io.File access$2200(uk.org.ngo.squeezer.util.DiskLruCache) -> access$2200
+uk.org.ngo.squeezer.util.DiskLruCache$1 -> uk.org.ngo.squeezer.util.DiskLruCache$1:
+    uk.org.ngo.squeezer.util.DiskLruCache this$0 -> a
+    274:284:java.lang.Void call() -> call
+    272:272:java.lang.Object call() -> call
+uk.org.ngo.squeezer.util.DiskLruCache$Editor -> uk.org.ngo.squeezer.util.DiskLruCache$Editor:
+    uk.org.ngo.squeezer.util.DiskLruCache$Entry entry -> b
     boolean hasErrors -> c
-    uk.org.ngo.squeezer.util.ICSDiskLruCache this$0 -> a
-    788:793:java.io.OutputStream newOutputStream(int) -> newOutputStream
-    814:820:void commit() -> commit
-    827:828:void abort() -> abort
-    747:747:uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry access$1300(uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor) -> access$1300
-    747:747:boolean access$1802(uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor,boolean) -> access$1802
-uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor$FaultHidingOutputStream -> uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor$FaultHidingOutputStream:
-    uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor this$1 -> a
-    837:841:void write(int) -> write
-    845:849:void write(byte[],int,int) -> write
-    853:857:void close() -> close
-    861:865:void flush() -> flush
-uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry -> uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry:
+    uk.org.ngo.squeezer.util.DiskLruCache this$0 -> a
+    815:820:java.io.OutputStream newOutputStream(int) -> newOutputStream
+    841:847:void commit() -> commit
+    854:855:void abort() -> abort
+    774:774:uk.org.ngo.squeezer.util.DiskLruCache$Entry access$1400(uk.org.ngo.squeezer.util.DiskLruCache$Editor) -> access$1400
+    774:774:boolean access$2002(uk.org.ngo.squeezer.util.DiskLruCache$Editor,boolean) -> access$2002
+uk.org.ngo.squeezer.util.DiskLruCache$Editor$FaultHidingOutputStream -> uk.org.ngo.squeezer.util.DiskLruCache$Editor$FaultHidingOutputStream:
+    uk.org.ngo.squeezer.util.DiskLruCache$Editor this$1 -> a
+    864:868:void write(int) -> write
+    872:876:void write(byte[],int,int) -> write
+    880:884:void close() -> close
+    888:892:void flush() -> flush
+uk.org.ngo.squeezer.util.DiskLruCache$Entry -> uk.org.ngo.squeezer.util.DiskLruCache$Entry:
     java.lang.String key -> b
     long[] lengths -> c
     boolean readable -> d
-    uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor currentEditor -> e
-    uk.org.ngo.squeezer.util.ICSDiskLruCache this$0 -> a
-    887:891:java.lang.String getLengths() -> getLengths
-    898:907:void setLengths(java.lang.String[]) -> setLengths
-    912:912:java.io.IOException invalidLengths(java.lang.String[]) -> invalidLengths
-    916:916:java.io.File getCleanFile(int) -> getCleanFile
-    920:920:java.io.File getDirtyFile(int) -> getDirtyFile
-    869:869:boolean access$602(uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry,boolean) -> access$602
-    869:869:uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor access$702(uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry,uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor) -> access$702
-    869:869:void access$800(uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry,java.lang.String[]) -> access$800
-    869:869:uk.org.ngo.squeezer.util.ICSDiskLruCache$Editor access$700(uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry) -> access$700
-    869:869:long[] access$1000(uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry) -> access$1000
-    869:869:java.lang.String access$1100(uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry) -> access$1100
-    869:869:boolean access$600(uk.org.ngo.squeezer.util.ICSDiskLruCache$Entry) -> access$600
-uk.org.ngo.squeezer.util.ICSDiskLruCache$Snapshot -> uk.org.ngo.squeezer.util.ICSDiskLruCache$Snapshot:
-    java.io.InputStream[] ins -> a
-    727:727:java.io.InputStream getInputStream(int) -> getInputStream
-    738:741:void close() -> close
+    uk.org.ngo.squeezer.util.DiskLruCache$Editor currentEditor -> e
+    long sequenceNumber -> f
+    uk.org.ngo.squeezer.util.DiskLruCache this$0 -> a
+    917:921:java.lang.String getLengths() -> getLengths
+    928:937:void setLengths(java.lang.String[]) -> setLengths
+    942:942:java.io.IOException invalidLengths(java.lang.String[]) -> invalidLengths
+    946:946:java.io.File getCleanFile(int) -> getCleanFile
+    950:950:java.io.File getDirtyFile(int) -> getDirtyFile
+    896:896:boolean access$602(uk.org.ngo.squeezer.util.DiskLruCache$Entry,boolean) -> access$602
+    896:896:uk.org.ngo.squeezer.util.DiskLruCache$Editor access$702(uk.org.ngo.squeezer.util.DiskLruCache$Entry,uk.org.ngo.squeezer.util.DiskLruCache$Editor) -> access$702
+    896:896:void access$800(uk.org.ngo.squeezer.util.DiskLruCache$Entry,java.lang.String[]) -> access$800
+    896:896:uk.org.ngo.squeezer.util.DiskLruCache$Editor access$700(uk.org.ngo.squeezer.util.DiskLruCache$Entry) -> access$700
+    896:896:long[] access$1000(uk.org.ngo.squeezer.util.DiskLruCache$Entry) -> access$1000
+    896:896:java.lang.String access$1100(uk.org.ngo.squeezer.util.DiskLruCache$Entry) -> access$1100
+    896:896:boolean access$600(uk.org.ngo.squeezer.util.DiskLruCache$Entry) -> access$600
+    896:896:long access$1200(uk.org.ngo.squeezer.util.DiskLruCache$Entry) -> access$1200
+    896:896:long access$1202(uk.org.ngo.squeezer.util.DiskLruCache$Entry,long) -> access$1202
+uk.org.ngo.squeezer.util.DiskLruCache$Snapshot -> uk.org.ngo.squeezer.util.DiskLruCache$Snapshot:
+    java.lang.String key -> b
+    long sequenceNumber -> c
+    java.io.InputStream[] ins -> d
+    uk.org.ngo.squeezer.util.DiskLruCache this$0 -> a
+    754:754:java.io.InputStream getInputStream(int) -> getInputStream
+    765:768:void close() -> close
 uk.org.ngo.squeezer.util.ImageCache -> uk.org.ngo.squeezer.util.ImageCache:
-    java.lang.String TAG -> a
-    android.graphics.Bitmap$CompressFormat DEFAULT_COMPRESS_FORMAT -> b
+    android.graphics.Bitmap$CompressFormat DEFAULT_COMPRESS_FORMAT -> a
+    uk.org.ngo.squeezer.util.DiskLruCache mDiskLruCache -> b
     android.support.v4.util.LruCache mMemoryCache -> c
-    uk.org.ngo.squeezer.util.ICSDiskLruCache mICSDiskCache -> d
-    uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams mCacheParams -> e
-    java.lang.Object mDiskAccessMonitor -> f
-    boolean mPauseDiskAccess -> g
-    107:107:uk.org.ngo.squeezer.util.ImageCache findOrCreateCache(android.support.v4.app.FragmentActivity,java.lang.String) -> findOrCreateCache
-    122:134:uk.org.ngo.squeezer.util.ImageCache findOrCreateCache(android.support.v4.app.FragmentActivity,uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams) -> findOrCreateCache
-    144:175:void init(android.content.Context,uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams) -> init
-    178:204:void addBitmapToCache(java.lang.String,android.graphics.Bitmap) -> addBitmapToCache
-    213:222:android.graphics.Bitmap getBitmapFromMemCache(java.lang.String) -> getBitmapFromMemCache
-    232:257:android.graphics.Bitmap getBitmapFromDiskCache(java.lang.String) -> getBitmapFromDiskCache
-    261:271:void close() -> close
-    285:293:void setPauseDiskCache(boolean) -> setPauseDiskCache
-    328:332:int getBitmapSize(android.graphics.Bitmap) -> getBitmapSize
-    346:352:java.io.File getDiskCacheDir(android.content.Context,java.lang.String) -> getDiskCacheDir
-    363:366:boolean isExternalStorageRemovable() -> isExternalStorageRemovable
-    377:386:java.io.File getExternalCacheDir(android.content.Context) -> getExternalCacheDir
-    397:401:long getUsableSpace(java.io.File) -> getUsableSpace
-    408:408:boolean hasExternalCacheDir() -> hasExternalCacheDir
-    418:425:java.lang.String hashKeyForDisk(java.lang.String) -> hashKeyForDisk
-    430:438:java.lang.String bytesToHexString(byte[]) -> bytesToHexString
-    451:460:uk.org.ngo.squeezer.util.ImageCache$RetainFragment findOrCreateRetainFragment(android.support.v4.app.FragmentManager) -> findOrCreateRetainFragment
-    46:46:android.graphics.Bitmap$CompressFormat access$000() -> access$000
+    uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams mCacheParams -> d
+    java.lang.Object mDiskCacheLock -> e
+    boolean mDiskCacheStarting -> f
+    101:112:uk.org.ngo.squeezer.util.ImageCache findOrCreateCache(android.support.v4.app.FragmentManager,uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams) -> findOrCreateCache
+    121:142:void init(uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams) -> init
+    152:175:void initDiskCache() -> initDiskCache
+    199:207:void addBitmapToMemoryCache(java.lang.String,android.graphics.Bitmap) -> addBitmapToMemoryCache
+    262:279:android.graphics.Bitmap getBitmapFromMemCache(java.lang.String) -> getBitmapFromMemCache
+    289:321:android.graphics.Bitmap getBitmapFromDiskCache(java.lang.String) -> getBitmapFromDiskCache
+    329:350:void clearCache() -> clearCache
+    358:369:void flush() -> flush
+    377:391:void close() -> close
+    452:457:java.io.File getDiskCacheDir(android.content.Context,java.lang.String) -> getDiskCacheDir
+    467:473:java.lang.String hashKeyForDisk(java.lang.String) -> hashKeyForDisk
+    478:486:java.lang.String bytesToHexString(byte[]) -> bytesToHexString
+    511:514:boolean isExternalStorageRemovable() -> isExternalStorageRemovable
+    525:531:java.io.File getExternalCacheDir(android.content.Context) -> getExternalCacheDir
+    542:546:long getUsableSpace(java.io.File) -> getUsableSpace
+    559:567:uk.org.ngo.squeezer.util.ImageCache$RetainFragment findOrCreateRetainFragment(android.support.v4.app.FragmentManager) -> findOrCreateRetainFragment
+    44:44:android.graphics.Bitmap$CompressFormat access$000() -> access$000
 uk.org.ngo.squeezer.util.ImageCache$1 -> uk.org.ngo.squeezer.util.ImageCache$1:
     uk.org.ngo.squeezer.util.ImageCache this$0 -> a
-    171:171:int sizeOf(java.lang.String,android.graphics.Bitmap) -> sizeOf
-    164:164:int sizeOf(java.lang.Object,java.lang.Object) -> sizeOf
+    131:131:int sizeOf(java.lang.String,android.graphics.Bitmap) -> sizeOf
+    128:128:int sizeOf(java.lang.Object,java.lang.Object) -> sizeOf
 uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams -> uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams:
-    java.lang.String uniqueName -> a
-    int memCacheSize -> b
-    long diskCacheSize -> c
+    int memCacheSize -> a
+    int diskCacheSize -> b
+    java.io.File diskCacheDir -> c
     android.graphics.Bitmap$CompressFormat compressFormat -> d
     int compressQuality -> e
     boolean memoryCacheEnabled -> f
     boolean diskCacheEnabled -> g
     boolean clearDiskCacheOnStart -> h
-    java.lang.String cacheFilenamePrefix -> i
-    int memoryClass -> j
+    boolean initDiskCacheOnCreate -> i
+    429:434:void setMemCacheSizePercent(android.content.Context,float) -> setMemCacheSizePercent
+    437:437:int getMemoryClass(android.content.Context) -> getMemoryClass
 uk.org.ngo.squeezer.util.ImageCache$RetainFragment -> uk.org.ngo.squeezer.util.ImageCache$RetainFragment:
     java.lang.Object mObject -> a
-    479:483:void onCreate(android.os.Bundle) -> onCreate
-    491:492:void setObject(java.lang.Object) -> setObject
-    500:500:java.lang.Object getObject() -> getObject
+    584:588:void onCreate(android.os.Bundle) -> onCreate
+    596:597:void setObject(java.lang.Object) -> setObject
+    605:605:java.lang.Object getObject() -> getObject
 uk.org.ngo.squeezer.util.ImageFetcher -> uk.org.ngo.squeezer.util.ImageFetcher:
-    java.lang.String TAG -> f
-    uk.org.ngo.squeezer.util.ImageFetcher$ImageFetcherParams mFetcherParams -> g
-    74:75:void loadThumbnailImage(java.lang.String,android.widget.ImageView,int) -> loadThumbnailImage
-    90:91:void loadImage(java.lang.String,android.widget.ImageView) -> loadImage
-    94:95:void setParams(uk.org.ngo.squeezer.util.ImageFetcher$ImageFetcherParams) -> setParams
-    120:143:android.graphics.Bitmap processBitmap(java.lang.String,int) -> processBitmap
-    148:149:android.graphics.Bitmap processBitmap(java.lang.Object) -> processBitmap
-    164:208:byte[] downloadBitmapToMemory(android.content.Context,java.lang.String,int) -> downloadBitmapToMemory
-    221:268:java.io.File downloadBitmapToFile(android.content.Context,java.lang.String,java.lang.String) -> downloadBitmapToFile
-    286:295:android.graphics.Bitmap decodeSampledBitmapFromFile(java.lang.String,int,int) -> decodeSampledBitmapFromFile
-    318:346:int calculateInSampleSize(android.graphics.BitmapFactory$Options,int,int) -> calculateInSampleSize
-    355:358:void disableConnectionReuseIfNecessary() -> disableConnectionReuseIfNecessary
-    368:368:boolean hasHttpConnectionBug() -> hasHttpConnectionBug
-uk.org.ngo.squeezer.util.ImageFetcher$ImageData -> uk.org.ngo.squeezer.util.ImageFetcher$ImageData:
-    java.lang.String mKey -> a
-    int mType -> b
-    392:392:java.lang.String toString() -> toString
-uk.org.ngo.squeezer.util.ImageFetcher$ImageFetcherParams -> uk.org.ngo.squeezer.util.ImageFetcher$ImageFetcherParams:
+    uk.org.ngo.squeezer.util.DiskLruCache mHttpDiskCache -> e
+    java.io.File mHttpCacheDir -> f
+    boolean mHttpDiskCacheStarting -> g
+    java.lang.Object mHttpDiskCacheLock -> h
+    74:75:void init(android.content.Context) -> init
+    79:81:void initDiskCacheInternal() -> initDiskCacheInternal
+    84:100:void initHttpDiskCache() -> initHttpDiskCache
+    105:120:void clearCacheInternal() -> clearCacheInternal
+    125:137:void flushCacheInternal() -> flushCacheInternal
+    142:157:void closeCacheInternal() -> closeCacheInternal
+    173:231:android.graphics.Bitmap processBitmap(java.lang.String) -> processBitmap
+    236:236:android.graphics.Bitmap processBitmap(java.lang.Object) -> processBitmap
+    246:277:boolean downloadUrlToStream(java.lang.String,java.io.OutputStream) -> downloadUrlToStream
+    286:289:void disableConnectionReuseIfNecessary() -> disableConnectionReuseIfNecessary
+uk.org.ngo.squeezer.util.ImageResizer -> uk.org.ngo.squeezer.util.ImageResizer:
     int mImageWidth -> a
     int mImageHeight -> b
-    int mMaxThumbnailBytes -> c
-    int mHttpCacheSize -> d
-    java.lang.String mHttpCacheDir -> e
+    68:70:void setImageSize(int,int) -> setImageSize
+    78:79:void setImageSize(int) -> setImageSize
+    92:92:android.graphics.Bitmap processBitmap(int) -> processBitmap
+    97:97:android.graphics.Bitmap processBitmap(java.lang.Object) -> processBitmap
+    114:123:android.graphics.Bitmap decodeSampledBitmapFromResource(android.content.res.Resources,int,int,int) -> decodeSampledBitmapFromResource
+    164:173:android.graphics.Bitmap decodeSampledBitmapFromDescriptor(java.io.FileDescriptor,int,int) -> decodeSampledBitmapFromDescriptor
+    193:221:int calculateInSampleSize(android.graphics.BitmapFactory$Options,int,int) -> calculateInSampleSize
 uk.org.ngo.squeezer.util.ImageWorker -> uk.org.ngo.squeezer.util.ImageWorker:
-    java.lang.String TAG -> f
     uk.org.ngo.squeezer.util.ImageCache mImageCache -> a
-    android.graphics.Bitmap mLoadingBitmap -> b
-    boolean mFadeInBitmap -> c
+    uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams mImageCacheParams -> b
+    android.graphics.Bitmap mLoadingBitmap -> e
+    boolean mFadeInBitmap -> f
     boolean mExitTasksEarly -> g
-    java.util.Hashtable loadingBitmaps -> h
-    android.content.Context mContext -> d
-    java.util.concurrent.BlockingQueue sPoolWorkQueue -> i
-    java.util.concurrent.ThreadFactory sThreadFactory -> j
-    java.util.concurrent.Executor THREAD_POOL_EXECUTOR -> e
-    123:128:void loadImage(java.lang.Object,android.widget.ImageView,int) -> loadImage
-    143:159:void loadImage(java.lang.Object,android.widget.ImageView,android.graphics.Bitmap) -> loadImage
-    167:173:void executeTaskInParallel(java.lang.Object,uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask) -> executeTaskInParallel
-    195:196:void setImageCache(uk.org.ngo.squeezer.util.ImageCache) -> setImageCache
+    boolean mPauseWork -> c
+    java.lang.Object mPauseWorkLock -> h
+    android.content.res.Resources mResources -> d
+    74:98:void loadImage(java.lang.Object,android.widget.ImageView) -> loadImage
+    115:116:void setLoadingImage(int) -> setLoadingImage
+    126:129:void addImageCache(android.support.v4.app.FragmentManager,uk.org.ngo.squeezer.util.ImageCache$ImageCacheParams) -> addImageCache
+    140:141:void setImageCache(uk.org.ngo.squeezer.util.ImageCache) -> setImageCache
     android.graphics.Bitmap processBitmap(java.lang.Object) -> processBitmap
-    243:255:boolean cancelPotentialWork(java.lang.Object,android.widget.ImageView) -> cancelPotentialWork
-    264:271:uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask getBitmapWorkerTask(android.widget.ImageView) -> getBitmapWorkerTask
-    393:405:void setImageBitmap(android.widget.ImageView,android.graphics.Bitmap) -> setImageBitmap
-    408:411:void setPauseDiskCache(boolean) -> setPauseDiskCache
-    414:417:void closeCache() -> closeCache
-    50:50:boolean access$100(uk.org.ngo.squeezer.util.ImageWorker) -> access$100
-    50:50:void access$200(uk.org.ngo.squeezer.util.ImageWorker,android.widget.ImageView,android.graphics.Bitmap) -> access$200
-    50:50:uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask access$300(android.widget.ImageView) -> access$300
-uk.org.ngo.squeezer.util.ImageWorker$1 -> uk.org.ngo.squeezer.util.ImageWorker$1:
-    java.util.concurrent.atomic.AtomicInteger mCount -> a
-    71:71:java.lang.Thread newThread(java.lang.Runnable) -> newThread
+    186:200:boolean cancelPotentialWork(java.lang.Object,android.widget.ImageView) -> cancelPotentialWork
+    209:216:uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask getBitmapWorkerTask(android.widget.ImageView) -> getBitmapWorkerTask
+    355:371:void setImageBitmap(android.widget.ImageView,android.graphics.Bitmap) -> setImageBitmap
+    374:379:void setPauseWork(boolean) -> setPauseWork
+    405:408:void initDiskCacheInternal() -> initDiskCacheInternal
+    411:414:void clearCacheInternal() -> clearCacheInternal
+    417:420:void flushCacheInternal() -> flushCacheInternal
+    423:427:void closeCacheInternal() -> closeCacheInternal
+    430:431:void clearCache() -> clearCache
+    438:439:void closeCache() -> closeCache
+    39:39:java.lang.Object access$100(uk.org.ngo.squeezer.util.ImageWorker) -> access$100
+    39:39:uk.org.ngo.squeezer.util.ImageCache access$200(uk.org.ngo.squeezer.util.ImageWorker) -> access$200
+    39:39:boolean access$300(uk.org.ngo.squeezer.util.ImageWorker) -> access$300
+    39:39:void access$400(uk.org.ngo.squeezer.util.ImageWorker,android.widget.ImageView,android.graphics.Bitmap) -> access$400
+    39:39:uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask access$500(android.widget.ImageView) -> access$500
 uk.org.ngo.squeezer.util.ImageWorker$AsyncDrawable -> uk.org.ngo.squeezer.util.ImageWorker$AsyncDrawable:
     java.lang.ref.WeakReference bitmapWorkerTaskReference -> a
-    384:384:uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask getBitmapWorkerTask() -> getBitmapWorkerTask
+    344:344:uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask getBitmapWorkerTask() -> getBitmapWorkerTask
 uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask -> uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask:
-    java.lang.Object data -> b
-    java.lang.ref.WeakReference imageViewReference -> c
-    uk.org.ngo.squeezer.util.ImageWorker this$0 -> a
-    290:329:android.graphics.Bitmap doInBackground(java.lang.Object[]) -> doInBackground
-    339:347:void onPostExecute(android.graphics.Bitmap) -> onPostExecute
-    355:362:android.widget.ImageView getAttachedImageView() -> getAttachedImageView
-    277:277:void onPostExecute(java.lang.Object) -> onPostExecute
-    277:277:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-    277:277:java.lang.Object access$000(uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask) -> access$000
+    java.lang.Object data -> e
+    java.lang.ref.WeakReference imageViewReference -> f
+    uk.org.ngo.squeezer.util.ImageWorker this$0 -> d
+    239:282:android.graphics.Bitmap doInBackground(java.lang.Object[]) -> doInBackground
+    291:302:void onPostExecute(android.graphics.Bitmap) -> onPostExecute
+    306:309:void onCancelled(android.graphics.Bitmap) -> onCancelled
+    317:324:android.widget.ImageView getAttachedImageView() -> getAttachedImageView
+    222:222:void onCancelled(java.lang.Object) -> onCancelled
+    222:222:void onPostExecute(java.lang.Object) -> onPostExecute
+    222:222:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+    222:222:java.lang.Object access$000(uk.org.ngo.squeezer.util.ImageWorker$BitmapWorkerTask) -> access$000
+uk.org.ngo.squeezer.util.ImageWorker$CacheAsyncTask -> uk.org.ngo.squeezer.util.ImageWorker$CacheAsyncTask:
+    uk.org.ngo.squeezer.util.ImageWorker this$0 -> d
+    386:400:java.lang.Void doInBackground(java.lang.Object[]) -> doInBackground
+    382:382:java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
 uk.org.ngo.squeezer.util.Intents -> uk.org.ngo.squeezer.util.Intents:
     43:47:boolean isBroadcastReceiverAvailable(android.content.Context,java.lang.String) -> isBroadcastReceiverAvailable
 uk.org.ngo.squeezer.util.Scrobble -> uk.org.ngo.squeezer.util.Scrobble:
@@ -5720,8 +5808,6 @@ uk.org.ngo.squeezer.util.Scrobble -> uk.org.ngo.squeezer.util.Scrobble:
     13:13:boolean haveSls() -> haveSls
     19:19:boolean canScrobble() -> canScrobble
 uk.org.ngo.squeezer.util.UIUtils -> uk.org.ngo.squeezer.util.UIUtils:
-    42:44:uk.org.ngo.squeezer.util.ImageFetcher getImageFetcher(android.support.v4.app.FragmentActivity,uk.org.ngo.squeezer.util.ImageFetcher$ImageFetcherParams) -> getImageFetcher
-    61:61:boolean hasFroyo() -> hasFroyo
-    65:65:boolean hasGingerbread() -> hasGingerbread
-    69:69:boolean hasHoneycomb() -> hasHoneycomb
-    73:73:boolean hasHoneycombMR1() -> hasHoneycombMR1
+    43:43:boolean hasFroyo() -> hasFroyo
+    47:47:boolean hasGingerbread() -> hasGingerbread
+    51:51:boolean hasHoneycomb() -> hasHoneycomb
