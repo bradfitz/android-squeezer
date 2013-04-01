@@ -30,23 +30,20 @@ import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
-import android.widget.TextView;
 
 public class SqueezerSearchActivity extends SqueezerItemListActivity {
-	private TextView loadingLabel;
+    private View loadingLabel;
 	private ExpandableListView resultsExpandableListView;
 	private SqueezerSearchAdapter searchResultsAdapter;
 	private String searchString;
@@ -56,22 +53,11 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search_layout);
 
-		loadingLabel = (TextView) findViewById(R.id.loading_label);
-		final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
+        loadingLabel = findViewById(R.id.loading_label);
 
         searchResultsAdapter = new SqueezerSearchAdapter(this);
 		resultsExpandableListView = (ExpandableListView) findViewById(R.id.search_expandable_list);
 		resultsExpandableListView.setAdapter( searchResultsAdapter );
-
-        searchCriteriaText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH || (actionId == EditorInfo.IME_NULL && event != null)) {
-                    doSearch(searchCriteriaText.getText().toString());
-                    return true;
-                }
-                return false;
-            }
-        });
 
         resultsExpandableListView.setOnChildClickListener( new OnChildClickListener() {
 			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
@@ -95,7 +81,22 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 
         resultsExpandableListView.setOnCreateContextMenuListener(searchResultsAdapter);
         resultsExpandableListView.setOnScrollListener(new ScrollListener());
-	};
+
+         handleIntent(getIntent());
+    };
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            doSearch(query);
+        }
+    }
 
 	@Override
 	protected void registerCallback() throws RemoteException {
@@ -150,11 +151,12 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
         super.onPause();
     }
 
-	static void show(Context context) {
+    public static void show(Context context) {
 		final Intent intent = new Intent(context, SqueezerSearchActivity.class)
 				.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
+
 
 	@Override
 	protected void orderPage(int start) {
@@ -166,8 +168,8 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 	}
 
 	private void doSearch(String searchString) {
+        this.searchString = searchString;
 		if (searchString != null && searchString.length() > 0 && getService() != null) {
-			this.searchString = searchString;
 			reorderItems();
 			resultsExpandableListView.setVisibility(View.GONE);
 			loadingLabel.setVisibility(View.VISIBLE);

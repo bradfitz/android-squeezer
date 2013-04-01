@@ -16,54 +16,42 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/search_instructions_text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/search_instructions_text"
-        android:textAppearance="@style/SqueezerTextItem"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp" />
-
-    <EditText
-        android:id="@+id/search_input"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="@+string/search_hint_text"
-        android:imeOptions="actionSearch"
-        android:inputType="textNoSuggestions"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp" />
-
     <ExpandableListView
         android:id="@+id/search_expandable_list"
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
+        android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:fastScrollEnabled="true"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp" />
+        android:fastScrollEnabled="true" />
 
-    <TextView
+    <LinearLayout
         android:id="@+id/loading_label"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
         android:layout_weight="1"
-        android:text="@string/loading_text"
-        android:visibility="gone"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp" />
+        android:background="#90909090"
+        android:gravity="center"
+        android:visibility="gone" >
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="9dp"
+            android:text="@string/loading_text"
+            android:textAppearance="@style/SqueezerTextItem" />
+    </LinearLayout>
 
     <fragment
         android:id="@+id/now_playing_fragment"
         android:name="uk.org.ngo.squeezer.NowPlayingFragment"
         android:layout_width="fill_parent"
-        android:layout_height="48dp"
-        android:layout_gravity="bottom"
-        tools:layout="@layout/now_playing_fragment_mini" />
+        android:layout_height="48dp" />
+
 </LinearLayout>

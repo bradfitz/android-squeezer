@@ -94,6 +94,14 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         }
     }
 
+    /**
+     * Block searches, when we are not connected.
+     */
+    @Override
+    public boolean onSearchRequested() {
+        if (!isConnected()) return false;
+        return super.onSearchRequested();
+    }
 
     /*
      * Intercept hardware volume control keys to control Squeezeserver
@@ -138,6 +146,20 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
             return true;
         } catch (RemoteException e) {
             Log.e(getTag(), "Error from service.adjustVolumeBy: " + e);
+        }
+        return false;
+    }
+
+    // Safe accessors
+
+    public boolean isConnected() {
+        if (service == null) {
+            return false;
+        }
+        try {
+            return service.isConnected();
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Service exception in isConnected(): " + e);
         }
         return false;
     }
