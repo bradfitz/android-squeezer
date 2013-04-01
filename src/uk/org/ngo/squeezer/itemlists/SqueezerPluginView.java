@@ -50,7 +50,6 @@ public abstract class SqueezerPluginView extends SqueezerIconicItemView<Squeezer
 			viewHolder = (ViewHolder) convertView.getTag();
 
 		viewHolder.label.setText(item.getName());
-        imageFetcher.setLoadingImage(ICON_PENDING_ARTWORK);
         imageFetcher.loadImage(getIconUrl(item.getIcon()), viewHolder.icon);
 
 		return convertView;

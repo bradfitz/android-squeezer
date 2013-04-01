@@ -20,6 +20,7 @@ package uk.org.ngo.squeezer.framework;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.itemlists.SqueezerIconicItemView;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.content.res.Resources;
@@ -110,6 +111,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
         mImageFetcher = new ImageFetcher(this, iconSize);
+        mImageFetcher.setLoadingImage(SqueezerIconicItemView.ICON_PENDING_ARTWORK);
         mImageCacheParams = new ImageCacheParams(this, "artwork");
         mImageCacheParams.setMemCacheSizePercent(this, 0.12f);
 

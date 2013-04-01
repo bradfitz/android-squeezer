@@ -67,7 +67,6 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
             viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
         } else {
             if (imageFetcher != null) {
-                imageFetcher.setLoadingImage(ICON_PENDING_ARTWORK);
                 imageFetcher.loadImage(viewHolder.artworkUrl, viewHolder.icon);
             }
         }

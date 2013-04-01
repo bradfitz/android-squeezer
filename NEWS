@@ -11,6 +11,10 @@
 *   Reduced (possibly eliminated) the potential for out-of-memory errors
     on low-end devices when downloading album artwork.
 
+*   Improvements to smoothness when scrolling through lists that show
+    album artwork.
+
+
 0.9
 ===
 

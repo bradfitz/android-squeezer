@@ -24,7 +24,7 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 /**
  * Represents the view hierarchy for a single {@link SqueezerItem} subclass,
  * where the item has an icon associated with it.
- * 
+ *
  * @param <T>
  */
 public abstract class SqueezerIconicItemView<T extends SqueezerItem> extends SqueezerBaseItemView<T> {
@@ -32,7 +32,7 @@ public abstract class SqueezerIconicItemView<T extends SqueezerItem> extends Squ
     protected static final int ICON_NO_ARTWORK = R.drawable.icon_album_noart;
 
     /** The icon to display when artwork exists, but has not been loaded yet */
-    protected static final int ICON_PENDING_ARTWORK = R.drawable.icon_album_noart;
+    public static final int ICON_PENDING_ARTWORK = R.drawable.icon_album_noart;
 
     public SqueezerIconicItemView(SqueezerItemListActivity activity) {
         super(activity);

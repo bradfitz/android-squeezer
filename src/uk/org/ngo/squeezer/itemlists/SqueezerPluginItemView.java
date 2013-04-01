@@ -62,7 +62,6 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
             if (item.getImage() == null) {
                 viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
             } else {
-                imageFetcher.setLoadingImage(ICON_PENDING_ARTWORK);
                 imageFetcher.loadImage(item.getImage(), viewHolder.icon);
             }
         }
