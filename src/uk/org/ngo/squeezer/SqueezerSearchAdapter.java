@@ -144,13 +144,13 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
 
         // Build the icon to display next to the text.
         //
-        // Take the normal icon (at 48dp) and scale it to 28dp, or 58% of its
+        // Take the normal icon (at 48dp) and scale it to 75% of its
         // original size. Then set it as the left-most compound drawable.
 
         Drawable icon = Squeezer.getContext().getResources().getDrawable(groupIcons[groupPosition]);
         int w = icon.getIntrinsicWidth();
         int h = icon.getIntrinsicHeight();
-        icon.setBounds(0, 0, (int) Math.ceil(w * 0.58), (int) Math.ceil(h * 0.58));
+        icon.setBounds(0, 0, (int) Math.ceil(w * 0.75), (int) Math.ceil(h * 0.75));
 
         label.setCompoundDrawables(icon, null, null, null);
 

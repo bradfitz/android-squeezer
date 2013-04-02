@@ -40,7 +40,7 @@ import android.widget.TextView;
  * @param <T>
  */
 public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extends
-        SqueezerIconicItemView<T> {
+        SqueezerBaseItemView<T> {
     LayoutInflater mLayoutInflater;
 
     public SqueezerAlbumArtView(SqueezerItemListActivity activity) {
@@ -51,10 +51,53 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
     @Override
     public View getAdapterView(View convertView, T item, ImageFetcher imageFetcher) {
         if (imageFetcher == null) {
-            return getDefaultAdapterView(convertView, item.getName());
+            return super.getAdapterView(convertView, item, imageFetcher);
         }
 
-        ViewHolder viewHolder = (convertView != null && convertView.getTag() instanceof ViewHolder) ? (ViewHolder)convertView.getTag() : null;
+        View view = getAdapterView(convertView);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+        viewHolder.text1.setText(item.getName());
+
+        viewHolder.artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
+
+        if (viewHolder.artworkUrl == null) {
+            viewHolder.icon.setImageResource(R.drawable.icon_album_noart);
+        } else {
+            imageFetcher.loadThumbnailImage(viewHolder.artworkUrl, viewHolder.icon,
+                    R.drawable.icon_pending_artwork);
+        }
+
+        viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
+        viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                v.showContextMenu();
+            }
+        });
+
+        bindView(view, item);
+        return view;
+    }
+
+    abstract protected void bindView(View view, T item);
+
+    @Override
+    public View getAdapterView(View convertView, String label) {
+        View view = getAdapterView(convertView);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+        viewHolder.icon.setImageResource(R.drawable.icon_pending_artwork);
+        viewHolder.btnContextMenu.setVisibility(View.GONE);
+        viewHolder.text1.setText(label);
+        viewHolder.text2.setText("");
+
+        return view;
+    }
+
+    private View getAdapterView(View convertView) {
+        ViewHolder viewHolder = (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
+                ? (ViewHolder) convertView.getTag()
+                : null;
 
         if (viewHolder == null) {
             convertView = mLayoutInflater.inflate(R.layout.icon_two_line, null);
@@ -68,36 +111,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
-
-        if (viewHolder.artworkUrl == null) {
-            viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
-        } else {
-            if (imageFetcher != null) {
-                imageFetcher.loadThumbnailImage(viewHolder.artworkUrl, viewHolder.icon,
-                        ICON_PENDING_ARTWORK);
-            }
-        }
-
-        viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
-        viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                v.showContextMenu();
-            }
-        });
-
-        bindView(viewHolder, item);
-
         return convertView;
-    }
-
-    abstract void bindView(ViewHolder viewHolder, T item);
-
-    void bindView(ViewHolder viewHolder, String text) {
-        viewHolder.text1.setText(text);
-        viewHolder.text2.setText(null);
-        viewHolder.icon.setImageDrawable(null);
-        viewHolder.btnContextMenu.setVisibility(View.GONE);
     }
 
     /**

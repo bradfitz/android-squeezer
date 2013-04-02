@@ -39,6 +39,9 @@ import android.widget.BaseAdapter;
  * <p>
  * If you need an adapter for a {@link SqueezerBaseListActivity}, then use
  * {@link SqueezerItemListAdapter} instead.
+ * <p>
+ * Normally there is no need to extend this (or {@link SqueezerItemListAdapter}),
+ * as we delegate all type dependent stuff to {@link SqueezerItemView}.
  *
  * @param <T>
  *            Denotes the class of the items this class should list

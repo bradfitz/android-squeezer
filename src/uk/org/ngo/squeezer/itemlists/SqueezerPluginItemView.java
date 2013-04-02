@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
@@ -31,7 +32,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPluginItem> {
+public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginItem> {
 	private final SqueezerPluginItemListActivity activity;
 
 	public SqueezerPluginItemView(SqueezerPluginItemListActivity activity) {
@@ -41,23 +42,10 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 
     @Override
     public View getAdapterView(View convertView, SqueezerPluginItem item, ImageFetcher imageFetcher) {
-        ViewHolder viewHolder = (convertView != null && convertView.getTag() instanceof ViewHolder) ? (ViewHolder)convertView.getTag() : null;
-
-		if (viewHolder == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
-
-            viewHolder = new ViewHolder();
-			viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
-			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
-
-			convertView.setTag(viewHolder);
-        } else {
-			viewHolder = (ViewHolder) convertView.getTag();
-        }
+        View view = getAdapterView(convertView);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
 		viewHolder.label.setText(item.getName());
-
         if (!item.isHasitems()) {
             viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
             viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
@@ -65,36 +53,48 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
                     v.showContextMenu();
                 }
             });
+        } else
+            viewHolder.btnContextMenu.setVisibility(View.GONE);
+
+        if (item.getImage() == null) {
+            viewHolder.icon.setImageResource(R.drawable.icon_iradio_noart);
+        } else {
+            imageFetcher.loadThumbnailImage(item.getImage(), viewHolder.icon,
+                    R.drawable.icon_pending_artwork);
         }
 
-        if (imageFetcher != null) {
-            if (item.getImage() == null) {
-                viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
-            } else {
-                imageFetcher.loadThumbnailImage(item.getImage(), viewHolder.icon,
-                        ICON_PENDING_ARTWORK);
-            }
-        }
-		return convertView;
-	}
+        return view;
+    }
 
     @Override
     public View getAdapterView(View convertView, String label) {
-        ViewHolder viewHolder;
+        View view = getAdapterView(convertView);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        if (convertView == null || convertView.getTag() == null) {
+        viewHolder.label.setText(label);
+        viewHolder.icon.setImageResource(R.drawable.icon_pending_artwork);
+        viewHolder.btnContextMenu.setVisibility(View.GONE);
+
+        return view;
+    }
+
+    private View getAdapterView(View convertView) {
+        ViewHolder viewHolder = (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
+                ? (ViewHolder) convertView.getTag()
+                : null;
+
+        if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
 
             viewHolder = new ViewHolder();
             viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
             viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
+
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-
-        viewHolder.label.setText(label);
 
         return convertView;
     }

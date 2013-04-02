@@ -58,18 +58,8 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     @Override
     public View getAdapterView(View convertView, SqueezerMusicFolderItem item,
             ImageFetcher unused) {
-        ViewHolder viewHolder;
-
-        if (convertView == null || convertView.getTag() == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
-            viewHolder = new ViewHolder();
-            viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
+        View view = getAdapterView(convertView);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.label.setText(item.getName());
 
@@ -92,11 +82,22 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
             }
         });
 
-        return convertView;
+        return view;
     }
 
     @Override
     public View getAdapterView(View convertView, String label) {
+        View view = getAdapterView(convertView);
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+        viewHolder.label.setText(label);
+        viewHolder.icon.setImageResource(R.drawable.ic_unknown);
+        viewHolder.btnContextMenu.setVisibility(View.GONE);
+
+        return view;
+    }
+
+    private View getAdapterView(View convertView) {
         ViewHolder viewHolder;
 
         if (convertView == null || convertView.getTag() == null) {
@@ -109,17 +110,6 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-
-        viewHolder.label.setText(label);
-
-        viewHolder.icon.setImageResource(R.drawable.ic_unknown);
-
-        viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
-        viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                v.showContextMenu();
-            }
-        });
 
         return convertView;
     }
