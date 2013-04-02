@@ -128,11 +128,6 @@
 	<string name="ITEM_INSERTED">%s er sat til at blive spillet umiddelbart efter den aktuelle sang i den nuværende afspilningsliste</string>
   
     <string name="PLAYLIST_EXISTS_MESSAGE">Afspilningsliste %s findes allerede</string>
-	
-    <!-- Album sort orders -->
-	<string name="albums_sort_order_album">Album</string>
-    <string name="albums_sort_order_artflow">Kunstner, År, Album</string>
-    <string name="albums_sort_order_new">Nye numre</string>
 
     <!-- Song sort orders -->
 	<string name="songs_sort_order_title">Titel</string>

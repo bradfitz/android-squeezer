@@ -117,10 +117,6 @@
 
     <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s bestaat al</string>
 
-    <string name="albums_sort_order_album">Album</string>
-    <string name="albums_sort_order_artflow">Artiest, Jaar, Album</string>
-    <string name="albums_sort_order_new">Nieuwe muziek</string>
-
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Liedje</string>
 

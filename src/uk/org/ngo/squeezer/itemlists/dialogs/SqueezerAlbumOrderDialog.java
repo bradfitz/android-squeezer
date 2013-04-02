@@ -2,6 +2,7 @@ package uk.org.ngo.squeezer.itemlists.dialogs;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
+import uk.org.ngo.squeezer.service.SqueezerServerString;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -15,9 +16,9 @@ public class SqueezerAlbumOrderDialog extends DialogFragment {
         final SqueezerAlbumListActivity activity = (SqueezerAlbumListActivity) getActivity();
 
         String[] sortOrderStrings = new String[AlbumsSortOrder.values().length];
-        sortOrderStrings[AlbumsSortOrder.album.ordinal()] = getString(R.string.albums_sort_order_album);
-        sortOrderStrings[AlbumsSortOrder.artflow.ordinal()] = getString(R.string.albums_sort_order_artflow);
-        sortOrderStrings[AlbumsSortOrder.__new.ordinal()] = getString(R.string.albums_sort_order_new);
+        for (AlbumsSortOrder sortOrder : AlbumsSortOrder.values()) {
+            sortOrderStrings[sortOrder.ordinal()] = activity.getServerString(sortOrder.serverString);
+        }
 
         int checkedItem = activity.getSortOrder().ordinal();
 
@@ -39,12 +40,19 @@ public class SqueezerAlbumOrderDialog extends DialogFragment {
      * Values must correspond with the string expected by the server. Any '__'
      * in the strings will be removed.
      */
-    // TODO: Make this a class, or extend the enum so that it knows which
-    // strings to use, etc.
     public enum AlbumsSortOrder {
-        album,
-        artflow,
-        __new;
+        __new(SqueezerServerString.BROWSE_NEW_MUSIC),
+        album(SqueezerServerString.ALBUM),
+        artflow(SqueezerServerString.SORT_ARTISTYEARALBUM),
+        artistalbum(SqueezerServerString.SORT_ARTISTALBUM),
+        yearalbum(SqueezerServerString.SORT_YEARALBUM),
+        yearartistalbum(SqueezerServerString.SORT_YEARARTISTALBUM);
+
+        private SqueezerServerString serverString;
+
+        private AlbumsSortOrder(SqueezerServerString serverString) {
+            this.serverString = serverString;
+        }
     }
 
 }

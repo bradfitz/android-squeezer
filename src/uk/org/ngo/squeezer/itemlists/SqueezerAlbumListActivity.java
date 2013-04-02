@@ -48,7 +48,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
         implements GenreSpinnerCallback, YearSpinnerCallback,
         SqueezerFilterableListActivity, SqueezerOrderableListActivity {
 
-	private AlbumsSortOrder sortOrder = AlbumsSortOrder.album;
+	private AlbumsSortOrder sortOrder = null;
 
 	private String searchString = null;
     public String getSearchString() { return searchString; }
@@ -91,6 +91,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 
         MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
         MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
+        sortOrder = null;
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -126,10 +127,19 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 		if (yearSpinner != null) yearSpinner.unregisterCallback();
 	}
 
-	@Override
-	protected void orderPage(int start) throws RemoteException {
-		getService().albums(start, sortOrder.name().replace("__", ""), getSearchString(), artist, getYear(), getGenre(), song);
-	}
+    @Override
+    protected void orderPage(int start) throws RemoteException {
+        if (sortOrder == null) {
+            try {
+                sortOrder = AlbumsSortOrder.valueOf(getService().preferredAlbumSort());
+            } catch (IllegalArgumentException e) {
+                Log.w(getTag(), "Unknown preferred album sort: " + e);
+                sortOrder = AlbumsSortOrder.album;
+            }
+        }
+        getService().albums(start, sortOrder.name().replace("__", ""), getSearchString(), artist,
+                getYear(), getGenre(), song);
+    }
 
     public AlbumsSortOrder getSortOrder() {
         return sortOrder;
@@ -156,12 +166,13 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
     }
 
     public static void show(Context context, SqueezerItem... items) {
-        show(context, AlbumsSortOrder.album, items);
+        show(context, null, items);
     }
 
     public static void show(Context context, AlbumsSortOrder sortOrder, SqueezerItem... items) {
         final Intent intent = new Intent(context, SqueezerAlbumListActivity.class);
-        intent.putExtra(AlbumsSortOrder.class.getName(), sortOrder.name());
+        if (sortOrder != null)
+            intent.putExtra(AlbumsSortOrder.class.getName(), sortOrder.name());
         for (SqueezerItem item: items)
             intent.putExtra(item.getClass().getName(), item);
         context.startActivity(intent);

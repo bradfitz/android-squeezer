@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -224,6 +225,9 @@ public class SqueezeService extends Service {
                 if ("httpport".equals(tokens.get(1)) && tokens.size() >= 3) {
                     connectionState.setHttpPort(Integer.parseInt(tokens.get(2)));
                 }
+                if ("jivealbumsort".equals(tokens.get(1)) && tokens.size() >= 3) {
+                    connectionState.setPreferedAlbumSort(tokens.get(2));
+                }
             }
         });
 		handlers.put("can", new SqueezerCmdHandler() {
@@ -238,6 +242,24 @@ public class SqueezeService extends Service {
 				}
 			}
         });
+        handlers.put("getstring", new SqueezerCmdHandler() {
+            public void handle(List<String> tokens) {
+                int maxOrdinal = 0;
+                Map<String, String> tokenMap = parseTokens(tokens);
+                for (Entry<String, String> entry : tokenMap.entrySet()) {
+                    if (entry.getValue() != null) {
+                        SqueezerServerString serverString = SqueezerServerString.valueOf(entry.getKey());
+                        serverString.setLocalizedString(entry.getValue());
+                        if (serverString.ordinal() > maxOrdinal) maxOrdinal = serverString.ordinal();
+                    }
+                }
+
+                // Fetch the next strings until the list is completely translated
+                if (maxOrdinal < SqueezerServerString.values().length - 1) {
+                    cli.sendCommandImmediately("getstring " + SqueezerServerString.values()[maxOrdinal + 1].name());
+                }
+            }
+        });
         handlers.put("version", new SqueezerCmdHandler() {
             /**
              * Seeing the <code>version</code> result indicates that the
@@ -248,6 +270,7 @@ public class SqueezeService extends Service {
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Version received: " + tokens);
                 mHandshakeComplete = true;
+                strings();
 
                 int i = mServiceCallbacks.beginBroadcast();
                 while (i > 0) {
@@ -578,18 +601,24 @@ public class SqueezeService extends Service {
      * Handshake with the SqueezeServer, learn some of its supported features,
      * and start listening for asynchronous updates of server state.
      */
-    void onAuthenticated() {
+    private void onAuthenticated() {
         cli.sendCommandImmediately("listen 1",
                 "players 0 1",   // initiate an async player fetch
                 "can musicfolder ?", // learn music folder browsing support
                 "can randomplay ?",   // learn random play function functionality
                 "pref httpport ?", // learn the HTTP port (needed for images)
+                "pref jivealbumsort ?", // learn the preferred album sort order
 
                 // Fetch the version number. This must be the last thing
                 // fetched, as seeing the result triggers the
                 // "handshake is complete" logic elsewhere.
                 "version ?"
         );
+    }
+
+    /* Start an asynchronous fetch of the squeezeservers localized strings */
+    private void strings() {
+        cli.sendCommandImmediately("getstring " + SqueezerServerString.values()[0].name());
     }
 
     private void setPlayingState(boolean state) {
@@ -753,6 +782,10 @@ public class SqueezeService extends Service {
             SqueezeService.this.disconnect();
         }
 
+        public String getString(int stringToken) {
+            return SqueezerServerString.values()[stringToken].getLocalizedString();
+        }
+
         public boolean powerOn() throws RemoteException {
             if (!isConnected()) return false;
             cli.sendPlayerCommand("power 1");
@@ -790,6 +823,10 @@ public class SqueezeService extends Service {
 
         public boolean canRandomplay() {
         	return connectionState.canRandomplay();
+        }
+
+        public String preferredAlbumSort() {
+            return connectionState.getPreferredAlbumSort();
         }
 
         public boolean togglePausePlay() throws RemoteException {
