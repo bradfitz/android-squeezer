@@ -597,7 +597,7 @@ public class NowPlayingFragment extends Fragment implements
             return null;
         }
         try {
-            return mService.currentSong();
+            return mService.getCurrentSong();
         } catch (RemoteException e) {
             Log.e(TAG, "Service exception in getCurrentSong(): " + e);
         }

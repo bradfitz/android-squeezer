@@ -47,6 +47,7 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
         }
     }
 
+    @Override
     public void bindView(ViewHolder viewHolder, String text) {
         viewHolder.text1.setText(text);
     }

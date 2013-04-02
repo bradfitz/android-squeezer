@@ -92,7 +92,7 @@ interface ISqueezeService {
         boolean setSecondsElapsed(int seconds);
         
     SqueezerPlayerState getPlayerState();
-    SqueezerSong currentSong();
+    SqueezerSong getCurrentSong();
         String getCurrentPlaylist();
         String getAlbumArtUrl(String artworkTrackId);
         String getIconUrl(String icon);

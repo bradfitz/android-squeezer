@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
+import uk.org.ngo.squeezer.itemlists.SqueezerAlbumArtView.ViewHolder;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.SqueezerSong;
@@ -39,10 +40,9 @@ import android.view.ViewGroup;
 
 /**
  * Activity that shows the songs in the current playlist.
- * <p>
- * The currently playing song is highlighted.
  */
 public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<SqueezerSong> {
+
 	public static void show(Context context) {
 	    final Intent intent = new Intent(context, SqueezerCurrentPlaylistActivity.class);
 	    context.startActivity(intent);
@@ -62,11 +62,19 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = super.getView(position, convertView, parent);
-
-            if (position == currentPlaylistIndex) {
-                view.setBackgroundResource(R.drawable.list_item_background_current);
-            } else {
-                view.setBackgroundResource(R.drawable.list_item_background_normal);
+            Object viewTag = view.getTag();
+            // The view tag wont be set until the album is received from the server
+            if (viewTag != null && viewTag instanceof ViewHolder) {
+                ViewHolder viewHolder = (ViewHolder) viewTag;
+                if (position == currentPlaylistIndex) {
+                    viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerCurrentTextItem);
+                    viewHolder.text2.setTextAppearance(getActivity(), R.style.SqueezerCurrentTextItem);
+                    view.setBackgroundResource(R.drawable.list_item_background_current);
+                } else {
+                    viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerTextItem);
+                    viewHolder.text2.setTextAppearance(getActivity(), R.style.SqueezerTextItem);
+                    view.setBackgroundResource(R.drawable.list_item_background_normal);
+                }
             }
             return view;
         }
@@ -181,7 +189,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
         return null;
     }
 
-    @Override
+	@Override
     protected void registerCallback() throws RemoteException {
         getService().registerSongListCallback(songListCallback);
     }
@@ -211,4 +219,5 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
             }
         });
     }
+
 }

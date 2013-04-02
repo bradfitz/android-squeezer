@@ -51,6 +51,7 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 		NowPlayingActivity.show(getActivity());
 	}
 
+    // XXX: Make this a menu resource.
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
