@@ -22,5 +22,6 @@
     android:title="@string/menu_item_sort"
     android:icon="@drawable/ic_action_sort"
     android:showAsAction="ifRoom"
+    android:orderInCategory="10"
   />
 </menu>

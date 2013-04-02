@@ -16,16 +16,19 @@
 
 package uk.org.ngo.squeezer.actionbarcompat;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
-
-import java.util.ArrayList;
 
 /**
  * A <em>really</em> dumb implementation of the {@link android.view.Menu} interface, that's only
@@ -35,21 +38,24 @@ import java.util.ArrayList;
  */
 class SimpleMenu implements Menu {
 
-    private ActionBarHelperBase mActionBarHelper;
-    private Context mContext;
-    private Resources mResources;
+    private final ActionBarHelperBase mActionBarHelper;
+    private final Activity mActivity;
+    private final Resources mResources;
 
-    private ArrayList<SimpleMenuItem> mItems;
+    private final List<SimpleMenuItem> mItems;
+    private int showAsActionAlwways;
+    private final List<SimpleMenuItem> showAsActionIfRoom;
 
     public SimpleMenu(ActionBarHelperBase actionBarHelper) {
         mActionBarHelper = actionBarHelper;
-        mContext = actionBarHelper.mActivity;
-        mResources = mContext.getResources();
+        mActivity = actionBarHelper.mActivity;
+        mResources = mActivity.getResources();
         mItems = new ArrayList<SimpleMenuItem>();
+        showAsActionIfRoom = new ArrayList<SimpleMenuItem>();
     }
 
     public Context getContext() {
-        return mContext;
+        return mActivity;
     }
 
     public Resources getResources() {
@@ -85,7 +91,7 @@ class SimpleMenu implements Menu {
         return item;
     }
 
-    private static int findInsertIndex(ArrayList<? extends MenuItem> items, int order) {
+    private static int findInsertIndex(List<? extends MenuItem> items, int order) {
         for (int i = items.size() - 1; i >= 0; i--) {
             MenuItem item = items.get(i);
             if (item.getOrder() <= order) {
@@ -206,4 +212,56 @@ class SimpleMenu implements Menu {
     public void setQwertyMode(boolean b) {
         throw new UnsupportedOperationException("This operation is not supported for SimpleMenu");
     }
+
+    /**
+     * Register how the specified item should display in the Action Bar.
+     *
+     * @param menuItem The menu item to register
+     * @param showAsAction The action bar state to register
+     */
+    void setShowAsAction(SimpleMenuItem menuItem, Integer showAsAction) {
+        if ((showAsAction & (MenuItem.SHOW_AS_ACTION_ALWAYS)) != 0) showAsActionAlwways++;
+        if ((showAsAction & (MenuItem.SHOW_AS_ACTION_IF_ROOM)) != 0) showAsActionIfRoom .add(findInsertIndex(showAsActionIfRoom, menuItem.getOrder()), menuItem);
+    }
+
+    /**
+     * Figure out whether the specified menu item will fit in the action bar.
+     *
+     * @param menuItem The menu item to check for
+     * @return True if the menu item fits
+     */
+    boolean hasRoom(SimpleMenuItem menuItem) {
+        int maxIcons = getActionBarMaxIcons();
+        int n = 1 + showAsActionAlwways; // Reserve space for the app icon.
+        for (SimpleMenuItem ifRoomItem : showAsActionIfRoom) {
+            if (++n > maxIcons) return false;
+            if (ifRoomItem == menuItem) return true;
+        }
+        return false;
+    }
+
+    int _maxIcons = 0;
+    /**
+     * Implement the rules in the android action bar design guide.
+     * http://developer.android.com/design/patterns/actionbar.html
+     *
+     * @return The number of action which will fit in the action bar.
+     */
+    private int getActionBarMaxIcons() {
+        if (_maxIcons != 0) return _maxIcons;
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int widthPixels = metrics.widthPixels;
+        if (widthPixels < 360)
+            _maxIcons = 2;
+        else if (widthPixels < 500)
+            _maxIcons = 3;
+        else if (widthPixels < 600)
+            _maxIcons = 4;
+        else
+            _maxIcons = 5;
+        return _maxIcons;
+    }
+
 }

@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.actionbarcompat;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.view.ActionProvider;
@@ -127,11 +128,13 @@ class SimpleMenuItem implements MenuItem {
         return null;
     }
 
+    @TargetApi(14)
     public MenuItem setActionProvider(ActionProvider actionProvider) {
         // Noop
         return this;
     }
 
+    @TargetApi(14)
     public ActionProvider getActionProvider() {
         // Noop
         return null;
@@ -152,6 +155,7 @@ class SimpleMenuItem implements MenuItem {
         return false;
     }
 
+    @TargetApi(14)
     public MenuItem setOnActionExpandListener(OnActionExpandListener onActionExpandListener) {
         // Noop
         return this;
@@ -244,10 +248,11 @@ class SimpleMenuItem implements MenuItem {
 
     public void setShowAsAction(int i) {
         showAsAction = (i >= 0 ? i : null);
+        if (showAsAction != null) mMenu.setShowAsAction(this, showAsAction);
     }
 
     public MenuItem setShowAsActionFlags(int i) {
-        showAsAction = i;
+        setShowAsAction(i);
         return this;
     }
 
@@ -260,12 +265,16 @@ class SimpleMenuItem implements MenuItem {
         // Noop
         return this;
     }
-    
-    public boolean isShowAsAction() {
-        return (showAsAction  != null);
-    }
 
+    /**
+     * Check whether this item is on the action bar.
+     *  
+     * @return true if the item is configured to be on the action bar, and it fits.
+     */
     public boolean isActionBar() {
-        return (showAsAction != null && (showAsAction & (MenuItem.SHOW_AS_ACTION_ALWAYS)) != 0);
+        if (showAsAction == null) return false;
+        if ((showAsAction & (MenuItem.SHOW_AS_ACTION_ALWAYS)) != 0) return true;
+        if ((showAsAction & (MenuItem.SHOW_AS_ACTION_IF_ROOM)) != 0) return mMenu.hasRoom(this);
+        return false;
     }
 }

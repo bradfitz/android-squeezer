@@ -16,9 +16,10 @@
   limitations under the License.
   -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="AppTheme" parent="android:style/Theme.Black">
+        <item name="android:panelFullBackground">@color/panel_background_color</item>
         <item name="android:windowTitleSize">@dimen/actionbar_compat_height</item>
         <item name="android:windowTitleBackgroundStyle">@style/ActionBarCompat</item>
         <item name="android:windowContentOverlay">@drawable/actionbar_shadow</item>
@@ -31,7 +32,7 @@
     </style>
 
     <style name="ActionBarCompat">
-        <item name="android:background">#000</item>
+        <item name="android:background">@color/panel_background_color</item>
     </style>
 
     <style name="ActionBarCompatItemBase">
