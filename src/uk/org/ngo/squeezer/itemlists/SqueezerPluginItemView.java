@@ -39,6 +39,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 		this.activity = activity;
 	}
 
+    @Override
     public View getAdapterView(View convertView, SqueezerPluginItem item, ImageFetcher imageFetcher) {
 		ViewHolder viewHolder;
 
@@ -46,7 +47,7 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
             convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
 
             viewHolder = new ViewHolder();
-			viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
+			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
             viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
 

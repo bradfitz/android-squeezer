@@ -54,10 +54,9 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
             return getDefaultAdapterView(convertView, item.getName());
         }
 
-        ViewHolder viewHolder;
+        ViewHolder viewHolder = (convertView != null && convertView.getTag() instanceof ViewHolder) ? (ViewHolder)convertView.getTag() : null;
 
-        if (convertView == null || convertView.getTag() == null
-                || !ViewHolder.class.isAssignableFrom(convertView.getClass())) {
+        if (viewHolder == null) {
             convertView = mLayoutInflater.inflate(R.layout.icon_two_line, null);
             viewHolder = new ViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);

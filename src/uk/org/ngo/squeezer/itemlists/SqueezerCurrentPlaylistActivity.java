@@ -63,7 +63,8 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = super.getView(position, convertView, parent);
             Object viewTag = view.getTag();
-            // The view tag wont be set until the album is received from the server
+
+            // This test because the view tag wont be set until the album is received from the server
             if (viewTag != null && viewTag instanceof ViewHolder) {
                 ViewHolder viewHolder = (ViewHolder) viewTag;
                 if (position == currentPlaylistIndex) {
