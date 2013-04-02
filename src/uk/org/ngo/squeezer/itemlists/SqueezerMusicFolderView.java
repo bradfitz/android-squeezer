@@ -155,8 +155,7 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
             throws RemoteException {
         switch (menuItem.getItemId()) {
             case R.id.download:
-                ((SqueezerMusicFolderListActivity) getActivity())
-                        .downloadSong(selectedItem.getId());
+                getActivity().downloadSong(selectedItem.getId());
                 return true;
         }
         return super.doItemContext(menuItem, index, selectedItem);

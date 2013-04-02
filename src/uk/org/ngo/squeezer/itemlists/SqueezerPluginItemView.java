@@ -41,13 +41,13 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 
     @Override
     public View getAdapterView(View convertView, SqueezerPluginItem item, ImageFetcher imageFetcher) {
-		ViewHolder viewHolder;
+        ViewHolder viewHolder = (convertView != null && convertView.getTag() instanceof ViewHolder) ? (ViewHolder)convertView.getTag() : null;
 
-		if (convertView == null || convertView.getTag() == null) {
+		if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
 
             viewHolder = new ViewHolder();
-			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
+			viewHolder.label = (TextView) convertView.findViewById(R.id.text1);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
             viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
 
@@ -96,8 +96,8 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 
         viewHolder.label.setText(label);
 
-		return convertView;
-	}
+        return convertView;
+    }
 
 	private static class ViewHolder {
 		TextView label;
@@ -127,8 +127,8 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
             menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
             menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
             menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
-		}
-	}
+        }
+    }
 
 	@Override
 	public boolean doItemContext(MenuItem menuItem, int index, SqueezerPluginItem selectedItem) throws RemoteException {
@@ -156,5 +156,4 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 		}
 		return false;
 	}
-
 }
