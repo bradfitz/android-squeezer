@@ -22,6 +22,7 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.View;
@@ -44,7 +45,7 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
     }
 
     @Override
-    public void bindView(View view, SqueezerSong item) {
+    public void bindView(View view, SqueezerSong item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         String text2 = "";
@@ -59,6 +60,14 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
                 text2 = item.getYear() + " - " + text2;
         }
         viewHolder.text2.setText(text2);
+
+        String artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
+        if (artworkUrl == null) {
+            viewHolder.icon.setImageResource(item.isRemote() ? R.drawable.icon_iradio_noart : R.drawable.icon_album_noart);
+        } else {
+            imageFetcher.loadThumbnailImage(artworkUrl, viewHolder.icon,
+                    R.drawable.icon_pending_artwork);
+        }
     }
 
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {

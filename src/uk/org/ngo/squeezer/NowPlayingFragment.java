@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
 import uk.org.ngo.squeezer.dialogs.AboutDialog;
 import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
@@ -53,7 +54,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -74,7 +74,7 @@ public class NowPlayingFragment extends Fragment implements
         HasUiThread {
     private final String TAG = "NowPlayingFragment";
 
-    private FragmentActivity mActivity;
+    private ActionBarActivity mActivity;
     private ISqueezeService mService = null;
 
     private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
@@ -179,7 +179,7 @@ public class NowPlayingFragment extends Fragment implements
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mActivity = (FragmentActivity) activity;
+        mActivity = (ActionBarActivity) activity;
     };
 
     @Override
@@ -389,10 +389,10 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         if (!connected) {
-            albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
             updateSongInfo(null);
 
             if (mFullHeightLayout) {
+                albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
                 nextButton.setImageResource(0);
                 prevButton.setImageResource(0);
                 artistText.setText(getText(R.string.disconnected_text));
@@ -400,7 +400,8 @@ public class NowPlayingFragment extends Fragment implements
                 totalTime.setText("--:--");
                 seekBar.setEnabled(false);
                 seekBar.setProgress(0);
-            }
+            } else
+                albumArt.setImageResource(R.drawable.icon_album_noart);
         } else {
             updateSongInfoFromService();
 
@@ -548,7 +549,14 @@ public class NowPlayingFragment extends Fragment implements
         Log.v(TAG, "updateAlbumArtIfNeeded");
         if (Util.atomicReferenceUpdated(currentSong, song)) {
             if (song == null || song.getArtworkUrl(mService) == null) {
-                albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
+                if (mFullHeightLayout)
+                    albumArt.setImageResource(song != null && song.isRemote()
+                            ? R.drawable.icon_iradio_noart_fullscreen
+                            : R.drawable.icon_album_noart_fullscreen);
+                else
+                    albumArt.setImageResource(song != null && song.isRemote()
+                            ? R.drawable.icon_iradio_noart
+                            : R.drawable.icon_album_noart);
                 return;
             }
 
@@ -694,13 +702,13 @@ public class NowPlayingFragment extends Fragment implements
         MenuInflater i = mActivity.getMenuInflater();
         i.inflate(R.menu.squeezer, menu);
 
-        connectButton = menu.findItem(R.id.menu_item_connect);
-        disconnectButton = menu.findItem(R.id.menu_item_disconnect);
-        poweronButton = menu.findItem(R.id.menu_item_poweron);
-        poweroffButton = menu.findItem(R.id.menu_item_poweroff);
-        playersButton = menu.findItem(R.id.menu_item_players);
-        playlistButton = menu.findItem(R.id.menu_item_playlist);
-        searchButton = menu.findItem(R.id.menu_item_search);
+        connectButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_connect);
+        disconnectButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_disconnect);
+        poweronButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweron);
+        poweroffButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweroff);
+        playersButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_players);
+        playlistButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_playlist);
+        searchButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_search);
     }
 
     @Override

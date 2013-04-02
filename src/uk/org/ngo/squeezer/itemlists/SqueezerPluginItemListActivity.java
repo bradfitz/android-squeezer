@@ -80,7 +80,11 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
         }
 	}
 
-	private void orderItems(String searchString) {
+    public SqueezerPlugin getPlugin() {
+        return plugin;
+    }
+
+    private void orderItems(String searchString) {
 		if (getService() != null && !(plugin.isSearchable() && (searchString == null || searchString.length() == 0))) {
 			search = searchString;
 			super.orderItems();
