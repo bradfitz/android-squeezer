@@ -456,6 +456,7 @@ public class NowPlayingFragment extends Fragment implements
     protected void onServiceConnected() throws RemoteException {
         Log.v(TAG, "Service bound");
         mService.registerCallback(serviceCallback);
+        mService.registerMusicChangedCallback(musicChangedCallback);
         uiThreadHandler.post(new Runnable() {
             public void run() {
                 updateUIFromServiceState();
@@ -678,6 +679,7 @@ public class NowPlayingFragment extends Fragment implements
         if (mService != null) {
             try {
                 mService.unregisterCallback(serviceCallback);
+                mService.unregisterMusicChangedCallback(musicChangedCallback);
                 if (serviceConnection != null) {
                     mActivity.unbindService(serviceConnection);
                 }
@@ -868,14 +870,6 @@ public class NowPlayingFragment extends Fragment implements
             updateUIForPlayer();
         }
 
-        public void onMusicChanged() throws RemoteException {
-            uiThreadHandler.post(new Runnable() {
-                public void run() {
-                    updateSongInfoFromService();
-                }
-            });
-        }
-
         public void onPlayStatusChanged(boolean newStatus)
                 throws RemoteException {
             updatePlayPauseIcon();
@@ -892,9 +886,15 @@ public class NowPlayingFragment extends Fragment implements
                 throws RemoteException {
             updateUIForPlayer();
         }
+    };
 
-        public void onHandshakeCompleted() throws RemoteException {
-            // Do nothing.
+    private final IServiceMusicChangedCallback musicChangedCallback = new IServiceMusicChangedCallback.Stub() {
+        public void onMusicChanged() throws RemoteException {
+            uiThreadHandler.post(new Runnable() {
+                public void run() {
+                    updateSongInfoFromService();
+                }
+            });
         }
     };
 

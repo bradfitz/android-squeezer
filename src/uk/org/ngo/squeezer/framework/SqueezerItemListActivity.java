@@ -33,7 +33,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ListView;
 
 /**
  * This class defines the common minimum, which any activity browsing the
@@ -43,8 +42,6 @@ import android.widget.ListView;
  */
 public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
     private static final String TAG = SqueezerItemListActivity.class.getName();
-
-    protected ListView mListView;
 
     /** The list is being actively scrolled by the user */
     private boolean mListScrolling;

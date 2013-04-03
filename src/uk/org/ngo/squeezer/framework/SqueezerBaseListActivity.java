@@ -53,6 +53,7 @@ import android.widget.ListView;
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
+    private ListView mListView;
 	private SqueezerItemAdapter<T> itemAdapter;
     private View loadingLabel;
 	private SqueezerItemView<T> itemView;

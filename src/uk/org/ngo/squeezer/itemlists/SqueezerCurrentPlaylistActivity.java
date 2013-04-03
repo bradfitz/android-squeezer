@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlists;
 
 import java.util.List;
 
+import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
@@ -97,7 +98,6 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 			@Override
 			public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
 				getActivity().getService().playlistIndex(index);
-				getActivity().finish();
 			}
 
             @Override
@@ -194,12 +194,25 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 	@Override
     protected void registerCallback() throws RemoteException {
         getService().registerSongListCallback(songListCallback);
+        getService().registerMusicChangedCallback(musicChangedCallback);
     }
 
     @Override
     protected void unregisterCallback() throws RemoteException {
         getService().unregisterSongListCallback(songListCallback);
+        getService().unregisterMusicChangedCallback(musicChangedCallback);
     }
+
+    private final IServiceMusicChangedCallback musicChangedCallback = new IServiceMusicChangedCallback.Stub() {
+        public void onMusicChanged() throws RemoteException {
+            currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
+            getUIThreadHandler().post(new Runnable() {
+                public void run() {
+                    getItemAdapter().notifyDataSetChanged();
+                }
+            });
+        }
+    };
 
     private final IServiceSongListCallback songListCallback = new IServiceSongListCallback.Stub() {
         public void onSongsReceived(int count, int start, List<SqueezerSong> items) throws RemoteException {
