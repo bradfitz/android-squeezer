@@ -29,6 +29,16 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
+import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback;
+import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
+import uk.org.ngo.squeezer.itemlists.IServicePlaylistsCallback;
+import uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback;
+import uk.org.ngo.squeezer.itemlists.IServicePluginListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceSongListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
@@ -109,24 +119,26 @@ class SqueezerCLIImpl {
                                 items.add(player);
 						}
 
-						public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
-							if (service.playerListCallback.get() != null) {
-								// If the player list activity is active, pass the discovered players to it
-								try {
-                                        service.playerListCallback.get().onPlayersReceived(count,
+                            @Override
+                            public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
+                                IServicePlayerListCallback callback = service.playerListCallback.get();
+                                if (callback != null) {
+                                    // If the player list activity is active, pass the discovered players to it
+                                    try {
+                                        callback.onPlayersReceived(count,
                                                 start, items);
-								} catch (RemoteException e) {
-									Log.e(TAG, e.toString());
-									return false;
-								}
-							} else
-                                if (start + items.size() >= count) {
-								// Otherwise set the last connected player as the active player
-					        	if (defaultPlayer != null)
-					        		service.changeActivePlayer(defaultPlayer);
-							}
-							return true;
-						}
+                                    } catch (RemoteException e) {
+                                        Log.e(TAG, e.toString());
+                                        return false;
+                                    }
+                                } else
+                                    if (start + items.size() >= count) {
+                                        // Otherwise set the last connected player as the active player
+                                        if (defaultPlayer != null)
+                                            service.changeActivePlayer(defaultPlayer);
+                                    }
+                                return true;
+                            }
 					}
 				)
 		);
@@ -297,6 +309,7 @@ class SqueezerCLIImpl {
             sendCommandImmediately(commands);
         } else {
             service.executor.execute(new Runnable() {
+                @Override
                 public void run() {
                     sendCommandImmediately(commands);
                 }
@@ -559,11 +572,13 @@ class SqueezerCLIImpl {
 	}
 
     private class YearListHandler extends SqueezerBaseListHandler<SqueezerYear> {
+        @Override
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
-            if (service.yearListCallback.get() != null) {
+            IServiceYearListCallback callback = service.yearListCallback.get();
+            if (callback != null) {
                 try {
-                    service.yearListCallback.get().onYearsReceived(count, start, items);
+                    callback.onYearsReceived(count, start, items);
                     return true;
                 } catch (RemoteException e) {
                     Log.e(TAG, e.toString());
@@ -574,11 +589,13 @@ class SqueezerCLIImpl {
     }
 
     private class GenreListHandler extends SqueezerBaseListHandler<SqueezerGenre> {
+        @Override
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
-            if (service.genreListCallback.get() != null) {
+            IServiceGenreListCallback callback = service.genreListCallback.get();
+            if (callback != null) {
                 try {
-                    service.genreListCallback.get().onGenresReceived(count, start, items);
+                    callback.onGenresReceived(count, start, items);
                     return true;
                 } catch (RemoteException e) {
                     Log.e(TAG, e.toString());
@@ -589,11 +606,13 @@ class SqueezerCLIImpl {
     }
 
     private class ArtistListHandler extends SqueezerBaseListHandler<SqueezerArtist> {
+        @Override
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
-            if (service.artistListCallback.get() != null) {
+            IServiceArtistListCallback callback = service.artistListCallback.get();
+            if (callback != null) {
                 try {
-                    service.artistListCallback.get().onArtistsReceived(count, start, items);
+                    callback.onArtistsReceived(count, start, items);
                     return true;
                 } catch (RemoteException e) {
                     Log.e(TAG, e.toString());
@@ -604,11 +623,13 @@ class SqueezerCLIImpl {
     }
 
     private class AlbumListHandler extends SqueezerBaseListHandler<SqueezerAlbum> {
+        @Override
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
-            if (service.albumListCallback.get() != null) {
+            IServiceAlbumListCallback callback = service.albumListCallback.get();
+            if (callback != null) {
                 try {
-                    service.albumListCallback.get().onAlbumsReceived(count, start, items);
+                    callback.onAlbumsReceived(count, start, items);
                     return true;
                 } catch (RemoteException e) {
                     Log.e(TAG, e.toString());
@@ -619,11 +640,13 @@ class SqueezerCLIImpl {
 	}
 
     private class MusicFolderListHandler extends SqueezerBaseListHandler<SqueezerMusicFolderItem> {
+        @Override
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
-            if (service.musicFolderListCallback.get() != null) {
+            IServiceMusicFolderListCallback callback = service.musicFolderListCallback.get();
+            if (callback != null) {
                 try {
-                    service.musicFolderListCallback.get().onMusicFoldersReceived(count, start,
+                    callback.onMusicFoldersReceived(count, start,
                             items);
                     return true;
                 } catch (RemoteException e) {
@@ -636,13 +659,15 @@ class SqueezerCLIImpl {
     }
 
     private class SongListHandler extends SqueezerBaseListHandler<SqueezerSong> {
+        @Override
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
-            if (service.songListCallback.get() != null) {
+            IServiceSongListCallback callback = service.songListCallback.get();
+            if (callback != null) {
                 try {
                     // TODO use parameters to update the current player state
                     // service.playerState.update(parameters);
-                    service.songListCallback.get().onSongsReceived(count, start, items);
+                    callback.onSongsReceived(count, start, items);
                     return true;
                 } catch (RemoteException e) {
                     Log.e(TAG, e.toString());
@@ -653,11 +678,13 @@ class SqueezerCLIImpl {
     }
 
     private class PlaylistsHandler extends SqueezerBaseListHandler<SqueezerPlaylist> {
+        @Override
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
-            if (service.playlistsCallback.get() != null) {
+            IServicePlaylistsCallback callback = service.playlistsCallback.get();
+            if (callback != null) {
                 try {
-                    service.playlistsCallback.get().onPlaylistsReceived(count, start, items);
+                    callback.onPlaylistsReceived(count, start, items);
                     return true;
                 } catch (RemoteException e) {
                     Log.e(TAG, e.toString());
@@ -668,11 +695,13 @@ class SqueezerCLIImpl {
     }
 
     private class PluginListHandler extends SqueezerBaseListHandler<SqueezerPlugin> {
+        @Override
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
-            if (service.pluginListCallback.get() != null) {
+            IServicePluginListCallback callback = service.pluginListCallback.get();
+            if (callback != null) {
                 try {
-                    service.pluginListCallback.get().onPluginsReceived(count, start, items);
+                    callback.onPluginsReceived(count, start, items);
                     return true;
                 } catch (RemoteException e) {
                     Log.e(TAG, e.toString());
@@ -683,11 +712,13 @@ class SqueezerCLIImpl {
     }
 
     private class PluginItemListHandler extends SqueezerBaseListHandler<SqueezerPluginItem> {
+        @Override
         public boolean processList(boolean rescan, int count, int start,
                 Map<String, String> parameters) {
-            if (service.pluginItemListCallback.get() != null) {
+            IServicePluginItemListCallback callback = service.pluginItemListCallback.get();
+            if (callback != null) {
                 try {
-                    service.pluginItemListCallback.get().onPluginItemsReceived(count, start,
+                    callback.onPluginItemsReceived(count, start,
                             parameters, items);
                     return true;
                 } catch (RemoteException e) {

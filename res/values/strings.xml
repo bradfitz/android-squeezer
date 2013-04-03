@@ -335,6 +335,25 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="pref_analytics_enable_enabled">Anonymous usage statistics are collected using Google Analytics.</string>
     <string name="pref_analytics_enable_disabled">No usage statistics are collected.</string>
 
+    <string name="home_item_artists">Artists</string>
+    <string name="home_item_albums">Albums</string>
+    <string name="home_item_songs">Songs</string>
+    <string name="home_item_genres">Genres</string>
+    <string name="home_item_years">Years</string>
+    <string name="home_item_new_music">New Music</string>
+    <string name="home_item_music_folder">Music Folder</string>
+    <string name="home_item_random_mix">Random mix</string>
+    <string name="home_item_playlists">Playlists</string>
+    <string name="home_item_radios">Internet Radio</string>
+    <string name="home_item_favorites">Favorites</string>
+    <string name="home_item_my_apps">My Apps</string>
+
+    <string name="randomplay_item_song_mix">Song mix</string>
+    <string name="randomplay_item_album_mix">Album mix</string>
+    <string name="randomplay_item_artist_mix">Artist mix</string>
+    <string name="randomplay_item_year_mix">Year mix</string>
+    <string name="randomplay_item_choose_genres">Choose genres</string>
+
     <plurals name="seconds">
         <item quantity="one">second</item>
         <item quantity="other">seconds</item>
@@ -389,28 +408,5 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item quantity="one">application</item>
         <item quantity="other">applications</item>
     </plurals>
-
-    <string-array name="home_items">
-        <item>Artists</item>
-        <item>Albums</item>
-        <item>Songs</item>
-        <item>Genres</item>
-        <item>Years</item>
-        <item>New Music</item>
-        <item>Music Folder</item>
-        <item>Random mix</item>
-        <item>Playlists</item>
-        <item>Internet Radio</item>
-        <item>My Apps</item>
-        <item>Favorites</item>
-    </string-array>
-
-    <string-array name="randomplay_items">
-        <item>Song mix</item>
-        <item>Album mix</item>
-        <item>Artist mix</item>
-        <item>Year mix</item>
-        <!-- <item>Choose genres</item> -->
-    </string-array>
 
 </resources>
