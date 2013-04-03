@@ -66,6 +66,7 @@
     <style name="ActionBarCompatHomeItem" parent="style/ActionBarCompatItemBase">
     </style>
 
+    <!-- Text Styles -->
     <style name="SqueezerTextItem" parent="@android:style/TextAppearance.Medium">
     </style>
     <style name="SqueezerCurrentTextItem" parent="style/SqueezerTextItem">
@@ -76,4 +77,33 @@
     <style name="SqueezerCurrentTextItemSmall" parent="style/SqueezerTextItemSmall">
         <item name="android:textStyle">bold</item>
     </style>
+
+    <!-- Media controller styles -->
+    <style name="MediaButton">
+        <item name="android:background">@drawable/list_selector_holo_dark</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">0dip</item>
+        <item name="android:layout_height">52dip</item>
+    </style>
+
+    <style name="MediaButton.Previous">
+        <item name="android:src">@android:drawable/ic_media_previous</item>
+    </style>
+
+    <style name="MediaButton.Next">
+        <item name="android:src">@android:drawable/ic_media_next</item>
+    </style>
+
+    <style name="MediaButton.Play">
+        <item name="android:src">@android:drawable/ic_media_play</item>
+    </style>
+
+    <style name="MediaButton.Shuffle">
+        <item name="android:src">@drawable/btn_shuffle_off</item>
+    </style>
+
+    <style name="MediaButton.Repeat">
+        <item name="android:src">@drawable/btn_repeat_off</item>
+    </style>
+
 </resources>

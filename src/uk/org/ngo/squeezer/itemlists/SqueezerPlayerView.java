@@ -90,7 +90,7 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		return modelIcons;
 	}
 
-	private int getModelIcon(String model) {
+	private static int getModelIcon(String model) {
 		Integer icon = modelIcons.get(model);
 		return (icon != null ? icon : R.drawable.icon_blank);
 	}

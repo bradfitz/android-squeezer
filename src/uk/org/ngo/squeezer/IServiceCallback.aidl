@@ -17,15 +17,17 @@
 package uk.org.ngo.squeezer;
 
 oneway interface IServiceCallback {
-  // Empty strings to denote no default player.
-  void onPlayerChanged(in String playerId, in String playerName);
+    // Empty strings to denote no default player.
+    void onPlayerChanged(in String playerId, in String playerName);
 
-  // postConnect is only true for the very first callback after a new initial connect.
-  // loginFailed is true if the server disconnects before handshaking is completed
-  void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed);
+    // postConnect is only true for the very first callback after a new initial connect.
+    // loginFailed is true if the server disconnects before handshaking is completed
+    void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed);
   
-  void onPlayStatusChanged(boolean isPlaying);
-  void onTimeInSongChange(int secondsIn, int secondsTotal);
-  void onPowerStatusChanged();
+    void onPlayStatusChanged(String playStatus);
+    void onShuffleStatusChanged(int shuffleStatus);
+    void onRepeatStatusChanged(int repeatStatus);
+    void onTimeInSongChange(int secondsIn, int secondsTotal);
+    void onPowerStatusChanged(boolean canPowerOn, boolean canPowerOff);
 }
 

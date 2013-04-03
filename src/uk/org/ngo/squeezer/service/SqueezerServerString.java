@@ -6,7 +6,13 @@ public enum SqueezerServerString {
     SORT_ARTISTYEARALBUM,
     SORT_ARTISTALBUM,
     SORT_YEARALBUM,
-    SORT_YEARARTISTALBUM;
+    SORT_YEARARTISTALBUM,
+    REPEAT_OFF,
+    REPEAT_ONE,
+    REPEAT_ALL,
+    SHUFFLE_OFF,
+    SHUFFLE_ON_SONGS,
+    SHUFFLE_ON_ALBUMS;
 
     private String localizedString;
 

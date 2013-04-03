@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer;
 
+import uk.org.ngo.squeezer.model.SqueezerPlayerState;
+
 oneway interface IServiceMusicChangedCallback {
-  void onMusicChanged();
+    void onMusicChanged(in SqueezerPlayerState playerState);
 }

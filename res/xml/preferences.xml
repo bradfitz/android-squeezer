@@ -31,6 +31,12 @@
      android:persistent="true" />
   </PreferenceCategory>
 
+  <uk.org.ngo.squeezer.IntEditTextPreference
+     android:key="squeezer.fadeInSecs"
+     android:title="@string/settings_fadeinsecs_title"
+     android:dialogMessage ="@string/settings_fadeinsecs_summary"
+     android:persistent="true" />
+
   <CheckBoxPreference
      android:key="squeezer.autoconnect"
      android:title="@string/settings_autoconnect_title"
@@ -70,11 +76,5 @@
         android:summaryOn="@string/pref_analytics_enable_enabled"
         android:summaryOff="@string/pref_analytics_enable_disabled"
         android:defaultValue="true"/>
-
-<!--   <CheckBoxPreference -->
-<!--      android:key="squeezer.debuglogging" -->
-<!--      android:title="Debug Logging" -->
-<!--      android:summary="Keep this off, unless you're debugging something." -->
-<!--      android:persistent="true" /> -->
   </PreferenceCategory>
 </PreferenceScreen>

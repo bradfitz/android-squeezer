@@ -49,6 +49,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private ISqueezeService serviceStub = null;
     private ServerAddressPreference addrPref;
+    private IntEditTextPreference fadeInPref;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -66,14 +67,16 @@ public class SettingsActivity extends PreferenceActivity implements
         getPreferenceManager().setSharedPreferencesName(Preferences.NAME);
         addPreferencesFromResource(R.xml.preferences);
 
-        addrPref = (ServerAddressPreference) findPreference(Preferences.KEY_SERVERADDR);
-        addrPref.setOnPreferenceChangeListener(this);
-
         SharedPreferences preferences = getPreferenceManager().getSharedPreferences();
         preferences.registerOnSharedPreferenceChangeListener(this);
 
-        String currentCliAddr = preferences.getString(Preferences.KEY_SERVERADDR, "");
-        updateAddressSummary(currentCliAddr);
+        addrPref = (ServerAddressPreference) findPreference(Preferences.KEY_SERVERADDR);
+        addrPref.setOnPreferenceChangeListener(this);
+        updateAddressSummary(preferences.getString(Preferences.KEY_SERVERADDR, ""));
+
+        fadeInPref = (IntEditTextPreference) findPreference(Preferences.KEY_FADE_IN_SECS);
+        fadeInPref.setOnPreferenceChangeListener(this);
+        updateFadeInSecondsSummary(preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0));
 
         CheckBoxPreference autoConnectPref = (CheckBoxPreference) findPreference(Preferences.KEY_AUTO_CONNECT);
         autoConnectPref.setChecked(preferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true));
@@ -119,11 +122,19 @@ public class SettingsActivity extends PreferenceActivity implements
         unbindService(serviceConnection);
     }
 
-	private void updateAddressSummary(String addr) {
+    private void updateAddressSummary(String addr) {
         if (addr.length() > 0) {
             addrPref.setSummary(addr);
         } else {
-            addrPref.setSummary(getText(R.string.settings_serveraddr_summary));
+            addrPref.setSummary(R.string.settings_serveraddr_summary);
+        }
+    }
+
+    private void updateFadeInSecondsSummary(int fadeInSeconds) {
+        if (fadeInSeconds == 0) {
+            fadeInPref.setSummary(R.string.disabled);
+        } else {
+            fadeInPref.setSummary(fadeInSeconds + " " + getResources().getQuantityString(R.plurals.seconds, fadeInSeconds));
         }
     }
 
@@ -138,12 +149,18 @@ public class SettingsActivity extends PreferenceActivity implements
     public boolean onPreferenceChange(Preference preference, Object newValue) {
 		final String key = preference.getKey();
 		Log.v(TAG, "preference change for: " + key);
-		if (Preferences.KEY_SERVERADDR.equals(key)) {
-			final String ipPort = newValue.toString();
-			// TODO: check that it looks valid?
-			updateAddressSummary(ipPort);
-			return true;
-		}
+
+        if (Preferences.KEY_SERVERADDR.equals(key)) {
+            final String ipPort = newValue.toString();
+            // TODO: check that it looks valid?
+            updateAddressSummary(ipPort);
+            return true;
+        }
+
+        if (Preferences.KEY_FADE_IN_SECS.equals(key)) {
+            updateFadeInSecondsSummary(Util.parseDecimalIntOrZero(newValue.toString()));
+            return true;
+        }
 
         // If the user has enabled Scrobbling but we don't think it will work
         // pop up a dialog with links to Google Play for apps to install.

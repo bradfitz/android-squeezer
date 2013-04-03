@@ -50,7 +50,6 @@ import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerPlayerState;
-import uk.org.ngo.squeezer.model.SqueezerPlayerState.PlayerStateChanged;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
@@ -110,8 +109,9 @@ public class SqueezeService extends Service {
     /** Was scrobbling enabled? */
     private boolean scrobblingPreviouslyEnabled;
 
-    boolean mUpdateOngoingNotification = false;
-    boolean debugLogging = false;
+    boolean debugLogging; // Enable this if you are debugging something
+    boolean mUpdateOngoingNotification;
+    int mFadeInSecs;
 
 
     @Override
@@ -138,7 +138,7 @@ public class SqueezeService extends Service {
 	private void getPreferences() {
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
 		scrobblingEnabled = preferences.getBoolean(Preferences.KEY_SCROBBLE_ENABLED, false);
-        debugLogging = preferences.getBoolean(Preferences.KEY_DEBUG_LOGGING, false);
+        mFadeInSecs = preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0);
         mUpdateOngoingNotification = preferences.getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false);
 	}
 
@@ -319,30 +319,31 @@ public class SqueezeService extends Service {
 		}
 		handlers.put("prefset", new SqueezerCmdHandler() {
 			public void handle(List<String> tokens) {
+                Log.v(TAG, "Prefset received: " + tokens);
 				if (tokens.size() > 4 && tokens.get(2).equals("server") && tokens.get(3).equals("volume")) {
 		            String newVolume = tokens.get(4);
-		            Log.v(TAG, "New volume is: " + newVolume);
-		            sendNewVolumeCallback(Util.parseDecimalIntOrZero(newVolume));
+		            broadcastNewVolume(Util.parseDecimalIntOrZero(newVolume));
 				}
 			}
 		});
 		handlers.put("play", new SqueezerCmdHandler() {
 			public void handle(List<String> tokens) {
                 Log.v(TAG, "play registered");
-	            setPlayingState(true);
-			}
-		});
-		handlers.put("stop", new SqueezerCmdHandler() {
-			public void handle(List<String> tokens) {
+                setPlayingState(SqueezerPlayerState.PlayStatus.play);
+            }
+        });
+        handlers.put("stop", new SqueezerCmdHandler() {
+            public void handle(List<String> tokens) {
                 Log.v(TAG, "stop registered");
-	            setPlayingState(false);
-			}
-		});
-		handlers.put("pause", new SqueezerCmdHandler() {
-			public void handle(List<String> tokens) {
-	        	parsePause(tokens.size() >= 3 ? tokens.get(2) : null);
-			}
-		});
+                setPlayingState(SqueezerPlayerState.PlayStatus.stop);
+            }
+        });
+        handlers.put("pause", new SqueezerCmdHandler() {
+            public void handle(List<String> tokens) {
+                Log.v(TAG, "pause registered: " + tokens);
+                parsePause(tokens.size() >= 3 ? tokens.get(2) : null);
+            }
+        });
 		handlers.put("status", new SqueezerCmdHandler() {
 			public void handle(List<String> tokens) {
 	        	if (tokens.size() >= 3 && "-".equals(tokens.get(2)))
@@ -414,12 +415,12 @@ public class SqueezeService extends Service {
         }
     }
 
-	private void sendNewVolumeCallback(int newVolume) {
+	private void broadcastNewVolume(int newVolume) {
     	SqueezerPlayer player = connectionState.getActivePlayer();
 		mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
     }
 
-    private void sendNewTimeCallback(int secondsIn, int secondsTotal) {
+    private void broadcastTimeChanged(int secondsIn, int secondsTotal) {
         int i = mServiceCallbacks.beginBroadcast();
         while (i > 0) {
             i--;
@@ -433,41 +434,30 @@ public class SqueezeService extends Service {
         mServiceCallbacks.finishBroadcast();
     }
 
-	private void parsePlaylistNotification(List<String> tokens) {
-		String notification = tokens.get(2);
-		if ("newsong".equals(notification)) {
-			// Also ask for the rest of the status.
-			// TODO: Why? This information isn't then used
-			cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
-		} else if ("stop".equals(notification)) {
-//			setPlayingState(false);
-		} else if ("pause".equals(notification)) {
-			parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
-		}
-	}
+    private void parsePlaylistNotification(List<String> tokens) {
+        Log.v(TAG, "Playlist notifiction received: " + tokens);
+        String notification = tokens.get(2);
+        if ("newsong".equals(notification)) {
+            // When we don't subscribe to the current players status, we rely
+            // on playlist notifications and order song details here.
+            // TODO keep track of subscribe status
+            cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
+        } else if ("play".equals(notification)) {
+            setPlayingState(SqueezerPlayerState.PlayStatus.play);
+        } else if ("stop".equals(notification)) {
+            setPlayingState(SqueezerPlayerState.PlayStatus.stop);
+        } else if ("pause".equals(notification)) {
+            parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
+        }
+    }
 
-	private void parsePause(String explicitPause) {
-        if (debugLogging)
-            Log.v(TAG, "parsePause: '" + explicitPause + "'");
-//		boolean playing = playerState.isPlaying();
-//		if ("0".equals(explicitPause)) {
-//			if (playing) setPlayingState(false);
-//		} else if ("1".equals(explicitPause)) {
-//			if (!playing) setPlayingState(true);
-//		}
-	}
-
-	private void parseMode(String newMode) {
-	    if (debugLogging) Log.v(TAG, "parseMode: '" + newMode + "'");
-		boolean playing = playerState.isPlaying();
-		if ("pause".equals(newMode)) {
-			if (playing) setPlayingState(false);
-		} else if ("stop".equals(newMode)) {
-			if (playing) setPlayingState(false);
-		} else if ("play".equals(newMode)) {
-			if (!playing) setPlayingState(true);
-		}
-	}
+    private void parsePause(String explicitPause) {
+        if ("0".equals(explicitPause)) {
+            setPlayingState(SqueezerPlayerState.PlayStatus.play);
+        } else if ("1".equals(explicitPause)) {
+            setPlayingState(SqueezerPlayerState.PlayStatus.pause);
+        }
+    }
 
     private HashMap<String, String> parseTokens(List<String> tokens) {
 		HashMap<String, String> tokenMap = new HashMap<String, String>();
@@ -488,24 +478,32 @@ public class SqueezeService extends Service {
     }
 
     private void parseStatusLine(List<String> tokens) {
-		HashMap<String, String> tokenMap = parseTokens(tokens);
+        HashMap<String, String> tokenMap = parseTokens(tokens);
 
-        PlayerStateChanged playerStateChanged = playerState.update(tokenMap);
-	    playerState.setCurrentPlaylist(tokenMap.get("playlist_name"));
+        SqueezerPlayerState.PlayerStateChanged playerStateChanged = playerState.update(tokenMap);
 
         if (playerStateChanged.powerHasChanged) {
-            sendPowerStatusChangedCallback();
+            broadcastPowerStatusChanged();
         }
 
-        parseMode(tokenMap.get("mode"));
+        if (playerStateChanged.playStatusHasChanged) {
+            broadcastPlayStatusChangedChanged();
+        }
+
+        if (playerStateChanged.shuffleStatusHasChanged) {
+            broadcastShuffleStatusChangedChanged();
+        }
+
+        if (playerStateChanged.repeatStatusHasChanged) {
+            broadcastRepeatStatusChangedChanged();
+        }
 
         if (playerStateChanged.musicHasChanged) {
-            updateOngoingNotification();
-            sendMusicChangedCallback();
+            broadcastMusicChanged();
         }
 
         if (playerStateChanged.timeHasChanged) {
-            sendNewTimeCallback(playerState.getCurrentTimeSecond(),
+            broadcastTimeChanged(playerState.getCurrentTimeSecond(),
                     playerState.getCurrentSongDuration());
         }
     }
@@ -625,20 +623,50 @@ public class SqueezeService extends Service {
         cli.sendCommandImmediately("getstring " + SqueezerServerString.values()[0].name());
     }
 
-    private void setPlayingState(boolean state) {
-    	connectionState.updateWifiLock(state);
+    private void setPlayingState(SqueezerPlayerState.PlayStatus state) {
+        if (playerState.getPlayStatus() != state) {
+            playerState.setPlayStatus(state);
+            broadcastPlayStatusChangedChanged();
+        }
+    }
 
-        playerState.setPlaying(state);
+    private void broadcastPlayStatusChangedChanged() {
+        //TODO when do we want to keep the wiFi lock ?
+        connectionState.updateWifiLock(playerState.isPlaying());
         updateOngoingNotification();
 
         int i = mServiceCallbacks.beginBroadcast();
         while (i > 0) {
             i--;
             try {
-                mServiceCallbacks.getBroadcastItem(i).onPlayStatusChanged(state);
+                mServiceCallbacks.getBroadcastItem(i).onPlayStatusChanged(playerState.getPlayStatus().name());
             } catch (RemoteException e) {
                 // The RemoteCallbackList will take care of removing
                 // the dead object for us.
+            }
+        }
+        mServiceCallbacks.finishBroadcast();
+    }
+
+    private void broadcastShuffleStatusChangedChanged() {
+        int i = mServiceCallbacks.beginBroadcast();
+        while (i > 0) {
+            i--;
+            try {
+                mServiceCallbacks.getBroadcastItem(i).onShuffleStatusChanged(playerState.getShuffleStatus().getId());
+            } catch (RemoteException e) {
+            }
+        }
+        mServiceCallbacks.finishBroadcast();
+    }
+
+    private void broadcastRepeatStatusChangedChanged() {
+        int i = mServiceCallbacks.beginBroadcast();
+        while (i > 0) {
+            i--;
+            try {
+                mServiceCallbacks.getBroadcastItem(i).onRepeatStatusChanged(playerState.getRepeatStatus().getId());
+            } catch (RemoteException e) {
             }
         }
         mServiceCallbacks.finishBroadcast();
@@ -656,6 +684,7 @@ public class SqueezeService extends Service {
         if (scrobblingEnabled || scrobblingPreviouslyEnabled) {
             scrobblingPreviouslyEnabled = scrobblingEnabled;
             SqueezerSong s = playerState.getCurrentSong();
+
             if (s != null) {
                 Log.v(TAG, "Scrobbling, playing is: " + playing);
                 Intent i = new Intent();
@@ -711,12 +740,13 @@ public class SqueezeService extends Service {
         nm.notify(PLAYBACKSERVICE_STATUS, status);
     }
 
-    private void sendMusicChangedCallback() {
+    private void broadcastMusicChanged() {
+        updateOngoingNotification();
         int i = mMusicChangedCallbacks.beginBroadcast();
         while (i > 0) {
             i--;
             try {
-                mMusicChangedCallbacks.getBroadcastItem(i).onMusicChanged();
+                mMusicChangedCallbacks.getBroadcastItem(i).onMusicChanged(playerState);
             } catch (RemoteException e) {
                 // The RemoteCallbackList will take care of removing
                 // the dead object for us.
@@ -731,12 +761,12 @@ public class SqueezeService extends Service {
         nm.cancel(PLAYBACKSERVICE_STATUS);
     }
 
-    private void sendPowerStatusChangedCallback() {
+    private void broadcastPowerStatusChanged() {
         int i = mServiceCallbacks.beginBroadcast();
         while (i > 0) {
             i--;
             try {
-                mServiceCallbacks.getBroadcastItem(i).onPowerStatusChanged();
+                mServiceCallbacks.getBroadcastItem(i).onPowerStatusChanged(squeezeService.canPowerOn(), squeezeService.canPowerOff());
             } catch (RemoteException e) {
                 // The RemoteCallbackList will take care of removing
                 // the dead object for us.
@@ -752,10 +782,10 @@ public class SqueezeService extends Service {
             updatePlayerSubscriptionState();
         }
 
-        public void unregisterCallback(IServiceCallback callback) throws RemoteException {
+	    public void unregisterCallback(IServiceCallback callback) throws RemoteException {
             mServiceCallbacks.unregister(callback);
             updatePlayerSubscriptionState();
-        }
+	    }
 
         public void registerMusicChangedCallback(IServiceMusicChangedCallback callback) throws RemoteException {
             mMusicChangedCallbacks.register(callback);
@@ -778,13 +808,12 @@ public class SqueezeService extends Service {
             mHandshakeCallbacks.unregister(callback);
         }
 
-	    public int adjustVolumeBy(int delta) throws RemoteException {
+	    public void adjustVolumeBy(int delta) throws RemoteException {
             if (delta > 0) {
                 cli.sendPlayerCommand("mixer volume %2B" + delta);
             } else if (delta < 0) {
                 cli.sendPlayerCommand("mixer volume " + delta);
             }
-            return 50 + delta;  // TODO: return non-blocking dead-reckoning value
         }
 
         public boolean isConnected() throws RemoteException {
@@ -847,32 +876,39 @@ public class SqueezeService extends Service {
             return connectionState.getPreferredAlbumSort();
         }
 
+        private String fadeInSecs() {
+            return mFadeInSecs > 0 ? " " + mFadeInSecs : "";
+        }
+
         public boolean togglePausePlay() throws RemoteException {
             if (!isConnected()) return false;
-            if (playerState.isPlaying()) {
-                // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
-                // because then we'd get confused when they came back in to us, not being
-                // able to differentiate ours coming back on the listen channel vs. those
-                // of those idiots at the dinner party messing around.
-                cli.sendPlayerCommand("pause 1");
-            } else {
-                // TODO: use 'pause 0 <fade_in_secs>' to fade-in if we knew it was
-                // actually paused (as opposed to not playing at all)
-                cli.sendPlayerCommand("play");
+            SqueezerPlayerState.PlayStatus playStatus = playerState.getPlayStatus();
+            switch (playStatus) {
+                case play:
+                    // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
+                    // because then we'd get confused when they came back in to us, not being
+                    // able to differentiate ours coming back on the listen channel vs. those
+                    // of those idiots at the dinner party messing around.
+                    cli.sendPlayerCommand("pause 1");
+                    break;
+                case stop:
+                    cli.sendPlayerCommand("play" + fadeInSecs());
+                    break;
+                case pause:
+                    cli.sendPlayerCommand("pause 0" + fadeInSecs());
+                    break;
             }
             return true;
         }
 
         public boolean play() throws RemoteException {
             if (!isConnected()) return false;
-            playerState.setPlaying(true);
-            cli.sendPlayerCommand("play");
+            cli.sendPlayerCommand("play" + fadeInSecs());
             return true;
         }
 
         public boolean stop() throws RemoteException {
             if (!isConnected()) return false;
-            playerState.setPlaying(false);
             cli.sendPlayerCommand("stop");
             return true;
         }
@@ -886,6 +922,18 @@ public class SqueezeService extends Service {
         public boolean previousTrack() throws RemoteException {
             if (!isConnected() || !isPlaying()) return false;
             cli.sendPlayerCommand("button jump_rew");
+            return true;
+        }
+
+        public boolean toggleShuffle() throws RemoteException {
+            if (!isConnected()) return false;
+            cli.sendPlayerCommand("playlist shuffle");
+            return true;
+        }
+
+        public boolean toggleRepeat() throws RemoteException {
+            if (!isConnected()) return false;
+            cli.sendPlayerCommand("playlist repeat");
             return true;
         }
 
@@ -910,7 +958,7 @@ public class SqueezeService extends Service {
          */
         public boolean playlistIndex(int index) throws RemoteException {
             if (!isConnected()) return false;
-            cli.sendPlayerCommand("playlist index " + index);
+            cli.sendPlayerCommand("playlist index " + index + fadeInSecs());
             return true;
         }
 
@@ -942,10 +990,9 @@ public class SqueezeService extends Service {
             if (!isConnected()) return false;
             cli.sendPlayerCommand(plugin.getId() + " playlist " + cmd + " item_id:" + itemId);
             return true;
-
         }
 
-        public boolean isPlaying() throws RemoteException {
+        private boolean isPlaying() throws RemoteException {
             return playerState.isPlaying();
         }
 
@@ -964,10 +1011,6 @@ public class SqueezeService extends Service {
 
         public SqueezerPlayerState getPlayerState() throws RemoteException {
             return playerState;
-        }
-
-        public SqueezerSong getCurrentSong() throws RemoteException {
-            return playerState.getCurrentSong();
         }
 
         public String getCurrentPlaylist() {
@@ -1006,10 +1049,6 @@ public class SqueezeService extends Service {
             return "http://" + connectionState.getCurrentHost() + ":" + port + relativeUrl;
         }
 
-        public int getSecondsElapsed() throws RemoteException {
-            return playerState.getCurrentTimeSecond();
-        }
-
         public boolean setSecondsElapsed(int seconds) throws RemoteException {
         	if (!isConnected()) return false;
         	if (seconds < 0) return false;
@@ -1017,10 +1056,6 @@ public class SqueezeService extends Service {
         	cli.sendPlayerCommand("time " + seconds);
 
         	return true;
-        }
-
-        public int getSecondsTotal() throws RemoteException {
-            return playerState.getCurrentSongDuration();
         }
 
         public void preferenceChanged(String key) throws RemoteException {

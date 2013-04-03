@@ -47,10 +47,11 @@ public final class Preferences {
     // Type of underlying preference is bool / CheckBox
     public static final String KEY_SCROBBLE_ENABLED = "squeezer.scrobble.enabled";
 
-    public static final String KEY_DEBUG_LOGGING = "squeezer.debuglogging";
-
     // Do we send anonymous usage statistics?
     public static final String KEY_ANALYTICS_ENABLED = "squeezer.analytics.enabled";
+
+    // Fade-in period? (0 = disable fade-in)
+    public static final String KEY_FADE_IN_SECS = "squeezer.fadeInSecs";
 
 	private Preferences() {
 	}
