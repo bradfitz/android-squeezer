@@ -62,9 +62,8 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
     }
 
     public static void show(Context context) {
-		final Intent intent = new Intent(context, NowPlayingActivity.class)
-				.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        final Intent intent = new Intent(context, NowPlayingActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
 }
