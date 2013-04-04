@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,8 +36,8 @@ import uk.org.ngo.squeezer.model.SqueezerPlayerState;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.util.ImageFetcher.ImageFetcherParams;
 import uk.org.ngo.squeezer.util.UIUtils;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -46,6 +47,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
@@ -58,6 +60,7 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -108,18 +111,30 @@ public class NowPlayingFragment extends Fragment implements
     private int secondsTotal;
     private final static int UPDATE_TIME = 1;
 
-    /** ImageFetcher for (large) album cover art */
-    private ImageFetcher mLargeImageFetcher;
+    /** ImageFetcher for album cover art */
+    private ImageFetcher mImageFetcher;
 
-    private final Handler uiThreadHandler = new Handler() {
+    /** ImageCache parameters for the album art. */
+    private ImageCacheParams mImageCacheParams;
+
+    private final Handler uiThreadHandler = new UiThreadHandler(this);
+
+    private final static class UiThreadHandler extends Handler {
+        WeakReference<NowPlayingFragment> mFragment;
+
+        public UiThreadHandler(NowPlayingFragment fragment) {
+            mFragment = new WeakReference<NowPlayingFragment>(fragment);
+        }
+
         // Normally I'm lazy and just post Runnables to the uiThreadHandler
         // but time updating is special enough (it happens every second) to
         // take care not to allocate so much memory which forces Dalvik to GC
         // all the time.
         @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == UPDATE_TIME) {
-                updateTimeDisplayTo(secondsIn, secondsTotal);
+        public void handleMessage(Message message) {
+            if (message.what == UPDATE_TIME) {
+                mFragment.get().updateTimeDisplayTo(mFragment.get().secondsIn,
+                        mFragment.get().secondsTotal);
             }
         }
     };
@@ -212,18 +227,33 @@ public class NowPlayingFragment extends Fragment implements
             currentTime = (TextView) v.findViewById(R.id.currenttime);
             totalTime = (TextView) v.findViewById(R.id.totaltime);
             seekBar = (SeekBar) v.findViewById(R.id.seekbar);
+
+            // Calculate the size of the album art to display, which will be the shorter
+            // of the device's two dimensions.
+            Display display = mActivity.getWindowManager().getDefaultDisplay();
+            int albumArtSize = Math.min(display.getWidth(), display.getHeight());
+            mImageFetcher = new ImageFetcher(mActivity, albumArtSize);
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
+
+            // Get an ImageFetcher to scale artwork to the size of the icon view.
+            Resources resources = getResources();
+            int iconSize = (Math.max(
+                    resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
+                    resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
+            mImageFetcher = new ImageFetcher(mActivity, iconSize);
         }
+
+        // TODO: Clean this up.  I think a better approach is to create the cache
+        // in the activity that hosts the fragment, and make the cache available to
+        // the fragment (or, make the cache a singleton across the whole app).
+        mImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+        mImageCacheParams = new ImageCacheParams(mActivity, "artwork");
+        mImageCacheParams.setMemCacheSizePercent(mActivity, 0.12f);
 
         albumArt = (ImageView) v.findViewById(R.id.album);
         trackText = (TextView) v.findViewById(R.id.trackname);
         albumText = (TextView) v.findViewById(R.id.albumname);
-
-        // Set up the image fetcher, max cover art size is 512K.
-        ImageFetcherParams params = new ImageFetcherParams();
-        params.mMaxThumbnailBytes = 512 * 1024 * 1024; // 512K
-        mLargeImageFetcher = UIUtils.getImageFetcher(mActivity, params);
 
         if (mFullHeightLayout) {
             /*
@@ -510,6 +540,8 @@ public class NowPlayingFragment extends Fragment implements
         super.onResume();
         Log.d(TAG, "onResume...");
 
+        mImageFetcher.addImageCache(mActivity.getSupportFragmentManager(), mImageCacheParams);
+
         // Start it and have it run forever (until it shuts itself down).
         // This is required so swapping out the activity (and unbinding the
         // service connection in onPause) doesn't cause the service to be
@@ -582,6 +614,7 @@ public class NowPlayingFragment extends Fragment implements
     // Should only be called from the UI thread.
     private void updateAlbumArtIfNeeded(SqueezerSong song) {
         Log.v(TAG, "updateAlbumArtIfNeeded");
+
         if (Util.atomicReferenceUpdated(currentSong, song)) {
             if (song == null || song.getArtworkUrl(mService) == null) {
                 if (mFullHeightLayout)
@@ -595,7 +628,11 @@ public class NowPlayingFragment extends Fragment implements
                 return;
             }
 
-            mLargeImageFetcher.loadImage(song.getArtworkUrl(mService), albumArt);
+            // The image fetcher might not be ready yet.
+            if (mImageFetcher == null)
+                return;
+
+            mImageFetcher.loadImage(song.getArtworkUrl(mService), albumArt);
         }
     }
 
@@ -690,6 +727,9 @@ public class NowPlayingFragment extends Fragment implements
                 Log.e(TAG, "Service exception in onPause(): " + e);
             }
         }
+
+        mImageFetcher.closeCache();
+
         if (isAutoConnect(getSharedPreferences()))
             mActivity.unregisterReceiver(broadcastReceiver);
         super.onPause();

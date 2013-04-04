@@ -65,8 +65,7 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
         if (artworkUrl == null) {
             viewHolder.icon.setImageResource(item.isRemote() ? R.drawable.icon_iradio_noart : R.drawable.icon_album_noart);
         } else {
-            imageFetcher.loadThumbnailImage(artworkUrl, viewHolder.icon,
-                    R.drawable.icon_pending_artwork);
+            imageFetcher.loadImage(artworkUrl, viewHolder.icon);
         }
     }
 

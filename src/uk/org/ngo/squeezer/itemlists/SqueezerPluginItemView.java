@@ -58,8 +58,7 @@ public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginI
 
         // If the item has an image, then fetch and display it
         if (item.getImage() != null) {
-            imageFetcher.loadThumbnailImage(item.getImage(), viewHolder.icon,
-                    R.drawable.icon_pending_artwork);
+            imageFetcher.loadImage(item.getImage(), viewHolder.icon);
         } else {
             // Otherwise we will revert to some other icon.
             // This is not an exact approach, more like a best effort.
@@ -69,8 +68,7 @@ public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginI
                 if (activity.getPlugin().getIconResource() != 0)
                     viewHolder.icon.setImageResource(activity.getPlugin().getIconResource());
                 else
-                    imageFetcher.loadThumbnailImage(activity.getIconUrl(activity.getPlugin().getIcon()), viewHolder.icon,
-                            R.drawable.icon_pending_artwork);
+                    imageFetcher.loadImage(activity.getIconUrl(activity.getPlugin().getIcon()), viewHolder.icon);
             } else {
                 // Finally we assume it is an item that can be played. This is consistent with onItemSelected and onCreateContextMenu
                 viewHolder.icon.setImageResource(R.drawable.ic_songs);
@@ -119,11 +117,13 @@ public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginI
         ImageButton btnContextMenu;
 	}
 
-	public String getQuantityString(int quantity) {
+    @Override
+    public String getQuantityString(int quantity) {
 		return null;
 	}
 
-	public void onItemSelected(int index, SqueezerPluginItem item) throws RemoteException {
+    @Override
+    public void onItemSelected(int index, SqueezerPluginItem item) throws RemoteException {
 		if (item.isHasitems())
 			activity.show(item);
 		else {
@@ -170,4 +170,5 @@ public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginI
 		}
 		return false;
 	}
+
 }

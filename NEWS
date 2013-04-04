@@ -1,3 +1,20 @@
+0.9.1
+=====
+
+*   Disable song download functionality when not connected to a server.
+
+*   Disable "Download playing song" functionality when no song is playing.
+
+*   Fixed crash when scanning for servers on Android devices running
+    Honeycomb.
+
+*   Reduced (possibly eliminated) the potential for out-of-memory errors
+    on low-end devices when downloading album artwork.
+
+*   Improvements to smoothness when scrolling through lists that show
+    album artwork.
+
+
 0.9
 ===
 
