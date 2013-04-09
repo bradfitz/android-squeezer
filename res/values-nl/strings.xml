@@ -77,7 +77,7 @@
     <string name="delete_title">Verwijder %s</string>
     <string name="delete__message">Echt verwijderen?</string>
     <string name="loading_text">Laden &#8230;</string>
-    <string name="browse_items_text" >Blader %2$d %1$s</string>
+    <string name="browse_items_text" >%2$d %1$s</string>
     <string name="choose_sort_order">Kies organisatie van %s</string>
     <string name="genre_prompt">Kies genre</string>
     <string name="year_prompt">Kies jaar</string>

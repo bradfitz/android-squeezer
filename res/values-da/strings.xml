@@ -87,7 +87,7 @@
     <string name="delete_title">Slet %s</string>
     <string name="delete__message">Er du sikker på at slette?</string>
     <string name="loading_text">Henter &#8230;</string>
-    <string name="browse_items_text">Viser %2$d %1$s</string>
+    <string name="browse_items_text">%2$d %1$s</string>
     <string name="choose_sort_order">Vælg rækkefølge af %s</string>
     <string name="genre_prompt">Vælg genre</string>
     <string name="year_prompt">Vælg år</string>
