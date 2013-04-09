@@ -64,8 +64,8 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private static final int RANDOM_MIX = 7;
     private static final int PLAYLISTS = 8;
     private static final int INTERNET_RADIO = 9;
-    private static final int APPS = 10;
-    private static final int FAVORITES = 11;
+    private static final int FAVORITES = 10;
+    private static final int APPS = 11;
 
     private boolean mCanMusicfolder = false;
     private boolean mCanRandomplay = false;
@@ -149,7 +149,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                 R.drawable.ic_genres, R.drawable.ic_years, R.drawable.ic_new_music,
                 R.drawable.ic_music_folder, R.drawable.ic_random,
                 R.drawable.ic_playlists, R.drawable.ic_internet_radio,
-                R.drawable.ic_my_apps, R.drawable.ic_favorites
+                R.drawable.ic_favorites, R.drawable.ic_my_apps
         };
 
         String[] items = getResources().getStringArray(R.array.home_items);;
