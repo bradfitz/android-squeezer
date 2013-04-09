@@ -35,6 +35,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 /**
  * A generic base class for an activity to list items of a particular
@@ -49,14 +50,16 @@ import android.widget.ListView;
  * {@link SqueezerItemView}. See {@link SqueezerItemListActivity} for see
  * details of ordering and receiving of list items from SqueezeServer, and
  * handling of item selection.
- * 
+ *
  * @param <T> Denotes the class of the items this class should list
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
     private ListView mListView;
 	private SqueezerItemAdapter<T> itemAdapter;
-    private View loadingLabel;
+
+    /** Progress bar (spinning) while items are loading. */
+    private ProgressBar loadingProgress;
 	private SqueezerItemView<T> itemView;
 
     /** An ImageFetcher for loading thumbnails. */
@@ -70,7 +73,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.item_list);
 		mListView = (ListView) findViewById(R.id.item_list);
-        loadingLabel = findViewById(R.id.loading_label);
+        loadingProgress = (ProgressBar) findViewById(R.id.loading_progress);
         itemView = createItemView();
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
@@ -214,7 +217,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	public void orderItems() {
 		reorderItems();
         mListView.setVisibility(View.GONE);
-		loadingLabel.setVisibility(View.VISIBLE);
+        loadingProgress.setVisibility(View.VISIBLE);
 		clearItemListAdapter();
 	}
 
@@ -223,7 +226,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
             @Override
             public void run() {
                 mListView.setVisibility(View.VISIBLE);
-				loadingLabel.setVisibility(View.GONE);
+                loadingProgress.setVisibility(View.GONE);
 				getItemAdapter().update(count, start, items);
 			}
 		});

@@ -20,11 +20,12 @@ import java.util.List;
 
 import org.acra.ErrorReporter;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,10 +35,13 @@ import android.os.RemoteException;
  * Display a list of Squeezebox music folders.
  * <p>
  * If the <code>extras</code> bundle contains a key that matches
- * <code>SqueezerMusicFolder.class.getName()</code> the value is assumed to be
- * an instance of that class, and that folder will be displayed.
+ * <code>SqueezerMusicFolder.class.getName()</code> the value is assumed to be an instance of that
+ * class, and that folder will be displayed.
  * <p>
  * Otherwise the root music folder is shown.
+ * <p>
+ * The activity's content views scrolls in from the right, and disappear to the left, to provide a
+ * spatial component to navigation.
  *
  * @author nik
  */
@@ -105,23 +109,31 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
     /**
      * Show this activity, showing the contents of the root folder.
      *
-     * @param context
+     * @param activity
      */
-    public static void show(Context context) {
-        final Intent intent = new Intent(context, SqueezerMusicFolderListActivity.class);
-        context.startActivity(intent);
+    public static void show(Activity activity) {
+        final Intent intent = new Intent(activity, SqueezerMusicFolderListActivity.class);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
     /**
      * Show this activity, showing the contents of the given folder.
      *
-     * @param context
+     * @param activity
      * @param folder The folder whose contents will be shown.
      */
-    public static void show(Context context, SqueezerMusicFolderItem folder) {
-        final Intent intent = new Intent(context, SqueezerMusicFolderListActivity.class);
+    public static void show(Activity activity, SqueezerMusicFolderItem folder) {
+        final Intent intent = new Intent(activity, SqueezerMusicFolderListActivity.class);
         intent.putExtra(folder.getClass().getName(), folder);
-        context.startActivity(intent);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
     private final IServiceMusicFolderListCallback musicFolderListCallback = new IServiceMusicFolderListCallback.Stub() {
@@ -135,7 +147,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
      * Attempts to download the song given by songId.
      * <p>
      * XXX: Duplicated from SqueezerAbstractSongListActivity.
-     * 
+     *
      * @param songId ID of the song to download
      */
     public void downloadSong(String songId) {
