@@ -180,6 +180,10 @@ public class ServerAddressPreference extends DialogPreference {
      */
     void onScanFinished() {
         mProgressDialog.dismiss();
+
+        if (mScanNetworkTask == null)
+            return;
+
         mDiscoveredServers = mScanNetworkTask.getDiscoveredServers();
         mScanNetworkTask = null;
 
