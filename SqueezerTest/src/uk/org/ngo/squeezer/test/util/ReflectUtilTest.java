@@ -1,4 +1,4 @@
-package uk.org.ngo.squeezer.test;
+package uk.org.ngo.squeezer.test.util;
 
 import java.lang.reflect.Type;
 import java.util.AbstractCollection;
@@ -16,7 +16,7 @@ import java.util.Set;
 import uk.org.ngo.squeezer.ReflectUtil;
 import junit.framework.TestCase;
 
-public class TestReflectUtil extends TestCase {
+public class ReflectUtilTest extends TestCase {
 
     class Item {
     }
@@ -226,7 +226,7 @@ public class TestReflectUtil extends TestCase {
     public void testResolveGenericCollections() {
         List<Item1> itemList = new ArrayList<Item1>(){ private static final long serialVersionUID = 1L; };
         Set<Item1> itemSet = new HashSet<Item1>(){ private static final long serialVersionUID = 1L; };
-        Map<String, Item1> itemMap = new HashMap<String, TestReflectUtil.Item1>(){ private static final long serialVersionUID = 1L; };
+        Map<String, Item1> itemMap = new HashMap<String, ReflectUtilTest.Item1>(){ private static final long serialVersionUID = 1L; };
         List<Integer> intList = new ArrayList<Integer>(){ private static final long serialVersionUID = 1L; };
         Set<Integer> intSet = new HashSet<Integer>(){ private static final long serialVersionUID = 1L; };
 
