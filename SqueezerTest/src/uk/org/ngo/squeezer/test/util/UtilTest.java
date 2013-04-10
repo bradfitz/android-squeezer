@@ -1,4 +1,4 @@
-package uk.org.ngo.squeezer.test;
+package uk.org.ngo.squeezer.test.util;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
