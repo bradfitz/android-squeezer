@@ -20,57 +20,65 @@ package uk.org.ngo.squeezer.framework;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.util.ImageFetcher.ImageFetcherParams;
-import uk.org.ngo.squeezer.util.UIUtils;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 /**
  * A generic base class for an activity to list items of a particular
  * SqueezeServer data type. The data type is defined by the generic type
  * argument, and must be an extension of {@link SqueezerItem}. You must provide
  * an {@link SqueezerItemView} to provide the view logic used by this activity.
- * This is done by implementing {@link #createItemView()}.
+ * This is done by implementing
+ * {@link SqueezerItemListActivity#createItemView()}.
  * <p>
  * When the activity is first created ({@link #onCreate(Bundle)}), an empty
  * {@link SqueezerItemListAdapter} is created using the provided
- * {@link SqueezerItemView}.
- * <p>
- * See {@link SqueezerItemListActivity} for details
- * of ordering and receiving of list items from SqueezeServer, and handling
- * of item selection.
- * 
+ * {@link SqueezerItemView}. See {@link SqueezerItemListActivity} for see
+ * details of ordering and receiving of list items from SqueezeServer, and
+ * handling of item selection.
+ *
  * @param <T> Denotes the class of the items this class should list
  * @author Kurt Aaholst
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
     private ListView mListView;
 	private SqueezerItemAdapter<T> itemAdapter;
-    private View loadingLabel;
+
+    /** Progress bar (spinning) while items are loading. */
+    private ProgressBar loadingProgress;
 	private SqueezerItemView<T> itemView;
 
     /** An ImageFetcher for loading thumbnails. */
     protected ImageFetcher mImageFetcher;
+
+    /** ImageCache parameters for the album art. */
+    private ImageCacheParams mImageCacheParams;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.item_list);
 		mListView = (ListView) findViewById(R.id.item_list);
-        loadingLabel = findViewById(R.id.loading_label);
+        loadingProgress = (ProgressBar) findViewById(R.id.loading_progress);
         itemView = createItemView();
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
-    		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // XXX: Adapter should implement onItemClickListener and pass
                 // this down to the views.
     			T item = getItemAdapter().getItem(position);
@@ -88,10 +96,26 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
         mListView.setOnScrollListener(new ScrollListener());
 
-        // Set up the image fetcher, max art size is 128K.
-        ImageFetcherParams params = new ImageFetcherParams();
-        params.mMaxThumbnailBytes = 128 * 1024 * 1024; // 128K
-        mImageFetcher = UIUtils.getImageFetcher(this, params);
+        mListView.setRecyclerListener(new RecyclerListener() {
+            @Override
+            public void onMovedToScrapHeap(View view) {
+                // Release strong reference when a view is recycled
+                final ImageView imageView = (ImageView) view.findViewById(R.id.icon);
+                if (imageView != null) {
+                    imageView.setImageBitmap(null);
+                }
+            }
+        });
+
+        // Get an ImageFetcher to scale artwork to the size of the icon view.
+        Resources resources = getResources();
+        int iconSize = (Math.max(
+                resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
+                resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
+        mImageFetcher = new ImageFetcher(this, iconSize);
+        mImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+        mImageCacheParams = new ImageCacheParams(this, "artwork");
+        mImageCacheParams.setMemCacheSizePercent(this, 0.12f);
 
         // Delegate context menu creation to the adapter.
         mListView.setOnCreateContextMenuListener(getItemAdapter());
@@ -128,8 +152,17 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		orderItems();
 	}
 
-	@Override
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mImageFetcher.addImageCache(getSupportFragmentManager(), mImageCacheParams);
+    }
+
+    @Override
     public void onPause() {
+        mImageFetcher.closeCache();
+
         if (getService() != null) {
         	try {
 				unregisterCallback();
@@ -184,15 +217,16 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	public void orderItems() {
 		reorderItems();
         mListView.setVisibility(View.GONE);
-		loadingLabel.setVisibility(View.VISIBLE);
+        loadingProgress.setVisibility(View.VISIBLE);
 		clearItemListAdapter();
 	}
 
 	public void onItemsReceived(final int count, final int start, final List<T> items) {
 		getUIThreadHandler().post(new Runnable() {
-			public void run() {
+            @Override
+            public void run() {
                 mListView.setVisibility(View.VISIBLE);
-				loadingLabel.setVisibility(View.GONE);
+                loadingProgress.setVisibility(View.GONE);
 				getItemAdapter().update(count, start, items);
 			}
 		});
@@ -221,9 +255,9 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
             if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING ||
                 scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                mImageFetcher.setPauseDiskCache(true);
+                mImageFetcher.setPauseWork(true);
             } else {
-                mImageFetcher.setPauseDiskCache(false);
+                mImageFetcher.setPauseWork(false);
             }
         }
     }

@@ -81,7 +81,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
         viewHolder.btnContextMenu.setVisibility(View.GONE);
         viewHolder.text1.setText(label);
         viewHolder.text2.setText("");
-        
+
         return view;
     }
 

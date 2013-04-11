@@ -48,8 +48,7 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
         if (artworkUrl == null) {
             viewHolder.icon.setImageResource(R.drawable.icon_album_noart);
         } else {
-            imageFetcher.loadThumbnailImage(artworkUrl, viewHolder.icon,
-                    R.drawable.icon_pending_artwork);
+            imageFetcher.loadImage(artworkUrl, viewHolder.icon);
         }
         viewHolder.text2.setText(text2);
     }

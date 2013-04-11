@@ -47,9 +47,9 @@ public class SqueezerAlbumOrderDialog extends DialogFragment {
         artistalbum(SqueezerServerString.SORT_ARTISTALBUM),
         yearalbum(SqueezerServerString.SORT_YEARALBUM),
         yearartistalbum(SqueezerServerString.SORT_YEARARTISTALBUM);
-        
+
         private SqueezerServerString serverString;
-        
+
         private AlbumsSortOrder(SqueezerServerString serverString) {
             this.serverString = serverString;
         }

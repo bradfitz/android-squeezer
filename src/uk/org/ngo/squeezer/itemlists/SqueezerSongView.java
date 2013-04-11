@@ -31,6 +31,8 @@ import android.view.View;
  * A view that shows a single song with its artwork, and a context menu.
  */
 public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
+    @SuppressWarnings("unused")
+    private static final String TAG = "SqueezerSongView";
 
 	private boolean browseByAlbum;
 	public void setBrowseByAlbum(boolean browseByAlbum) { this.browseByAlbum = browseByAlbum; }
@@ -63,8 +65,7 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
         if (artworkUrl == null) {
             viewHolder.icon.setImageResource(item.isRemote() ? R.drawable.icon_iradio_noart : R.drawable.icon_album_noart);
         } else {
-            imageFetcher.loadThumbnailImage(artworkUrl, viewHolder.icon,
-                    R.drawable.icon_pending_artwork);
+            imageFetcher.loadImage(artworkUrl, viewHolder.icon);
         }
     }
 

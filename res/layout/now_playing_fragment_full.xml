@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/SqueezerTextItemSmall" />
     </LinearLayout>
-    
+
     <LinearLayout
         android:gravity="center"
         android:layout_width="fill_parent"
@@ -105,11 +105,20 @@
         android:paddingBottom="4dp"
         android:orientation="horizontal">
 
-        <ImageButton android:id="@+id/shuffle" style="@style/MediaButton.Shuffle" />
-        <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/prev" style="@style/MediaButton.Previous" />
-        <ImageButton android:id="@+id/pause" style="@style/MediaButton.Play" />
-        <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/next" style="@style/MediaButton.Next" />
-        <ImageButton android:id="@+id/repeat" style="@style/MediaButton.Repeat" />
+        <ImageButton android:id="@+id/shuffle"
+            style="@style/MediaButton.Shuffle" />
+
+        <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/prev"
+            style="@style/MediaButton.Previous" />
+
+        <ImageButton android:id="@+id/pause"
+            style="@style/MediaButton.Play" />
+
+        <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/next"
+            style="@style/MediaButton.Next" />
+
+        <ImageButton android:id="@+id/repeat"
+            style="@style/MediaButton.Repeat" />
     </LinearLayout>
 </LinearLayout>
 

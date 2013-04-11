@@ -147,12 +147,6 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 		orderItems();
 	}
 
-    @Override
-    public boolean onSearchRequested() {
-        showFilterDialog();
-        return false;
-    }
-
     public void showFilterDialog() {
         new SqueezerSongFilterDialog().show(getSupportFragmentManager(), "SongFilterDialog");
     }

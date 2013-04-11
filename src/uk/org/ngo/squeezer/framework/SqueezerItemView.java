@@ -35,15 +35,13 @@ import android.widget.TextView;
 /**
  * Defines view logic for a {@link SqueezerItem}
  * <p>
- * We keep this here because we don't want to pollute the model with view related 
- * stuff.
+ * We keep this here because we don't want to pollute the model with view related stuff.
  * <p>
- * Currently this is the only logic class you have to implement for each SqueezeServer
- * data type, so it contains a few methods, which are not strictly view related.
+ * Currently this is the only logic class you have to implement for each SqueezeServer data type, so
+ * it contains a few methods, which are not strictly view related.
  * <p>
- * {@link SqueezerBaseItemView} implements all the common functionality, an some
- * sensible defaults.
- *
+ * {@link SqueezerBaseItemView} implements all the common functionality, an some sensible defaults.
+ * 
  * @param <T> Denotes the class of the item this class implements view logic for
  * @author Kurt Aaholst
  */

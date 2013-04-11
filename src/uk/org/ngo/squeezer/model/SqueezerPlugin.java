@@ -21,7 +21,6 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
-
 import android.os.Parcel;
 
 
@@ -33,6 +32,7 @@ public class SqueezerPlugin extends SqueezerItem {
 	public SqueezerPlugin setName(String name) { this.name = name; return this; }
 
     private String icon;
+
     /**
      * @return Relative URL path to an icon for this radio or music service, for example "plugins/Picks/html/images/icon.png"
      */
@@ -40,6 +40,7 @@ public class SqueezerPlugin extends SqueezerItem {
     public void setIcon(String icon) { this.icon = icon; }
 
     private int iconResource;
+
     /**
      * @return Icon resource for this plugin if it is embedded in the Squeezer app, or null.
      */

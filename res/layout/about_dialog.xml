@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
 Copyright 2012 Google Inc.  All Rights Reserved.
 
@@ -16,74 +15,74 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
-    android:layout_width="fill_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
 
     <LinearLayout
-        android:layout_height="wrap_content"
         android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="8dp" >
 
         <LinearLayout
-            android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
 
             <ImageView
-                android:layout_gravity="center_vertical"
-                android:layout_height="48dp"
                 android:layout_width="48dp"
-                android:src="@drawable/logo"/>
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_launcher" />
 
             <TextView
                 android:id="@+id/about_title"
                 style="?android:attr/textAppearanceLarge"
-                android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="8dp"
                 android:text="@string/app_name"
-                android:textSize="32dp"
-                android:paddingLeft="8dp"/>
+                android:textSize="32dp" />
         </LinearLayout>
 
         <TextView
             style="@style/SqueezerTextItemSmall"
-            android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:paddingTop="8dp"
+            android:layout_height="wrap_content"
             android:paddingBottom="8dp"
+            android:paddingTop="8dp"
             android:text="@string/copyright_text" />
 
         <TextView
-            android:text="Team"
             style="@style/SqueezerTextItem"
-            android:paddingTop="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:text="Kurt Aaholst\nNik Clayton\nBrad Fitzpatrick"
-            style="@style/SqueezerTextItemSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp" />
+            android:paddingTop="8dp"
+            android:text="Team" />
 
         <TextView
-            android:text="Support"
-            style="@style/SqueezerTextItem"
-            android:paddingTop="16dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:text="http://groups.google.com/group/android-squeezer\n\nhttp://code.google.com/p/android-squeezer/"
             style="@style/SqueezerTextItemSmall"
-            android:autoLink="web"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="8dp"
-            android:paddingBottom="8dp" />
+            android:text="Kurt Aaholst\nNik Clayton\nBrad Fitzpatrick" />
+
+        <TextView
+            style="@style/SqueezerTextItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:text="Support" />
+
+        <TextView
+            style="@style/SqueezerTextItemSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoLink="web"
+            android:paddingBottom="8dp"
+            android:paddingLeft="8dp"
+            android:text="http://groups.google.com/group/android-squeezer\n\nhttp://code.google.com/p/android-squeezer/" />
     </LinearLayout>
+
 </ScrollView>

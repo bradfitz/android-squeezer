@@ -50,7 +50,7 @@ public class IconRowAdapter extends BaseAdapter {
 
     public CharSequence getItem(int position) {
         return mRows.get(position).getText();
-	}
+    }
 
 	public long getItemId(int position) {
         return mRows.get(position).getId();
@@ -102,12 +102,10 @@ public class IconRowAdapter extends BaseAdapter {
 	}
 
     /**
-     * Helper class to represent a row. Each row has an identifier, a string,
-     * and an icon.
+     * Helper class to represent a row. Each row has an identifier, a string, and an icon.
      * <p>
-     * The identifier should be unique across all rows in a given
-     * {@link IconRowAdapter}, and will be used as the <code>id</code> paramter
-     * to the <code>OnItemClickListener</code>.
+     * The identifier should be unique across all rows in a given {@link IconRowAdapter}, and will
+     * be used as the <code>id</code> parameter to the <code>OnItemClickListener</code>.
      */
     public static class IconRow {
         private long mId;

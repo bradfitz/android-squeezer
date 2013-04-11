@@ -42,7 +42,7 @@
      android:title="@string/settings_autoconnect_title"
      android:summary="@string/settings_autoconnect_summary"
      android:persistent="true" />
-  
+
   <CheckBoxPreference
      android:key="squeezer.notifyofconnection"
      android:title="Notify of Connection"

@@ -107,10 +107,10 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
     }
 
     /**
-     * <p>Returns a view suitable for displaying the data of item in a list.
-     * Item may not be null.
-     * <p>Override this method and {@link #getAdapterView(String)} if your
-     * extension uses a different layout.
+     * Returns a view suitable for displaying the data of item in a list. Item may not be null.
+     * <p>
+     * Override this method and {@link #getAdapterView(String)} if your extension uses a different
+     * layout.
      */
     public View getAdapterView(View convertView, T item, ImageFetcher unused) {
         View view = getAdapterView(convertView);
@@ -124,14 +124,15 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
                 v.showContextMenu();
             }
         });
-        
+
         return view;
     }
 
     /**
-     * <p>Returns a view suitable for displaying the "Loading..." text.
-     * <p>Override this method and {@link #getAdapterView(View, SqueezerItem, ImageFetcher)}
-     * if your extension uses a different layout.
+     * Returns a view suitable for displaying the "Loading..." text.
+     * <p>
+     * Override this method and {@link #getAdapterView(View, SqueezerItem, ImageFetcher)} if your
+     * extension uses a different layout.
      */
     public View getAdapterView(View convertView, String label) {
         View view = getAdapterView(convertView);
@@ -144,7 +145,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
     }
 
     /**
-     * <p>Figure out if the convertView can be reused, otherwise create a new view.
+     * Figure out if the convertView can be reused, otherwise create a new view.
      * 
      * @param convertView View to reuse if possible
      * @return convertView if it can be reused, or a new view
@@ -164,7 +165,6 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 
         return convertView;
     }
-
 
     public void onCreateContextMenu(ContextMenu menu, View v,
             SqueezerItemView.ContextMenuInfo menuInfo) {

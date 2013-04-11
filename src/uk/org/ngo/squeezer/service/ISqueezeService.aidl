@@ -42,17 +42,17 @@ import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 
 interface ISqueezeService {
-	    // For the activity to get callbacks on interesting events
-	    void registerCallback(IServiceCallback callback);
-        void unregisterCallback(IServiceCallback callback);
+    // For the activity to get callbacks on interesting events
+    void registerCallback(IServiceCallback callback);
+    void unregisterCallback(IServiceCallback callback);
 
-	    // For the activity to get callback when music changes
-	    void registerMusicChangedCallback(IServiceMusicChangedCallback callback);
-        void unregisterMusicChangedCallback(IServiceMusicChangedCallback callback);
+    // For the activity to get callback when music changes
+    void registerMusicChangedCallback(IServiceMusicChangedCallback callback);
+    void unregisterMusicChangedCallback(IServiceMusicChangedCallback callback);
 
-	    // For the activity to get callback when handshake completes
-	    void registerHandshakeCallback(IServiceHandshakeCallback callback);
-        void unregisterHandshakeCallback(IServiceHandshakeCallback callback);
+    // For the activity to get callback when handshake completes
+    void registerHandshakeCallback(IServiceHandshakeCallback callback);
+    void unregisterHandshakeCallback(IServiceHandshakeCallback callback);
 
 	    // Instructing the service to connect to the SqueezeCenter server:
 	    // hostPort is the port of the CLI interface.
@@ -66,16 +66,15 @@ interface ISqueezeService {
 		// Call this to change the player we are controlling
 	    void setActivePlayer(in SqueezerPlayer player);
 
-	    // Returns the player we are currently controlling
-	    SqueezerPlayer getActivePlayer();
+        // Returns the player we are currently controlling
+        SqueezerPlayer getActivePlayer();
 
 		// Returns the empty string (not null) if no player is set. 
         String getActivePlayerName();
 
-		// Return a localized server string
-		String getString(int stringToken);
-		
-		
+        // Return a localized server string
+        String getString(int stringToken);
+
 	    ////////////////////
   	    // Depends on active player:
   	    

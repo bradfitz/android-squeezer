@@ -94,7 +94,6 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
         sortOrder = null;
 
         Bundle extras = getIntent().getExtras();
-        
         if (extras != null) {
             for (String key : extras.keySet()) {
                 if (SqueezerArtist.class.getName().equals(key)) {
@@ -128,18 +127,19 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 		if (yearSpinner != null) yearSpinner.unregisterCallback();
 	}
 
-	@Override
-	protected void orderPage(int start) throws RemoteException {
-	    if (sortOrder == null) {
-	        try {
-	            sortOrder = AlbumsSortOrder.valueOf(getService().preferredAlbumSort());
-	        } catch (IllegalArgumentException e) {
-	            Log.w(getTag(), "Unknown preferred album sort: " + e);
-	            sortOrder = AlbumsSortOrder.album;
+    @Override
+    protected void orderPage(int start) throws RemoteException {
+        if (sortOrder == null) {
+            try {
+                sortOrder = AlbumsSortOrder.valueOf(getService().preferredAlbumSort());
+            } catch (IllegalArgumentException e) {
+                Log.w(getTag(), "Unknown preferred album sort: " + e);
+                sortOrder = AlbumsSortOrder.album;
             }
-	    }
-		getService().albums(start, sortOrder.name().replace("__", ""), getSearchString(), artist, getYear(), getGenre(), song);
-	}
+        }
+        getService().albums(start, sortOrder.name().replace("__", ""), getSearchString(), artist,
+                getYear(), getGenre(), song);
+    }
 
     public AlbumsSortOrder getSortOrder() {
         return sortOrder;

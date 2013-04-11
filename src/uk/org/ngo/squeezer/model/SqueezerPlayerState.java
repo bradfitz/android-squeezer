@@ -197,23 +197,23 @@ public class SqueezerPlayerState implements Parcelable {
         pause,
         stop;
     }
-    
+
     public static enum ShuffleStatus implements EnumWithId {
         SHUFFLE_OFF(0, R.drawable.btn_shuffle_off, SqueezerServerString.SHUFFLE_OFF),
         SHUFFLE_SONG(1, R.drawable.btn_shuffle_song, SqueezerServerString.SHUFFLE_ON_SONGS),
         SHUFFLE_ALBUM(2, R.drawable.btn_shuffle_album, SqueezerServerString.SHUFFLE_ON_ALBUMS);
-        
+
         private int id;
         private int icon;
         private SqueezerServerString text;
         private static EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<ShuffleStatus>(ShuffleStatus.class);
-        
+
         private ShuffleStatus(int id, int icon, SqueezerServerString text) {
             this.id = id;
             this.icon = icon;
             this.text = text;
         }
-        
+
         @Override
         public int getId() {
             return id;
@@ -231,7 +231,7 @@ public class SqueezerPlayerState implements Parcelable {
             return lookup.get(id);
         }
     }
-    
+
     public static enum RepeatStatus implements EnumWithId {
         REPEAT_OFF(0, R.drawable.btn_repeat_off, SqueezerServerString.REPEAT_OFF),
         REPEAT_ONE(1, R.drawable.btn_repeat_one, SqueezerServerString.REPEAT_ONE),
@@ -265,7 +265,7 @@ public class SqueezerPlayerState implements Parcelable {
             return lookup.get(id);
         }
     }
-    
+
     public interface EnumWithId {
         int getId();
     }
@@ -283,7 +283,7 @@ public class SqueezerPlayerState implements Parcelable {
             return map.get(num);
         }
     }
-    
+
     public class PlayerStateChanged {
         public boolean playStatusHasChanged;
         public boolean shuffleStatusHasChanged;

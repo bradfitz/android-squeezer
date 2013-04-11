@@ -183,7 +183,7 @@ class SqueezerConnectionState {
     public void setPreferedAlbumSort(String value) {
         preferredAlbumSort.set(value);
     }
-    
+
     public String getPreferredAlbumSort() {
         return preferredAlbumSort.get();
     }

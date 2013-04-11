@@ -24,7 +24,7 @@ import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -35,6 +35,10 @@ import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+/*
+ * The activity's content view scrolls in from the right, and disappear to the left, to provide a
+ * spatial component to navigation.
+ */
 public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<SqueezerPluginItem>{
 	private SqueezerPlugin plugin;
 	private SqueezerPluginItem parent;
@@ -80,7 +84,7 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
         }
 	}
 
-	public SqueezerPlugin getPlugin() {
+    public SqueezerPlugin getPlugin() {
         return plugin;
     }
 
@@ -113,17 +117,25 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
 	}
 
 
-	public void show(SqueezerPluginItem pluginItem) {
+    public void show(SqueezerPluginItem pluginItem) {
         final Intent intent = new Intent(this, SqueezerPluginItemListActivity.class);
         intent.putExtra(plugin.getClass().getName(), plugin);
         intent.putExtra(pluginItem.getClass().getName(), pluginItem);
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
-	public static void show(Context context, SqueezerPlugin plugin) {
-        final Intent intent = new Intent(context, SqueezerPluginItemListActivity.class);
+    public static void show(Activity activity, SqueezerPlugin plugin) {
+        final Intent intent = new Intent(activity, SqueezerPluginItemListActivity.class);
         intent.putExtra(plugin.getClass().getName(), plugin);
-        context.startActivity(intent);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
     private final IServicePluginItemListCallback pluginItemListCallback = new IServicePluginItemListCallback.Stub() {
@@ -135,9 +147,12 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
 					}
 				});
 			}
-			if (count == 1 && items.get(0).isHasitems()) {
-				// Automatically fetch subitems, if this is the only item
-				SqueezerPluginItemListActivity.this.parent = items.get(0);
+
+            // Automatically fetch subitems, if this is the only item.
+            // TODO: Seen an NPE here (before adding the != null) check. Find out
+            // why count == 1 might be true, but items.get(0) might return null.
+            if (count == 1 && items.get(0) != null && items.get(0).isHasitems()) {
+                parent = items.get(0);
 				getUIThreadHandler().post(new Runnable() {
 					public void run() {
 						orderItems();

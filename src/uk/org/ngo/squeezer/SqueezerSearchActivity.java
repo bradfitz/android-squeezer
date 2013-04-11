@@ -31,7 +31,6 @@ import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -43,7 +42,7 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
 
 public class SqueezerSearchActivity extends SqueezerItemListActivity {
-	private View loadingLabel;
+    private View loadingLabel;
 	private ExpandableListView resultsExpandableListView;
 	private SqueezerSearchAdapter searchResultsAdapter;
 	private String searchString;
@@ -83,7 +82,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
         resultsExpandableListView.setOnScrollListener(new ScrollListener());
 
         handleIntent(getIntent());
-	};
+    };
 
     @Override
     protected void onNewIntent(Intent intent) {

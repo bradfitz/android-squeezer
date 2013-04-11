@@ -21,12 +21,9 @@ import java.util.List;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
-
-import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
 
 public class SqueezerPlayerListActivity extends SqueezerBaseListActivity<SqueezerPlayer> {
 	private SqueezerPlayer activePlayer;
@@ -55,7 +52,7 @@ public class SqueezerPlayerListActivity extends SqueezerBaseListActivity<Squeeze
 		getService().players(start);
 	}
 
-	public static void show(Context context) {
+    public static void show(Context context) {
         final Intent intent = new Intent(context, SqueezerPlayerListActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);

@@ -87,7 +87,7 @@
     <string name="delete_title">Delete %s</string>
     <string name="delete__message">Are you sure to delete?</string>
     <string name="loading_text">Loading &#8230;</string>
-    <string name="browse_items_text" >Browse %2$d %1$s</string>
+    <string name="browse_items_text" >%2$d %1$s</string>
     <string name="choose_sort_order">Choose ordering of %s</string>
     <string name="genre_prompt">Choose genre</string>
     <string name="year_prompt">Choose year</string>
@@ -305,7 +305,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 	<string name="ITEM_ADDED">Added %s to the current playlist</string>
 	<string name="ITEM_INSERTED">%s is inserted to be played immediately after the current song in the current playlist</string>
   
-    <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s allready exists</string>
+    <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s already exists</string>
 
     <!-- Song sort orders -->
 	<string name="songs_sort_order_title">Title</string>
@@ -334,7 +334,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="pref_analytics_enable">Send usage statistics</string>
     <string name="pref_analytics_enable_enabled">Anonymous usage statistics are collected using Google Analytics.</string>
     <string name="pref_analytics_enable_disabled">No usage statistics are collected.</string>
-    
+
     <string name="home_item_artists">Artists</string>
     <string name="home_item_albums">Albums</string>
     <string name="home_item_songs">Songs</string>
@@ -353,7 +353,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="randomplay_item_artist_mix">Artist mix</string>
     <string name="randomplay_item_year_mix">Year mix</string>
     <string name="randomplay_item_choose_genres">Choose genres</string>
-    
+
     <plurals name="seconds">
         <item quantity="one">second</item>
         <item quantity="other">seconds</item>
@@ -363,7 +363,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item quantity="one">artist</item>
         <item quantity="other">artists</item>
     </plurals>
-    
+
     <plurals name="album">
         <item quantity="one">album</item>
         <item quantity="other">albums</item>

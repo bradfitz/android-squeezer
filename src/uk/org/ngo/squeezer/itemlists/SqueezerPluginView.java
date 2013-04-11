@@ -45,9 +45,7 @@ public abstract class SqueezerPluginView extends SqueezerBaseItemView<SqueezerPl
         }
 
 		viewHolder.label.setText(item.getName());
-        imageFetcher.loadThumbnailImage(getActivity().getIconUrl(item.getIcon()), viewHolder.icon,
-                R.drawable.icon_pending_artwork);
-
+        imageFetcher.loadImage(getActivity().getIconUrl(item.getIcon()), viewHolder.icon);
 		return convertView;
 	}
 

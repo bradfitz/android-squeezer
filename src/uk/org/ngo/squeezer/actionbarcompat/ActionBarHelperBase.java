@@ -93,7 +93,7 @@ public class ActionBarHelperBase extends ActionBarHelper {
                 mActionBarItems.put(item.getItemId(), addActionItemCompatFromMenuItem(item));
         }
     }
-
+    
     /**
      * Sets up the compatibility action bar with the given title.
      */

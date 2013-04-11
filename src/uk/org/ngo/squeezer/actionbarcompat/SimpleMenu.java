@@ -16,6 +16,9 @@
 
 package uk.org.ngo.squeezer.actionbarcompat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,9 +30,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A <em>really</em> dumb implementation of the {@link android.view.Menu} interface, that's only
  * useful for our actionbar-compat purposes. See
@@ -38,13 +38,13 @@ import java.util.List;
  */
 class SimpleMenu implements Menu {
 
-    private ActionBarHelperBase mActionBarHelper;
-    private Activity mActivity;
-    private Resources mResources;
+    private final ActionBarHelperBase mActionBarHelper;
+    private final Activity mActivity;
+    private final Resources mResources;
 
-    private List<SimpleMenuItem> mItems;
+    private final List<SimpleMenuItem> mItems;
     private int showAsActionAlwways;
-    private List<SimpleMenuItem> showAsActionIfRoom;
+    private final List<SimpleMenuItem> showAsActionIfRoom;
 
     public SimpleMenu(ActionBarHelperBase actionBarHelper) {
         mActionBarHelper = actionBarHelper;
@@ -215,7 +215,7 @@ class SimpleMenu implements Menu {
 
     /**
      * Register how the specified item should display in the Action Bar.
-     * 
+     *
      * @param menuItem The menu item to register
      * @param showAsAction The action bar state to register
      */
@@ -226,7 +226,7 @@ class SimpleMenu implements Menu {
 
     /**
      * Figure out whether the specified menu item will fit in the action bar.
-     * 
+     *
      * @param menuItem The menu item to check for
      * @return True if the menu item fits
      */
@@ -244,12 +244,12 @@ class SimpleMenu implements Menu {
     /**
      * Implement the rules in the android action bar design guide.
      * http://developer.android.com/design/patterns/actionbar.html
-     * 
+     *
      * @return The number of action which will fit in the action bar.
      */
     private int getActionBarMaxIcons() {
         if (_maxIcons != 0) return _maxIcons;
-        
+
         DisplayMetrics metrics = new DisplayMetrics();
         mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         int widthPixels = metrics.widthPixels;

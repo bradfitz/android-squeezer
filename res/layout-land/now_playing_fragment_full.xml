@@ -29,7 +29,7 @@
         android:adjustViewBounds="true"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        android:paddingLeft="4dp" />
+        android:paddingLeft="8dp" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -47,7 +47,7 @@
             android:textStyle="bold"
             android:paddingTop="8dp"
             android:paddingBottom="4dp"
-            android:paddingLeft="4dp"
+            android:paddingLeft="8dp"
             android:paddingRight="8dp" />
 
         <TextView android:id="@+id/albumname"
@@ -58,7 +58,7 @@
             android:textAppearance="@style/SqueezerTextItemSmall"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
-            android:paddingLeft="4dp"
+            android:paddingLeft="8dp"
             android:paddingRight="8dp" />
 
         <TextView android:id="@+id/artistname"
@@ -69,7 +69,7 @@
             android:textAppearance="@style/SqueezerTextItemSmall"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
-            android:paddingLeft="4dp"
+            android:paddingLeft="8dp"
             android:paddingRight="8dp" />
         <!-- End of copy -->
 
@@ -90,7 +90,7 @@
 	        android:paddingRight="8dp"
 	        android:paddingBottom="4dp"
 	        android:orientation="horizontal">
-	
+
 	        <TextView android:id="@+id/currenttime"
 	            android:layout_gravity="center_horizontal"
 	            android:layout_width="wrap_content"
@@ -103,14 +103,14 @@
 	            android:layout_width="0dip"
 	            android:layout_weight="1"
 	            android:layout_height="32dip" />
-	
+
 	        <TextView android:id="@+id/totaltime"
 	            android:layout_gravity="center_horizontal"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:textAppearance="@style/SqueezerTextItemSmall" />
 	    </LinearLayout>
-           
+
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -120,11 +120,20 @@
             android:paddingLeft="4dp"
             android:paddingRight="8dp">
 
-            <ImageButton android:id="@+id/shuffle" style="@style/MediaButton.Shuffle" />
-            <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/prev" style="@style/MediaButton.Previous" />
-            <ImageButton android:id="@+id/pause" style="@style/MediaButton.Play" />
-            <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/next" style="@style/MediaButton.Next" />
-            <ImageButton android:id="@+id/repeat" style="@style/MediaButton.Repeat" />
+            <ImageButton android:id="@+id/shuffle"
+                style="@style/MediaButton.Shuffle" />
+
+            <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/prev"
+                style="@style/MediaButton.Previous" />
+
+            <ImageButton android:id="@+id/pause"
+                style="@style/MediaButton.Play" />
+
+            <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/next"
+                style="@style/MediaButton.Next" />
+
+            <ImageButton android:id="@+id/repeat"
+                style="@style/MediaButton.Repeat" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

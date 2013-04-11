@@ -119,26 +119,26 @@ class SqueezerCLIImpl {
                                 items.add(player);
 						}
 
-						@Override
-                        public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
-							IServicePlayerListCallback callback = service.playerListCallback.get();
-                            if (callback != null) {
-								// If the player list activity is active, pass the discovered players to it
-								try {
+                            @Override
+                            public boolean processList(boolean rescan, int count, int start, Map<String, String> parameters) {
+                                IServicePlayerListCallback callback = service.playerListCallback.get();
+                                if (callback != null) {
+                                    // If the player list activity is active, pass the discovered players to it
+                                    try {
                                         callback.onPlayersReceived(count,
                                                 start, items);
-								} catch (RemoteException e) {
-									Log.e(TAG, e.toString());
-									return false;
-								}
-							} else
-                                if (start + items.size() >= count) {
-								// Otherwise set the last connected player as the active player
-					        	if (defaultPlayer != null)
-					        		service.changeActivePlayer(defaultPlayer);
-							}
-							return true;
-						}
+                                    } catch (RemoteException e) {
+                                        Log.e(TAG, e.toString());
+                                        return false;
+                                    }
+                                } else
+                                    if (start + items.size() >= count) {
+                                        // Otherwise set the last connected player as the active player
+                                        if (defaultPlayer != null)
+                                            service.changeActivePlayer(defaultPlayer);
+                                    }
+                                return true;
+                            }
 					}
 				)
 		);
@@ -284,10 +284,11 @@ class SqueezerCLIImpl {
         if (writer == null) return;
         if (commands.length == 1) {
             Log.v(TAG, "SENDING: " + commands[0]);
-			writer.println(commands[0]);
+            writer.println(commands[0]);
         } else {
             // Get it into one packet by deferring flushing...
             for (String command : commands) {
+                Log.v(TAG, "Send: " + command);
                 writer.print(command + "\n");
             }
             writer.flush();
@@ -511,10 +512,11 @@ class SqueezerCLIImpl {
 
 			if (key.equals("rescan"))
 				rescan = (Util.parseDecimalIntOrZero(value) == 1);
-			else if (key.equals("correlationid")) {
+            else if (key.equals("correlationid")) {
 				correlationid = Util.parseDecimalIntOrZero(value);
                 taggedParameters.put(key, token);
-			} else if (key.equals("actions")) // Apparently squeezer returns some commands which are included in the count of the current request
+            } else if (key.equals("actions")) // Apparently squeezer returns some commands which are
+                                              // included in the count of the current request
 				actionsCount++;
 			if (countIdSet.contains(key))
 				counts.put(key, Util.parseDecimalIntOrZero(value));

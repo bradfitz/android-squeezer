@@ -42,15 +42,14 @@ import android.view.ViewGroup;
 
 /**
  * Activity that shows the songs in the current playlist.
- * <p>
- * The currently playing song is highlighted.
  */
 public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<SqueezerSong> {
-	public static void show(Context context) {
+
+    public static void show(Context context) {
         final Intent intent = new Intent(context, SqueezerCurrentPlaylistActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-	    context.startActivity(intent);
-	}
+        context.startActivity(intent);
+    }
 
     private int currentPlaylistIndex;
 
@@ -67,7 +66,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = super.getView(position, convertView, parent);
             Object viewTag = view.getTag();
-            
+
             // This test because the view tag wont be set until the album is received from the server
             if (viewTag != null && viewTag instanceof ViewHolder) {
                 ViewHolder viewHolder = (ViewHolder) viewTag;
@@ -94,7 +93,6 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     @Override
 	public SqueezerItemView<SqueezerSong> createItemView() {
 		return new SqueezerSongView(this) {
-		    
             /**
              * Jumps to whichever song the user chose.
              */
@@ -194,7 +192,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
         return null;
     }
 
-    @Override
+	@Override
     protected void registerCallback() throws RemoteException {
         getService().registerSongListCallback(songListCallback);
         getService().registerMusicChangedCallback(musicChangedCallback);
@@ -237,4 +235,5 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
             }
         });
     }
+
 }

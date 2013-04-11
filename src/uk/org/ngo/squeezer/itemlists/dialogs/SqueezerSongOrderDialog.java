@@ -43,7 +43,7 @@ public class SqueezerSongOrderDialog extends DialogFragment {
         tracknum(R.string.songs_sort_order_tracknum);
         // TODO: At least some versions of the server support "albumtrack",
         // is that useful?
-        
+
         /**
          * The text to use for this ordering
          */

@@ -81,7 +81,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
     @Override
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActionBarHelper().setIcon(R.drawable.ic_action_now_playing);
+        getActionBarHelper().setIcon(R.drawable.ic_launcher);
     };
 
     @Override
@@ -180,7 +180,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
             return null;
         }
     }
-    
+
     public String getServerString(SqueezerServerString stringToken) {
         try {
             return service.getString(stringToken.ordinal());
@@ -227,7 +227,6 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
 
     /**
      * Attempts to download the song given by songId.
-     * <p>This method will silently refuse to download if songId is null.
      * 
      * @param songId ID of the song to download
      */

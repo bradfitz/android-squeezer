@@ -64,10 +64,10 @@ public class ServerAddressPreference extends DialogPreference {
     private EditText mServerAddressEditText;
     private Button mScanBtn;
     private Spinner mServersSpinner;
-    private EditText userNameEditText;
-    private EditText passwordEditText;
 
     private ScanNetworkTask mScanNetworkTask;
+    private EditText userNameEditText;
+    private EditText passwordEditText;
 
     /** Map server names to IP addresses. */
     private TreeMap<String, String> mDiscoveredServers;
@@ -160,12 +160,11 @@ public class ServerAddressPreference extends DialogPreference {
         mProgressDialog.setSecondaryProgress(0);
         mProgressDialog.setMessage(mContext.getString(R.string.settings_server_scan_progress));
 
+        mProgressDialog.show();
         if (UIUtils.hasHoneycomb()) {
             mProgressDialog.setProgressNumberFormat(null);
             mProgressDialog.setProgressPercentFormat(null);
         }
-
-        mProgressDialog.show();
     }
 
     /**
@@ -181,6 +180,10 @@ public class ServerAddressPreference extends DialogPreference {
      */
     void onScanFinished() {
         mProgressDialog.dismiss();
+
+        if (mScanNetworkTask == null)
+            return;
+
         mDiscoveredServers = mScanNetworkTask.getDiscoveredServers();
         mScanNetworkTask = null;
 
@@ -359,8 +362,9 @@ public class ServerAddressPreference extends DialogPreference {
 
                             // Blocks of data are TAG/LENGTH/VALUE, where TAG is
                             // a 4 byte string identifying the item, LENGTH is
-                            // the length of the VALUE (e.g., reading \t means the
-                            // value is 9 bytes, and VALUE is the actual value.
+                            // the length of the VALUE (e.g., reading \t means
+                            // the value is 9 bytes, and VALUE is the actual
+                            // value.
 
                             // Find the 'NAME' block
                             int i = 1;
@@ -401,7 +405,7 @@ public class ServerAddressPreference extends DialogPreference {
                 wifiLock.release();
 
             // For testing that multiple servers are handled correctly.
-            // mServerMap.put("Dummy 2", "127.0.0.2");
+            // mServerMap.put("Dummy", "127.0.0.1");
             return null;
         }
 

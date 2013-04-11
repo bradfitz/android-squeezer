@@ -15,49 +15,45 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent">
 
-    <LinearLayout
-        android:id="@+id/authenticationview"
+    <LinearLayout android:id="@+id/authenticationview"
+        android:orientation="vertical"
+        android:minWidth="220dp"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:minWidth="220dp"
-        android:orientation="vertical"
-        android:paddingBottom="4dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:paddingTop="4dp" >
+        android:paddingBottom="4dp"
+        android:paddingTop="4dp">
+
+        <TextView android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:text="@string/settings_username_title"
+                  android:paddingBottom="4dp"
+                  android:paddingTop="4dp" />
+        <EditText android:id="@+id/username"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:inputType="textNoSuggestions"
+                  android:paddingBottom="4dp"
+                  android:paddingTop="4dp" />
 
         <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/settings_username_title" />
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:text="@string/settings_password_title"
+                  android:paddingBottom="4dp"
+                  android:paddingTop="4dp" />
+        <EditText android:id="@+id/password"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:inputType="textPassword"
+                  android:paddingBottom="4dp"
+                  android:paddingTop="4dp" />
 
-        <EditText
-            android:id="@+id/username"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textNoSuggestions"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp" />
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/settings_password_title" />
-
-        <EditText
-            android:id="@+id/password"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp" />
     </LinearLayout>
 </ScrollView>

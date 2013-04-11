@@ -149,7 +149,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                 R.drawable.ic_genres, R.drawable.ic_years, R.drawable.ic_new_music,
                 R.drawable.ic_music_folder, R.drawable.ic_random,
                 R.drawable.ic_playlists, R.drawable.ic_internet_radio,
-                R.drawable.ic_favorites, R.drawable.ic_my_apps,
+                R.drawable.ic_favorites, R.drawable.ic_my_apps
         };
 
         String[] items = getResources().getStringArray(R.array.home_items);;

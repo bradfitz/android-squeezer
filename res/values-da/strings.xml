@@ -42,7 +42,7 @@
     <string name="settings_fadeinsecs_summary">Angiv hvor mange sekunder der indtones. Angiv 0 for at deaktivere indtoning.</string>
     <string name="settings_autoconnect_title">Forbind automatisk</string>
     <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
-    
+
     <string name="settings_scrobble_title">Scrobble til Last.fm</string>
     <string name="settings_scrobble_on">Sang information sendes til Last.fm</string>
     <string name="settings_scrobble_off">Sang information sendes ikke til Last.fm</string>
@@ -87,7 +87,7 @@
     <string name="delete_title">Slet %s</string>
     <string name="delete__message">Er du sikker på at slette?</string>
     <string name="loading_text">Henter &#8230;</string>
-    <string name="browse_items_text">Viser %2$d %1$s</string>
+    <string name="browse_items_text">%2$d %1$s</string>
     <string name="choose_sort_order">Vælg rækkefølge af %s</string>
     <string name="genre_prompt">Vælg genre</string>
     <string name="year_prompt">Vælg år</string>
@@ -131,7 +131,7 @@
 	<string name="ITEM_INSERTED">%s er sat til at blive spillet umiddelbart efter den aktuelle sang i den nuværende afspilningsliste</string>
   
     <string name="PLAYLIST_EXISTS_MESSAGE">Afspilningsliste %s findes allerede</string>
-        
+
     <!-- Song sort orders -->
 	<string name="songs_sort_order_title">Titel</string>
 	<string name="songs_sort_order_tracknum">Spor</string>
@@ -178,7 +178,7 @@
     <string name="randomplay_item_artist_mix">Miks baseret på tilfældig kunster</string>
     <string name="randomplay_item_year_mix">Miks baseret på tilfældigt årstal</string>
     <string name="randomplay_item_choose_genres">Vælg genrer</string>
-    
+
     <plurals name="seconds">
         <item quantity="one">sekund</item>
         <item quantity="other">sekunder</item>

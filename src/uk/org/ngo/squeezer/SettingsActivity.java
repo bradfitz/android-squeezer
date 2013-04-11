@@ -77,7 +77,7 @@ public class SettingsActivity extends PreferenceActivity implements
         fadeInPref = (IntEditTextPreference) findPreference(Preferences.KEY_FADE_IN_SECS);
         fadeInPref.setOnPreferenceChangeListener(this);
         updateFadeInSecondsSummary(preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0));
-        
+
         CheckBoxPreference autoConnectPref = (CheckBoxPreference) findPreference(Preferences.KEY_AUTO_CONNECT);
         autoConnectPref.setChecked(preferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true));
 
@@ -149,14 +149,14 @@ public class SettingsActivity extends PreferenceActivity implements
     public boolean onPreferenceChange(Preference preference, Object newValue) {
 		final String key = preference.getKey();
 		Log.v(TAG, "preference change for: " + key);
-        
+
         if (Preferences.KEY_SERVERADDR.equals(key)) {
             final String ipPort = newValue.toString();
             // TODO: check that it looks valid?
             updateAddressSummary(ipPort);
             return true;
         }
-        
+
         if (Preferences.KEY_FADE_IN_SECS.equals(key)) {
             updateFadeInSecondsSummary(Util.parseDecimalIntOrZero(newValue.toString()));
             return true;
