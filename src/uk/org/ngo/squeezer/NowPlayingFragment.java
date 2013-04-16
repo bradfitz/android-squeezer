@@ -38,7 +38,6 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.util.UIUtils;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -209,6 +208,10 @@ public class NowPlayingFragment extends Fragment implements
         // Set up a server connection, if it is not present
         if (getConfiguredCliIpPort(getSharedPreferences()) == null)
             SettingsActivity.show(mActivity);
+
+        mActivity.bindService(new Intent(mActivity, SqueezeService.class), serviceConnection,
+                Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "did bindService; serviceStub = " + mService);
     }
 
     @Override
@@ -544,7 +547,7 @@ public class NowPlayingFragment extends Fragment implements
 
         // Start it and have it run forever (until it shuts itself down).
         // This is required so swapping out the activity (and unbinding the
-        // service connection in onPause) doesn't cause the service to be
+        // service connection in onDestroy) doesn't cause the service to be
         // killed due to zero refcount.  This is our signal that we want
         // it running in the background.
         mActivity.startService(new Intent(mActivity, SqueezeService.class));
@@ -560,10 +563,6 @@ public class NowPlayingFragment extends Fragment implements
         if (isAutoConnect(getSharedPreferences()))
             mActivity.registerReceiver(broadcastReceiver, new IntentFilter(
                     ConnectivityManager.CONNECTIVITY_ACTION));
-
-        mActivity.bindService(new Intent(mActivity, SqueezeService.class), serviceConnection,
-                Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService; serviceStub = " + mService);
     }
 
     // Should only be called from the UI thread.
@@ -716,6 +715,16 @@ public class NowPlayingFragment extends Fragment implements
     @Override
     public void onPause() {
         Log.d(TAG, "onPause...");
+        mImageFetcher.closeCache();
+
+        if (isAutoConnect(getSharedPreferences()))
+            mActivity.unregisterReceiver(broadcastReceiver);
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         if (mService != null) {
             try {
                 mService.unregisterCallback(serviceCallback);
@@ -724,15 +733,9 @@ public class NowPlayingFragment extends Fragment implements
                     mActivity.unbindService(serviceConnection);
                 }
             } catch (RemoteException e) {
-                Log.e(TAG, "Service exception in onPause(): " + e);
+                Log.e(TAG, "Service exception in onDestroy(): " + e);
             }
         }
-
-        mImageFetcher.closeCache();
-
-        if (isAutoConnect(getSharedPreferences()))
-            mActivity.unregisterReceiver(broadcastReceiver);
-        super.onPause();
     }
 
     /**

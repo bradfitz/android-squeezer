@@ -64,6 +64,10 @@ public class SettingsActivity extends PreferenceActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        bindService(new Intent(this, SqueezeService.class), serviceConnection,
+                Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "did bindService; serviceStub = " + serviceStub);
+
         getPreferenceManager().setSharedPreferencesName(Preferences.NAME);
         addPreferencesFromResource(R.xml.preferences);
 
@@ -109,16 +113,8 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        bindService(new Intent(this, SqueezeService.class),
-                    serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService; serviceStub = " + serviceStub);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         unbindService(serviceConnection);
     }
 
@@ -141,7 +137,7 @@ public class SettingsActivity extends PreferenceActivity implements
     /**
      * A preference has been changed by the user, but has not yet been
      * persisted.
-     * 
+     *
      * @param preference
      * @param newValue
      * @return
@@ -182,7 +178,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
     /**
      * A preference has been changed by the user and is going to be persisted.
-     * 
+     *
      * @param sharedPreferences
      * @param key
      */

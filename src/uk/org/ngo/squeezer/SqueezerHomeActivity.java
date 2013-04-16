@@ -255,7 +255,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
 
         // Send analytics stats (if enabled).

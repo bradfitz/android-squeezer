@@ -82,18 +82,13 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActionBarHelper().setIcon(R.drawable.ic_launcher);
-    };
-
-    @Override
-    public void onResume() {
-        super.onResume();
         bindService(new Intent(this, SqueezeService.class), serviceConnection, Context.BIND_AUTO_CREATE);
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
-    }
+    };
 
 	@Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         if (serviceConnection != null) {
         	unbindService(serviceConnection);
         }
@@ -217,7 +212,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
     /**
      * Attempts to download the supplied song.
      * <p>This method will silently refuse to download if song is null or is remote.
-     * 
+     *
      * @param song song to download
      */
     public void downloadSong(SqueezerSong song) {
@@ -227,7 +222,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
 
     /**
      * Attempts to download the song given by songId.
-     * 
+     *
      * @param songId ID of the song to download
      */
     public void downloadSong(String songId) {
@@ -236,7 +231,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         /*
          * Quick-and-dirty version. Use ACTION_VIEW to have something try and
          * download the song (probably the browser).
-         * 
+         *
          * TODO: If running on Gingerbread or greater use the Download Manager
          * APIs to have more control over the download.
          */
