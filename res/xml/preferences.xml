@@ -46,7 +46,7 @@
      android:summaryOff="@string/settings_scrobble_off"
      android:persistent="true" />
 
-  <PreferenceCategory
+  <ListPreference android:key="squeezer.action.onselect.album" android:title="@string/settings_album_selectaction" android:entryValues="@array/select_queueable_item_action" android:entries="@array/select_queueable_item_action_label" android:summary="@string/settings_album_selectaction_summary" android:defaultValue="BROWSE"/><ListPreference android:key="squeezer.action.onselect.song" android:entries="@array/select_queueable_item_action_label" android:entryValues="@array/select_queueable_item_action" android:title="@string/settings_song_selectaction" android:summary="@string/settings_song_selectaction_summary" android:defaultValue="QUEUE"/><PreferenceCategory
     android:title="@string/pref_cat_error_reports">
 
     <CheckBoxPreference android:key="acra.enable"
@@ -73,4 +73,6 @@
 <!--      android:summary="Keep this off, unless you're debugging something." -->
 <!--      android:persistent="true" /> -->
   </PreferenceCategory>
+  
+  
 </PreferenceScreen>

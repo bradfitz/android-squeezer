@@ -408,5 +408,21 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item>Year mix</item>
         <item>Choose genres</item>
     </string-array>
+        <string name="settings_album_selectaction">Album Selection action</string><string name="settings_album_selectaction_summary">What to do when selecting an album</string>
+        <string-array name="select_queueable_item_action_label">
+            <item >Play immediately</item>
+            <item >Append to playlist</item>
+            <item>Play after current song</item><item >browse songs</item>
+            
+        </string-array>
+        <string-array name="select_queueable_item_action">
+            <item >PLAY</item>
+            <item >QUEUE</item>
+            <item>INSERT</item><item >BROWSE</item>
+            
+        </string-array>
+            <string name="settings_song_selectaction">Song select action</string>
+            <string name="settings_song_selectaction_summary">What to do when a single song is selected</string>
+        
 
 </resources>

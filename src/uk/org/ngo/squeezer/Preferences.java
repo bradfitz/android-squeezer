@@ -46,6 +46,12 @@ public final class Preferences {
     // Do we send anonymous usage statistics?
     public static final String KEY_ANALYTICS_ENABLED = "squeezer.analytics.enabled";
 
+    // What do to when an album is selected in the list view
+    public static final String KEY_ON_SELECT_ALBUM_ACTION = "squeezer.action.onselect.album";
+    // What do to when a song is selected in the list view
+    public static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
+
+    
 	private Preferences() {
 	}
 }
