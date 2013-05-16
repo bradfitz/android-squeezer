@@ -27,11 +27,12 @@ public class ConnectingDialog extends DialogFragment {
     @Override
     public void onDismiss(android.content.DialogInterface dialog) {
         FragmentActivity activity = getActivity();
-        FragmentManager fm = activity.getSupportFragmentManager();
-        Fragment nowPlayingFragment = fm.findFragmentById(R.id.now_playing_fragment);
-
-        if (nowPlayingFragment != null)
-            ((NowPlayingFragment) nowPlayingFragment).clearConnectingDialog();
+        if (activity != null) {
+            FragmentManager fm = activity.getSupportFragmentManager();
+            Fragment nowPlayingFragment = fm.findFragmentById(R.id.now_playing_fragment);
+            if (nowPlayingFragment != null)
+                ((NowPlayingFragment) nowPlayingFragment).clearConnectingDialog();
+        }
     };
 
     public static ConnectingDialog addTo(FragmentActivity activity, String connectingTo) {
