@@ -27,9 +27,9 @@ import uk.org.ngo.squeezer.itemlists.actions.PlayAction;
 import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
-import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -46,7 +46,7 @@ import android.widget.ListView;
  * 
  * @author Kurt Aaholst
  */
-public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
+public abstract class SqueezerItemListActivity extends SqueezerBaseActivity implements OnSharedPreferenceChangeListener {
     private static final String TAG = SqueezerItemListActivity.class.getName();
 
     protected ListView mListView;
@@ -63,9 +63,17 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(Preferences.NAME, 0);
         MenuFragment.add(this, SqueezerMenuFragment.class);
+        preferences.registerOnSharedPreferenceChangeListener(this);
         onSelectAction = getOnSelectAction();
     };
 
+    
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+    		String key) {
+    	onSelectAction = getOnSelectAction();
+    }
+    
     protected PlayableItemAction getOnSelectAction() {
     	return new PlayAction(this);
     }
