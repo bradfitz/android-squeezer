@@ -16,10 +16,8 @@
 
 package uk.org.ngo.squeezer.model;
 
-import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.service.SqueezerServerString;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -89,51 +87,39 @@ public class SqueezerPlayerState implements Parcelable {
     public PlayStatus getPlayStatus() {
         return playStatus;
     }
-    public boolean setPlayStatus(PlayStatus state) {
-        boolean changed = playStatus != state;
+    public void setPlayStatus(PlayStatus state) {
         playStatus = state;
-        return changed;
     }
 
     public boolean isPoweredOn() {
         return poweredOn;
     }
-    public boolean setPoweredOn(boolean state) {
-        boolean changed = poweredOn != state;
+    public void setPoweredOn(boolean state) {
         poweredOn = state;
-        return changed;
     }
 
     public ShuffleStatus getShuffleStatus() {
         return shuffleStatus;
     }
-    public boolean setShuffleStatus(ShuffleStatus status) {
-        boolean changed = shuffleStatus != status;
+    public void setShuffleStatus(ShuffleStatus status) {
         shuffleStatus = status;
-        return changed;
     }
 
     public RepeatStatus getRepeatStatus() {
         return repeatStatus;
     }
-    public boolean setRepeatStatus(RepeatStatus status) {
-        boolean changed = repeatStatus != status;
+    public void setRepeatStatus(RepeatStatus status) {
         repeatStatus = status;
-        return changed;
     }
 
     public SqueezerSong getCurrentSong() {
         return currentSong;
     }
-
     public String getCurrentSongName() {
         return (currentSong != null) ? currentSong.getName() : "";
     }
-
-    public boolean setCurrentSong(SqueezerSong song) {
-        boolean changed = (song == null ? (currentSong != null) : !song.equals(currentSong));
-        if (changed) currentSong = song;
-        return changed;
+    public void setCurrentSong(SqueezerSong song) {
+        currentSong = song;
     }
 
     public String getCurrentPlaylist() {
@@ -169,27 +155,6 @@ public class SqueezerPlayerState implements Parcelable {
     public SqueezerPlayerState setCurrentSongDuration(int value) {
         currentSongDuration = value;
         return this;
-    }
-
-    public PlayerStateChanged update(Map<String, String> tokenMap) {
-        PlayerStateChanged playerStateChanged = new PlayerStateChanged();
-
-        playerStateChanged.musicHasChanged = setCurrentSong(new SqueezerSong(tokenMap));
-        playerStateChanged.powerHasChanged = setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
-
-        playerStateChanged.playStatusHasChanged |= setPlayStatus(PlayStatus.valueOf(tokenMap.get("mode")));
-        playerStateChanged.shuffleStatusHasChanged |= setShuffleStatus(ShuffleStatus.valueOf(Util.parseDecimalIntOrZero(tokenMap.get("playlist shuffle"))));
-        playerStateChanged.repeatStatusHasChanged |= setRepeatStatus(RepeatStatus.valueOf(Util.parseDecimalIntOrZero(tokenMap.get("playlist repeat"))));
-
-        setCurrentPlaylist(tokenMap.get("playlist_name"));
-        setCurrentPlaylistIndex(Util.parseDecimalIntOrZero(tokenMap.get("playlist_cur_index")));
-
-        int lastTime = getCurrentTimeSecond();
-        currentTimeSecond = Util.parseDecimalIntOrZero(tokenMap.get("time"));
-        currentSongDuration = Util.parseDecimalIntOrZero(tokenMap.get("duration"));
-        playerStateChanged.timeHasChanged = (currentTimeSecond != lastTime);
-
-        return playerStateChanged;
     }
 
     public static enum PlayStatus {
@@ -282,15 +247,6 @@ public class SqueezerPlayerState implements Parcelable {
         public E get(int num) {
             return map.get(num);
         }
-    }
-
-    public class PlayerStateChanged {
-        public boolean playStatusHasChanged;
-        public boolean shuffleStatusHasChanged;
-        public boolean repeatStatusHasChanged;
-        public boolean musicHasChanged;
-        public boolean timeHasChanged;
-        public boolean powerHasChanged;
     }
 
 }

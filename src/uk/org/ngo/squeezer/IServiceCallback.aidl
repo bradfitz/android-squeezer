@@ -25,8 +25,8 @@ oneway interface IServiceCallback {
     void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed);
   
     void onPlayStatusChanged(String playStatus);
-    void onShuffleStatusChanged(int shuffleStatus);
-    void onRepeatStatusChanged(int repeatStatus);
+    void onShuffleStatusChanged(boolean initial, int shuffleStatus);
+    void onRepeatStatusChanged(boolean initial, int repeatStatus);
     void onTimeInSongChange(int secondsIn, int secondsTotal);
     void onPowerStatusChanged(boolean canPowerOn, boolean canPowerOff);
 }

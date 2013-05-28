@@ -55,6 +55,9 @@ import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.PlayStatus;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.RepeatStatus;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.util.Scrobble;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -342,14 +345,14 @@ public class SqueezeService extends Service {
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "play registered");
-                setPlayingState(SqueezerPlayerState.PlayStatus.play);
+                updatePlayStatus(SqueezerPlayerState.PlayStatus.play);
             }
         });
         handlers.put("stop", new SqueezerCmdHandler() {
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "stop registered");
-                setPlayingState(SqueezerPlayerState.PlayStatus.stop);
+                updatePlayStatus(SqueezerPlayerState.PlayStatus.stop);
             }
         });
         handlers.put("pause", new SqueezerCmdHandler() {
@@ -362,6 +365,8 @@ public class SqueezeService extends Service {
 		handlers.put("status", new SqueezerCmdHandler() {
 			@Override
             public void handle(List<String> tokens) {
+			    HashMap<String, String> tokenMap = parseTokens(tokens);
+	            Log.d(TAG, "status, subscribe:" + tokenMap.get("subscribe") + " title:" + tokenMap.get("title"));
 	        	if (tokens.size() >= 3 && "-".equals(tokens.get(2)))
 	        		parseStatusLine(tokens);
 	        	else {
@@ -438,18 +443,22 @@ public class SqueezeService extends Service {
 		mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
     }
 
-    private void broadcastTimeChanged(int secondsIn, int secondsTotal) {
-        int i = mServiceCallbacks.beginBroadcast();
-        while (i > 0) {
-            i--;
-            try {
-                mServiceCallbacks.getBroadcastItem(i).onTimeInSongChange(secondsIn, secondsTotal);
-            } catch (RemoteException e) {
-                // The RemoteCallbackList will take care of removing
-                // the dead object for us.
+    private void updateTimes(int secondsIn, int secondsTotal) {
+        playerState.setCurrentSongDuration(secondsTotal);
+        if (playerState.getCurrentTimeSecond() != secondsIn) {
+            playerState.setCurrentTimeSecond(secondsIn);
+            int i = mServiceCallbacks.beginBroadcast();
+            while (i > 0) {
+                i--;
+                try {
+                    mServiceCallbacks.getBroadcastItem(i).onTimeInSongChange(secondsIn, secondsTotal);
+                } catch (RemoteException e) {
+                    // The RemoteCallbackList will take care of removing
+                    // the dead object for us.
+                }
             }
+            mServiceCallbacks.finishBroadcast();
         }
-        mServiceCallbacks.finishBroadcast();
     }
 
     private void parsePlaylistNotification(List<String> tokens) {
@@ -461,9 +470,9 @@ public class SqueezeService extends Service {
             // TODO keep track of subscribe status
             cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
         } else if ("play".equals(notification)) {
-            setPlayingState(SqueezerPlayerState.PlayStatus.play);
+            updatePlayStatus(SqueezerPlayerState.PlayStatus.play);
         } else if ("stop".equals(notification)) {
-            setPlayingState(SqueezerPlayerState.PlayStatus.stop);
+            updatePlayStatus(SqueezerPlayerState.PlayStatus.stop);
         } else if ("pause".equals(notification)) {
             parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
         }
@@ -471,9 +480,9 @@ public class SqueezeService extends Service {
 
     private void parsePause(String explicitPause) {
         if ("0".equals(explicitPause)) {
-            setPlayingState(SqueezerPlayerState.PlayStatus.play);
+            updatePlayStatus(SqueezerPlayerState.PlayStatus.play);
         } else if ("1".equals(explicitPause)) {
-            setPlayingState(SqueezerPlayerState.PlayStatus.pause);
+            updatePlayStatus(SqueezerPlayerState.PlayStatus.pause);
         }
     }
 
@@ -498,32 +507,16 @@ public class SqueezeService extends Service {
     private void parseStatusLine(List<String> tokens) {
         HashMap<String, String> tokenMap = parseTokens(tokens);
 
-        SqueezerPlayerState.PlayerStateChanged playerStateChanged = playerState.update(tokenMap);
+        updatePowerStatus(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
+        updatePlayStatus(PlayStatus.valueOf(tokenMap.get("mode")));
+        updateShuffleStatus(ShuffleStatus.valueOf(Util.parseDecimalIntOrZero(tokenMap.get("playlist shuffle"))));
+        updateRepeatStatus(RepeatStatus.valueOf(Util.parseDecimalIntOrZero(tokenMap.get("playlist repeat"))));
 
-        if (playerStateChanged.powerHasChanged) {
-            broadcastPowerStatusChanged();
-        }
+        playerState.setCurrentPlaylist(tokenMap.get("playlist_name"));
+        playerState.setCurrentPlaylistIndex(Util.parseDecimalIntOrZero(tokenMap.get("playlist_cur_index")));
+        updateCurrentSong(new SqueezerSong(tokenMap));
 
-        if (playerStateChanged.playStatusHasChanged) {
-            broadcastPlayStatusChangedChanged();
-        }
-
-        if (playerStateChanged.shuffleStatusHasChanged) {
-            broadcastShuffleStatusChangedChanged();
-        }
-
-        if (playerStateChanged.repeatStatusHasChanged) {
-            broadcastRepeatStatusChangedChanged();
-        }
-
-        if (playerStateChanged.musicHasChanged) {
-            broadcastMusicChanged();
-        }
-
-        if (playerStateChanged.timeHasChanged) {
-            broadcastTimeChanged(playerState.getCurrentTimeSecond(),
-                    playerState.getCurrentSongDuration());
-        }
+        updateTimes(Util.parseDecimalIntOrZero(tokenMap.get("time")), Util.parseDecimalIntOrZero(tokenMap.get("duration")));
     }
 
     void changeActivePlayer(SqueezerPlayer newPlayer) {
@@ -642,53 +635,57 @@ public class SqueezeService extends Service {
         cli.sendCommandImmediately("getstring " + SqueezerServerString.values()[0].name());
     }
 
-    private void setPlayingState(SqueezerPlayerState.PlayStatus state) {
+    private void updatePlayStatus(PlayStatus state) {
         if (playerState.getPlayStatus() != state) {
             playerState.setPlayStatus(state);
-            broadcastPlayStatusChangedChanged();
+            //TODO when do we want to keep the wiFi lock ?
+            connectionState.updateWifiLock(playerState.isPlaying());
+            updateOngoingNotification();
+
+            int i = mServiceCallbacks.beginBroadcast();
+            while (i > 0) {
+                i--;
+                try {
+                    mServiceCallbacks.getBroadcastItem(i).onPlayStatusChanged(state.name());
+                } catch (RemoteException e) {
+                    // The RemoteCallbackList will take care of removing
+                    // the dead object for us.
+                }
+            }
+            mServiceCallbacks.finishBroadcast();
         }
     }
 
-    private void broadcastPlayStatusChangedChanged() {
-        //TODO when do we want to keep the wiFi lock ?
-        connectionState.updateWifiLock(playerState.isPlaying());
-        updateOngoingNotification();
-
-        int i = mServiceCallbacks.beginBroadcast();
-        while (i > 0) {
-            i--;
-            try {
-                mServiceCallbacks.getBroadcastItem(i).onPlayStatusChanged(playerState.getPlayStatus().name());
-            } catch (RemoteException e) {
-                // The RemoteCallbackList will take care of removing
-                // the dead object for us.
+    private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
+        if (shuffleStatus != playerState.getShuffleStatus()) {
+            boolean wasUnknown = playerState.getShuffleStatus() == null;
+            playerState.setShuffleStatus(shuffleStatus);
+            int i = mServiceCallbacks.beginBroadcast();
+            while (i > 0) {
+                i--;
+                try {
+                    mServiceCallbacks.getBroadcastItem(i).onShuffleStatusChanged(wasUnknown, shuffleStatus.getId());
+                } catch (RemoteException e) {
+                }
             }
+            mServiceCallbacks.finishBroadcast();
         }
-        mServiceCallbacks.finishBroadcast();
     }
 
-    private void broadcastShuffleStatusChangedChanged() {
-        int i = mServiceCallbacks.beginBroadcast();
-        while (i > 0) {
-            i--;
-            try {
-                mServiceCallbacks.getBroadcastItem(i).onShuffleStatusChanged(playerState.getShuffleStatus().getId());
-            } catch (RemoteException e) {
+    private void updateRepeatStatus(RepeatStatus repeatStatus) {
+        if (repeatStatus != playerState.getRepeatStatus()) {
+            boolean wasUnknown = playerState.getRepeatStatus() == null;
+            playerState.setRepeatStatus(repeatStatus);
+            int i = mServiceCallbacks.beginBroadcast();
+            while (i > 0) {
+                i--;
+                try {
+                    mServiceCallbacks.getBroadcastItem(i).onRepeatStatusChanged(wasUnknown, repeatStatus.getId());
+                } catch (RemoteException e) {
+                }
             }
+            mServiceCallbacks.finishBroadcast();
         }
-        mServiceCallbacks.finishBroadcast();
-    }
-
-    private void broadcastRepeatStatusChangedChanged() {
-        int i = mServiceCallbacks.beginBroadcast();
-        while (i > 0) {
-            i--;
-            try {
-                mServiceCallbacks.getBroadcastItem(i).onRepeatStatusChanged(playerState.getRepeatStatus().getId());
-            } catch (RemoteException e) {
-            }
-        }
-        mServiceCallbacks.finishBroadcast();
     }
 
     private void updateOngoingNotification() {
@@ -759,19 +756,23 @@ public class SqueezeService extends Service {
         nm.notify(PLAYBACKSERVICE_STATUS, status);
     }
 
-    private void broadcastMusicChanged() {
-        updateOngoingNotification();
-        int i = mMusicChangedCallbacks.beginBroadcast();
-        while (i > 0) {
-            i--;
-            try {
-                mMusicChangedCallbacks.getBroadcastItem(i).onMusicChanged(playerState);
-            } catch (RemoteException e) {
-                // The RemoteCallbackList will take care of removing
-                // the dead object for us.
+    private void updateCurrentSong(SqueezerSong song) {
+        SqueezerSong currentSong = playerState.getCurrentSong();
+        if ((song == null ? (currentSong != null) : !song.equals(currentSong))) {
+            playerState.setCurrentSong(song);
+            updateOngoingNotification();
+            int i = mMusicChangedCallbacks.beginBroadcast();
+            while (i > 0) {
+                i--;
+                try {
+                    mMusicChangedCallbacks.getBroadcastItem(i).onMusicChanged(playerState);
+                } catch (RemoteException e) {
+                    // The RemoteCallbackList will take care of removing
+                    // the dead object for us.
+                }
             }
+            mMusicChangedCallbacks.finishBroadcast();
         }
-        mMusicChangedCallbacks.finishBroadcast();
     }
 
     private void clearOngoingNotification() {
@@ -780,18 +781,21 @@ public class SqueezeService extends Service {
         nm.cancel(PLAYBACKSERVICE_STATUS);
     }
 
-    private void broadcastPowerStatusChanged() {
-        int i = mServiceCallbacks.beginBroadcast();
-        while (i > 0) {
-            i--;
-            try {
-                mServiceCallbacks.getBroadcastItem(i).onPowerStatusChanged(squeezeService.canPowerOn(), squeezeService.canPowerOff());
-            } catch (RemoteException e) {
-                // The RemoteCallbackList will take care of removing
-                // the dead object for us.
+    private void updatePowerStatus(boolean powerStatus) {
+        if (powerStatus != playerState.isPoweredOn()) {
+            playerState.setPoweredOn(powerStatus);
+            int i = mServiceCallbacks.beginBroadcast();
+            while (i > 0) {
+                i--;
+                try {
+                    mServiceCallbacks.getBroadcastItem(i).onPowerStatusChanged(squeezeService.canPowerOn(), squeezeService.canPowerOff());
+                } catch (RemoteException e) {
+                    // The RemoteCallbackList will take care of removing
+                    // the dead object for us.
+                }
             }
+            mServiceCallbacks.finishBroadcast();
         }
-        mServiceCallbacks.finishBroadcast();
     }
 
     private final ISqueezeService.Stub squeezeService = new ISqueezeService.Stub() {
@@ -1057,12 +1061,6 @@ public class SqueezeService extends Service {
         @Override
         public SqueezerPlayer getActivePlayer() throws RemoteException {
             return connectionState.getActivePlayer();
-        }
-
-        @Override
-        public String getActivePlayerName() throws RemoteException {
-            SqueezerPlayer player = connectionState.getActivePlayer();
-            return (player != null ? player.getName() : null);
         }
 
         @Override
