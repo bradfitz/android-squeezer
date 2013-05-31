@@ -16,9 +16,11 @@
 
 package uk.org.ngo.squeezer;
 
+import uk.org.ngo.squeezer.model.SqueezerPlayer;
+
 oneway interface IServiceCallback {
     // Empty strings to denote no default player.
-    void onPlayerChanged(in String playerId, in String playerName);
+    void onPlayerChanged(in SqueezerPlayer player);
 
     // postConnect is only true for the very first callback after a new initial connect.
     // loginFailed is true if the server disconnects before handshaking is completed

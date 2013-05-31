@@ -32,6 +32,7 @@ import uk.org.ngo.squeezer.itemlists.SqueezerPlayerListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
+import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerPlayerState;
 import uk.org.ngo.squeezer.model.SqueezerPlayerState.PlayStatus;
 import uk.org.ngo.squeezer.model.SqueezerPlayerState.RepeatStatus;
@@ -84,7 +85,6 @@ public class NowPlayingFragment extends Fragment implements
     private SqueezerBaseActivity mActivity;
     private ISqueezeService mService = null;
 
-    private final AtomicReference<SqueezerSong> currentSong = new AtomicReference<SqueezerSong>();
     private final AtomicBoolean connectInProgress = new AtomicBoolean(false);
 
     private TextView albumText;
@@ -485,14 +485,28 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void updatePlayPauseIcon(PlayStatus playStatus) {
-        playPauseButton.setImageResource((playStatus == PlayStatus.play)
-                ? android.R.drawable.ic_media_pause
-                : android.R.drawable.ic_media_play);
+        if (mFullHeightLayout) {
+            playPauseButton.setImageResource((playStatus == PlayStatus.play)
+                    ? android.R.drawable.ic_media_pause
+                    : android.R.drawable.ic_media_play);
+        }
     }
 
-    private void updateUIForPlayer(String playerName) {
+    private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
+        if (mFullHeightLayout && shuffleStatus != null) {
+            shuffleButton.setImageResource(shuffleStatus.getIcon());
+        }
+    }
+
+    private void updateRepeatStatus(RepeatStatus repeatStatus) {
+        if (mFullHeightLayout && repeatStatus != null) {
+            repeatButton.setImageResource(repeatStatus.getIcon());
+        }
+    }
+
+    private void updateUIForPlayer(SqueezerPlayer player) {
         if (mFullHeightLayout) {
-            mActivity.setTitle(!TextUtils.isEmpty(playerName) ? playerName : getText(R.string.app_name));
+            mActivity.setTitle(player != null ? player.getName() : getText(R.string.app_name));
         }
     }
 
@@ -539,11 +553,7 @@ public class NowPlayingFragment extends Fragment implements
         mActivity.startService(new Intent(mActivity, SqueezeService.class));
 
         if (mService != null) {
-            uiThreadHandler.post(new Runnable() {
-                public void run() {
-                    updateUIFromServiceState();
-                }
-            });
+            updateUIFromServiceState();
         }
 
         if (isAutoConnect(getSharedPreferences()))
@@ -557,7 +567,17 @@ public class NowPlayingFragment extends Fragment implements
         // the initial display, as changing the prev/next buttons to empty
         // doesn't seem to work in onCreate. (LayoutInflator still running?)
         Log.d(TAG, "updateUIFromServiceState");
-        setConnected(isConnected(), false, false);
+        boolean connected = isConnected();
+        setConnected(connected, false, false);
+        if (connected) {
+            SqueezerPlayerState playerState = getPlayerState();
+            updateSongInfo(playerState.getCurrentSong());
+            updatePlayPauseIcon(playerState.getPlayStatus());
+            updateTimeDisplayTo(playerState.getCurrentTimeSecond(), playerState.getCurrentSongDuration());
+            updateUIForPlayer(getActivePlayer());
+            updateShuffleStatus(playerState.getShuffleStatus());
+            updateRepeatStatus(playerState.getRepeatStatus());
+        }
     }
 
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
@@ -575,6 +595,7 @@ public class NowPlayingFragment extends Fragment implements
 
     // Should only be called from the UI thread.
     private void updateSongInfo(SqueezerSong song) {
+        Log.v(TAG, "updateSongInfo " + song);
         if (song != null) {
             albumText.setText(song.getAlbum());
             trackText.setText(song.getName());
@@ -588,32 +609,28 @@ public class NowPlayingFragment extends Fragment implements
                 artistText.setText("");
             }
         }
-        updateAlbumArtIfNeeded(song);
+        updateAlbumArt(song);
     }
 
     // Should only be called from the UI thread.
-    private void updateAlbumArtIfNeeded(SqueezerSong song) {
-        Log.v(TAG, "updateAlbumArtIfNeeded");
-
-        if (Util.atomicReferenceUpdated(currentSong, song)) {
-            if (song == null || song.getArtworkUrl(mService) == null) {
-                if (mFullHeightLayout)
-                    albumArt.setImageResource(song != null && song.isRemote()
-                            ? R.drawable.icon_iradio_noart_fullscreen
-                            : R.drawable.icon_album_noart_fullscreen);
-                else
-                    albumArt.setImageResource(song != null && song.isRemote()
-                            ? R.drawable.icon_iradio_noart
-                            : R.drawable.icon_album_noart);
-                return;
-            }
-
-            // The image fetcher might not be ready yet.
-            if (mImageFetcher == null)
-                return;
-
-            mImageFetcher.loadImage(song.getArtworkUrl(mService), albumArt);
+    private void updateAlbumArt(SqueezerSong song) {
+        if (song == null || song.getArtworkUrl(mService) == null) {
+            if (mFullHeightLayout)
+                albumArt.setImageResource(song != null && song.isRemote()
+                        ? R.drawable.icon_iradio_noart_fullscreen
+                        : R.drawable.icon_album_noart_fullscreen);
+            else
+                albumArt.setImageResource(song != null && song.isRemote()
+                        ? R.drawable.icon_iradio_noart
+                        : R.drawable.icon_album_noart);
+            return;
         }
+
+        // The image fetcher might not be ready yet.
+        if (mImageFetcher == null)
+            return;
+
+        mImageFetcher.loadImage(song.getArtworkUrl(mService), albumArt);
     }
 
     private boolean setSecondsElapsed(int seconds) {
@@ -636,6 +653,18 @@ public class NowPlayingFragment extends Fragment implements
             return mService.getPlayerState();
         } catch (RemoteException e) {
             Log.e(TAG, "Service exception in getPlayerState(): " + e);
+        }
+        return null;
+    }
+    
+    private SqueezerPlayer getActivePlayer() {
+        if (mService == null) {
+            return null;
+        }
+        try {
+            return mService.getActivePlayer();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in getActivePlayer(): " + e);
         }
         return null;
     }
@@ -875,6 +904,7 @@ public class NowPlayingFragment extends Fragment implements
                        throws RemoteException {
             Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
             uiThreadHandler.post(new Runnable() {
+                @Override
                 public void run() {
                     setConnected(isConnected, postConnect, loginFailed);
                 }
@@ -882,10 +912,11 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         @Override
-        public void onPlayerChanged(final String playerId, final String playerName) throws RemoteException {
+        public void onPlayerChanged(final SqueezerPlayer player) throws RemoteException {
             uiThreadHandler.post(new Runnable() {
+                @Override
                 public void run() {
-                    updateUIForPlayer(playerName);
+                    updateUIForPlayer(player);
                 }
             });
         }
@@ -893,45 +924,40 @@ public class NowPlayingFragment extends Fragment implements
         @Override
         public void onPlayStatusChanged(final String playStatusName)
         {
-            if (mFullHeightLayout) {
-                uiThreadHandler.post(new Runnable() {
-                    public void run() {
-                        updatePlayPauseIcon(PlayStatus.valueOf(playStatusName));
-                    }
-                });
-            }
+            uiThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updatePlayPauseIcon(PlayStatus.valueOf(playStatusName));
+                }
+            });
         }
 
         @Override
         public void onShuffleStatusChanged(final boolean initial, final int shuffleStatusId)
         {
-            if (mFullHeightLayout) {
-                uiThreadHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ShuffleStatus shuffleStatus = ShuffleStatus.valueOf(shuffleStatusId);
-                        shuffleButton.setImageResource(shuffleStatus.getIcon());
-                        if (!initial)
-                            Toast.makeText(mActivity, mActivity.getServerString(shuffleStatus.getText()), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+            uiThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    ShuffleStatus shuffleStatus = ShuffleStatus.valueOf(shuffleStatusId);
+                    updateShuffleStatus(shuffleStatus);
+                    if (!initial)
+                        Toast.makeText(mActivity, mActivity.getServerString(shuffleStatus.getText()), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         @Override
         public void onRepeatStatusChanged(final boolean initial, final int repeatStatusId)
         {
-            if (mFullHeightLayout) {
-                uiThreadHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        RepeatStatus repeatStatus = RepeatStatus.valueOf(repeatStatusId);
-                        repeatButton.setImageResource(repeatStatus.getIcon());
-                        if (!initial)
-                            Toast.makeText(mActivity, mActivity.getServerString(repeatStatus.getText()), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+            uiThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    RepeatStatus repeatStatus = RepeatStatus.valueOf(repeatStatusId);
+                    updateRepeatStatus(repeatStatus);
+                    if (!initial)
+                        Toast.makeText(mActivity, mActivity.getServerString(repeatStatus.getText()), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         @Override

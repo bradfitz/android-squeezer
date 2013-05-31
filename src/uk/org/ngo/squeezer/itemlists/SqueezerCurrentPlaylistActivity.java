@@ -205,9 +205,12 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     }
 
     private final IServiceMusicChangedCallback musicChangedCallback = new IServiceMusicChangedCallback.Stub() {
+        @Override
         public void onMusicChanged(SqueezerPlayerState playerState) throws RemoteException {
+            Log.d(getTag(), "onMusicChanged " + playerState.getCurrentSong());
             currentPlaylistIndex = playerState.getCurrentPlaylistIndex();
             getUIThreadHandler().post(new Runnable() {
+                @Override
                 public void run() {
                     getItemAdapter().notifyDataSetChanged();
                 }
@@ -216,6 +219,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     };
 
     private final IServiceSongListCallback songListCallback = new IServiceSongListCallback.Stub() {
+        @Override
         public void onSongsReceived(int count, int start, List<SqueezerSong> items) throws RemoteException {
             currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
             onItemsReceived(count, start, items);
@@ -230,6 +234,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
         Log.i(getTag(), "set selection(" +start + "): "+ currentPlaylistIndex);
 	    getListView().post(new Runnable() {
+            @Override
             public void run() {
                 getListView().setSelectionFromTop(currentPlaylistIndex, 0);
             }

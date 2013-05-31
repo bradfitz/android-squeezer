@@ -365,8 +365,6 @@ public class SqueezeService extends Service {
 		handlers.put("status", new SqueezerCmdHandler() {
 			@Override
             public void handle(List<String> tokens) {
-			    HashMap<String, String> tokenMap = parseTokens(tokens);
-	            Log.d(TAG, "status, subscribe:" + tokenMap.get("subscribe") + " title:" + tokenMap.get("title"));
 	        	if (tokens.size() >= 3 && "-".equals(tokens.get(2)))
 	        		parseStatusLine(tokens);
 	        	else {
@@ -564,7 +562,7 @@ public class SqueezeService extends Service {
         while (i > 0) {
             i--;
             try {
-                mServiceCallbacks.getBroadcastItem(i).onPlayerChanged(playerId, newPlayer.getName());
+                mServiceCallbacks.getBroadcastItem(i).onPlayerChanged(newPlayer);
             } catch (RemoteException e) {
                 // The RemoteCallbackList will take care of removing
                 // the dead object for us.
@@ -759,6 +757,7 @@ public class SqueezeService extends Service {
     private void updateCurrentSong(SqueezerSong song) {
         SqueezerSong currentSong = playerState.getCurrentSong();
         if ((song == null ? (currentSong != null) : !song.equals(currentSong))) {
+            Log.d(TAG, "updateCurrentSong: " + song);
             playerState.setCurrentSong(song);
             updateOngoingNotification();
             int i = mMusicChangedCallbacks.beginBroadcast();
