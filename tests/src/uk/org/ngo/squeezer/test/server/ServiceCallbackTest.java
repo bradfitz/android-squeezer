@@ -2,21 +2,21 @@ package uk.org.ngo.squeezer.test.server;
 
 import android.os.RemoteException;
 import uk.org.ngo.squeezer.IServiceCallback;
+import uk.org.ngo.squeezer.model.SqueezerPlayer;
 
 public class ServiceCallbackTest extends IServiceCallback.Stub {
     int onPlayerChanged;
-    String currentPlayerId;
-    String currentPlayerName;
+    SqueezerPlayer currentPlayer;
     int onConnectionChanged;
     boolean isConnected;
     boolean isPostConnect;
     boolean isLoginFailed;
 
+
     @Override
-    public void onPlayerChanged(String playerId, String playerName) throws RemoteException {
+    public void onPlayerChanged(SqueezerPlayer player) throws RemoteException {
         onPlayerChanged++;
-        currentPlayerId = playerId;
-        currentPlayerName = playerName;
+        currentPlayer = player;
     }
 
     @Override
@@ -33,12 +33,12 @@ public class ServiceCallbackTest extends IServiceCallback.Stub {
     }
 
     @Override
-    public void onShuffleStatusChanged(int shuffleStatus) throws RemoteException {
+    public void onShuffleStatusChanged(boolean initial, int shuffleStatus) throws RemoteException {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void onRepeatStatusChanged(int repeatStatus) throws RemoteException {
+    public void onRepeatStatusChanged(boolean initial, int repeatStatus) throws RemoteException {
         // TODO Auto-generated method stub
     }
 
