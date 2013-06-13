@@ -147,29 +147,20 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     }
 
 	@Override
-	protected void onServiceConnected() throws RemoteException {
-		registerCallback();
+	protected void onServiceConnected() {
+		super.onServiceConnected();
 		orderItems();
 	}
 
     @Override
     public void onResume() {
         super.onResume();
-
         mImageFetcher.addImageCache(getSupportFragmentManager(), mImageCacheParams);
     }
 
     @Override
     public void onPause() {
         mImageFetcher.closeCache();
-
-        if (getService() != null) {
-        	try {
-				unregisterCallback();
-			} catch (RemoteException e) {
-                Log.e(getTag(), "Error unregistering list callback: " + e);
-			}
-        }
         super.onPause();
     }
 

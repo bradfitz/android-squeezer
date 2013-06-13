@@ -37,27 +37,13 @@ public class NowPlayingActivity extends SqueezerBaseActivity {
         MenuFragment.add(this, SqueezerMenuFragment.class);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume...");
-    }
-
-
-    @Override
-    public void onPause() {
-        Log.d(TAG, "onPause...");
-        super.onPause();
-    }
-
-
     /*
      * (non-Javadoc)
      * @see
      * uk.org.ngo.squeezer.framework.SqueezerBaseActivity#onServiceConnected()
      */
     @Override
-    protected void onServiceConnected() throws RemoteException {
+    protected void onServiceConnected() {
         // Does nothing
     }
 

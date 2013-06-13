@@ -67,11 +67,13 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private static final int FAVORITES = 10;
     private static final int APPS = 11;
 
+    private boolean mRegisteredCallbacks;
     private boolean mCanMusicfolder = false;
     private boolean mCanRandomplay = false;
     private ListView listView;
 
     private GoogleAnalyticsTracker tracker;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,8 +114,19 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
     }
 
     @Override
-    protected void onServiceConnected() throws RemoteException {
-        getService().registerHandshakeCallback(mCallback);
+    protected void onServiceConnected() {
+        maybeRegisterCallbacks();
+    }
+
+    private void maybeRegisterCallbacks() {
+        if (!mRegisteredCallbacks) {
+            try {
+                getService().registerHandshakeCallback(mCallback);
+            } catch (RemoteException e) {
+                Log.e(getTag(), "Error registering callback: " + e);
+            }
+            mRegisteredCallbacks = true;
+        }
     }
 
 
@@ -127,8 +140,10 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
          * handshake completes, and the menu is adjusted depending on whether or
          * not those abilities exist.
          */
+        @Override
         public void onHandshakeCompleted() throws RemoteException {
             runOnUiThread(new Runnable() {
+                @Override
                 public void run() {
                     createListItems();
                 }
@@ -242,15 +257,25 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 	};
 
     @Override
-    public void onPause() {
+    public void onResume() {
+        super.onResume();
         if (getService() != null) {
-            try {
-                getService().unregisterHandshakeCallback(mCallback);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Service exception in onPause(): " + e);
-            }
+            maybeRegisterCallbacks();
         }
+    }
 
+    @Override
+    public void onPause() {
+        if (mRegisteredCallbacks) {
+            if (getService() != null) {
+                try {
+                    getService().unregisterHandshakeCallback(mCallback);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Service exception in onPause(): " + e);
+                }
+            }
+            mRegisteredCallbacks = false;
+        }
         super.onPause();
     }
 

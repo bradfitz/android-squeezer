@@ -45,7 +45,7 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
     }
 
     @Override
-    protected void onServiceConnected() throws RemoteException {
+    protected void onServiceConnected() {
     }
 
 

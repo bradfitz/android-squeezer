@@ -44,7 +44,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
 	private ISqueezeService service = null;
 	private final Handler uiThreadHandler = new Handler() {};
 
-	protected abstract void onServiceConnected() throws RemoteException;
+	protected abstract void onServiceConnected();
 
     protected String getTag() {
     	return getClass().getSimpleName();
@@ -60,20 +60,19 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
     /**
      * Use this to post Runnables to work off thread
      */
+    @Override
     public Handler getUIThreadHandler() {
         return uiThreadHandler;
     }
 
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = ISqueezeService.Stub.asInterface(binder);
-   			try {
-   				SqueezerBaseActivity.this.onServiceConnected();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error in onServiceConnected: " + e);
-            }
+            SqueezerBaseActivity.this.onServiceConnected();
         }
-		public void onServiceDisconnected(ComponentName name) {
+		@Override
+        public void onServiceDisconnected(ComponentName name) {
             service = null;
         };
     };

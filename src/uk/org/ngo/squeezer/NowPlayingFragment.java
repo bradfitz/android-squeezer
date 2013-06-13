@@ -166,15 +166,13 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             Log.v(TAG, "ServiceConnection.onServiceConnected()");
             mService = ISqueezeService.Stub.asInterface(binder);
-            try {
-                NowPlayingFragment.this.onServiceConnected();
-            } catch (RemoteException e) {
-                Log.e(TAG, "Error in onServiceConnected: " + e);
-            }
+            NowPlayingFragment.this.onServiceConnected();
         }
+        @Override
         public void onServiceDisconnected(ComponentName name) {
             mService = null;
         };
@@ -520,12 +518,11 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    protected void onServiceConnected() throws RemoteException {
+    protected void onServiceConnected() {
         Log.v(TAG, "Service bound");
-        mService.registerCallback(serviceCallback);
-        mService.registerMusicChangedCallback(musicChangedCallback);
-        mService.registerHandshakeCallback(handshakeCallback);
+        maybeRegisterCallbacks();
         uiThreadHandler.post(new Runnable() {
+            @Override
             public void run() {
                 updateUIFromServiceState();
             }
@@ -553,12 +550,33 @@ public class NowPlayingFragment extends Fragment implements
         mActivity.startService(new Intent(mActivity, SqueezeService.class));
 
         if (mService != null) {
+            maybeRegisterCallbacks();
             updateUIFromServiceState();
         }
 
         if (isAutoConnect(getSharedPreferences()))
             mActivity.registerReceiver(broadcastReceiver, new IntentFilter(
                     ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+    /** Keep track of whether callbacks have been registered */
+    private boolean mRegisteredCallbacks;
+
+    /**
+     * This is called when the service is first connected, and whenever the
+     * activity is resumed.
+     */
+    private void maybeRegisterCallbacks() {
+        if (!mRegisteredCallbacks) {
+            try {
+                mService.registerCallback(serviceCallback);
+                mService.registerMusicChangedCallback(musicChangedCallback);
+                mService.registerHandshakeCallback(handshakeCallback);
+            } catch (RemoteException e) {
+                Log.e(getTag(), "Error registering callback: " + e);
+            }
+            mRegisteredCallbacks = true;
+        }
     }
 
     // Should only be called from the UI thread.
@@ -717,6 +735,18 @@ public class NowPlayingFragment extends Fragment implements
 
         if (isAutoConnect(getSharedPreferences()))
             mActivity.unregisterReceiver(broadcastReceiver);
+        
+        if (mRegisteredCallbacks) {
+            try {
+                mService.unregisterCallback(serviceCallback);
+                mService.unregisterMusicChangedCallback(musicChangedCallback);
+                mService.unregisterHandshakeCallback(handshakeCallback);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Service exception in onDestroy(): " + e);
+            }
+            mRegisteredCallbacks = false;
+        }
+        
         super.onPause();
     }
 
@@ -724,15 +754,8 @@ public class NowPlayingFragment extends Fragment implements
     public void onDestroy() {
         super.onDestroy();
         if (mService != null) {
-            try {
-                mService.unregisterCallback(serviceCallback);
-                mService.unregisterMusicChangedCallback(musicChangedCallback);
-                mService.unregisterHandshakeCallback(handshakeCallback);
-                if (serviceConnection != null) {
-                    mActivity.unbindService(serviceConnection);
-                }
-            } catch (RemoteException e) {
-                Log.e(TAG, "Service exception in onDestroy(): " + e);
+            if (serviceConnection != null) {
+                mActivity.unbindService(serviceConnection);
             }
         }
     }

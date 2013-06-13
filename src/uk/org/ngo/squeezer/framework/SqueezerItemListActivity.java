@@ -46,12 +46,59 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
     /** The list is being actively scrolled by the user */
     private boolean mListScrolling;
 
+    /** Keep track of whether callbacks have been registered */
+    private boolean mRegisteredCallbacks;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MenuFragment.add(this, SqueezerMenuFragment.class);
     };
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getService() != null) {
+            maybeRegisterCallbacks();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (mRegisteredCallbacks) {
+            if (getService() != null) {
+                try {
+                    unregisterCallback();
+                } catch (RemoteException e) {
+                    Log.e(getTag(), "Error unregistering list callback: " + e);
+                }
+            }
+            mRegisteredCallbacks = false;
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onServiceConnected() {
+        maybeRegisterCallbacks();
+    }
+
+    /**
+     * This is called when the service is first connected, and whenever the
+     * activity is resumed.
+     */
+    private void maybeRegisterCallbacks() {
+        if (!mRegisteredCallbacks) {
+            try {
+                registerCallback();
+            } catch (RemoteException e) {
+                Log.e(getTag(), "Error registering list callback: " + e);
+            }
+            mRegisteredCallbacks = true;
+        }
+    }
+    
+    
     /**
      * This is called when the service is connected.
      * <p>

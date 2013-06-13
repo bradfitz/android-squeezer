@@ -133,22 +133,10 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 	}
 
 	@Override
-	protected void onServiceConnected() throws RemoteException {
-		registerCallback();
+	protected void onServiceConnected() {
+		super.onServiceConnected();
 		doSearch();
 	}
-
-	@Override
-    public void onPause() {
-        if (getService() != null) {
-        	try {
-        		unregisterCallback();
-			} catch (RemoteException e) {
-                Log.e(getTag(), "Error unregistering list callback: " + e);
-			}
-        }
-        super.onPause();
-    }
 
 	@Override
 	protected void orderPage(int start) {
