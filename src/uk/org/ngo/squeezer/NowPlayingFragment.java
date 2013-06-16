@@ -17,11 +17,8 @@
 package uk.org.ngo.squeezer;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.dialogs.AboutDialog;
-import uk.org.ngo.squeezer.dialogs.ConnectingDialog;
 import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
 import uk.org.ngo.squeezer.dialogs.SqueezerAuthenticationDialog;
 import uk.org.ngo.squeezer.framework.HasUiThread;
@@ -43,6 +40,7 @@ import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -60,7 +58,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
+import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -84,8 +82,6 @@ public class NowPlayingFragment extends Fragment implements
 
     private SqueezerBaseActivity mActivity;
     private ISqueezeService mService = null;
-
-    private final AtomicBoolean connectInProgress = new AtomicBoolean(false);
 
     private TextView albumText;
     private TextView artistText;
@@ -160,8 +156,10 @@ public class NowPlayingFragment extends Fragment implements
         }
     };
 
-    private ConnectingDialog connectingDialog = null;
-    public void clearConnectingDialog() {
+    private ProgressDialog connectingDialog = null;
+    private void clearConnectingDialog() {
+        if (connectingDialog != null && connectingDialog.isShowing())
+            connectingDialog.dismiss();
         connectingDialog = null;
     }
 
@@ -417,20 +415,19 @@ public class NowPlayingFragment extends Fragment implements
     private void setConnected(boolean connected, boolean postConnect, boolean loginFailure) {
         Log.v(TAG, "setConnected(" + connected + ", " + postConnect + ", " + loginFailure + ")");
         if (postConnect) {
-            connectInProgress.set(false);
-            if (connectingDialog != null) {
-                Log.d(TAG, "Dismissing ConnectingDialog");
-                connectingDialog.dismiss();
-            } else {
-                Log.d(TAG, "Got connection failure, but ConnectingDialog wasn't showing");
-            }
-            connectingDialog = null;
+            clearConnectingDialog();
             if (!connected) {
                 // TODO: Make this a dialog? Allow the user to correct the
                 // server settings here?
+                try {
                 Toast.makeText(mActivity, getText(R.string.connection_failed_text),
                         Toast.LENGTH_LONG)
                         .show();
+                } catch (IllegalStateException e) {
+                    // We are not allowed to show a toast at this point, but
+                    // the Toast is not important so we ignore it.
+                    Log.i(TAG, "Toast was not allowed: " + e);
+                }
             }
         }
         if (loginFailure) {
@@ -704,6 +701,18 @@ public class NowPlayingFragment extends Fragment implements
         return false;
     }
 
+    private boolean isConnectInProgress() {
+        if (mService == null) {
+            return false;
+        }
+        try {
+            return mService.isConnectInProgress();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Service exception in isConnectInProgress(): " + e);
+        }
+        return false;
+    }
+
     private boolean canPowerOn() {
         if (mService == null) {
             return false;
@@ -742,7 +751,7 @@ public class NowPlayingFragment extends Fragment implements
                 mService.unregisterMusicChangedCallback(musicChangedCallback);
                 mService.unregisterHandshakeCallback(handshakeCallback);
             } catch (RemoteException e) {
-                Log.e(TAG, "Service exception in onDestroy(): " + e);
+                Log.e(TAG, "Service exception in onPause(): " + e);
             }
             mRegisteredCallbacks = false;
         }
@@ -758,6 +767,7 @@ public class NowPlayingFragment extends Fragment implements
                 mActivity.unbindService(serviceConnection);
             }
         }
+        clearConnectingDialog();
     }
 
     /**
@@ -872,8 +882,9 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     public void startVisibleConnection() {
-        Log.v(TAG, "startVisibleConnection..., connectInProgress: " + connectInProgress.get());
+        Log.v(TAG, "startVisibleConnection");
         uiThreadHandler.post(new Runnable() {
+            @Override
             public void run() {
                 SharedPreferences preferences = getSharedPreferences();
                 String ipPort = getConfiguredCliIpPort(preferences);
@@ -886,21 +897,27 @@ public class NowPlayingFragment extends Fragment implements
                     WifiManager wifiManager = (WifiManager) mActivity
                             .getSystemService(Context.WIFI_SERVICE);
                     if (!wifiManager.isWifiEnabled()) {
-                        new EnableWifiDialog().show(getFragmentManager(), "EnableWifiDialog");
+                        FragmentManager fragmentManager = getFragmentManager();
+                        if (fragmentManager != null) {
+                            EnableWifiDialog.show(getFragmentManager());
+                        } else {
+                            Log.i(getTag(), "fragment manager is null so we can't show EnableWifiDialog");
+                        }
                         return;
                         // When a Wi-Fi connection is made this method will be called again by the
                         // broadcastReceiver
                     }
                 }
 
-                if (connectInProgress.get()) {
+                if (isConnectInProgress()) {
                     Log.v(TAG, "Connection is allready in progress, connecting aborted");
                     return;
                 }
-                connectingDialog = ConnectingDialog.addTo(mActivity, ipPort);
-                if (connectingDialog != null) {
+                try {
+                    connectingDialog = ProgressDialog.show(mActivity,
+                            getText(R.string.connecting_text),
+                            getString(R.string.connecting_to_text, ipPort), true, false);
                     Log.v(TAG, "startConnect, ipPort: " + ipPort);
-                    connectInProgress.set(true);
                     try {
                         getConfiguredCliIpPort(preferences);
                         mService.startConnect(ipPort, getConfiguredUserName(preferences), getConfiguredPassword(preferences));
@@ -908,12 +925,9 @@ public class NowPlayingFragment extends Fragment implements
                         Toast.makeText(mActivity, "startConnection error: " + e,
                                 Toast.LENGTH_LONG).show();
                     }
-                } else {
-                    // We couldn't create the connect progress bar. If this
-                    // happens because of the android life cycle, then we are
-                    // fine, and will get back here shortly, otherwise the user
-                    // will have to press the connect button again.
-                    Log.v(TAG, "Could not show the connect dialog, connecting aborted");
+                } catch (IllegalStateException e) {
+                    Log.i(TAG, "ProgressDialog.show() was not allowed, connecting aborted: " + e);
+                    connectingDialog = null;
                 }
             }
         });

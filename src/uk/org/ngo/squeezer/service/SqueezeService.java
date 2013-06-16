@@ -847,7 +847,12 @@ public class SqueezeService extends Service {
 
         @Override
         public boolean isConnected() throws RemoteException {
-        	return connectionState.isConnected();
+            return connectionState.isConnected();
+        }
+
+        @Override
+        public boolean isConnectInProgress() throws RemoteException {
+            return connectionState.isConnectInProgress();
         }
 
         @Override

@@ -59,6 +59,7 @@ interface ISqueezeService {
 		void startConnect(String hostPort, String userName, String password);
 		void disconnect();
         boolean isConnected();
+        boolean isConnectInProgress();
         
         // For the SettingsActivity to notify the Service that a setting changed.
         void preferenceChanged(String key);

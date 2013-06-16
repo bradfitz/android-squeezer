@@ -47,7 +47,8 @@ class SqueezerConnectionState {
     private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
 
     // Connection state:
-	private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    private final AtomicBoolean isConnectInProgress = new AtomicBoolean(false);
+    private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
     private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
     private final AtomicReference<String> preferredAlbumSort = new AtomicReference<String>("album");
@@ -121,6 +122,7 @@ class SqueezerConnectionState {
 
     private void setConnectionState(SqueezeService service, boolean currentState, boolean postConnect, boolean loginFailed) {
         isConnected.set(currentState);
+        if (postConnect) isConnectInProgress.set(false);
 
         int i = service.mServiceCallbacks.beginBroadcast();
         while (i > 0) {
@@ -188,9 +190,13 @@ class SqueezerConnectionState {
         return preferredAlbumSort.get();
     }
 
-	boolean isConnected() {
-		return isConnected.get();
-	}
+    boolean isConnected() {
+        return isConnected.get();
+    }
+
+    boolean isConnectInProgress() {
+        return isConnectInProgress.get();
+    }
 
 	void startListeningThread(SqueezeService service) {
         Thread listeningThread = new ListeningThread(service, socketRef.get(), currentConnectionGeneration.incrementAndGet());
@@ -272,12 +278,12 @@ class SqueezerConnectionState {
                 Socket socket = new Socket();
                 try {
                     Log.d(TAG, "Connecting to: " + cleanHostPort);
+                    isConnectInProgress.set(true);
                     socket.connect(new InetSocketAddress(host, port),
                                    4000 /* ms timeout */);
                     socketRef.set(socket);
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
-                    Log.d(TAG, "writer == " + socketWriter.get());
                     setConnectionState(service, true, true, false);
                     Log.d(TAG, "connection state broadcasted true.");
                 	startListeningThread(service);
