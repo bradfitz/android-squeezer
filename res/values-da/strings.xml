@@ -170,7 +170,7 @@
     <string name="home_item_random_mix">Tilfældigt miks</string>
     <string name="home_item_playlists">Afspilningslister</string>
     <string name="home_item_radios">Internet Radio</string>
-    <string name="home_item_favorites">Internetradio</string>
+    <string name="home_item_favorites">Favoritter</string>
     <string name="home_item_my_apps">Mine programmer</string>
 
     <string name="randomplay_item_song_mix">Miks baseret på tilfældige numre</string>
