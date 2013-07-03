@@ -162,7 +162,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     }
 
 	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_item_playlist_clear:
 			if (getService() != null)
@@ -177,7 +177,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 		    SqueezerPlaylistSaveDialog.addTo(this, getCurrentPlaylist());
 	        return true;
 		}
-		return super.onMenuItemSelected(featureId, item);
+		return super.onOptionsItemSelected(item);
 	}
 
 	private String getCurrentPlaylist() {

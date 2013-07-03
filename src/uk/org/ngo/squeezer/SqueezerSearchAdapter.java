@@ -32,7 +32,6 @@ import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import android.graphics.drawable.Drawable;
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -89,6 +88,7 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
 		return count;
 	}
 
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuInfo;
         long packedPosition = contextMenuInfo.packedPosition;
@@ -103,38 +103,50 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
         }
     }
 
-	public void doItemContext(MenuItem menuItem, int groupPosition, int childPosition) throws RemoteException {
-		childAdapters[groupPosition].doItemContext(menuItem, childPosition);
-	}
+    public void onChildClick(int groupPosition, int childPosition) {
+        childAdapters[groupPosition].onItemSelected(childPosition);
+    }
 
+    public void doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
+        childAdapters[groupPosition].doItemContext(menuItem, childPosition);
+    }
+
+    @Override
     public SqueezerPlaylistItem getChild(int groupPosition, int childPosition) {
         return (SqueezerPlaylistItem) childAdapters[groupPosition].getItem(childPosition);
 	}
 
-	public long getChildId(int groupPosition, int childPosition) {
+	@Override
+    public long getChildId(int groupPosition, int childPosition) {
 		return childPosition;
 	}
 
-	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+	@Override
+    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
 		return childAdapters[groupPosition].getView(childPosition, convertView, parent);
 	}
 
-	public int getChildrenCount(int groupPosition) {
+	@Override
+    public int getChildrenCount(int groupPosition) {
 		return childAdapters[groupPosition].getCount();
 	}
 
-	public Object getGroup(int groupPosition) {
+	@Override
+    public Object getGroup(int groupPosition) {
 		return childAdapters[groupPosition];
 	}
 
-	public int getGroupCount() {
+	@Override
+    public int getGroupCount() {
 		return childAdapters.length;
 	}
 
-	public long getGroupId(int groupPosition) {
+	@Override
+    public long getGroupId(int groupPosition) {
 		return groupPosition;
 	}
 
+    @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
             ViewGroup parent) {
         View row = activity.getLayoutInflater().inflate(R.layout.group_item, null);
@@ -157,11 +169,13 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
         return (row);
     }
 
-	public boolean hasStableIds() {
+	@Override
+    public boolean hasStableIds() {
 		return false;
 	}
 
-	public boolean isChildSelectable(int groupPosition, int childPosition) {
+	@Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
 		return true;
 	}
 

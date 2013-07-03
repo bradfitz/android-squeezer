@@ -25,7 +25,6 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -79,18 +78,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         mListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // XXX: Adapter should implement onItemClickListener and pass
-                // this down to the views.
-    			T item = getItemAdapter().getItem(position);
-    			if (item != null && item.getId() != null) {
-    	   			try {
-                        // XXX: Why does this need to be itemView?
-                        // Using "view" should suffice.
-    					itemView.onItemSelected(position, item);
-    	            } catch (RemoteException e) {
-    	                Log.e(getTag(), "Error from default action for '" + item + "': " + e);
-    	            }
-    			}
+                getItemAdapter().onItemSelected(position);
     		}
     	});
 
@@ -134,16 +122,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     public final boolean onContextItemSelected(MenuItem menuItem) {
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 
-        if (getService() != null) {
-            try {
-                return itemAdapter.doItemContext(menuItem, menuInfo.position);
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error context menu action '" + menuInfo + "' for '"
-                        + menuInfo.position + "': " + e);
-            }
-        }
-
-        return super.onContextItemSelected(menuItem);
+        return itemAdapter.doItemContext(menuItem, menuInfo.position);
     }
 
 	@Override

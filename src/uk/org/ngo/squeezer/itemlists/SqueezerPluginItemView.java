@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
-import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
@@ -49,6 +48,7 @@ public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginI
         if (!item.isHasitems()) {
             viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
             viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     v.showContextMenu();
                 }
@@ -126,10 +126,6 @@ public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginI
     public void onItemSelected(int index, SqueezerPluginItem item) throws RemoteException {
 		if (item.isHasitems())
 			activity.show(item);
-		else {
-			activity.play(item);
-			NowPlayingActivity.show(getActivity());
-		}
 	}
 
     // XXX: Make this a menu resource.

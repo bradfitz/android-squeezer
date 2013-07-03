@@ -110,6 +110,7 @@
 
     <string name="copyright_text">Copyright &#169; 2009 Google Inc.  Alle rettigheder forbeholdes\nCopyright &#169; 2011 Kurt Aaholst. Alle rettigheder forbeholdes.</string>
 
+	<string name="NO_ACTION">Ingen</string>
 	<string name="BROWSE_SONGS">Vis sange</string>
 	<string name="BROWSE_ALBUMS">Vis album</string>
 	<string name="BROWSE_ARTISTS">Vis kunstnere</string>
@@ -234,4 +235,8 @@
         <item quantity="other">programmer</item>
     </plurals>
 
+    <string name="settings_album_selectaction">Album handling</string>
+    <string name="settings_album_selectaction_summary">Hvad skal gøres når et album vælges</string>
+    <string name="settings_song_selectaction">Sang handling</string>
+    <string name="settings_song_selectaction_summary">Hvad skal gøres når en sang vælges</string>
 </resources>

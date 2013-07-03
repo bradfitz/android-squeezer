@@ -16,12 +16,13 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
-import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
+import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
 import uk.org.ngo.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import uk.org.ngo.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
-import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongFilterDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog.SongsSortOrder;
@@ -37,7 +38,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Spinner;
 
 public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
@@ -60,11 +64,15 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
     public void setArtist(SqueezerArtist artist) { this.artist = artist; }
 
 	private SqueezerYear year;
+    @Override
     public SqueezerYear getYear() { return year; }
+    @Override
     public void setYear(SqueezerYear year) { this.year = year; }
 
 	private SqueezerGenre genre;
+    @Override
     public SqueezerGenre getGenre() { return genre; }
+    @Override
     public void setGenre(SqueezerGenre genre) { this.genre = genre; }
 
 	private GenreSpinner genreSpinner;
@@ -78,6 +86,9 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 	}
 
 	private SqueezerSongView songViewLogic;
+
+    private MenuItem playButton;
+    private MenuItem addButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,12 +115,6 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
             }
         songViewLogic.setBrowseByAlbum(album != null);
         songViewLogic.setBrowseByArtist(artist != null);
-    }
-
-    @Override
-    protected PlayableItemAction getOnSelectAction() {
-    	String actionType = preferences.getString(Preferences.KEY_ON_SELECT_SONG_ACTION, PlayableItemAction.Type.PLAY.name());
-    	return PlayableItemAction.createAction(this, actionType);
     }
     
     
@@ -143,8 +148,10 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 
     @Override
     protected void orderPage(int start) throws RemoteException {
-        getService().songs(start, sortOrder.name(), getSearchString(), album, artist, getYear(),
-                genre);
+        getService().songs(start, sortOrder.name(), searchString, album, artist, year, genre);
+        boolean canPlay = (getCurrentPlaylistItem() != null);
+        playButton.setVisible(canPlay);
+        addButton.setVisible(canPlay);
     }
 
     public SongsSortOrder getSortOrder() {
@@ -156,11 +163,54 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 		orderItems();
 	}
 
+    @Override
     public void showFilterDialog() {
         new SqueezerSongFilterDialog().show(getSupportFragmentManager(), "SongFilterDialog");
     }
 
+    @Override
     public void showOrderDialog() {
         new SqueezerSongOrderDialog().show(this.getSupportFragmentManager(), "OrderDialog");
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.playmenu, menu);
+        playButton = getActionBarHelper().findItem(R.id.play_now);
+        addButton = getActionBarHelper().findItem(R.id.add_to_playlist);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        try {
+            SqueezerPlaylistItem playlistItem = getCurrentPlaylistItem();
+            switch (item.getItemId()) {
+            case R.id.play_now:
+                if (playlistItem != null)
+                    play(playlistItem);
+                return true;
+            case R.id.add_to_playlist:
+                if (playlistItem != null)
+                    add(playlistItem);
+                return true;
+            }
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Error executing menu action '" + item.getMenuInfo() + "': " + e);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    
+    private SqueezerPlaylistItem getCurrentPlaylistItem() {
+        int playlistItems = Util.countBooleans(album != null, artist != null, genre != null, year != null);
+        if (playlistItems == 1 && TextUtils.isEmpty(searchString)) {
+            if (album != null) return album;
+            if (artist != null) return artist;
+            if (genre != null) return genre;
+            if (year != null) return year;
+        }
+        return null;
+    }
+
 }

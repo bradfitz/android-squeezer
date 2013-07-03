@@ -116,7 +116,8 @@ public class SettingsActivity extends PreferenceActivity implements
 	}
 
 	private void fillPlayableItemSelectionPreferences() {
-		String addLabel = getString(PlayableItemAction.Type.ADD.labelId);
+        String noneLabel = getString(PlayableItemAction.Type.NONE.labelId);
+        String addLabel = getString(PlayableItemAction.Type.ADD.labelId);
 		String playLabel = getString(PlayableItemAction.Type.PLAY.labelId);
 		String insertLabel = getString(PlayableItemAction.Type.INSERT.labelId);
 		String browseLabel = getString(PlayableItemAction.Type.BROWSE.labelId);
@@ -136,14 +137,15 @@ public class SettingsActivity extends PreferenceActivity implements
 
 		ListPreference onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
 		onSelectSongPref.setEntryValues(new String[] {
-				PlayableItemAction.Type.PLAY.name(),
+                PlayableItemAction.Type.NONE.name(),
+                PlayableItemAction.Type.PLAY.name(),
 				PlayableItemAction.Type.INSERT.name(),
 				PlayableItemAction.Type.ADD.name() });
-		onSelectSongPref.setEntries(new String[] { playLabel, insertLabel,
-				addLabel });
-		onSelectSongPref.setDefaultValue(PlayableItemAction.Type.ADD.name());
+		onSelectSongPref.setEntries(new String[] { noneLabel, playLabel, 
+		        insertLabel, addLabel });
+		onSelectSongPref.setDefaultValue(PlayableItemAction.Type.NONE.name());
 		if (onSelectSongPref.getValue() == null) {
-			onSelectSongPref.setValue(PlayableItemAction.Type.ADD.name());
+			onSelectSongPref.setValue(PlayableItemAction.Type.NONE.name());
 		}
 	}
     @Override

@@ -32,8 +32,6 @@ import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
-import uk.org.ngo.squeezer.menu.MenuFragment;
-import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import android.content.Context;
 import android.content.Intent;
@@ -80,7 +78,6 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
-        MenuFragment.add(this, SqueezerMenuFragment.class);
 
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
 
@@ -204,7 +201,8 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
 	}
 
 	private final OnItemClickListener onHomeItemClick = new OnItemClickListener() {
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		@Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
             switch ((int) id) {
                 case ARTISTS:

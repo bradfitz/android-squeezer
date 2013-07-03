@@ -7,8 +7,10 @@ import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
 
 public abstract class PlayableItemAction {
 	public static enum Type {
-		/** PLay song immediately */
-		PLAY(R.string.PLAY_NOW),
+        /** Do nothing */
+        NONE(R.string.NO_ACTION),
+        /** PLay song immediately */
+        PLAY(R.string.PLAY_NOW),
 		/**Add the song to the playlist */
 		ADD(R.string.ADD_TO_END),
 		/** Play the song after the current song*/
@@ -42,8 +44,10 @@ public abstract class PlayableItemAction {
 		}
 		Type type = Type.valueOf(actionType);
 		switch (type) {
-		case BROWSE:
-			return new BrowseSongsAction(activity);
+        case NONE:
+            return null;
+        case BROWSE:
+            return new BrowseSongsAction(activity);
 		case ADD:
 			return new AddAction(activity);
 		case INSERT:

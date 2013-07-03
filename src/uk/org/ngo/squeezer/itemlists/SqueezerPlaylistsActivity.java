@@ -107,13 +107,13 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
     }
 
 	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_item_playlists_new:
 		    new SqueezerPlaylistsNewDialog().show(getSupportFragmentManager(), SqueezerPlaylistsNewDialog.class.getName());
 		    return true;
 		}
-		return super.onMenuItemSelected(featureId, item);
+		return super.onOptionsItemSelected(item);
 	}
 
 	public static void show(Context context) {
@@ -122,14 +122,16 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
     }
 
     private final IServicePlaylistsCallback playlistsCallback = new IServicePlaylistsCallback.Stub() {
-		public void onPlaylistsReceived(int count, int start, List<SqueezerPlaylist> items) throws RemoteException {
+		@Override
+        public void onPlaylistsReceived(int count, int start, List<SqueezerPlaylist> items) throws RemoteException {
 			onItemsReceived(count, start, items);
 		}
     };
 
     private void showServiceMessage(final String msg) {
 		getUIThreadHandler().post(new Runnable() {
-			public void run() {
+			@Override
+            public void run() {
 				getItemAdapter().notifyDataSetChanged();
 				Toast.makeText(SqueezerPlaylistsActivity.this, msg, Toast.LENGTH_SHORT).show();
 			}
@@ -138,13 +140,15 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 
     private final IServicePlaylistMaintenanceCallback playlistMaintenanceCallback = new IServicePlaylistMaintenanceCallback.Stub() {
 
-		public void onRenameFailed(String msg) throws RemoteException {
+		@Override
+        public void onRenameFailed(String msg) throws RemoteException {
 		    if (currentIndex != -1)
 		        currentPlaylist.setName(oldname);
 			showServiceMessage(msg);
 		}
 
-		public void onCreateFailed(String msg) throws RemoteException {
+		@Override
+        public void onCreateFailed(String msg) throws RemoteException {
 			showServiceMessage(msg);
 		}
 

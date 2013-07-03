@@ -21,15 +21,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.itemlists.actions.PlayAction;
-import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.service.SqueezeService;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -45,15 +40,11 @@ import android.widget.AbsListView.OnScrollListener;
  * 
  * @author Kurt Aaholst
  */
-public abstract class SqueezerItemListActivity extends SqueezerBaseActivity implements OnSharedPreferenceChangeListener {
+public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
     private static final String TAG = SqueezerItemListActivity.class.getName();
 
     /** The list is being actively scrolled by the user */
     private boolean mListScrolling;
-
-	protected SharedPreferences preferences;
-	
-	protected PlayableItemAction onSelectAction;
     
     /** Keep track of whether callbacks have been registered */
     private boolean mRegisteredCallbacks;
@@ -61,10 +52,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(Preferences.NAME, 0);
         MenuFragment.add(this, SqueezerMenuFragment.class);
-        preferences.registerOnSharedPreferenceChangeListener(this);
-        onSelectAction = getOnSelectAction();
     };
 
     @Override
@@ -108,21 +96,6 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
             }
             mRegisteredCallbacks = true;
         }
-    }
-    
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-    		String key) {
-    	onSelectAction = getOnSelectAction();
-    }
-    
-    protected PlayableItemAction getOnSelectAction() {
-    	return new PlayAction(this);
-    }
-
-    public void executeOnSelectAction(SqueezerPlaylistItem item) throws RemoteException {
-    	Log.d(getTag(), "Executing on select action");
-    	onSelectAction.execute(item);
     }
     
     
@@ -202,6 +175,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
             }
         }
 
+        @Override
         public void onScrollStateChanged(AbsListView listView, int scrollState) {
             if (scrollState == mPrevScrollState) {
                 return;
@@ -239,6 +213,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
 
         // Do not use: is not called when the scroll completes, appears to be
         // called multiple time during a scroll, including during flinging.
+        @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                 int totalItemCount) {
         }
@@ -269,6 +244,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity impl
                 mOnScrollListener = onScrollListener;
             }
 
+            @Override
             public boolean onTouch(View view, MotionEvent event) {
                 final int action = event.getAction();
                 boolean mFingerUp = action == MotionEvent.ACTION_UP

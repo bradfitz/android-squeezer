@@ -22,6 +22,7 @@ import uk.org.ngo.squeezer.framework.SqueezerArtworkItem;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.framework.SqueezerPlaylistItemView;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
@@ -40,7 +41,7 @@ import android.widget.TextView;
  * @param <T>
  */
 public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extends
-        SqueezerBaseItemView<T> {
+        SqueezerPlaylistItemView<T> {
     LayoutInflater mLayoutInflater;
 
     public SqueezerAlbumArtView(SqueezerItemListActivity activity) {
@@ -61,6 +62,7 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
 
         viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
         viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 v.showContextMenu();
             }
@@ -134,4 +136,5 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
         // them. This should be refactored.
         public ImageView icon;
     }
+
 }

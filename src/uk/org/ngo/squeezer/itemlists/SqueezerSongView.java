@@ -17,8 +17,10 @@
 package uk.org.ngo.squeezer.itemlists;
 
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
@@ -69,9 +71,11 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
         }
     }
 
-	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
-		getActivity().executeOnSelectAction(item);
-	}
+    @Override
+    protected PlayableItemAction getOnSelectAction() {
+        String actionType = preferences.getString(Preferences.KEY_ON_SELECT_SONG_ACTION, PlayableItemAction.Type.NONE.name());
+        return PlayableItemAction.createAction(getActivity(), actionType);
+    }
 
     /**
      * Creates the context menu for a song by inflating R.menu.songcontextmenu.
@@ -121,7 +125,8 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 		return super.doItemContext(menuItem, index, selectedItem);
 	};
 
-	public String getQuantityString(int quantity) {
+	@Override
+    public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.song, quantity);
 	}
 }

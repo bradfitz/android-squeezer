@@ -20,8 +20,6 @@ package uk.org.ngo.squeezer;
 import java.util.Arrays;
 
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
-import uk.org.ngo.squeezer.menu.MenuFragment;
-import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -40,7 +38,6 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
-        MenuFragment.add(this, SqueezerMenuFragment.class);
         setRandomplayMenu();
     }
 
@@ -62,7 +59,8 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
 	}
 
 	private final OnItemClickListener onRandomplayItemClick = new OnItemClickListener() {
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		@Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			if (position < RandomPlayType.values().length) {
 				try {
 					getService().randomPlay(RandomPlayType.values()[position].toString());

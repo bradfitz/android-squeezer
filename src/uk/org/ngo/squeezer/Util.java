@@ -120,4 +120,20 @@ public class Util {
         view.setText(label);
         return view;
     }
+
+
+    /**
+     * Count how many of the supplied booleans are true.
+     * 
+     * @param items Booleans to count
+     * @return Number of arguments which are true
+     */
+    public static int countBooleans(boolean... items) {
+        int count = 0;
+        for (boolean item : items) {
+            if (item) count++;
+        }
+        return count;
+    }
+
 }

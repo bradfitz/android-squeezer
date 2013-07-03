@@ -16,11 +16,12 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.View;
 
@@ -52,10 +53,11 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
         viewHolder.text2.setText(text2);
     }
 
-	public void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
-		SqueezerItemListActivity a = getActivity();
-		a.executeOnSelectAction(item);
-	}
+    @Override
+    protected PlayableItemAction getOnSelectAction() {
+        String actionType = preferences.getString(Preferences.KEY_ON_SELECT_ALBUM_ACTION, PlayableItemAction.Type.BROWSE.name());
+        return PlayableItemAction.createAction(getActivity(), actionType);
+    }
 
     /**
      * Creates the context menu for an album by inflating
@@ -68,7 +70,8 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
         menuInfo.menuInflater.inflate(R.menu.albumcontextmenu, menu);
     }
 
-	public String getQuantityString(int quantity) {
+	@Override
+    public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.album, quantity);
 	}
 }

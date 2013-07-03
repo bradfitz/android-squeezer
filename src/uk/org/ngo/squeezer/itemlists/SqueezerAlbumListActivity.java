@@ -18,13 +18,11 @@ package uk.org.ngo.squeezer.itemlists;
 
 import java.util.List;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import uk.org.ngo.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
-import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumFilterDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
@@ -65,11 +63,15 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
     public void setArtist(SqueezerArtist artist) { this.artist = artist; }
 
 	private SqueezerYear year;
+    @Override
     public SqueezerYear getYear() { return year; }
+    @Override
     public void setYear(SqueezerYear year) { this.year = year; }
 
 	private SqueezerGenre genre;
+    @Override
     public SqueezerGenre getGenre() { return genre; }
+    @Override
     public void setGenre(SqueezerGenre genre) { this.genre = genre; }
 
     private GenreSpinner genreSpinner;
@@ -113,12 +115,6 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
                             + extras.get(key).getClass().getName() + ")");
             }
         }
-    }
-
-    @Override
-    protected PlayableItemAction getOnSelectAction() {
-    	String actionType = preferences.getString(Preferences.KEY_ON_SELECT_ALBUM_ACTION, PlayableItemAction.Type.PLAY.name());
-    	return PlayableItemAction.createAction(this, actionType);
     }
     
 	@Override
@@ -165,10 +161,12 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
         return false;
     }
 
+    @Override
     public void showFilterDialog() {
         new SqueezerAlbumFilterDialog().show(getSupportFragmentManager(), "AlbumFilterDialog");
     }
 
+    @Override
     public void showOrderDialog() {
         new SqueezerAlbumOrderDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
     }
@@ -187,7 +185,8 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
     }
 
     private final IServiceAlbumListCallback albumListCallback = new IServiceAlbumListCallback.Stub() {
-		public void onAlbumsReceived(int count, int start, List<SqueezerAlbum> items) throws RemoteException {
+		@Override
+        public void onAlbumsReceived(int count, int start, List<SqueezerAlbum> items) throws RemoteException {
 		    onItemsReceived(count, start, items);
 		}
     };

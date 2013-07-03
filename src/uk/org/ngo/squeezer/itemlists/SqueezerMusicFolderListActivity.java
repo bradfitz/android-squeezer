@@ -30,6 +30,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /**
  * Display a list of Squeezebox music folders.
@@ -78,6 +81,30 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
             mFolder = extras.getParcelable(SqueezerMusicFolderItem.class.getName());
             setTitle(mFolder.getName());
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (mFolder != null)
+            getMenuInflater().inflate(R.menu.playmenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        try {
+            switch (item.getItemId()) {
+            case R.id.play_now:
+                play(mFolder);
+                return true;
+            case R.id.add_to_playlist:
+                add(mFolder);
+                return true;
+            }
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Error executing menu action '" + item.getMenuInfo() + "': " + e);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -137,6 +164,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
     }
 
     private final IServiceMusicFolderListCallback musicFolderListCallback = new IServiceMusicFolderListCallback.Stub() {
+        @Override
         public void onMusicFoldersReceived(int count, int start, List<SqueezerMusicFolderItem> items)
                 throws RemoteException {
             onItemsReceived(count, start, items);
@@ -150,6 +178,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
      *
      * @param songId ID of the song to download
      */
+    @Override
     public void downloadSong(String songId) {
         try {
             String url = getService().getSongDownloadUrl(songId);

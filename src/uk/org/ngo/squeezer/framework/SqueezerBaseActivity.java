@@ -20,6 +20,8 @@ import org.acra.ErrorReporter;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
+import uk.org.ngo.squeezer.menu.MenuFragment;
+import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -34,6 +36,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 /**
  * Common base class for all activities in the squeezer
@@ -83,6 +86,8 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         getActionBarHelper().setIcon(R.drawable.ic_launcher);
         bindService(new Intent(this, SqueezeService.class), serviceConnection, Context.BIND_AUTO_CREATE);
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
+
+        MenuFragment.add(this, SqueezerMenuFragment.class);
     };
 
 	@Override
@@ -187,25 +192,25 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
 
     // This section is just an easier way to call squeeze service
 
-    public boolean play(SqueezerPlaylistItem item) throws RemoteException {
-        return playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
+    public void play(SqueezerPlaylistItem item) throws RemoteException {
+        playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
     }
 
-    public boolean add(SqueezerPlaylistItem item) throws RemoteException {
-        return playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
+    public void add(SqueezerPlaylistItem item) throws RemoteException {
+        playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
     }
 
-    public boolean insert(SqueezerPlaylistItem item) throws RemoteException {
-        return playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
+    public void insert(SqueezerPlaylistItem item) throws RemoteException {
+        playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
     }
 
-    private boolean playlistControl(PlaylistControlCmd cmd, SqueezerPlaylistItem item, int resId)
+    private void playlistControl(PlaylistControlCmd cmd, SqueezerPlaylistItem item, int resId)
             throws RemoteException {
         if (service == null)
-            return false;
+            return;
 
         service.playlistControl(cmd.name(), item.getPlaylistTag(), item.getId());
-        return true;
+        Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show(); 
     }
 
     /**

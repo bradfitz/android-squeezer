@@ -30,7 +30,6 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * View for one entry in a {@link SqueezerMusicFolderListActivity}.
@@ -77,6 +76,7 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
 
         viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
         viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 v.showContextMenu();
             }
@@ -114,16 +114,11 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
         return convertView;
     }
 
+    @Override
     public void onItemSelected(int index, SqueezerMusicFolderItem item) throws RemoteException {
         if (item.getType().equals("folder")) {
             SqueezerMusicFolderListActivity.show(getActivity(), item);
-            return;
         }
-
-        // XXX: This duplicates code in SqueezerBaseItemView::doItemContext()
-        mContext.play(item);
-        Toast.makeText(mContext, mContext.getString(R.string.ITEM_PLAYING, item.getName()),
-                Toast.LENGTH_SHORT).show();
     };
 
     // XXX: Make this a menu resource.
@@ -131,11 +126,14 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
+        SqueezerMusicFolderItem item = (SqueezerMusicFolderItem) menuInfo.item;
+        if (item.getType().equals("folder")) {
+            menu.add(Menu.NONE, R.id.browse_songs, Menu.NONE, R.string.BROWSE_SONGS);
+        }
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
         menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
-
-        if (((SqueezerMusicFolderItem) menuInfo.item).getType().equals("track")) {
+        if (item.getType().equals("track")) {
             menu.add(Menu.NONE, R.id.download, Menu.NONE, R.string.DOWNLOAD_ITEM);
         }
     }
@@ -144,6 +142,9 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
     public boolean doItemContext(MenuItem menuItem, int index, SqueezerMusicFolderItem selectedItem)
             throws RemoteException {
         switch (menuItem.getItemId()) {
+            case R.id.browse_songs:
+                SqueezerMusicFolderListActivity.show(getActivity(), selectedItem);
+                return true;
             case R.id.download:
                 getActivity().downloadSong(selectedItem.getId());
                 return true;
@@ -151,6 +152,7 @@ public class SqueezerMusicFolderView extends SqueezerBaseItemView<SqueezerMusicF
         return super.doItemContext(menuItem, index, selectedItem);
     }
 
+    @Override
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.musicfolder, quantity);
     }

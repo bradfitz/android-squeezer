@@ -33,7 +33,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * Represents the view hierarchy for a single {@link SqueezerItem} subclass.
@@ -57,6 +56,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         mLayoutInflater = activity.getLayoutInflater();
     }
 
+    @Override
     public SqueezerItemListActivity getActivity() {
         return mActivity;
     }
@@ -73,6 +73,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         return mLayoutInflater;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Class<T> getItemClass() {
         if (mItemClass == null) {
@@ -84,6 +85,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         return mItemClass;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Creator<T> getCreator() {
         if (mCreator == null) {
@@ -112,6 +114,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
      * Override this method and {@link #getAdapterView(String)} if your extension uses a different
      * layout.
      */
+    @Override
     public View getAdapterView(View convertView, T item, ImageFetcher unused) {
         View view = getAdapterView(convertView);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
@@ -120,6 +123,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
 
         viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
         viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 v.showContextMenu();
             }
@@ -134,6 +138,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
      * Override this method and {@link #getAdapterView(View, SqueezerItem, ImageFetcher)} if your
      * extension uses a different layout.
      */
+    @Override
     public View getAdapterView(View convertView, String label) {
         View view = getAdapterView(convertView);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
@@ -166,6 +171,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
         return convertView;
     }
 
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             SqueezerItemView.ContextMenuInfo menuInfo) {
         menu.setHeaderTitle(menuInfo.item.getName());
@@ -176,6 +182,7 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
      * must be set up in
      * {@link #setupContextMenu(android.view.ContextMenu, int, SqueezerItem)}
      */
+    @Override
     public boolean doItemContext(MenuItem menuItem, int index, T selectedItem)
             throws RemoteException {
         switch (menuItem.getItemId()) {
@@ -192,24 +199,15 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
                 return true;
 
             case R.id.play_now:
-                if (mActivity.play((SqueezerPlaylistItem) selectedItem))
-                    Toast.makeText(mActivity,
-                            mActivity.getString(R.string.ITEM_PLAYING, selectedItem.getName()),
-                            Toast.LENGTH_SHORT).show();
+                mActivity.play((SqueezerPlaylistItem) selectedItem);
                 return true;
 
             case R.id.add_to_playlist:
-                if (mActivity.add((SqueezerPlaylistItem) selectedItem))
-                    Toast.makeText(mActivity,
-                            mActivity.getString(R.string.ITEM_ADDED, selectedItem.getName()),
-                            Toast.LENGTH_SHORT).show();
+                mActivity.add((SqueezerPlaylistItem) selectedItem);
                 return true;
 
             case R.id.play_next:
-                if (mActivity.insert((SqueezerPlaylistItem) selectedItem))
-                    Toast.makeText(mActivity,
-                            mActivity.getString(R.string.ITEM_INSERTED, selectedItem.getName()),
-                            Toast.LENGTH_SHORT).show();
+                mActivity.insert((SqueezerPlaylistItem) selectedItem);
                 return true;
         }
         return false;

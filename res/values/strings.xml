@@ -285,6 +285,7 @@ defend, and hold each Contributor harmless for any liability
 incurred by, or claims asserted against, such Contributor by reason
 of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
+	<string name="NO_ACTION">None</string>
 	<string name="BROWSE_SONGS">Browse songs</string>
 	<string name="BROWSE_ALBUMS">Browse albums</string>
 	<string name="BROWSE_ARTISTS">Browse artists</string>

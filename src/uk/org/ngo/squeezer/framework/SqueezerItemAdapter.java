@@ -22,6 +22,7 @@ import java.util.List;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import android.os.RemoteException;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -51,7 +52,9 @@ import android.widget.BaseAdapter;
 public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter implements
         OnCreateContextMenuListener
 {
-	/**
+	private static final String TAG = SqueezerItemAdapter.class.getSimpleName();
+
+    /**
 	 * View logic for this adapter
 	 */
     private final SqueezerItemView<T> mItemView;
@@ -134,6 +137,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
         pages.clear();
     }
 
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         T item = getItem(position);
         if (item != null) {
@@ -160,6 +164,17 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
         return mItemView.getActivity();
     }
 
+    public void onItemSelected(int position) {
+        T item = getItem(position);
+        if (item != null && item.getId() != null) {
+            try {
+                mItemView.onItemSelected(position, item);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Error from default action for '" + item + "': " + e);
+            }
+        }
+    }
+
     /**
      * Creates the context menu for the selected item by calling
      * {@link SqueezerItemView.onCreateContextMenu} which the subclass should
@@ -169,6 +184,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
      * and creates a {@link SqueezerItemView.ContextMenuInfo} suitable for
      * passing to subclasses of {@link SqueezerBaseItemView}.
      */
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
         final T selectedItem = getItem(adapterMenuInfo.position);
@@ -182,15 +198,22 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
         }
     }
 
-    public boolean doItemContext(MenuItem menuItem, int position) throws RemoteException {
-        return mItemView.doItemContext(menuItem, position, getItem(position));
+    public boolean doItemContext(MenuItem menuItem, int position) {
+        try {
+            return mItemView.doItemContext(menuItem, position, getItem(position));
+        } catch (RemoteException e) {
+            SqueezerItem item = getItem(position);
+            Log.e(TAG, "Error executing context menu action '" + menuItem.getMenuInfo() + "' for '"   + item + "': " + e);
+            return false;
+        }
     }
 
     public SqueezerItemView<T> getItemView() {
         return mItemView;
     }
 
-	public int getCount() {
+	@Override
+    public int getCount() {
 		return count;
 	}
 
@@ -217,7 +240,8 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
 		}
 	}
 
-	public T getItem(int position) {
+	@Override
+    public T getItem(int position) {
 		T item = getPage(position)[position % pageSize];
 		if (item == null) {
 			if (mEmptyItem) position--;
@@ -226,7 +250,8 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
 		return item;
 	}
 
-	public long getItemId(int position) {
+	@Override
+    public long getItemId(int position) {
 		return position;
 	}
 

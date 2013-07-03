@@ -17,24 +17,17 @@
 package uk.org.ngo.squeezer;
 
 import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
-import uk.org.ngo.squeezer.menu.MenuFragment;
-import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.util.Log;
 
 public class NowPlayingActivity extends SqueezerBaseActivity {
     protected static final int HOME_REQUESTCODE = 0;
-    private final String TAG = "NowPlayingActivity";
 
     /** Called when the activity is first created. */
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.now_playing);
-
-        MenuFragment.add(this, SqueezerMenuFragment.class);
     }
 
     /*

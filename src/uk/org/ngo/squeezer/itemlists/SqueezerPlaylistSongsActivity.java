@@ -145,25 +145,37 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.playlistmenu, menu);
+        getMenuInflater().inflate(R.menu.playmenu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_item_playlists_delete:
-		    new SqueezerPlaylistDeleteDialog().show(getSupportFragmentManager(), SqueezerPlaylistDeleteDialog.class.getName());
-			return true;
-		case R.id.menu_item_playlists_rename:
-		    new SqueezerPlaylistRenameDialog().show(getSupportFragmentManager(), SqueezerPlaylistRenameDialog.class.getName());
-			return true;
-		}
-		return super.onMenuItemSelected(featureId, item);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        try {
+    		switch (item.getItemId()) {
+    		case R.id.menu_item_playlists_delete:
+    		    new SqueezerPlaylistDeleteDialog().show(getSupportFragmentManager(), SqueezerPlaylistDeleteDialog.class.getName());
+    			return true;
+    		case R.id.menu_item_playlists_rename:
+    		    new SqueezerPlaylistRenameDialog().show(getSupportFragmentManager(), SqueezerPlaylistRenameDialog.class.getName());
+    			return true;
+            case R.id.play_now:
+                play(playlist);
+                return true;
+            case R.id.add_to_playlist:
+                add(playlist);
+                return true;
+    		}
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Error executing menu action '" + item.getMenuInfo() + "': " + e);
+        }
+        return super.onOptionsItemSelected(item);
 	}
 
     private void showServiceMessage(final String msg) {
 		getUIThreadHandler().post(new Runnable() {
-			public void run() {
+			@Override
+            public void run() {
 				Toast.makeText(SqueezerPlaylistSongsActivity.this, msg, Toast.LENGTH_SHORT).show();
 			}
 		});
@@ -171,13 +183,15 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 
     private final IServicePlaylistMaintenanceCallback playlistMaintenanceCallback = new IServicePlaylistMaintenanceCallback.Stub() {
 
-		public void onRenameFailed(String msg) throws RemoteException {
+		@Override
+        public void onRenameFailed(String msg) throws RemoteException {
 			playlist.setName(oldname);
             getIntent().putExtra("playlist", playlist);
 			showServiceMessage(msg);
 		}
 
-		public void onCreateFailed(String msg) throws RemoteException {
+		@Override
+        public void onCreateFailed(String msg) throws RemoteException {
 			showServiceMessage(msg);
 		}
 
