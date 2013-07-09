@@ -150,8 +150,12 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
     protected void orderPage(int start) throws RemoteException {
         getService().songs(start, sortOrder.name(), searchString, album, artist, year, genre);
         boolean canPlay = (getCurrentPlaylistItem() != null);
-        playButton.setVisible(canPlay);
-        addButton.setVisible(canPlay);
+
+        if (playButton != null)
+            playButton.setVisible(canPlay);
+
+        if (addButton != null)
+            addButton.setVisible(canPlay);
     }
 
     public SongsSortOrder getSortOrder() {
