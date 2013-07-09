@@ -221,7 +221,6 @@ public class NowPlayingFragment extends Fragment implements
             v = inflater.inflate(R.layout.now_playing_fragment_full, container, false);
 
             artistText = (TextView) v.findViewById(R.id.artistname);
-            playPauseButton = (ImageButton) v.findViewById(R.id.pause);
             nextButton = (ImageButton) v.findViewById(R.id.next);
             prevButton = (ImageButton) v.findViewById(R.id.prev);
             shuffleButton = (ImageButton) v.findViewById(R.id.shuffle);
@@ -256,6 +255,26 @@ public class NowPlayingFragment extends Fragment implements
         albumArt = (ImageView) v.findViewById(R.id.album);
         trackText = (TextView) v.findViewById(R.id.trackname);
         albumText = (TextView) v.findViewById(R.id.albumname);
+        playPauseButton = (ImageButton) v.findViewById(R.id.pause);
+
+        playPauseButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                if (mService == null)
+                    return;
+                try {
+                    if (isConnected()) {
+                        Log.v(TAG, "Pause...");
+                        mService.togglePausePlay();
+                    } else {
+                        // When we're not connected, the play/pause
+                        // button turns into a green connect button.
+                        onUserInitiatesConnect();
+                    }
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Service exception from togglePausePlay(): " + e);
+                }
+            }
+        });
 
         if (mFullHeightLayout) {
             /*
@@ -264,25 +283,6 @@ public class NowPlayingFragment extends Fragment implements
              * Maybe. because the TextView resources don't support the
              * android:onClick attribute.
              */
-            playPauseButton.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    if (mService == null)
-                        return;
-                    try {
-                        if (isConnected()) {
-                            Log.v(TAG, "Pause...");
-                            mService.togglePausePlay();
-                        } else {
-                            // When we're not connected, the play/pause
-                            // button turns into a green connect button.
-                            onUserInitiatesConnect();
-                        }
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "Service exception from togglePausePlay(): " + e);
-                    }
-                }
-            });
-
             nextButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     if (mService == null)
@@ -454,14 +454,14 @@ public class NowPlayingFragment extends Fragment implements
         if (!connected) {
             updateSongInfo(null);
 
+            playPauseButton.setImageResource(R.drawable.presence_online); // green circle
+
             if (mFullHeightLayout) {
                 albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
                 nextButton.setImageResource(0);
                 prevButton.setImageResource(0);
                 shuffleButton.setImageResource(0);
                 repeatButton.setImageResource(0);
-                playPauseButton.setImageResource(R.drawable.presence_online); // green
-                                                                              // circle
                 updateUIForPlayer(null);
                 artistText.setText(getText(R.string.disconnected_text));
                 currentTime.setText("--:--");
@@ -480,11 +480,9 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void updatePlayPauseIcon(PlayStatus playStatus) {
-        if (mFullHeightLayout) {
-            playPauseButton.setImageResource((playStatus == PlayStatus.play)
-                    ? android.R.drawable.ic_media_pause
-                    : android.R.drawable.ic_media_play);
-        }
+        playPauseButton
+                .setImageResource((playStatus == PlayStatus.play) ? android.R.drawable.ic_media_pause
+                        : android.R.drawable.ic_media_play);
     }
 
     private void updateShuffleStatus(ShuffleStatus shuffleStatus) {

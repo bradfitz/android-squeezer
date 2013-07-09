@@ -17,93 +17,52 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:gravity="left">
+    android:orientation="horizontal" >
 
     <uk.org.ngo.squeezer.widgets.SquareImageView
-        android:layout_width="wrap_content"
         android:id="@+id/album"
-        android:layout_height="fill_parent"
-        android:cropToPadding="false"
-        android:scaleType="fitCenter" />
+        android:layout_width="@dimen/album_art_icon_width"
+        android:layout_height="@dimen/album_art_icon_height"
+        android:maxHeight="@dimen/album_art_icon_height"
+        android:maxWidth="@dimen/album_art_icon_width"
+        android:minHeight="@dimen/album_art_icon_height"
+        android:minWidth="@dimen/album_art_icon_width" />
 
     <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:gravity="center_vertical"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp">
+        android:paddingRight="8dp" >
 
-        <TextView android:id="@+id/trackname"
+        <TextView
+            android:id="@+id/trackname"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
             android:hint="@string/unknown_track"
+            android:lines="1"
+            android:textAppearance="@style/SqueezerTextItem" />
+
+        <TextView
+            android:id="@+id/albumname"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="left"
-            android:textAppearance="@style/SqueezerTextItem"
-            android:lines="1"
-            android:ellipsize="marquee" />
-
-        <TextView android:id="@+id/albumname"
+            android:ellipsize="marquee"
             android:hint="@string/unknown_album"
-            android:gravity="left"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextItemSmall"
             android:lines="1"
-            android:ellipsize="marquee" />
+            android:textAppearance="@style/SqueezerTextItemSmall" />
     </LinearLayout>
-</LinearLayout>
 
-<!--
-
-Tried this approach (and keeping it here for the time being). The problem was that
-layout was very slow, you'd see the album and text appear centered at the bottom
-of the screen, and then a second or so later the layout would snap to the right
-place.
-
-Suspect it's due to having to fetch, scale, and layout the image, and might be
-faster if we hardcode the image width/height to 48dp, but that couples this to
-the heights in the <fragment> element in the containing layout as well...
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:gravity="left">
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:id="@+id/album"
+    <ImageButton
+        android:id="@+id/pause"
+        android:layout_width="48dp"
         android:layout_height="fill_parent"
-        android:cropToPadding="false"
-        android:scaleType="fitCenter"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
+        android:background="@null"
+        android:maxWidth="48dp"
+        android:minWidth="48dp" />
 
-    <TextView android:id="@+id/trackname"
-        android:hint="@string/unknown_track"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="left"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textStyle="bold"
-        android:layout_toRightOf="@id/album"
-        android:lines="1"
-        android:ellipsize="marquee" />
-
-    <TextView android:id="@+id/albumname"
-        android:hint="@string/unknown_album"
-        android:gravity="left"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:layout_toRightOf="@id/album"
-        android:layout_below="@id/trackname"
-        android:lines="1"
-        android:ellipsize="marquee" />
-</RelativeLayout>
--->
-
+</LinearLayout>
