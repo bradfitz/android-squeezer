@@ -39,7 +39,6 @@
         android:layout_height="wrap_content"
         android:gravity="left"
         android:textAppearance="@style/SqueezerTextItem"
-        android:textStyle="bold"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"

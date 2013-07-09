@@ -42,8 +42,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="left"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textStyle="bold"
+            android:textAppearance="@style/SqueezerTextItem"
             android:lines="1"
             android:ellipsize="marquee" />
 
@@ -52,7 +51,7 @@
             android:gravity="left"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAppearance="@style/SqueezerTextItemSmall"
             android:lines="1"
             android:ellipsize="marquee" />
     </LinearLayout>
