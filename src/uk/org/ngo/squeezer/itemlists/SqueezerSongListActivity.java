@@ -139,9 +139,9 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 		if (yearSpinner != null) yearSpinner.registerCallback();
 	}
 
-	@Override
-	protected void unregisterCallback() throws RemoteException {
-		super.registerCallback();
+    @Override
+    protected void unregisterCallback() throws RemoteException {
+        super.unregisterCallback();
 		if (genreSpinner != null) genreSpinner.unregisterCallback();
 		if (yearSpinner != null) yearSpinner.unregisterCallback();
 	}
