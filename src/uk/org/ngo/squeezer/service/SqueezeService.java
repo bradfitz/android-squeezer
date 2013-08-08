@@ -50,14 +50,14 @@ import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerPlayerState;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.PlayStatus;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.RepeatStatus;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
-import uk.org.ngo.squeezer.model.SqueezerPlayerState.PlayStatus;
-import uk.org.ngo.squeezer.model.SqueezerPlayerState.RepeatStatus;
-import uk.org.ngo.squeezer.model.SqueezerPlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.util.Scrobble;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -927,8 +927,17 @@ public class SqueezeService extends Service {
 
         @Override
         public boolean togglePausePlay() throws RemoteException {
-            if (!isConnected()) return false;
+            if (!isConnected())
+                return false;
+
             SqueezerPlayerState.PlayStatus playStatus = playerState.getPlayStatus();
+
+            // May be null (e.g., connected to a server with no connected
+            // players. TODO: Handle this better, since it's not obvious in the
+            // UI.
+            if (playStatus == null)
+                return false;
+
             switch (playStatus) {
                 case play:
                     // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
