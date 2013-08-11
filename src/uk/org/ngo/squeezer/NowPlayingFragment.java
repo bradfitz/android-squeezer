@@ -135,7 +135,7 @@ public class NowPlayingFragment extends Fragment implements
                         mFragment.get().secondsTotal);
             }
         }
-    };
+    }
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -173,7 +173,7 @@ public class NowPlayingFragment extends Fragment implements
         @Override
         public void onServiceDisconnected(ComponentName name) {
             mService = null;
-        };
+        }
     };
 
     private boolean mFullHeightLayout;
@@ -197,7 +197,7 @@ public class NowPlayingFragment extends Fragment implements
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (SqueezerBaseActivity) activity;
-    };
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
