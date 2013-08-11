@@ -218,15 +218,22 @@ public class ServerAddressPreference extends DialogPreference {
         }
 
         if (positiveResult) {
-            String addr = mServerAddressEditText.getText().toString();
-            persistString(addr);
+            StringBuilder ipPort = new StringBuilder(mServerAddressEditText.getText());
+
+            // Append the default port if necessary.
+            if (ipPort.indexOf(":") == -1) {
+                ipPort.append(":");
+                ipPort.append(mContext.getResources().getInteger(R.integer.DefaultPort));
+            }
+
+            persistString(ipPort.toString());
 
             SharedPreferences.Editor editor = getEditor();
             editor.putString(Preferences.KEY_USERNAME, userNameEditText.getText().toString());
             editor.putString(Preferences.KEY_PASSWORD, passwordEditText.getText().toString());
             editor.commit();
 
-            callChangeListener(addr);
+            callChangeListener(ipPort.toString());
         }
     }
 
@@ -358,7 +365,12 @@ public class ServerAddressPreference extends DialogPreference {
 
                     if (!timedOut) {
                         if (buf[0] == (byte) 'E') {
-                            String serverAddr = responsePacket.getAddress().getHostAddress();
+                            // There's no mechanism for the server to return the port
+                            // the CLI is listening on, so assume it's the default and
+                            // append it to the address.
+                            StringBuilder ipPort = new StringBuilder(responsePacket.getAddress().getHostAddress());
+                            ipPort.append(":");
+                            ipPort.append(mContext.getResources().getInteger(R.integer.DefaultPort));
 
                             // Blocks of data are TAG/LENGTH/VALUE, where TAG is
                             // a 4 byte string identifying the item, LENGTH is
@@ -380,7 +392,7 @@ public class ServerAddressPreference extends DialogPreference {
                             // i now pointing at the length of the NAME value.
                             String name = new String(buf, i + 1, buf[i]);
 
-                            mServerMap.put(name, serverAddr);
+                            mServerMap.put(name, ipPort.toString());
                         }
                     }
 
