@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.service;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,11 +29,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import uk.org.ngo.squeezer.IServiceCallback;
 import uk.org.ngo.squeezer.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
+import uk.org.ngo.squeezer.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
@@ -99,12 +100,11 @@ public class SqueezeService extends Service {
 	final AtomicReference<IServicePluginListCallback> pluginListCallback = new AtomicReference<IServicePluginListCallback>();
 	final AtomicReference<IServicePluginItemListCallback> pluginItemListCallback = new AtomicReference<IServicePluginItemListCallback>();
     final AtomicReference<IServiceMusicFolderListCallback> musicFolderListCallback = new AtomicReference<IServiceMusicFolderListCallback>();
+    final RemoteCallbackList<IServiceVolumeCallback> mVolumeCallbacks = new RemoteCallbackList<IServiceVolumeCallback>();
 
     SqueezerConnectionState connectionState = new SqueezerConnectionState();
     SqueezerPlayerState playerState = new SqueezerPlayerState();
     SqueezerCLIImpl cli = new SqueezerCLIImpl(this);
-
-    private VolumePanel mVolumePanel;
 
     /** Is scrobbling enabled? */
     private boolean scrobblingEnabled;
@@ -123,9 +123,6 @@ public class SqueezeService extends Service {
     	
     	// Get the main thread
     	mainThread = Thread.currentThread();
-
-    	// Create the volume panel
-    	mVolumePanel = new VolumePanel(this.getApplicationContext());
 
         // Clear leftover notification in case this service previously got killed while playing
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -337,7 +334,7 @@ public class SqueezeService extends Service {
                 Log.v(TAG, "Prefset received: " + tokens);
 				if (tokens.size() > 4 && tokens.get(2).equals("server") && tokens.get(3).equals("volume")) {
 		            String newVolume = tokens.get(4);
-		            broadcastNewVolume(Util.parseDecimalIntOrZero(newVolume));
+		            updatePlayerVolume(Util.parseDecimalIntOrZero(newVolume));
 				}
 			}
 		});
@@ -436,9 +433,20 @@ public class SqueezeService extends Service {
         }
     }
 
-	private void broadcastNewVolume(int newVolume) {
-    	SqueezerPlayer player = connectionState.getActivePlayer();
-		mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
+    private void updatePlayerVolume(int newVolume) {
+        playerState.setCurrentVolume(newVolume);
+        SqueezerPlayer player = connectionState.getActivePlayer();
+        int i = mVolumeCallbacks.beginBroadcast();
+        while (i > 0) {
+            i--;
+            try {
+                mVolumeCallbacks.getBroadcastItem(i).onVolumeChanged(newVolume, player);
+            } catch (RemoteException e) {
+                // The RemoteCallbackList will take care of removing
+                // the dead object for us.
+            }
+        }
+        mVolumeCallbacks.finishBroadcast();
     }
 
     private void updateTimes(int secondsIn, int secondsTotal) {
@@ -834,6 +842,21 @@ public class SqueezeService extends Service {
         @Override
         public void unregisterHandshakeCallback(IServiceHandshakeCallback callback) throws RemoteException {
             mHandshakeCallbacks.unregister(callback);
+        }
+
+        @Override
+        public void registerVolumeCallback(IServiceVolumeCallback callback) throws RemoteException {
+            mVolumeCallbacks.register(callback);
+        }
+
+        @Override
+        public void unregisterVolumeCallback(IServiceVolumeCallback callback) throws RemoteException {
+            mVolumeCallbacks.unregister(callback);
+        }
+
+        @Override
+        public void adjustVolumeTo(int newVolume) throws RemoteException {
+            cli.sendPlayerCommand("mixer volume " + Math.min(100, Math.max(0, newVolume)));
         }
 
         @Override

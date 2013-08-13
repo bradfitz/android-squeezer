@@ -50,6 +50,7 @@ public class SqueezerPlayerState implements Parcelable {
         currentPlaylistIndex = source.readInt();
         currentTimeSecond = source.readInt();
         currentSongDuration = source.readInt();
+        currentVolume = source.readInt();
     }
 
     @Override
@@ -62,6 +63,7 @@ public class SqueezerPlayerState implements Parcelable {
         dest.writeInt(currentPlaylistIndex);
         dest.writeInt(currentTimeSecond);
         dest.writeInt(currentSongDuration);
+        dest.writeInt(currentVolume);
     }
 
     @Override
@@ -80,6 +82,7 @@ public class SqueezerPlayerState implements Parcelable {
     private int currentPlaylistIndex;
     private int currentTimeSecond;
     private int currentSongDuration;
+    private int currentVolume;
 
     public boolean isPlaying() {
         return playStatus == PlayStatus.play;
@@ -154,6 +157,15 @@ public class SqueezerPlayerState implements Parcelable {
 
     public SqueezerPlayerState setCurrentSongDuration(int value) {
         currentSongDuration = value;
+        return this;
+    }
+
+    public int getCurrentVolume() {
+        return currentVolume;
+    }
+
+    public SqueezerPlayerState setCurrentVolume(int value) {
+        currentVolume = value;
         return this;
     }
 

@@ -95,6 +95,7 @@ public class NowPlayingFragment extends Fragment implements
     private MenuItem playersButton;
     private MenuItem playlistButton;
     private MenuItem searchButton;
+    private MenuItem mVolumeButton;
     private ImageButton playPauseButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
@@ -102,6 +103,9 @@ public class NowPlayingFragment extends Fragment implements
     private ImageButton repeatButton;
     private ImageView albumArt;
     private SeekBar seekBar;
+
+    /** Volume control panel. */
+    private VolumePanel mVolumePanel;
 
     // Updating the seekbar
     private boolean updateSeekBar = true;
@@ -197,6 +201,7 @@ public class NowPlayingFragment extends Fragment implements
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (SqueezerBaseActivity) activity;
+        mVolumePanel = new VolumePanel(mActivity);
     }
 
     @Override
@@ -447,6 +452,7 @@ public class NowPlayingFragment extends Fragment implements
             playersButton.setEnabled(connected);
             playlistButton.setEnabled(connected);
             searchButton.setEnabled(connected);
+            mVolumeButton.setEnabled(connected);
         }
 
         if (mFullHeightLayout) {
@@ -570,8 +576,9 @@ public class NowPlayingFragment extends Fragment implements
         if (!mRegisteredCallbacks) {
             try {
                 mService.registerCallback(serviceCallback);
-                mService.registerMusicChangedCallback(musicChangedCallback);
                 mService.registerHandshakeCallback(handshakeCallback);
+                mService.registerMusicChangedCallback(musicChangedCallback);
+                mService.registerVolumeCallback(volumeCallback);
             } catch (RemoteException e) {
                 Log.e(getTag(), "Error registering callback: " + e);
             }
@@ -792,6 +799,7 @@ public class NowPlayingFragment extends Fragment implements
         playersButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_players);
         playlistButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_playlist);
         searchButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_search);
+        mVolumeButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_volume);
     }
 
     @Override
@@ -837,6 +845,16 @@ public class NowPlayingFragment extends Fragment implements
                 return true;
             case R.id.menu_item_about:
                 new AboutDialog().show(getFragmentManager(), "AboutDialog");
+                return true;
+            case R.id.menu_item_volume:
+                // Show the volume dialog
+                SqueezerPlayerState playerState = getPlayerState();
+                SqueezerPlayer player = getActivePlayer();
+
+                if (playerState != null) {
+                    mVolumePanel.postVolumeChanged(playerState.getCurrentVolume(),
+                            player == null ? "" : player.getName());
+                }
                 return true;
         }
         return false;
@@ -1041,4 +1059,15 @@ public class NowPlayingFragment extends Fragment implements
         }
     };
 
+    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback.Stub() {
+        @Override
+        public void onVolumeChanged(final int newVolume, final SqueezerPlayer player) throws RemoteException {
+            uiThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
+                }
+            });
+        }
+    };
 }
