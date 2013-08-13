@@ -140,9 +140,9 @@ public class NowPlayingFragment extends Fragment implements
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            NetworkInfo networkInfo = intent
-                    .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI && networkInfo.isConnected()) {
+            ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            if (networkInfo.isConnected()) {
                 Log.v(TAG, "Received WIFI connected broadcast");
                 if (!isConnected()) {
                     // Requires a serviceStub. Else we'll do this on the service
