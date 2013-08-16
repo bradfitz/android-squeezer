@@ -24,10 +24,12 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Spinner;
 
 public class GenreSpinner {
@@ -83,15 +85,15 @@ public class GenreSpinner {
 					if (adapter == null) {
                         SqueezerGenreView itemView = new SqueezerGenreView(activity) {
                             @Override
-                            public View getAdapterView(View convertView, SqueezerGenre item,
+                            public View getAdapterView(View convertView, ViewGroup parent, SqueezerGenre item,
                                     ImageFetcher unused) {
-                                return Util.getSpinnerItemView(getActivity(), convertView,
+                                return Util.getSpinnerItemView(getActivity(), convertView, parent,
                                         item.getName());
                             }
 
                             @Override
-                            public View getAdapterView(View convertView, String label) {
-                                return Util.getSpinnerItemView(getActivity(), convertView, label);
+                            public View getAdapterView(View convertView, ViewGroup parent, String label) {
+                                return Util.getSpinnerItemView(getActivity(), convertView, parent, label);
                             };
 
 						};

@@ -16,18 +16,15 @@
 
 package uk.org.ngo.squeezer.framework;
 
-
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import android.app.Activity;
-import android.content.res.Resources;
+
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
-import android.widget.Adapter;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -68,7 +65,7 @@ public interface SqueezerItemView<T extends SqueezerItem> {
      *            thumbnails.
      * @return A View corresponding to the data from the specified item.
      */
-    View getAdapterView(View convertView, T item, ImageFetcher mImageFetcher);
+    View getAdapterView(View convertView, ViewGroup parent, T item, ImageFetcher mImageFetcher);
 
     /**
      * Get a view suitable for displaying the supplied (static) text.
@@ -79,7 +76,7 @@ public interface SqueezerItemView<T extends SqueezerItem> {
      * @param label Text to display
      * @return
      */
-    View getAdapterView(View convertView, String label);
+    View getAdapterView(View convertView, ViewGroup parent, String label);
 
     /**
      * A ViewHolder for listitems that consist of a single textview and an

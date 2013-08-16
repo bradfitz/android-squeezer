@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -50,12 +51,12 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
 	}
 
     @Override
-    public View getAdapterView(View convertView, T item, ImageFetcher imageFetcher) {
+    public View getAdapterView(View convertView, ViewGroup parent, T item, ImageFetcher imageFetcher) {
         if (imageFetcher == null) {
-            return super.getAdapterView(convertView, item, imageFetcher);
+            return super.getAdapterView(convertView, parent, item, imageFetcher);
         }
 
-        View view = getAdapterView(convertView);
+        View view = getAdapterView(convertView, parent);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
@@ -75,8 +76,8 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
     abstract protected void bindView(View view, T item, ImageFetcher imageFetcher);
 
     @Override
-    public View getAdapterView(View convertView, String label) {
-        View view = getAdapterView(convertView);
+    public View getAdapterView(View convertView, ViewGroup parent, String label) {
+        View view = getAdapterView(convertView, parent);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.icon.setImageResource(R.drawable.icon_pending_artwork);
@@ -87,13 +88,13 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
         return view;
     }
 
-    private View getAdapterView(View convertView) {
+    private View getAdapterView(View convertView, ViewGroup parent) {
         ViewHolder viewHolder = (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
                 ? (ViewHolder) convertView.getTag()
                 : null;
 
         if (viewHolder == null) {
-            convertView = mLayoutInflater.inflate(R.layout.icon_two_line, null);
+            convertView = mLayoutInflater.inflate(R.layout.icon_two_line, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);

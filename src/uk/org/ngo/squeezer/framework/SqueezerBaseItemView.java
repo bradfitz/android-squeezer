@@ -24,6 +24,7 @@ import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
 import android.view.ContextMenu;
@@ -31,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -115,8 +117,8 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
      * layout.
      */
     @Override
-    public View getAdapterView(View convertView, T item, ImageFetcher unused) {
-        View view = getAdapterView(convertView);
+    public View getAdapterView(View convertView, ViewGroup parent, T item, ImageFetcher unused) {
+        View view = getAdapterView(convertView, parent);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
@@ -139,8 +141,8 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
      * extension uses a different layout.
      */
     @Override
-    public View getAdapterView(View convertView, String label) {
-        View view = getAdapterView(convertView);
+    public View getAdapterView(View convertView, ViewGroup parent, String label) {
+        View view = getAdapterView(convertView, parent);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(label);
@@ -155,13 +157,13 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
      * @param convertView View to reuse if possible
      * @return convertView if it can be reused, or a new view
      */
-    private View getAdapterView(View convertView) {
+    private View getAdapterView(View convertView, ViewGroup parent) {
         ViewHolder viewHolder = (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
                 ? (ViewHolder) convertView.getTag()
                 : null;
 
         if (viewHolder == null) {
-            convertView = mLayoutInflater.inflate(R.layout.list_item, null);
+            convertView = mLayoutInflater.inflate(R.layout.list_item, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);

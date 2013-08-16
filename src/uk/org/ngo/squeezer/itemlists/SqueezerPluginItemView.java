@@ -20,12 +20,14 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,8 +42,8 @@ public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginI
 	}
 
     @Override
-    public View getAdapterView(View convertView, SqueezerPluginItem item, ImageFetcher imageFetcher) {
-        View view = getAdapterView(convertView);
+    public View getAdapterView(View convertView, ViewGroup parent, SqueezerPluginItem item, ImageFetcher imageFetcher) {
+        View view = getAdapterView(convertView, parent);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
 		viewHolder.label.setText(item.getName());
@@ -79,8 +81,8 @@ public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginI
     }
 
     @Override
-    public View getAdapterView(View convertView, String label) {
-        View view = getAdapterView(convertView);
+    public View getAdapterView(View convertView, ViewGroup parent, String label) {
+        View view = getAdapterView(convertView, parent);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.label.setText(label);
@@ -90,13 +92,13 @@ public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginI
         return view;
     }
 
-    private View getAdapterView(View convertView) {
+    private View getAdapterView(View convertView, ViewGroup parent) {
         ViewHolder viewHolder = (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
                 ? (ViewHolder) convertView.getTag()
                 : null;
 
         if (viewHolder == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_one_line, parent, false);
 
             viewHolder = new ViewHolder();
             viewHolder.label = (TextView) convertView.findViewById(R.id.text1);

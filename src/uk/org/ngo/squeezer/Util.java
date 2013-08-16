@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import android.app.Activity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class Util {
@@ -111,12 +112,12 @@ public class Util {
         }
     }
 
-    public static View getSpinnerItemView(Activity activity, View convertView, String label) {
+    public static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent, String label) {
         TextView view;
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
-                : activity.getLayoutInflater().inflate(R.layout.spinner_item, null));
+                : activity.getLayoutInflater().inflate(R.layout.spinner_item, parent, false));
         view.setText(label);
         return view;
     }
