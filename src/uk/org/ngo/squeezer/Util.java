@@ -117,7 +117,7 @@ public class Util {
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
-                : activity.getLayoutInflater().inflate(R.layout.spinner_item, parent, false));
+                : activity.getLayoutInflater().inflate(android.R.layout.simple_spinner_dropdown_item, parent, false));
         view.setText(label);
         return view;
     }
