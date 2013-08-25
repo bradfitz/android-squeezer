@@ -24,7 +24,7 @@ public class SqueezerPlaylistsDeleteDialog extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 try {
                     activity.getService().playlistsDelete(activity.getCurrentPlaylist());
-                    activity.orderItems();
+                    activity.clearAndReOrderItems();
                 } catch (RemoteException e) {
                     Log.e(getTag(), "Error deleting playlist");
                 }

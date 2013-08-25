@@ -94,6 +94,10 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Adapter has been created (or restored from the fragment) by this point,
+        // so fetch the itemView that was used.
+        songViewLogic = (SqueezerSongView) getItemAdapter().getItemView();
+
         MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
         MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
 
@@ -149,8 +153,8 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
     @Override
     protected void orderPage(int start) throws RemoteException {
         getService().songs(start, sortOrder.name(), searchString, album, artist, year, genre);
-        boolean canPlay = (getCurrentPlaylistItem() != null);
 
+        boolean canPlay = (getCurrentPlaylistItem() != null);
         if (playButton != null)
             playButton.setVisible(canPlay);
 
@@ -164,7 +168,7 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
 
 	public void setSortOrder(SongsSortOrder sortOrder) {
 		this.sortOrder = sortOrder;
-		orderItems();
+        clearAndReOrderItems();
 	}
 
     @Override

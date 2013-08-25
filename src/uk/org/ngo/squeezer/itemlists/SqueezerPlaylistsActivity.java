@@ -101,7 +101,7 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().playlists(start);
-	}
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -113,7 +113,7 @@ public class SqueezerPlaylistsActivity extends SqueezerBaseListActivity<Squeezer
                 getItemAdapter().notifyDataSetChanged();
             }
             if (data.getBooleanExtra(PLAYLIST_DELETED, false)) {
-                orderItems();
+                clearAndReOrderItems();
             }
         }
     }

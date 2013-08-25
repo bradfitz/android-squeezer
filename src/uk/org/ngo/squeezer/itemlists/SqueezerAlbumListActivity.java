@@ -141,6 +141,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
                 sortOrder = AlbumsSortOrder.album;
             }
         }
+
         getService().albums(start, sortOrder.name().replace("__", ""), getSearchString(), artist,
                 getYear(), getGenre(), song);
     }
@@ -152,7 +153,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 	public void setSortOrder(AlbumsSortOrder sortOrder) {
 		this.sortOrder = sortOrder;
 		getIntent().putExtra(AlbumsSortOrder.class.getName(), sortOrder.name());
-		orderItems();
+		clearAndReOrderItems();
 	}
 
     @Override

@@ -27,7 +27,7 @@ public class SqueezerPlaylistsNewDialog extends SqueezerBaseEditTextDialog {
     protected boolean commit(String name) {
         try {
             activity.getService().playlistsNew(name);
-            activity.orderItems();
+            activity.clearAndReOrderItems();
         } catch (RemoteException e) {
             Log.e(getTag(), "Error saving playlist as '"+ name + "': " + e);
         }

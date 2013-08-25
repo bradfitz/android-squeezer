@@ -67,7 +67,7 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if ((event.getAction() == KeyEvent.ACTION_DOWN)
                             && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                        orderItems(searchCriteriaText.getText().toString());
+                        clearAndReOrderItems(searchCriteriaText.getText().toString());
                         return true;
                     }
                     return false;
@@ -77,7 +77,7 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
             searchButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     if (getService() != null) {
-                        orderItems(searchCriteriaText.getText().toString());
+                        clearAndReOrderItems(searchCriteriaText.getText().toString());
                     }
                 }
             });
@@ -88,18 +88,17 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
         return plugin;
     }
 
-    private void orderItems(String searchString) {
+    private void clearAndReOrderItems(String searchString) {
 		if (getService() != null && !(plugin.isSearchable() && (searchString == null || searchString.length() == 0))) {
 			search = searchString;
-			super.orderItems();
+            super.clearAndReOrderItems();
 		}
-
 	}
 
 	@Override
-	public void orderItems() {
-		orderItems(search);
-	};
+	public void clearAndReOrderItems() {
+		clearAndReOrderItems(search);
+	}
 
 	@Override
 	protected void registerCallback() throws RemoteException {
@@ -114,7 +113,7 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().pluginItems(start, plugin, parent, search);
-	}
+    }
 
 
     public void show(SqueezerPluginItem pluginItem) {
@@ -155,7 +154,7 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
                 parent = items.get(0);
 				getUIThreadHandler().post(new Runnable() {
 					public void run() {
-						orderItems();
+						clearAndReOrderItems();
 					}
 				});
 				return;

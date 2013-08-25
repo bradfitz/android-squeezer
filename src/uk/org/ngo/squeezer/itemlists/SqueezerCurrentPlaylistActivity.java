@@ -126,17 +126,17 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 
                     case R.id.remove_from_playlist:
                         getService().playlistRemove(index);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_up:
                         getService().playlistMove(index, index - 1);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_down:
                         getService().playlistMove(index, index + 1);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move:
@@ -146,14 +146,14 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
                 }
 
                 return super.doItemContext(menuItem, index, selectedItem);
-            };
+            }
         };
     }
 
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().currentPlaylist(start);
-	}
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

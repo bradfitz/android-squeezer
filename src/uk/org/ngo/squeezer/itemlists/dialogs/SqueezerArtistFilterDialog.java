@@ -39,7 +39,7 @@ public class SqueezerArtistFilterDialog extends SqueezerBaseFilterDialog {
     protected void filter() {
         activity.setSearchString(editText.getText().toString());
         activity.setGenre((SqueezerGenre) genreSpinnerView.getSelectedItem());
-        activity.orderItems();
+        activity.clearAndReOrderItems();
     }
 
 }
