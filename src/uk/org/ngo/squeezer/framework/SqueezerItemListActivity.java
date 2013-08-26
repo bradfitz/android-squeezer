@@ -156,11 +156,13 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
      */
 	protected abstract void orderPage(int start) throws RemoteException;
 
-	/**
-	 * Order a page worth of data, starting at the specified position, if it has not already been ordered.
-	 * @param pagePosition position in the list to start the fetch.
-	 */
-	public void maybeOrderPage(int pagePosition) {
+    /**
+     * Order a page worth of data, starting at the specified position, if it has not already been ordered.
+     *
+     * @param pagePosition position in the list to start the fetch.
+     * @return True if the page needed to be ordered (even if the order failed), false otherwise.
+     */
+	public boolean maybeOrderPage(int pagePosition) {
         if (!mListScrolling && !mReceivedPages.contains(pagePosition) && !mOrderedPages.contains(pagePosition)) {
 			mOrderedPages.add(pagePosition);
 			try {
@@ -169,7 +171,10 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
                 mOrderedPages.remove(pagePosition);
 				Log.e(getTag(), "Error ordering items (" + pagePosition + "): " + e);
 			}
-		}
+            return true;
+        } else {
+            return false;
+        }
 	}
 
     /**

@@ -233,6 +233,22 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         });
 	}
 
+    @Override
+    public boolean maybeOrderPage(int pagePosition) {
+        // If page 0 was requested then this is the first page of data.  Hide the listview,
+        // and make loadingProgress visible to provide feedback to the user.
+        // TODO: This should be removed in favour of showing a progress spinner in the actionbar.
+        if (super.maybeOrderPage(pagePosition)) {
+            if (pagePosition == 0) {
+                mListView.setVisibility(View.GONE);
+                loadingProgress.setVisibility(View.VISIBLE);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     protected class ScrollListener extends SqueezerItemListActivity.ScrollListener {
         ScrollListener() {
             super();
