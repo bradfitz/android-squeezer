@@ -31,6 +31,7 @@ import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
+
 import android.graphics.drawable.Drawable;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -149,7 +150,7 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
             ViewGroup parent) {
-        View row = activity.getLayoutInflater().inflate(R.layout.group_item, null);
+        View row = activity.getLayoutInflater().inflate(R.layout.group_item, parent, false);
 
         TextView label = (TextView) row.findViewById(R.id.label);
         label.setText(childAdapters[groupPosition].getHeader());

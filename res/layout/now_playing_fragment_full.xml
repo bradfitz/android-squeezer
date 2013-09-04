@@ -34,37 +34,46 @@
         android:paddingRight="8dp" />
 
     <TextView android:id="@+id/trackname"
+        android:ellipsize="marquee"
         android:hint="@string/unknown_track"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="left"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textAppearance="@style/SqueezerTextItem"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp" />
+        android:paddingRight="8dp"
+        android:singleLine="true"/>
 
     <TextView android:id="@+id/albumname"
+        android:ellipsize="marquee"
         android:hint="@string/unknown_album"
         android:gravity="left"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textAppearance="@style/SqueezerTextItemSmall"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp" />
+        android:paddingRight="8dp"
+        android:singleLine="true"/>
 
     <TextView android:id="@+id/artistname"
+        android:ellipsize="marquee"
         android:hint="@string/unknown_artist"
         android:gravity="left"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textAppearance="@style/SqueezerTextItemSmall"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp" />
+        android:paddingRight="8dp"
+        android:singleLine="true"/>
 
     <LinearLayout
         android:gravity="center"

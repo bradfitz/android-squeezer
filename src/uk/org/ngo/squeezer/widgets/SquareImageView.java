@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.widgets;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -30,6 +31,8 @@ import android.widget.ImageView;
  * name.
  */
 public class SquareImageView extends ImageView {
+    private boolean mBlockLayout;
+
     public SquareImageView(Context context) {
         super(context);
     }
@@ -49,5 +52,19 @@ public class SquareImageView extends ImageView {
         height = MeasureSpec.getSize(heightMeasureSpec);
 
         setMeasuredDimension(height, height);
+    }
+
+    @Override
+    public void setImageDrawable(Drawable drawable) {
+        mBlockLayout = true;
+        super.setImageDrawable(drawable);
+        mBlockLayout = false;
+    }
+
+    @Override
+    public void requestLayout() {
+        if (!mBlockLayout) {
+            super.requestLayout();
+        }
     }
 }

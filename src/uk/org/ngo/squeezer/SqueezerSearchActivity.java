@@ -131,7 +131,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 	private void doSearch(String searchString) {
         this.searchString = searchString;
 		if (searchString != null && searchString.length() > 0 && getService() != null) {
-			reorderItems();
+			maybeOrderPage(0);
 			resultsExpandableListView.setVisibility(View.GONE);
 			loadingLabel.setVisibility(View.VISIBLE);
 			searchResultsAdapter.clear();
@@ -143,6 +143,8 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 	}
 
 	private <T extends SqueezerItem> void onItemsReceived(final int count, final int start, final List<T> items, final Class<T> clazz) {
+        super.onItemsReceived(count, start);
+
 		getUIThreadHandler().post(new Runnable() {
 			@Override
             public void run() {

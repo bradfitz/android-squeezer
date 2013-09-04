@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.service;
 import uk.org.ngo.squeezer.IServiceCallback;
 import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.IServiceHandshakeCallback;
+import uk.org.ngo.squeezer.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
@@ -53,6 +54,11 @@ interface ISqueezeService {
     // For the activity to get callback when handshake completes
     void registerHandshakeCallback(IServiceHandshakeCallback callback);
     void unregisterHandshakeCallback(IServiceHandshakeCallback callback);
+
+    // For the activity to get callback when the volume changes.
+    void registerVolumeCallback(IServiceVolumeCallback callback);
+    void unregisterVolumeCallback(IServiceVolumeCallback callback);
+
 
 	    // Instructing the service to connect to the SqueezeCenter server:
 	    // hostPort is the port of the CLI interface.
@@ -108,6 +114,14 @@ interface ISqueezeService {
 
         String getSongDownloadUrl(String songTrackId);
 
+    /**
+     * Sets the volume to the absolute volume in newVolume, which will be clamped to the
+     * interval [0, 100].
+     *
+     * @param newVolume
+     * @throws RemoteException
+     */
+    void adjustVolumeTo(int newVolume);
         void adjustVolumeBy(int delta);
         
         // Player list

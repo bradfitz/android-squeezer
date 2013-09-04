@@ -16,11 +16,11 @@
 
 package uk.org.ngo.squeezer.framework;
 
-import java.util.Iterator;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
@@ -149,10 +149,10 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
             //
             // instead of special-casing whether or not mImageFetcher is null
             // in getAdapterView().
-            return mItemView.getAdapterView(convertView, item, mImageFetcher);
+            return mItemView.getAdapterView(convertView, parent, item, mImageFetcher);
         }
 
-        return mItemView.getAdapterView(convertView,
+        return mItemView.getAdapterView(convertView, parent,
                 (position == 0 && mEmptyItem ? "" : loadingText));
     }
 

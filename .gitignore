@@ -4,11 +4,13 @@
 build
 bin
 gen
+out
 local.properties
 build.properties
 .classpath
 /ant.properties
 .settings/
 *.iml
+*.patch
 .idea
 .gradle

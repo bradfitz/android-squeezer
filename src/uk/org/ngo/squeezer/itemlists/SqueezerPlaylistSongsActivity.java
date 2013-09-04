@@ -113,17 +113,17 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 
                     case R.id.remove_from_playlist:
                         getService().playlistsRemove(playlist, index);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_up:
                         getService().playlistsMove(playlist, index, index - 1);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_down:
                         getService().playlistsMove(playlist, index, index + 1);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move:
@@ -140,7 +140,7 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().playlistSongs(start, playlist);
-	}
+    }
 
 	@Override
 	protected void registerCallback() throws RemoteException {

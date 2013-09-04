@@ -87,7 +87,7 @@ public class IconRowAdapter extends BaseAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View row = getActivity().getLayoutInflater().inflate(rowLayout, null);
+		View row = getActivity().getLayoutInflater().inflate(rowLayout, parent, false);
 		TextView label = (TextView) row.findViewById(textId);
 		ImageView icon = (ImageView) row.findViewById(iconId);
 

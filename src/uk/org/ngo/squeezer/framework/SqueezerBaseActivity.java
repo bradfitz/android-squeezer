@@ -77,7 +77,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
 		@Override
         public void onServiceDisconnected(ComponentName name) {
             service = null;
-        };
+        }
     };
 
     @Override
@@ -88,7 +88,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
 
         MenuFragment.add(this, SqueezerMenuFragment.class);
-    };
+    }
 
 	@Override
     public void onDestroy() {

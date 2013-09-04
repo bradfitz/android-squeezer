@@ -21,7 +21,9 @@ import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,13 +33,13 @@ public abstract class SqueezerPluginView extends SqueezerBaseItemView<SqueezerPl
 	}
 
     @Override
-    public View getAdapterView(View convertView, SqueezerPlugin item, ImageFetcher imageFetcher) {
+    public View getAdapterView(View convertView, ViewGroup parent, SqueezerPlugin item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
                 ? (ViewHolder) convertView.getTag()
                 : null;
 
         if (viewHolder == null) {
-            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, null);
+            convertView = getLayoutInflater().inflate(R.layout.icon_large_row_layout, parent, false);
 			viewHolder = new ViewHolder();
 			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
 			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);

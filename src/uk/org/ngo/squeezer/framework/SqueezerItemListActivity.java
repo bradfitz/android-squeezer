@@ -25,6 +25,8 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.RetainFragment;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -49,11 +51,36 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
     /** Keep track of whether callbacks have been registered */
     private boolean mRegisteredCallbacks;
 
+    /** The number of items per page. */
+    private int mPageSize;
+
+    /** The pages that have been requested from the server. */
+    private Set<Integer> mOrderedPages = new HashSet<Integer>();
+
+    /** The pages that have been received from the server */
+    private Set<Integer> mReceivedPages;
+
+    /** Tag for mReceivedPages in mRetainFragment. */
+    private static final String TAG_RECEIVED_PAGES = "mReceivedPages";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mPageSize = getResources().getInteger(R.integer.PageSize);
+
         MenuFragment.add(this, SqueezerMenuFragment.class);
-    };
+
+        /* Fragment to retain information across orientation changes. */
+        RetainFragment mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
+
+        //noinspection unchecked
+        mReceivedPages = (Set<Integer>) mRetainFragment.get(TAG_RECEIVED_PAGES);
+        if (mReceivedPages == null) {
+            mReceivedPages = new HashSet<Integer>();
+            mRetainFragment.put(TAG_RECEIVED_PAGES, mReceivedPages);
+        }
+    }
 
     @Override
     public void onResume() {
@@ -103,8 +130,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
             mRegisteredCallbacks = true;
         }
     }
-    
-    
+
     /**
      * This is called when the service is connected.
      * <p>
@@ -124,46 +150,91 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
 
     /**
      * Implementations must start an asynchronous fetch of items, when this is called.
+     *
      * @throws RemoteException
-     * @param start Position in list to start the fetch. Pass this on to {@link SqueezeService}
+     * @param start Position in list to start the fetch. Pass this on to {@link uk.org.ngo.squeezer.service.SqueezeService}
      */
 	protected abstract void orderPage(int start) throws RemoteException;
 
-	private final Set<Integer> orderedPages = new HashSet<Integer>();
-
-	/**
-	 * Order page at specified position, if it has not already been ordered.
-	 * @param pagePosition
-	 */
-	public void maybeOrderPage(int pagePosition) {
-        if (!mListScrolling && !orderedPages.contains(pagePosition)) {
-			orderedPages.add(pagePosition);
+    /**
+     * Order a page worth of data, starting at the specified position, if it has not already been ordered.
+     *
+     * @param pagePosition position in the list to start the fetch.
+     * @return True if the page needed to be ordered (even if the order failed), false otherwise.
+     */
+	public boolean maybeOrderPage(int pagePosition) {
+        if (!mListScrolling && !mReceivedPages.contains(pagePosition) && !mOrderedPages.contains(pagePosition)) {
+			mOrderedPages.add(pagePosition);
 			try {
-				orderPage(pagePosition);
+                orderPage(pagePosition);
 			} catch (RemoteException e) {
+                mOrderedPages.remove(pagePosition);
 				Log.e(getTag(), "Error ordering items (" + pagePosition + "): " + e);
 			}
-		}
-	}
-
-	/**
-	 * Clear all information about which pages has been ordered, and reorder the first page
-	 */
-	public void reorderItems() {
-		orderedPages.clear();
-		maybeOrderPage(0);
+            return true;
+        } else {
+            return false;
+        }
 	}
 
     /**
-     * Cancel outstanding orders, so items will be reloaded if necessary.
+     * Orders pages that correspond to visible rows in the listview.
+     * <p>
+     * Computes the pages that correspond to the rows that are currently being displayed by the
+     * listview, and calls {@link #maybeOrderPage(int)} to fetch the page if necessary.
+     *
+     * @param listView The listview with visible rows.
+     */
+    public void maybeOrderVisiblePages(AbsListView listView) {
+        int pos = (listView.getFirstVisiblePosition() / mPageSize) * mPageSize;
+        int end = listView.getFirstVisiblePosition() + listView.getChildCount();
+
+        while (pos <= end) {
+            maybeOrderPage(pos);
+            pos += mPageSize;
+        }
+    }
+
+    /**
+     * Tracks items that have been received from the server.
+     * <p>
+     * Subclasses <b>must</b> call this method when receiving data from the server to ensure
+     * that internal bookkeeping about pages that have/have not been ordered is kept consistent.
+     *
+     * @param count The total number of items known by the server.
+     * @param start The number of items in this update.
+     */
+    protected void onItemsReceived(final int count, final int start) {
+        Log.d(TAG, "onItemsReceived(): " + count + ", " + start);
+
+        // Add this page of data to mReceivedPages and remove from mOrderedPages. However,
+        // because of "order one item first to learn the total number of items" behaviour,
+        // only do this if there's more than one item and start != 0, otherwise the very first
+        // page retrieved will be removed too early.
+        if (start > 0 || count == 0) {
+            mReceivedPages.add(start);
+            mOrderedPages.remove(start);
+        }
+    }
+
+    /**
+     * Empties the variables that track which pages have been requested, and orders page 0.
+     */
+    public void clearAndReOrderItems() {
+        mOrderedPages.clear();
+        mReceivedPages.clear();
+        maybeOrderPage(0);
+    }
+
+    /**
+     * Removes any outstanding requests from mOrderedPages.
      */
     private void cancelOrders() {
-        // If would be more correct to just cancel the orders which have not
-        // yet been responded. This would however require the adapter to inform
-        // us when items arrive.
-        // This works because items are only reordered if it is missing when we
-        // attempt to use it.
-        orderedPages.clear();
+        if (mRegisteredCallbacks) {
+            throw new IllegalStateException("Cannot call cancelOrders with mRegisteredCallbacks == true");
+        }
+
+        mOrderedPages.clear();
     }
 
     /**
@@ -209,15 +280,7 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
             switch (scrollState) {
                 case OnScrollListener.SCROLL_STATE_IDLE:
                     mListScrolling = false;
-
-                    int pos = (listView.getFirstVisiblePosition() / mPageSize) * mPageSize;
-                    int end = listView.getFirstVisiblePosition() + listView.getChildCount();
-
-                    while (pos < end) {
-                        maybeOrderPage(pos);
-                        pos += mPageSize;
-                    }
-
+                    maybeOrderVisiblePages(listView);
                     break;
 
                 case OnScrollListener.SCROLL_STATE_FLING:
