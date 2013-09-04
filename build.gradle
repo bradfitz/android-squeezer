@@ -12,6 +12,10 @@ dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
 }
 
+task wrapper(type: org.gradle.api.tasks.wrapper.Wrapper) {
+    gradleVersion = '1.6'
+}
+
 android {
     compileSdkVersion 17
     buildToolsVersion "17.0.0"
