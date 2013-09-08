@@ -18,6 +18,6 @@ package uk.org.ngo.squeezer.itemlists;
 import uk.org.ngo.squeezer.model.SqueezerYear;
 
 oneway interface IServiceYearListCallback {
-  void onYearsReceived(int count, int pos, in List<SqueezerYear> albums);
+  void onYearsReceived(int count, int pos, in List<SqueezerYear> years);
 }
 
