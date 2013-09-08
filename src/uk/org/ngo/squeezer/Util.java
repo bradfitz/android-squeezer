@@ -81,6 +81,7 @@ public class Util {
     private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
     private static final Object[] sTimeArgs = new Object[5];
 
+    // TODO(nik): I think this can be removed in favour of Android's built in duration formatter
     public synchronized static String makeTimeString(long secs) {
         /* Provide multiple arguments so the format can be changed easily
          * by modifying the xml.
@@ -122,7 +123,6 @@ public class Util {
         return view;
     }
 
-
     /**
      * Count how many of the supplied booleans are true.
      * 
@@ -136,5 +136,4 @@ public class Util {
         }
         return count;
     }
-
 }
