@@ -42,7 +42,6 @@ public class SqueezerRadioListActivity extends SqueezerPluginListActivity{
 		getService().radios(start);
 	}
 
-
     public static void show(Activity activity) {
         final Intent intent = new Intent(activity, SqueezerRadioListActivity.class);
         activity.startActivity(intent);

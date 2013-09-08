@@ -81,7 +81,6 @@ public class SqueezerAlbum extends SqueezerArtworkItem {
 		dest.writeString(getArtwork_track_id());
 	}
 
-
 	@Override
 	public String toString() {
 		return "id=" + getId() + ", name=" + name + ", artist=" + artist + ", year=" + year;
