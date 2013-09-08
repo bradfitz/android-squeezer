@@ -16,8 +16,10 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import java.util.EnumSet;
 import java.util.List;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
@@ -36,14 +38,19 @@ import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.View;
 import android.widget.Spinner;
+import android.widget.TextView;
 
-
+/**
+ * Lists albums, optionally filtered to match specific criteria.
+ */
 public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<SqueezerAlbum>
         implements GenreSpinnerCallback, YearSpinnerCallback,
         SqueezerFilterableListActivity, SqueezerOrderableListActivity {
@@ -115,9 +122,33 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
                             + extras.get(key).getClass().getName() + ")");
             }
         }
+
+        TextView header = (TextView) findViewById(R.id.header);
+        EnumSet<SqueezerAlbumView.Details> details = EnumSet.allOf(SqueezerAlbumView.Details.class);
+        if (artist != null) {
+            details.remove(SqueezerAlbumView.Details.ARTIST);
+            header.setText(getString(R.string.albums_by_artist_header, artist.getName()));
+            header.setVisibility(View.VISIBLE);
+        }
+        if (genre != null) {
+            details.remove(SqueezerAlbumView.Details.GENRE);
+            header.setText(getString(R.string.albums_by_genre_header, genre.getName()));
+            header.setVisibility(View.VISIBLE);
+        }
+        if (year != null) {
+            details.remove(SqueezerAlbumView.Details.YEAR);
+            header.setText(getString(R.string.albums_by_year_header, year.getName()));
+            header.setVisibility(View.VISIBLE);
+        }
+        ((SqueezerAlbumView) getItemView()).setDetails(details);
     }
-    
-	@Override
+
+    @Override
+    protected int getContentView() {
+        return R.layout.item_list_albums;
+    }
+
+    @Override
 	protected void registerCallback() throws RemoteException {
 		getService().registerAlbumListCallback(albumListCallback);
 		if (genreSpinner != null) genreSpinner.registerCallback();

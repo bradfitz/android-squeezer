@@ -47,11 +47,11 @@ public class SquareImageView extends ImageView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height;
+        int width;
 
-        height = MeasureSpec.getSize(heightMeasureSpec);
+        width = MeasureSpec.getSize(widthMeasureSpec);
 
-        setMeasuredDimension(height, height);
+        setMeasuredDimension(width, width);
     }
 
     @Override

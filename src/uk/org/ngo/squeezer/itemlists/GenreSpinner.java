@@ -49,7 +49,7 @@ public class GenreSpinner {
 	private void orderItems(int start) {
 		if (callback.getService() != null) {
 			try {
-				callback.getService().genres(start);
+				callback.getService().genres(start, null);
 			} catch (RemoteException e) {
                 Log.e(TAG, "Error ordering items: " + e);
 			}

@@ -40,9 +40,21 @@ public class SqueezerSong extends SqueezerArtworkItem {
 	public String getArtist() { return artist; }
 	public void setArtist(String artist) { this.artist = artist; }
 
-	private String album;
-	public String getAlbum() { return album; }
-	public void setAlbum(String album) { this.album = album; }
+    private SqueezerAlbum album;
+    public SqueezerAlbum getAlbum() { return album; }
+    public void setAlbum(SqueezerAlbum album) { this.album = album; }
+
+    private String albumName;
+    public String getAlbumName() { return albumName; }
+    public void setAlbumName(String albumName) { this.albumName = albumName; }
+
+    private boolean compilation;
+    public boolean getCompilation() { return compilation; }
+    public void setCompilation(boolean compilation) { this.compilation = compilation; }
+
+    private int duration;
+    public int getDuration() { return duration; }
+    public void setDuration(int duration) { this.duration = duration; }
 
 	private int year;
 	public int getYear() { return year; }
@@ -60,6 +72,9 @@ public class SqueezerSong extends SqueezerArtworkItem {
 	public boolean isRemote() { return remote; }
 	public void setRemote(boolean remote) { this.remote = remote; }
 
+    public int tracknum;
+    public int getTracknum() { return tracknum; }
+    public void setTracknum(int tracknum) { this.tracknum = tracknum; }
 
 	private String artwork_url;
 	public String getArtwork_url() { return artwork_url; }
@@ -83,11 +98,14 @@ public class SqueezerSong extends SqueezerArtworkItem {
 		if (getId() == null) setId(record.get("id"));
 		setName(record.containsKey("track") ? record.get("track") : record.get("title"));
 		setArtist(record.get("artist"));
-		setAlbum(record.get("album"));
+		setAlbumName(record.get("album"));
+        setCompilation(Util.parseDecimalIntOrZero(record.get("compilation")) == 1);
+        setDuration(Util.parseDecimalIntOrZero(record.get("duration")));
 		setYear(Util.parseDecimalIntOrZero(record.get("year")));
 		setArtist_id(record.get("artist_id"));
 		setAlbum_id(record.get("album_id"));
 		setRemote(Util.parseDecimalIntOrZero(record.get("remote")) != 0);
+        setTracknum(Util.parseDecimalInt(record.get("tracknum"), 1));
 		setArtwork_url(record.get("artwork_url"));
 
         // Work around a (possible) bug in the Squeezeserver.
@@ -108,7 +126,12 @@ public class SqueezerSong extends SqueezerArtworkItem {
             }
         }
 
-	}
+        SqueezerAlbum album = new SqueezerAlbum(album_id, albumName);
+        album.setArtist(compilation ? "Various" : artist);
+        album.setArtwork_track_id(artworkTrackId);
+        album.setYear(year);
+        setAlbum(album);
+    }
 
 	public static final Creator<SqueezerSong> CREATOR = new Creator<SqueezerSong>() {
 		public SqueezerSong[] newArray(int size) {
@@ -123,23 +146,28 @@ public class SqueezerSong extends SqueezerArtworkItem {
 		setId(source.readString());
 		name = source.readString();
 		artist = source.readString();
-		album = source.readString();
+		albumName = source.readString();
+        compilation = source.readInt() == 1;
+        duration = source.readInt();
 		year = source.readInt();
 		artist_id = source.readString();
 		album_id = source.readString();
 		setArtwork_track_id(source.readString());
+        tracknum = source.readInt();
 	}
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(getId());
 		dest.writeString(name);
 		dest.writeString(artist);
-		dest.writeString(album);
+		dest.writeString(albumName);
+        dest.writeInt(compilation ? 1 : 0);
+        dest.writeInt(duration);
 		dest.writeInt(year);
 		dest.writeString(artist_id);
 		dest.writeString(album_id);
 		dest.writeString(getArtwork_track_id());
+        dest.writeInt(tracknum);
 	}
-
 
 	@Override
 	public String toString() {

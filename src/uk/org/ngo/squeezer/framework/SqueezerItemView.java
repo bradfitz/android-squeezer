@@ -25,8 +25,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 
 /**
@@ -55,37 +53,28 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	String getQuantityString(int quantity);
 
     /**
-     * Get a View that displays the data at the specified position in the data
+     * Gets a {@link android.view.View} that displays the data at the specified position in the data
      * set. See {@link SqueezerItemAdapter#getView(int, View, android.view.ViewGroup)}
      * 
-     * @param convertView The old view to reuse, per
+     * @param convertView the old view to reuse, per
      *            {@link Adapter#getView(int, View, android.view.ViewGroup)}
-     * @param item The item to display.
-     * @param imageFetcher An {@link ImageFetcher} configured to load image
+     * @param item the item to display.
+     * @param imageFetcher an {@link ImageFetcher} configured to load image
      *            thumbnails.
-     * @return A View corresponding to the data from the specified item.
+     * @return the view to display.
      */
-    View getAdapterView(View convertView, ViewGroup parent, T item, ImageFetcher mImageFetcher);
+    View getAdapterView(View convertView, ViewGroup parent, T item, ImageFetcher imageFetcher);
 
     /**
-     * Get a view suitable for displaying the supplied (static) text.
+     * Gets a {@link android.view.View} suitable for displaying the supplied (static) text.
      * See {@link SqueezerItemAdapter#getView(int, View, android.view.ViewGroup)}
      * 
      * @param convertView The old view to reuse, per
-     *            {@link Adapter#getView(int, View, android.view.ViewGroup)}
-     * @param label Text to display
-     * @return
+     *            {@link android.widget.Adapter#getView(int, View, android.view.ViewGroup)}
+     * @param text text to display
+     * @return the view to display.
      */
-    View getAdapterView(View convertView, ViewGroup parent, String label);
-
-    /**
-     * A ViewHolder for listitems that consist of a single textview and an
-     * imagebutton for the context menu.
-     */
-    public static class ViewHolder {
-        public TextView text1;
-        public ImageButton btnContextMenu;
-    }
+    View getAdapterView(View convertView, ViewGroup parent, String text);
 
 	/**
 	 * @return The generic argument of the implementation

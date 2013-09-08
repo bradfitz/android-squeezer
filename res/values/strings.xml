@@ -99,9 +99,16 @@
     <string name="year_label">Year</string>
     <string name="filter_label">Search text</string>
 
+    <string name="albums_by_artist_header">Albums with songs by %s</string>
+    <string name="albums_by_genre_header">Albums with songs in genre \"%s\"</string>
+    <string name="albums_by_year_header">Albums with songs from %s</string>
+
+    <string name="songs_by_header">Songs by %s</string>
+
     <string name="unknown_track">Unknown track</string>
     <string name="unknown_album">Unknown album</string>
     <string name="unknown_artist">Unknown artist</string>
+    <string name="unknown_year">Unknown year</string>
 
     <string name="tips_title">Tips</string>
     <string name="tip_volume">Use your device\'s hardware volume controls to change the playing volume.\n\nTry it now.</string>

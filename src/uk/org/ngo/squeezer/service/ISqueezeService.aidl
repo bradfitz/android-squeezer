@@ -157,7 +157,7 @@ interface ISqueezeService {
         void unregisterYearListCallback(IServiceYearListCallback callback);
         
         // Genre list
-        boolean genres(int start);
+        boolean genres(int start, String searchString);
 	    void registerGenreListCallback(IServiceGenreListCallback callback);
         void unregisterGenreListCallback(IServiceGenreListCallback callback);
         

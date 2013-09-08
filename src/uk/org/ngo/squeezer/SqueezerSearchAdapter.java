@@ -23,14 +23,15 @@ import java.util.Map;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
+import uk.org.ngo.squeezer.itemlists.SongViewWithArt;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumView;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistView;
 import uk.org.ngo.squeezer.itemlists.SqueezerGenreView;
-import uk.org.ngo.squeezer.itemlists.SqueezerSongView;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import android.graphics.drawable.Drawable;
 import android.view.ContextMenu;
@@ -56,12 +57,12 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
 	private final SqueezerItemAdapter<? extends SqueezerItem>[] childAdapters;
 	private final Map<Class<? extends SqueezerItem>, SqueezerItemAdapter<? extends SqueezerItem>> childAdapterMap = new HashMap<Class<? extends SqueezerItem>, SqueezerItemAdapter<? extends SqueezerItem>>();
 
-    public SqueezerSearchAdapter(SqueezerSearchActivity activity) {
+    public SqueezerSearchAdapter(SqueezerSearchActivity activity, ImageFetcher imageFetcher) {
         this.activity = activity;
 
         SqueezerItemAdapter<?>[] adapters = {
-                new SqueezerItemAdapter<SqueezerSong>(new SqueezerSongView(activity)),
-                new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerAlbumView(activity)),
+                new SqueezerItemAdapter<SqueezerSong>(new SongViewWithArt(activity), imageFetcher),
+                new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerAlbumView(activity), imageFetcher),
                 new SqueezerItemAdapter<SqueezerArtist>(new SqueezerArtistView(activity)),
                 new SqueezerItemAdapter<SqueezerGenre>(new SqueezerGenreView(activity)),
         };

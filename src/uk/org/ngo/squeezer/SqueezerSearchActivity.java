@@ -28,6 +28,7 @@ import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
+
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -52,9 +53,9 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 
         loadingLabel = findViewById(R.id.loading_label);
 
-        searchResultsAdapter = new SqueezerSearchAdapter(this);
+        searchResultsAdapter = new SqueezerSearchAdapter(this, getImageFetcher());
 		resultsExpandableListView = (ExpandableListView) findViewById(R.id.search_expandable_list);
-		resultsExpandableListView.setAdapter( searchResultsAdapter );
+        resultsExpandableListView.setAdapter(searchResultsAdapter);
 
         resultsExpandableListView.setOnChildClickListener( new OnChildClickListener() {
 			@Override
@@ -68,7 +69,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
         resultsExpandableListView.setOnScrollListener(new ScrollListener());
 
         handleIntent(getIntent());
-    };
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {

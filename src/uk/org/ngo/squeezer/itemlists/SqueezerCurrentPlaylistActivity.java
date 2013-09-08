@@ -24,12 +24,14 @@ import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
-import uk.org.ngo.squeezer.itemlists.SqueezerAlbumArtView.ViewHolder;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.SqueezerPlayerState;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
+import static uk.org.ngo.squeezer.framework.SqueezerBaseItemView.ViewHolder;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;

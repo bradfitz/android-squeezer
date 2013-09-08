@@ -17,26 +17,60 @@
 package uk.org.ngo.squeezer.itemlists;
 
 
+import java.util.EnumSet;
+
+import static android.text.format.DateUtils.formatElapsedTime;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.framework.SqueezerPlaylistItemView;
 import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 
 /**
  * A view that shows a single song with its artwork, and a context menu.
  */
-public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
+public class SqueezerSongView extends SqueezerPlaylistItemView<SqueezerSong> {
     @SuppressWarnings("unused")
     private static final String TAG = "SqueezerSongView";
 
-	private boolean browseByAlbum;
+    /** Which details to show in the second line of text. */
+    public enum Details {
+        /** Show the artist name.  Mutually exclusive with ARTIST_IF_COMPILATION. */
+        ARTIST,
+
+        /** Show the artist name only if the song is part of a compilation.  Mutually exclusive
+         * with ARTIST. */
+        ARTIST_IF_COMPILATION,
+
+        /** Show the album name. */
+        ALBUM,
+
+        /** Show the year (if known). */
+        YEAR,
+
+        /** Show the genre (if known). */
+        GENRE,
+
+        /** Track number. */
+        TRACK_NO,
+
+        /** Duration. */
+        DURATION
+    }
+
+    private EnumSet<Details> mDetails = EnumSet.noneOf(Details.class);
+
+    private boolean browseByAlbum;
 	public void setBrowseByAlbum(boolean browseByAlbum) { this.browseByAlbum = browseByAlbum; }
 
 	private boolean browseByArtist;
@@ -44,30 +78,69 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 
     public SqueezerSongView(SqueezerItemListActivity activity) {
         super(activity);
+
+        setViewParams(EnumSet.of(ViewParams.TWO_LINE, ViewParams.CONTEXT_BUTTON));
+    }
+
+    public void setDetails(EnumSet<Details> details) {
+        if (details.contains(Details.ARTIST) && details.contains(Details.ARTIST_IF_COMPILATION)) {
+            throw new IllegalArgumentException(
+                    "ARTIST and ARTIST_IF_COMPILATION are mutually exclusive");
+        }
+        mDetails = details;
     }
 
     @Override
     public void bindView(View view, SqueezerSong item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        String text2 = "";
-        if (item.getId() != null) {
-            if (item.getArtist() != null)
-                text2 += item.getArtist();
+        viewHolder.text1.setText(item.getName());
 
-            if (item.getAlbum() != null)
-                text2 += " - " + item.getAlbum();
+        viewHolder.text2.setText(mJoiner.join(
+                mDetails.contains(Details.TRACK_NO) ? item.getTracknum() : null,
+                mDetails.contains(Details.DURATION) ? formatElapsedTime(item.getDuration()) : null,
+                mDetails.contains(Details.ARTIST) ? item.getArtist() : null,
+                mDetails.contains(Details.ARTIST_IF_COMPILATION) && item.getCompilation() ? item.getArtist() : null,
+                mDetails.contains(Details.ALBUM) ? item.getAlbumName() : null,
+                mDetails.contains(Details.YEAR) ? item.getYear() : null
+        ));
+    }
 
-            if (item.getYear() != 0)
-                text2 = item.getYear() + " - " + text2;
-        }
-        viewHolder.text2.setText(text2);
+    /**
+     * Binds the label to {@link ViewHolder#text1}. Hides the {@link ViewHolder#btnContextMenu} and
+     * clears {@link ViewHolder#text2}.
+     *
+     * @param view The view that contains the {@link ViewHolder}
+     * @param label The text to bind to {@link ViewHolder#text1}
+     */
+    @Override
+    public void bindView(View view, String label) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        String artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
-        if (artworkUrl == null) {
-            viewHolder.icon.setImageResource(item.isRemote() ? R.drawable.icon_iradio_noart : R.drawable.icon_album_noart);
-        } else {
-            imageFetcher.loadImage(artworkUrl, viewHolder.icon);
+        viewHolder.text1.setText(label);
+        viewHolder.text2.setText("");
+    }
+
+    /**
+     * Returns the URL to download the specified album artwork, or null if the
+     * artwork does not exist, or there was a problem with the service.
+     *
+     * @param artwork_track_id
+     * @return
+     */
+    protected String getAlbumArtUrl(String artwork_track_id) {
+        if (artwork_track_id == null)
+            return null;
+
+        ISqueezeService service = getActivity().getService();
+        if (service == null)
+            return null;
+
+        try {
+            return service.getAlbumArtUrl(artwork_track_id);
+        } catch (RemoteException e) {
+            Log.e(getClass().getSimpleName(), "Error requesting album art url: " + e);
+            return null;
         }
     }
 
@@ -103,10 +176,10 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 	public boolean doItemContext(android.view.MenuItem menuItem, int index, SqueezerSong selectedItem) throws RemoteException {
 		switch (menuItem.getItemId()) {
             case R.id.view_this_album:
-                SqueezerSongListActivity.show(getActivity(),
-                        new SqueezerAlbum(selectedItem.getAlbum_id(), selectedItem.getAlbum()));
+                SqueezerSongListActivity.show(getActivity(), selectedItem.getAlbum());
                 return true;
 
+            // XXX: Is this actually "view albums by artist"?
             case R.id.view_albums_by_song:
                 SqueezerAlbumListActivity.show(getActivity(),
                         new SqueezerArtist(selectedItem.getArtist_id(), selectedItem.getArtist()));
@@ -123,7 +196,7 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
 		}
 
 		return super.doItemContext(menuItem, index, selectedItem);
-	};
+	}
 
 	@Override
     public String getQuantityString(int quantity) {

@@ -33,9 +33,9 @@ import android.widget.TextView;
  */
 public class IconRowAdapter extends BaseAdapter {
 	private final Activity activity;
-	private final int rowLayout = R.layout.icon_large_row_layout;
+	private final int rowLayout = R.layout.list_item;
 	private final int iconId = R.id.icon;
-	private final int textId = R.id.label;
+	private final int textId = R.id.text1;
 
     /** Rows to display in the list. */
     List<IconRow> mRows = new ArrayList<IconRow>();
@@ -88,10 +88,10 @@ public class IconRowAdapter extends BaseAdapter {
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View row = getActivity().getLayoutInflater().inflate(rowLayout, parent, false);
-		TextView label = (TextView) row.findViewById(textId);
+		TextView text1 = (TextView) row.findViewById(textId);
 		ImageView icon = (ImageView) row.findViewById(iconId);
 
-        label.setText(mRows.get(position).getText());
+        text1.setText(mRows.get(position).getText());
         icon.setImageResource(mRows.get(position).getIcon());
 
 		return row;

@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.service;
 
-import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,6 +44,8 @@ import uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePluginListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceSongListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
@@ -60,6 +61,9 @@ import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
 import uk.org.ngo.squeezer.util.Scrobble;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -79,7 +83,25 @@ public class SqueezeService extends Service {
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
 	private static final String ALBUMTAGS = "alyj";
-    private static final String SONGTAGS = "asleyjJxK";
+
+    /**
+     * Information that will be requested about songs.
+     * <p>
+     * a: artist name<br>
+     * C: compilation (1 if true, missing otherwise)<br>
+     * d: duration, in seconds<br>
+     * e: album ID<br>
+     * j: coverart (1 if available, missing otherwise)<br>
+     * J: artwork_track_id (if available, missing otherwise)<br>
+     * K: URL to remote artwork<br>
+     * l: album name<br>
+     * s: artist id<br>
+     * t: tracknum, if known<br>
+     * x: 1, if this is a remote track<br>
+     * y: song year<br>
+     */
+    // This should probably be a field in SqueezerSong.
+    private static final String SONGTAGS = "aCdejJKlstxy";
 
     final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     Thread mainThread;
@@ -1284,9 +1306,12 @@ public class SqueezeService extends Service {
 
         /* Start an async fetch of the SqueezeboxServer's genres */
         @Override
-        public boolean genres(int start) throws RemoteException {
+        public boolean genres(int start, String searchString) throws RemoteException {
             if (!isConnected()) return false;
-            cli.requestItems("genres", start);
+            List<String> parameters = new ArrayList<String>();
+            if (searchString != null && searchString.length() > 0)
+                parameters.add("search:" + searchString);
+            cli.requestItems("genres", start, parameters);
             return true;
         }
 
@@ -1478,9 +1503,16 @@ public class SqueezeService extends Service {
         public boolean search(int start, String searchString) throws RemoteException {
             if (!isConnected()) return false;
             List<String> parameters = new ArrayList<String>();
-			if (searchString != null && searchString.length() > 0)
-				parameters.add("term:" + searchString);
-			cli.requestItems("search", start, parameters);
+            if (!isNullOrEmpty(searchString))
+                parameters.add("term:" + searchString);
+
+            SqueezerAlbumOrderDialog.AlbumsSortOrder albumSortOrder = SqueezerAlbumOrderDialog.AlbumsSortOrder.valueOf(preferredAlbumSort());
+
+            artists(start, searchString, null, null);
+            albums(start, albumSortOrder.name().replace("__", ""), searchString, null, null, null, null);
+            genres(start, searchString);
+            songs(start, SqueezerSongOrderDialog.SongsSortOrder.title.name(), searchString, null, null, null, null);
+
             return true;
         }
 

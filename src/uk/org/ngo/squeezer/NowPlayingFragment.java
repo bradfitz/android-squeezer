@@ -27,7 +27,6 @@ import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerPlayerListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
-import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.model.SqueezerPlayerState;
@@ -39,6 +38,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -355,8 +355,7 @@ public class NowPlayingFragment extends Fragment implements
                     SqueezerSong song = getCurrentSong();
                     if (song != null) {
                         if (!song.isRemote())
-                            SqueezerSongListActivity.show(mActivity,
-                                    new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
+                            SqueezerSongListActivity.show(mActivity, song.getAlbum());
                     }
                 }
             });
@@ -622,7 +621,7 @@ public class NowPlayingFragment extends Fragment implements
     private void updateSongInfo(SqueezerSong song) {
         Log.v(TAG, "updateSongInfo " + song);
         if (song != null) {
-            albumText.setText(song.getAlbum());
+            albumText.setText(song.getAlbumName());
             trackText.setText(song.getName());
             if (mFullHeightLayout) {
                 artistText.setText(song.getArtist());

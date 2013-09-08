@@ -25,8 +25,11 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.ImageCache;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -63,6 +66,18 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
     /** Tag for mReceivedPages in mRetainFragment. */
     private static final String TAG_RECEIVED_PAGES = "mReceivedPages";
 
+    /** An ImageFetcher for loading thumbnails. */
+    private ImageFetcher mImageFetcher;
+
+    /** Tag for _mImageFetcher in mRetainFragment. */
+    public static final String TAG_IMAGE_FETCHER = "imageFetcher";
+
+    /** ImageCache parameters for the album art. */
+    private ImageCache.ImageCacheParams mImageCacheParams;
+
+    /* Fragment to retain information across orientation changes. */
+    private RetainFragment mRetainFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,8 +86,8 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
 
         MenuFragment.add(this, SqueezerMenuFragment.class);
 
-        /* Fragment to retain information across orientation changes. */
-        RetainFragment mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
+
+        mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
 
         //noinspection unchecked
         mReceivedPages = (Set<Integer>) mRetainFragment.get(TAG_RECEIVED_PAGES);
@@ -85,6 +100,9 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+        getImageFetcher().addImageCache(getSupportFragmentManager(), mImageCacheParams);
+
         if (getService() != null) {
             maybeRegisterCallbacks();
         }
@@ -92,6 +110,10 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
 
     @Override
     public void onPause() {
+        if (mImageFetcher != null) {
+            mImageFetcher.closeCache();
+        }
+
         if (mRegisteredCallbacks) {
             if (getService() != null) {
                 try {
@@ -147,6 +169,30 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
 	 * @throws RemoteException
 	 */
 	protected abstract void unregisterCallback() throws RemoteException;
+
+    private void createImageFetcher() {
+        // Get an ImageFetcher to scale artwork to the size of the icon view.
+        Resources resources = getResources();
+        int iconSize = (Math.max(
+                resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
+                resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
+        mImageFetcher = new ImageFetcher(this, iconSize);
+        mImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+        mImageCacheParams = new ImageCache.ImageCacheParams(this, "artwork");
+        mImageCacheParams.setMemCacheSizePercent(this, 0.12f);
+    }
+
+    public ImageFetcher getImageFetcher() {
+        if (mImageFetcher == null) {
+            mImageFetcher = (ImageFetcher) mRetainFragment.get(TAG_IMAGE_FETCHER);
+            if (mImageFetcher == null) {
+                createImageFetcher();
+                mRetainFragment.put(TAG_IMAGE_FETCHER, mImageFetcher);
+            }
+        }
+
+        return mImageFetcher;
+    }
 
     /**
      * Implementations must start an asynchronous fetch of items, when this is called.

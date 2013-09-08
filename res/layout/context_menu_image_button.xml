@@ -17,15 +17,16 @@ limitations under the License.
 -->
 
 <uk.org.ngo.squeezer.widgets.ListItemImageButton
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/context_menu"
-  android:contentDescription="@string/app_name"
-  android:visibility="gone"
-  android:src="@drawable/dropdown_ic_arrow_normal_holo_dark"
-  android:background="@drawable/list_selector_holo_dark"
-  android:paddingRight="16dp"
-  android:paddingLeft="16dp"
-  android:layout_width="48dp"
-  android:layout_height="fill_parent"
-  android:minWidth="48dp"
-/>
+    android:id="@+id/context_menu"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_gravity="bottom"
+    android:background="@drawable/list_selector_holo_dark"
+    android:contentDescription="@string/app_name"
+    android:gravity="bottom"
+    android:minWidth="48dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:src="@drawable/dropdown_ic_arrow_normal_holo_dark"
+    android:visibility="gone" />

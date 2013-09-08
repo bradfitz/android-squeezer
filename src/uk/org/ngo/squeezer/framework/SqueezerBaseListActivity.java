@@ -20,11 +20,10 @@ package uk.org.ngo.squeezer.framework;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
-import android.content.res.Resources;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,9 +59,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     /** Tag for mItemView in mRetainFragment. */
     public static final String TAG_ITEM_VIEW = "itemView";
 
-    /** Tag for _mImageFetcher in mRetainFragment. */
-    public static final String TAG_IMAGE_FETCHER = "imageFetcher";
-
     /** Tag for itemAdapter in mRetainFragment. */
     public static final String TAG_ADAPTER = "adapter";
 
@@ -73,25 +69,22 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     private ProgressBar loadingProgress;
 	private SqueezerItemView<T> itemView;
 
-    /** An ImageFetcher for loading thumbnails. */
-    private ImageFetcher _mImageFetcher;
-
-    /** ImageCache parameters for the album art. */
-    private ImageCacheParams mImageCacheParams;
-
     /** Fragment to retain information across the activity lifecycle. */
     private RetainFragment mRetainFragment;
 
     @Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
 
-        setContentView(R.layout.item_list);
-		mListView = (ListView) findViewById(R.id.item_list);
+        setContentView(getContentView());
+        mListView = checkNotNull((ListView) findViewById(R.id.item_list),
+            "getContentView() did not return a view containing R.id.item_list");
 
-        loadingProgress = (ProgressBar) findViewById(R.id.loading_progress);
+        loadingProgress = checkNotNull((ProgressBar) findViewById(R.id.loading_progress),
+            "getContentView() did not return a view containing R.id.loading_progress");
+
         mListView.setAdapter(getItemAdapter());
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
@@ -118,28 +111,16 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         mListView.setOnCreateContextMenuListener(getItemAdapter());
     }
 
-    private void createImageFetcher() {
-        // Get an ImageFetcher to scale artwork to the size of the icon view.
-        Resources resources = getResources();
-        int iconSize = (Math.max(
-                resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
-                resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
-        _mImageFetcher = new ImageFetcher(this, iconSize);
-        _mImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
-        mImageCacheParams = new ImageCacheParams(this, "artwork");
-        mImageCacheParams.setMemCacheSizePercent(this, 0.12f);
-    }
-
-    public ImageFetcher getImageFetcher() {
-        if (_mImageFetcher == null) {
-            _mImageFetcher = (ImageFetcher) mRetainFragment.get(TAG_IMAGE_FETCHER);
-            if (_mImageFetcher == null) {
-                createImageFetcher();
-                mRetainFragment.put(TAG_IMAGE_FETCHER, _mImageFetcher);
-            }
-        }
-
-        return _mImageFetcher;
+    /**
+     * Returns the ID of a content view to be used by this list activity.
+     * <p>
+     * The content view must contain a {@link ListView} with the id {@literal item_list} and
+     * a {@link ProgressBar} with the id {@literal loading_progress} in order to be valid.
+     *
+     * @return The ID
+     */
+    protected int getContentView() {
+        return R.layout.item_list;
     }
 
 	/**
@@ -148,7 +129,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 	abstract protected SqueezerItemView<T> createItemView();
 
     @Override
-    public final boolean onContextItemSelected(MenuItem menuItem) {
+    public boolean onContextItemSelected(MenuItem menuItem) {
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 
         return itemAdapter.doItemContext(menuItem, menuInfo.position);
@@ -157,24 +138,17 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
+
         maybeOrderVisiblePages(mListView);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getImageFetcher().addImageCache(getSupportFragmentManager(), mImageCacheParams);
+
         if (getService() != null) {
             maybeOrderVisiblePages(mListView);
         }
-    }
-
-    @Override
-    public void onPause() {
-        if (_mImageFetcher != null) {
-            _mImageFetcher.closeCache();
-        }
-        super.onPause();
     }
 
     /**
