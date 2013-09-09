@@ -16,10 +16,12 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.R;
+import static uk.org.ngo.squeezer.framework.SqueezerBaseItemView.ViewHolder;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListAdapter;
@@ -29,8 +31,6 @@ import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.SqueezerPlayerState;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-
-import static uk.org.ngo.squeezer.framework.SqueezerBaseItemView.ViewHolder;
 
 import android.content.Context;
 import android.content.Intent;
@@ -74,11 +74,9 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
                 ViewHolder viewHolder = (ViewHolder) viewTag;
                 if (position == currentPlaylistIndex) {
                     viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerCurrentTextItem);
-                    viewHolder.text2.setTextAppearance(getActivity(), R.style.SqueezerCurrentTextItem);
                     view.setBackgroundResource(R.drawable.list_item_background_current);
                 } else {
                     viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerTextItem);
-                    viewHolder.text2.setTextAppearance(getActivity(), R.style.SqueezerTextItem);
                     view.setBackgroundResource(R.drawable.list_item_background_normal);
                 }
             }
@@ -94,7 +92,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 
     @Override
 	public SqueezerItemView<SqueezerSong> createItemView() {
-		return new SqueezerSongView(this) {
+		SongViewWithArt view = new SongViewWithArt(this) {
             /**
              * Jumps to whichever song the user chose.
              */
@@ -150,6 +148,13 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
                 return super.doItemContext(menuItem, index, selectedItem);
             }
         };
+
+        view.setDetails(EnumSet.of(
+                SqueezerSongView.Details.DURATION,
+                SqueezerSongView.Details.ALBUM,
+                SqueezerSongView.Details.ARTIST));
+
+        return view;
     }
 
 	@Override
