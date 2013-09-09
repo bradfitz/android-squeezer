@@ -21,7 +21,9 @@ import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Scrobble;
+
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -42,6 +44,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class SettingsActivity extends PreferenceActivity implements
         OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
@@ -258,12 +261,17 @@ public class SettingsActivity extends PreferenceActivity implements
                 ListView appList = (ListView) dialog.findViewById(R.id.scrobble_apps);
                 appList.setAdapter(new IconRowAdapter(this, apps, icons));
 
+                final Context context = dialog.getContext();
                 appList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View view, int position,
                             long id) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setData(Uri.parse("market://details?id=" + urls[position]));
-                        startActivity(intent);
+                        try {
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(context, R.string.settings_market_not_found, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
         }
