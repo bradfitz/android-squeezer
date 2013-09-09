@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import uk.org.ngo.squeezer.itemlists.SongViewWithArt;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumView;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistView;
 import uk.org.ngo.squeezer.itemlists.SqueezerGenreView;
+import uk.org.ngo.squeezer.itemlists.SqueezerSongView;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
@@ -66,6 +68,16 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
                 new SqueezerItemAdapter<SqueezerArtist>(new SqueezerArtistView(activity)),
                 new SqueezerItemAdapter<SqueezerGenre>(new SqueezerGenreView(activity)),
         };
+
+        ((SongViewWithArt)adapters[0].getItemView()).setDetails(EnumSet.of(
+                SqueezerSongView.Details.DURATION,
+                SqueezerSongView.Details.ALBUM,
+                SqueezerSongView.Details.ARTIST));
+
+        ((SqueezerAlbumView)adapters[1].getItemView()).setDetails(EnumSet.of(
+                SqueezerAlbumView.Details.ARTIST,
+                SqueezerAlbumView.Details.YEAR));
+
         childAdapters = adapters;
         for (SqueezerItemAdapter<? extends SqueezerItem> itemAdapter : childAdapters)
             childAdapterMap.put(itemAdapter.getItemView().getItemClass(), itemAdapter);
