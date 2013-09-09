@@ -54,7 +54,7 @@ import android.widget.TextView;
  *     <li>A second, smaller {@link TextView} for additional item information</li>
  *     <li>A {@link ListItemImageButton} that shows a disclosure triangle for a context menu</li>
  * </ul>
- *  * The view can display an item in one of two states.  The primary state is when the data to be
+ * The view can display an item in one of two states.  The primary state is when the data to be
  * inserted in to the view is known, and represented by a complete {@link SqueezerItem} subclass.
  * The loading state is when the data type is known, but has not been fetched from the server yet.
  * <p/>
