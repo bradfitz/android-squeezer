@@ -39,6 +39,9 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
 
         /** Show the year (if known). */
         YEAR,
+
+        /** Show the genre (if known). */
+        GENRE
     }
 
     private EnumSet<Details> mDetails = EnumSet.noneOf(Details.class);
