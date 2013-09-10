@@ -41,6 +41,8 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ExpandableListView.OnChildClickListener;
 
 public class SqueezerSearchActivity extends SqueezerItemListActivity {
+    private static final String TAG = SqueezerSearchActivity.class.getSimpleName();
+
     private View loadingLabel;
 	private ExpandableListView resultsExpandableListView;
 	private SqueezerSearchAdapter searchResultsAdapter;
@@ -114,6 +116,9 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		return false;
 	}
 
+    /**
+     * Performs the search now that the service connection is active.
+     */
 	@Override
 	protected void onServiceConnected() {
 		super.onServiceConnected();
@@ -129,16 +134,26 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 		}
 	}
 
+    /**
+     * Saves the search query, and attempts to query the service for <code>searchString</code>.
+     * If the service binding has not completed yet then {@link #onServiceConnected()} will
+     * re-query for the saved search query.
+     *
+     * @param searchString The string to search fo.
+     */
 	private void doSearch(String searchString) {
         this.searchString = searchString;
 		if (searchString != null && searchString.length() > 0 && getService() != null) {
-			maybeOrderPage(0);
 			resultsExpandableListView.setVisibility(View.GONE);
 			loadingLabel.setVisibility(View.VISIBLE);
 			searchResultsAdapter.clear();
+            clearAndReOrderItems();
 		}
 	}
 
+    /**
+     * Searches for the saved search query.
+     */
 	private void doSearch() {
 		doSearch(searchString);
 	}
