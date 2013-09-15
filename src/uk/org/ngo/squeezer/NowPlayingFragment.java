@@ -507,13 +507,15 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    private void updatePowerStatus(boolean canPowerOn, boolean canPowerOff) {
+    private void updatePowerMenuItems(boolean canPowerOn, boolean canPowerOff) {
+        boolean connected = isConnected();
+
         if (menu_item_poweron != null) {
-            menu_item_poweron.setVisible(canPowerOn);
+            menu_item_poweron.setVisible(canPowerOn && connected);
         }
 
         if (menu_item_poweroff != null) {
-            menu_item_poweroff.setVisible(canPowerOff);
+            menu_item_poweroff.setVisible(canPowerOff && connected);
         }
     }
 
@@ -817,6 +819,8 @@ public class NowPlayingFragment extends Fragment implements
             menu_item_search.setEnabled(connected);
             menu_item_volume.setEnabled(connected);
         }
+
+        updatePowerMenuItems(canPowerOn(), canPowerOff());
     }
 
     @Override
@@ -1047,7 +1051,7 @@ public class NowPlayingFragment extends Fragment implements
         public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff) throws RemoteException {
             uiThreadHandler.post(new Runnable() {
                 public void run() {
-                    updatePowerStatus(canPowerOn, canPowerOff);
+                    updatePowerMenuItems(canPowerOn, canPowerOff);
                 }
             });
         }
@@ -1070,7 +1074,7 @@ public class NowPlayingFragment extends Fragment implements
             uiThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    updatePowerStatus(canPowerOn(), canPowerOff());
+                    updatePowerMenuItems(canPowerOn(), canPowerOff());
                 }
             });
         }
