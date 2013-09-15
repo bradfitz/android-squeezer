@@ -88,14 +88,14 @@ public class NowPlayingFragment extends Fragment implements
     private TextView trackText;
     private TextView currentTime;
     private TextView totalTime;
-    private MenuItem connectButton;
-    private MenuItem disconnectButton;
-    private MenuItem poweronButton;
-    private MenuItem poweroffButton;
-    private MenuItem playersButton;
-    private MenuItem playlistButton;
-    private MenuItem searchButton;
-    private MenuItem mVolumeButton;
+    private MenuItem menu_item_connect;
+    private MenuItem menu_item_disconnect;
+    private MenuItem menu_item_poweron;
+    private MenuItem menu_item_poweroff;
+    private MenuItem menu_item_players;
+    private MenuItem menu_item_playlists;
+    private MenuItem menu_item_search;
+    private MenuItem menu_item_volume;
     private ImageButton playPauseButton;
     private ImageButton nextButton;
     private ImageButton prevButton;
@@ -201,7 +201,6 @@ public class NowPlayingFragment extends Fragment implements
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (SqueezerBaseActivity) activity;
-        mVolumePanel = new VolumePanel(mActivity);
     }
 
     @Override
@@ -444,15 +443,7 @@ public class NowPlayingFragment extends Fragment implements
             new SqueezerAuthenticationDialog().show(mActivity.getSupportFragmentManager(), "AuthenticationDialog");
         }
 
-        // These are all set at the same time, so one check is sufficient
-        if (connectButton != null) {
-            connectButton.setVisible(!connected);
-            disconnectButton.setVisible(connected);
-            playersButton.setEnabled(connected);
-            playlistButton.setEnabled(connected);
-            searchButton.setEnabled(connected);
-            mVolumeButton.setEnabled(connected);
-        }
+        setMenuItemStateFromConnection();
 
         if (mFullHeightLayout) {
             nextButton.setEnabled(connected);
@@ -513,13 +504,15 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    private void updatePowerStatus(boolean canPowerOn, boolean canPowerOff) {
-        if (poweronButton != null) {
-            poweronButton.setVisible(canPowerOn);
+    private void updatePowerMenuItems(boolean canPowerOn, boolean canPowerOff) {
+        boolean connected = isConnected();
+
+        if (menu_item_poweron != null) {
+            menu_item_poweron.setVisible(canPowerOn && connected);
         }
 
-        if (poweroffButton != null) {
-            poweroffButton.setVisible(canPowerOff);
+        if (menu_item_poweroff != null) {
+            menu_item_poweroff.setVisible(canPowerOff && connected);
         }
     }
 
@@ -544,6 +537,8 @@ public class NowPlayingFragment extends Fragment implements
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume...");
+
+        mVolumePanel = new VolumePanel(mActivity);
 
         mImageFetcher.addImageCache(mActivity.getSupportFragmentManager(), mImageCacheParams);
 
@@ -749,6 +744,9 @@ public class NowPlayingFragment extends Fragment implements
     @Override
     public void onPause() {
         Log.d(TAG, "onPause...");
+
+        mVolumePanel.dismiss();
+        clearConnectingDialog();
         mImageFetcher.closeCache();
 
         if (isAutoConnect(getSharedPreferences()))
@@ -776,7 +774,6 @@ public class NowPlayingFragment extends Fragment implements
                 mActivity.unbindService(serviceConnection);
             }
         }
-        clearConnectingDialog();
     }
 
     /**
@@ -791,14 +788,40 @@ public class NowPlayingFragment extends Fragment implements
         MenuInflater i = mActivity.getMenuInflater();
         i.inflate(R.menu.squeezer, menu);
 
-        connectButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_connect);
-        disconnectButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_disconnect);
-        poweronButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweron);
-        poweroffButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweroff);
-        playersButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_players);
-        playlistButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_playlist);
-        searchButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_search);
-        mVolumeButton = mActivity.getActionBarHelper().findItem(R.id.menu_item_volume);
+        menu_item_connect = mActivity.getActionBarHelper().findItem(R.id.menu_item_connect);
+        menu_item_disconnect = mActivity.getActionBarHelper().findItem(R.id.menu_item_disconnect);
+        menu_item_poweron = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweron);
+        menu_item_poweroff = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweroff);
+        menu_item_players = mActivity.getActionBarHelper().findItem(R.id.menu_item_players);
+        menu_item_playlists = mActivity.getActionBarHelper().findItem(R.id.menu_item_playlist);
+        menu_item_search = mActivity.getActionBarHelper().findItem(R.id.menu_item_search);
+        menu_item_volume = mActivity.getActionBarHelper().findItem(R.id.menu_item_volume);
+
+        // On Android 2.3.x and lower onCreateOptionsMenu() is called when the menu is opened,
+        // almost certainly post-connection to the service.  On 3.0 and higher it's called when
+        // the activity is created, before the service connection is made.  Set the visibility
+        // of the menu items accordingly.
+        setMenuItemStateFromConnection();
+    }
+
+    /**
+     * Sets the state of assorted option menu items based on whether or not there is a
+     * connection to the server.
+     */
+    private void setMenuItemStateFromConnection() {
+        boolean connected = isConnected();
+
+        // These are all set at the same time, so one check is sufficient
+        if (menu_item_connect != null) {
+            menu_item_connect.setVisible(!connected);
+            menu_item_disconnect.setVisible(connected);
+            menu_item_players.setEnabled(connected);
+            menu_item_playlists.setEnabled(connected);
+            menu_item_search.setEnabled(connected);
+            menu_item_volume.setEnabled(connected);
+        }
+
+        updatePowerMenuItems(canPowerOn(), canPowerOff());
     }
 
     @Override
@@ -1029,7 +1052,7 @@ public class NowPlayingFragment extends Fragment implements
         public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff) throws RemoteException {
             uiThreadHandler.post(new Runnable() {
                 public void run() {
-                    updatePowerStatus(canPowerOn, canPowerOff);
+                    updatePowerMenuItems(canPowerOn, canPowerOff);
                 }
             });
         }
@@ -1052,7 +1075,7 @@ public class NowPlayingFragment extends Fragment implements
             uiThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    updatePowerStatus(canPowerOn(), canPowerOff());
+                    updatePowerMenuItems(canPowerOn(), canPowerOff());
                 }
             });
         }
