@@ -21,6 +21,9 @@
  */
 package uk.org.ngo.squeezer;
 
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
+import uk.org.ngo.squeezer.service.ISqueezeService;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Handler;
@@ -33,12 +36,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 
 public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListener {
@@ -105,6 +104,10 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
                 | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH);
     }
 
+    public void dismiss() {
+        forceTimeout();
+    }
+
     private void resetTimeout() {
         removeMessages(MSG_TIMEOUT);
         sendMessageDelayed(obtainMessage(MSG_TIMEOUT), TIMEOUT_DELAY);
@@ -154,7 +157,7 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
                 ? R.drawable.ic_volume_off
                 : R.drawable.ic_volume);
 
-        if (!mDialog.isShowing()) {
+        if (!mDialog.isShowing() && !mActivity.isFinishing()) {
             mDialog.setContentView(mView);
             mDialog.show();
         }

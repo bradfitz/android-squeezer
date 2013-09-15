@@ -202,7 +202,6 @@ public class NowPlayingFragment extends Fragment implements
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (SqueezerBaseActivity) activity;
-        mVolumePanel = new VolumePanel(mActivity);
     }
 
     @Override
@@ -541,6 +540,8 @@ public class NowPlayingFragment extends Fragment implements
         super.onResume();
         Log.d(TAG, "onResume...");
 
+        mVolumePanel = new VolumePanel(mActivity);
+
         mImageFetcher.addImageCache(mActivity.getSupportFragmentManager(), mImageCacheParams);
 
         // Start it and have it run forever (until it shuts itself down).
@@ -745,6 +746,9 @@ public class NowPlayingFragment extends Fragment implements
     @Override
     public void onPause() {
         Log.d(TAG, "onPause...");
+
+        mVolumePanel.dismiss();
+        clearConnectingDialog();
         mImageFetcher.closeCache();
 
         if (isAutoConnect(getSharedPreferences()))
@@ -772,7 +776,6 @@ public class NowPlayingFragment extends Fragment implements
                 mActivity.unbindService(serviceConnection);
             }
         }
-        clearConnectingDialog();
     }
 
     /**
