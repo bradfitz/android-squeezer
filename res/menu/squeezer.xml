@@ -18,12 +18,6 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menu_item_download"
-        android:icon="@android:drawable/ic_menu_save"
-        android:title="@string/menu_item_download"
-        android:alphabeticShortcut="o" />
-
-    <item
         android:id="@+id/menu_item_connect"
         android:icon="@drawable/presence_online"
         android:title="@string/menu_item_connect"

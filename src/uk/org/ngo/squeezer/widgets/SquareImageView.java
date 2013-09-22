@@ -22,13 +22,8 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 /**
- * Sets both height and width to the height that the parent has determined. This
- * assumes that layout_height="fill_parent" in the layout definition.
- * <p>
- * TODO: This could inspect the mode of each measure spec to determine if it's
- * the width or the height that are set to fill_parent, and use whichever one is
- * as the primary measurement, at which point this class would live up to its
- * name.
+ * Sets both view dimensions to whichever of height and width are measured as being smaller,
+ * resulting in a square image.
  */
 public class SquareImageView extends ImageView {
     private boolean mBlockLayout;
@@ -47,11 +42,17 @@ public class SquareImageView extends ImageView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width;
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        width = MeasureSpec.getSize(widthMeasureSpec);
+        int size = 0;
+        int width = getMeasuredWidth();
+        int height = getMeasuredHeight();
+        int widthWithoutPadding = width - getPaddingLeft() - getPaddingRight();
+        int heightWithoutPadding = height - getPaddingTop() - getPaddingBottom();
 
-        setMeasuredDimension(width, width);
+        size = Math.min(heightWithoutPadding, widthWithoutPadding);
+
+        setMeasuredDimension(size + getPaddingLeft() + getPaddingRight(), size + getPaddingTop() + getPaddingBottom());
     }
 
     @Override
