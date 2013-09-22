@@ -53,7 +53,6 @@
     <string name="menu_item_poweroff">Ausschalten</string>
     <string name="menu_item_main">Wird gespielt</string>
     <string name="menu_item_home">Haupt-Menü</string>
-    <string name="menu_item_download">Herunterladen</string>
     <string name="menu_item_fetch_all">Alle herunterladen</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sortierfolge</string>
