@@ -50,8 +50,8 @@
 
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
-    <string name="menu_item_poweron">Power on</string>
-    <string name="menu_item_poweroff">Power off</string>
+    <string name="menu_item_poweron">Turn on \"%s\"</string>
+    <string name="menu_item_poweroff">Turn off \"%s\"</string>
     <string name="menu_item_main">Now playing</string>
     <string name="menu_item_home">Main Menu</string>
     <string name="menu_item_fetch_all">Fetch remaining</string>

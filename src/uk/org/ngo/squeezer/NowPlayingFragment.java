@@ -488,11 +488,25 @@ public class NowPlayingFragment extends Fragment implements
         boolean connected = isConnected();
 
         if (menu_item_poweron != null) {
-            menu_item_poweron.setVisible(canPowerOn && connected);
+            if (canPowerOn && connected) {
+                SqueezerPlayer player = getActivePlayer();
+                String playerName = player != null ? player.getName() : "";
+                menu_item_poweron.setTitle(getString(R.string.menu_item_poweron, playerName));
+                menu_item_poweron.setVisible(true);
+            } else {
+                menu_item_poweron.setVisible(false);
+            }
         }
 
         if (menu_item_poweroff != null) {
-            menu_item_poweroff.setVisible(canPowerOff && connected);
+            if (canPowerOff && connected) {
+                SqueezerPlayer player = getActivePlayer();
+                String playerName = player != null ? player.getName() : "";
+                menu_item_poweroff.setTitle(getString(R.string.menu_item_poweroff, playerName));
+                menu_item_poweroff.setVisible(true);
+            } else {
+                menu_item_poweroff.setVisible(false);
+            }
         }
     }
 
