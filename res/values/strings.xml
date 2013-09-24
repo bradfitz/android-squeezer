@@ -63,7 +63,7 @@
     <string name="menu_item_playlists_new">New</string>
     <string name="menu_item_playlist_clear">Clear</string>
     <string name="menu_item_playlist_save">Save</string>
-    <string name="menu_item_volume">Volume</string>
+    <string name="menu_item_volume">Change volume</string>
     <string name="about_title">Squeezer v%s</string>
     <string name="connecting_text">Connecting</string>
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
