@@ -61,6 +61,7 @@ import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Display;
@@ -248,8 +249,10 @@ public class NowPlayingFragment extends Fragment implements
             // Calculate the size of the album art to display, which will be the shorter
             // of the device's two dimensions.
             Display display = mActivity.getWindowManager().getDefaultDisplay();
-            int albumArtSize = Math.min(display.getWidth(), display.getHeight());
-            mImageFetcher = new ImageFetcher(mActivity, albumArtSize);
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            display.getMetrics(displayMetrics);
+            mImageFetcher = new ImageFetcher(mActivity,
+                    Math.min(displayMetrics.heightPixels, displayMetrics.widthPixels));
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
 
