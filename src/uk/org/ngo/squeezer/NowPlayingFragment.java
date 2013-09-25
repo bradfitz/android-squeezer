@@ -60,6 +60,7 @@ import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Display;
@@ -247,8 +248,10 @@ public class NowPlayingFragment extends Fragment implements
             // Calculate the size of the album art to display, which will be the shorter
             // of the device's two dimensions.
             Display display = mActivity.getWindowManager().getDefaultDisplay();
-            int albumArtSize = Math.min(display.getWidth(), display.getHeight());
-            mImageFetcher = new ImageFetcher(mActivity, albumArtSize);
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            display.getMetrics(displayMetrics);
+            mImageFetcher = new ImageFetcher(mActivity,
+                    Math.min(displayMetrics.heightPixels, displayMetrics.widthPixels));
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
 
@@ -487,11 +490,25 @@ public class NowPlayingFragment extends Fragment implements
         boolean connected = isConnected();
 
         if (menu_item_poweron != null) {
-            menu_item_poweron.setVisible(canPowerOn && connected);
+            if (canPowerOn && connected) {
+                SqueezerPlayer player = getActivePlayer();
+                String playerName = player != null ? player.getName() : "";
+                menu_item_poweron.setTitle(getString(R.string.menu_item_poweron, playerName));
+                menu_item_poweron.setVisible(true);
+            } else {
+                menu_item_poweron.setVisible(false);
+            }
         }
 
         if (menu_item_poweroff != null) {
-            menu_item_poweroff.setVisible(canPowerOff && connected);
+            if (canPowerOff && connected) {
+                SqueezerPlayer player = getActivePlayer();
+                String playerName = player != null ? player.getName() : "";
+                menu_item_poweroff.setTitle(getString(R.string.menu_item_poweroff, playerName));
+                menu_item_poweroff.setVisible(true);
+            } else {
+                menu_item_poweroff.setVisible(false);
+            }
         }
     }
 

@@ -18,7 +18,7 @@ dependencies {
 }
 
 task wrapper(type: org.gradle.api.tasks.wrapper.Wrapper) {
-    gradleVersion = '1.6'
+    gradleVersion = '1.8'
 }
 
 android {
