@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
+    compile group: 'com.google.guava', name: 'guava', version: '15.0'
 }
 
 task wrapper(type: org.gradle.api.tasks.wrapper.Wrapper) {
