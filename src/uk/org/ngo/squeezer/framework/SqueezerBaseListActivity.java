@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.framework;
 
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
@@ -26,6 +27,7 @@ import uk.org.ngo.squeezer.util.RetainFragment;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -34,8 +36,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
+import android.widget.ViewAnimator;
 
 /**
  * A generic base class for an activity to list items of a particular
@@ -57,21 +60,21 @@ import android.widget.ProgressBar;
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
     private static final String TAG = SqueezerBaseListActivity.class.getName();
 
-    /** Tag for mItemView in mRetainFragment. */
-    public static final String TAG_ITEM_VIEW = "itemView";
+    /** */
+    protected static final String TAG_GRID_LAYOUT = "grid_layout";
 
     /** Tag for _mImageFetcher in mRetainFragment. */
-    public static final String TAG_IMAGE_FETCHER = "imageFetcher";
+    private static final String TAG_IMAGE_FETCHER = "imageFetcher";
+
+    /** Tag for first visible position in mRetainFragment. */
+    private static final String TAG_POSITION = "position";
 
     /** Tag for itemAdapter in mRetainFragment. */
-    public static final String TAG_ADAPTER = "adapter";
+    private static final String TAG_ADAPTER = "adapter";
 
-    private ListView mListView;
+    private ViewAnimator viewAnimator;
+    private AbsListView mListView;
 	private SqueezerItemAdapter<T> itemAdapter;
-
-    /** Progress bar (spinning) while items are loading. */
-    private ProgressBar loadingProgress;
-	private SqueezerItemView<T> itemView;
 
     /** An ImageFetcher for loading thumbnails. */
     private ImageFetcher _mImageFetcher;
@@ -82,6 +85,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     /** Fragment to retain information across the activity lifecycle. */
     private RetainFragment mRetainFragment;
 
+
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -89,11 +93,46 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
 
         setContentView(R.layout.item_list);
-		mListView = (ListView) findViewById(R.id.item_list);
+        viewAnimator = (ViewAnimator) findViewById(R.id.list_view);
+        setupListView();
+    }
 
-        loadingProgress = (ProgressBar) findViewById(R.id.loading_progress);
-        mListView.setAdapter(getItemAdapter());
+    /**
+     * Set the currently displayed child of the {@link #viewAnimator} by its ID.
+     *
+     * @param id ID of child.
+     * @throws IllegalArgumentException If child with specified ID does not exist.
+     * @return The displayed child
+     */
+    private View setListView(int id) {
+        Log.d(getTag(), "setListView(" + (id == R.id.item_grid ? "grid" : (id == R.id.item_list ? "list" : "loading")) + ")");
+        for (int i = viewAnimator.getChildCount() - 1; i >= 0; i--) {
+            View child = viewAnimator.getChildAt(i);
+            if (child.getId() == id) {
+                if (i != viewAnimator.getDisplayedChild()) {
+                    viewAnimator.setDisplayedChild(i);
+                }
+                return child;
+            }
+        }
+        throw new IllegalArgumentException("View with ID " + id + " not found");
+    }
 
+    /** Get the view ID of the currently displayed child. */
+    private int getListViewId() {
+        return viewAnimator.getChildAt(viewAnimator.getDisplayedChild()).getId();
+    }
+
+    private void setListView() {
+        Bundle extras = getIntent().getExtras();
+        boolean isGrid = (extras != null && extras.getBoolean(TAG_GRID_LAYOUT, false));
+        mListView = (AbsListView) setListView((isGrid ? R.id.item_grid : R.id.item_list));
+    }
+
+    private void setupListView() {
+        setListView();
+
+        // Delegate item selection handling to the adapter
         mListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -118,14 +157,56 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         mListView.setOnCreateContextMenuListener(getItemAdapter());
     }
 
-    private void createImageFetcher() {
+    protected void setSelectedView() {
+        savePosition();
+        setupListView();
+        setAdapter();
+        getItemAdapter().setItemView(createItemView());
+    }
+
+    /**
+     * Set our adapter on the listview.
+     * <p>
+     * This can't be done in {@link #onCreate(android.os.Bundle)} because
+     * getView might be called before the service is connected, so we need to
+     * delay it.
+     * <p>
+     * However when set the adapter after onCreate the list is scrolled to top,
+     * so we retain the position.
+     * <p>
+     * Call this method when the service is connected
+     */
+    private void setAdapter() {
+        // setAdapter is not defined for AbsListView before API level 11, but
+        // it is for concrete implementations, so we call it by reflection
+        try {
+            Method method = mListView.getClass().getMethod("setAdapter", ListAdapter.class);
+            method.invoke(mListView, getItemAdapter());
+        } catch (Exception e) {
+            Log.e(getTag(), "Error calling 'setAdapter'", e);
+        }
+
+        Integer position = (Integer)mRetainFragment.get(TAG_POSITION);
+        if (position != null) {
+            if (mListView instanceof ListView)
+                ((ListView)mListView).setSelectionFromTop(position, 0);
+            else
+                mListView.setSelection(position);
+        }
+    }
+
+    protected ImageFetcher createImageFetcher() {
         // Get an ImageFetcher to scale artwork to the size of the icon view.
         Resources resources = getResources();
         int iconSize = (Math.max(
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
-        _mImageFetcher = new ImageFetcher(this, iconSize);
-        _mImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+        ImageFetcher imageFetcher = new ImageFetcher(this, iconSize);
+        imageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+        return  imageFetcher;
+    }
+
+    protected void createImageCacheParams() {
         mImageCacheParams = new ImageCacheParams(this, "artwork");
         mImageCacheParams.setMemCacheSizePercent(this, 0.12f);
     }
@@ -134,7 +215,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         if (_mImageFetcher == null) {
             _mImageFetcher = (ImageFetcher) mRetainFragment.get(TAG_IMAGE_FETCHER);
             if (_mImageFetcher == null) {
-                createImageFetcher();
+                _mImageFetcher = createImageFetcher();
+                createImageCacheParams();
                 mRetainFragment.put(TAG_IMAGE_FETCHER, _mImageFetcher);
             }
         }
@@ -158,6 +240,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     protected void onServiceConnected() {
         super.onServiceConnected();
         maybeOrderVisiblePages(mListView);
+        setAdapter();
     }
 
     @Override
@@ -166,6 +249,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         getImageFetcher().addImageCache(getSupportFragmentManager(), mImageCacheParams);
         if (getService() != null) {
             maybeOrderVisiblePages(mListView);
+            setAdapter();
         }
     }
 
@@ -177,19 +261,14 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         super.onPause();
     }
 
-    /**
-     * @return The current {@link SqueezerItemView}, creating it if necessary
-     */
-    public SqueezerItemView<T> getItemView() {
-        if (itemView == null) {
-            //noinspection unchecked
-            itemView = (SqueezerItemView<T>) mRetainFragment.get(TAG_ITEM_VIEW);
-            if (itemView == null) {
-                itemView = createItemView();
-                mRetainFragment.put(TAG_ITEM_VIEW, itemView);
-            }
-        }
-        return itemView;
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        savePosition();
+    }
+
+    private void savePosition() {
+        mRetainFragment.put(TAG_POSITION, mListView.getFirstVisiblePosition());
     }
 
     /**
@@ -201,7 +280,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
             //noinspection unchecked
             itemAdapter = (SqueezerItemAdapter<T>)mRetainFragment.get(TAG_ADAPTER);
             if (itemAdapter == null) {
-                itemAdapter = createItemListAdapter(getItemView());
+                itemAdapter = createItemListAdapter(createItemView());
                 mRetainFragment.put(TAG_ADAPTER, itemAdapter);
             }
         }
@@ -210,9 +289,9 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     }
 
 	/**
-	 * @return The {@link ListView} used by this activity
+	 * @return The {@link AbsListView} used by this activity
 	 */
-    public ListView getListView() {
+    public AbsListView getListView() {
         return mListView;
     }
 
@@ -226,8 +305,9 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 		getUIThreadHandler().post(new Runnable() {
             @Override
             public void run() {
-                mListView.setVisibility(View.VISIBLE);
-                loadingProgress.setVisibility(View.GONE);
+                if (getListViewId() == R.id.loading_progress) {
+                    setListView();
+                }
                 getItemAdapter().update(count, start, items);
             }
         });
@@ -240,8 +320,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         // TODO: This should be removed in favour of showing a progress spinner in the actionbar.
         if (super.maybeOrderPage(pagePosition)) {
             if (pagePosition == 0) {
-                mListView.setVisibility(View.GONE);
-                loadingProgress.setVisibility(View.VISIBLE);
+                setListView(R.id.loading_progress);
             }
             return true;
         } else {

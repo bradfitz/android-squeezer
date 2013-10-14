@@ -10,7 +10,7 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
 import junit.framework.TestCase;
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumViewDialog.AlbumsSortOrder;
 import uk.org.ngo.squeezer.test.mock.SqueezeboxServerMock;
 
 /**

@@ -57,7 +57,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
     /**
 	 * View logic for this adapter
 	 */
-    private final SqueezerItemView<T> mItemView;
+    private SqueezerItemView<T> mItemView;
 
 	/**
 	 * List of items, possibly headed with an empty item.
@@ -210,6 +210,10 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
 
     public SqueezerItemView<T> getItemView() {
         return mItemView;
+    }
+
+    public void setItemView(SqueezerItemView<T> itemView) {
+        mItemView = itemView;
     }
 
 	@Override

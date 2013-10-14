@@ -39,6 +39,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 /**
  * Activity that shows the songs in the current playlist.
@@ -236,7 +237,8 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 	    getListView().post(new Runnable() {
             @Override
             public void run() {
-                getListView().setSelectionFromTop(currentPlaylistIndex, 0);
+                //TODO this doesn't work if the current playlist is displayed in a grid
+                ((ListView)getListView()).setSelectionFromTop(currentPlaylistIndex, 0);
             }
         });
     }

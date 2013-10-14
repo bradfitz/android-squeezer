@@ -31,7 +31,7 @@ import uk.org.ngo.squeezer.itemlists.SqueezerPluginItemListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumViewDialog.AlbumsSortOrder;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import android.content.Context;
 import android.content.Intent;

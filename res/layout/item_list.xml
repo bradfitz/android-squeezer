@@ -42,19 +42,34 @@
       android:layout_height="wrap_content" />
   </LinearLayout>
 
-  <ListView android:id="@+id/item_list"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:fastScrollEnabled="true"
-    android:layout_weight="1"
-  />
+    <ViewAnimator
+        android:id="@+id/list_view"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        >
+        <ListView android:id="@+id/item_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:fastScrollEnabled="true"
+            />
 
-    <ProgressBar
-        android:id="@+id/loading_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center"
-        android:visibility="gone" />
+        <GridView android:id="@+id/item_grid"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:numColumns="auto_fit"
+            android:padding="8dp"
+            android:columnWidth="160dp"
+            android:fastScrollEnabled="true"
+            />
+
+        <ProgressBar
+            android:id="@+id/loading_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            />
+    </ViewAnimator>
 
     <fragment android:name="uk.org.ngo.squeezer.NowPlayingFragment"
         android:id="@+id/now_playing_fragment"

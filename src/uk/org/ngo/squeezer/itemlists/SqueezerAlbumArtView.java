@@ -88,21 +88,23 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
         return view;
     }
 
-    private View getAdapterView(View convertView, ViewGroup parent) {
+    protected View getAdapterView(View convertView, ViewGroup parent) {
+        return getAdapterView(convertView, parent, R.layout.icon_two_line);
+    }
+
+    protected View getAdapterView(View convertView, ViewGroup parent, int layoutId) {
         ViewHolder viewHolder = (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
                 ? (ViewHolder) convertView.getTag()
                 : null;
 
         if (viewHolder == null) {
-            convertView = mLayoutInflater.inflate(R.layout.icon_two_line, parent, false);
+            convertView = mLayoutInflater.inflate(layoutId, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
             viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
             convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
         }
 
         return convertView;
