@@ -867,6 +867,7 @@ public class NowPlayingFragment extends Fragment implements
         // almost certainly post-connection to the service.  On 3.0 and higher it's called when
         // the activity is created, before the service connection is made.  Set the visibility
         // of the menu items accordingly.
+        // XXX: onPrepareOptionsMenu() instead?
         setMenuItemStateFromConnection();
     }
 
