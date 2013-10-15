@@ -60,7 +60,7 @@ import android.widget.ViewAnimator;
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
     private static final String TAG = SqueezerBaseListActivity.class.getName();
 
-    /** */
+    /** Tag to specify (in extra value of starting intent) whether to use a grid layout in {@link #mListView}*/
     protected static final String TAG_GRID_LAYOUT = "grid_layout";
 
     /** Tag for _mImageFetcher in mRetainFragment. */
@@ -72,8 +72,16 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     /** Tag for itemAdapter in mRetainFragment. */
     private static final String TAG_ADAPTER = "adapter";
 
+    /** Holds the layouts {@link #mListView} can use*/
     private ViewAnimator viewAnimator;
+
+    /** Displays the {@link SqueezerItem}s of {@link #itemAdapter} */
     private AbsListView mListView;
+
+    /**
+     * Adapter which holds the {@link SqueezerItem}s of the {@link #mListView},
+     * and the {@link SqueezerItemView} which generates the views.
+     */
 	private SqueezerItemAdapter<T> itemAdapter;
 
     /** An ImageFetcher for loading thumbnails. */
@@ -123,12 +131,19 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         return viewAnimator.getChildAt(viewAnimator.getDisplayedChild()).getId();
     }
 
+    /**
+     * Set {@link #mListView} according to the extra value {@link #TAG_GRID_LAYOUT}
+     * of the starting intent.
+     *
+     * @see #getIntent()
+     */
     private void setListView() {
         Bundle extras = getIntent().getExtras();
         boolean isGrid = (extras != null && extras.getBoolean(TAG_GRID_LAYOUT, false));
         mListView = (AbsListView) setListView((isGrid ? R.id.item_grid : R.id.item_list));
     }
 
+    /** Initialize {@link #mListView} */
     private void setupListView() {
         setListView();
 
@@ -157,8 +172,12 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         mListView.setOnCreateContextMenuListener(getItemAdapter());
     }
 
+    /**
+     * Call this to dynamically change {@link #mListView} to the one specified in
+     * {@link #TAG_GRID_LAYOUT}.
+     */
     protected void setSelectedView() {
-        savePosition();
+        saveVisiblePosition();
         setupListView();
         setAdapter();
         getItemAdapter().setItemView(createItemView());
@@ -171,8 +190,8 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
      * getView might be called before the service is connected, so we need to
      * delay it.
      * <p>
-     * However when set the adapter after onCreate the list is scrolled to top,
-     * so we retain the position.
+     * However when we set the adapter after onCreate the list is scrolled to
+     * top, so we retain the visible position.
      * <p>
      * Call this method when the service is connected
      */
@@ -264,10 +283,16 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        savePosition();
+        saveVisiblePosition();
     }
 
-    private void savePosition() {
+    /**
+     * Store the first visible position of {@link #mListView}, in the {@link #mRetainFragment},
+     * so we can later retrieve it.
+     *
+     * @see android.widget.AbsListView#getFirstVisiblePosition()
+     */
+    private void saveVisiblePosition() {
         mRetainFragment.put(TAG_POSITION, mListView.getFirstVisiblePosition());
     }
 
