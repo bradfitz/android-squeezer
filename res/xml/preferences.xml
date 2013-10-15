@@ -45,8 +45,9 @@
 
   <CheckBoxPreference
      android:key="squeezer.notifyofconnection"
-     android:title="Notify of Connection"
-     android:summary="Show notification while connected, even when not playing music."
+     android:title="@string/settings_notifyofconnection_title"
+     android:summaryOn="@string/settings_notifyofconnection_on"
+     android:summaryOff="@string/settings_notifyofconnection_off"
      android:persistent="true" />
 
   <CheckBoxPreference

@@ -40,7 +40,11 @@
     <string name="settings_fadeinsecs_title">Fade in duration</string>
     <string name="settings_fadeinsecs_summary">Enter the amount of time to take to fade in when unpausing, in seconds. Enter 0 to disable fade in.</string>
     <string name="settings_autoconnect_title">Auto-connect</string>
-    <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability, try to connect.</string>
+    <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability, try to connect</string>
+
+    <string name="settings_notifyofconnection_title">Notify of connection</string>
+    <string name="settings_notifyofconnection_on">Show notification while connected, even when not playing music</string>
+    <string name="settings_notifyofconnection_off">Show notification only while playing music</string>
 
     <string name="settings_scrobble_title">Scrobble to Last.fm</string>
     <string name="settings_scrobble_on">Song information is sent to Last.fm</string>
@@ -291,7 +295,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 	<string name="BROWSE_ALBUMS">Browse albums</string>
 	<string name="BROWSE_ARTISTS">Browse artists</string>
     <string name="BROWSE_ALBUM_SONGS">Browse songs on album</string>
-    <string name="BROWSE_ARTIST_ALBUMS">Browse albums with song by artist</string>
+    <string name="BROWSE_ARTIST_ALBUMS">Browse albums with songs by artist</string>
     <string name="BROWSE_ARTIST_SONGS">Browse songs by artist</string>
 	<string name="PLAY_NOW">Play</string>
 	<string name="ADD_TO_END">Add to playlist</string>
@@ -411,7 +415,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item quantity="other">applications</item>
     </plurals>
 
-    <string name="settings_album_selectaction">Album Selection action</string>
+    <string name="settings_album_selectaction">Album select action</string>
     <string name="settings_album_selectaction_summary">What to do when selecting an album</string>
     <string name="settings_song_selectaction">Song select action</string>
     <string name="settings_song_selectaction_summary">What to do when a single song is selected</string>
