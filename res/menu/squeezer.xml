@@ -18,59 +18,71 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menu_item_connect"
-        android:icon="@drawable/presence_online"
-        android:title="@string/menu_item_connect"
-        android:alphabeticShortcut="c"
-        android:showAsAction="never|withText"
-    />
-    <item
-        android:id="@+id/menu_item_players"
-        android:title="@string/menu_item_players"
-        android:alphabeticShortcut="z"
-        android:icon="@+drawable/ic_menu_choose_player"
-        android:showAsAction="ifRoom|withText"
-        android:orderInCategory="3"
-    />
-    <item
-        android:id="@+id/menu_item_playlist"
-        android:title="@string/menu_item_playlist"
-        android:alphabeticShortcut="p"
-        android:icon="@+drawable/ic_menu_playlist"
-        android:showAsAction="always|withText"
-        android:orderInCategory="2"
-    />
-    <item
         android:icon="@drawable/ic_menu_search"
         android:id="@+id/menu_item_search"
         android:title="@string/menu_item_search_label"
         android:alphabeticShortcut="s"
         android:showAsAction="ifRoom"
+        android:orderInCategory="0"
+        />
+
+    <item
+        android:id="@+id/menu_item_playlist"
+        android:title="@string/menu_item_playlist"
+        android:alphabeticShortcut="p"
+        android:icon="@drawable/ic_menu_playlist"
+        android:showAsAction="always|withText"
         android:orderInCategory="1"
+        />
+
+    <item
+        android:id="@+id/menu_item_players"
+        android:title="@string/menu_item_players"
+        android:alphabeticShortcut="z"
+        android:icon="@drawable/ic_menu_choose_player"
+        android:showAsAction="ifRoom|withText"
     />
-    <item
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:id="@+id/menu_item_about"
-        android:title="@string/menu_item_about_label"
-        android:alphabeticShortcut="a" />
-    <item
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:id="@+id/menu_item_settings"
-        android:title="@string/menu_item_settings_label"
-        android:alphabeticShortcut="p" />
-   <item
-        android:id="@+id/menu_item_disconnect"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
-        android:title="@string/menu_item_disconnect"
-        android:alphabeticShortcut="d" />
-    <item
-        android:id="@+id/menu_item_poweron"
-        android:title="@string/menu_item_poweron" android:icon="@android:drawable/ic_lock_power_off"/>
-    <item
-        android:id="@+id/menu_item_poweroff"
-        android:title="@string/menu_item_poweroff" android:icon="@android:drawable/ic_lock_power_off"/>
+
     <item
         android:id="@+id/menu_item_volume"
         android:title="@string/menu_item_volume"
         android:icon="@drawable/ic_volume"/>
+
+    <item
+        android:id="@+id/menu_item_poweron"
+        android:title="@string/menu_item_poweron"
+        android:icon="@android:drawable/ic_lock_power_off"/>
+
+    <item
+        android:id="@+id/menu_item_poweroff"
+        android:title="@string/menu_item_poweroff"
+        android:icon="@android:drawable/ic_lock_power_off"/>
+
+    <item
+        android:id="@+id/menu_item_connect"
+        android:icon="@drawable/presence_online"
+        android:title="@string/menu_item_connect"
+        android:alphabeticShortcut="c"
+        android:showAsAction="never|withText" />
+    <item
+        android:id="@+id/menu_item_disconnect"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="@string/menu_item_disconnect"
+        android:alphabeticShortcut="d" />
+
+    <!-- Force these to the bottom of the menu. -->
+
+    <item
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:id="@+id/menu_item_settings"
+        android:title="@string/menu_item_settings_label"
+        android:alphabeticShortcut="p"
+        android:orderInCategory="99"/>
+
+    <item
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:id="@+id/menu_item_about"
+        android:title="@string/menu_item_about_label"
+        android:alphabeticShortcut="a"
+        android:orderInCategory="100"/>
 </menu>

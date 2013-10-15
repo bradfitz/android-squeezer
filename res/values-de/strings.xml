@@ -235,7 +235,5 @@
     </plurals>
 
     <string name="settings_album_selectaction">Aktion bei Albumauswahl</string>
-    <string name="settings_album_selectaction_summary">Was soll bei Auswahl eines Albums geschehen</string>
     <string name="settings_song_selectaction">Aktion bei Liedauswahl</string>
-    <string name="settings_song_selectaction_summary">Was soll bei Auswahl eines Lieds geschehen</string>
 </resources>
