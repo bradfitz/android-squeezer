@@ -57,7 +57,7 @@ for the implementation.
         android:maxWidth="@dimen/album_art_icon_width"
         android:minHeight="@dimen/album_art_icon_height"
         android:minWidth="@dimen/album_art_icon_width"
-        android:paddingRight="8dp" />
+        android:layout_marginRight="8dp" />
 
     <LinearLayout
         android:layout_width="0dp"
