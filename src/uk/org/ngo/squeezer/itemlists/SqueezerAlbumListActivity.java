@@ -196,7 +196,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
     }
 
 	public void setListLayout(AlbumListLayout listLayout) {
-		this.listLayout = listLayout;
+        this.listLayout = listLayout;
         getIntent().putExtra(TAG_GRID_LAYOUT, listLayout == AlbumListLayout.grid);
         setSelectedView();
         getItemAdapter().notifyDataSetChanged();
