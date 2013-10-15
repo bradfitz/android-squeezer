@@ -61,8 +61,8 @@
     <string name="menu_item_rename">Rename</string>
     <string name="menu_item_playlist">Playlist</string>
     <string name="menu_item_playlists_new">New</string>
-    <string name="menu_item_playlist_clear">Clear</string>
-    <string name="menu_item_playlist_save">Save</string>
+    <string name="menu_item_playlist_clear">Clear playlist</string>
+    <string name="menu_item_playlist_save">Save as playlist</string>
     <string name="menu_item_volume">Change volume</string>
     <string name="about_title">Squeezer v%s</string>
     <string name="connecting_text">Connecting</string>
@@ -294,7 +294,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="BROWSE_ARTIST_ALBUMS">Browse albums with song by artist</string>
     <string name="BROWSE_ARTIST_SONGS">Browse songs by artist</string>
 	<string name="PLAY_NOW">Play</string>
-	<string name="ADD_TO_END">Add to Playlist</string>
+	<string name="ADD_TO_END">Add to playlist</string>
 	<string name="PLAY_NEXT">Play after the currently playing song</string>
     <string name="DOWNLOAD_ITEM">Download</string>
 
