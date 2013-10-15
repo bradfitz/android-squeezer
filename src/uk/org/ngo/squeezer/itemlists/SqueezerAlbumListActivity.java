@@ -25,14 +25,14 @@ import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import uk.org.ngo.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumFilterDialog;
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumViewDialog;
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumViewDialog.AlbumsSortOrder;
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumViewDialog.AlbumListLayout;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog.AlbumListLayout;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment;
 import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment.SqueezerFilterableListActivity;
-import uk.org.ngo.squeezer.menu.SqueezerViewMenuItemFragment;
+import uk.org.ngo.squeezer.menu.ViewMenuItemFragment;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
@@ -53,7 +53,7 @@ import android.widget.Spinner;
 
 public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<SqueezerAlbum>
         implements GenreSpinnerCallback, YearSpinnerCallback,
-        SqueezerFilterableListActivity, SqueezerViewMenuItemFragment.SqueezerListActivityWithViewMenu {
+        SqueezerFilterableListActivity, ViewMenuItemFragment.ListActivityWithViewMenu {
 
     private AlbumsSortOrder sortOrder = null;
     private AlbumListLayout listLayout = null;
@@ -94,7 +94,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 
     @Override
 	public SqueezerItemView<SqueezerAlbum> createItemView() {
-		return (listLayout == AlbumListLayout.grid) ? new SqueezerAlbumGridView(this) : new SqueezerAlbumView(this);
+		return (listLayout == AlbumListLayout.grid) ? new AlbumGridView(this) : new SqueezerAlbumView(this);
 	}
 
     @Override
@@ -121,7 +121,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
         getIntent().putExtra(TAG_GRID_LAYOUT, listLayout == AlbumListLayout.grid);
         super.onCreate(savedInstanceState);
         MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
-        MenuFragment.add(this, SqueezerViewMenuItemFragment.class);
+        MenuFragment.add(this, ViewMenuItemFragment.class);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -220,7 +220,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 
     @Override
     public void showViewDialog() {
-        new SqueezerAlbumViewDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
+        new AlbumViewDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
     }
 
     public static void show(Context context, SqueezerItem... items) {

@@ -29,7 +29,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
 
-public class SqueezerAlbumViewDialog extends DialogFragment {
+public class AlbumViewDialog extends DialogFragment {
     private static final int POSITION_SORT_LABEL = AlbumListLayout.values().length;
     private static final int POSITION_SORT_START = POSITION_SORT_LABEL + 1;
 

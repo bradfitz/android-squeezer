@@ -9,10 +9,10 @@ import android.view.MenuItem;
 import uk.org.ngo.squeezer.R;
 
 /**
- * A fragment that implements a "Sort" menu.
+ * A fragment that implements a "View" menu.
  * <p>
  * Activities that host this fragment must implement
- * {@link #SqueezerOrderableListActivity}.
+ * {@link ListActivityWithViewMenu}.
  * 
  * <pre>
  * {@code
@@ -25,15 +25,15 @@ import uk.org.ngo.squeezer.R;
  * }
  * </pre>
  */
-public class SqueezerViewMenuItemFragment extends MenuFragment {
-    SqueezerListActivityWithViewMenu activity;
+public class ViewMenuItemFragment extends MenuFragment {
+    ListActivityWithViewMenu activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        activity = (SqueezerListActivityWithViewMenu) getActivity();
-    };
+        activity = (ListActivityWithViewMenu) getActivity();
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -54,7 +54,7 @@ public class SqueezerViewMenuItemFragment extends MenuFragment {
     /**
      * Interface that activities that host this fragment must implement.
      */
-    public interface SqueezerListActivityWithViewMenu {
+    public interface ListActivityWithViewMenu {
         /**
          * Show a dialog allowing the user to choose the sort order.
          */

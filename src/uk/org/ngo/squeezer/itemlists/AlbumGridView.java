@@ -26,8 +26,8 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 /**
  * Shows a single album with its artwork, and a context menu.
  */
-public class SqueezerAlbumGridView extends SqueezerAlbumView {
-    public SqueezerAlbumGridView(SqueezerItemListActivity activity) {
+public class AlbumGridView extends SqueezerAlbumView {
+    public AlbumGridView(SqueezerItemListActivity activity) {
         super(activity);
     }
 
