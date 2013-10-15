@@ -59,13 +59,11 @@
 
   <ListPreference 
      android:key="squeezer.action.onselect.album" 
-     android:title="@string/settings_album_selectaction" 
-     android:summary="@string/settings_album_selectaction_summary"/>
+     android:title="@string/settings_album_selectaction" />
 
   <ListPreference 
      android:key="squeezer.action.onselect.song"
-     android:title="@string/settings_song_selectaction" 
-     android:summary="@string/settings_song_selectaction_summary"/>
+     android:title="@string/settings_song_selectaction" />
 
   <PreferenceCategory
      android:title="@string/pref_cat_error_reports">

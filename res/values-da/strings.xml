@@ -236,7 +236,5 @@
     </plurals>
 
     <string name="settings_album_selectaction">Album handling</string>
-    <string name="settings_album_selectaction_summary">Hvad skal gøres når et album vælges</string>
     <string name="settings_song_selectaction">Sang handling</string>
-    <string name="settings_song_selectaction_summary">Hvad skal gøres når en sang vælges</string>
 </resources>
