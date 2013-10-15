@@ -87,7 +87,7 @@
     <string name="rename_title">Rename %s</string>
     <string name="delete_title">Delete %s</string>
     <string name="delete__message">Are you sure to delete?</string>
-    <string name="loading_text">Loading &#8230;</string>
+    <string name="loading_text">Loading&#8230;</string>
     <string name="browse_items_text" >%2$d %1$s</string>
     <string name="choose_sort_order">Choose ordering of %s</string>
     <string name="genre_prompt">Choose genre</string>
@@ -301,7 +301,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="PLAYLIST_REMOVE_ITEM">Remove from playlist</string>
     <string name="PLAYLIST_MOVE_UP">Move up</string>
     <string name="PLAYLIST_MOVE_DOWN">Move down</string>
-    <string name="PLAYLIST_MOVE">Move &#8230;</string>
+    <string name="PLAYLIST_MOVE">Move&#8230;</string>
 
 	<string name="ITEM_PLAYING">Now playing %s</string>
 	<string name="ITEM_ADDED">Added %s to the current playlist</string>
