@@ -40,7 +40,11 @@
     <string name="settings_fadeinsecs_title">Fade in duration</string>
     <string name="settings_fadeinsecs_summary">Enter the amount of time to take to fade in when unpausing, in seconds. Enter 0 to disable fade in.</string>
     <string name="settings_autoconnect_title">Auto-connect</string>
-    <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability, try to connect.</string>
+    <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability, try to connect</string>
+
+    <string name="settings_notifyofconnection_title">Notify of connection</string>
+    <string name="settings_notifyofconnection_on">Show notification while connected, even when not playing music</string>
+    <string name="settings_notifyofconnection_off">Show notification only while playing music</string>
 
     <string name="settings_scrobble_title">Scrobble to Last.fm</string>
     <string name="settings_scrobble_on">Song information is sent to Last.fm</string>
@@ -48,13 +52,14 @@
     <string name="settings_scrobble_noapp">No apps that can scrobble are installed</string>
     <string name="settings_market_not_found">Could not start Google Play, is it installed?</string>
 
+    <string name="settings_category_ui">Squeezer interface</string>
+
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
-    <string name="menu_item_poweron">Power on</string>
-    <string name="menu_item_poweroff">Power off</string>
+    <string name="menu_item_poweron">Turn on \"%s\"</string>
+    <string name="menu_item_poweroff">Turn off \"%s\"</string>
     <string name="menu_item_main">Now playing</string>
     <string name="menu_item_home">Main Menu</string>
-    <string name="menu_item_download">Download</string>
     <string name="menu_item_fetch_all">Fetch remaining</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sort order</string>
@@ -63,9 +68,9 @@
     <string name="menu_item_rename">Rename</string>
     <string name="menu_item_playlist">Playlist</string>
     <string name="menu_item_playlists_new">New</string>
-    <string name="menu_item_playlist_clear">Clear</string>
-    <string name="menu_item_playlist_save">Save</string>
-    <string name="menu_item_volume">Volume</string>
+    <string name="menu_item_playlist_clear">Clear playlist</string>
+    <string name="menu_item_playlist_save">Save as playlist</string>
+    <string name="menu_item_volume">Change volume</string>
     <string name="about_title">Squeezer v%s</string>
     <string name="connecting_text">Connecting</string>
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
@@ -89,7 +94,7 @@
     <string name="rename_title">Rename %s</string>
     <string name="delete_title">Delete %s</string>
     <string name="delete__message">Are you sure to delete?</string>
-    <string name="loading_text">Loading &#8230;</string>
+    <string name="loading_text">Loading&#8230;</string>
     <string name="browse_items_text" >%2$d %1$s</string>
     <string name="choose_sort_order">Choose ordering of %s</string>
     <string name="genre_prompt">Choose genre</string>
@@ -293,17 +298,17 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 	<string name="BROWSE_ALBUMS">Browse albums</string>
 	<string name="BROWSE_ARTISTS">Browse artists</string>
     <string name="BROWSE_ALBUM_SONGS">Browse songs on album</string>
-    <string name="BROWSE_ARTIST_ALBUMS">Browse albums with song by artist</string>
+    <string name="BROWSE_ARTIST_ALBUMS">Browse albums with songs by artist</string>
     <string name="BROWSE_ARTIST_SONGS">Browse songs by artist</string>
 	<string name="PLAY_NOW">Play</string>
-	<string name="ADD_TO_END">Add to Playlist</string>
+	<string name="ADD_TO_END">Add to playlist</string>
 	<string name="PLAY_NEXT">Play after the currently playing song</string>
     <string name="DOWNLOAD_ITEM">Download</string>
 
     <string name="PLAYLIST_REMOVE_ITEM">Remove from playlist</string>
     <string name="PLAYLIST_MOVE_UP">Move up</string>
     <string name="PLAYLIST_MOVE_DOWN">Move down</string>
-    <string name="PLAYLIST_MOVE">Move &#8230;</string>
+    <string name="PLAYLIST_MOVE">Move&#8230;</string>
 
 	<string name="ITEM_PLAYING">Now playing %s</string>
 	<string name="ITEM_ADDED">Added %s to the current playlist</string>
@@ -413,8 +418,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item quantity="other">applications</item>
     </plurals>
 
-    <string name="settings_album_selectaction">Album Selection action</string>
-    <string name="settings_album_selectaction_summary">What to do when selecting an album</string>
+    <string name="settings_album_selectaction">Album select action</string>
     <string name="settings_song_selectaction">Song select action</string>
-    <string name="settings_song_selectaction_summary">What to do when a single song is selected</string>
 </resources>

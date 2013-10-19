@@ -16,124 +16,145 @@
  limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
 
     <uk.org.ngo.squeezer.widgets.SquareImageView
-        android:layout_width="wrap_content"
         android:id="@+id/album"
+        android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:scaleType="fitStart"
-        android:adjustViewBounds="true"
+        android:layout_alignParentTop="true"
+        android:cropToPadding="false"
+        android:paddingBottom="4dp"
         android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingLeft="8dp" />
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/trackname"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/album"
+        android:ellipsize="marquee"
+        android:gravity="left"
+        android:hint="@string/unknown_track"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:paddingBottom="4dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:singleLine="true"
+        android:textAppearance="@style/SqueezerTextItem" />
+
+    <TextView
+        android:id="@+id/albumname"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/trackname"
+        android:layout_toLeftOf="@id/context_menu"
+        android:layout_toRightOf="@id/album"
+        android:ellipsize="marquee"
+        android:gravity="left"
+        android:hint="@string/unknown_album"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:paddingBottom="4dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="4dp"
+        android:singleLine="true"
+        android:textAppearance="@style/SqueezerTextItemSmall" />
+
+    <TextView
+        android:id="@+id/artistname"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/albumname"
+        android:layout_toLeftOf="@id/context_menu"
+        android:layout_toRightOf="@id/album"
+        android:ellipsize="marquee"
+        android:gravity="left"
+        android:hint="@string/unknown_artist"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:paddingBottom="4dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="4dp"
+        android:singleLine="true"
+        android:textAppearance="@style/SqueezerTextItemSmall" />
+
+    <uk.org.ngo.squeezer.widgets.ListItemImageButton
+        android:id="@+id/context_menu"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="48dp"
+        android:layout_height="64dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/trackname"
+        android:background="@drawable/list_selector_holo_dark"
+        android:contentDescription="@string/app_name"
+        android:minWidth="48dp"
+        android:src="@drawable/dropdown_ic_arrow_normal_holo_dark" />
 
     <LinearLayout
+        android:id="@+id/media_buttons"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_above="@id/currenttime"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/album"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="4dp"
+        android:paddingLeft="8dp">
 
-        <!-- TODO: This block copied from layout/now_playing_fragment_full.xml and
-             could be refactored in to a common track info block... -->
-        <TextView android:id="@+id/trackname"
-            android:hint="@string/unknown_track"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            android:textAppearance="@style/SqueezerTextItem"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:paddingBottom="4dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp" />
+        <ImageButton
+            android:id="@+id/shuffle"
+            style="@style/MediaButton.Shuffle" />
 
-        <TextView android:id="@+id/albumname"
-            android:hint="@string/unknown_album"
-            android:gravity="left"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextItemSmall"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp" />
+        <uk.org.ngo.squeezer.widgets.RepeatingImageButton
+            android:id="@+id/prev"
+            style="@style/MediaButton.Previous" />
 
-        <TextView android:id="@+id/artistname"
-            android:hint="@string/unknown_artist"
-            android:gravity="left"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextItemSmall"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp" />
-        <!-- End of copy -->
+        <ImageButton
+            android:id="@+id/pause"
+            style="@style/MediaButton.Play" />
 
-        <!-- This view does nothing, it exists to have layout_weight=1 and push
-             the seekbar and other views to the bottom of the screen.  For some
-             reason using layout_gravity="bottom" on the seekbar and other views
-             does not work. -->
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+        <uk.org.ngo.squeezer.widgets.RepeatingImageButton
+            android:id="@+id/next"
+            style="@style/MediaButton.Next" />
 
-	    <LinearLayout
-	        android:gravity="center"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:paddingLeft="4dp"
-	        android:paddingRight="8dp"
-	        android:paddingBottom="4dp"
-	        android:orientation="horizontal">
-
-	        <TextView android:id="@+id/currenttime"
-	            android:layout_gravity="center_horizontal"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:textAppearance="@style/SqueezerTextItemSmall" />
-
-	        <SeekBar
-	            android:id="@+id/seekbar"
-	            style="?android:attr/progressBarStyleHorizontal"
-	            android:layout_width="0dip"
-	            android:layout_weight="1"
-	            android:layout_height="32dip" />
-
-	        <TextView android:id="@+id/totaltime"
-	            android:layout_gravity="center_horizontal"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:textAppearance="@style/SqueezerTextItemSmall" />
-	    </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingBottom="4dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="8dp">
-
-            <ImageButton android:id="@+id/shuffle"
-                style="@style/MediaButton.Shuffle" />
-
-            <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/prev"
-                style="@style/MediaButton.Previous" />
-
-            <ImageButton android:id="@+id/pause"
-                style="@style/MediaButton.Play" />
-
-            <uk.org.ngo.squeezer.widgets.RepeatingImageButton android:id="@+id/next"
-                style="@style/MediaButton.Next" />
-
-            <ImageButton android:id="@+id/repeat"
-                style="@style/MediaButton.Repeat" />
-        </LinearLayout>
+        <ImageButton
+            android:id="@+id/repeat"
+            style="@style/MediaButton.Repeat" />
     </LinearLayout>
-</LinearLayout>
+
+    <SeekBar
+        android:id="@+id/seekbar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/totaltime" />
+
+    <TextView
+        android:id="@+id/currenttime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/totaltime"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_vertical"
+        android:text="0:00"
+        android:textAppearance="@style/SqueezerTextItemSmall" />
+
+    <TextView
+        android:id="@+id/totaltime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_vertical"
+        android:text="0:00"
+        android:textAppearance="@style/SqueezerTextItemSmall" />
+</RelativeLayout>

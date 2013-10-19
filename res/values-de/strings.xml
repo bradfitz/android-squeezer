@@ -53,7 +53,6 @@
     <string name="menu_item_poweroff">Ausschalten</string>
     <string name="menu_item_main">Wird gespielt</string>
     <string name="menu_item_home">Haupt-Menü</string>
-    <string name="menu_item_download">Herunterladen</string>
     <string name="menu_item_fetch_all">Alle herunterladen</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sortierfolge</string>
@@ -236,7 +235,5 @@
     </plurals>
 
     <string name="settings_album_selectaction">Aktion bei Albumauswahl</string>
-    <string name="settings_album_selectaction_summary">Was soll bei Auswahl eines Albums geschehen</string>
     <string name="settings_song_selectaction">Aktion bei Liedauswahl</string>
-    <string name="settings_song_selectaction_summary">Was soll bei Auswahl eines Lieds geschehen</string>
 </resources>

@@ -46,7 +46,6 @@
     <string name="menu_item_poweroff">Schakel uit</string>
     <string name="menu_item_main">Speelt nu</string>
     <string name="menu_item_home">Hoofdmenu</string>
-    <string name="menu_item_download">Download</string>
     <string name="menu_item_fetch_all">Download resterend</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sorteer volgorde</string>

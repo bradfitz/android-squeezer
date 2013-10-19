@@ -55,6 +55,8 @@ public class SettingsActivity extends PreferenceActivity implements
     private ISqueezeService serviceStub = null;
     private ServerAddressPreference addrPref;
     private IntEditTextPreference fadeInPref;
+    private ListPreference onSelectAlbumPref;
+    private ListPreference onSelectSongPref;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -62,7 +64,7 @@ public class SettingsActivity extends PreferenceActivity implements
         }
         public void onServiceDisconnected(ComponentName name) {
             serviceStub = null;
-        };
+        }
     };
 
     @Override
@@ -125,31 +127,37 @@ public class SettingsActivity extends PreferenceActivity implements
 		String insertLabel = getString(PlayableItemAction.Type.INSERT.labelId);
 		String browseLabel = getString(PlayableItemAction.Type.BROWSE.labelId);
 
-		ListPreference onSelectAlbumPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION);
-		onSelectAlbumPref.setEntryValues(new String[] {
-				PlayableItemAction.Type.PLAY.name(),
-				PlayableItemAction.Type.INSERT.name(),
-				PlayableItemAction.Type.ADD.name(),
-				PlayableItemAction.Type.BROWSE.name() });
-		onSelectAlbumPref.setEntries(new String[] { playLabel, insertLabel,
-				addLabel, browseLabel });
+        onSelectAlbumPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION);
+        onSelectAlbumPref.setEntryValues(new String[] {
+                PlayableItemAction.Type.PLAY.name(),
+                PlayableItemAction.Type.INSERT.name(),
+                PlayableItemAction.Type.ADD.name(),
+                PlayableItemAction.Type.BROWSE.name()
+        });
+		onSelectAlbumPref.setEntries(new String[]{playLabel, insertLabel,
+                addLabel, browseLabel});
 		onSelectAlbumPref.setDefaultValue(PlayableItemAction.Type.BROWSE.name());
 		if (onSelectAlbumPref.getValue() == null) {
 			onSelectAlbumPref.setValue(PlayableItemAction.Type.BROWSE.name());
 		}
+        onSelectAlbumPref.setOnPreferenceChangeListener(this);
+        updateSelectAlbumSummary(onSelectAlbumPref.getValue());
 
-		ListPreference onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
-		onSelectSongPref.setEntryValues(new String[] {
+        onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
+        onSelectSongPref.setEntryValues(new String[] {
                 PlayableItemAction.Type.NONE.name(),
                 PlayableItemAction.Type.PLAY.name(),
-				PlayableItemAction.Type.INSERT.name(),
-				PlayableItemAction.Type.ADD.name() });
+                PlayableItemAction.Type.INSERT.name(),
+                PlayableItemAction.Type.ADD.name()
+        });
 		onSelectSongPref.setEntries(new String[] { noneLabel, playLabel, 
 		        insertLabel, addLabel });
 		onSelectSongPref.setDefaultValue(PlayableItemAction.Type.NONE.name());
 		if (onSelectSongPref.getValue() == null) {
 			onSelectSongPref.setValue(PlayableItemAction.Type.NONE.name());
 		}
+        onSelectSongPref.setOnPreferenceChangeListener(this);
+        updateSelectSongSummary(onSelectSongPref.getValue());
 	}
     @Override
     public void onDestroy() {
@@ -173,7 +181,22 @@ public class SettingsActivity extends PreferenceActivity implements
         }
     }
 
+    private void updateSelectAlbumSummary(String value) {
+        CharSequence[] entries = onSelectAlbumPref.getEntries();
+        int index = onSelectAlbumPref.findIndexOfValue(value);
+
+        onSelectAlbumPref.setSummary(entries[index]);
+    }
+
+    private void updateSelectSongSummary(String value) {
+        CharSequence[] entries = onSelectSongPref.getEntries();
+        int index = onSelectSongPref.findIndexOfValue(value);
+
+        onSelectSongPref.setSummary(entries[index]);
+     }
+
     /**
+     *
      * A preference has been changed by the user, but has not yet been
      * persisted.
      *
@@ -194,6 +217,16 @@ public class SettingsActivity extends PreferenceActivity implements
 
         if (Preferences.KEY_FADE_IN_SECS.equals(key)) {
             updateFadeInSecondsSummary(Util.parseDecimalIntOrZero(newValue.toString()));
+            return true;
+        }
+
+        if (Preferences.KEY_ON_SELECT_ALBUM_ACTION.equals(key)) {
+            updateSelectAlbumSummary(newValue.toString());
+            return true;
+        }
+
+        if (Preferences.KEY_ON_SELECT_SONG_ACTION.equals(key)) {
+            updateSelectSongSummary(newValue.toString());
             return true;
         }
 

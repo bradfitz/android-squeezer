@@ -44,27 +44,30 @@
      android:persistent="true" />
 
   <CheckBoxPreference
-     android:key="squeezer.notifyofconnection"
-     android:title="Notify of Connection"
-     android:summary="Show notification while connected, even when not playing music."
-     android:persistent="true" />
-
-  <CheckBoxPreference
      android:key="squeezer.scrobble.enabled"
      android:title="@string/settings_scrobble_title"
      android:summaryOn="@string/settings_scrobble_on"
      android:summaryOff="@string/settings_scrobble_off"
      android:persistent="true" />
 
-  <ListPreference 
-     android:key="squeezer.action.onselect.album" 
-     android:title="@string/settings_album_selectaction" 
-     android:summary="@string/settings_album_selectaction_summary"/>
+    <PreferenceCategory
+        android:title="@string/settings_category_ui">
 
-  <ListPreference 
-     android:key="squeezer.action.onselect.song"
-     android:title="@string/settings_song_selectaction" 
-     android:summary="@string/settings_song_selectaction_summary"/>
+        <CheckBoxPreference
+            android:key="squeezer.notifyofconnection"
+            android:title="@string/settings_notifyofconnection_title"
+            android:summaryOn="@string/settings_notifyofconnection_on"
+            android:summaryOff="@string/settings_notifyofconnection_off"
+            android:persistent="true" />
+
+        <ListPreference
+            android:key="squeezer.action.onselect.album"
+            android:title="@string/settings_album_selectaction" />
+
+        <ListPreference
+            android:key="squeezer.action.onselect.song"
+            android:title="@string/settings_song_selectaction" />
+    </PreferenceCategory>
 
   <PreferenceCategory
      android:title="@string/pref_cat_error_reports">

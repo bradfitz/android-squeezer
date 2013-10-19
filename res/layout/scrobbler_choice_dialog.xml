@@ -21,14 +21,16 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp">
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="16dp">
 
     <TextView android:id="@android:id/message"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/SqueezerTextItemSmall"
-        android:layout_marginBottom="4dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
         android:text="You need to install a scrobbling app before this feature works.\n\nHere are three that are known to work. Touch one to start Google Play for installation." />
 
     <ListView

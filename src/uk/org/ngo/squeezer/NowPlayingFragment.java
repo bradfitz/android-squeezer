@@ -61,7 +61,9 @@ import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -78,7 +80,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class NowPlayingFragment extends Fragment implements
-        HasUiThread {
+        HasUiThread, View.OnCreateContextMenuListener {
     private final String TAG = "NowPlayingFragment";
 
     private SqueezerBaseActivity mActivity;
@@ -87,6 +89,7 @@ public class NowPlayingFragment extends Fragment implements
     private TextView albumText;
     private TextView artistText;
     private TextView trackText;
+    ImageView btnContextMenu;
     private TextView currentTime;
     private TextView totalTime;
     private MenuItem menu_item_connect;
@@ -234,11 +237,22 @@ public class NowPlayingFragment extends Fragment implements
             totalTime = (TextView) v.findViewById(R.id.totaltime);
             seekBar = (SeekBar) v.findViewById(R.id.seekbar);
 
+            btnContextMenu = (ImageView) v.findViewById(R.id.context_menu);
+            btnContextMenu.setOnCreateContextMenuListener(this);
+            btnContextMenu.setOnClickListener(new OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    v.showContextMenu();
+                }
+            });
+
             // Calculate the size of the album art to display, which will be the shorter
             // of the device's two dimensions.
             Display display = mActivity.getWindowManager().getDefaultDisplay();
-            int albumArtSize = Math.min(display.getWidth(), display.getHeight());
-            mImageFetcher = new ImageFetcher(mActivity, albumArtSize);
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            display.getMetrics(displayMetrics);
+            mImageFetcher = new ImageFetcher(mActivity,
+                    Math.min(displayMetrics.heightPixels, displayMetrics.widthPixels));
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
 
@@ -335,39 +349,6 @@ public class NowPlayingFragment extends Fragment implements
                         mService.toggleRepeat();
                     } catch (RemoteException e) {
                         Log.e(TAG, "Service exception from toggleRepeat(): " + e);
-                    }
-                }
-            });
-
-            artistText.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    SqueezerSong song = getCurrentSong();
-                    if (song != null) {
-                        if (!song.isRemote())
-                            SqueezerAlbumListActivity.show(mActivity,
-                                    new SqueezerArtist(song.getArtist_id(), song.getArtist()));
-                    }
-                }
-            });
-
-            albumText.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    SqueezerSong song = getCurrentSong();
-                    if (song != null) {
-                        if (!song.isRemote())
-                            SqueezerSongListActivity.show(mActivity,
-                                    new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
-                    }
-                }
-            });
-
-            trackText.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    SqueezerSong song = getCurrentSong();
-                    if (song != null) {
-                        if (!song.isRemote())
-                            SqueezerSongListActivity.show(mActivity,
-                                    new SqueezerArtist(song.getArtist_id(), song.getArtist()));
                     }
                 }
             });
@@ -510,11 +491,25 @@ public class NowPlayingFragment extends Fragment implements
         boolean connected = isConnected();
 
         if (menu_item_poweron != null) {
-            menu_item_poweron.setVisible(canPowerOn && connected);
+            if (canPowerOn && connected) {
+                SqueezerPlayer player = getActivePlayer();
+                String playerName = player != null ? player.getName() : "";
+                menu_item_poweron.setTitle(getString(R.string.menu_item_poweron, playerName));
+                menu_item_poweron.setVisible(true);
+            } else {
+                menu_item_poweron.setVisible(false);
+            }
         }
 
         if (menu_item_poweroff != null) {
-            menu_item_poweroff.setVisible(canPowerOff && connected);
+            if (canPowerOff && connected) {
+                SqueezerPlayer player = getActivePlayer();
+                String playerName = player != null ? player.getName() : "";
+                menu_item_poweroff.setTitle(getString(R.string.menu_item_poweroff, playerName));
+                menu_item_poweroff.setVisible(true);
+            } else {
+                menu_item_poweroff.setVisible(false);
+            }
         }
     }
 
@@ -622,12 +617,18 @@ public class NowPlayingFragment extends Fragment implements
             trackText.setText(song.getName());
             if (mFullHeightLayout) {
                 artistText.setText(song.getArtist());
+                if (song.isRemote()) {
+                    btnContextMenu.setVisibility(View.GONE);
+                } else {
+                    btnContextMenu.setVisibility(View.VISIBLE);
+                }
             }
         } else {
             albumText.setText("");
             trackText.setText("");
             if (mFullHeightLayout) {
                 artistText.setText("");
+                btnContextMenu.setVisibility(View.GONE);
             }
         }
         updateAlbumArt(song);
@@ -779,6 +780,69 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     /**
+     * Builds a context menu suitable for the currently playing song.
+     * <p>
+     * Takes the general song context menu, and disables items that make no sense for the song
+     * that is currently playing.
+     * <p>
+     * {@inheritDoc}
+     * @param menu
+     * @param v
+     * @param menuInfo
+     */
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.songcontextmenu, menu);
+
+        menu.findItem(R.id.play_now).setVisible(false);
+        menu.findItem(R.id.play_next).setVisible(false);
+        menu.findItem(R.id.add_to_playlist).setVisible(false);
+
+        menu.findItem(R.id.view_this_album).setVisible(true);
+        menu.findItem(R.id.view_albums_by_song).setVisible(true);
+        menu.findItem(R.id.view_songs_by_artist).setVisible(true);
+    }
+
+    /**
+     * Handles clicks on the context menu.
+     * <p>
+     * {@inheritDoc}
+     * @param item
+     * @return
+     */
+    public boolean onContextItemSelected(MenuItem item) {
+        SqueezerSong song = getCurrentSong();
+        if (song == null || song.isRemote())
+            return false;
+
+        // Note: Very similar to code in SqueezerSongView:doItemContext().  Refactor?
+        switch (item.getItemId()) {
+            case R.id.download:
+                mActivity.downloadSong(song);
+                return true;
+
+            case R.id.view_this_album:
+                SqueezerSongListActivity.show(getActivity(),
+                        new SqueezerAlbum(song.getAlbum_id(), song.getAlbum()));
+                return true;
+
+            case R.id.view_albums_by_song:
+                SqueezerAlbumListActivity.show(getActivity(),
+                        new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+                return true;
+
+            case R.id.view_songs_by_artist:
+                SqueezerSongListActivity.show(getActivity(),
+                        new SqueezerArtist(song.getArtist_id(), song.getArtist()));
+                return true;
+
+            default:
+                throw new IllegalStateException("Unknown menu ID.");
+        }
+    }
+
+    /**
      * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu,
      *      android.view.MenuInflater)
      */
@@ -803,6 +867,7 @@ public class NowPlayingFragment extends Fragment implements
         // almost certainly post-connection to the service.  On 3.0 and higher it's called when
         // the activity is created, before the service connection is made.  Set the visibility
         // of the menu items accordingly.
+        // XXX: onPrepareOptionsMenu() instead?
         setMenuItemStateFromConnection();
     }
 

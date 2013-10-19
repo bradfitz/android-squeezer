@@ -54,7 +54,6 @@
     <string name="menu_item_poweroff">Sluk</string>
     <string name="menu_item_main">Nu spiller</string>
     <string name="menu_item_home">Hovedmenu</string>
-    <string name="menu_item_download">Hent</string>
     <string name="menu_item_fetch_all">Hent resten</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sortér</string>
@@ -237,7 +236,5 @@
     </plurals>
 
     <string name="settings_album_selectaction">Album handling</string>
-    <string name="settings_album_selectaction_summary">Hvad skal gøres når et album vælges</string>
     <string name="settings_song_selectaction">Sang handling</string>
-    <string name="settings_song_selectaction_summary">Hvad skal gøres når en sang vælges</string>
 </resources>
