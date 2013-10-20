@@ -110,7 +110,7 @@ public class SqueezerSearchActivity extends SqueezerItemListActivity {
 			int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
 			int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
 			if (ExpandableListView.getPackedPositionType(packedPosition) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-				searchResultsAdapter.doItemContext(menuItem, groupPosition, childPosition);
+				return searchResultsAdapter.doItemContext(menuItem, groupPosition, childPosition);
 			}
 		}
 		return false;

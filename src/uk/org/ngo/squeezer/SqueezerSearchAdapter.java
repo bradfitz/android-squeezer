@@ -121,8 +121,8 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
         childAdapters[groupPosition].onItemSelected(childPosition);
     }
 
-    public void doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
-        childAdapters[groupPosition].doItemContext(menuItem, childPosition);
+    public boolean doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
+        return childAdapters[groupPosition].doItemContext(menuItem, childPosition);
     }
 
     @Override
