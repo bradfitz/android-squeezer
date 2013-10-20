@@ -76,7 +76,8 @@
         <activity android:name=".itemlists.SqueezerRadioListActivity" android:label="@string/app_name" />
         <activity android:name=".itemlists.SqueezerApplicationListActivity" android:label="@string/app_name" />
         <activity android:name=".itemlists.SqueezerPluginItemListActivity" android:label="@string/app_name" />
-        
+        <activity android:name=".itemlists.FavoriteListActivity" android:label="@string/app_name" />
+
         <activity android:name="org.acra.CrashReportDialog"
             android:theme="@android:style/Theme.Dialog"
             android:launchMode="singleInstance"

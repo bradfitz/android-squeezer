@@ -382,6 +382,11 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item quantity="other">albums</item>
     </plurals>
 
+    <plurals name="favorites">
+        <item quantity="one">Favorite</item>
+        <item quantity="other">Favorites</item>
+    </plurals>
+
     <plurals name="genre">
         <item quantity="one">genre</item>
         <item quantity="other">genres</item>
