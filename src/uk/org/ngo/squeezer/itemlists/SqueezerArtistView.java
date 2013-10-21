@@ -32,6 +32,7 @@ public class SqueezerArtistView extends SqueezerBaseItemView<SqueezerArtist> {
 		super(activity);
 	}
 
+    // XXX: Consider making this extend SqueezerPlaylistItemView and make the action user definable.
 	public void onItemSelected(int index, SqueezerArtist item) throws RemoteException {
 		SqueezerAlbumListActivity.show(getActivity(), item);
 	}
@@ -41,10 +42,10 @@ public class SqueezerArtistView extends SqueezerBaseItemView<SqueezerArtist> {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.add(Menu.NONE, R.id.browse_songs, 0, R.string.BROWSE_SONGS);
-        menu.add(Menu.NONE, BROWSE_ALBUMS, 1, R.string.BROWSE_ALBUMS);
-        menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
-        menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
+        menu.add(Menu.NONE, BROWSE_ALBUMS, 0, R.string.BROWSE_ALBUMS);
+        menu.add(Menu.NONE, R.id.browse_songs, 1, R.string.BROWSE_SONGS);
+        menu.add(Menu.NONE, R.id.play_now, 2, R.string.PLAY_NOW);
+        menu.add(Menu.NONE, R.id.add_to_playlist, 3, R.string.ADD_TO_END);
     }
 
 	public String getQuantityString(int quantity) {
