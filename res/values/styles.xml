@@ -70,12 +70,10 @@
     <style name="SqueezerTextItem" parent="@android:style/TextAppearance.Medium">
     </style>
     <style name="SqueezerCurrentTextItem" parent="style/SqueezerTextItem">
-        <item name="android:textStyle">bold</item>
     </style>
     <style name="SqueezerTextItemSmall" parent="@android:style/TextAppearance.Small">
     </style>
     <style name="SqueezerCurrentTextItemSmall" parent="style/SqueezerTextItemSmall">
-        <item name="android:textStyle">bold</item>
     </style>
 
     <!-- Media controller styles -->
