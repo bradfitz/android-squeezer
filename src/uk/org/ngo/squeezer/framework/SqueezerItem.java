@@ -60,8 +60,6 @@ public abstract class SqueezerItem implements Parcelable {
         if (getId() == null && ((SqueezerItem) o).getId() == null)
             return true;
 
-        // XXX: NPE here -- getId() might return NULL.
-
-        return getId().equals(((SqueezerItem) o).getId());
+        return getId() != null && getId().equals(((SqueezerItem) o).getId());
     }
 }
