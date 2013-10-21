@@ -52,6 +52,8 @@
     <string name="settings_scrobble_noapp">No apps that can scrobble are installed</string>
     <string name="settings_market_not_found">Could not start Google Play, is it installed?</string>
 
+    <string name="settings_category_ui">Squeezer interface</string>
+
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
     <string name="menu_item_poweron">Turn on \"%s\"</string>
