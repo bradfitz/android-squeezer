@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback;
@@ -46,6 +47,10 @@ interface ISqueezeService {
     // For the activity to get callbacks on interesting events
     void registerCallback(IServiceCallback callback);
     void unregisterCallback(IServiceCallback callback);
+
+    // For the activity to get callback when the current playlist is modified
+    void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
+    void unregisterCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
 
     // For the activity to get callback when music changes
     void registerMusicChangedCallback(IServiceMusicChangedCallback callback);

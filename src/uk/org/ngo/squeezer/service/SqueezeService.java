@@ -35,6 +35,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
@@ -62,8 +63,6 @@ import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
 import uk.org.ngo.squeezer.util.Scrobble;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -76,6 +75,8 @@ import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 
 public class SqueezeService extends Service {
@@ -109,6 +110,7 @@ public class SqueezeService extends Service {
     private boolean mHandshakeComplete = false;
 
     final RemoteCallbackList<IServiceCallback> mServiceCallbacks = new RemoteCallbackList<IServiceCallback>();
+    final RemoteCallbackList<IServiceCurrentPlaylistCallback> mCurrentPlaylistCallbacks = new RemoteCallbackList<IServiceCurrentPlaylistCallback>();
     final RemoteCallbackList<IServiceMusicChangedCallback> mMusicChangedCallbacks = new RemoteCallbackList<IServiceMusicChangedCallback>();
     final RemoteCallbackList<IServiceHandshakeCallback> mHandshakeCallbacks = new RemoteCallbackList<IServiceHandshakeCallback>();
     final AtomicReference<IServicePlayerListCallback> playerListCallback = new AtomicReference<IServicePlayerListCallback>();
@@ -490,7 +492,7 @@ public class SqueezeService extends Service {
     }
 
     private void parsePlaylistNotification(List<String> tokens) {
-        Log.v(TAG, "Playlist notifiction received: " + tokens);
+        Log.v(TAG, "Playlist notification received: " + tokens);
         String notification = tokens.get(2);
         if ("newsong".equals(notification)) {
             // When we don't subscribe to the current players status, we rely
@@ -503,6 +505,30 @@ public class SqueezeService extends Service {
             updatePlayStatus(SqueezerPlayerState.PlayStatus.stop);
         } else if ("pause".equals(notification)) {
             parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
+        } else if ("addtracks".equals(notification)) {
+            int i = mCurrentPlaylistCallbacks.beginBroadcast();
+            while (i > 0) {
+                i--;
+                try {
+                    mCurrentPlaylistCallbacks.getBroadcastItem(i).onAddTracks(playerState);
+                } catch (RemoteException e) {
+                    // The RemoteCallbackList will take care of removing
+                    // the dead object for us.
+                }
+            }
+            mCurrentPlaylistCallbacks.finishBroadcast();
+        } else if ("delete".equals(notification)) {
+            int i = mCurrentPlaylistCallbacks.beginBroadcast();
+            while (i > 0) {
+                i--;
+                try {
+                    mCurrentPlaylistCallbacks.getBroadcastItem(i).onDelete(playerState, Integer.parseInt(tokens.get(3)));
+                } catch (RemoteException e) {
+                    // The RemoteCallbackList will take care of removing
+                    // the dead object for us.
+                }
+            }
+            mCurrentPlaylistCallbacks.finishBroadcast();
         }
     }
 
@@ -839,6 +865,16 @@ public class SqueezeService extends Service {
         public void unregisterCallback(IServiceCallback callback) throws RemoteException {
             mServiceCallbacks.unregister(callback);
             updatePlayerSubscriptionState();
+        }
+
+        @Override
+        public void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback) throws RemoteException {
+            mCurrentPlaylistCallbacks.register(callback);
+        }
+
+        @Override
+        public void unregisterCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback) throws RemoteException {
+            mCurrentPlaylistCallbacks.unregister(callback);
         }
 
         @Override
@@ -1534,7 +1570,7 @@ public class SqueezeService extends Service {
 
         @Override
         public void registerPluginListCallback(IServicePluginListCallback callback) throws RemoteException {
-            Log.v(TAG, "SongListCallback attached.");
+            Log.v(TAG, "PluginListCallback attached.");
 	    	SqueezeService.this.pluginListCallback.set(callback);
 		}
 

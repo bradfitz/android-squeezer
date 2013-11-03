@@ -21,7 +21,6 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.R;
-import static uk.org.ngo.squeezer.framework.SqueezerBaseItemView.ViewHolder;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemListAdapter;
@@ -41,6 +40,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import static uk.org.ngo.squeezer.framework.SqueezerBaseItemView.ViewHolder;
 
 /**
  * Activity that shows the songs in the current playlist.
@@ -201,15 +202,41 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 
 	@Override
     protected void registerCallback() throws RemoteException {
+        getService().registerCurrentPlaylistCallback(currentPlaylistCallback);
         getService().registerSongListCallback(songListCallback);
         getService().registerMusicChangedCallback(musicChangedCallback);
     }
 
     @Override
     protected void unregisterCallback() throws RemoteException {
+        getService().unregisterCurrentPlaylistCallback(currentPlaylistCallback);
         getService().unregisterSongListCallback(songListCallback);
         getService().unregisterMusicChangedCallback(musicChangedCallback);
     }
+
+    private final IServiceCurrentPlaylistCallback currentPlaylistCallback = new IServiceCurrentPlaylistCallback.Stub() {
+        @Override
+        public void onAddTracks(SqueezerPlayerState playerState) {
+            getUIThreadHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    clearAndReOrderItems();
+                    getItemAdapter().notifyDataSetChanged();
+                }
+            });
+        }
+
+        public void onDelete(SqueezerPlayerState playerState, int index ) {
+            getUIThreadHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO: Investigate feasibility of deleting single items from the adapter.
+                    clearAndReOrderItems();
+                    getItemAdapter().notifyDataSetChanged();
+                }
+            });
+        }
+    };
 
     private final IServiceMusicChangedCallback musicChangedCallback = new IServiceMusicChangedCallback.Stub() {
         @Override
