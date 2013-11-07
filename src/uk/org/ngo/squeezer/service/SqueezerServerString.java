@@ -12,7 +12,10 @@ public enum SqueezerServerString {
     REPEAT_ALL,
     SHUFFLE_OFF,
     SHUFFLE_ON_SONGS,
-    SHUFFLE_ON_ALBUMS;
+    SHUFFLE_ON_ALBUMS,
+    SWITCH_TO_EXTENDED_LIST,
+    SWITCH_TO_GALLERY,
+    ALBUM_DISPLAY_OPTIONS;
 
     private String localizedString;
 

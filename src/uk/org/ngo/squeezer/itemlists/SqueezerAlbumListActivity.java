@@ -19,28 +19,33 @@ package uk.org.ngo.squeezer.itemlists;
 import java.util.EnumSet;
 import java.util.List;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.itemlists.GenreSpinner.GenreSpinnerCallback;
 import uk.org.ngo.squeezer.itemlists.YearSpinner.YearSpinnerCallback;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumFilterDialog;
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog;
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog.AlbumListLayout;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment;
 import uk.org.ngo.squeezer.menu.SqueezerFilterMenuItemFragment.SqueezerFilterableListActivity;
-import uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment;
-import uk.org.ngo.squeezer.menu.SqueezerOrderMenuItemFragment.SqueezerOrderableListActivity;
+import uk.org.ngo.squeezer.menu.ViewMenuItemFragment;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.model.SqueezerYear;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -53,9 +58,10 @@ import android.widget.TextView;
  */
 public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<SqueezerAlbum>
         implements GenreSpinnerCallback, YearSpinnerCallback,
-        SqueezerFilterableListActivity, SqueezerOrderableListActivity {
+        SqueezerFilterableListActivity, ViewMenuItemFragment.ListActivityWithViewMenu {
 
-	private AlbumsSortOrder sortOrder = null;
+    private AlbumsSortOrder sortOrder = null;
+    private AlbumListLayout listLayout = null;
 
 	private String searchString = null;
     public String getSearchString() { return searchString; }
@@ -93,16 +99,33 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 
     @Override
 	public SqueezerItemView<SqueezerAlbum> createItemView() {
-		return new SqueezerAlbumView(this);
+		return (listLayout == AlbumListLayout.grid) ? new AlbumGridView(this) : new SqueezerAlbumView(this);
 	}
 
     @Override
+    protected ImageFetcher createImageFetcher() {
+        // Get an ImageFetcher to scale artwork to the size of the icon view.
+        Resources resources = getResources();
+        int height, width;
+        if (listLayout == AlbumListLayout.grid) {
+            height = resources.getDimensionPixelSize(R.dimen.album_art_icon_grid_height);
+            width = resources.getDimensionPixelSize(R.dimen.album_art_icon_grid_width);
+        } else {
+            height = resources.getDimensionPixelSize(R.dimen.album_art_icon_height);
+            width = resources.getDimensionPixelSize(R.dimen.album_art_icon_width);
+        }
+        ImageFetcher imageFetcher = new ImageFetcher(this, Math.max(height, width));
+        imageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+        return imageFetcher;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
+        setListLayout();
         super.onCreate(savedInstanceState);
 
         MenuFragment.add(this, SqueezerFilterMenuItemFragment.class);
-        MenuFragment.add(this, SqueezerOrderMenuItemFragment.class);
-        sortOrder = null;
+        MenuFragment.add(this, ViewMenuItemFragment.class);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -145,7 +168,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 
     @Override
     protected int getContentView() {
-        return R.layout.item_list_albums;
+        return (listLayout == AlbumListLayout.grid) ? R.layout.item_grid : R.layout.item_list_albums;
     }
 
     @Override
@@ -187,6 +210,37 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 		clearAndReOrderItems();
 	}
 
+    public AlbumListLayout getListLayout() {
+        return listLayout;
+    }
+
+    /**
+     * Set the preferred album list layout.
+     * <p>
+     * If the list layout is not selected, a default one is chosen, based on the
+     * current screen size, on the assumption that the artwork grid is preferred
+     * on larger screens.
+     */
+    private void setListLayout() {
+        SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+        String listLayoutString = preferences.getString(Preferences.KEY_ALBUM_LIST_LAYOUT, null);
+        if (listLayoutString == null) {
+            int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+            listLayout = (screenSize >= Configuration.SCREENLAYOUT_SIZE_LARGE) ? AlbumListLayout.grid : AlbumListLayout.list;
+        } else
+            listLayout = AlbumListLayout.valueOf(listLayoutString);
+    }
+
+	public void setListLayout(AlbumListLayout listLayout) {
+        SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(Preferences.KEY_ALBUM_LIST_LAYOUT, listLayout.name());
+        editor.commit();
+
+        startActivity(getIntent());
+        finish();
+	}
+
     @Override
     public boolean onSearchRequested() {
         showFilterDialog();
@@ -199,8 +253,8 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
     }
 
     @Override
-    public void showOrderDialog() {
-        new SqueezerAlbumOrderDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
+    public void showViewDialog() {
+        new AlbumViewDialog().show(getSupportFragmentManager(), "AlbumOrderDialog");
     }
 
     public static void show(Context context, SqueezerItem... items) {

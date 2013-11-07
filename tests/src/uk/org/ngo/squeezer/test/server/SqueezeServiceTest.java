@@ -6,7 +6,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.test.ServiceTestCase;
 
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog.AlbumsSortOrder;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.test.mock.SqueezeboxServerMock;

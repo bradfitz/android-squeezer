@@ -57,7 +57,10 @@ public final class Preferences {
     public static final String KEY_ON_SELECT_ALBUM_ACTION = "squeezer.action.onselect.album";
     // What do to when a song is selected in the list view
     public static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
-    
+
+    // Preferred album list layout.
+    public static final String KEY_ALBUM_LIST_LAYOUT = "squeezer.album.list.layout";
+
 	private Preferences() {
 	}
 }

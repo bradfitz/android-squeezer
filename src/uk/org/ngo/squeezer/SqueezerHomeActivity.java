@@ -33,7 +33,7 @@ import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
 import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog;
 
 import android.content.Context;
 import android.content.Intent;
@@ -222,7 +222,7 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                     break;
                 case NEW_MUSIC:
                     SqueezerAlbumListActivity.show(SqueezerHomeActivity.this,
-                            AlbumsSortOrder.__new);
+                            AlbumViewDialog.AlbumsSortOrder.__new);
                     break;
                 case MUSIC_FOLDER:
                     SqueezerMusicFolderListActivity.show(SqueezerHomeActivity.this);
