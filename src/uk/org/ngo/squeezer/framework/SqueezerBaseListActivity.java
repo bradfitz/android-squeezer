@@ -174,6 +174,12 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
             if (itemAdapter == null) {
                 itemAdapter = createItemListAdapter(createItemView());
                 mRetainFragment.put(TAG_ADAPTER, itemAdapter);
+            } else {
+                // We have just retained the item adapter, we need to create a new
+                // item view logic, cause it holds a reference to the old activity
+                itemAdapter.setItemView(createItemView());
+                // Update views with the count from the retained item adapter
+                itemAdapter.onCountUpdated();
             }
         }
 
