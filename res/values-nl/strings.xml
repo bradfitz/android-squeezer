@@ -55,7 +55,6 @@
     <string name="menu_item_playlist_clear">Wis huidige playlist</string>
     <string name="menu_item_playlist_save">Bewaar huidige playlist</string>
     <string name="menu_item_volume">Volume</string>
-    <string name="about_title">Over Squeezer v%s</string>
     <string name="connecting_text">Verbinden</string>
     <string name="connecting_to_text">Verbinden met SqueezeBox CLI met %s</string>
     <string name="connection_failed_text">Verbinden mislukt. Bekijk settings.</string>

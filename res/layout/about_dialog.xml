@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
 Copyright 2012 Google Inc.  All Rights Reserved.
 
@@ -17,61 +18,73 @@ limitations under the License.
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp" >
+        android:padding="8dp">
 
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_launcher" />
-
-            <TextView
-                android:id="@+id/about_title"
-                style="?android:attr/textAppearanceLarge"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
-                android:text="@string/app_name"
-                android:textSize="32dp" />
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_launcher" />
 
         <TextView
+            android:id="@+id/about_title"
+            style="?android:attr/textAppearanceLarge"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/icon"
+            android:paddingLeft="8dp"
+            android:text="@string/app_name" />
+
+        <TextView
+            android:id="@+id/version_text"
             style="@style/SqueezerTextItemSmall"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/about_title"
+            android:layout_toRightOf="@id/icon"
+            android:paddingLeft="8dp" />
+
+        <TextView
+            android:id="@+id/copyright"
+            style="@style/SqueezerTextItemSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/icon"
             android:paddingBottom="8dp"
             android:paddingTop="8dp"
             android:text="@string/copyright_text" />
 
         <TextView
+            android:id="@+id/team"
             style="@style/SqueezerTextItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/copyright"
             android:paddingTop="8dp"
             android:text="Team" />
 
         <TextView
+            android:id="@+id/authors"
             style="@style/SqueezerTextItemSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/team"
             android:paddingLeft="8dp"
             android:text="Kurt Aaholst\nNik Clayton\nBrad Fitzpatrick" />
 
         <TextView
+            android:id="@+id/support"
             style="@style/SqueezerTextItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/authors"
             android:paddingTop="16dp"
             android:text="Support" />
 
@@ -79,10 +92,10 @@ limitations under the License.
             style="@style/SqueezerTextItemSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/support"
             android:autoLink="web"
             android:paddingBottom="8dp"
             android:paddingLeft="8dp"
             android:text="http://groups.google.com/group/android-squeezer\n\nhttp://code.google.com/p/android-squeezer/" />
-    </LinearLayout>
-
+    </RelativeLayout>
 </ScrollView>

@@ -34,12 +34,13 @@ public class AboutDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View view = getActivity().getLayoutInflater().inflate(R.layout.about_dialog, null);
         final TextView titleText = (TextView) view.findViewById(R.id.about_title);
+        final TextView versionText = (TextView) view.findViewById(R.id.version_text);
 
         PackageManager pm = getActivity().getPackageManager();
         PackageInfo info;
         try {
-            info = pm.getPackageInfo("uk.org.ngo.squeezer", 0);
-            titleText.setText(getString(R.string.about_title, info.versionName));
+            info = pm.getPackageInfo(getActivity().getPackageName(), 0);
+            versionText.setText(info.versionName);
         } catch (NameNotFoundException e) {
             titleText.setText(getString(R.string.app_name));
         }

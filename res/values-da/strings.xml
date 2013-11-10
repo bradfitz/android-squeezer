@@ -63,7 +63,6 @@
     <string name="menu_item_playlist_clear">Ryd</string>
     <string name="menu_item_playlist_save">Gem</string>
     <string name="menu_item_volume">Lydstyrke</string>
-    <string name="about_title">Squeezer v%s</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
