@@ -36,6 +36,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 
 /**
@@ -57,6 +58,10 @@ import android.widget.ProgressBar;
  */
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
     private static final String TAG = SqueezerBaseListActivity.class.getName();
+
+    /** Tag for first visible position in mRetainFragment. */
+    private static final String TAG_POSITION = "position";
+
 
     /** Tag for itemAdapter in mRetainFragment. */
     public static final String TAG_ADAPTER = "adapter";
@@ -82,15 +87,6 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
         loadingProgress = checkNotNull((ProgressBar) findViewById(R.id.loading_progress),
             "getContentView() did not return a view containing R.id.loading_progress");
-
-        // setAdapter is not defined for AbsListView before API level 11, but
-        // it is for concrete implementations, so we call it by reflection
-        try {
-            Method method = mListView.getClass().getMethod("setAdapter", ListAdapter.class);
-            method.invoke(mListView, getItemAdapter());
-        } catch (Exception e) {
-            Log.e(getTag(), "Error calling 'setAdapter'", e);
-        }
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -140,11 +136,44 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         return itemAdapter.doItemContext(menuItem, menuInfo.position);
     }
 
+    /**
+     * Set our adapter on the list view.
+     * <p>
+     * This can't be done in {@link #onCreate(android.os.Bundle)} because
+     * getView might be called before the service is connected, so we need to
+     * delay it.
+     * <p>
+     * However when we set the adapter after onCreate the list is scrolled to
+     * top, so we retain the visible position.
+     * <p>
+     * Call this method when the service is connected
+     */
+    private void setAdapter() {
+        // setAdapter is not defined for AbsListView before API level 11, but
+        // it is for concrete implementations, so we call it by reflection
+        try {
+            Method method = mListView.getClass().getMethod("setAdapter", ListAdapter.class);
+            method.invoke(mListView, getItemAdapter());
+        } catch (Exception e) {
+            Log.e(getTag(), "Error calling 'setAdapter'", e);
+        }
+
+        Integer position = (Integer)mRetainFragment.get(TAG_POSITION);
+        if (position != null) {
+            if (mListView instanceof ListView)
+                ((ListView)mListView).setSelectionFromTop(position, 0);
+            else
+                mListView.setSelection(position);
+        }
+    }
+
+
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
 
         maybeOrderVisiblePages(mListView);
+        setAdapter();
     }
 
     @Override
@@ -153,8 +182,26 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
         if (getService() != null) {
             maybeOrderVisiblePages(mListView);
+            setAdapter();
         }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveVisiblePosition();
+    }
+
+    /**
+     * Store the first visible position of {@link #mListView}, in the {@link #mRetainFragment},
+     * so we can later retrieve it.
+     *
+     * @see android.widget.AbsListView#getFirstVisiblePosition()
+     */
+    private void saveVisiblePosition() {
+        mRetainFragment.put(TAG_POSITION, mListView.getFirstVisiblePosition());
+    }
+
 
     /**
      * @return The current {@link SqueezerItemAdapter}'s {@link SqueezerItemView}
