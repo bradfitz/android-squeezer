@@ -40,4 +40,22 @@ android {
 
         instrumentTest.setRoot('tests')
     }
+
+    defaultConfig {
+        versionCode 13
+        versionName "0.9.1"
+        minSdkVersion 7
+        targetSdkVersion 14
+    }
+
+    productFlavors {
+        beta {
+            versionName "1.0-beta"
+            signingConfig android.signingConfigs.debug
+        }
+
+        live {
+            // Empty flavor so that the default build is selectable in Android Studio.
+        }
+    }
 }

@@ -63,7 +63,6 @@
     <string name="menu_item_playlist_clear">Löschen</string>
     <string name="menu_item_playlist_save">Speichern</string>
     <string name="menu_item_volume">Lautstärke</string>
-    <string name="about_title">Squeezer v%s</string>
     <string name="connecting_text">Verbinde</string>
     <string name="connecting_to_text">Verbinde mit SqueezeBox CLI %s</string>
     <string name="connection_failed_text">Verbindung fehlgeschlagen. Prüfen Sie die Einstellungen.</string>
