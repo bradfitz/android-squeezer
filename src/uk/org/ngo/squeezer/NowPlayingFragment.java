@@ -759,6 +759,7 @@ public class NowPlayingFragment extends Fragment implements
                 mService.unregisterCallback(serviceCallback);
                 mService.unregisterMusicChangedCallback(musicChangedCallback);
                 mService.unregisterHandshakeCallback(handshakeCallback);
+                mService.unregisterVolumeCallback(volumeCallback);
             } catch (RemoteException e) {
                 Log.e(TAG, "Service exception in onPause(): " + e);
             }
@@ -1149,12 +1150,7 @@ public class NowPlayingFragment extends Fragment implements
     private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback.Stub() {
         @Override
         public void onVolumeChanged(final int newVolume, final SqueezerPlayer player) throws RemoteException {
-            uiThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
-                }
-            });
+            mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
         }
     };
 }
