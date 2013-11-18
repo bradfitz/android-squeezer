@@ -71,8 +71,10 @@
     <string name="menu_item_playlist_save">Save as playlist</string>
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
+    <string name="connect_to_text">Connect to %s</string>
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
     <string name="connection_failed_text">Connection failed. Check settings.</string>
+    <string name="not_connected">Squeezer is not connected to any Squeezeservers.</string>
     <string name="login_failed_text">Login failed. Enter user name and password.</string>
     <string name="disconnected_text">Disconnected.</string>
     <string name="wifi_disabled_text">Wi-Fi is disabled</string>
