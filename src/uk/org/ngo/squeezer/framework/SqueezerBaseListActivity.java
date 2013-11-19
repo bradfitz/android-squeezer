@@ -23,8 +23,6 @@ import java.util.List;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -38,6 +36,8 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+
+import static com.google.common.base.Preconditions.*;
 
 /**
  * A generic base class for an activity to list items of a particular
@@ -233,9 +233,9 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         return itemAdapter;
     }
 
-	/**
-	 * @return The {@link AbsListView} used by this activity
-	 */
+    /**
+     * @return The {@link AbsListView} used by this activity
+     */
     public AbsListView getListView() {
         return mListView;
     }

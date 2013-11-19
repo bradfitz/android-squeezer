@@ -1528,7 +1528,6 @@ public class SqueezeService extends Service {
 			return true;
 		}
 
-
         /* Start an asynchronous search of the SqueezeboxServer's library */
         @Override
         public boolean search(int start, String searchString) throws RemoteException {

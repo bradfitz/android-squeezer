@@ -55,8 +55,8 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
 	private static final String TAG = SqueezerItemAdapter.class.getSimpleName();
 
     /**
-	 * View logic for this adapter
-	 */
+     * View logic for this adapter
+     */
     private SqueezerItemView<T> mItemView;
 
 	/**

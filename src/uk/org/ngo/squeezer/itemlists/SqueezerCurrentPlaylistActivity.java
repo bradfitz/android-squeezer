@@ -268,10 +268,10 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
         Log.i(getTag(), "set selection(" +start + "): "+ currentPlaylistIndex);
-	    getListView().post(new Runnable() {
+        getListView().post(new Runnable() {
             @Override
             public void run() {
-                //TODO this doesn't work if the current playlist is displayed in a grid
+                // TODO: this doesn't work if the current playlist is displayed in a grid
                 ((ListView)getListView()).setSelectionFromTop(currentPlaylistIndex, 0);
             }
         });
