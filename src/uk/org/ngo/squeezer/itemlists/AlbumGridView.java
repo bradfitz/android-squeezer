@@ -19,8 +19,6 @@ import java.util.EnumSet;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
-import uk.org.ngo.squeezer.model.SqueezerAlbum;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,15 +34,5 @@ public class AlbumGridView extends SqueezerAlbumView {
     @Override
     public View getAdapterView(View convertView, ViewGroup parent, EnumSet<ViewParams> viewParams) {
         return getAdapterView(convertView, parent, viewParams, R.layout.grid_item);
-    }
-
-    @Override
-    public void bindView(View view, SqueezerAlbum item, ImageFetcher imageFetcher) {
-        super.bindView(view, item, imageFetcher);
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
-
-        // Marquee effect on TextViews only works if they're selected.
-        viewHolder.text1.setSelected(true);
-        viewHolder.text2.setSelected(true);
     }
 }
