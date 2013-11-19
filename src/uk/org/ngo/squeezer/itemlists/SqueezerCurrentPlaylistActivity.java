@@ -40,6 +40,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import static uk.org.ngo.squeezer.framework.SqueezerBaseItemView.ViewHolder;
 
@@ -267,10 +268,11 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
         Log.i(getTag(), "set selection(" +start + "): "+ currentPlaylistIndex);
-	    getListView().post(new Runnable() {
+        getListView().post(new Runnable() {
             @Override
             public void run() {
-                getListView().setSelectionFromTop(currentPlaylistIndex, 0);
+                // TODO: this doesn't work if the current playlist is displayed in a grid
+                ((ListView)getListView()).setSelectionFromTop(currentPlaylistIndex, 0);
             }
         });
     }

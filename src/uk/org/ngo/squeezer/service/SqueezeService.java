@@ -45,7 +45,7 @@ import uk.org.ngo.squeezer.itemlists.IServicePluginItemListCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePluginListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceSongListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerSongOrderDialog;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
@@ -1533,7 +1533,6 @@ public class SqueezeService extends Service {
 			return true;
 		}
 
-
         /* Start an asynchronous search of the SqueezeboxServer's library */
         @Override
         public boolean search(int start, String searchString) throws RemoteException {
@@ -1542,7 +1541,7 @@ public class SqueezeService extends Service {
             if (!isNullOrEmpty(searchString))
                 parameters.add("term:" + searchString);
 
-            SqueezerAlbumOrderDialog.AlbumsSortOrder albumSortOrder = SqueezerAlbumOrderDialog.AlbumsSortOrder.valueOf(preferredAlbumSort());
+            AlbumViewDialog.AlbumsSortOrder albumSortOrder = AlbumViewDialog.AlbumsSortOrder.valueOf(preferredAlbumSort());
 
             artists(start, searchString, null, null);
             albums(start, albumSortOrder.name().replace("__", ""), searchString, null, null, null, null);

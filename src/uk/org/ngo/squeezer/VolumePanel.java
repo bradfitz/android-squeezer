@@ -105,7 +105,10 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
     }
 
     public void dismiss() {
-        forceTimeout();
+        removeMessages(MSG_TIMEOUT);
+        if (mDialog.isShowing()) {
+            mDialog.dismiss();
+        }
     }
 
     private void resetTimeout() {
@@ -181,9 +184,7 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
             }
 
             case MSG_TIMEOUT: {
-                if (mDialog.isShowing()) {
-                    mDialog.dismiss();
-                }
+                dismiss();
                 break;
             }
 

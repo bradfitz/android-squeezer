@@ -17,14 +17,14 @@
 package uk.org.ngo.squeezer.framework;
 
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -33,8 +33,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+
+import static com.google.common.base.Preconditions.*;
 
 /**
  * A generic base class for an activity to list items of a particular
@@ -56,18 +59,18 @@ import android.widget.ProgressBar;
 public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends SqueezerItemListActivity {
     private static final String TAG = SqueezerBaseListActivity.class.getName();
 
-    /** Tag for mItemView in mRetainFragment. */
-    public static final String TAG_ITEM_VIEW = "itemView";
+    /** Tag for first visible position in mRetainFragment. */
+    private static final String TAG_POSITION = "position";
+
 
     /** Tag for itemAdapter in mRetainFragment. */
     public static final String TAG_ADAPTER = "adapter";
 
-    private ListView mListView;
+    private AbsListView mListView;
 	private SqueezerItemAdapter<T> itemAdapter;
 
     /** Progress bar (spinning) while items are loading. */
     private ProgressBar loadingProgress;
-	private SqueezerItemView<T> itemView;
 
     /** Fragment to retain information across the activity lifecycle. */
     private RetainFragment mRetainFragment;
@@ -79,13 +82,11 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
 
         setContentView(getContentView());
-        mListView = checkNotNull((ListView) findViewById(R.id.item_list),
+        mListView = checkNotNull((AbsListView) findViewById(R.id.item_list),
             "getContentView() did not return a view containing R.id.item_list");
 
         loadingProgress = checkNotNull((ProgressBar) findViewById(R.id.loading_progress),
             "getContentView() did not return a view containing R.id.loading_progress");
-
-        mListView.setAdapter(getItemAdapter());
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -114,7 +115,7 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
     /**
      * Returns the ID of a content view to be used by this list activity.
      * <p>
-     * The content view must contain a {@link ListView} with the id {@literal item_list} and
+     * The content view must contain a {@link AbsListView} with the id {@literal item_list} and
      * a {@link ProgressBar} with the id {@literal loading_progress} in order to be valid.
      *
      * @return The ID
@@ -135,11 +136,44 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
         return itemAdapter.doItemContext(menuItem, menuInfo.position);
     }
 
+    /**
+     * Set our adapter on the list view.
+     * <p>
+     * This can't be done in {@link #onCreate(android.os.Bundle)} because
+     * getView might be called before the service is connected, so we need to
+     * delay it.
+     * <p>
+     * However when we set the adapter after onCreate the list is scrolled to
+     * top, so we retain the visible position.
+     * <p>
+     * Call this method when the service is connected
+     */
+    private void setAdapter() {
+        // setAdapter is not defined for AbsListView before API level 11, but
+        // it is for concrete implementations, so we call it by reflection
+        try {
+            Method method = mListView.getClass().getMethod("setAdapter", ListAdapter.class);
+            method.invoke(mListView, getItemAdapter());
+        } catch (Exception e) {
+            Log.e(getTag(), "Error calling 'setAdapter'", e);
+        }
+
+        Integer position = (Integer)mRetainFragment.get(TAG_POSITION);
+        if (position != null) {
+            if (mListView instanceof ListView)
+                ((ListView)mListView).setSelectionFromTop(position, 0);
+            else
+                mListView.setSelection(position);
+        }
+    }
+
+
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
 
         maybeOrderVisiblePages(mListView);
+        setAdapter();
     }
 
     @Override
@@ -148,22 +182,32 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
 
         if (getService() != null) {
             maybeOrderVisiblePages(mListView);
+            setAdapter();
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveVisiblePosition();
+    }
+
     /**
-     * @return The current {@link SqueezerItemView}, creating it if necessary
+     * Store the first visible position of {@link #mListView}, in the {@link #mRetainFragment},
+     * so we can later retrieve it.
+     *
+     * @see android.widget.AbsListView#getFirstVisiblePosition()
+     */
+    private void saveVisiblePosition() {
+        mRetainFragment.put(TAG_POSITION, mListView.getFirstVisiblePosition());
+    }
+
+
+    /**
+     * @return The current {@link SqueezerItemAdapter}'s {@link SqueezerItemView}
      */
     public SqueezerItemView<T> getItemView() {
-        if (itemView == null) {
-            //noinspection unchecked
-            itemView = (SqueezerItemView<T>) mRetainFragment.get(TAG_ITEM_VIEW);
-            if (itemView == null) {
-                itemView = createItemView();
-                mRetainFragment.put(TAG_ITEM_VIEW, itemView);
-            }
-        }
-        return itemView;
+        return getItemAdapter().getItemView();
     }
 
     /**
@@ -175,18 +219,24 @@ public abstract class SqueezerBaseListActivity<T extends SqueezerItem> extends S
             //noinspection unchecked
             itemAdapter = (SqueezerItemAdapter<T>)mRetainFragment.get(TAG_ADAPTER);
             if (itemAdapter == null) {
-                itemAdapter = createItemListAdapter(getItemView());
+                itemAdapter = createItemListAdapter(createItemView());
                 mRetainFragment.put(TAG_ADAPTER, itemAdapter);
+            } else {
+                // We have just retained the item adapter, we need to create a new
+                // item view logic, cause it holds a reference to the old activity
+                itemAdapter.setItemView(createItemView());
+                // Update views with the count from the retained item adapter
+                itemAdapter.onCountUpdated();
             }
         }
 
         return itemAdapter;
     }
 
-	/**
-	 * @return The {@link ListView} used by this activity
-	 */
-    public ListView getListView() {
+    /**
+     * @return The {@link AbsListView} used by this activity
+     */
+    public AbsListView getListView() {
         return mListView;
     }
 

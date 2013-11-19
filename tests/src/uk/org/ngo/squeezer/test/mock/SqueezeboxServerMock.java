@@ -10,7 +10,7 @@ import java.net.Socket;
 
 import junit.framework.AssertionFailedError;
 
-import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerAlbumOrderDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog.AlbumsSortOrder;
 
 import android.util.Log;
 

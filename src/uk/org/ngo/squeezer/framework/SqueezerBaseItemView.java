@@ -245,20 +245,34 @@ public abstract class SqueezerBaseItemView<T extends SqueezerItem> implements Sq
     }
 
     /**
-     * Creates a view from {@code convertView} and the {@code viewParams}.
-     * 
+     * Creates a view from {@code convertView} and the {@code viewParams} using the default
+     * layout {@link R.layout#list_item}
+     *
      * @param convertView View to reuse if possible.
      * @param parent The {@link ViewGroup} to inherit properties from.
      * @param viewParams A set of 0 or more {@link ViewParams} to customise the view.
      * @return convertView if it can be reused, or a new view
      */
     public View getAdapterView(View convertView, ViewGroup parent, EnumSet<ViewParams> viewParams) {
+        return getAdapterView(convertView, parent, viewParams, R.layout.list_item);
+    }
+
+    /**
+     * Creates a view from {@code convertView} and the {@code viewParams}.
+     * 
+     * @param convertView View to reuse if possible.
+     * @param parent The {@link ViewGroup} to inherit properties from.
+     * @param viewParams A set of 0 or more {@link ViewParams} to customise the view.
+     * @param layoutResource The layout resource defining the item view
+     * @return convertView if it can be reused, or a new view
+     */
+    public View getAdapterView(View convertView, ViewGroup parent, EnumSet<ViewParams> viewParams, int layoutResource) {
         ViewHolder viewHolder = (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
                 ? (ViewHolder) convertView.getTag()
                 : null;
 
         if (viewHolder == null) {
-            convertView = getLayoutInflater().inflate(R.layout.list_item, parent, false);
+            convertView = getLayoutInflater().inflate(layoutResource, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);

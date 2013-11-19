@@ -170,14 +170,18 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
 	 */
 	protected abstract void unregisterCallback() throws RemoteException;
 
-    private void createImageFetcher() {
+    protected ImageFetcher createImageFetcher() {
         // Get an ImageFetcher to scale artwork to the size of the icon view.
         Resources resources = getResources();
         int iconSize = (Math.max(
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
-        mImageFetcher = new ImageFetcher(this, iconSize);
-        mImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+        ImageFetcher imageFetcher = new ImageFetcher(this, iconSize);
+        imageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+        return imageFetcher;
+    }
+
+    protected void createImageCacheParams() {
         mImageCacheParams = new ImageCache.ImageCacheParams(this, "artwork");
         mImageCacheParams.setMemCacheSizePercent(this, 0.12f);
     }
@@ -186,13 +190,15 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
         if (mImageFetcher == null) {
             mImageFetcher = (ImageFetcher) mRetainFragment.get(TAG_IMAGE_FETCHER);
             if (mImageFetcher == null) {
-                createImageFetcher();
+                mImageFetcher = createImageFetcher();
+                createImageCacheParams();
                 mRetainFragment.put(TAG_IMAGE_FETCHER, mImageFetcher);
             }
         }
 
         return mImageFetcher;
     }
+
 
     /**
      * Implementations must start an asynchronous fetch of items, when this is called.

@@ -170,14 +170,18 @@ public class ActionBarHelperBase extends ActionBarHelper {
      * The menu item will still be visible.
      * <p>
      * Finds out whether the item is on the action bar or the options menu, and set the
-     * visibility on the proper element.
+     * invokable state on the proper element.
      * 
-     * @param item The id of the menu item  to set the invokable state for
+     * @param item The menu item  to set the invokable state for
      * @param enabled If true then the item will be invokable; if false it is won't be invokable.
      */
     public void setEnabled(SimpleMenuItem item, boolean enabled) {
         if (item.isActionBar()) {
-            mActionBarItems.get(item.getItemId()).setEnabled(enabled);
+            // If mActionBarItems is null, the state is being set from onCreateOptionsMenu.
+            // Just skip it now, the state will be set in addActionItemCompatFromMenuItem.
+            if (mActionBarItems != null) {
+                mActionBarItems.get(item.getItemId()).setEnabled(enabled);
+            }
         } else if (mOptionsMenu != null) {
             mOptionsMenu.findItem(item.getItemId()).setEnabled(enabled);
         }
@@ -188,12 +192,16 @@ public class ActionBarHelperBase extends ActionBarHelper {
      * Finds out whether the item is on the action bar or the options menu, and set the
      * visibility on the proper element.
      * 
-     * @param itemId The id of the menu item to set the visibility for
+     * @param item The menu item to set the visibility for
      * @param visible If true then the item will be visible; if false it is hidden.
      */
     public void setVisible(SimpleMenuItem item, boolean visible) {
         if (item.isActionBar()) {
-            mActionBarItems.get(item.getItemId()).setVisibility(visible ? View.VISIBLE : View.GONE);
+            // If mActionBarItems is null, the visibility is being set from onCreateOptionsMenu.
+            // Just skip it now, the visibility will be set in addActionItemCompatFromMenuItem.
+            if (mActionBarItems != null) {
+                mActionBarItems.get(item.getItemId()).setVisibility(visible ? View.VISIBLE : View.GONE);
+            }
         } else if (mOptionsMenu != null) {
             mOptionsMenu.findItem(item.getItemId()).setVisible(visible);
         }
@@ -221,7 +229,7 @@ public class ActionBarHelperBase extends ActionBarHelper {
      * Adds an action button to the compatibility action bar, using menu information from a {@link
      * android.view.MenuItem}. If the menu item ID is <code>menu_refresh</code>, the menu item's
      * state can be changed to show a loading spinner using
-     * {@link com.example.android.actionbarcompat.ActionBarHelperBase#setRefreshActionItemState(boolean)}.
+     * {@link #setRefreshActionItemState(boolean)}.
      */
     private View addActionItemCompatFromMenuItem(final MenuItem item) {
         final int itemId = item.getItemId();
@@ -280,6 +288,9 @@ public class ActionBarHelperBase extends ActionBarHelper {
             mActionBarCompat.addView(indicator);
         }
 
+        // Set the initial state from the menu item.
+        actionButton.setEnabled(item.isEnabled());
+        actionButton.setVisibility(item.isVisible() ? View.VISIBLE : View.GONE);
         return actionButton;
     }
 
