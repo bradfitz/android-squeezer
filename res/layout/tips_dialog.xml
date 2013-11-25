@@ -44,7 +44,7 @@ limitations under the License.
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
                 android:text="@string/tips_title"
-                android:textSize="32dp"
+                android:textSize="32sp"
                 android:paddingLeft="8dp"/>
         </LinearLayout>
 
