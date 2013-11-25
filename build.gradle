@@ -17,6 +17,8 @@ dependencies {
 
     compile group: 'ch.acra', name: 'acra', version: '4.5.0'
     compile group: 'com.google.guava', name: 'guava', version: '15.0'
+    // findbugs is required for Proguard to work with Guava.
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '2.0.2'
 }
 
 task wrapper(type: org.gradle.api.tasks.wrapper.Wrapper) {
@@ -48,6 +50,19 @@ android {
         targetSdkVersion 14
     }
 
+    buildTypes {
+        release {
+            runProguard true
+            // You could use 'proguardFile "proguard.cfg"' here and get the
+            // same effect, but this ensures that any changes to
+            // proguard-android-optimize.txt are automatically included.
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFile "proguard-acra.cfg"
+            proguardFile "proguard-guava.cfg"
+            proguardFile "proguard-squeezer.cfg"
+        }
+    }
+
     productFlavors {
         beta {
             versionName "1.0-beta"
@@ -55,7 +70,7 @@ android {
         }
 
         live {
-            // Empty flavor so that the default build is selectable in Android Studio.
+            signingConfig android.signingConfigs.debug
         }
     }
 }
