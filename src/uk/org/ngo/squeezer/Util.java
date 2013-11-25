@@ -16,17 +16,17 @@
 
 package uk.org.ngo.squeezer;
 
+import android.app.Activity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
-
-import android.app.Activity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class Util {
     private Util() {}
@@ -66,8 +66,7 @@ public class Util {
         if (decimalPoint != -1) value = value.substring(0, decimalPoint);
         if (value.length() == 0) return defaultValue;
         try {
-            int intValue = Integer.parseInt(value);
-            return intValue;
+            return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             return defaultValue;
         }

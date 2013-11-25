@@ -16,15 +16,6 @@
 
 package uk.org.ngo.squeezer.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import uk.org.ngo.squeezer.BuildConfig;
-
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -36,6 +27,15 @@ import android.os.StatFs;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.util.LruCache;
 import android.util.Log;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import uk.org.ngo.squeezer.BuildConfig;
 
 /**
  * This class holds our bitmap caches (memory and disk).
@@ -302,8 +302,7 @@ public class ImageCache {
                         }
                         inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
                         if (inputStream != null) {
-                            final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                            return bitmap;
+                            return BitmapFactory.decodeStream(inputStream);
                         }
                     }
                 } catch (final IOException e) {
