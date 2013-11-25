@@ -71,8 +71,6 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
 				NowPlayingActivity.show(SqueezerRandomplayActivity.this);
 				return;
 			}
-			switch (position) {
-			}
 		}
 	};
 
