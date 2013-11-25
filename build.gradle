@@ -63,14 +63,36 @@ android {
         }
     }
 
+    signingConfigs {
+        if(project.hasProperty("Squeezer.properties")
+                && new File(project.property("Squeezer.properties")).exists()) {
+            Properties props = new Properties()
+            props.load(new FileInputStream(file(project.property("Squeezer.properties"))))
+
+            release {
+                storeFile file("keystore")
+                storePassword props['key.store.password']
+                keyAlias "squeezer"
+                keyPassword props['key.alias.password']
+            }
+        } else {
+            release {
+                storeFile file("keystore")
+                storePassword "fakeStorePassword"
+                keyAlias "squeezer"
+                keyPassword "fakeKeyPassword"
+            }
+        }
+    }
+
     productFlavors {
         beta {
             versionName "1.0-beta"
-            signingConfig android.signingConfigs.debug
+            signingConfig android.signingConfigs.release
         }
 
         live {
-            signingConfig android.signingConfigs.debug
+            signingConfig android.signingConfigs.release
         }
     }
 }
