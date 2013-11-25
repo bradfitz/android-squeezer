@@ -29,4 +29,12 @@ Android Studio
 *   In the "Import Project from Gradle" dialog tick "Use auto-import" and
     make sure that "Use gradle wrapper (recommended)" is selected.
 
+*   Copy ide/intellij/codestyles/AndroidStyle.xml to Android Studio's config
+    directory.
 
+    Linux: ~/.AndroidStudioPreview/config/codestyles
+    OS X: ~/Library/Preferences/AndroidStudioPreview/codestyles
+    Windows: TBD
+
+*   Go to Settings (or Preferences in Mac OS X) > Code Style > Java, select
+    "AndroidStyle", as well as Code Style > XML and select "AndroidStyle".
