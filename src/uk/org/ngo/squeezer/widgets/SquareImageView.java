@@ -44,13 +44,12 @@ public class SquareImageView extends ImageView {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int size = 0;
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
         int widthWithoutPadding = width - getPaddingLeft() - getPaddingRight();
         int heightWithoutPadding = height - getPaddingTop() - getPaddingBottom();
 
-        size = Math.min(heightWithoutPadding, widthWithoutPadding);
+        int size = Math.min(heightWithoutPadding, widthWithoutPadding);
 
         setMeasuredDimension(size + getPaddingLeft() + getPaddingRight(), size + getPaddingTop() + getPaddingBottom());
     }
