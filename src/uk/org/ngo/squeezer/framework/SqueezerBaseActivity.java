@@ -253,7 +253,7 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
     private enum PlaylistControlCmd {
     	load,
     	add,
-    	insert;
+        insert
     }
 
 }

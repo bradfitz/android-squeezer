@@ -32,7 +32,7 @@ public class SqueezerOrderMenuItemFragment extends MenuFragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         activity = (SqueezerOrderableListActivity) getActivity();
-    };
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

@@ -67,7 +67,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
     protected SqueezerItemAdapter<SqueezerMusicFolderItem> createItemListAdapter(
             SqueezerItemView<SqueezerMusicFolderItem> itemView) {
         return new SqueezerItemAdapter<SqueezerMusicFolderItem>(itemView);
-    };
+    }
 
     /**
      * Extract the folder to view (if provided).
