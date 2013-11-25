@@ -1,14 +1,13 @@
 package uk.org.ngo.squeezer.itemlists.dialogs;
 
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
+
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistSongsActivity;
 
 public class SqueezerPlaylistDeleteDialog extends DialogFragment {
     private SqueezerPlaylistSongsActivity activity;
