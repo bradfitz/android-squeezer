@@ -389,7 +389,8 @@ public final class DiskLruCache implements Closeable {
             entry.setLengths(copyOfRange(parts, 2, parts.length));
         } else if (parts[0].equals(DIRTY) && parts.length == 2) {
             entry.currentEditor = new Editor(entry);
-        } else if (parts[0].equals(READ) && parts.length == 2) {
+        } else //noinspection StatementWithEmptyBody
+            if (parts[0].equals(READ) && parts.length == 2) {
             // this work was already done by calling lruEntries.get()
         } else {
             throw new IOException("unexpected journal line: " + line);
