@@ -9,11 +9,6 @@ import android.view.MenuItem;
 public class SqueezerMenuFragment extends MenuFragment {
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // Application icon clicked.
