@@ -194,7 +194,7 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
     	play,
     	load,
     	add,
-    	insert;
+        insert
     }
 
 }

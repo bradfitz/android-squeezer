@@ -110,7 +110,6 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
             TextView artistView = (TextView) findViewById(R.id.artistname);
             TextView yearView = (TextView) findViewById(R.id.yearname);
             ImageView btnContextMenu = (ImageView) findViewById(R.id.context_menu);
-            ImageView artwork = (ImageView) findViewById(R.id.album);
 
             albumView.setText(album.getName());
             artistView.setText(album.getArtist());

@@ -48,6 +48,6 @@ public class SqueezerGenreView extends SqueezerBaseItemView<SqueezerGenre> {
         menu.add(Menu.NONE, R.id.browse_artists, 2, R.string.BROWSE_ARTISTS);
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
-	};
+	}
 
 }

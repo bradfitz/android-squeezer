@@ -1532,9 +1532,6 @@ public class SqueezeService extends Service {
         @Override
         public boolean search(int start, String searchString) throws RemoteException {
             if (!isConnected()) return false;
-            List<String> parameters = new ArrayList<String>();
-            if (!isNullOrEmpty(searchString))
-                parameters.add("term:" + searchString);
 
             AlbumViewDialog.AlbumsSortOrder albumSortOrder = AlbumViewDialog.AlbumsSortOrder.valueOf(preferredAlbumSort());
 

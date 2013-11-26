@@ -16,20 +16,20 @@
 
 package uk.org.ngo.squeezer.util;
 
-import java.lang.ref.WeakReference;
-
-import uk.org.ngo.squeezer.BuildConfig;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.widget.ImageView;
+
+import java.lang.ref.WeakReference;
+
+import uk.org.ngo.squeezer.BuildConfig;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading a bitmap to an

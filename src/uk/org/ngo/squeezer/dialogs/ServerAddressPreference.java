@@ -16,21 +16,8 @@
 
 package uk.org.ngo.squeezer.dialogs;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
 import org.acra.ErrorReporter;
 
-import uk.org.ngo.squeezer.Preferences;
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Squeezer;
-import uk.org.ngo.squeezer.util.UIUtils;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -55,6 +42,20 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
+import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.util.UIUtils;
+
 /**
  * Shows a preference dialog that allows the user to scan the local network
  * for servers, choose a server from the results of the scan, or enter the
@@ -62,7 +63,7 @@ import android.widget.TextView;
  */
 public class ServerAddressPreference extends DialogPreference {
     private EditText mServerAddressEditText;
-    private Button mScanBtn;
+
     private Spinner mServersSpinner;
 
     private ScanNetworkTask mScanNetworkTask;
@@ -88,7 +89,7 @@ public class ServerAddressPreference extends DialogPreference {
         super.onBindDialogView(view);
 
         mServerAddressEditText = (EditText) view.findViewById(R.id.server_address);
-        mScanBtn = (Button) view.findViewById(R.id.scan_btn);
+        Button scanBtn = (Button) view.findViewById(R.id.scan_btn);
         mServersSpinner = (Spinner) view.findViewById(R.id.found_servers);
 
         userNameEditText = (EditText) view.findViewById(R.id.username);
@@ -127,7 +128,7 @@ public class ServerAddressPreference extends DialogPreference {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
-            mScanBtn.setOnClickListener(new OnClickListener() {
+            scanBtn.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     startNetworkScan();
                 }
@@ -135,7 +136,7 @@ public class ServerAddressPreference extends DialogPreference {
         } else {
             TextView scan_msg = (TextView) view.findViewById(R.id.scan_msg);
             scan_msg.setText(mContext.getText(R.string.settings_server_scanning_disabled_msg));
-            mScanBtn.setEnabled(false);
+            scanBtn.setEnabled(false);
         }
     }
 

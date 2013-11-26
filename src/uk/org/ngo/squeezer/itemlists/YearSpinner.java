@@ -16,6 +16,13 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import android.os.Handler;
+import android.os.RemoteException;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Spinner;
+
 import java.util.List;
 
 import uk.org.ngo.squeezer.Util;
@@ -24,13 +31,6 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerYear;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-
-import android.os.Handler;
-import android.os.RemoteException;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Spinner;
 
 public class YearSpinner {
 	private static final String TAG = YearSpinner.class.getName();
@@ -92,8 +92,8 @@ public class YearSpinner {
 							@Override
 							public View getAdapterView(View convertView, ViewGroup parent, String label) {
                                 return Util.getSpinnerItemView(getActivity(), convertView, parent, label);
-							};
-						};
+                            }
+                        };
                         adapter = new SqueezerItemAdapter<SqueezerYear>(itemView, true, null);
 						spinner.setAdapter(adapter);
 					}

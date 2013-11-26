@@ -50,7 +50,7 @@ public class ActionBarHelperHoneycomb extends ActionBarHelper {
     @Override
     public MenuItem findItem(int id) {
         return mOptionsMenu.findItem(id);
-    };
+    }
 
     @Override
     public void setRefreshActionItemState(boolean refreshing) {

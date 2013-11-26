@@ -17,9 +17,6 @@
 package uk.org.ngo.squeezer;
 
 
-import java.util.Arrays;
-
-import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,6 +26,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import java.util.Arrays;
+
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 
 public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
     private ListView listView;
@@ -70,8 +71,6 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
 				NowPlayingActivity.show(SqueezerRandomplayActivity.this);
 				return;
 			}
-			switch (position) {
-			}
 		}
 	};
 
@@ -84,7 +83,7 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
 		tracks,
 		albums,
 		contributors,
-		year;
-	}
+        year
+    }
 
 }

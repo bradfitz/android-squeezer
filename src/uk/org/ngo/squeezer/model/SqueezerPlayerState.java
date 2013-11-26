@@ -172,7 +172,7 @@ public class SqueezerPlayerState implements Parcelable {
     public static enum PlayStatus {
         play,
         pause,
-        stop;
+        stop
     }
 
     public static enum ShuffleStatus implements EnumWithId {
