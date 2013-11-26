@@ -26,8 +26,13 @@ task wrapper(type: org.gradle.api.tasks.wrapper.Wrapper) {
 }
 
 android {
-    compileSdkVersion 17
-    buildToolsVersion "17.0.0"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.0"
+
+    defaultConfig {
+        minSdkVersion 7
+        targetSdkVersion 19
+    }
 
     sourceSets {
         main {
@@ -41,13 +46,6 @@ android {
         }
 
         instrumentTest.setRoot('tests')
-    }
-
-    defaultConfig {
-        versionCode 13
-        versionName "0.9.1"
-        minSdkVersion 7
-        targetSdkVersion 19
     }
 
     buildTypes {
@@ -87,11 +85,14 @@ android {
 
     productFlavors {
         beta {
+            versionCode 14
             versionName "1.0-beta"
             signingConfig android.signingConfigs.release
         }
 
         live {
+            versionCode 13
+            versionName "0.9.1"
             signingConfig android.signingConfigs.release
         }
     }
