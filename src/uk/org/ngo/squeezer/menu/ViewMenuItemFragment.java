@@ -1,12 +1,12 @@
 package uk.org.ngo.squeezer.menu;
 
+import uk.org.ngo.squeezer.R;
+
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
-import uk.org.ngo.squeezer.R;
 
 /**
  * A fragment that implements a "View" menu.
@@ -66,5 +66,4 @@ public class ViewMenuItemFragment extends MenuFragment {
          */
         FragmentManager getSupportFragmentManager();
     }
-
 }

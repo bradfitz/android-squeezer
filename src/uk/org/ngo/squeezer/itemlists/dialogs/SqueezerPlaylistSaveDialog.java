@@ -1,12 +1,13 @@
 package uk.org.ngo.squeezer.itemlists.dialogs;
 
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.InputType;
 import android.util.Log;
+
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
 
 public class SqueezerPlaylistSaveDialog extends SqueezerBaseEditTextDialog {
     private SqueezerBaseActivity activity;
@@ -26,7 +27,7 @@ public class SqueezerPlaylistSaveDialog extends SqueezerBaseEditTextDialog {
             editText.setText(name);
 
         return dialog;
-    };
+    }
 
     @Override
     protected boolean commit(String name) {

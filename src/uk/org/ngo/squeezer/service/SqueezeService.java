@@ -1528,14 +1528,10 @@ public class SqueezeService extends Service {
 			return true;
 		}
 
-
         /* Start an asynchronous search of the SqueezeboxServer's library */
         @Override
         public boolean search(int start, String searchString) throws RemoteException {
             if (!isConnected()) return false;
-            List<String> parameters = new ArrayList<String>();
-            if (!isNullOrEmpty(searchString))
-                parameters.add("term:" + searchString);
 
             AlbumViewDialog.AlbumsSortOrder albumSortOrder = AlbumViewDialog.AlbumsSortOrder.valueOf(preferredAlbumSort());
 

@@ -162,7 +162,7 @@ public class ActionBarHelperBase extends ActionBarHelper {
     @Override
     public MenuItem findItem(int id) {
         return mSimpleMenu.findItem(id);
-    };
+    }
 
     /**
      * Sets whether the menu item is enabled. 

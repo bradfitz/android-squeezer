@@ -231,7 +231,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
             listLayout = AlbumListLayout.valueOf(listLayoutString);
     }
 
-	public void setListLayout(AlbumListLayout listLayout) {
+    public void setListLayout(AlbumListLayout listLayout) {
         SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(Preferences.KEY_ALBUM_LIST_LAYOUT, listLayout.name());
@@ -239,7 +239,7 @@ public class SqueezerAlbumListActivity extends SqueezerBaseListActivity<Squeezer
 
         startActivity(getIntent());
         finish();
-	}
+    }
 
     @Override
     public boolean onSearchRequested() {

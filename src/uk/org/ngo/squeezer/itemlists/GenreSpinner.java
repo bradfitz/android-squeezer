@@ -94,9 +94,9 @@ public class GenreSpinner {
                             @Override
                             public View getAdapterView(View convertView, ViewGroup parent, String label) {
                                 return Util.getSpinnerItemView(getActivity(), convertView, parent, label);
-                            };
+                            }
 
-						};
+                        };
                         adapter = new SqueezerItemAdapter<SqueezerGenre>(itemView, true, null);
 						spinner.setAdapter(adapter);
 					}

@@ -154,7 +154,7 @@ public class NowPlayingFragment extends Fragment implements
                 if (!isConnected()) {
                     // Requires a serviceStub. Else we'll do this on the service
                     // connection callback.
-                    if (mService != null) {
+                    if (mService != null && !isManualDisconnect()) {
                         Log.v(TAG, "Initiated connect on WIFI connected");
                         startVisibleConnection();
                     }
@@ -522,12 +522,11 @@ public class NowPlayingFragment extends Fragment implements
             }
         });
 
-        // Assume they want to connect...
-        if (!isConnected()) {
+        // Assume they want to connect (unless manually disconnected).
+        if (!isConnected() && !isManualDisconnect()) {
             startVisibleConnection();
         }
     }
-
 
     @Override
     public void onResume() {
@@ -905,6 +904,7 @@ public class NowPlayingFragment extends Fragment implements
             case R.id.menu_item_disconnect:
                 try {
                     mService.disconnect();
+                    DisconnectedActivity.show(mActivity);
                 } catch (RemoteException e) {
                     Toast.makeText(mActivity, e.toString(),
                             Toast.LENGTH_LONG).show();
@@ -976,6 +976,15 @@ public class NowPlayingFragment extends Fragment implements
         return preferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true);
     }
 
+    /**
+     * Has the user manually disconnected from the server?
+     *
+     * @return true if they have, false otherwise.
+     */
+    private boolean isManualDisconnect() {
+        return getActivity() instanceof DisconnectedActivity;
+    }
+
     private void onUserInitiatesConnect() {
         // Set up a server connection, if it is not present
         if (getConfiguredCliIpPort(getSharedPreferences()) == null) {
@@ -1019,7 +1028,7 @@ public class NowPlayingFragment extends Fragment implements
                 }
 
                 if (isConnectInProgress()) {
-                    Log.v(TAG, "Connection is allready in progress, connecting aborted");
+                    Log.v(TAG, "Connection is already in progress, connecting aborted");
                     return;
                 }
                 try {

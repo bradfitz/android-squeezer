@@ -33,5 +33,4 @@ public enum SqueezerServerString {
     public void setLocalizedString(String localizedString) {
         this.localizedString = localizedString;
     }
-
 }

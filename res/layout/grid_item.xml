@@ -37,56 +37,56 @@ for the implementation.
 
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:descendantFocusability="blocksDescendants"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:descendantFocusability="blocksDescendants">
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp">
 
     <uk.org.ngo.squeezer.widgets.SquareImageView
         android:id="@+id/icon"
-        android:contentDescription="@string/app_name"
-        android:layout_gravity="center"
         android:layout_width="@dimen/album_art_icon_grid_width"
         android:layout_height="@dimen/album_art_icon_grid_height"
-        android:maxWidth="@dimen/album_art_icon_grid_width"
-        android:minWidth="@dimen/album_art_icon_grid_width"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
+        android:contentDescription="@string/app_name"
         android:maxHeight="@dimen/album_art_icon_grid_height"
-        android:minHeight="@dimen/album_art_icon_grid_height" />
+        android:maxWidth="@dimen/album_art_icon_grid_width"
+        android:minHeight="@dimen/album_art_icon_grid_height"
+        android:minWidth="@dimen/album_art_icon_grid_width" />
 
-    <LinearLayout
-        android:layout_width="fill_parent"
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
-            <TextView android:id="@+id/text1"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/SqueezerTextItem"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
-                />
-            <TextView android:id="@+id/text2"
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/SqueezerTextItemSmall"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
-                />
-        </LinearLayout>
-        <include layout="@layout/context_menu_image_button" />
-    </LinearLayout>
+        android:layout_below="@id/icon"
+        android:ellipsize="end"
+        android:paddingTop="4dp"
+        android:singleLine="true"
+        android:textAppearance="@style/SqueezerTextItem"
+        tools:text="Album name" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/text2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text1"
+        android:layout_toLeftOf="@id/context_menu"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textAppearance="@style/SqueezerTextItemSmall"
+        tools:text="Artist info" />
+
+    <include
+        layout="@layout/context_menu_image_button"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:minWidth="36dp" />
+</RelativeLayout>

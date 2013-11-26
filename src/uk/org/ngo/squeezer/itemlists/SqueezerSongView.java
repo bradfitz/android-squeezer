@@ -25,7 +25,6 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerPlaylistItemView;
 import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
-import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.ISqueezeService;

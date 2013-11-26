@@ -146,5 +146,4 @@ public class AlbumViewDialog extends DialogFragment {
             this.serverString = serverString;
         }
     }
-
 }

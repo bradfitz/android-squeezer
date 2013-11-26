@@ -55,8 +55,8 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
 	private static final String TAG = SqueezerItemAdapter.class.getSimpleName();
 
     /**
-	 * View logic for this adapter
-	 */
+     * View logic for this adapter
+     */
     private SqueezerItemView<T> mItemView;
 
 	/**
@@ -269,10 +269,8 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
      */
 	public String getHeader() {
 		String item_text = getQuantityString(getCount());
-		String header = getActivity().getString(R.string.browse_items_text, item_text, getCount());
-		return header;
-	}
-
+        return getActivity().getString(R.string.browse_items_text, item_text, getCount());
+    }
 
 	/**
 	 * Called when the number of items in the list changes.
