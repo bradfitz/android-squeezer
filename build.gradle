@@ -47,7 +47,7 @@ android {
         versionCode 13
         versionName "0.9.1"
         minSdkVersion 7
-        targetSdkVersion 14
+        targetSdkVersion 19
     }
 
     buildTypes {
