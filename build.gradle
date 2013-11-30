@@ -15,6 +15,11 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
 
+    // Android support libraries
+    // Note: these libraries require the "Google Repository" and "Android
+    //       Support Repository" to be installed via the SDK manager.
+    compile group: 'com.android.support', name: 'support-v4', version: '19.0.+'
+
     compile group: 'ch.acra', name: 'acra', version: '4.5.0'
     compile group: 'com.google.guava', name: 'guava', version: '15.0'
     // findbugs is required for Proguard to work with Guava.
