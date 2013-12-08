@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Squeezer</string>
     <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
@@ -126,7 +126,7 @@
 
     <string name="copyright_text">Copyright &#169; 2009 Google Inc.  All Rights Reserved\nCopyright &#169; 2011 Kurt Aaholst.  All Rights Reserved.</string>
 
-    <string name="license_text">&lt;p&gt;Apache License&lt;br /&gt;
+    <string name="license_text" tools:ignore="TypographyOther">&lt;p&gt;Apache License&lt;br /&gt;
 Version 2.0, January 2004&lt;br /&gt;
 http://www.apache.org/licenses/&lt;/p&gt;
 
