@@ -26,7 +26,7 @@ dependencies {
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '2.0.2'
 }
 
-task wrapper(type: org.gradle.api.tasks.wrapper.Wrapper) {
+task wrapper(type: Wrapper) {
     gradleVersion = '1.8'
 }
 
