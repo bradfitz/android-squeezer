@@ -321,8 +321,8 @@ public class SqueezerSongListActivity extends SqueezerAbstractSongListActivity
         // shows them).
         if (album == null) {
             getMenuInflater().inflate(R.menu.playmenu, menu);
-            playButton = getActionBarHelper().findItem(R.id.play_now);
-            addButton = getActionBarHelper().findItem(R.id.add_to_playlist);
+            playButton = menu.findItem(R.id.play_now);
+            addButton = menu.findItem(R.id.add_to_playlist);
         }
         return super.onCreateOptionsMenu(menu);
     }

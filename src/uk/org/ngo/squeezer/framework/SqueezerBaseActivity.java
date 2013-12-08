@@ -18,14 +18,6 @@ package uk.org.ngo.squeezer.framework;
 
 import org.acra.ErrorReporter;
 
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
-import uk.org.ngo.squeezer.menu.MenuFragment;
-import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
-import uk.org.ngo.squeezer.model.SqueezerSong;
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
-import uk.org.ngo.squeezer.service.SqueezerServerString;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -34,9 +26,19 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
+
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.menu.MenuFragment;
+import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
+import uk.org.ngo.squeezer.model.SqueezerSong;
+import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.SqueezerServerString;
 
 /**
  * Common base class for all activities in the squeezer
@@ -83,7 +85,10 @@ public abstract class SqueezerBaseActivity extends ActionBarActivity implements 
     @Override
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActionBarHelper().setIcon(R.drawable.ic_launcher);
+        ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setIcon(R.drawable.ic_launcher);
+        actionBar.setHomeButtonEnabled(true);
         bindService(new Intent(this, SqueezeService.class), serviceConnection, Context.BIND_AUTO_CREATE);
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
 

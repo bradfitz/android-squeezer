@@ -1,6 +1,5 @@
 package uk.org.ngo.squeezer.menu;
 
-import uk.org.ngo.squeezer.actionbarcompat.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;

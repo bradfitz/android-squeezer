@@ -16,13 +16,14 @@
    limitations under the License.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:squeezer="http://schemas.android.com/apk/res-auto">
     <item
         android:icon="@drawable/ic_menu_search"
         android:id="@+id/menu_item_search"
         android:title="@string/menu_item_search_label"
         android:alphabeticShortcut="s"
-        android:showAsAction="ifRoom"
+        squeezer:showAsAction="ifRoom"
         android:orderInCategory="0"
         />
 
@@ -31,7 +32,7 @@
         android:title="@string/menu_item_playlist"
         android:alphabeticShortcut="p"
         android:icon="@drawable/ic_menu_playlist"
-        android:showAsAction="always|withText"
+        squeezer:showAsAction="always|withText"
         android:orderInCategory="1"
         />
 
@@ -40,7 +41,7 @@
         android:title="@string/menu_item_players"
         android:alphabeticShortcut="z"
         android:icon="@drawable/ic_menu_choose_player"
-        android:showAsAction="ifRoom|withText"
+        squeezer:showAsAction="ifRoom|withText"
     />
 
     <item
@@ -63,7 +64,7 @@
         android:icon="@drawable/presence_online"
         android:title="@string/menu_item_connect"
         android:alphabeticShortcut="c"
-        android:showAsAction="never|withText" />
+        squeezer:showAsAction="never|withText" />
     <item
         android:id="@+id/menu_item_disconnect"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"

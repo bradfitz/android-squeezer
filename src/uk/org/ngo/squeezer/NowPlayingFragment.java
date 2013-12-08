@@ -855,14 +855,14 @@ public class NowPlayingFragment extends Fragment implements
         MenuInflater i = mActivity.getMenuInflater();
         i.inflate(R.menu.squeezer, menu);
 
-        menu_item_connect = mActivity.getActionBarHelper().findItem(R.id.menu_item_connect);
-        menu_item_disconnect = mActivity.getActionBarHelper().findItem(R.id.menu_item_disconnect);
-        menu_item_poweron = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweron);
-        menu_item_poweroff = mActivity.getActionBarHelper().findItem(R.id.menu_item_poweroff);
-        menu_item_players = mActivity.getActionBarHelper().findItem(R.id.menu_item_players);
-        menu_item_playlists = mActivity.getActionBarHelper().findItem(R.id.menu_item_playlist);
-        menu_item_search = mActivity.getActionBarHelper().findItem(R.id.menu_item_search);
-        menu_item_volume = mActivity.getActionBarHelper().findItem(R.id.menu_item_volume);
+        menu_item_connect = menu.findItem(R.id.menu_item_connect);
+        menu_item_disconnect = menu.findItem(R.id.menu_item_disconnect);
+        menu_item_poweron = menu.findItem(R.id.menu_item_poweron);
+        menu_item_poweroff = menu.findItem(R.id.menu_item_poweroff);
+        menu_item_players = menu.findItem(R.id.menu_item_players);
+        menu_item_playlists = menu.findItem(R.id.menu_item_playlist);
+        menu_item_search = menu.findItem(R.id.menu_item_search);
+        menu_item_volume = menu.findItem(R.id.menu_item_volume);
 
         // On Android 2.3.x and lower onCreateOptionsMenu() is called when the menu is opened,
         // almost certainly post-connection to the service.  On 3.0 and higher it's called when
