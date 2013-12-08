@@ -34,7 +34,7 @@ Android Studio
 
     Linux: ~/.AndroidStudioPreview/config/codestyles
     OS X: ~/Library/Preferences/AndroidStudioPreview/codestyles
-    Windows: TBD
+    Windows: ~/.AndroidStudioPreview/config/codestyles
 
 *   Go to Settings (or Preferences in Mac OS X) > Code Style > Java, select
     "AndroidStyle", as well as Code Style > XML and select "AndroidStyle".
