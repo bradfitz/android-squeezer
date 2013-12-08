@@ -459,8 +459,8 @@ public class NowPlayingFragment extends Fragment implements
                 albumArt.setImageResource(R.drawable.icon_album_noart);
         } else {
             if (mFullHeightLayout) {
-                nextButton.setImageResource(android.R.drawable.ic_media_next);
-                prevButton.setImageResource(android.R.drawable.ic_media_previous);
+                nextButton.setImageResource(R.drawable.ic_action_next);
+                prevButton.setImageResource(R.drawable.ic_action_previous);
                 seekBar.setEnabled(true);
             }
         }
@@ -468,8 +468,8 @@ public class NowPlayingFragment extends Fragment implements
 
     private void updatePlayPauseIcon(PlayStatus playStatus) {
         playPauseButton
-                .setImageResource((playStatus == PlayStatus.play) ? android.R.drawable.ic_media_pause
-                        : android.R.drawable.ic_media_play);
+                .setImageResource((playStatus == PlayStatus.play) ? R.drawable.ic_action_pause
+                        : R.drawable.ic_action_play);
     }
 
     private void updateShuffleStatus(ShuffleStatus shuffleStatus) {

@@ -41,15 +41,15 @@
     </style>
 
     <style name="MediaButton.Previous">
-        <item name="android:src">@android:drawable/ic_media_previous</item>
+        <item name="android:src">@drawable/ic_action_previous</item>
     </style>
 
     <style name="MediaButton.Next">
-        <item name="android:src">@android:drawable/ic_media_next</item>
+        <item name="android:src">@drawable/ic_action_next</item>
     </style>
 
     <style name="MediaButton.Play">
-        <item name="android:src">@android:drawable/ic_media_play</item>
+        <item name="android:src">@drawable/ic_action_play</item>
     </style>
 
     <style name="MediaButton.Shuffle">
