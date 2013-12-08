@@ -1,9 +1,8 @@
 package uk.org.ngo.squeezer.menu;
 
-import uk.org.ngo.squeezer.SqueezerHomeActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import uk.org.ngo.squeezer.SqueezerHomeActivity;
 
 
 public class SqueezerMenuFragment extends MenuFragment {

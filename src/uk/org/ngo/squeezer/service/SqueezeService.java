@@ -76,8 +76,6 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 
 public class SqueezeService extends Service {
 	private static final String TAG = "SqueezeService";
