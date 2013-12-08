@@ -19,22 +19,6 @@ package uk.org.ngo.squeezer;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import uk.org.ngo.squeezer.dialogs.TipsDialog;
-import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
-import uk.org.ngo.squeezer.itemlists.FavoriteListActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerGenreListActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
-import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -48,6 +32,23 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import de.cketti.library.changelog.ChangeLog;
+import uk.org.ngo.squeezer.dialogs.TipsDialog;
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
+import uk.org.ngo.squeezer.itemlists.FavoriteListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerArtistListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerGenreListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerMusicFolderListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerPlaylistsActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerRadioListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerYearListActivity;
+import uk.org.ngo.squeezer.itemlists.dialogs.AlbumViewDialog;
 
 public class SqueezerHomeActivity extends SqueezerBaseActivity {
     private final String TAG = "SqueezerHomeActivity";
@@ -91,6 +92,12 @@ public class SqueezerHomeActivity extends SqueezerBaseActivity {
                 tracker.startNewSession("UA-26457780-1", this);
                 tracker.trackPageView("SqueezerHomeActivity");
             }
+        }
+
+        // Show the change log if necessary.
+        ChangeLog changeLog = new ChangeLog(this);
+        if (changeLog.isFirstRun()) {
+            changeLog.getLogDialog().show();
         }
 
         // Show a tip about volume controls, if this is the first time this app

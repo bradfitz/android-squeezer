@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.dialogs;
 
-import uk.org.ngo.squeezer.R;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -28,6 +27,9 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.TextView;
+
+import de.cketti.library.changelog.ChangeLog;
+import uk.org.ngo.squeezer.R;
 
 public class AboutDialog extends DialogFragment {
     @Override
@@ -48,6 +50,13 @@ public class AboutDialog extends DialogFragment {
         Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         builder.setPositiveButton(android.R.string.ok, null);
+        builder.setNeutralButton("Change Log", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ChangeLog changeLog = new ChangeLog(getActivity());
+                changeLog.getFullLogDialog().show();
+            }
+        });
         builder.setNegativeButton(R.string.dialog_license, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 new LicenseDialog()
