@@ -33,9 +33,7 @@
     <string name="settings_server_scan_stop">Afbryd scanning</string>
     <string name="settings_server_scan_msg">Eller tryk \'Start scanning\' for at scanne netværket for servere.</string>
     <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke er forbundet.</string>
-    <string name="settings_username_title">Brugernavn</string>
     <string name="settings_username_hint">Eventuelt SqueezeBox Server brugernavn.</string>
-    <string name="settings_password_title">Adgangskode</string>
     <string name="settings_password_hint">Eventuel SqueezeBox Server adgangskode.</string>
     <string name="settings_server_scan_progress">Scanner efter servere&#8230;</string>
     <string name="settings_fadeinsecs_title">Indtoningsperiode</string>
