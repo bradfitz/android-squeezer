@@ -46,14 +46,14 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:hint="@string/unknown_track"
             android:singleLine="true"
+            android:focusableInTouchMode="true"
+            android:focusable="true"
             android:textAppearance="@style/SqueezerTextItem" />
 
         <TextView
             android:id="@+id/albumname"
-            android:ellipsize="marquee"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:marqueeRepeatLimit="marquee_forever"
             android:hint="@string/unknown_album"
             android:singleLine="true"
             android:textAppearance="@style/SqueezerTextItemSmall" />

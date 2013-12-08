@@ -46,6 +46,8 @@
         android:paddingRight="8dp"
         android:paddingTop="4dp"
         android:singleLine="true"
+        android:focusableInTouchMode="true"
+        android:focusable="true"
         android:textAppearance="@style/SqueezerTextItem" />
 
     <TextView
@@ -54,10 +56,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/trackname"
         android:layout_toLeftOf="@id/context_menu"
-        android:ellipsize="marquee"
         android:gravity="left|top"
         android:hint="@string/unknown_album"
-        android:marqueeRepeatLimit="marquee_forever"
         android:paddingBottom="4dp"
         android:paddingTop="4dp"
         android:singleLine="true"
@@ -69,10 +69,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/albumname"
         android:layout_toLeftOf="@id/context_menu"
-        android:ellipsize="marquee"
         android:gravity="left|top"
         android:hint="@string/unknown_artist"
-        android:marqueeRepeatLimit="marquee_forever"
         android:paddingBottom="4dp"
         android:paddingTop="4dp"
         android:singleLine="true"

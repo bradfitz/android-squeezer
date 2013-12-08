@@ -275,10 +275,8 @@ public class NowPlayingFragment extends Fragment implements
         albumText = (TextView) v.findViewById(R.id.albumname);
         playPauseButton = (ImageButton) v.findViewById(R.id.pause);
 
-        // Marquee effect on TextViews only works if they're selected.
-        trackText.setSelected(true);
-        albumText.setSelected(true);
-        if(artistText != null) artistText.setSelected(true);
+        // Marquee effect on TextViews only works if they're focused.
+        trackText.requestFocus();
 
         playPauseButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
