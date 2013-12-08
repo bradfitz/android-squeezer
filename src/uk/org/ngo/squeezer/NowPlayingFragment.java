@@ -16,29 +16,6 @@
 
 package uk.org.ngo.squeezer;
 
-import java.lang.ref.WeakReference;
-
-import uk.org.ngo.squeezer.dialogs.AboutDialog;
-import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
-import uk.org.ngo.squeezer.dialogs.SqueezerAuthenticationDialog;
-import uk.org.ngo.squeezer.framework.HasUiThread;
-import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerPlayerListActivity;
-import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
-import uk.org.ngo.squeezer.model.SqueezerArtist;
-import uk.org.ngo.squeezer.model.SqueezerPlayer;
-import uk.org.ngo.squeezer.model.SqueezerPlayerState;
-import uk.org.ngo.squeezer.model.SqueezerPlayerState.PlayStatus;
-import uk.org.ngo.squeezer.model.SqueezerPlayerState.RepeatStatus;
-import uk.org.ngo.squeezer.model.SqueezerPlayerState.ShuffleStatus;
-import uk.org.ngo.squeezer.model.SqueezerSong;
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
-import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
-import uk.org.ngo.squeezer.util.ImageFetcher;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -77,6 +54,29 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.lang.ref.WeakReference;
+
+import uk.org.ngo.squeezer.dialogs.AboutDialog;
+import uk.org.ngo.squeezer.dialogs.EnableWifiDialog;
+import uk.org.ngo.squeezer.dialogs.SqueezerAuthenticationDialog;
+import uk.org.ngo.squeezer.framework.HasUiThread;
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerAlbumListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerCurrentPlaylistActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerPlayerListActivity;
+import uk.org.ngo.squeezer.itemlists.SqueezerSongListActivity;
+import uk.org.ngo.squeezer.model.SqueezerArtist;
+import uk.org.ngo.squeezer.model.SqueezerPlayer;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.PlayStatus;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.RepeatStatus;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState.ShuffleStatus;
+import uk.org.ngo.squeezer.model.SqueezerSong;
+import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class NowPlayingFragment extends Fragment implements
         HasUiThread, View.OnCreateContextMenuListener {
@@ -486,6 +486,11 @@ public class NowPlayingFragment extends Fragment implements
 
     private void updatePowerMenuItems(boolean canPowerOn, boolean canPowerOff) {
         boolean connected = isConnected();
+
+        // The fragment may have been detached from the parent activity in the intervening
+        // time.  If so, do nothing.
+        if(isDetached())
+            return;
 
         if (menu_item_poweron != null) {
             if (canPowerOn && connected) {
