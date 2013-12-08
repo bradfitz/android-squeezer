@@ -402,6 +402,12 @@ public class NowPlayingFragment extends Fragment implements
     // Should only be called the UI thread.
     private void setConnected(boolean connected, boolean postConnect, boolean loginFailure) {
         Log.v(TAG, "setConnected(" + connected + ", " + postConnect + ", " + loginFailure + ")");
+
+        // The fragment may have been detached from the parent activity in the intervening
+        // time.  If so, do nothing.
+        if (isDetached())
+            return;
+
         if (postConnect) {
             clearConnectingDialog();
             if (!connected) {
