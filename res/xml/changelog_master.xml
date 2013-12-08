@@ -4,7 +4,8 @@
     <release
         version="1.0-beta-3"
         versioncode="16">
-        <change>A complete refresh of the UI to match modern Android guidelines</change>
+        <change>A complete refresh of the UI to match modern Android guidelines. The logo is by
+            Reddit user http://www.reddit.com/user/PdtS.</change>
 
         <change>A persistent mini-player on all screens (see what's playing, quickly pause/play the
             track).
