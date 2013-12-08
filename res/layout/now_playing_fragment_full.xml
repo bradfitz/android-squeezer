@@ -42,9 +42,8 @@
         android:gravity="left|top"
         android:hint="@string/unknown_track"
         android:marqueeRepeatLimit="marquee_forever"
-        android:paddingBottom="4dp"
         android:paddingRight="8dp"
-        android:paddingTop="4dp"
+        android:paddingTop="2dp"
         android:singleLine="true"
         android:focusableInTouchMode="true"
         android:focusable="true"
@@ -58,7 +57,6 @@
         android:layout_toLeftOf="@id/context_menu"
         android:gravity="left|top"
         android:hint="@string/unknown_album"
-        android:paddingBottom="4dp"
         android:paddingTop="4dp"
         android:singleLine="true"
         android:textAppearance="@style/SqueezerTextItemSmall" />
@@ -71,7 +69,6 @@
         android:layout_toLeftOf="@id/context_menu"
         android:gravity="left|top"
         android:hint="@string/unknown_artist"
-        android:paddingBottom="4dp"
         android:paddingTop="4dp"
         android:singleLine="true"
         android:textAppearance="@style/SqueezerTextItemSmall" />
