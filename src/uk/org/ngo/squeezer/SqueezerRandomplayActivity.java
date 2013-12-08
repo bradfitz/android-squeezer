@@ -69,7 +69,6 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
 	                Log.e(getTag(), "Error registering list callback: " + e);
 				}
 				NowPlayingActivity.show(SqueezerRandomplayActivity.this);
-				return;
 			}
 		}
 	};

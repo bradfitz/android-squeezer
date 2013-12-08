@@ -453,7 +453,6 @@ public class SqueezeService extends Service {
         }
         if (tokens.size() > 2 && (handler = prefixedPlayerSpecificHandlers.get(tokens.get(2))) != null) {
         	handler.handle(tokens);
-        	return;
         }
     }
 
