@@ -2,6 +2,12 @@
 
 <changelog>
     <release
+        version="1.0-beta-4"
+        versioncode="17">
+        <change>Only show the "Tips" dialog after successfully connecting to a server.</change>
+    </release>
+
+    <release
         version="1.0-beta-3"
         versioncode="16">
         <change>A complete refresh of the UI to match modern Android guidelines. The logo is by
