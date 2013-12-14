@@ -114,22 +114,6 @@ public class HomeActivity extends BaseActivity {
         if (changeLog.isFirstRun()) {
             changeLog.getLogDialog().show();
         }
-
-        // Show a tip about volume controls, if this is the first time this app
-        // has run. TODO: Add more robust and general 'tips' functionality.
-        PackageInfo pInfo;
-        try {
-            pInfo = getPackageManager().getPackageInfo(getPackageName(),
-                    PackageManager.GET_META_DATA);
-            if (preferences.getLong("lastRunVersionCode", 0) < pInfo.versionCode) {
-                new TipsDialog().show(getSupportFragmentManager(), "TipsDialog");
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putLong("lastRunVersionCode", pInfo.versionCode);
-                editor.commit();
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            // Nothing to do, don't crash.
-        }
     }
 
     @Override
@@ -165,6 +149,25 @@ public class HomeActivity extends BaseActivity {
                 @Override
                 public void run() {
                     createListItems();
+
+                    // Show a tip about volume controls, if this is the first time this app
+                    // has run. TODO: Add more robust and general 'tips' functionality.
+                    PackageInfo pInfo;
+                    try {
+                        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
+                                0);
+
+                        pInfo = getPackageManager().getPackageInfo(getPackageName(),
+                                PackageManager.GET_META_DATA);
+                        if (preferences.getLong("lastRunVersionCode", 0) < pInfo.versionCode) {
+                            new TipsDialog().show(getSupportFragmentManager(), "TipsDialog");
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putLong("lastRunVersionCode", pInfo.versionCode);
+                            editor.commit();
+                        }
+                    } catch (PackageManager.NameNotFoundException e) {
+                        // Nothing to do, don't crash.
+                    }
                 }
             });
         }
