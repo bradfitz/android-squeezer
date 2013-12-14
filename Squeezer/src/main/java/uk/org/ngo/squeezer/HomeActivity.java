@@ -159,7 +159,7 @@ public class HomeActivity extends BaseActivity {
 
                         pInfo = getPackageManager().getPackageInfo(getPackageName(),
                                 PackageManager.GET_META_DATA);
-                        if (preferences.getLong("lastRunVersionCode", 0) < pInfo.versionCode) {
+                        if (preferences.getLong("lastRunVersionCode", 0) == 0) {
                             new TipsDialog().show(getSupportFragmentManager(), "TipsDialog");
                             SharedPreferences.Editor editor = preferences.edit();
                             editor.putLong("lastRunVersionCode", pInfo.versionCode);
