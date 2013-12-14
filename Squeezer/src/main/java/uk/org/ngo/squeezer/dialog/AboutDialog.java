@@ -51,7 +51,7 @@ public class AboutDialog extends DialogFragment {
         Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         builder.setPositiveButton(android.R.string.ok, null);
-        builder.setNeutralButton("Change Log", new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(R.string.changelog_full_title, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ChangeLog changeLog = new ChangeLog(getActivity());
