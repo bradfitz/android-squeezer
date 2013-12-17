@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.framework;
 
 import org.acra.ErrorReporter;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -28,7 +27,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -76,11 +74,11 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
         };
     };
 
-
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // XXX: Hack to work around NetworkOnMainThreadException. Hack
         // not necessary on the actionbar branch, and should be removed
         // after the actionbar branch is merged in to master.

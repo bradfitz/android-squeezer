@@ -63,7 +63,7 @@ public class SqueezerSongView extends SqueezerAlbumArtView<SqueezerSong> {
     }
 
 	public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
-		getActivity().executeOnSelectAction(item);
+		getActivity().insert(item);
 	}
 
     /**

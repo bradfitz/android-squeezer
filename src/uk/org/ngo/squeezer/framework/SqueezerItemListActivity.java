@@ -21,15 +21,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.itemlists.actions.PlayAction;
-import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
-import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.service.SqueezeService;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -54,28 +49,12 @@ public abstract class SqueezerItemListActivity extends SqueezerBaseActivity {
     /** The list is being actively scrolled by the user */
     private boolean mListScrolling;
 
-	protected SharedPreferences preferences;
-	
-	protected PlayableItemAction onSelectAction;
-    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(Preferences.NAME, 0);
         MenuFragment.add(this, SqueezerMenuFragment.class);
-        onSelectAction = getOnSelectAction();
     };
 
-    protected PlayableItemAction getOnSelectAction() {
-    	return new PlayAction(this);
-    }
-
-    public void executeOnSelectAction(SqueezerPlaylistItem item) throws RemoteException {
-    	Log.d(getTag(), "Executing on select action");
-    	onSelectAction.execute(item);
-    }
-    
-    
     /**
      * This is called when the service is connected.
      * <p>

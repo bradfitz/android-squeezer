@@ -734,7 +734,6 @@ public class SqueezerActivity extends SqueezerBaseActivity {
 
     // Returns null if not configured.
     private String getConfiguredCliIpPort() {
-    	
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
         final String ipPort = preferences.getString(Preferences.KEY_SERVERADDR, null);
         if (ipPort == null || ipPort.length() == 0) {

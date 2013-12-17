@@ -21,7 +21,6 @@ import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 
@@ -46,8 +45,8 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
     }
 
 	public void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
-		SqueezerItemListActivity a = getActivity();
-		a.executeOnSelectAction(item);
+		getActivity().play(item);
+		SqueezerActivity.show(getActivity());
 	}
 
     /**
