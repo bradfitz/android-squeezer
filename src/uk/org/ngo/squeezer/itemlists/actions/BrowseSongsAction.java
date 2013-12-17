@@ -10,6 +10,7 @@ public class BrowseSongsAction extends PlayableItemAction {
 
 	public BrowseSongsAction(SqueezerItemListActivity activity) {
 		super(activity);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
