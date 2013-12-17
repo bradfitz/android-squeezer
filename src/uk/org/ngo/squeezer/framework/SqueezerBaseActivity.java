@@ -18,36 +18,38 @@ package uk.org.ngo.squeezer.framework;
 
 import org.acra.ErrorReporter;
 
-import uk.org.ngo.squeezer.model.SqueezerSong;
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.SqueezeService;
-import uk.org.ngo.squeezer.util.UIUtils;
-import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.StrictMode;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
+
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.menu.MenuFragment;
+import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
+import uk.org.ngo.squeezer.model.SqueezerSong;
+import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.SqueezerServerString;
 
 /**
  * Common base class for all activities in the squeezer
  * @author Kurt Aaholst
  *
  */
-public abstract class SqueezerBaseActivity extends FragmentActivity {
+public abstract class SqueezerBaseActivity extends ActionBarActivity implements HasUiThread {
 	private ISqueezeService service = null;
 	private final Handler uiThreadHandler = new Handler() {};
 
-	protected abstract void onServiceConnected() throws RemoteException;
+	protected abstract void onServiceConnected();
 
     protected String getTag() {
     	return getClass().getSimpleName();
@@ -60,58 +62,56 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
 		return service;
 	}
 
-	private final ServiceConnection serviceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            service = ISqueezeService.Stub.asInterface(binder);
-   			try {
-   				SqueezerBaseActivity.this.onServiceConnected();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error in onServiceConnected: " + e);
-            }
-        }
-		public void onServiceDisconnected(ComponentName name) {
-            service = null;
-        };
-    };
-
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    /**
+     * Use this to post Runnables to work off thread
+     */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // XXX: Hack to work around NetworkOnMainThreadException. Hack
-        // not necessary on the actionbar branch, and should be removed
-        // after the actionbar branch is merged in to master.
-        if (UIUtils.hasHoneycomb()) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork()
-                    .build();
-            StrictMode.setThreadPolicy(policy);
-        }
+    public Handler getUIThreadHandler() {
+        return uiThreadHandler;
     }
 
+	private final ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            service = ISqueezeService.Stub.asInterface(binder);
+            SqueezerBaseActivity.this.onServiceConnected();
+        }
+		@Override
+        public void onServiceDisconnected(ComponentName name) {
+            service = null;
+        }
+    };
+
     @Override
-    public void onResume() {
-        super.onResume();
+    protected void onCreate(android.os.Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setIcon(R.drawable.ic_launcher);
+        actionBar.setHomeButtonEnabled(true);
         bindService(new Intent(this, SqueezeService.class), serviceConnection, Context.BIND_AUTO_CREATE);
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
+
+        MenuFragment.add(this, SqueezerMenuFragment.class);
     }
 
 	@Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         if (serviceConnection != null) {
         	unbindService(serviceConnection);
         }
     }
 
-	/**
-	 * Use this to post Runnables to work off thread
-	 */
-	public Handler getUIThreadHandler() {
-		return uiThreadHandler;
-	}
+    /**
+     * Block searches, when we are not connected.
+     */
+    @Override
+    public boolean onSearchRequested() {
+        if (!isConnected()) return false;
+        return super.onSearchRequested();
+    }
 
-	
     /*
      * Intercept hardware volume control keys to control Squeezeserver
      * volume.
@@ -159,34 +159,63 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
         return false;
     }
 
+    // Safe accessors
 
-	// This section is just an easier way to call squeeze service
-
-    public boolean play(SqueezerPlaylistItem item) throws RemoteException {
-		return playlistControl(PlaylistControlCmd.load, item);
-	}
-
-    public boolean add(SqueezerPlaylistItem item) throws RemoteException {
-		return playlistControl(PlaylistControlCmd.add, item);
-	}
-
-    public boolean insert(SqueezerPlaylistItem item) throws RemoteException {
-		return playlistControl(PlaylistControlCmd.insert, item);
-	}
-
-    private boolean playlistControl(PlaylistControlCmd cmd, SqueezerPlaylistItem item)
-            throws RemoteException {
+    public boolean isConnected() {
         if (service == null) {
             return false;
         }
+        try {
+            return service.isConnected();
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Service exception in isConnected(): " + e);
+        }
+        return false;
+    }
+
+    public String getIconUrl(String icon) {
+        if (service == null || icon == null) {
+            return null;
+        }
+        try {
+            return service.getIconUrl(icon);
+        } catch (RemoteException e) {
+            Log.e(getClass().getSimpleName(), "Error requesting icon url '" + icon + "': " + e);
+            return null;
+        }
+    }
+
+    public String getServerString(SqueezerServerString stringToken) {
+        return SqueezerServerString.values()[stringToken.ordinal()].getLocalizedString();
+    }
+
+    // This section is just an easier way to call squeeze service
+
+    public void play(SqueezerPlaylistItem item) throws RemoteException {
+        playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
+    }
+
+    public void add(SqueezerPlaylistItem item) throws RemoteException {
+        playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
+    }
+
+    public void insert(SqueezerPlaylistItem item) throws RemoteException {
+        playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
+    }
+
+    private void playlistControl(PlaylistControlCmd cmd, SqueezerPlaylistItem item, int resId)
+            throws RemoteException {
+        if (service == null)
+            return;
+
         service.playlistControl(cmd.name(), item.getPlaylistTag(), item.getId());
-        return true;
+        Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show(); 
     }
 
     /**
      * Attempts to download the supplied song.
      * <p>This method will silently refuse to download if song is null or is remote.
-     * 
+     *
      * @param song song to download
      */
     public void downloadSong(SqueezerSong song) {
@@ -196,8 +225,7 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
 
     /**
      * Attempts to download the song given by songId.
-     * <p>This method will silently refuse to download if songId is null.
-     * 
+     *
      * @param songId ID of the song to download
      */
     public void downloadSong(String songId) {
@@ -206,7 +234,7 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
         /*
          * Quick-and-dirty version. Use ACTION_VIEW to have something try and
          * download the song (probably the browser).
-         * 
+         *
          * TODO: If running on Gingerbread or greater use the Download Manager
          * APIs to have more control over the download.
          */
@@ -224,7 +252,7 @@ public abstract class SqueezerBaseActivity extends FragmentActivity {
     private enum PlaylistControlCmd {
     	load,
     	add,
-    	insert;
+        insert
     }
 
 }

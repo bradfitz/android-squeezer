@@ -16,76 +16,71 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import java.util.EnumSet;
+
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.SqueezerActivity;
+import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.os.RemoteException;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPluginItem> {
-	private final SqueezerPluginItemListActivity activity;
-	private final LayoutInflater layoutInflater;
+public class SqueezerPluginItemView extends SqueezerBaseItemView<SqueezerPluginItem> {
+    private final SqueezerPluginItemListActivity mActivity;
 
-	public SqueezerPluginItemView(SqueezerPluginItemListActivity activity) {
-		super(activity);
-		this.activity = activity;
-		layoutInflater = activity.getLayoutInflater();
-	}
+    public SqueezerPluginItemView(SqueezerPluginItemListActivity activity) {
+        super(activity);
+        mActivity = activity;
 
-	@Override
-    public View getAdapterView(View convertView, SqueezerPluginItem item, ImageFetcher imageFetcher) {
-		ViewHolder viewHolder;
+        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.CONTEXT_BUTTON));
+        setLoadingViewParams(EnumSet.of(ViewParams.ICON));
+    }
 
-		if (convertView == null || convertView.getTag() == null) {
-            convertView = layoutInflater.inflate(R.layout.icon_large_row_layout, null);
+    public void bindView(View view, SqueezerPluginItem item, ImageFetcher imageFetcher) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-            viewHolder = new ViewHolder();
-			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+        viewHolder.text1.setText(item.getName());
 
-			convertView.setTag(viewHolder);
-        } else {
-			viewHolder = (ViewHolder) convertView.getTag();
+        // Disable the context menu if this item has sub-items.
+        if (item.isHasitems()) {
+            viewHolder.btnContextMenu.setVisibility(View.GONE);
         }
 
-		viewHolder.label.setText(item.getName());
-
-        if (imageFetcher != null) {
-            if (item.getImage() == null) {
-                viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
+        // If the item has an image, then fetch and display it
+        if (item.getImage() != null) {
+            imageFetcher.loadImage(item.getImage(), viewHolder.icon);
+        } else {
+            // Otherwise we will revert to some other icon. This is not an exact approach, more
+            // like a best effort.
+            if (item.isHasitems()) {
+                // If this item has sub-items we use the icon of the parent and if that fails,
+                // the current plugin.
+                if (mActivity.getPlugin().getIconResource() != 0)
+                    viewHolder.icon.setImageResource(mActivity.getPlugin().getIconResource());
+                else
+                    imageFetcher.loadImage(mActivity.getIconUrl(mActivity.getPlugin().getIcon()), viewHolder.icon);
             } else {
-                imageFetcher.loadImage(item.getImage(), viewHolder.icon);
+                // Finally we assume it is an item that can be played. This is consistent with
+                // onItemSelected and onCreateContextMenu.
+                viewHolder.icon.setImageResource(R.drawable.ic_songs);
             }
         }
-		return convertView;
-	}
+    }
 
-	private static class ViewHolder {
-		TextView label;
-        ImageView icon;
-	}
-
-	@Override
+    @Override
     public String getQuantityString(int quantity) {
 		return null;
 	}
 
-	@Override
+    @Override
     public void onItemSelected(int index, SqueezerPluginItem item) throws RemoteException {
 		if (item.isHasitems())
-			activity.show(item);
-		else {
-			activity.play(item);
-			SqueezerActivity.show(getActivity());
-		}
+			mActivity.show(item);
 	}
 
     // XXX: Make this a menu resource.
@@ -94,9 +89,9 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
         if (!((SqueezerPluginItem) menuInfo.item).isHasitems()) {
             super.onCreateContextMenu(menu, v, menuInfo);
 
-            menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.CONTEXTMENU_PLAY_ITEM);
-            menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.CONTEXTMENU_ADD_ITEM);
-            menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.CONTEXTMENU_INSERT_ITEM);
+            menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
+            menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
+            menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
         }
     }
 
@@ -104,23 +99,23 @@ public class SqueezerPluginItemView extends SqueezerIconicItemView<SqueezerPlugi
 	public boolean doItemContext(MenuItem menuItem, int index, SqueezerPluginItem selectedItem) throws RemoteException {
 		switch (menuItem.getItemId()) {
             case R.id.play_now:
-                if (activity.play(selectedItem))
-                    Toast.makeText(activity,
-                            activity.getString(R.string.ITEM_PLAYING, selectedItem.getName()),
+                if (mActivity.play(selectedItem))
+                    Toast.makeText(mActivity,
+                            mActivity.getString(R.string.ITEM_PLAYING, selectedItem.getName()),
                             Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.add_to_playlist:
-                if (activity.add(selectedItem))
-                    Toast.makeText(activity,
-                            activity.getString(R.string.ITEM_ADDED, selectedItem.getName()),
+                if (mActivity.add(selectedItem))
+                    Toast.makeText(mActivity,
+                            mActivity.getString(R.string.ITEM_ADDED, selectedItem.getName()),
                             Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.play_next:
-                if (activity.insert(selectedItem))
-                    Toast.makeText(activity,
-                            activity.getString(R.string.ITEM_INSERTED, selectedItem.getName()),
+                if (mActivity.insert(selectedItem))
+                    Toast.makeText(mActivity,
+                            mActivity.getString(R.string.ITEM_INSERTED, selectedItem.getName()),
                             Toast.LENGTH_SHORT).show();
                 return true;
 		}

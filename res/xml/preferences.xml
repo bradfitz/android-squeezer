@@ -18,6 +18,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                  android:key="first_preferencescreen">
 
+  <PreferenceCategory
+    android:title="@string/pref_cat_server">
+
    <!-- TODO: Something that only allowed IP:port here would be nice,
         instead of using the normal keyboard. -->
    <uk.org.ngo.squeezer.dialogs.ServerAddressPreference
@@ -25,6 +28,13 @@
      android:title="@string/settings_serveraddr_title"
      android:summary="@string/settings_serveraddr_summary"
      android:dialogMessage="@string/settings_serveraddr_summary"
+     android:persistent="true" />
+  </PreferenceCategory>
+
+  <uk.org.ngo.squeezer.IntEditTextPreference
+     android:key="squeezer.fadeInSecs"
+     android:title="@string/settings_fadeinsecs_title"
+     android:dialogMessage ="@string/settings_fadeinsecs_summary"
      android:persistent="true" />
 
   <CheckBoxPreference
@@ -34,20 +44,33 @@
      android:persistent="true" />
 
   <CheckBoxPreference
-     android:key="squeezer.notifyofconnection"
-     android:title="Notify of Connection"
-     android:summary="Show notification while connected, even when not playing music."
-     android:persistent="true" />
-
-  <CheckBoxPreference
      android:key="squeezer.scrobble.enabled"
      android:title="@string/settings_scrobble_title"
      android:summaryOn="@string/settings_scrobble_on"
      android:summaryOff="@string/settings_scrobble_off"
      android:persistent="true" />
 
+    <PreferenceCategory
+        android:title="@string/settings_category_ui">
+
+        <CheckBoxPreference
+            android:key="squeezer.notifyofconnection"
+            android:title="@string/settings_notifyofconnection_title"
+            android:summaryOn="@string/settings_notifyofconnection_on"
+            android:summaryOff="@string/settings_notifyofconnection_off"
+            android:persistent="true" />
+
+        <ListPreference
+            android:key="squeezer.action.onselect.album"
+            android:title="@string/settings_album_selectaction" />
+
+        <ListPreference
+            android:key="squeezer.action.onselect.song"
+            android:title="@string/settings_song_selectaction" />
+    </PreferenceCategory>
+
   <PreferenceCategory
-    android:title="@string/pref_cat_error_reports">
+     android:title="@string/pref_cat_error_reports">
 
     <CheckBoxPreference android:key="acra.enable"
         android:title="@string/pref_disable_acra"
@@ -66,11 +89,7 @@
         android:summaryOn="@string/pref_analytics_enable_enabled"
         android:summaryOff="@string/pref_analytics_enable_disabled"
         android:defaultValue="true"/>
-
-<!--   <CheckBoxPreference -->
-<!--      android:key="squeezer.debuglogging" -->
-<!--      android:title="Debug Logging" -->
-<!--      android:summary="Keep this off, unless you're debugging something." -->
-<!--      android:persistent="true" /> -->
   </PreferenceCategory>
+  
+  
 </PreferenceScreen>

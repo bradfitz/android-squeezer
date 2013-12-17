@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.itemlists;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsDeleteDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistsRenameDialog;
@@ -32,9 +31,6 @@ import android.view.View;
 public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist> {
 	private static final int PLAYLISTS_CONTEXTMENU_DELETE_ITEM = 0;
 	private static final int PLAYLISTS_CONTEXTMENU_RENAME_ITEM = 1;
-	private static final int PLAYLISTS_CONTEXTMENU_BROWSE_SONGS = 2;
-	private static final int PLAYLISTS_CONTEXTMENU_PLAY_ITEM = 3;
-	private static final int PLAYLISTS_CONTEXTMENU_ADD_ITEM = 4;
 	private final SqueezerPlaylistsActivity activity;
 
 	public SqueezerPlaylistView(SqueezerPlaylistsActivity activity) {
@@ -42,25 +38,29 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 		this.activity = activity;
 	}
 
-	public String getQuantityString(int quantity) {
+	@Override
+    public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.playlist, quantity);
 	}
 
-	public void onItemSelected(int index, SqueezerPlaylist item) throws RemoteException {
-		getActivity().play(item);
-		SqueezerActivity.show(getActivity());
+	@Override
+    public void onItemSelected(int index, SqueezerPlaylist item) throws RemoteException {
+        activity.setCurrentPlaylist(index, item);
+        SqueezerPlaylistSongsActivity.show(getActivity(), item);
 	}
 
+    // XXX: Make this a menu resource.
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
         menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_DELETE_ITEM, 0, R.string.menu_item_delete);
 		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_RENAME_ITEM, 1, R.string.menu_item_rename);
-		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_BROWSE_SONGS, 2, R.string.CONTEXTMENU_BROWSE_SONGS);
-		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_PLAY_ITEM, 3, R.string.CONTEXTMENU_PLAY_ITEM);
-		menu.add(Menu.NONE, PLAYLISTS_CONTEXTMENU_ADD_ITEM, 4, R.string.CONTEXTMENU_ADD_ITEM);
-    };
+		menu.add(Menu.NONE, R.id.browse_songs, 2, R.string.BROWSE_SONGS);
+        menu.add(Menu.NONE, R.id.play_now, 3, R.string.PLAY_NOW);
+        menu.add(Menu.NONE, R.id.play_next, 3, R.string.PLAY_NEXT);
+		menu.add(Menu.NONE, R.id.add_to_playlist, 4, R.string.ADD_TO_END);
+    }
 
 	@Override
 	public boolean doItemContext(MenuItem menuItem, int index, SqueezerPlaylist selectedItem) throws RemoteException {
@@ -72,15 +72,8 @@ public class SqueezerPlaylistView extends SqueezerBaseItemView<SqueezerPlaylist>
 		case PLAYLISTS_CONTEXTMENU_RENAME_ITEM:
 			new SqueezerPlaylistsRenameDialog().show(activity.getSupportFragmentManager(), SqueezerPlaylistsRenameDialog.class.getName());
 			return true;
-		case PLAYLISTS_CONTEXTMENU_BROWSE_SONGS:
+		case R.id.browse_songs:
 			SqueezerPlaylistSongsActivity.show(getActivity(), selectedItem);
-			return true;
-		case PLAYLISTS_CONTEXTMENU_PLAY_ITEM:
-			getActivity().play(selectedItem);
-	        SqueezerActivity.show(getActivity());
-			return true;
-		case PLAYLISTS_CONTEXTMENU_ADD_ITEM:
-			getActivity().add(selectedItem);
 			return true;
 		}
 		return super.doItemContext(menuItem, index, selectedItem);

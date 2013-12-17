@@ -16,11 +16,15 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import java.util.EnumSet;
+
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.SqueezerActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.model.SqueezerAlbum;
-import android.os.RemoteException;
+import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.view.ContextMenu;
 import android.view.View;
 
@@ -28,26 +32,56 @@ import android.view.View;
  * Shows a single album with its artwork, and a context menu.
  */
 public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
+    /** The details to show in the second line of text. */
+    public enum Details {
+        /** Show the artist name. */
+        ARTIST,
+
+        /** Show the year (if known). */
+        YEAR,
+
+        /** Show the genre (if known). */
+        GENRE
+    }
+
+    private EnumSet<Details> mDetails = EnumSet.noneOf(Details.class);
+
     public SqueezerAlbumView(SqueezerItemListActivity activity) {
         super(activity);
     }
 
-    @Override
-    public void setItemViewText(ViewHolder viewHolder, SqueezerAlbum item) {
-        viewHolder.text1.setText(item.getName());
-        String text2 = "";
-        if (item.getId() != null) {
-            text2 = item.getArtist();
-            if (item.getYear() != 0)
-                text2 += " - " + item.getYear();
-        }
-        viewHolder.text2.setText(text2);
+    public void setDetails(EnumSet<Details> details) {
+        mDetails = details;
     }
 
-	public void onItemSelected(int index, SqueezerAlbum item) throws RemoteException {
-		getActivity().play(item);
-		SqueezerActivity.show(getActivity());
-	}
+    @Override
+    public void bindView(View view, SqueezerAlbum item, ImageFetcher imageFetcher) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+        viewHolder.text1.setText(item.getName());
+
+        String text2 = "";
+        if (item.getId() != null) {
+            text2 = mJoiner.join(
+                    mDetails.contains(Details.ARTIST) ? item.getArtist() : null,
+                    mDetails.contains(Details.YEAR) && item.getYear() != 0 ? item.getYear() : null
+            );
+        }
+        viewHolder.text2.setText(text2);
+
+        String artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
+        if (artworkUrl == null) {
+            viewHolder.icon.setImageResource(R.drawable.icon_album_noart);
+        } else {
+            imageFetcher.loadImage(artworkUrl, viewHolder.icon);
+        }
+    }
+
+    @Override
+    protected PlayableItemAction getOnSelectAction() {
+        String actionType = preferences.getString(Preferences.KEY_ON_SELECT_ALBUM_ACTION, PlayableItemAction.Type.BROWSE.name());
+        return PlayableItemAction.createAction(getActivity(), actionType);
+    }
 
     /**
      * Creates the context menu for an album by inflating
@@ -60,9 +94,8 @@ public class SqueezerAlbumView extends SqueezerAlbumArtView<SqueezerAlbum> {
         menuInfo.menuInflater.inflate(R.menu.albumcontextmenu, menu);
     }
 
-	public String getQuantityString(int quantity) {
+	@Override
+    public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.album, quantity);
 	}
-
-
 }

@@ -17,96 +17,55 @@
 package uk.org.ngo.squeezer.itemlists;
 
 
+import java.util.EnumSet;
+
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerArtworkItem;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemListActivity;
+import uk.org.ngo.squeezer.framework.SqueezerPlaylistItemView;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 /**
  * Represents the view hierarchy for a single {@link SqueezerItem} subclass.
  * where the item has track artwork associated with it.
- *
+ * 
  * @param <T>
  */
 public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extends
-        SqueezerIconicItemView<T> {
-    LayoutInflater mLayoutInflater;
+        SqueezerPlaylistItemView<T> {
 
     public SqueezerAlbumArtView(SqueezerItemListActivity activity) {
-		super(activity);
-        mLayoutInflater = activity.getLayoutInflater();
-	}
+        super(activity);
 
-    @Override
-    public View getAdapterView(View convertView, T item, ImageFetcher imageFetcher) {
-        ViewHolder viewHolder;
-
-        if (convertView == null || convertView.getTag() == null) {
-            convertView = mLayoutInflater.inflate(R.layout.icon_two_line_layout, null);
-            viewHolder = new ViewHolder();
-            viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
-            viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-
-        setItemViewText(viewHolder, item);
-        viewHolder.artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
-
-        if (viewHolder.artworkUrl == null) {
-            viewHolder.icon.setImageResource(ICON_NO_ARTWORK);
-        } else {
-            if (imageFetcher != null) {
-                imageFetcher.loadImage(viewHolder.artworkUrl, viewHolder.icon);
-            }
-        }
-
-        return convertView;
-    }
-
-    @Override
-    public View getAdapterView(View convertView, String text) {
-        final ViewHolder viewHolder;
-
-        if (convertView == null || convertView.getTag() == null) {
-            convertView = mLayoutInflater.inflate(R.layout.icon_two_line_layout, null);
-            viewHolder = new ViewHolder();
-            viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
-            viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-            convertView.setTag(viewHolder);
-        } else
-            viewHolder = (ViewHolder) convertView.getTag();
-
-        viewHolder.text1.setText(text);
-        viewHolder.text2.setText(null);
-        viewHolder.icon.setImageDrawable(null);
-
-        return convertView;
+        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.TWO_LINE, ViewParams.CONTEXT_BUTTON));
+        setLoadingViewParams(EnumSet.of(ViewParams.ICON, ViewParams.TWO_LINE));
     }
 
     /**
-     * Sets the text1 and text2 properties of the viewHolder from the item.
+     * Binds the label to {@link ViewHolder#text1}. Sets {@link ViewHolder#icon} to the
+     * generic pending icon, and clears {@link ViewHolder#text2}.
      *
-     * @param viewHolder
-     * @param item
+     * @param view The view that contains the {@link ViewHolder}
+     * @param text The text to bind to {@link ViewHolder#text1}
      */
-    abstract void setItemViewText(ViewHolder viewHolder, T item);
+    @Override
+    public void bindView(View view, String text) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+        viewHolder.icon.setImageResource(R.drawable.icon_pending_artwork);
+        viewHolder.text1.setText(text);
+        viewHolder.text2.setText("");
+    }
 
     /**
      * Returns the URL to download the specified album artwork, or null if the
      * artwork does not exist, or there was a problem with the service.
-     *
+     * 
      * @param artwork_track_id
      * @return
      */
@@ -125,15 +84,4 @@ public abstract class SqueezerAlbumArtView<T extends SqueezerArtworkItem> extend
 			return null;
 		}
 	}
-
-    public static class ViewHolder {
-        TextView text1;
-        TextView text2;
-
-        // XXX: These are public so code in SqueezerItemListActivity can see
-        // them. This should be refactored.
-        public ImageView icon;
-        public String artworkUrl;
-        public boolean updateArtwork;
-    }
 }

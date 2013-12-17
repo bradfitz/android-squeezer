@@ -33,9 +33,9 @@ import android.widget.TextView;
  */
 public class IconRowAdapter extends BaseAdapter {
 	private final Activity activity;
-	private final int rowLayout = R.layout.icon_large_row_layout;
+	private final int rowLayout = R.layout.list_item;
 	private final int iconId = R.id.icon;
-	private final int textId = R.id.label;
+	private final int textId = R.id.text1;
 
     /** Rows to display in the list. */
     List<IconRow> mRows = new ArrayList<IconRow>();
@@ -50,7 +50,7 @@ public class IconRowAdapter extends BaseAdapter {
 
     public CharSequence getItem(int position) {
         return mRows.get(position).getText();
-	}
+    }
 
 	public long getItemId(int position) {
         return mRows.get(position).getId();
@@ -87,11 +87,11 @@ public class IconRowAdapter extends BaseAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View row = getActivity().getLayoutInflater().inflate(rowLayout, null);
-		TextView label = (TextView) row.findViewById(textId);
+		View row = getActivity().getLayoutInflater().inflate(rowLayout, parent, false);
+		TextView text1 = (TextView) row.findViewById(textId);
 		ImageView icon = (ImageView) row.findViewById(iconId);
 
-        label.setText(mRows.get(position).getText());
+        text1.setText(mRows.get(position).getText());
         icon.setImageResource(mRows.get(position).getIcon());
 
 		return row;
@@ -102,12 +102,10 @@ public class IconRowAdapter extends BaseAdapter {
 	}
 
     /**
-     * Helper class to represent a row. Each row has an identifier, a string,
-     * and an icon.
+     * Helper class to represent a row. Each row has an identifier, a string, and an icon.
      * <p>
-     * The identifier should be unique across all rows in a given
-     * {@link IconRowAdapter}, and will be used as the <code>id</code> paramter
-     * to the <code>OnItemClickListener</code>.
+     * The identifier should be unique across all rows in a given {@link IconRowAdapter}, and will
+     * be used as the <code>id</code> parameter to the <code>OnItemClickListener</code>.
      */
     public static class IconRow {
         private long mId;

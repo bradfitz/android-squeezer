@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import java.util.Map;
 import uk.org.ngo.squeezer.framework.SqueezerItem;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerPlaylistItem;
+import uk.org.ngo.squeezer.itemlists.SongViewWithArt;
 import uk.org.ngo.squeezer.itemlists.SqueezerAlbumView;
 import uk.org.ngo.squeezer.itemlists.SqueezerArtistView;
 import uk.org.ngo.squeezer.itemlists.SqueezerGenreView;
@@ -32,8 +34,8 @@ import uk.org.ngo.squeezer.model.SqueezerArtist;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.graphics.drawable.Drawable;
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -54,34 +56,32 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
 
 	private final SqueezerSearchActivity activity;
 
-	private SqueezerItemAdapter<? extends SqueezerItem>[] childAdapters;
+	private final SqueezerItemAdapter<? extends SqueezerItem>[] childAdapters;
 	private final Map<Class<? extends SqueezerItem>, SqueezerItemAdapter<? extends SqueezerItem>> childAdapterMap = new HashMap<Class<? extends SqueezerItem>, SqueezerItemAdapter<? extends SqueezerItem>>();
 
+    public SqueezerSearchAdapter(SqueezerSearchActivity activity, ImageFetcher imageFetcher) {
+        this.activity = activity;
 
-	public SqueezerSearchAdapter(SqueezerSearchActivity activity) {
-		this.activity = activity;
-		SqueezerItemAdapter<?>[] adapters = {
-			new SqueezerItemAdapter<SqueezerSong>(new SqueezerSongView(activity) {
-				@Override
-                    public View getAdapterView(View convertView, SqueezerSong item,
-                            ImageFetcher unused) {
-					return Util.getListItemView(getActivity(), convertView, item.getName());
-				}
-			}),
-			new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerAlbumView(activity) {
-				@Override
-                    public View getAdapterView(View convertView, SqueezerAlbum item,
-                            ImageFetcher unused) {
-					return Util.getListItemView(getActivity(), convertView, item.getName());
-				}
-			}),
-			new SqueezerItemAdapter<SqueezerArtist>(new SqueezerArtistView(activity)),
-			new SqueezerItemAdapter<SqueezerGenre>(new SqueezerGenreView(activity)),
-		};
-		childAdapters = adapters;
-		for (SqueezerItemAdapter<? extends SqueezerItem> itemAdapter: childAdapters)
-			childAdapterMap.put(itemAdapter.getItemView().getItemClass(), itemAdapter);
-	}
+        SqueezerItemAdapter<?>[] adapters = {
+                new SqueezerItemAdapter<SqueezerSong>(new SongViewWithArt(activity), imageFetcher),
+                new SqueezerItemAdapter<SqueezerAlbum>(new SqueezerAlbumView(activity), imageFetcher),
+                new SqueezerItemAdapter<SqueezerArtist>(new SqueezerArtistView(activity)),
+                new SqueezerItemAdapter<SqueezerGenre>(new SqueezerGenreView(activity)),
+        };
+
+        ((SongViewWithArt)adapters[0].getItemView()).setDetails(EnumSet.of(
+                SqueezerSongView.Details.DURATION,
+                SqueezerSongView.Details.ALBUM,
+                SqueezerSongView.Details.ARTIST));
+
+        ((SqueezerAlbumView)adapters[1].getItemView()).setDetails(EnumSet.of(
+                SqueezerAlbumView.Details.ARTIST,
+                SqueezerAlbumView.Details.YEAR));
+
+        childAdapters = adapters;
+        for (SqueezerItemAdapter<? extends SqueezerItem> itemAdapter : childAdapters)
+            childAdapterMap.put(itemAdapter.getItemView().getItemClass(), itemAdapter);
+    }
 
 	public void clear() {
 		for (SqueezerItemAdapter<? extends SqueezerItem> itemAdapter: childAdapters)
@@ -102,6 +102,7 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
 		return count;
 	}
 
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuInfo;
         long packedPosition = contextMenuInfo.packedPosition;
@@ -116,65 +117,79 @@ public class SqueezerSearchAdapter extends BaseExpandableListAdapter implements
         }
     }
 
-	public void doItemContext(MenuItem menuItem, int groupPosition, int childPosition) throws RemoteException {
-		childAdapters[groupPosition].doItemContext(menuItem, childPosition);
-	}
+    public void onChildClick(int groupPosition, int childPosition) {
+        childAdapters[groupPosition].onItemSelected(childPosition);
+    }
 
+    public boolean doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
+        return childAdapters[groupPosition].doItemContext(menuItem, childPosition);
+    }
+
+    @Override
     public SqueezerPlaylistItem getChild(int groupPosition, int childPosition) {
         return (SqueezerPlaylistItem) childAdapters[groupPosition].getItem(childPosition);
 	}
 
-	public long getChildId(int groupPosition, int childPosition) {
+	@Override
+    public long getChildId(int groupPosition, int childPosition) {
 		return childPosition;
 	}
 
-	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+	@Override
+    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
 		return childAdapters[groupPosition].getView(childPosition, convertView, parent);
 	}
 
-	public int getChildrenCount(int groupPosition) {
+	@Override
+    public int getChildrenCount(int groupPosition) {
 		return childAdapters[groupPosition].getCount();
 	}
 
-	public Object getGroup(int groupPosition) {
+	@Override
+    public Object getGroup(int groupPosition) {
 		return childAdapters[groupPosition];
 	}
 
-	public int getGroupCount() {
+	@Override
+    public int getGroupCount() {
 		return childAdapters.length;
 	}
 
-	public long getGroupId(int groupPosition) {
+	@Override
+    public long getGroupId(int groupPosition) {
 		return groupPosition;
 	}
 
+    @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
             ViewGroup parent) {
-        View row = activity.getLayoutInflater().inflate(R.layout.group_item, null);
+        View row = activity.getLayoutInflater().inflate(R.layout.group_item, parent, false);
 
         TextView label = (TextView) row.findViewById(R.id.label);
         label.setText(childAdapters[groupPosition].getHeader());
 
         // Build the icon to display next to the text.
         //
-        // Take the normal icon (at 48dp) and scale it to 28dp, or 58% of its
+        // Take the normal icon (at 48dp) and scale it to 75% of its
         // original size. Then set it as the left-most compound drawable.
 
         Drawable icon = Squeezer.getContext().getResources().getDrawable(groupIcons[groupPosition]);
         int w = icon.getIntrinsicWidth();
         int h = icon.getIntrinsicHeight();
-        icon.setBounds(0, 0, (int) Math.ceil(w * 0.58), (int) Math.ceil(h * 0.58));
+        icon.setBounds(0, 0, (int) Math.ceil(w * 0.75), (int) Math.ceil(h * 0.75));
 
         label.setCompoundDrawables(icon, null, null, null);
 
         return (row);
     }
 
-	public boolean hasStableIds() {
+	@Override
+    public boolean hasStableIds() {
 		return false;
 	}
 
-	public boolean isChildSelectable(int groupPosition, int childPosition) {
+	@Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
 		return true;
 	}
 

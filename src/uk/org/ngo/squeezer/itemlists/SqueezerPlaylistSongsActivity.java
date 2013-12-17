@@ -23,7 +23,8 @@ import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistRenameDialog;
 import uk.org.ngo.squeezer.model.SqueezerPlaylist;
 import uk.org.ngo.squeezer.model.SqueezerSong;
-import android.content.Context;
+
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -45,25 +46,37 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
         }
     }
 
-	public static void show(Context context, SqueezerPlaylist playlist) {
+	public static void show(Activity context, SqueezerPlaylist playlist) {
 	    final Intent intent = new Intent(context, SqueezerPlaylistSongsActivity.class);
 	    intent.putExtra("playlist", playlist);
-	    context.startActivity(intent);
+	    context.startActivityForResult(intent, SqueezerPlaylistsActivity.PLAYLIST_SONGS_REQUEST_CODE);
 	}
 
     private SqueezerPlaylist playlist;
-    private String oldname;
+    private String oldName;
     public SqueezerPlaylist getPlaylist() { return playlist; }
 
-    public void playlistRename(String newname) {
+    public void playlistRename(String newName) {
         try {
-            oldname = playlist.getName();
-            getService().playlistsRename(playlist, newname);
-            playlist.setName(newname);
+            oldName = playlist.getName();
+            getService().playlistsRename(playlist, newName);
+            playlist.setName(newName);
             getIntent().putExtra("playlist", playlist);
+            setResult(SqueezerPlaylistsActivity.PLAYLIST_RENAMED);
         } catch (RemoteException e) {
-            Log.e(getTag(), "Error renaming playlist to '"+ newname + "': " + e);
+            Log.e(getTag(), "Error renaming playlist to '"+ newName + "': " + e);
         }
+    }
+
+    public void playlistDelete() {
+        try {
+            getService().playlistsDelete(getPlaylist());
+            setResult(SqueezerPlaylistsActivity.PLAYLIST_DELETED);
+            finish();
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Error deleting playlist");
+        }
+
     }
 
     @Override
@@ -100,17 +113,17 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
 
                     case R.id.remove_from_playlist:
                         getService().playlistsRemove(playlist, index);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_up:
                         getService().playlistsMove(playlist, index, index - 1);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_down:
                         getService().playlistsMove(playlist, index, index + 1);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move:
@@ -120,64 +133,85 @@ public class SqueezerPlaylistSongsActivity extends SqueezerAbstractSongListActiv
                 }
 
                 return super.doItemContext(menuItem, index, selectedItem);
-            };
+            }
         };
     }
 
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().playlistSongs(start, playlist);
-	}
+    }
 
 	@Override
 	protected void registerCallback() throws RemoteException {
 		super.registerCallback();
 		getService().registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
-	};
+	}
 
 	@Override
 	protected void unregisterCallback() throws RemoteException {
 		super.unregisterCallback();
 		getService().unregisterPlaylistMaintenanceCallback(playlistMaintenanceCallback);
 
-	};
+	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.playlistmenu, menu);
+        getMenuInflater().inflate(R.menu.playmenu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_item_playlists_delete:
-		    new SqueezerPlaylistDeleteDialog().show(getSupportFragmentManager(), SqueezerPlaylistDeleteDialog.class.getName());
-			return true;
-		case R.id.menu_item_playlists_rename:
-		    new SqueezerPlaylistRenameDialog().show(getSupportFragmentManager(), SqueezerPlaylistRenameDialog.class.getName());
-			return true;
-		}
-		return super.onMenuItemSelected(featureId, item);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        try {
+    		switch (item.getItemId()) {
+    		case R.id.menu_item_playlists_delete:
+    		    new SqueezerPlaylistDeleteDialog().show(getSupportFragmentManager(), SqueezerPlaylistDeleteDialog.class.getName());
+    			return true;
+    		case R.id.menu_item_playlists_rename:
+    		    new SqueezerPlaylistRenameDialog().show(getSupportFragmentManager(), SqueezerPlaylistRenameDialog.class.getName());
+    			return true;
+            case R.id.play_now:
+                play(playlist);
+                return true;
+            case R.id.add_to_playlist:
+                add(playlist);
+                return true;
+    		}
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Error executing menu action '" + item.getMenuInfo() + "': " + e);
+        }
+        return super.onOptionsItemSelected(item);
 	}
 
     private void showServiceMessage(final String msg) {
 		getUIThreadHandler().post(new Runnable() {
-			public void run() {
+			@Override
+            public void run() {
 				Toast.makeText(SqueezerPlaylistSongsActivity.this, msg, Toast.LENGTH_SHORT).show();
 			}
 		});
     }
 
+    private void setResult(String flagName) {
+        Intent intent = new Intent();
+        intent.putExtra(flagName, true);
+        intent.putExtra(SqueezerPlaylistsActivity.CURRENT_PLAYLIST, playlist);
+        setResult(RESULT_OK, intent);
+    }
+
     private final IServicePlaylistMaintenanceCallback playlistMaintenanceCallback = new IServicePlaylistMaintenanceCallback.Stub() {
 
-		public void onRenameFailed(String msg) throws RemoteException {
-			playlist.setName(oldname);
+		@Override
+        public void onRenameFailed(String msg) throws RemoteException {
+			playlist.setName(oldName);
             getIntent().putExtra("playlist", playlist);
 			showServiceMessage(msg);
 		}
 
-		public void onCreateFailed(String msg) throws RemoteException {
+		@Override
+        public void onCreateFailed(String msg) throws RemoteException {
 			showServiceMessage(msg);
 		}
 

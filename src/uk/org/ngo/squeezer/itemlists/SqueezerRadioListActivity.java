@@ -17,13 +17,19 @@
 package uk.org.ngo.squeezer.itemlists;
 
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.RemoteException;
 
-
+/*
+ * Display a list of radio stations.
+ * <p>
+ * The activity's content view scrolls in from the right, and disappear to the left, to provide a
+ * spatial component to navigation.
+ */
 public class SqueezerRadioListActivity extends SqueezerPluginListActivity{
 
 	@Override
@@ -36,10 +42,15 @@ public class SqueezerRadioListActivity extends SqueezerPluginListActivity{
 		getService().radios(start);
 	}
 
-
-	public static void show(Context context) {
-        final Intent intent = new Intent(context, SqueezerRadioListActivity.class);
-        context.startActivity(intent);
+    public static void show(Activity activity) {
+        final Intent intent = new Intent(activity, SqueezerRadioListActivity.class);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+    }
 }

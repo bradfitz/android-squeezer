@@ -18,11 +18,17 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <item
-   	android:id="@+id/menu_item_playlist_clear"
-   	android:title="@string/menu_item_playlist_clear" android:icon="@drawable/icon_playlist_clear"
+    android:id="@+id/menu_item_playlist_clear"
+    android:title="@string/menu_item_playlist_clear"
+    android:icon="@drawable/ic_action_playlist_clear"
+    android:showAsAction="ifRoom|withText"
+    android:orderInCategory="10"
   />
   <item
     android:id="@+id/menu_item_playlist_save"
-    android:title="@string/menu_item_playlist_save" android:icon="@drawable/icon_playlist_save"
+    android:title="@string/menu_item_playlist_save"
+    android:icon="@drawable/ic_action_playlist_save"
+    android:showAsAction="ifRoom|withText"
+    android:orderInCategory="10"
   />
 </menu>

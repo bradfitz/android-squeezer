@@ -26,8 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
 
-import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
-
 public class SqueezerGenreListActivity extends SqueezerBaseListActivity<SqueezerGenre>{
 
 	@Override
@@ -47,7 +45,7 @@ public class SqueezerGenreListActivity extends SqueezerBaseListActivity<Squeezer
 
 	@Override
 	protected void orderPage(int start) throws RemoteException {
-		getService().genres(start);
+		getService().genres(start, null);
 	}
 
 

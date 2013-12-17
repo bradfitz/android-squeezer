@@ -19,8 +19,14 @@ package uk.org.ngo.squeezer;
 public final class Preferences {
 	public static final String NAME = "Squeezer";
 
-	// e.g. "10.0.0.81:9090"
-	public static final String KEY_SERVERADDR = "squeezer.serveraddr";
+    // e.g. "10.0.0.81:9090"
+    public static final String KEY_SERVERADDR = "squeezer.serveraddr";
+
+    // Optional Squeezebox Server user name
+    public static final String KEY_USERNAME = "squeezer.username";
+
+    // Optional Squeezebox Server password
+    public static final String KEY_PASSWORD = "squeezer.password";
 
 	// The playerId that we were last connected to. e.g. "00:04:20:17:04:7f"
     public static final String KEY_LASTPLAYER = "squeezer.lastplayer";
@@ -41,10 +47,19 @@ public final class Preferences {
     // Type of underlying preference is bool / CheckBox
     public static final String KEY_SCROBBLE_ENABLED = "squeezer.scrobble.enabled";
 
-    public static final String KEY_DEBUG_LOGGING = "squeezer.debuglogging";
-
     // Do we send anonymous usage statistics?
     public static final String KEY_ANALYTICS_ENABLED = "squeezer.analytics.enabled";
+
+    // Fade-in period? (0 = disable fade-in)
+    public static final String KEY_FADE_IN_SECS = "squeezer.fadeInSecs";
+
+    // What do to when an album is selected in the list view
+    public static final String KEY_ON_SELECT_ALBUM_ACTION = "squeezer.action.onselect.album";
+    // What do to when a song is selected in the list view
+    public static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
+
+    // Preferred album list layout.
+    public static final String KEY_ALBUM_LIST_LAYOUT = "squeezer.album.list.layout";
 
 	private Preferences() {
 	}

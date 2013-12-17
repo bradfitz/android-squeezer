@@ -29,30 +29,36 @@ import uk.org.ngo.squeezer.framework.SqueezerItem;
  * @author Kurt Aaholst
  */
 interface SqueezerListHandler<T extends SqueezerItem> {
-	/**
-	 * @return The type of item this handler can handle
-	 */
-	Class<T> getDataType();
+    /**
+     * @return The type of item this handler can handle
+     */
+    Class<T> getDataType();
 
-	/**
-	 * Prepare for parsing an extended query format response
-	 */
-	void clear();
+    /**
+     * Prepare for parsing an extended query format response
+     */
+    void clear();
 
-	/**
-	 * Called for each item received in the current reply. Just store this internally.
-	 * @param record
-	 */
-	void add(Map<String, String> record);
+    /**
+     * Called for each item received in the current reply. Just store this
+     * internally.
+     * 
+     * @param record
+     */
+    void add(Map<String, String> record);
 
-	/**
-	 * Called when the current reply is completely parsed. Pass the information on to your activity now. If there are
-	 * any more data, it is automatically ordered by {@link SqueezerCLIImpl#parseSqueezerList(List, SqueezerListHandler)}
-	 * @param rescan Set if SqueezeServer is currently doing a scan of the music library.
-	 * @param count Total number of result for the current query.
-	 * @param max The current configured default maximum list size.
-	 * @param start Offset for the current list in total results.
-	 * @return
-	 */
-	boolean processList(boolean rescan, int count, int start, Map<String, String> parameters);
+    /**
+     * Called when the current reply is completely parsed. Pass the information
+     * on to your activity now. If there are any more data, it is automatically
+     * ordered by
+     * {@link SqueezerCLIImpl#parseSqueezerList(List, SqueezerListHandler)}
+     * 
+     * @param rescan Set if SqueezeServer is currently doing a scan of the music
+     *            library.
+     * @param count Total number of result for the current query.
+     * @param max The current configured default maximum list size.
+     * @param start Offset for the current list in total results.
+     * @return
+     */
+    boolean processList(boolean rescan, int count, int start, Map<String, String> parameters);
 }

@@ -21,42 +21,122 @@
  */
 package uk.org.ngo.squeezer;
 
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
+import uk.org.ngo.squeezer.service.ISqueezeService;
+
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
-public class VolumePanel extends Handler {
-	private static final int MSG_VOLUME_CHANGED = 0;
+public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListener {
+    private static final int TIMEOUT_DELAY = 3000;
+
+    private static final int MSG_VOLUME_CHANGED = 0;
     private static final int MSG_FREE_RESOURCES = 1;
+    private static final int MSG_TIMEOUT = 2;
 
-	protected Context mContext;
+    protected SqueezerBaseActivity mActivity;
 
-    private final Toast mToast;
+    /** Dialog displaying the volume panel. */
+    private final Dialog mDialog;
+
+    /** View displaying volume sliders. */
     private final View mView;
+
     private final TextView mMessage;
     private final TextView mAdditionalMessage;
     private final ImageView mLargeStreamIcon;
-    private final ProgressBar mLevel;
+    private final SeekBar mSeekbar;
 
-    public VolumePanel(Context context) {
-    	mContext = context;
-        mToast = new Toast(context);
+    public VolumePanel(SqueezerBaseActivity activity) {
+        mActivity = activity;
 
-        LayoutInflater inflater = (LayoutInflater) context
-        		.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) activity
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mView = inflater.inflate(R.layout.volume_adjust, null);
+        mView.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                resetTimeout();
+                return false;
+            }
+        });
+
         mMessage = (TextView) mView.findViewById(R.id.message);
-    	mAdditionalMessage = (TextView) mView.findViewById(R.id.additional_message);
-    	mLevel = (ProgressBar) mView.findViewById(R.id.level);
-    	mLargeStreamIcon = (ImageView) mView.findViewById(R.id.ringer_stream_icon);
+        mAdditionalMessage = (TextView) mView.findViewById(R.id.additional_message);
+        mSeekbar = (SeekBar) mView.findViewById(R.id.level);
+        mLargeStreamIcon = (ImageView) mView.findViewById(R.id.ringer_stream_icon);
+
+        mSeekbar.setOnSeekBarChangeListener(this);
+
+        mDialog = new Dialog(mActivity, R.style.VolumePanel) { //android.R.style.Theme_Panel) {
+            public boolean onTouchEvent(MotionEvent event) {
+                if (isShowing() && event.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                    forceTimeout();
+                    return true;
+                }
+                return false;
+            }
+        };
+        mDialog.setTitle("Volume Control");
+        mDialog.setContentView(mView);
+
+        // Set window properties to match other toasts/dialogs.
+        Window window = mDialog.getWindow();
+        window.setGravity(Gravity.TOP);
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.token = null;
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH);
+    }
+
+    public void dismiss() {
+        removeMessages(MSG_TIMEOUT);
+        if (mDialog.isShowing()) {
+            mDialog.dismiss();
+        }
+    }
+
+    private void resetTimeout() {
+        removeMessages(MSG_TIMEOUT);
+        sendMessageDelayed(obtainMessage(MSG_TIMEOUT), TIMEOUT_DELAY);
+    }
+
+    private void forceTimeout() {
+        removeMessages(MSG_TIMEOUT);
+        sendMessage(obtainMessage(MSG_TIMEOUT));
+    }
+
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (fromUser) {
+            ISqueezeService service = mActivity.getService();
+            if (service != null) {
+                try {
+                    service.adjustVolumeTo(progress);
+                } catch (RemoteException e) {
+                }
+            }
+        }
+    }
+
+    public void onStartTrackingTouch(SeekBar seekBar) {
+    }
+
+    public void onStopTrackingTouch(SeekBar seekBar) {
     }
 
     public void postVolumeChanged(int newVolume, String additionalMessage) {
@@ -66,24 +146,26 @@ public class VolumePanel extends Handler {
     }
 
     protected void onVolumeChanged(int newVolume, String additionalMessage) {
-    	onShowVolumeChanged(newVolume, additionalMessage);
+        onShowVolumeChanged(newVolume, additionalMessage);
     }
 
     protected void onShowVolumeChanged(int newVolume, String additionalMessage) {
-    	mLevel.setMax(100);
-    	mLevel.setProgress(newVolume);
+        mSeekbar.setMax(100);
+        mSeekbar.setProgress(newVolume);
 
-        mMessage.setText(mContext.getString(R.string.volume, mContext.getString(R.string.app_name)));
-    	mAdditionalMessage.setText(additionalMessage);
+        mMessage.setText(mActivity.getString(R.string.volume, mActivity.getString(R.string.app_name)));
+        mAdditionalMessage.setText(additionalMessage);
 
-		mLargeStreamIcon.setImageResource(newVolume == 0
-				? R.drawable.ic_volume_off
-				: R.drawable.ic_volume);
+        mLargeStreamIcon.setImageResource(newVolume == 0
+                ? R.drawable.ic_volume_off
+                : R.drawable.ic_volume);
 
-    	mToast.setView(mView);
-    	mToast.setDuration(Toast.LENGTH_SHORT);
-    	mToast.setGravity(Gravity.TOP, 0, 0);
-    	mToast.show();
+        if (!mDialog.isShowing() && !mActivity.isFinishing()) {
+            mDialog.setContentView(mView);
+            mDialog.show();
+        }
+
+        resetTimeout();
     }
 
     protected void onFreeResources() {
@@ -98,6 +180,11 @@ public class VolumePanel extends Handler {
 
             case MSG_VOLUME_CHANGED: {
                 onVolumeChanged(msg.arg1, (String) msg.obj);
+                break;
+            }
+
+            case MSG_TIMEOUT: {
+                dismiss();
                 break;
             }
 

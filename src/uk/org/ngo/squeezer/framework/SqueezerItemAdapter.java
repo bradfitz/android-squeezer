@@ -16,12 +16,13 @@
 
 package uk.org.ngo.squeezer.framework;
 
-import java.util.Iterator;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.os.RemoteException;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -39,6 +40,9 @@ import android.widget.BaseAdapter;
  * <p>
  * If you need an adapter for a {@link SqueezerBaseListActivity}, then use
  * {@link SqueezerItemListAdapter} instead.
+ * <p>
+ * Normally there is no need to extend this (or {@link SqueezerItemListAdapter}),
+ * as we delegate all type dependent stuff to {@link SqueezerItemView}.
  *
  * @param <T>
  *            Denotes the class of the items this class should list
@@ -48,10 +52,12 @@ import android.widget.BaseAdapter;
 public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter implements
         OnCreateContextMenuListener
 {
-	/**
-	 * View logic for this adapter
-	 */
-    private final SqueezerItemView<T> mItemView;
+	private static final String TAG = SqueezerItemAdapter.class.getSimpleName();
+
+    /**
+     * View logic for this adapter
+     */
+    private SqueezerItemView<T> mItemView;
 
 	/**
 	 * List of items, possibly headed with an empty item.
@@ -131,12 +137,22 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
         pages.clear();
     }
 
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         T item = getItem(position);
-        if (item != null)
-            return mItemView.getAdapterView(convertView, item, mImageFetcher);
+        if (item != null) {
+            // XXX: This is ugly -- not all adapters need an ImageFetcher.
+            // We should really have subclasses of types in the model classes,
+            // with the hierarchy probably being:
+            //
+            // [basic item] -> [item with artwork] -> [artwork is downloaded]
+            //
+            // instead of special-casing whether or not mImageFetcher is null
+            // in getAdapterView().
+            return mItemView.getAdapterView(convertView, parent, item, mImageFetcher);
+        }
 
-        return mItemView.getAdapterView(convertView,
+        return mItemView.getAdapterView(convertView, parent,
                 (position == 0 && mEmptyItem ? "" : loadingText));
     }
 
@@ -148,6 +164,17 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
         return mItemView.getActivity();
     }
 
+    public void onItemSelected(int position) {
+        T item = getItem(position);
+        if (item != null && item.getId() != null) {
+            try {
+                mItemView.onItemSelected(position, item);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Error from default action for '" + item + "': " + e);
+            }
+        }
+    }
+
     /**
      * Creates the context menu for the selected item by calling
      * {@link SqueezerItemView.onCreateContextMenu} which the subclass should
@@ -157,6 +184,7 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
      * and creates a {@link SqueezerItemView.ContextMenuInfo} suitable for
      * passing to subclasses of {@link SqueezerBaseItemView}.
      */
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
         final T selectedItem = getItem(adapterMenuInfo.position);
@@ -170,15 +198,26 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
         }
     }
 
-    public boolean doItemContext(MenuItem menuItem, int position) throws RemoteException {
-        return mItemView.doItemContext(menuItem, position, getItem(position));
+    public boolean doItemContext(MenuItem menuItem, int position) {
+        try {
+            return mItemView.doItemContext(menuItem, position, getItem(position));
+        } catch (RemoteException e) {
+            SqueezerItem item = getItem(position);
+            Log.e(TAG, "Error executing context menu action '" + menuItem.getMenuInfo() + "' for '"   + item + "': " + e);
+            return false;
+        }
     }
 
     public SqueezerItemView<T> getItemView() {
         return mItemView;
     }
 
-	public int getCount() {
+    public void setItemView(SqueezerItemView<T> itemView) {
+        mItemView = itemView;
+    }
+
+	@Override
+    public int getCount() {
 		return count;
 	}
 
@@ -194,18 +233,18 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
 	private void setItems(int start, List<T> items) {
 		T[] page = getPage(start);
 		int offset = start % pageSize;
-		Iterator<T> it = items.iterator();
-		while (it.hasNext()) {
+        for (T item : items) {
 			if (offset >= pageSize) {
 				start += offset;
 				page = getPage(start);
 				offset = 0;
 			}
-			page[offset++] = it.next();
+			page[offset++] = item;
 		}
 	}
 
-	public T getItem(int position) {
+	@Override
+    public T getItem(int position) {
 		T item = getPage(position)[position % pageSize];
 		if (item == null) {
 			if (mEmptyItem) position--;
@@ -214,7 +253,12 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
 		return item;
 	}
 
-	public long getItemId(int position) {
+    public void setItem(int position, T item) {
+        getPage(position)[position % pageSize] = item;
+    }
+
+	@Override
+    public long getItemId(int position) {
 		return position;
 	}
 
@@ -225,10 +269,8 @@ public class SqueezerItemAdapter<T extends SqueezerItem> extends BaseAdapter imp
      */
 	public String getHeader() {
 		String item_text = getQuantityString(getCount());
-		String header = getActivity().getString(R.string.browse_items_text, item_text, getCount());
-		return header;
-	}
-
+        return getActivity().getString(R.string.browse_items_text, item_text, getCount());
+    }
 
 	/**
 	 * Called when the number of items in the list changes.

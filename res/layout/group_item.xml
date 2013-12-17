@@ -22,6 +22,7 @@
     android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:gravity="center_vertical"
     android:drawablePadding="8dp"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"

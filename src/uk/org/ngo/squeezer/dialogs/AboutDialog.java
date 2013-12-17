@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.dialogs;
 
-import uk.org.ngo.squeezer.R;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -29,17 +28,21 @@ import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.TextView;
 
+import de.cketti.library.changelog.ChangeLog;
+import uk.org.ngo.squeezer.R;
+
 public class AboutDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View view = getActivity().getLayoutInflater().inflate(R.layout.about_dialog, null);
         final TextView titleText = (TextView) view.findViewById(R.id.about_title);
+        final TextView versionText = (TextView) view.findViewById(R.id.version_text);
 
         PackageManager pm = getActivity().getPackageManager();
         PackageInfo info;
         try {
-            info = pm.getPackageInfo("uk.org.ngo.squeezer", 0);
-            titleText.setText(getString(R.string.about_title, info.versionName));
+            info = pm.getPackageInfo(getActivity().getPackageName(), 0);
+            versionText.setText(info.versionName);
         } catch (NameNotFoundException e) {
             titleText.setText(getString(R.string.app_name));
         }
@@ -47,6 +50,13 @@ public class AboutDialog extends DialogFragment {
         Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         builder.setPositiveButton(android.R.string.ok, null);
+        builder.setNeutralButton("Change Log", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ChangeLog changeLog = new ChangeLog(getActivity());
+                changeLog.getFullLogDialog().show();
+            }
+        });
         builder.setNegativeButton(R.string.dialog_license, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 new LicenseDialog()

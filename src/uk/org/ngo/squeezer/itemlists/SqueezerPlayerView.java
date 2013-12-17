@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,48 +24,41 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.os.RemoteException;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
-	private final LayoutInflater layoutInflater;
-    private SqueezerPlayerListActivity activity;
 	private static final Map<String, Integer> modelIcons = initializeModelIcons();
+    private final SqueezerPlayerListActivity mActivity;
 
-	public SqueezerPlayerView(SqueezerPlayerListActivity activity) {
-		super(activity);
-		this.activity = activity;
-		layoutInflater = activity.getLayoutInflater();
-	}
+    public SqueezerPlayerView(SqueezerPlayerListActivity activity) {
+        super(activity);
 
-	@Override
-    public View getAdapterView(View convertView, SqueezerPlayer item, ImageFetcher imageFetcher) {
-		ViewHolder viewHolder;
+        mActivity = activity;
 
-		if (convertView == null || convertView.getTag() == null) {
-			convertView = layoutInflater.inflate(R.layout.icon_large_row_layout, null);
-			viewHolder = new ViewHolder();
-			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
-			viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-			convertView.setTag(viewHolder);
-		} else
-			viewHolder = (ViewHolder) convertView.getTag();
+        setViewParams(EnumSet.of(ViewParams.ICON));
+        setLoadingViewParams(EnumSet.of(ViewParams.ICON));
+    }
 
-		viewHolder.label.setText(item.getName());
-		viewHolder.label.setTextAppearance(getActivity(), item.equals(activity.getActivePlayer()) ? R.style.SqueezerCurrentTextItem : R.style.SqueezerTextItem);
-		viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
+    public void bindView(View view, SqueezerPlayer item, ImageFetcher imageFetcher) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-		convertView.setBackgroundResource(item.equals(activity.getActivePlayer()) ? R.drawable.list_item_background_current : R.drawable.list_item_background_normal);
-		return convertView;
-	}
+        viewHolder.text1.setText(item.getName());
+        viewHolder.text1.setTextAppearance(mActivity,
+                item.equals(mActivity.getActivePlayer()) ? R.style.SqueezerCurrentTextItem
+                        : R.style.SqueezerTextItem);
+
+        viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
+
+        view.setBackgroundResource(item.equals(mActivity.getActivePlayer()) ? R.drawable.list_item_background_current
+                : R.drawable.list_item_background_normal);
+    }
 
 	public void onItemSelected(int index, SqueezerPlayer item) throws RemoteException {
 		getActivity().getService().setActivePlayer(item);
 		getActivity().finish();
-	};
+    }
 
 	public String getQuantityString(int quantity) {
 		return getActivity().getResources().getQuantityString(R.plurals.player, quantity);
@@ -86,14 +80,8 @@ public class SqueezerPlayerView extends SqueezerBaseItemView<SqueezerPlayer> {
 		return modelIcons;
 	}
 
-	private int getModelIcon(String model) {
+	private static int getModelIcon(String model) {
 		Integer icon = modelIcons.get(model);
 		return (icon != null ? icon : R.drawable.icon_blank);
 	}
-
-	private static class ViewHolder {
-		TextView label;
-		ImageView icon;
-	}
-
 }

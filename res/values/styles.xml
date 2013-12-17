@@ -1,30 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
- Copyright (c) 2012 Kurt Aaholst <kaaholst@gmail.com>
+  Copyright 2011 The Android Open Source Project
 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat">
+        <!-- TODO: Consider Theme.AppCompat.Light.DarkActionBar -->
+    </style>
+
+    <!-- Text Styles -->
     <style name="SqueezerTextItem" parent="@android:style/TextAppearance.Medium">
     </style>
     <style name="SqueezerCurrentTextItem" parent="style/SqueezerTextItem">
-        <item name="android:textStyle">bold</item>
     </style>
     <style name="SqueezerTextItemSmall" parent="@android:style/TextAppearance.Small">
     </style>
     <style name="SqueezerCurrentTextItemSmall" parent="style/SqueezerTextItemSmall">
-        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Media controller styles -->
+    <style name="MediaButton">
+        <item name="android:background">@drawable/list_selector_holo_dark</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">0dip</item>
+        <item name="android:layout_height">52dip</item>
+    </style>
+
+    <style name="MediaButton.Previous">
+        <item name="android:src">@drawable/ic_action_previous</item>
+    </style>
+
+    <style name="MediaButton.Next">
+        <item name="android:src">@drawable/ic_action_next</item>
+    </style>
+
+    <style name="MediaButton.Play">
+        <item name="android:src">@drawable/ic_action_play</item>
+    </style>
+
+    <style name="MediaButton.Shuffle">
+        <item name="android:src">@drawable/btn_shuffle_off</item>
+    </style>
+
+    <style name="MediaButton.Repeat">
+        <item name="android:src">@drawable/btn_repeat_off</item>
+    </style>
+
+    <style name="VolumePanel" parent="@android:style/Theme.Panel">
+        <item name="android:windowAnimationStyle">@style/VolumeDialogAnimation</item>
+    </style>
+
+    <style name="VolumeDialogAnimation">
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 </resources>

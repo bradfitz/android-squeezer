@@ -16,23 +16,12 @@
 
 package uk.org.ngo.squeezer.dialogs;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
 import org.acra.ErrorReporter;
 
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Squeezer;
-import uk.org.ngo.squeezer.util.UIUtils;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -53,6 +42,20 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
+import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.util.UIUtils;
+
 /**
  * Shows a preference dialog that allows the user to scan the local network
  * for servers, choose a server from the results of the scan, or enter the
@@ -60,10 +63,12 @@ import android.widget.TextView;
  */
 public class ServerAddressPreference extends DialogPreference {
     private EditText mServerAddressEditText;
-    private Button mScanBtn;
+
     private Spinner mServersSpinner;
 
     private ScanNetworkTask mScanNetworkTask;
+    private EditText userNameEditText;
+    private EditText passwordEditText;
 
     /** Map server names to IP addresses. */
     private TreeMap<String, String> mDiscoveredServers;
@@ -84,8 +89,13 @@ public class ServerAddressPreference extends DialogPreference {
         super.onBindDialogView(view);
 
         mServerAddressEditText = (EditText) view.findViewById(R.id.server_address);
-        mScanBtn = (Button) view.findViewById(R.id.scan_btn);
+        Button scanBtn = (Button) view.findViewById(R.id.scan_btn);
         mServersSpinner = (Spinner) view.findViewById(R.id.found_servers);
+
+        userNameEditText = (EditText) view.findViewById(R.id.username);
+        userNameEditText.setText(getSharedPreferences().getString(Preferences.KEY_USERNAME, null));
+        passwordEditText = (EditText) view.findViewById(R.id.password);
+        passwordEditText.setText(getSharedPreferences().getString(Preferences.KEY_PASSWORD, null));
 
         // If there's no server address configured then set the default text
         // in the edit box to our IP address, trimmed of the last octet.
@@ -118,7 +128,7 @@ public class ServerAddressPreference extends DialogPreference {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
-            mScanBtn.setOnClickListener(new OnClickListener() {
+            scanBtn.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     startNetworkScan();
                 }
@@ -126,7 +136,7 @@ public class ServerAddressPreference extends DialogPreference {
         } else {
             TextView scan_msg = (TextView) view.findViewById(R.id.scan_msg);
             scan_msg.setText(mContext.getText(R.string.settings_server_scanning_disabled_msg));
-            mScanBtn.setEnabled(false);
+            scanBtn.setEnabled(false);
         }
     }
 
@@ -209,9 +219,22 @@ public class ServerAddressPreference extends DialogPreference {
         }
 
         if (positiveResult) {
-            String addr = mServerAddressEditText.getText().toString();
-            persistString(addr);
-            callChangeListener(addr);
+            StringBuilder ipPort = new StringBuilder(mServerAddressEditText.getText());
+
+            // Append the default port if necessary.
+            if (ipPort.indexOf(":") == -1) {
+                ipPort.append(":");
+                ipPort.append(mContext.getResources().getInteger(R.integer.DefaultPort));
+            }
+
+            persistString(ipPort.toString());
+
+            SharedPreferences.Editor editor = getEditor();
+            editor.putString(Preferences.KEY_USERNAME, userNameEditText.getText().toString());
+            editor.putString(Preferences.KEY_PASSWORD, passwordEditText.getText().toString());
+            editor.commit();
+
+            callChangeListener(ipPort.toString());
         }
     }
 
@@ -343,12 +366,18 @@ public class ServerAddressPreference extends DialogPreference {
 
                     if (!timedOut) {
                         if (buf[0] == (byte) 'E') {
-                            String serverAddr = responsePacket.getAddress().getHostAddress();
+                            // There's no mechanism for the server to return the port
+                            // the CLI is listening on, so assume it's the default and
+                            // append it to the address.
+                            StringBuilder ipPort = new StringBuilder(responsePacket.getAddress().getHostAddress());
+                            ipPort.append(":");
+                            ipPort.append(mContext.getResources().getInteger(R.integer.DefaultPort));
 
                             // Blocks of data are TAG/LENGTH/VALUE, where TAG is
                             // a 4 byte string identifying the item, LENGTH is
-                            // the length of the VALUE (e.g., reading \t means the
-                            // value is 9 bytes, and VALUE is the actual value.
+                            // the length of the VALUE (e.g., reading \t means
+                            // the value is 9 bytes, and VALUE is the actual
+                            // value.
 
                             // Find the 'NAME' block
                             int i = 1;
@@ -364,7 +393,7 @@ public class ServerAddressPreference extends DialogPreference {
                             // i now pointing at the length of the NAME value.
                             String name = new String(buf, i + 1, buf[i]);
 
-                            mServerMap.put(name, serverAddr);
+                            mServerMap.put(name, ipPort.toString());
                         }
                     }
 
@@ -389,7 +418,7 @@ public class ServerAddressPreference extends DialogPreference {
                 wifiLock.release();
 
             // For testing that multiple servers are handled correctly.
-            // mServerMap.put("Dummy 2", "127.0.0.2");
+            // mServerMap.put("Dummy", "127.0.0.1");
             return null;
         }
 

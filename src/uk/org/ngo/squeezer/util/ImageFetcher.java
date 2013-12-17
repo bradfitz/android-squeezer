@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright 2012 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import android.os.Build;
 import android.util.Log;
 
 /**
- * A simple subclass of {@link ImageResizer} that fetches and resizes images fetched from a URL.
+ * A subclass of {@link ImageWorker} that fetches images from a URL.
  */
 public class ImageFetcher extends ImageResizer {
     private static final String TAG = "ImageFetcher";
@@ -48,11 +48,7 @@ public class ImageFetcher extends ImageResizer {
     private static final int DISK_CACHE_INDEX = 0;
 
     /**
-     * Initialize providing a target image width and height for the processing images.
-     *
-     * @param context
-     * @param imageWidth
-     * @param imageHeight
+     * Create an ImageFetcher specifying custom parameters.
      */
     public ImageFetcher(Context context, int imageWidth, int imageHeight) {
         super(context, imageWidth, imageHeight);
@@ -60,10 +56,7 @@ public class ImageFetcher extends ImageResizer {
     }
 
     /**
-     * Initialize providing a single target image size (used for both width and height);
-     *
-     * @param context
-     * @param imageSize
+     * Create an ImageFetcher using default parameters.
      */
     public ImageFetcher(Context context, int imageSize) {
         super(context, imageSize);
@@ -157,12 +150,11 @@ public class ImageFetcher extends ImageResizer {
         }
     }
 
-
     /**
      * The main process method, which will be called by the ImageWorker in the AsyncTask background
      * thread.
      *
-     * @param data The data to load the bitmap, in this case, a regular http URL
+     * @param key The key to load the bitmap, in this case, a regular http URL
      * @return The downloaded and resized bitmap
      */
     private Bitmap processBitmap(String data) {
@@ -236,11 +228,14 @@ public class ImageFetcher extends ImageResizer {
         return processBitmap(String.valueOf(data));
     }
 
+
     /**
-     * Download a bitmap from a URL and write the content to an output stream.
+     * Download a bitmap from a URL, write it to a disk and return the File pointer. This
+     * implementation uses a simple disk cache.
      *
+     * @param context The context to use
      * @param urlString The URL to fetch
-     * @return true if successful, false otherwise
+     * @return A File pointing to the fetched bitmap
      */
     public boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
         disableConnectionReuseIfNecessary();

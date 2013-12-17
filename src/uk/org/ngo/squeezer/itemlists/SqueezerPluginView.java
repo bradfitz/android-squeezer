@@ -16,62 +16,27 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
-import uk.org.ngo.squeezer.R;
+import java.util.EnumSet;
+
+import uk.org.ngo.squeezer.framework.SqueezerBaseItemView;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import android.os.RemoteException;
-import android.util.Log;
-import android.view.LayoutInflater;
+
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-public abstract class SqueezerPluginView extends SqueezerIconicItemView<SqueezerPlugin> {
-	private final LayoutInflater layoutInflater;
-
+public abstract class SqueezerPluginView extends SqueezerBaseItemView<SqueezerPlugin> {
     public SqueezerPluginView(SqueezerBaseListActivity<SqueezerPlugin> activity) {
-		super(activity);
-        layoutInflater = activity.getLayoutInflater();
-	}
+        super(activity);
 
-	@Override
-    public View getAdapterView(View convertView, SqueezerPlugin item, ImageFetcher imageFetcher) {
-		ViewHolder viewHolder;
+        setViewParams(EnumSet.of(ViewParams.ICON));
+    }
 
-		if (convertView == null || convertView.getTag() == null) {
-			convertView = layoutInflater.inflate(R.layout.icon_large_row_layout, null);
-			viewHolder = new ViewHolder();
-			viewHolder.label = (TextView) convertView.findViewById(R.id.label);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-			convertView.setTag(viewHolder);
-		} else
-			viewHolder = (ViewHolder) convertView.getTag();
+    @Override
+    public void bindView(View view, SqueezerPlugin item, ImageFetcher imageFetcher) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-		viewHolder.label.setText(item.getName());
-        imageFetcher.loadImage(getIconUrl(item.getIcon()), viewHolder.icon);
-
-		return convertView;
-	}
-
-	private String getIconUrl(String icon) {
-		if (icon == null) return null;
-
-		ISqueezeService service = getActivity().getService();
-		if (service == null) return null;
-
-		try {
-			return service.getIconUrl(icon);
-		} catch (RemoteException e) {
-			Log.e(getClass().getSimpleName(), "Error requesting icon url: " + e);
-			return null;
-		}
-	}
-
-	private static class ViewHolder {
-		TextView label;
-        ImageView icon;
-	}
-
+        viewHolder.text1.setText(item.getName());
+        imageFetcher.loadImage(getActivity().getIconUrl(item.getIcon()), viewHolder.icon);
+    }
 }

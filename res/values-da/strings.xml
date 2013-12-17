@@ -18,12 +18,14 @@
 
 <resources>
     <string name="app_name">Squeezer</string>
+    <string name="disabled">Deaktiveret</string>
     <string name="volume">%s lydstyrke</string>
     <string name="menu_item_players">Afspillere</string>
     <string name="menu_item_search_label">Søg</string>
     <string name="menu_item_settings_label">Indstillinger</string>
     <string name="menu_item_about_label">Om</string>
     <string name="activity_settings_name">Indstillinger</string>
+    <string name="pref_cat_server">Server indstillinger</string>
     <string name="settings_serveraddr_title">Server adresse</string>
     <string name="settings_serveraddr_summary">IP addresse på SqueezeBox Server, f.eks. 10.0.0.5.</string>
     <string name="settings_server_prompt">Vælg en server</string>
@@ -31,42 +33,57 @@
     <string name="settings_server_scan_stop">Afbryd scanning</string>
     <string name="settings_server_scan_msg">Eller tryk \'Start scanning\' for at scanne netværket for servere.</string>
     <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke er forbundet.</string>
+    <string name="settings_username_hint">Eventuelt SqueezeBox Server brugernavn.</string>
+    <string name="settings_password_hint">Eventuel SqueezeBox Server adgangskode.</string>
     <string name="settings_server_scan_progress">Scanner efter servere&#8230;</string>
+    <string name="settings_fadeinsecs_title">Indtoningsperiode</string>
+    <string name="settings_fadeinsecs_summary">Angiv hvor mange sekunder der indtones. Angiv 0 for at deaktivere indtoning.</string>
     <string name="settings_autoconnect_title">Forbind automatisk</string>
-    <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse.</string>
+    <string name="settings_autoconnect_summary">Tilbyd at aktivere Wi-Fi, og prøv at forbinde ved aktiv Wi-Fi forbindelse</string>
+
+    <string name="settings_notifyofconnection_title">Notifikation ved forbindelse</string>
+    <string name="settings_notifyofconnection_on">Vis notifikation ved forbindelse, også når der ikke spilles musik</string>
+    <string name="settings_notifyofconnection_off">Vis kun notification når der spilles musik</string>
+
+    <string name="settings_category_ui">Squeezer grænseflade</string>
 
     <string name="settings_scrobble_title">Scrobble til Last.fm</string>
     <string name="settings_scrobble_on">Sang information sendes til Last.fm</string>
     <string name="settings_scrobble_off">Sang information sendes ikke til Last.fm</string>
     <string name="settings_scrobble_noapp">Der er ikke installeret noget program, der kan scrobble</string>
+    <string name="settings_market_not_found">Kunne ikke starte Google Play, er det installeret?</string>
 
     <string name="menu_item_disconnect">Afbryd</string>
     <string name="menu_item_connect">Forbind</string>
-    <string name="menu_item_poweron">Tænd</string>
-    <string name="menu_item_poweroff">Sluk</string>
+    <string name="menu_item_poweron">Tænd \"%s\"</string>
+    <string name="menu_item_poweroff">Sluk \"%s\"</string>
     <string name="menu_item_main">Nu spiller</string>
     <string name="menu_item_home">Hovedmenu</string>
-    <string name="menu_item_download">Hent</string>
     <string name="menu_item_fetch_all">Hent resten</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sortér</string>
+    <string name="menu_item_view">Visning</string>
     <string name="menu_item_delete">Slet</string>
     <string name="menu_item_rename">Omdøb</string>
-    <string name="menu_item_playlists_new">Ny afspilningsliste</string>
+    <string name="menu_item_playlists_new">Ny</string>
     <string name="menu_item_playlist_clear">Ryd afspilningsliste</string>
     <string name="menu_item_playlist_save">Gem afspilningsliste</string>
-    <string name="about_title">Squeezer v%s</string>
+    <string name="menu_item_volume">Indstil lydstyrke</string>
     <string name="connecting_text">Forbinder</string>
+    <string name="connect_to_text">Forbinder til %s</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.</string>
+    <string name="not_connected">Squeezer er ikke forbundet til nogen SqueezeBoxServer.</string>
+    <string name="login_failed_text">Login mislykkedes, indtast brugernavn og adgangskode.</string>
     <string name="disconnected_text">Afbrudt.</string>
     <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
-    <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed. Vent venligst på en aktiv Wi-Fi-forbindelse. \nSlå Wi-Fi til?</string>
+    <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed.\nNår der opnås en aktiv forbindelse, vil Squeezer automatisk forsøge at forbinde til din SqueezeBox server.\nSlå Wi-Fi til?</string>
+    <string name="wifi_enabled_text">Wi-Fi er aktiveret. Vent venligst på en aktiv Wi-Fi-forbindelse.</string>
     <string name="notification_playing_text">%s spiller</string>
     <string name="notification_connected_text">%s forbundet</string>
     <string name="filter_text_hint">Søg efter %s</string>
-    <string name="search_instructions_text">Søg efter kunster, album, genre eller sang titel.</string>
-    <string name="search_hint_text">Angiv søgetekst</string>
+    <string name="search_text_hint">Angiv søgetekst</string>
+    <string name="search_music_library_hint">Søg efter kunster, album, genre eller sang titel.</string>
     <string name="move_to_dialog_title">Flyt sang nr %s</string>
     <string name="move_to_index_hint">Angiv ny position for sang</string>
     <string name="save_playlist_title">Gem afspilningsliste</string>
@@ -76,8 +93,8 @@
     <string name="rename_title">Omdøb %s</string>
     <string name="delete_title">Slet %s</string>
     <string name="delete__message">Er du sikker på at slette?</string>
-    <string name="loading_text">Henter &#8230;</string>
-    <string name="browse_items_text">Viser %2$d %1$s</string>
+    <string name="loading_text">Henter&#8230;</string>
+    <string name="browse_items_text">%2$d %1$s</string>
     <string name="choose_sort_order">Vælg rækkefølge af %s</string>
     <string name="genre_prompt">Vælg genre</string>
     <string name="year_prompt">Vælg år</string>
@@ -88,9 +105,16 @@
     <string name="year_label">År</string>
     <string name="filter_label">Søgetekst</string>
 
+    <string name="albums_by_artist_header">Album med sange af %s</string>
+    <string name="albums_by_genre_header">Album med sange i genren \"%s\"</string>
+    <string name="albums_by_year_header">Album med sange fra %s</string>
+
+    <string name="songs_by_header">Sange af %s</string>
+
     <string name="unknown_track">Ukendt sang</string>
     <string name="unknown_album">Ukendt album</string>
     <string name="unknown_artist">Ukendt kunster</string>
+    <string name="unknown_year">Ukendt år</string>
 
     <string name="tips_title">Tips</string>
     <string name="tip_volume">Brug enhedens hardware lydstyrkeknapper for at ændre spille lydstyrken.\n\nPrøv det nu.</string>
@@ -100,32 +124,28 @@
 
     <string name="copyright_text">Copyright &#169; 2009 Google Inc.  Alle rettigheder forbeholdes\nCopyright &#169; 2011 Kurt Aaholst. Alle rettigheder forbeholdes.</string>
 
-	<string name="CONTEXTMENU_BROWSE_SONGS">Vis sange</string>
-	<string name="CONTEXTMENU_BROWSE_ALBUMS">Vis album</string>
-	<string name="CONTEXTMENU_BROWSE_ARTISTS">Vis kunstnere</string>
-    <string name="CONTEXTMENU_BROWSE_ALBUM_SONGS">Vis sange på album</string>
-    <string name="CONTEXTMENU_BROWSE_ARTIST_ALBUMS">Vis album med sange af kunster</string>
-    <string name="CONTEXTMENU_BROWSE_ARTIST_SONGS">Vis sange af kunster</string>
-	<string name="CONTEXTMENU_PLAY_ITEM">Afspil</string>
-	<string name="CONTEXTMENU_ADD_ITEM">Tilføj til afspilningsliste</string>
-	<string name="CONTEXTMENU_INSERT_ITEM">Afspil efter den sang der spilles nu</string>
-    <string name="CONTEXTMENU_DOWNLOAD_ITEM">Hent</string>
+	<string name="NO_ACTION">Ingen</string>
+	<string name="BROWSE_SONGS">Vis sange</string>
+	<string name="BROWSE_ALBUMS">Vis album</string>
+	<string name="BROWSE_ARTISTS">Vis kunstnere</string>
+    <string name="BROWSE_ALBUM_SONGS">Vis sange på album</string>
+    <string name="BROWSE_ARTIST_ALBUMS">Vis album med sange af kunster</string>
+    <string name="BROWSE_ARTIST_SONGS">Vis sange af kunster</string>
+	<string name="PLAY_NOW">Afspil</string>
+	<string name="ADD_TO_END">Tilføj til afspilningsliste</string>
+	<string name="PLAY_NEXT">Afspil efter den sang der spilles nu</string>
+    <string name="DOWNLOAD_ITEM">Hent</string>
 
-    <string name="PLAYLIST_CONTEXTMENU_REMOVE_ITEM">Fjern fra afspilningsliste</string>
-    <string name="PLAYLIST_CONTEXTMENU_MOVE_UP">Flyt op</string>
-    <string name="PLAYLIST_CONTEXTMENU_MOVE_DOWN">Flyt ned</string>
-    <string name="PLAYLIST_CONTEXTMENU_MOVE">Flyt &#8230;</string>
+    <string name="PLAYLIST_REMOVE_ITEM">Fjern fra afspilningsliste</string>
+    <string name="PLAYLIST_MOVE_UP">Flyt op</string>
+    <string name="PLAYLIST_MOVE_DOWN">Flyt ned</string>
+    <string name="PLAYLIST_MOVE">Flyt&#8230;</string>
 
 	<string name="ITEM_PLAYING">Spiller nu %s</string>
 	<string name="ITEM_ADDED">%s er tilføjet den nuværende afspilningsliste</string>
 	<string name="ITEM_INSERTED">%s er sat til at blive spillet umiddelbart efter den aktuelle sang i den nuværende afspilningsliste</string>
   
     <string name="PLAYLIST_EXISTS_MESSAGE">Afspilningsliste %s findes allerede</string>
-	
-    <!-- Album sort orders -->
-	<string name="albums_sort_order_album">Album</string>
-    <string name="albums_sort_order_artflow">Kunstner, År, Album</string>
-    <string name="albums_sort_order_new">Nye numre</string>
 
     <!-- Song sort orders -->
 	<string name="songs_sort_order_title">Titel</string>
@@ -155,6 +175,30 @@
     <string name="pref_analytics_enable_enabled">Anonyme brugsstatistikker indsamles ved hjælp af Google Analytics.</string>
     <string name="pref_analytics_enable_disabled">Ingen brugsstatistikker indsamles.</string>
 
+    <string name="home_item_artists">Kunstnere</string>
+    <string name="home_item_albums">Album</string>
+    <string name="home_item_songs">Alle Sange</string>
+    <string name="home_item_genres">Genrer</string>
+    <string name="home_item_years">År</string>
+    <string name="home_item_new_music">Nye numre</string>
+    <string name="home_item_music_folder">Musikmappe</string>
+    <string name="home_item_random_mix">Tilfældigt miks</string>
+    <string name="home_item_playlists">Afspilningslister</string>
+    <string name="home_item_radios">Internet Radio</string>
+    <string name="home_item_favorites">Favoritter</string>
+    <string name="home_item_my_apps">Mine programmer</string>
+
+    <string name="randomplay_item_song_mix">Miks baseret på tilfældige numre</string>
+    <string name="randomplay_item_album_mix">Miks baseret på tilfældigt album</string>
+    <string name="randomplay_item_artist_mix">Miks baseret på tilfældig kunster</string>
+    <string name="randomplay_item_year_mix">Miks baseret på tilfældigt årstal</string>
+    <string name="randomplay_item_choose_genres">Vælg genrer</string>
+
+    <plurals name="seconds">
+        <item quantity="one">sekund</item>
+        <item quantity="other">sekunder</item>
+    </plurals>
+
     <plurals name="artist">
         <item quantity="one">kunstner</item>
         <item quantity="other">kunstnere</item>
@@ -163,6 +207,11 @@
     <plurals name="album">
         <item quantity="one">album</item>
         <item quantity="other">album</item>
+    </plurals>
+
+    <plurals name="favorites">
+        <item quantity="one">favorit</item>
+        <item quantity="other">favoritter</item>
     </plurals>
 
     <plurals name="genre">
@@ -205,34 +254,6 @@
         <item quantity="other">programmer</item>
     </plurals>
 
-
-    <string-array name="home_items">
-        <item>Nu spiller</item>
-        <item>Musik</item>
-        <item>Internetradio</item>
-<!--         <item>Mine programmer</item> -->
-        <item>Favoritter</item>
-    </string-array>
-
-    <string-array name="music_items">
-        <item>Kunstnere</item>
-        <item>Album</item>
-        <item>Alle Sange</item>
-        <item>Genrer</item>
-        <item>År</item>
-        <item>Nye numre</item>
-        <item>Musikmappe</item>
-        <item>Tilfældigt miks</item>
-        <item>Afspilningslister</item>
-        <item>Søg</item>
-    </string-array>
-
-    <string-array name="randomplay_items">
-        <item>Miks baseret på tilfældige numre</item>
-        <item>Miks baseret på tilfældigt album</item>
-        <item>Miks baseret på tilfældig kunster</item>
-        <item>Miks baseret på tilfældigt årstal</item>
-        <item>Vælg genrer</item>
-    </string-array>
-
+    <string name="settings_album_selectaction">Handling ved valg af album</string>
+    <string name="settings_song_selectaction">Handling ved valg af sang</string>
 </resources>

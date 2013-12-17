@@ -16,20 +16,20 @@
 
 package uk.org.ngo.squeezer.util;
 
-import java.lang.ref.WeakReference;
-
-import uk.org.ngo.squeezer.BuildConfig;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.widget.ImageView;
+
+import java.lang.ref.WeakReference;
+
+import uk.org.ngo.squeezer.BuildConfig;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading a bitmap to an
@@ -353,15 +353,12 @@ public abstract class ImageWorker {
      */
     private void setImageBitmap(ImageView imageView, Bitmap bitmap) {
         if (mFadeInBitmap) {
-            // Transition drawable with a transparent drawable and the final bitmap
+            // Transition drawable between the pending image and the final bitmap.
             final TransitionDrawable td =
                     new TransitionDrawable(new Drawable[] {
-                            new ColorDrawable(android.R.color.transparent),
-                    new BitmapDrawable(mResources, bitmap)
+                            imageView.getDrawable(),
+                            new BitmapDrawable(mResources, bitmap)
                     });
-            // Set background to loading bitmap
-            imageView.setBackgroundDrawable(
-                    new BitmapDrawable(mResources, mLoadingBitmap));
 
             imageView.setImageDrawable(td);
             td.startTransition(FADE_IN_TIME);

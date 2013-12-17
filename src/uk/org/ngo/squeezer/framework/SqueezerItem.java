@@ -43,13 +43,23 @@ public abstract class SqueezerItem implements Parcelable {
 		return (getId() != null ? getId().hashCode() : 0);
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == this) return true;
-		if (o == null) return false;
-		if (o.getClass() != getClass()) return false; // There is no guarantee that SqueezerServer items have globally unique id's
-		if (getId() != null) return getId().equals(((SqueezerItem)o).getId());
-		return false;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
 
+        if (o == null)
+            return false;
+
+        if (o.getClass() != getClass())
+            return false; // There is no guarantee that SqueezerServer items
+                          // have globally unique id's
+
+        // Both might be empty items. For example a SqueezerSong initialised
+        // with an empty token map, because no song is currently playing.
+        if (getId() == null && ((SqueezerItem) o).getId() == null)
+            return true;
+
+        return getId() != null && getId().equals(((SqueezerItem) o).getId());
+    }
 }

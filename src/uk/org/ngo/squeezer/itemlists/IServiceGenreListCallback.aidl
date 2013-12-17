@@ -18,5 +18,5 @@ package uk.org.ngo.squeezer.itemlists;
 import uk.org.ngo.squeezer.model.SqueezerGenre;
 
 oneway interface IServiceGenreListCallback {
-  void onGenresReceived(int count, int pos, in List<SqueezerGenre> albums);
+  void onGenresReceived(int count, int pos, in List<SqueezerGenre> genres);
 }

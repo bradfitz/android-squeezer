@@ -17,10 +17,13 @@
 package uk.org.ngo.squeezer;
 
 import uk.org.ngo.squeezer.dialogs.ServerAddressPreference;
+import uk.org.ngo.squeezer.itemlists.actions.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Scrobble;
+
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +36,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
@@ -40,6 +44,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class SettingsActivity extends PreferenceActivity implements
         OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
@@ -49,6 +54,9 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private ISqueezeService serviceStub = null;
     private ServerAddressPreference addrPref;
+    private IntEditTextPreference fadeInPref;
+    private ListPreference onSelectAlbumPref;
+    private ListPreference onSelectSongPref;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -56,24 +64,30 @@ public class SettingsActivity extends PreferenceActivity implements
         }
         public void onServiceDisconnected(ComponentName name) {
             serviceStub = null;
-        };
+        }
     };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        bindService(new Intent(this, SqueezeService.class), serviceConnection,
+                Context.BIND_AUTO_CREATE);
+        Log.d(TAG, "did bindService; serviceStub = " + serviceStub);
+
         getPreferenceManager().setSharedPreferencesName(Preferences.NAME);
         addPreferencesFromResource(R.xml.preferences);
-
-        addrPref = (ServerAddressPreference) findPreference(Preferences.KEY_SERVERADDR);
-        addrPref.setOnPreferenceChangeListener(this);
 
         SharedPreferences preferences = getPreferenceManager().getSharedPreferences();
         preferences.registerOnSharedPreferenceChangeListener(this);
 
-        String currentCliAddr = preferences.getString(Preferences.KEY_SERVERADDR, "");
-        updateAddressSummary(currentCliAddr);
+        addrPref = (ServerAddressPreference) findPreference(Preferences.KEY_SERVERADDR);
+        addrPref.setOnPreferenceChangeListener(this);
+        updateAddressSummary(preferences.getString(Preferences.KEY_SERVERADDR, ""));
+
+        fadeInPref = (IntEditTextPreference) findPreference(Preferences.KEY_FADE_IN_SECS);
+        fadeInPref.setOnPreferenceChangeListener(this);
+        updateFadeInSecondsSummary(preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0));
 
         CheckBoxPreference autoConnectPref = (CheckBoxPreference) findPreference(Preferences.KEY_AUTO_CONNECT);
         autoConnectPref.setChecked(preferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true));
@@ -102,35 +116,90 @@ public class SettingsActivity extends PreferenceActivity implements
                 editor.remove(Preferences.KEY_SCROBBLE);
                 editor.commit();
             }
-        }
-    }
+		}
+		fillPlayableItemSelectionPreferences();
+	}
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        bindService(new Intent(this, SqueezeService.class),
-                    serviceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService; serviceStub = " + serviceStub);
-    }
+	private void fillPlayableItemSelectionPreferences() {
+        String noneLabel = getString(PlayableItemAction.Type.NONE.labelId);
+        String addLabel = getString(PlayableItemAction.Type.ADD.labelId);
+		String playLabel = getString(PlayableItemAction.Type.PLAY.labelId);
+		String insertLabel = getString(PlayableItemAction.Type.INSERT.labelId);
+		String browseLabel = getString(PlayableItemAction.Type.BROWSE.labelId);
 
+        onSelectAlbumPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION);
+        onSelectAlbumPref.setEntryValues(new String[] {
+                PlayableItemAction.Type.PLAY.name(),
+                PlayableItemAction.Type.INSERT.name(),
+                PlayableItemAction.Type.ADD.name(),
+                PlayableItemAction.Type.BROWSE.name()
+        });
+		onSelectAlbumPref.setEntries(new String[]{playLabel, insertLabel,
+                addLabel, browseLabel});
+		onSelectAlbumPref.setDefaultValue(PlayableItemAction.Type.BROWSE.name());
+		if (onSelectAlbumPref.getValue() == null) {
+			onSelectAlbumPref.setValue(PlayableItemAction.Type.BROWSE.name());
+		}
+        onSelectAlbumPref.setOnPreferenceChangeListener(this);
+        updateSelectAlbumSummary(onSelectAlbumPref.getValue());
+
+        onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
+        onSelectSongPref.setEntryValues(new String[] {
+                PlayableItemAction.Type.NONE.name(),
+                PlayableItemAction.Type.PLAY.name(),
+                PlayableItemAction.Type.INSERT.name(),
+                PlayableItemAction.Type.ADD.name()
+        });
+		onSelectSongPref.setEntries(new String[] { noneLabel, playLabel, 
+		        insertLabel, addLabel });
+		onSelectSongPref.setDefaultValue(PlayableItemAction.Type.NONE.name());
+		if (onSelectSongPref.getValue() == null) {
+			onSelectSongPref.setValue(PlayableItemAction.Type.NONE.name());
+		}
+        onSelectSongPref.setOnPreferenceChangeListener(this);
+        updateSelectSongSummary(onSelectSongPref.getValue());
+	}
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
         unbindService(serviceConnection);
     }
 
-	private void updateAddressSummary(String addr) {
+    private void updateAddressSummary(String addr) {
         if (addr.length() > 0) {
             addrPref.setSummary(addr);
         } else {
-            addrPref.setSummary(getText(R.string.settings_serveraddr_summary));
+            addrPref.setSummary(R.string.settings_serveraddr_summary);
         }
     }
 
+    private void updateFadeInSecondsSummary(int fadeInSeconds) {
+        if (fadeInSeconds == 0) {
+            fadeInPref.setSummary(R.string.disabled);
+        } else {
+            fadeInPref.setSummary(fadeInSeconds + " " + getResources().getQuantityString(R.plurals.seconds, fadeInSeconds));
+        }
+    }
+
+    private void updateSelectAlbumSummary(String value) {
+        CharSequence[] entries = onSelectAlbumPref.getEntries();
+        int index = onSelectAlbumPref.findIndexOfValue(value);
+
+        onSelectAlbumPref.setSummary(entries[index]);
+    }
+
+    private void updateSelectSongSummary(String value) {
+        CharSequence[] entries = onSelectSongPref.getEntries();
+        int index = onSelectSongPref.findIndexOfValue(value);
+
+        onSelectSongPref.setSummary(entries[index]);
+     }
+
     /**
+     *
      * A preference has been changed by the user, but has not yet been
      * persisted.
-     * 
+     *
      * @param preference
      * @param newValue
      * @return
@@ -138,12 +207,28 @@ public class SettingsActivity extends PreferenceActivity implements
     public boolean onPreferenceChange(Preference preference, Object newValue) {
 		final String key = preference.getKey();
 		Log.v(TAG, "preference change for: " + key);
-		if (Preferences.KEY_SERVERADDR.equals(key)) {
-			final String ipPort = newValue.toString();
-			// TODO: check that it looks valid?
-			updateAddressSummary(ipPort);
-			return true;
-		}
+
+        if (Preferences.KEY_SERVERADDR.equals(key)) {
+            final String ipPort = newValue.toString();
+            // TODO: check that it looks valid?
+            updateAddressSummary(ipPort);
+            return true;
+        }
+
+        if (Preferences.KEY_FADE_IN_SECS.equals(key)) {
+            updateFadeInSecondsSummary(Util.parseDecimalIntOrZero(newValue.toString()));
+            return true;
+        }
+
+        if (Preferences.KEY_ON_SELECT_ALBUM_ACTION.equals(key)) {
+            updateSelectAlbumSummary(newValue.toString());
+            return true;
+        }
+
+        if (Preferences.KEY_ON_SELECT_SONG_ACTION.equals(key)) {
+            updateSelectSongSummary(newValue.toString());
+            return true;
+        }
 
         // If the user has enabled Scrobbling but we don't think it will work
         // pop up a dialog with links to Google Play for apps to install.
@@ -165,7 +250,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
     /**
      * A preference has been changed by the user and is going to be persisted.
-     * 
+     *
      * @param sharedPreferences
      * @param key
      */
@@ -209,12 +294,17 @@ public class SettingsActivity extends PreferenceActivity implements
                 ListView appList = (ListView) dialog.findViewById(R.id.scrobble_apps);
                 appList.setAdapter(new IconRowAdapter(this, apps, icons));
 
+                final Context context = dialog.getContext();
                 appList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View view, int position,
                             long id) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setData(Uri.parse("market://details?id=" + urls[position]));
-                        startActivity(intent);
+                        try {
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(context, R.string.settings_market_not_found, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
         }

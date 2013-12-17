@@ -16,6 +16,18 @@
 
 package uk.org.ngo.squeezer.util;
 
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
+import android.os.StatFs;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.util.LruCache;
+import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,19 +36,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import uk.org.ngo.squeezer.BuildConfig;
-import android.annotation.TargetApi;
-import android.app.ActivityManager;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.StatFs;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.util.LruCache;
-import android.util.Log;
 
 /**
  * This class holds our bitmap caches (memory and disk).
@@ -98,15 +97,15 @@ public class ImageCache {
             FragmentManager fragmentManager, ImageCacheParams cacheParams) {
 
         // Search for, or create an instance of the non-UI RetainFragment
-        final RetainFragment mRetainFragment = findOrCreateRetainFragment(fragmentManager);
+        final RetainFragment mRetainFragment = RetainFragment.getInstance(TAG, fragmentManager);
 
         // See if we already have an ImageCache stored in RetainFragment
-        ImageCache imageCache = (ImageCache) mRetainFragment.getObject();
+        ImageCache imageCache = (ImageCache) mRetainFragment.get(TAG);
 
         // No existing ImageCache, create one and store it in RetainFragment
         if (imageCache == null) {
             imageCache = new ImageCache(cacheParams);
-            mRetainFragment.setObject(imageCache);
+            mRetainFragment.put(TAG, imageCache);
         }
 
         return imageCache;
@@ -303,8 +302,7 @@ public class ImageCache {
                         }
                         inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
                         if (inputStream != null) {
-                            final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                            return bitmap;
+                            return BitmapFactory.decodeStream(inputStream);
                         }
                     }
                 } catch (final IOException e) {
@@ -449,10 +447,11 @@ public class ImageCache {
     public static File getDiskCacheDir(Context context, String uniqueName) {
         // Check if media is mounted or storage is built-in, if so, try and use external cache dir
         // otherwise use internal cache dir
-        final String cachePath =
-                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                        !isExternalStorageRemovable() ? getExternalCacheDir(context).getPath() :
-                                context.getCacheDir().getPath();
+        File externalCacheDir = getExternalCacheDir(context);
+        final String cachePath = ((Environment.MEDIA_MOUNTED.equals(Environment
+                .getExternalStorageState()) || !isExternalStorageRemovable()) && externalCacheDir != null)
+                ? getExternalCacheDir(context).getPath()
+                : context.getCacheDir().getPath();
 
         return new File(cachePath + File.separator + uniqueName);
     }
@@ -545,65 +544,4 @@ public class ImageCache {
         final StatFs stats = new StatFs(path.getPath());
         return (long) stats.getBlockSize() * (long) stats.getAvailableBlocks();
     }
-
-    /**
-     * Locate an existing instance of this Fragment or if not found, create and
-     * add it using FragmentManager.
-     *
-     * @param fm The FragmentManager manager to use.
-     * @return The existing instance of the Fragment or the new instance if just
-     *         created.
-     */
-    public static RetainFragment findOrCreateRetainFragment(FragmentManager fm) {
-        // Check to see if we have retained the worker fragment.
-        RetainFragment mRetainFragment = (RetainFragment) fm.findFragmentByTag(TAG);
-
-        // If not retained (or first time running), we need to create and add it.
-        if (mRetainFragment == null) {
-            mRetainFragment = new RetainFragment();
-            fm.beginTransaction().add(mRetainFragment, TAG).commitAllowingStateLoss();
-        }
-
-        return mRetainFragment;
-    }
-
-    /**
-     * A simple non-UI Fragment that stores a single Object and is retained over configuration
-     * changes. It will be used to retain the ImageCache object.
-     */
-    public static class RetainFragment extends Fragment {
-        private Object mObject;
-
-        /**
-         * Empty constructor as per the Fragment documentation
-         */
-        public RetainFragment() {}
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            // Make sure this Fragment is retained over a configuration change
-            setRetainInstance(true);
-        }
-
-        /**
-         * Store a single object in this Fragment.
-         *
-         * @param object The object to store
-         */
-        public void setObject(Object object) {
-            mObject = object;
-        }
-
-        /**
-         * Get the stored object.
-         *
-         * @return The stored object
-         */
-        public Object getObject() {
-            return mObject;
-        }
-    }
-
 }

@@ -47,7 +47,7 @@ public class SqueezerAlbumFilterDialog extends SqueezerBaseFilterDialog {
         activity.setSearchString(editText.getText().toString());
         activity.setGenre((SqueezerGenre) genreSpinnerView.getSelectedItem());
         activity.setYear((SqueezerYear) yearSpinnerView.getSelectedItem());
-        activity.orderItems();
+        activity.clearAndReOrderItems();
     }
 
 }

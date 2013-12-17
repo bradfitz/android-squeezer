@@ -17,11 +17,6 @@
 package uk.org.ngo.squeezer;
 
 
-import java.util.Arrays;
-
-import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
-import uk.org.ngo.squeezer.menu.MenuFragment;
-import uk.org.ngo.squeezer.menu.SqueezerMenuFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,6 +27,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import java.util.Arrays;
+
+import uk.org.ngo.squeezer.framework.SqueezerBaseActivity;
+
 public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
     private ListView listView;
 
@@ -40,12 +39,11 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
-        MenuFragment.add(this, SqueezerMenuFragment.class);
         setRandomplayMenu();
     }
 
     @Override
-    protected void onServiceConnected() throws RemoteException {
+    protected void onServiceConnected() {
     }
 
 
@@ -53,23 +51,24 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
 		String[] values = getResources().getStringArray(R.array.randomplay_items);
 		int[] icons = new int[values.length];
         Arrays.fill(icons, R.drawable.ic_random);
-        icons[icons.length - 1] = R.drawable.ic_genres;
+
+        // XXX: Implement the "Choose the genres that the random mix will be
+        // drawn from" functionality.
+        // icons[icons.length - 1] = R.drawable.ic_genres;
 		listView.setAdapter(new IconRowAdapter(this, values, icons));
 		listView.setOnItemClickListener(onRandomplayItemClick);
 	}
 
 	private final OnItemClickListener onRandomplayItemClick = new OnItemClickListener() {
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		@Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			if (position < RandomPlayType.values().length) {
 				try {
 					getService().randomPlay(RandomPlayType.values()[position].toString());
 				} catch (RemoteException e) {
 	                Log.e(getTag(), "Error registering list callback: " + e);
 				}
-				SqueezerActivity.show(SqueezerRandomplayActivity.this);
-				return;
-			}
-			switch (position) {
+				NowPlayingActivity.show(SqueezerRandomplayActivity.this);
 			}
 		}
 	};
@@ -83,7 +82,7 @@ public class SqueezerRandomplayActivity extends SqueezerBaseActivity {
 		tracks,
 		albums,
 		contributors,
-		year;
-	}
+        year
+    }
 
 }

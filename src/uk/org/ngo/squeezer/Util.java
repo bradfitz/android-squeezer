@@ -16,16 +16,17 @@
 
 package uk.org.ngo.squeezer;
 
+import android.app.Activity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
-
-import android.app.Activity;
-import android.view.View;
-import android.widget.TextView;
 
 public class Util {
     private Util() {}
@@ -35,21 +36,27 @@ public class Util {
         return string == null ? "" : string;
     }
 
+    public static int getAtomicInteger(AtomicReference<Integer> ref, int defaultValue) {
+    	Integer integer = ref.get();
+    	return integer == null ? 0 : integer;
+    }
+
+
     /**
      * Update target, if it's different from newValue.
      * @param target
      * @param newValue
      * @return true if target is updated. Otherwise return false.
      */
-	public static <T> boolean atomicReferenceUpdated(AtomicReference<T> target, T newValue) {
-    	T currentValue = target.get();
-		if (currentValue == null && newValue == null)
-			return false;
-		if (currentValue == null || !currentValue.equals(newValue)) {
-			target.set(newValue);
-			return true;
-		}
-		return false;
+    public static <T> boolean atomicReferenceUpdated(AtomicReference<T> target, T newValue) {
+        T currentValue = target.get();
+        if (currentValue == null && newValue == null)
+            return false;
+        if (currentValue == null || !currentValue.equals(newValue)) {
+            target.set(newValue);
+            return true;
+        }
+        return false;
     }
 
     public static int parseDecimalInt(String value, int defaultValue) {
@@ -59,8 +66,7 @@ public class Util {
         if (decimalPoint != -1) value = value.substring(0, decimalPoint);
         if (value.length() == 0) return defaultValue;
         try {
-            int intValue = Integer.parseInt(value);
-            return intValue;
+            return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             return defaultValue;
         }
@@ -74,6 +80,7 @@ public class Util {
     private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
     private static final Object[] sTimeArgs = new Object[5];
 
+    // TODO(nik): I think this can be removed in favour of Android's built in duration formatter
     public synchronized static String makeTimeString(long secs) {
         /* Provide multiple arguments so the format can be changed easily
          * by modifying the xml.
@@ -105,34 +112,27 @@ public class Util {
         }
     }
 
-    /**
-     * Convenience function for a ListView with entries that are plain
-     * TextViews.
-     * <p>
-     * 
-     * @param activity
-     * @param convertView
-     * @param label The text to show in the list item.
-     * @return a view inflated from <code>R.layout.list_item</code>, with the
-     *         contents of <code>label</code> assigned to the TextView.
-     */
-    public static View getListItemView(Activity activity, View convertView, String label) {
-		TextView view;
-		view = (TextView)(convertView != null && TextView.class.isAssignableFrom(convertView.getClass())
-				? convertView
-				: activity.getLayoutInflater().inflate(R.layout.list_item, null));
-		view.setText(label);
-		return view;
-	}
-
-    public static View getSpinnerItemView(Activity activity, View convertView, String label) {
+    public static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent, String label) {
         TextView view;
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
-                : activity.getLayoutInflater().inflate(R.layout.spinner_item, null));
+                : activity.getLayoutInflater().inflate(android.R.layout.simple_spinner_dropdown_item, parent, false));
         view.setText(label);
         return view;
     }
 
+    /**
+     * Count how many of the supplied booleans are true.
+     * 
+     * @param items Booleans to count
+     * @return Number of arguments which are true
+     */
+    public static int countBooleans(boolean... items) {
+        int count = 0;
+        for (boolean item : items) {
+            if (item) count++;
+        }
+        return count;
+    }
 }

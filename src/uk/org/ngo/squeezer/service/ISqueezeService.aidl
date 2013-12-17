@@ -17,9 +17,13 @@
 package uk.org.ngo.squeezer.service;
 
 import uk.org.ngo.squeezer.IServiceCallback;
+import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
+import uk.org.ngo.squeezer.IServiceHandshakeCallback;
+import uk.org.ngo.squeezer.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.itemlists.IServicePlayerListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceArtistListCallback;
+import uk.org.ngo.squeezer.itemlists.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceYearListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceGenreListCallback;
 import uk.org.ngo.squeezer.itemlists.IServiceMusicFolderListCallback;
@@ -40,15 +44,33 @@ import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
 
 interface ISqueezeService {
-	    // For the activity to get callbacks on interesting events:
-	    void registerCallback(IServiceCallback callback);
-        void unregisterCallback(IServiceCallback callback);
+    // For the activity to get callbacks on interesting events
+    void registerCallback(IServiceCallback callback);
+    void unregisterCallback(IServiceCallback callback);
+
+    // For the activity to get callback when the current playlist is modified
+    void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
+    void unregisterCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
+
+    // For the activity to get callback when music changes
+    void registerMusicChangedCallback(IServiceMusicChangedCallback callback);
+    void unregisterMusicChangedCallback(IServiceMusicChangedCallback callback);
+
+    // For the activity to get callback when handshake completes
+    void registerHandshakeCallback(IServiceHandshakeCallback callback);
+    void unregisterHandshakeCallback(IServiceHandshakeCallback callback);
+
+    // For the activity to get callback when the volume changes.
+    void registerVolumeCallback(IServiceVolumeCallback callback);
+    void unregisterVolumeCallback(IServiceVolumeCallback callback);
+
 
 	    // Instructing the service to connect to the SqueezeCenter server:
 	    // hostPort is the port of the CLI interface.
-		void startConnect(String hostPort);
+		void startConnect(String hostPort, String userName, String password);
 		void disconnect();
         boolean isConnected();
+        boolean isConnectInProgress();
         
         // For the SettingsActivity to notify the Service that a setting changed.
         void preferenceChanged(String key);
@@ -56,11 +78,8 @@ interface ISqueezeService {
 		// Call this to change the player we are controlling
 	    void setActivePlayer(in SqueezerPlayer player);
 
-		// Returns the player we are currently controlling
-	    SqueezerPlayer getActivePlayer();
-
-		// Returns the empty string (not null) if no player is set. 
-        String getActivePlayerName();
+        // Returns the player we are currently controlling
+        SqueezerPlayer getActivePlayer();
 
 	    ////////////////////
   	    // Depends on active player:
@@ -71,12 +90,14 @@ interface ISqueezeService {
         boolean powerOff();
         boolean canMusicfolder();
         boolean canRandomplay();
-        boolean isPlaying();
+        String preferredAlbumSort();
         boolean togglePausePlay();
         boolean play();
         boolean stop();
         boolean nextTrack();
         boolean previousTrack();
+        boolean toggleShuffle();
+        boolean toggleRepeat();
         boolean playlistControl(String cmd, String className, String id);
         boolean randomPlay(String type);
         boolean playlistIndex(int index);
@@ -86,23 +107,24 @@ interface ISqueezeService {
         boolean playlistSave(String name);
         boolean pluginPlaylistControl(in SqueezerPlugin plugin, String cmd, String id);
         
-        // Return 0 if unknown:
-        int getSecondsTotal();
-        int getSecondsElapsed();
         boolean setSecondsElapsed(int seconds);
         
         SqueezerPlayerState getPlayerState();
-        SqueezerSong currentSong();
         String getCurrentPlaylist();
         String getAlbumArtUrl(String artworkTrackId);
         String getIconUrl(String icon);
 
         String getSongDownloadUrl(String songTrackId);
 
-        // Returns new (predicted) volume.  Typical deltas are +10 or -10.
-        // Note the volume changed callback will also still be run with
-        // the correct value as returned by the server later.
-        int adjustVolumeBy(int delta);
+    /**
+     * Sets the volume to the absolute volume in newVolume, which will be clamped to the
+     * interval [0, 100].
+     *
+     * @param newVolume
+     * @throws RemoteException
+     */
+    void adjustVolumeTo(int newVolume);
+        void adjustVolumeBy(int delta);
         
         // Player list
         boolean players(int start);
@@ -137,7 +159,7 @@ interface ISqueezeService {
         void unregisterYearListCallback(IServiceYearListCallback callback);
         
         // Genre list
-        boolean genres(int start);
+        boolean genres(int start, String searchString);
 	    void registerGenreListCallback(IServiceGenreListCallback callback);
         void unregisterGenreListCallback(IServiceGenreListCallback callback);
         
@@ -145,7 +167,7 @@ interface ISqueezeService {
         boolean musicFolders(int start, String folderId);
         void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback);
         void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback);
-        
+
         // Song list
         boolean songs(int start, String sortOrder, String searchString, in SqueezerAlbum album, in SqueezerArtist artist, in SqueezerYear year, in SqueezerGenre genre);
         boolean currentPlaylist(int start);

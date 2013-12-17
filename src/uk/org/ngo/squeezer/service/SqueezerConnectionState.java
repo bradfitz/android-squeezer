@@ -20,7 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.Authenticator;
 import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -28,7 +30,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import uk.org.ngo.squeezer.IServiceCallback;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.model.SqueezerPlayer;
@@ -37,7 +38,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 class SqueezerConnectionState {
-    private static final String TAG = "SqueezeConnectionState";
+    private static final String TAG = "SqueezerConnectionState";
 
     // Incremented once per new connection and given to the Thread
     // that's listening on the socket.  So if it dies and it's not the
@@ -46,10 +47,11 @@ class SqueezerConnectionState {
     private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
 
     // Connection state:
-	private final AtomicReference<IServiceCallback> callback = new AtomicReference<IServiceCallback>();
-	private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    private final AtomicBoolean isConnectInProgress = new AtomicBoolean(false);
+    private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
-	private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
+    private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
+    private final AtomicReference<String> preferredAlbumSort = new AtomicReference<String>("album");
 	private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
 	private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
 	private final AtomicReference<SqueezerPlayer> activePlayer = new AtomicReference<SqueezerPlayer>();
@@ -99,7 +101,8 @@ class SqueezerConnectionState {
         }
     }
 
-    void disconnect() {
+    void disconnect(SqueezeService service, boolean loginFailed) {
+        Log.v(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
         currentConnectionGeneration.incrementAndGet();
         Socket socket = socketRef.get();
         if (socket != null) {
@@ -111,35 +114,31 @@ class SqueezerConnectionState {
         socketWriter.set(null);
         isConnected.set(false);
 
-        setConnectionState(false, false);
+        setConnectionState(service, false, false, loginFailed);
 
         httpPort.set(null);
         activePlayer.set(null);
     }
 
-    private void setConnectionState(boolean currentState, boolean postConnect) {
+    private void setConnectionState(SqueezeService service, boolean currentState, boolean postConnect, boolean loginFailed) {
         isConnected.set(currentState);
-        if (callback.get() == null) {
-            return;
+        if (postConnect) isConnectInProgress.set(false);
+
+        int i = service.mServiceCallbacks.beginBroadcast();
+        while (i > 0) {
+            i--;
+            try {
+                Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
+                service.mServiceCallbacks.getBroadcastItem(i)
+                        .onConnectionChanged(currentState, postConnect, loginFailed);
+                Log.d(TAG, "post-call setting callback connection state.");
+
+            } catch (RemoteException e) {
+                // The RemoteCallbackList will take care of removing
+                // the dead object for us.
+            }
         }
-        try {
-            Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
-            callback.get().onConnectionChanged(currentState, postConnect);
-            Log.d(TAG, "post-call setting callback connection state.");
-        } catch (RemoteException e) {
-        }
-    }
-
-    IServiceCallback getCallback() {
-    	return callback.get();
-    }
-
-    void setCallback(IServiceCallback callback) {
-    	this.callback.set(callback);
-    }
-
-    void callbackCompareAndSet(IServiceCallback expect, IServiceCallback update) {
-    	callback.compareAndSet(expect, update);
+        service.mServiceCallbacks.finishBroadcast();
     }
 
     SqueezerPlayer getActivePlayer() {
@@ -162,19 +161,9 @@ class SqueezerConnectionState {
     	return socketWriter.get();
     }
 
-    void setCurrentHost(String host) {
-    	currentHost.set(host);
-		Log.v(TAG, "HTTP port is now: " + httpPort);
-    }
-
-    void setCliPort(Integer port) {
-    	cliPort.set(port);
-		Log.v(TAG, "HTTP port is now: " + httpPort);
-    }
-
     void setHttpPort(Integer port) {
     	httpPort.set(port);
-		Log.v(TAG, "HTTP port is now: " + httpPort);
+		Log.v(TAG, "HTTP port is now: " + port);
     }
 
     void setCanMusicfolder(boolean value) {
@@ -193,9 +182,21 @@ class SqueezerConnectionState {
 		return canRandomplay.get();
 	}
 
-	boolean isConnected() {
-		return isConnected.get();
-	}
+    public void setPreferedAlbumSort(String value) {
+        preferredAlbumSort.set(value);
+    }
+
+    public String getPreferredAlbumSort() {
+        return preferredAlbumSort.get();
+    }
+
+    boolean isConnected() {
+        return isConnected.get();
+    }
+
+    boolean isConnectInProgress() {
+        return isConnectInProgress.get();
+    }
 
 	void startListeningThread(SqueezeService service) {
         Thread listeningThread = new ListeningThread(service, socketRef.get(), currentConnectionGeneration.incrementAndGet());
@@ -237,7 +238,7 @@ class SqueezerConnectionState {
                     // else we should notify about it.
                     if (currentConnectionGeneration.get() == generationNumber) {
                         Log.v(TAG, "Server disconnected; exception=" + exception);
-                        service.disconnect();
+                        service.disconnect(exception == null);
                     } else {
                         // Who cares.
                         Log.v(TAG, "Old generation connection disconnected, as expected.");
@@ -249,7 +250,8 @@ class SqueezerConnectionState {
         }
     }
 
-    void startConnect(final SqueezeService service, ScheduledThreadPoolExecutor executor, String hostPort) throws RemoteException {
+    void startConnect(final SqueezeService service, ScheduledThreadPoolExecutor executor, String hostPort, final String userName, final String password) throws RemoteException {
+        Log.v(TAG, "startConnect");
         // Common mistakes, based on crash reports...
         if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
             hostPort = hostPort.substring(7);
@@ -270,28 +272,35 @@ class SqueezerConnectionState {
 
         // Start the off-thread connect.
         executor.execute(new Runnable() {
+            @Override
             public void run() {
                 service.disconnect();
                 Socket socket = new Socket();
                 try {
                     Log.d(TAG, "Connecting to: " + cleanHostPort);
+                    isConnectInProgress.set(true);
                     socket.connect(new InetSocketAddress(host, port),
                                    4000 /* ms timeout */);
                     socketRef.set(socket);
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
-                    Log.d(TAG, "writer == " + socketWriter.get());
-                    setConnectionState(true, true);
+                    setConnectionState(service, true, true, false);
                     Log.d(TAG, "connection state broadcasted true.");
                 	startListeningThread(service);
                     setDefaultPlayer(null);
-                    service.onCliPortConnectionEstablished();
+                    service.onCliPortConnectionEstablished(userName, password);
+                    Authenticator.setDefault(new Authenticator() {
+                        @Override
+                        public PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(userName, password.toCharArray());
+                        }
+                    });
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
-                    setConnectionState(false, true);
+                    setConnectionState(service, false, true, false);
                 } catch (IOException e) {
                     Log.e(TAG, "IOException connecting to: " + cleanHostPort);
-                    setConnectionState(false, true);
+                    setConnectionState(service, false, true, false);
                 }
             }
 

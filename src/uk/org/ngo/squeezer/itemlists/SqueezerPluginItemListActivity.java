@@ -24,7 +24,7 @@ import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerPlugin;
 import uk.org.ngo.squeezer.model.SqueezerPluginItem;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -35,6 +35,10 @@ import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+/*
+ * The activity's content view scrolls in from the right, and disappear to the left, to provide a
+ * spatial component to navigation.
+ */
 public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<SqueezerPluginItem>{
 	private SqueezerPlugin plugin;
 	private SqueezerPluginItem parent;
@@ -63,7 +67,7 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if ((event.getAction() == KeyEvent.ACTION_DOWN)
                             && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                        orderItems(searchCriteriaText.getText().toString());
+                        clearAndReOrderItems(searchCriteriaText.getText().toString());
                         return true;
                     }
                     return false;
@@ -73,25 +77,28 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
             searchButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     if (getService() != null) {
-                        orderItems(searchCriteriaText.getText().toString());
+                        clearAndReOrderItems(searchCriteriaText.getText().toString());
                     }
                 }
             });
         }
 	}
 
-	private void orderItems(String searchString) {
+    public SqueezerPlugin getPlugin() {
+        return plugin;
+    }
+
+    private void clearAndReOrderItems(String searchString) {
 		if (getService() != null && !(plugin.isSearchable() && (searchString == null || searchString.length() == 0))) {
 			search = searchString;
-			super.orderItems();
+            super.clearAndReOrderItems();
 		}
-
 	}
 
 	@Override
-	public void orderItems() {
-		orderItems(search);
-	};
+	public void clearAndReOrderItems() {
+		clearAndReOrderItems(search);
+	}
 
 	@Override
 	protected void registerCallback() throws RemoteException {
@@ -106,20 +113,28 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().pluginItems(start, plugin, parent, search);
-	}
+    }
 
 
-	public void show(SqueezerPluginItem pluginItem) {
+    public void show(SqueezerPluginItem pluginItem) {
         final Intent intent = new Intent(this, SqueezerPluginItemListActivity.class);
         intent.putExtra(plugin.getClass().getName(), plugin);
         intent.putExtra(pluginItem.getClass().getName(), pluginItem);
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
-	public static void show(Context context, SqueezerPlugin plugin) {
-        final Intent intent = new Intent(context, SqueezerPluginItemListActivity.class);
+    public static void show(Activity activity, SqueezerPlugin plugin) {
+        final Intent intent = new Intent(activity, SqueezerPluginItemListActivity.class);
         intent.putExtra(plugin.getClass().getName(), plugin);
-        context.startActivity(intent);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
     private final IServicePluginItemListCallback pluginItemListCallback = new IServicePluginItemListCallback.Stub() {
@@ -139,7 +154,7 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
                 parent = items.get(0);
 				getUIThreadHandler().post(new Runnable() {
 					public void run() {
-						orderItems();
+						clearAndReOrderItems();
 					}
 				});
 				return;
@@ -179,7 +194,7 @@ public class SqueezerPluginItemListActivity extends SqueezerBaseListActivity<Squ
     	play,
     	load,
     	add,
-    	insert;
+        insert
     }
 
 }

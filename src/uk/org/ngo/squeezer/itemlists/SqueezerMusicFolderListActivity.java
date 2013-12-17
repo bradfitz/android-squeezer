@@ -18,23 +18,33 @@ package uk.org.ngo.squeezer.itemlists;
 
 import java.util.List;
 
+import org.acra.ErrorReporter;
+
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.model.SqueezerMusicFolderItem;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /**
  * Display a list of Squeezebox music folders.
  * <p>
  * If the <code>extras</code> bundle contains a key that matches
- * <code>SqueezerMusicFolder.class.getName()</code> the value is assumed to be
- * an instance of that class, and that folder will be displayed.
+ * <code>SqueezerMusicFolder.class.getName()</code> the value is assumed to be an instance of that
+ * class, and that folder will be displayed.
  * <p>
  * Otherwise the root music folder is shown.
+ * <p>
+ * The activity's content views scrolls in from the right, and disappear to the left, to provide a
+ * spatial component to navigation.
  *
  * @author nik
  */
@@ -57,7 +67,7 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
     protected SqueezerItemAdapter<SqueezerMusicFolderItem> createItemListAdapter(
             SqueezerItemView<SqueezerMusicFolderItem> itemView) {
         return new SqueezerItemAdapter<SqueezerMusicFolderItem>(itemView);
-    };
+    }
 
     /**
      * Extract the folder to view (if provided).
@@ -71,6 +81,30 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
             mFolder = extras.getParcelable(SqueezerMusicFolderItem.class.getName());
             setTitle(mFolder.getName());
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (mFolder != null)
+            getMenuInflater().inflate(R.menu.playmenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        try {
+            switch (item.getItemId()) {
+            case R.id.play_now:
+                play(mFolder);
+                return true;
+            case R.id.add_to_playlist:
+                add(mFolder);
+                return true;
+            }
+        } catch (RemoteException e) {
+            Log.e(getTag(), "Error executing menu action '" + item.getMenuInfo() + "': " + e);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -102,30 +136,58 @@ public class SqueezerMusicFolderListActivity extends SqueezerBaseListActivity<Sq
     /**
      * Show this activity, showing the contents of the root folder.
      *
-     * @param context
+     * @param activity
      */
-    public static void show(Context context) {
-        final Intent intent = new Intent(context, SqueezerMusicFolderListActivity.class);
-        context.startActivity(intent);
+    public static void show(Activity activity) {
+        final Intent intent = new Intent(activity, SqueezerMusicFolderListActivity.class);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
     /**
      * Show this activity, showing the contents of the given folder.
      *
-     * @param context
+     * @param activity
      * @param folder The folder whose contents will be shown.
      */
-    public static void show(Context context, SqueezerMusicFolderItem folder) {
-        final Intent intent = new Intent(context, SqueezerMusicFolderListActivity.class);
+    public static void show(Activity activity, SqueezerMusicFolderItem folder) {
+        final Intent intent = new Intent(activity, SqueezerMusicFolderListActivity.class);
         intent.putExtra(folder.getClass().getName(), folder);
-        context.startActivity(intent);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
     private final IServiceMusicFolderListCallback musicFolderListCallback = new IServiceMusicFolderListCallback.Stub() {
+        @Override
         public void onMusicFoldersReceived(int count, int start, List<SqueezerMusicFolderItem> items)
                 throws RemoteException {
             onItemsReceived(count, start, items);
         }
     };
 
+    /**
+     * Attempts to download the song given by songId.
+     * <p>
+     * XXX: Duplicated from SqueezerAbstractSongListActivity.
+     *
+     * @param songId ID of the song to download
+     */
+    @Override
+    public void downloadSong(String songId) {
+        try {
+            String url = getService().getSongDownloadUrl(songId);
+
+            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(i);
+        } catch (RemoteException e) {
+            ErrorReporter.getInstance().handleException(e);
+            e.printStackTrace();
+        }
+    }
 }

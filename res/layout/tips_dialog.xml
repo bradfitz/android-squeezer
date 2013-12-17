@@ -36,7 +36,7 @@ limitations under the License.
                 android:layout_gravity="center_vertical"
                 android:layout_height="48dp"
                 android:layout_width="48dp"
-                android:src="@drawable/logo"/>
+                android:src="@drawable/ic_launcher"/>
 
             <TextView
                 android:id="@+id/tips_title"
@@ -44,7 +44,7 @@ limitations under the License.
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
                 android:text="@string/tips_title"
-                android:textSize="32dp"
+                android:textSize="32sp"
                 android:paddingLeft="8dp"/>
         </LinearLayout>
 

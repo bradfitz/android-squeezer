@@ -16,28 +16,29 @@
 
 package uk.org.ngo.squeezer.framework;
 
-
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import android.app.Activity;
-import android.content.res.Resources;
+
 import android.os.Parcelable.Creator;
 import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 
 
 /**
  * Defines view logic for a {@link SqueezerItem}
- *
+ * <p>
+ * We keep this here because we don't want to pollute the model with view related stuff.
+ * <p>
+ * Currently this is the only logic class you have to implement for each SqueezeServer data type, so
+ * it contains a few methods, which are not strictly view related.
+ * <p>
+ * {@link SqueezerBaseItemView} implements all the common functionality, an some sensible defaults.
+ * 
+ * @param <T> Denotes the class of the item this class implements view logic for
  * @author Kurt Aaholst
- *
- * @param <T>
- *            Denotes the class of the item this class implements view logic for
  */
 public interface SqueezerItemView<T extends SqueezerItem> {
 
@@ -52,27 +53,28 @@ public interface SqueezerItemView<T extends SqueezerItem> {
 	String getQuantityString(int quantity);
 
     /**
-     * Get a View that displays the data at the specified position in the data
-     * set. {@see Adapter#getView(int, View, android.view.ViewGroup)}
+     * Gets a {@link android.view.View} that displays the data at the specified position in the data
+     * set. See {@link SqueezerItemAdapter#getView(int, View, android.view.ViewGroup)}
      * 
-     * @param convertView The old view to reuse, per
+     * @param convertView the old view to reuse, per
      *            {@link Adapter#getView(int, View, android.view.ViewGroup)}
-     * @param item The item to display.
-     * @param imageFetcher An {@link ImageFetcher} configured to load image
+     * @param item the item to display.
+     * @param imageFetcher an {@link ImageFetcher} configured to load image
      *            thumbnails.
-     * @return A View corresponding to the data from the specified item.
+     * @return the view to display.
      */
-    View getAdapterView(View convertView, T item, ImageFetcher mImageFetcher);
+    View getAdapterView(View convertView, ViewGroup parent, T item, ImageFetcher imageFetcher);
 
     /**
-     * <p>
-     * Called by {@link Adapter#getView(int, View, ViewGroup)}
+     * Gets a {@link android.view.View} suitable for displaying the supplied (static) text.
+     * See {@link SqueezerItemAdapter#getView(int, View, android.view.ViewGroup)}
      * 
-     * @param convertView
-     * @param item
-     * @return
+     * @param convertView The old view to reuse, per
+     *            {@link android.widget.Adapter#getView(int, View, android.view.ViewGroup)}
+     * @param text text to display
+     * @return the view to display.
      */
-    View getAdapterView(View convertView, String label);
+    View getAdapterView(View convertView, ViewGroup parent, String text);
 
 	/**
 	 * @return The generic argument of the implementation

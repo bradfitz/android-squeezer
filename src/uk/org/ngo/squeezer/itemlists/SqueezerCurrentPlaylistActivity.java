@@ -16,8 +16,10 @@
 
 package uk.org.ngo.squeezer.itemlists;
 
+import java.util.EnumSet;
 import java.util.List;
 
+import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.SqueezerBaseListActivity;
 import uk.org.ngo.squeezer.framework.SqueezerItemAdapter;
@@ -25,8 +27,10 @@ import uk.org.ngo.squeezer.framework.SqueezerItemListAdapter;
 import uk.org.ngo.squeezer.framework.SqueezerItemView;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlists.dialogs.SqueezerPlaylistSaveDialog;
+import uk.org.ngo.squeezer.model.SqueezerPlayerState;
 import uk.org.ngo.squeezer.model.SqueezerSong;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
@@ -36,18 +40,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+
+import static uk.org.ngo.squeezer.framework.SqueezerBaseItemView.ViewHolder;
 
 /**
  * Activity that shows the songs in the current playlist.
- * <p>
- * The currently playing song is highlighted.
  */
 public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<SqueezerSong> {
 
-	public static void show(Context context) {
-	    final Intent intent = new Intent(context, SqueezerCurrentPlaylistActivity.class);
-	    context.startActivity(intent);
-	}
+    public static void show(Context context) {
+        final Intent intent = new Intent(context, SqueezerCurrentPlaylistActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        context.startActivity(intent);
+    }
 
     private int currentPlaylistIndex;
 
@@ -63,11 +69,18 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = super.getView(position, convertView, parent);
+            Object viewTag = view.getTag();
 
-            if (position == currentPlaylistIndex) {
-                view.setBackgroundResource(R.drawable.list_item_background_current);
-            } else {
-                view.setBackgroundResource(R.drawable.list_item_background_normal);
+            // This test because the view tag wont be set until the album is received from the server
+            if (viewTag != null && viewTag instanceof ViewHolder) {
+                ViewHolder viewHolder = (ViewHolder) viewTag;
+                if (position == currentPlaylistIndex) {
+                    viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerCurrentTextItem);
+                    view.setBackgroundResource(R.drawable.list_item_background_current);
+                } else {
+                    viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerTextItem);
+                    view.setBackgroundResource(R.drawable.list_item_background_normal);
+                }
             }
             return view;
         }
@@ -76,19 +89,18 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     @Override
     protected SqueezerItemAdapter<SqueezerSong> createItemListAdapter(
             SqueezerItemView<SqueezerSong> itemView) {
-        return new HighlightingListAdapter(itemView, mImageFetcher);
+        return new HighlightingListAdapter(itemView, getImageFetcher());
     }
 
     @Override
 	public SqueezerItemView<SqueezerSong> createItemView() {
-		return new SqueezerSongView(this) {
+		SongViewWithArt view = new SongViewWithArt(this) {
             /**
              * Jumps to whichever song the user chose.
              */
 			@Override
 			public void onItemSelected(int index, SqueezerSong item) throws RemoteException {
 				getActivity().getService().playlistIndex(index);
-				getActivity().finish();
 			}
 
             @Override
@@ -116,17 +128,17 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 
                     case R.id.remove_from_playlist:
                         getService().playlistRemove(index);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_up:
                         getService().playlistMove(index, index - 1);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_down:
                         getService().playlistMove(index, index + 1);
-                        orderItems();
+                        clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move:
@@ -136,14 +148,21 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
                 }
 
                 return super.doItemContext(menuItem, index, selectedItem);
-            };
+            }
         };
+
+        view.setDetails(EnumSet.of(
+                SqueezerSongView.Details.DURATION,
+                SqueezerSongView.Details.ALBUM,
+                SqueezerSongView.Details.ARTIST));
+
+        return view;
     }
 
 	@Override
 	protected void orderPage(int start) throws RemoteException {
 		getService().currentPlaylist(start);
-	}
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -152,7 +171,7 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
     }
 
 	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_item_playlist_clear:
 			if (getService() != null)
@@ -164,13 +183,13 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 				}
 			return true;
 		case R.id.menu_item_playlist_save:
-                SqueezerPlaylistSaveDialog.addTo(this, getCurrentPlaylist());
-                return true;
+		    SqueezerPlaylistSaveDialog.addTo(this, getCurrentPlaylist());
+	        return true;
 		}
-		return super.onMenuItemSelected(featureId, item);
+		return super.onOptionsItemSelected(item);
 	}
 
-    private String getCurrentPlaylist() {
+	private String getCurrentPlaylist() {
         if (getService() == null) {
             return null;
         }
@@ -184,15 +203,58 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 
 	@Override
     protected void registerCallback() throws RemoteException {
+        getService().registerCurrentPlaylistCallback(currentPlaylistCallback);
         getService().registerSongListCallback(songListCallback);
+        getService().registerMusicChangedCallback(musicChangedCallback);
     }
 
     @Override
     protected void unregisterCallback() throws RemoteException {
+        getService().unregisterCurrentPlaylistCallback(currentPlaylistCallback);
         getService().unregisterSongListCallback(songListCallback);
+        getService().unregisterMusicChangedCallback(musicChangedCallback);
     }
 
+    private final IServiceCurrentPlaylistCallback currentPlaylistCallback = new IServiceCurrentPlaylistCallback.Stub() {
+        @Override
+        public void onAddTracks(SqueezerPlayerState playerState) {
+            getUIThreadHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    clearAndReOrderItems();
+                    getItemAdapter().notifyDataSetChanged();
+                }
+            });
+        }
+
+        public void onDelete(SqueezerPlayerState playerState, int index ) {
+            getUIThreadHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO: Investigate feasibility of deleting single items from the adapter.
+                    clearAndReOrderItems();
+                    getItemAdapter().notifyDataSetChanged();
+                }
+            });
+        }
+    };
+
+    private final IServiceMusicChangedCallback musicChangedCallback = new IServiceMusicChangedCallback.Stub() {
+        @Override
+        public void onMusicChanged(SqueezerPlayerState playerState) throws RemoteException {
+            Log.d(getTag(), "onMusicChanged " + playerState.getCurrentSong());
+            currentPlaylistIndex = playerState.getCurrentPlaylistIndex();
+            getUIThreadHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    getItemAdapter().notifyDataSetChanged();
+                }
+            });
+        }
+    };
+
     private final IServiceSongListCallback songListCallback = new IServiceSongListCallback.Stub() {
+        @Override
         public void onSongsReceived(int count, int start, List<SqueezerSong> items) throws RemoteException {
             currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
             onItemsReceived(count, start, items);
@@ -206,9 +268,11 @@ public class SqueezerCurrentPlaylistActivity extends SqueezerBaseListActivity<Sq
 
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
         Log.i(getTag(), "set selection(" +start + "): "+ currentPlaylistIndex);
-	    getListView().post(new Runnable() {
+        getListView().post(new Runnable() {
+            @Override
             public void run() {
-                getListView().setSelectionFromTop(currentPlaylistIndex, 0);
+                // TODO: this doesn't work if the current playlist is displayed in a grid
+                ((ListView)getListView()).setSelectionFromTop(currentPlaylistIndex, 0);
             }
         });
     }

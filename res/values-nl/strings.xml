@@ -46,7 +46,6 @@
     <string name="menu_item_poweroff">Schakel uit</string>
     <string name="menu_item_main">Speelt nu</string>
     <string name="menu_item_home">Hoofdmenu</string>
-    <string name="menu_item_download">Download</string>
     <string name="menu_item_fetch_all">Download resterend</string>
     <string name="menu_item_filter">Filter</string>
     <string name="menu_item_sort">Sorteer volgorde</string>
@@ -55,7 +54,7 @@
     <string name="menu_item_playlists_new">Nieuwe playlist</string>
     <string name="menu_item_playlist_clear">Wis huidige playlist</string>
     <string name="menu_item_playlist_save">Bewaar huidige playlist</string>
-    <string name="about_title">Over Squeezer v%s</string>
+    <string name="menu_item_volume">Volume</string>
     <string name="connecting_text">Verbinden</string>
     <string name="connecting_to_text">Verbinden met SqueezeBox CLI met %s</string>
     <string name="connection_failed_text">Verbinden mislukt. Bekijk settings.</string>
@@ -65,8 +64,6 @@
     <string name="notification_playing_text">%s Speelt af</string>
     <string name="notification_connected_text">%s Verbonden</string>
     <string name="filter_text_hint">Zoek naar %s</string>
-    <string name="search_instructions_text">Zoek voor artiest, album, genre of lied titel.</string>
-    <string name="search_hint_text">Vul zoek tekst in</string>
     <string name="move_to_dialog_title">Verplaats lied nummer %s</string>
     <string name="move_to_index_hint">Vul nieuwe positie voor nummer in</string>
     <string name="save_playlist_title">Bewaar playlist</string>
@@ -77,7 +74,7 @@
     <string name="delete_title">Verwijder %s</string>
     <string name="delete__message">Echt verwijderen?</string>
     <string name="loading_text">Laden &#8230;</string>
-    <string name="browse_items_text" >Blader %2$d %1$s</string>
+    <string name="browse_items_text" >%2$d %1$s</string>
     <string name="choose_sort_order">Kies organisatie van %s</string>
     <string name="genre_prompt">Kies genre</string>
     <string name="year_prompt">Kies jaar</string>
@@ -95,31 +92,27 @@
     <string name="tips_title">Tips</string>
     <string name="tip_volume">Gebruik de volume knoppen van uw apparaat om het afspeel volume te veranderen. Probeer het nu uit.</string>
 
-    <string name="CONTEXTMENU_BROWSE_SONGS">Blader liedjes</string>
-    <string name="CONTEXTMENU_BROWSE_ALBUMS">Blader albums</string>
-    <string name="CONTEXTMENU_BROWSE_ARTISTS">Blader artiesten</string>
-    <string name="CONTEXTMENU_BROWSE_ALBUM_SONGS">Blader liedjes op album</string>
-    <string name="CONTEXTMENU_BROWSE_ARTIST_ALBUMS">Blader albums met liedjes van artiest</string>
-    <string name="CONTEXTMENU_BROWSE_ARTIST_SONGS">Blader liedjes per artiest</string>
-    <string name="CONTEXTMENU_PLAY_ITEM">Speel af</string>
-    <string name="CONTEXTMENU_ADD_ITEM">Voeg toe aan Playlist</string>
-    <string name="CONTEXTMENU_INSERT_ITEM">Speel af na huidige liedje</string>
-    <string name="CONTEXTMENU_DOWNLOAD_ITEM">Download</string>
+    <string name="BROWSE_SONGS">Blader liedjes</string>
+    <string name="BROWSE_ALBUMS">Blader albums</string>
+    <string name="BROWSE_ARTISTS">Blader artiesten</string>
+    <string name="BROWSE_ALBUM_SONGS">Blader liedjes op album</string>
+    <string name="BROWSE_ARTIST_ALBUMS">Blader albums met liedjes van artiest</string>
+    <string name="BROWSE_ARTIST_SONGS">Blader liedjes per artiest</string>
+    <string name="PLAY_NOW">Speel af</string>
+    <string name="ADD_TO_END">Voeg toe aan Playlist</string>
+    <string name="PLAY_NEXT">Speel af na huidige liedje</string>
+    <string name="DOWNLOAD_ITEM">Download</string>
 
-    <string name="PLAYLIST_CONTEXTMENU_REMOVE_ITEM">Verwijder van playlist</string>
-    <string name="PLAYLIST_CONTEXTMENU_MOVE_UP">Verplaats naar boven</string>
-    <string name="PLAYLIST_CONTEXTMENU_MOVE_DOWN">Verplaats naar beneden</string>
-    <string name="PLAYLIST_CONTEXTMENU_MOVE">Verplaats &#8230;</string>
+    <string name="PLAYLIST_REMOVE_ITEM">Verwijder van playlist</string>
+    <string name="PLAYLIST_MOVE_UP">Verplaats naar boven</string>
+    <string name="PLAYLIST_MOVE_DOWN">Verplaats naar beneden</string>
+    <string name="PLAYLIST_MOVE">Verplaats &#8230;</string>
 
     <string name="ITEM_PLAYING">Speelt nu %s</string>
     <string name="ITEM_ADDED">Heb %s aan huidige playlist toegevoegd</string>
     <string name="ITEM_INSERTED">%s is ingevoegd om direct af te spelen na huidige liedje in huidige playlist</string>
 
     <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s bestaat al</string>
-
-    <string name="albums_sort_order_album">Album</string>
-    <string name="albums_sort_order_artflow">Artiest, Jaar, Album</string>
-    <string name="albums_sort_order_new">Nieuwe muziek</string>
 
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Liedje</string>
@@ -148,8 +141,27 @@
     <string name="pref_analytics_enable_enabled">Anonieme gebruiks-statistieken zijn verzameld met behulp van Google Analytics.</string>
     <string name="pref_analytics_enable_disabled">Geen gebruiks-statistieken zijn verzameld.</string>
 
+    <string name="home_item_artists">Artiesten</string>
+    <string name="home_item_albums">Albums</string>
+    <string name="home_item_songs">Nummers</string>
+    <string name="home_item_genres">Genres</string>
+    <string name="home_item_years">Jaren</string>
+    <string name="home_item_new_music">New music</string>
+    <string name="home_item_music_folder">Muziek Mappen</string>
+    <string name="home_item_random_mix">Willekeurige mix</string>
+    <string name="home_item_playlists">Playlisten</string>
+    <string name="home_item_radios">Internet Radio</string>
+    <string name="home_item_favorites">Favorieten</string>
+    <string name="home_item_my_apps">My Apps</string>
+
+    <string name="randomplay_item_song_mix">Nummer mix</string>
+    <string name="randomplay_item_album_mix">Album mix</string>
+    <string name="randomplay_item_artist_mix">Artist mix</string>
+    <string name="randomplay_item_year_mix">Jaar mix</string>
+    <string name="randomplay_item_choose_genres">Kies genres</string>
+
     <plurals name="artist">
-        <item quantity="one">Artiest</item>
+        <item quantity="one">artiest</item>
         <item quantity="other">artiesten</item>
     </plurals>
 
@@ -197,34 +209,5 @@
         <item quantity="one">applicatie</item>
         <item quantity="other">applicaties</item>
     </plurals>
-
-    <string-array name="home_items">
-        <item>Speelt nu</item>
-        <item>Mijn Muziek</item>
-        <item>Internet Radio</item>
-<!--         <item>Mijn Apps</item> -->
-        <item>Favorieten</item>
-    </string-array>
-
-    <string-array name="music_items">
-        <item>Artiesten</item>
-        <item>Albums</item>
-        <item>Nummers</item>
-        <item>Genres</item>
-        <item>Jaren</item>
-        <item>New music</item>
-        <item>Muziek Mappen</item>
-        <item>Willekeurige mix</item>
-        <item>Playlisten</item>
-        <item>Zoek</item>
-    </string-array>
-
-    <string-array name="randomplay_items">
-        <item>Nummer mix</item>
-        <item>Album mix</item>
-        <item>Artiest mix</item>
-        <item>Jaar mix</item>
-        <item>Kies genres</item>
-    </string-array>
 
 </resources>

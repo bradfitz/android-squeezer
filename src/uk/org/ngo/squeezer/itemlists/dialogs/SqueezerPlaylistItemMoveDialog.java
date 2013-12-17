@@ -39,7 +39,7 @@ public class SqueezerPlaylistItemMoveDialog extends SqueezerBaseEditTextDialog {
                     activity.getService().playlistMove(fromIndex-1, targetIndex-1);
                 else
                     activity.getService().playlistsMove(playlist, fromIndex-1, targetIndex-1);
-                activity.orderItems();
+                activity.clearAndReOrderItems();
             } catch (RemoteException e) {
                 Log.e(getTag(), "Error moving song from '"+ fromIndex + "' to '" +targetIndex + "': " + e);
             }
