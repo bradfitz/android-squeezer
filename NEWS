@@ -1,3 +1,40 @@
+1.0.0
+=====
+
+*   A complete refresh of the UI to match modern Android guidelines. The
+    logo is by Reddit user http://www.reddit.com/user/PdtS.
+
+*   A persistent mini-player on all screens (see what's playing, quickly
+    pause/play the track).
+
+*   A grid layout when viewing albums on larger devices (and it's
+    selectable on smaller devices).
+
+*   Moving through the UI is now smoother than ever.
+
+*   Viewing an album shows all the tracks on that album, with additional
+    track information.
+
+*   User preferences to control the order in which albums, tracks, and other
+    information is shown.
+
+*   Proper support for orientation changes -- flipping your device no longer
+    sends you back to the start of the list.
+
+*   The action to take when tapping an item (like a song or an album) is now
+    configurable -- no more inadvertently tapping a song and having it start
+    playing if that's not what you want.
+
+*   Voice support for searches.
+
+*   A German translation, contributed by Olaf Sebelin
+    (https://github.com/osebelin).
+
+*   Login support, for password protected servers.
+
+*   Only show the "Tips" dialog after successfully connecting to a server.
+
+
 0.9.1
 =====
 

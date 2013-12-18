@@ -2,14 +2,8 @@
 
 <changelog>
     <release
-        version="1.0-beta-4"
-        versioncode="17">
-        <change>Only show the "Tips" dialog after successfully connecting to a server.</change>
-    </release>
-
-    <release
-        version="1.0-beta-3"
-        versioncode="16">
+        version="1.0.0"
+        versioncode="18">
         <change>A complete refresh of the UI to match modern Android guidelines. The logo is by
             Reddit user http://www.reddit.com/user/PdtS.
         </change>
@@ -47,6 +41,8 @@
         </change>
 
         <change>Login support, for password protected servers.</change>
+
+        <change>Only show the "Tips" dialog after successfully connecting to a server.</change>
 
         <change>This change log view</change>
     </release>
