@@ -1,0 +1,90 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.6.+'
+    }
+}
+apply plugin: 'android'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
+
+    // Android support libraries
+    // Note: these libraries require the "Google Repository" and "Android
+    //       Support Repository" to be installed via the SDK manager.
+    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:appcompat-v7:19.0.+'
+
+    // Third party libraries
+    compile 'ch.acra:acra:4.5.0'
+    compile 'com.google.guava:guava:15.0'
+    // findbugs is required for Proguard to work with Guava.
+    compile 'com.google.code.findbugs:jsr305:2.0.2'
+
+    // Changelogs, see https://github.com/cketti/ckChangeLog.
+    compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.0"
+
+    defaultConfig {
+        minSdkVersion 7
+        targetSdkVersion 19
+    }
+
+    buildTypes {
+        release {
+            runProguard true
+            // You could use 'proguardFile "proguard.cfg"' here and get the
+            // same effect, but this ensures that any changes to
+            // proguard-android-optimize.txt are automatically included.
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFile "proguard-acra.cfg"
+            proguardFile "proguard-guava.cfg"
+            proguardFile "proguard-squeezer.cfg"
+        }
+    }
+
+    signingConfigs {
+        if(project.hasProperty("Squeezer.properties")
+                && file(project.property("Squeezer.properties")).exists()) {
+            Properties props = new Properties()
+            props.load(new FileInputStream(file(project.property("Squeezer.properties"))))
+            release {
+                storeFile file("keystore")
+                storePassword props['key.store.password']
+                keyAlias "squeezer"
+                keyPassword props['key.alias.password']
+            }
+        } else {
+            release {
+                storeFile file("keystore")
+                storePassword "fakeStorePassword"
+                keyAlias "squeezer"
+                keyPassword "fakeKeyPassword"
+            }
+        }
+    }
+
+    productFlavors {
+        beta {
+            versionCode 17
+            versionName "1.0-beta-4"
+            signingConfig android.signingConfigs.release
+        }
+
+        live {
+            versionCode 18
+            versionName "1.0.0"
+            signingConfig android.signingConfigs.release
+        }
+    }
+}

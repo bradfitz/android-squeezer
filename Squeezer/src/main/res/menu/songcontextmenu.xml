@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+   Copyright (C) 2012 Google Inc.  All Rights Reserved.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Menu items that are always visible. -->
+    <item android:id="@+id/play_now"
+        android:title="@string/PLAY_NOW"/>
+
+    <item android:id="@+id/play_next"
+        android:title="@string/PLAY_NEXT"/>
+
+    <item android:id="@+id/add_to_playlist"
+        android:title="@string/ADD_TO_END"/>
+
+    <item android:id="@+id/download"
+        android:title="@string/DOWNLOAD_ITEM"/>
+
+
+    <!-- Menu items that are enabled individually. -->
+
+    <item android:id="@+id/view_this_album"
+        android:title="@string/BROWSE_ALBUM_SONGS"
+        android:visible="false"/>
+
+    <item android:id="@+id/view_albums_by_song"
+        android:title="@string/BROWSE_ARTIST_ALBUMS"
+        android:visible="false"/>
+
+    <item android:id="@+id/view_songs_by_artist"
+        android:title="@string/BROWSE_ARTIST_SONGS"
+        android:visible="false"/>
+
+
+    <!-- Menu items that only make sense when viewing a playlist. -->
+
+    <group android:id="@+id/group_playlist"
+        android:visible="false">
+
+        <item android:id="@+id/remove_from_playlist"
+            android:title="@string/PLAYLIST_REMOVE_ITEM"/>
+
+        <item android:id="@+id/playlist_move_up"
+            android:title="@string/PLAYLIST_MOVE_UP"/>
+
+        <item android:id="@+id/playlist_move_down"
+            android:title="@string/PLAYLIST_MOVE_DOWN"/>
+
+        <item android:id="@+id/playlist_move"
+            android:title="@string/PLAYLIST_MOVE"/>
+    </group>
+</menu>
