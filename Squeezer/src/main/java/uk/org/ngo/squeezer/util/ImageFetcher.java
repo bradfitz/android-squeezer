@@ -31,6 +31,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.annotation.Nullable;
+
 import uk.org.ngo.squeezer.BuildConfig;
 
 /**
@@ -165,8 +167,9 @@ public class ImageFetcher extends ImageResizer {
      *
      * @param key The key to load the bitmap, in this case, a regular http URL
      *
-     * @return The downloaded and resized bitmap
+     * @return The downloaded and resized bitmap, null if downloading/resizing failed.
      */
+    @Nullable
     private Bitmap processBitmap(String data) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "processBitmap - " + data);
@@ -225,7 +228,10 @@ public class ImageFetcher extends ImageResizer {
 
         Bitmap bitmap = null;
         if (fileDescriptor != null) {
-            bitmap = decodeSampledBitmapFromDescriptor(fileDescriptor, mImageWidth, mImageHeight);
+            try {
+                bitmap = decodeSampledBitmapFromDescriptor(fileDescriptor, mImageWidth, mImageHeight);
+            } catch (IOException e) {
+            }
         }
         if (fileInputStream != null) {
             try {
@@ -237,6 +243,7 @@ public class ImageFetcher extends ImageResizer {
     }
 
     @Override
+    @Nullable
     protected Bitmap processBitmap(Object data) {
         return processBitmap(String.valueOf(data));
     }
