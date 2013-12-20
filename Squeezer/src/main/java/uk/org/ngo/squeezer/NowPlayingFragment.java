@@ -530,7 +530,7 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void updateUIForPlayer(Player player) {
-        if (mFullHeightLayout) {
+        if (mFullHeightLayout && isAdded()) {
             mActivity.setTitle(player != null ? player.getName() : getText(R.string.app_name));
         }
     }
