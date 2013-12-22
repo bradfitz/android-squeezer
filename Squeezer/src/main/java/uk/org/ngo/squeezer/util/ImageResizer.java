@@ -23,6 +23,9 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.FileDescriptor;
+import java.io.IOException;
+
+import javax.annotation.Nullable;
 
 import uk.org.ngo.squeezer.BuildConfig;
 
@@ -98,6 +101,7 @@ public class ImageResizer extends ImageWorker {
     }
 
     @Override
+    @Nullable
     protected Bitmap processBitmap(Object data) {
         return processBitmap(Integer.parseInt(String.valueOf(data)));
     }
@@ -163,10 +167,12 @@ public class ImageResizer extends ImageWorker {
      * @param reqHeight The requested height of the resulting bitmap
      *
      * @return A bitmap sampled down from the original with the same aspect ratio and dimensions
-     * that are equal to or greater than the requested width and height
+     * that are equal to or greater than the requested width and height.  Returns null if
+     * decoding the bitmap failed.
      */
+    @Nullable
     public static Bitmap decodeSampledBitmapFromDescriptor(
-            FileDescriptor fileDescriptor, int reqWidth, int reqHeight) {
+            FileDescriptor fileDescriptor, int reqWidth, int reqHeight) throws IOException {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();

@@ -445,9 +445,8 @@ public class NowPlayingFragment extends Fragment implements
     private void setConnected(boolean connected, boolean postConnect, boolean loginFailure) {
         Log.v(TAG, "setConnected(" + connected + ", " + postConnect + ", " + loginFailure + ")");
 
-        // The fragment may have been detached from the parent activity in the intervening
-        // time.  If so, do nothing.
-        if (isDetached()) {
+        // The fragment may no longer be attached to the parent activity.  If so, do nothing.
+        if (!isAdded()) {
             return;
         }
 
@@ -531,7 +530,7 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void updateUIForPlayer(Player player) {
-        if (mFullHeightLayout) {
+        if (mFullHeightLayout && isAdded()) {
             mActivity.setTitle(player != null ? player.getName() : getText(R.string.app_name));
         }
     }
@@ -539,9 +538,8 @@ public class NowPlayingFragment extends Fragment implements
     private void updatePowerMenuItems(boolean canPowerOn, boolean canPowerOff) {
         boolean connected = isConnected();
 
-        // The fragment may have been detached from the parent activity in the intervening
-        // time.  If so, do nothing.
-        if (isDetached()) {
+        // The fragment may no longer be attached to the parent activity.  If so, do nothing.
+        if (!isAdded()) {
             return;
         }
 

@@ -2,6 +2,19 @@
 
 <changelog>
     <release
+        version="1.0.1"
+        versioncode="19">
+        <change>Fixed crash after a fragment was detached from an activity.</change>
+
+        <change>Fixed crash when zero plugin items are returned by the SqueezeServer.</change>
+
+        <change>Fixed crash when an IO error occurs processing artwork.</change>
+
+        <change>Fixed crash when some versions of the SqueezeServer don't return play
+            state (play, pause, stop).</change>
+    </release>
+
+    <release
         version="1.0.0"
         versioncode="18">
         <change>A complete refresh of the UI to match modern Android guidelines. The logo is by
