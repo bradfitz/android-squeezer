@@ -1,3 +1,15 @@
+1.0.1
+=====
+
+*   Fixed crash after a fragment was detached from an activity.
+
+*   Fixed crash when zero plugin items are returned by the SqueezeServer.
+
+*   Fixed crash when an IO error occurs processing artwork.
+
+*   Fixed crash when some versions of the SqueezeServer don't return play
+    state (play, pause, stop).
+
 1.0.0
 =====
 
