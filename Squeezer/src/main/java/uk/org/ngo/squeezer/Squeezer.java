@@ -12,11 +12,8 @@ import android.content.Context;
 // See http://stackoverflow.com/questions/987072/using-application-context-everywhere
 
 @ReportsCrashes(formUri = "http://www.bugsense.com/api/acra?api_key=804fa58d",
-        mode = ReportingInteractionMode.NOTIFICATION,
+        mode = ReportingInteractionMode.DIALOG,
         resToastText = R.string.crash_toast_text,
-        resNotifTickerText = R.string.crash_notif_ticker_text,
-        resNotifTitle = R.string.crash_notif_title,
-        resNotifText = R.string.crash_notif_text,
         resDialogText = R.string.crash_dialog_text,
         resDialogCommentPrompt = R.string.crash_dialog_comment_prompt,
         resDialogOkToast = R.string.crash_dialog_ok_toast,

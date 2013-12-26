@@ -180,10 +180,6 @@
 
     <!--  Crash notifications -->
     <string name="crash_toast_text">Beklager, der opstod en fejl.</string>
-    <string name="crash_notif_ticker_text">Beklager, squeezer gik ned. Send venligst en rapport.
-    </string>
-    <string name="crash_notif_title">Squeezer gik ned.</string>
-    <string name="crash_notif_text">Vælg for at hjælpe med at rette fejlen.</string>
     <string name="crash_dialog_text">En uventet fejl opstod, og Squeezer gik ned. En fejlrapport er
         udarbejdet, tryk venligst på OK for at sende den. Ingen personidentificerende oplysninger er
         medtaget i denne rapport.
