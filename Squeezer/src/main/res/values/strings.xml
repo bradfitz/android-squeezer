@@ -374,7 +374,9 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="pref_acra_disabled">Errors are caught, but you will not be prompted to send a
         report. No report is sent.
     </string>
-
+    <string name="pref_acra_user_email">Your e-mail address</string>
+    <string name="pref_acra_user_email_summary">If you provide an address then the developers may
+        contact you for more information.</string>
     <string name="pref_acra_alwaysaccept">Automatically send reports</string>
     <string name="pref_acra_alwaysaccept_enabled">Errors will automatically be reported.</string>
     <string name="pref_acra_alwaysaccept_disabled">Errors will not automatically be reported.
