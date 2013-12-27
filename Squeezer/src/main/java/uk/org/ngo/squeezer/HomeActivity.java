@@ -27,6 +27,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -95,6 +96,7 @@ public class HomeActivity extends BaseActivity {
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
 
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
 
         // Enable Analytics if the option is on, and we're not running in debug
