@@ -399,7 +399,7 @@ public class NowPlayingFragment extends Fragment implements
                 // position.
                 public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
                     if (fromUser) {
-                        currentTime.setText(Util.makeTimeString(progress));
+                        currentTime.setText(Util.formatElapsedTime(progress));
                     }
                 }
 
@@ -656,10 +656,10 @@ public class NowPlayingFragment extends Fragment implements
             if (updateSeekBar) {
                 if (seekBar.getMax() != secondsTotal) {
                     seekBar.setMax(secondsTotal);
-                    totalTime.setText(Util.makeTimeString(secondsTotal));
+                    totalTime.setText(Util.formatElapsedTime(secondsTotal));
                 }
                 seekBar.setProgress(secondsIn);
-                currentTime.setText(Util.makeTimeString(secondsIn));
+                currentTime.setText(Util.formatElapsedTime(secondsIn));
             }
         }
     }

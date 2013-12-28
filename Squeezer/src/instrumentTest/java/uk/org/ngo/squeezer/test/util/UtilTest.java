@@ -70,20 +70,20 @@ public class UtilTest extends TestCase {
     }
 
     public void testTimeString() {
-        assertEquals("0:00", Util.makeTimeString(0));
-        assertEquals("0:01", Util.makeTimeString(1));
-        assertEquals("0:10", Util.makeTimeString(10));
-        assertEquals("0:59", Util.makeTimeString(59));
-        assertEquals("1:00", Util.makeTimeString(60));
-        assertEquals("1:01", Util.makeTimeString(61));
-        assertEquals("1:59", Util.makeTimeString(119));
-        assertEquals("2:00", Util.makeTimeString(120));
-        assertEquals("2:01", Util.makeTimeString(121));
-        assertEquals("18:39", Util.makeTimeString(1119));
-        assertEquals("19:59", Util.makeTimeString(1199));
-        assertEquals("20:00", Util.makeTimeString(1200));
-        assertEquals("20:01", Util.makeTimeString(1201));
-        assertEquals("20:11", Util.makeTimeString(1211));
+        assertEquals("0:00", Util.formatElapsedTime(0));
+        assertEquals("0:01", Util.formatElapsedTime(1));
+        assertEquals("0:10", Util.formatElapsedTime(10));
+        assertEquals("0:59", Util.formatElapsedTime(59));
+        assertEquals("1:00", Util.formatElapsedTime(60));
+        assertEquals("1:01", Util.formatElapsedTime(61));
+        assertEquals("1:59", Util.formatElapsedTime(119));
+        assertEquals("2:00", Util.formatElapsedTime(120));
+        assertEquals("2:01", Util.formatElapsedTime(121));
+        assertEquals("18:39", Util.formatElapsedTime(1119));
+        assertEquals("19:59", Util.formatElapsedTime(1199));
+        assertEquals("20:00", Util.formatElapsedTime(1200));
+        assertEquals("20:01", Util.formatElapsedTime(1201));
+        assertEquals("20:11", Util.formatElapsedTime(1211));
     }
 
     public void testEncoding() {
