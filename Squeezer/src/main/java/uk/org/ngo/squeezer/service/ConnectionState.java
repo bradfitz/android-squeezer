@@ -133,28 +133,33 @@ class ConnectionState {
         activePlayer.set(null);
     }
 
-    private void setConnectionState(SqueezeService service, boolean currentState,
-            boolean postConnect, boolean loginFailed) {
+    private void setConnectionState(final SqueezeService service, final boolean currentState,
+            final boolean postConnect, final boolean loginFailed) {
         isConnected.set(currentState);
         if (postConnect) {
             isConnectInProgress.set(false);
         }
 
-        int i = service.mServiceCallbacks.beginBroadcast();
-        while (i > 0) {
-            i--;
-            try {
-                Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
-                service.mServiceCallbacks.getBroadcastItem(i)
-                        .onConnectionChanged(currentState, postConnect, loginFailed);
-                Log.d(TAG, "post-call setting callback connection state.");
+        service.executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                int i = service.mServiceCallbacks.beginBroadcast();
+                while (i > 0) {
+                    i--;
+                    try {
+                        Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
+                        service.mServiceCallbacks.getBroadcastItem(i)
+                                .onConnectionChanged(currentState, postConnect, loginFailed);
+                        Log.d(TAG, "post-call setting callback connection state.");
 
-            } catch (RemoteException e) {
-                // The RemoteCallbackList will take care of removing
-                // the dead object for us.
+                    } catch (RemoteException e) {
+                        // The RemoteCallbackList will take care of removing
+                        // the dead object for us.
+                    }
+                }
+                service.mServiceCallbacks.finishBroadcast();
             }
-        }
-        service.mServiceCallbacks.finishBroadcast();
+        });
     }
 
     Player getActivePlayer() {
@@ -266,7 +271,13 @@ class ConnectionState {
                     }
                     return;
                 }
-                service.onLineReceived(line);
+                final String inputLine = line;
+                service.executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        service.onLineReceived(inputLine);
+                    }
+                });
             }
         }
     }
