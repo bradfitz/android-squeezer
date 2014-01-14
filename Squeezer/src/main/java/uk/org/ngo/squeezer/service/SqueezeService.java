@@ -1303,8 +1303,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void setActivePlayer(Player player) throws RemoteException {
-            changeActivePlayer(player);
+        public void setActivePlayer(final Player player) throws RemoteException {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    changeActivePlayer(player);
+                }
+            });
         }
 
         @Override
