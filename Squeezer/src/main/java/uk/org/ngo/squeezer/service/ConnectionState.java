@@ -283,7 +283,7 @@ class ConnectionState {
     }
 
     void startConnect(final SqueezeService service, ScheduledThreadPoolExecutor executor,
-            String hostPort, final String userName, final String password) throws RemoteException {
+            String hostPort, final String userName, final String password) {
         Log.v(TAG, "startConnect");
         // Common mistakes, based on crash reports...
         if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {

@@ -28,7 +28,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -53,7 +52,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private static final int DIALOG_SCROBBLE_APPS = 0;
 
-    private ISqueezeService serviceStub = null;
+    private ISqueezeService service = null;
 
     private ServerAddressPreference addrPref;
 
@@ -65,11 +64,11 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
-            serviceStub = ISqueezeService.Stub.asInterface(service);
+            SettingsActivity.this.service = (ISqueezeService) service;
         }
 
         public void onServiceDisconnected(ComponentName name) {
-            serviceStub = null;
+            service = null;
         }
     };
 
@@ -79,7 +78,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
         bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
-        Log.d(TAG, "did bindService; serviceStub = " + serviceStub);
+        Log.d(TAG, "did bindService; service = " + service);
 
         getPreferenceManager().setSharedPreferencesName(Preferences.NAME);
         addPreferencesFromResource(R.xml.preferences);
@@ -265,14 +264,10 @@ public class SettingsActivity extends PreferenceActivity implements
      */
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.v(TAG, "Preference changed: " + key);
-        if (serviceStub != null) {
-            try {
-                serviceStub.preferenceChanged(key);
-            } catch (RemoteException e) {
-                Log.v(TAG, "serviceStub.preferenceChanged() failed: " + e.toString());
-            }
+        if (service != null) {
+            service.preferenceChanged(key);
         } else {
-            Log.v(TAG, "serviceStub is null!");
+            Log.v(TAG, "service is null!");
         }
     }
 

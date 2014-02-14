@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -106,17 +105,17 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerPluginItemListCallback(pluginItemListCallback);
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterPluginItemListCallback(pluginItemListCallback);
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         getService().pluginItems(start, plugin, parent, search);
     }
 
@@ -143,10 +142,9 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
     }
 
     private final IServicePluginItemListCallback pluginItemListCallback
-            = new IServicePluginItemListCallback.Stub() {
+            = new IServicePluginItemListCallback() {
         public void onPluginItemsReceived(int count, int start,
-                @SuppressWarnings("rawtypes") final Map parameters, List<PluginItem> items)
-                throws RemoteException {
+                @SuppressWarnings("rawtypes") final Map parameters, List<PluginItem> items) {
             if (parameters.containsKey("title")) {
                 getUIThreadHandler().post(new Runnable() {
                     public void run() {
@@ -173,24 +171,23 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
 
     // Shortcuts for operations for plugin items
 
-    public boolean play(PluginItem item) throws RemoteException {
+    public boolean play(PluginItem item) {
         return pluginPlaylistControl(PluginPlaylistControlCmd.play, item);
     }
 
-    public boolean load(PluginItem item) throws RemoteException {
+    public boolean load(PluginItem item) {
         return pluginPlaylistControl(PluginPlaylistControlCmd.load, item);
     }
 
-    public boolean insert(PluginItem item) throws RemoteException {
+    public boolean insert(PluginItem item) {
         return pluginPlaylistControl(PluginPlaylistControlCmd.insert, item);
     }
 
-    public boolean add(PluginItem item) throws RemoteException {
+    public boolean add(PluginItem item) {
         return pluginPlaylistControl(PluginPlaylistControlCmd.add, item);
     }
 
-    private boolean pluginPlaylistControl(PluginPlaylistControlCmd cmd, PluginItem item)
-            throws RemoteException {
+    private boolean pluginPlaylistControl(PluginPlaylistControlCmd cmd, PluginItem item) {
         if (getService() == null) {
             return false;
         }

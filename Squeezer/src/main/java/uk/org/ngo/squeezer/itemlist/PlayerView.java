@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.os.RemoteException;
 import android.view.View;
 
 import java.util.EnumSet;
@@ -58,7 +57,7 @@ public class PlayerView extends BaseItemView<Player> {
                         : R.drawable.list_item_background_normal);
     }
 
-    public void onItemSelected(int index, Player item) throws RemoteException {
+    public void onItemSelected(int index, Player item) {
         getActivity().getService().setActivePlayer(item);
         getActivity().finish();
     }

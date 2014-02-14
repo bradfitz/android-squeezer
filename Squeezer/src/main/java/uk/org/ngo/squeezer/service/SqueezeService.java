@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -211,7 +212,7 @@ public class SqueezeService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return squeezeService;
+        return (IBinder) squeezeService;
     }
 
     @Override
@@ -265,13 +266,8 @@ public class SqueezeService extends Service {
                         IServicePlaylistMaintenanceCallback callback = playlistMaintenanceCallback
                                 .get();
                         if (callback != null) {
-                            try {
-                                callback.onCreateFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE,
+                            callback.onCreateFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE,
                                         tokenMap.get("name")));
-                            } catch (RemoteException e) {
-                                Log.e(TAG, getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                        tokenMap.get("name")));
-                            }
                         }
                     }
                 } else if ("rename".equals(tokens.get(1))) {
@@ -281,14 +277,9 @@ public class SqueezeService extends Service {
                             IServicePlaylistMaintenanceCallback callback
                                     = playlistMaintenanceCallback.get();
                             if (callback != null) {
-                                try {
-                                    callback.onRenameFailed(
-                                            getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                                    tokenMap.get("newname")));
-                                } catch (RemoteException e) {
-                                    Log.e(TAG, getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                            tokenMap.get("newname")));
-                                }
+                                callback.onRenameFailed(
+                                        getString(R.string.PLAYLIST_EXISTS_MESSAGE,
+                                                tokenMap.get("newname")));
                             }
                         } else {
                             cli.sendCommandImmediately(
@@ -363,7 +354,7 @@ public class SqueezeService extends Service {
             /**
              * Seeing the <code>version</code> result indicates that the
              * handshake has completed (see
-             * {@link onCliPortConnectionEstablished}), call any handshake
+             * {@link SqueezeService#onCliPortConnectionEstablished(String, String)}), call any handshake
              * callbacks that have been registered.
              */
             @Override
@@ -965,81 +956,80 @@ public class SqueezeService extends Service {
         }
     }
 
-    private final ISqueezeService.Stub squeezeService = new ISqueezeService.Stub() {
+
+    private final ISqueezeService squeezeService = new SqueezeServiceBinder();
+    private class SqueezeServiceBinder extends Binder implements ISqueezeService {
 
         @Override
-        public void registerCallback(IServiceCallback callback) throws RemoteException {
-            mServiceCallbacks.register(callback);
+        public void registerCallback(IServiceCallback callback) {
             mServiceCallbackCount++;
+            mServiceCallbacks.register(callback);
             updatePlayerSubscriptionState();
         }
 
         @Override
-        public void unregisterCallback(IServiceCallback callback) throws RemoteException {
-            mServiceCallbacks.unregister(callback);
+        public void unregisterCallback(IServiceCallback callback) {
             mServiceCallbackCount--;
+            mServiceCallbacks.unregister(callback);
             updatePlayerSubscriptionState();
         }
 
         @Override
-        public void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback)
-                throws RemoteException {
+        public void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback) {
             mCurrentPlaylistCallbacks.register(callback);
         }
 
         @Override
-        public void unregisterCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback)
-                throws RemoteException {
+        public void unregisterCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback) {
             mCurrentPlaylistCallbacks.unregister(callback);
         }
 
         @Override
-        public void registerMusicChangedCallback(IServiceMusicChangedCallback callback)
-                throws RemoteException {
+        public void registerMusicChangedCallback(IServiceMusicChangedCallback callback) {
             mMusicChangedCallbacks.register(callback);
         }
 
         @Override
-        public void unregisterMusicChangedCallback(IServiceMusicChangedCallback callback)
-                throws RemoteException {
+        public void unregisterMusicChangedCallback(IServiceMusicChangedCallback callback) {
             mMusicChangedCallbacks.unregister(callback);
         }
 
         @Override
-        public void registerHandshakeCallback(IServiceHandshakeCallback callback)
-                throws RemoteException {
+        public void registerHandshakeCallback(IServiceHandshakeCallback callback) {
             mHandshakeCallbacks.register(callback);
 
             // Call onHandshakeCompleted() immediately if handshaking is done.
             if (mHandshakeComplete) {
-                callback.onHandshakeCompleted();
+                try {
+                    callback.onHandshakeCompleted();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Error calling back to onHandshakeCompleted");
+                }
             }
         }
 
         @Override
-        public void unregisterHandshakeCallback(IServiceHandshakeCallback callback)
-                throws RemoteException {
+        public void unregisterHandshakeCallback(IServiceHandshakeCallback callback) {
             mHandshakeCallbacks.unregister(callback);
         }
 
         @Override
-        public void registerVolumeCallback(IServiceVolumeCallback callback) throws RemoteException {
+        public void registerVolumeCallback(IServiceVolumeCallback callback) {
             mVolumeCallbacks.register(callback);
         }
 
         @Override
-        public void unregisterVolumeCallback(IServiceVolumeCallback callback)
-                throws RemoteException {
+        public void unregisterVolumeCallback(IServiceVolumeCallback callback) {
             mVolumeCallbacks.unregister(callback);
         }
 
         @Override
-        public void adjustVolumeTo(int newVolume) throws RemoteException {
+        public void adjustVolumeTo(int newVolume) {
             cli.sendPlayerCommand("mixer volume " + Math.min(100, Math.max(0, newVolume)));
         }
 
         @Override
-        public void adjustVolumeBy(int delta) throws RemoteException {
+        public void adjustVolumeBy(int delta) {
             if (delta > 0) {
                 cli.sendPlayerCommand("mixer volume %2B" + delta);
             } else if (delta < 0) {
@@ -1048,24 +1038,23 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean isConnected() throws RemoteException {
+        public boolean isConnected() {
             return connectionState.isConnected();
         }
 
         @Override
-        public boolean isConnectInProgress() throws RemoteException {
+        public boolean isConnectInProgress() {
             return connectionState.isConnectInProgress();
         }
 
         @Override
-        public void startConnect(String hostPort, String userName, String password)
-                throws RemoteException {
+        public void startConnect(String hostPort, String userName, String password) {
             connectionState
                     .startConnect(SqueezeService.this, executor, hostPort, userName, password);
         }
 
         @Override
-        public void disconnect() throws RemoteException {
+        public void disconnect() {
             if (!isConnected()) {
                 return;
             }
@@ -1073,7 +1062,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean powerOn() throws RemoteException {
+        public boolean powerOn() {
             if (!isConnected()) {
                 return false;
             }
@@ -1082,7 +1071,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean powerOff() throws RemoteException {
+        public boolean powerOff() {
             if (!isConnected()) {
                 return false;
             }
@@ -1131,7 +1120,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean togglePausePlay() throws RemoteException {
+        public boolean togglePausePlay() {
             if (!isConnected()) {
                 return false;
             }
@@ -1164,7 +1153,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean play() throws RemoteException {
+        public boolean play() {
             if (!isConnected()) {
                 return false;
             }
@@ -1173,7 +1162,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean stop() throws RemoteException {
+        public boolean stop() {
             if (!isConnected()) {
                 return false;
             }
@@ -1182,7 +1171,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean nextTrack() throws RemoteException {
+        public boolean nextTrack() {
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
@@ -1191,7 +1180,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean previousTrack() throws RemoteException {
+        public boolean previousTrack() {
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
@@ -1200,7 +1189,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean toggleShuffle() throws RemoteException {
+        public boolean toggleShuffle() {
             if (!isConnected()) {
                 return false;
             }
@@ -1209,7 +1198,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean toggleRepeat() throws RemoteException {
+        public boolean toggleRepeat() {
             if (!isConnected()) {
                 return false;
             }
@@ -1218,8 +1207,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean playlistControl(String cmd, String tag, String itemId)
-                throws RemoteException {
+        public boolean playlistControl(String cmd, String tag, String itemId) {
             if (!isConnected()) {
                 return false;
             }
@@ -1229,7 +1217,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean randomPlay(String type) throws RemoteException {
+        public boolean randomPlay(String type) {
             if (!isConnected()) {
                 return false;
             }
@@ -1243,7 +1231,7 @@ public class SqueezeService extends Service {
          * @param index the index to jump to
          */
         @Override
-        public boolean playlistIndex(int index) throws RemoteException {
+        public boolean playlistIndex(int index) {
             if (!isConnected()) {
                 return false;
             }
@@ -1252,7 +1240,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean playlistRemove(int index) throws RemoteException {
+        public boolean playlistRemove(int index) {
             if (!isConnected()) {
                 return false;
             }
@@ -1261,7 +1249,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean playlistMove(int fromIndex, int toIndex) throws RemoteException {
+        public boolean playlistMove(int fromIndex, int toIndex) {
             if (!isConnected()) {
                 return false;
             }
@@ -1270,7 +1258,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean playlistClear() throws RemoteException {
+        public boolean playlistClear() {
             if (!isConnected()) {
                 return false;
             }
@@ -1279,7 +1267,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean playlistSave(String name) throws RemoteException {
+        public boolean playlistSave(String name) {
             if (!isConnected()) {
                 return false;
             }
@@ -1288,8 +1276,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean pluginPlaylistControl(Plugin plugin, String cmd, String itemId)
-                throws RemoteException {
+        public boolean pluginPlaylistControl(Plugin plugin, String cmd, String itemId) {
             if (!isConnected()) {
                 return false;
             }
@@ -1298,12 +1285,12 @@ public class SqueezeService extends Service {
 
         }
 
-        private boolean isPlaying() throws RemoteException {
+        private boolean isPlaying() {
             return playerState.isPlaying();
         }
 
         @Override
-        public void setActivePlayer(final Player player) throws RemoteException {
+        public void setActivePlayer(final Player player) {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1313,12 +1300,12 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public Player getActivePlayer() throws RemoteException {
+        public Player getActivePlayer() {
             return connectionState.getActivePlayer();
         }
 
         @Override
-        public PlayerState getPlayerState() throws RemoteException {
+        public PlayerState getPlayerState() {
             return playerState;
         }
 
@@ -1328,7 +1315,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public String getAlbumArtUrl(String artworkTrackId) throws RemoteException {
+        public String getAlbumArtUrl(String artworkTrackId) {
             return getAbsoluteUrl(artworkTrackIdUrl(artworkTrackId));
         }
 
@@ -1343,7 +1330,7 @@ public class SqueezeService extends Service {
          * @return The URL (as a string)
          */
         @Override
-        public String getSongDownloadUrl(String songId) throws RemoteException {
+        public String getSongDownloadUrl(String songId) {
             return getAbsoluteUrl(songDownloadUrl(songId));
         }
 
@@ -1352,7 +1339,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public String getIconUrl(String icon) throws RemoteException {
+        public String getIconUrl(String icon) {
             return getAbsoluteUrl('/' + icon);
         }
 
@@ -1365,7 +1352,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean setSecondsElapsed(int seconds) throws RemoteException {
+        public boolean setSecondsElapsed(int seconds) {
             if (!isConnected()) {
                 return false;
             }
@@ -1379,7 +1366,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void preferenceChanged(String key) throws RemoteException {
+        public void preferenceChanged(String key) {
             Log.i(TAG, "Preference changed: " + key);
             if (Preferences.KEY_NOTIFY_OF_CONNECTION.equals(key)) {
                 updateOngoingNotification();
@@ -1397,7 +1384,7 @@ public class SqueezeService extends Service {
 
         /* Start an async fetch of the SqueezeboxServer's players */
         @Override
-        public boolean players(int start) throws RemoteException {
+        public boolean players(int start) {
             if (!isConnected()) {
                 return false;
             }
@@ -1406,15 +1393,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerPlayerListCallback(IServicePlayerListCallback callback)
-                throws RemoteException {
+        public void registerPlayerListCallback(IServicePlayerListCallback callback) {
             Log.v(TAG, "PlayerListCallback attached.");
             SqueezeService.this.playerListCallback.set(callback);
         }
 
         @Override
-        public void unregisterPlayerListCallback(IServicePlayerListCallback callback)
-                throws RemoteException {
+        public void unregisterPlayerListCallback(IServicePlayerListCallback callback) {
             Log.v(TAG, "PlayerListCallback detached.");
             SqueezeService.this.playerListCallback.compareAndSet(callback, null);
             cli.cancelRequests(Player.class);
@@ -1423,8 +1408,7 @@ public class SqueezeService extends Service {
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
         @Override
         public boolean albums(int start, String sortOrder, String searchString,
-                Artist artist, Year year, Genre genre, Song song)
-                throws RemoteException {
+                Artist artist, Year year, Genre genre, Song song) {
             if (!isConnected()) {
                 return false;
             }
@@ -1451,15 +1435,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerAlbumListCallback(IServiceAlbumListCallback callback)
-                throws RemoteException {
+        public void registerAlbumListCallback(IServiceAlbumListCallback callback) {
             Log.v(TAG, "AlbumListCallback attached.");
             SqueezeService.this.albumListCallback.set(callback);
         }
 
         @Override
-        public void unregisterAlbumListCallback(IServiceAlbumListCallback callback)
-                throws RemoteException {
+        public void unregisterAlbumListCallback(IServiceAlbumListCallback callback) {
             Log.v(TAG, "AlbumListCallback detached.");
             SqueezeService.this.albumListCallback.compareAndSet(callback, null);
             cli.cancelRequests(Album.class);
@@ -1469,7 +1451,7 @@ public class SqueezeService extends Service {
         /* Start an async fetch of the SqueezeboxServer's artists */
         @Override
         public boolean artists(int start, String searchString, Album album,
-                Genre genre) throws RemoteException {
+                Genre genre) {
             if (!isConnected()) {
                 return false;
             }
@@ -1488,15 +1470,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerArtistListCallback(IServiceArtistListCallback callback)
-                throws RemoteException {
+        public void registerArtistListCallback(IServiceArtistListCallback callback) {
             Log.v(TAG, "ArtistListCallback attached.");
             SqueezeService.this.artistListCallback.set(callback);
         }
 
         @Override
-        public void unregisterArtistListCallback(IServiceArtistListCallback callback)
-                throws RemoteException {
+        public void unregisterArtistListCallback(IServiceArtistListCallback callback) {
             Log.v(TAG, "ArtistListCallback detached.");
             SqueezeService.this.artistListCallback.compareAndSet(callback, null);
             cli.cancelRequests(Artist.class);
@@ -1505,7 +1485,7 @@ public class SqueezeService extends Service {
 
         /* Start an async fetch of the SqueezeboxServer's years */
         @Override
-        public boolean years(int start) throws RemoteException {
+        public boolean years(int start) {
             if (!isConnected()) {
                 return false;
             }
@@ -1514,15 +1494,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerYearListCallback(IServiceYearListCallback callback)
-                throws RemoteException {
+        public void registerYearListCallback(IServiceYearListCallback callback) {
             Log.v(TAG, "YearListCallback attached.");
             SqueezeService.this.yearListCallback.set(callback);
         }
 
         @Override
-        public void unregisterYearListCallback(IServiceYearListCallback callback)
-                throws RemoteException {
+        public void unregisterYearListCallback(IServiceYearListCallback callback) {
             Log.v(TAG, "YearListCallback detached.");
             SqueezeService.this.yearListCallback.compareAndSet(callback, null);
             cli.cancelRequests(Year.class);
@@ -1530,7 +1508,7 @@ public class SqueezeService extends Service {
 
         /* Start an async fetch of the SqueezeboxServer's genres */
         @Override
-        public boolean genres(int start, String searchString) throws RemoteException {
+        public boolean genres(int start, String searchString) {
             if (!isConnected()) {
                 return false;
             }
@@ -1543,15 +1521,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerGenreListCallback(IServiceGenreListCallback callback)
-                throws RemoteException {
+        public void registerGenreListCallback(IServiceGenreListCallback callback) {
             Log.v(TAG, "GenreListCallback attached.");
             SqueezeService.this.genreListCallback.set(callback);
         }
 
         @Override
-        public void unregisterGenreListCallback(IServiceGenreListCallback callback)
-                throws RemoteException {
+        public void unregisterGenreListCallback(IServiceGenreListCallback callback) {
             Log.v(TAG, "GenreListCallback detached.");
             SqueezeService.this.genreListCallback.compareAndSet(callback, null);
             cli.cancelRequests(Genre.class);
@@ -1565,7 +1541,7 @@ public class SqueezeService extends Service {
          * folder are returned.
          * <p>
          * Results are returned through the callback registered with
-         * {@link registerMusicFolderListCallback}.
+         * {@link #registerMusicFolderListCallback(IServiceMusicFolderListCallback)}.
          *
          * @param start Where in the list of folders to start.
          * @param folderId The folder to view.
@@ -1573,7 +1549,7 @@ public class SqueezeService extends Service {
          *         if the service is not connected.
          */
         @Override
-        public boolean musicFolders(int start, String folderId) throws RemoteException {
+        public boolean musicFolders(int start, String folderId) {
             if (!isConnected()) {
                 return false;
             }
@@ -1589,15 +1565,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback)
-                throws RemoteException {
+        public void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback) {
             Log.v(TAG, "MusicFolderListCallback attached.");
             SqueezeService.this.musicFolderListCallback.set(callback);
         }
 
         @Override
-        public void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback)
-                throws RemoteException {
+        public void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback) {
             Log.v(TAG, "MusicFolderListCallback detached.");
             SqueezeService.this.musicFolderListCallback.compareAndSet(callback, null);
             cli.cancelRequests(MusicFolderItem.class);
@@ -1606,7 +1580,7 @@ public class SqueezeService extends Service {
         /* Start an async fetch of the SqueezeboxServer's songs */
         @Override
         public boolean songs(int start, String sortOrder, String searchString, Album album,
-                Artist artist, Year year, Genre genre) throws RemoteException {
+                Artist artist, Year year, Genre genre) {
             if (!isConnected()) {
                 return false;
             }
@@ -1634,7 +1608,7 @@ public class SqueezeService extends Service {
 
         /* Start an async fetch of the SqueezeboxServer's current playlist */
         @Override
-        public boolean currentPlaylist(int start) throws RemoteException {
+        public boolean currentPlaylist(int start) {
             if (!isConnected()) {
                 return false;
             }
@@ -1644,7 +1618,7 @@ public class SqueezeService extends Service {
 
         /* Start an async fetch of the songs of the supplied playlist */
         @Override
-        public boolean playlistSongs(int start, Playlist playlist) throws RemoteException {
+        public boolean playlistSongs(int start, Playlist playlist) {
             if (!isConnected()) {
                 return false;
             }
@@ -1654,15 +1628,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerSongListCallback(IServiceSongListCallback callback)
-                throws RemoteException {
+        public void registerSongListCallback(IServiceSongListCallback callback) {
             Log.v(TAG, "SongListCallback attached.");
             SqueezeService.this.songListCallback.set(callback);
         }
 
         @Override
-        public void unregisterSongListCallback(IServiceSongListCallback callback)
-                throws RemoteException {
+        public void unregisterSongListCallback(IServiceSongListCallback callback) {
             Log.v(TAG, "SongListCallback detached.");
             SqueezeService.this.songListCallback.compareAndSet(callback, null);
             cli.cancelRequests(Song.class);
@@ -1670,7 +1642,7 @@ public class SqueezeService extends Service {
 
         /* Start an async fetch of the SqueezeboxServer's playlists */
         @Override
-        public boolean playlists(int start) throws RemoteException {
+        public boolean playlists(int start) {
             if (!isConnected()) {
                 return false;
             }
@@ -1679,15 +1651,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerPlaylistsCallback(IServicePlaylistsCallback callback)
-                throws RemoteException {
+        public void registerPlaylistsCallback(IServicePlaylistsCallback callback) {
             Log.v(TAG, "PlaylistsCallback attached.");
             SqueezeService.this.playlistsCallback.set(callback);
         }
 
         @Override
-        public void unregisterPlaylistsCallback(IServicePlaylistsCallback callback)
-                throws RemoteException {
+        public void unregisterPlaylistsCallback(IServicePlaylistsCallback callback) {
             Log.v(TAG, "PlaylistsCallback detached.");
             SqueezeService.this.playlistsCallback.compareAndSet(callback, null);
             cli.cancelRequests(Playlist.class);
@@ -1696,20 +1666,20 @@ public class SqueezeService extends Service {
 
         @Override
         public void registerPlaylistMaintenanceCallback(
-                IServicePlaylistMaintenanceCallback callback) throws RemoteException {
+                IServicePlaylistMaintenanceCallback callback) {
             Log.v(TAG, "PlaylistMaintenanceCallback attached.");
             playlistMaintenanceCallback.set(callback);
         }
 
         @Override
         public void unregisterPlaylistMaintenanceCallback(
-                IServicePlaylistMaintenanceCallback callback) throws RemoteException {
+                IServicePlaylistMaintenanceCallback callback) {
             Log.v(TAG, "PlaylistMaintenanceCallback detached.");
             playlistMaintenanceCallback.compareAndSet(callback, null);
         }
 
         @Override
-        public boolean playlistsDelete(Playlist playlist) throws RemoteException {
+        public boolean playlistsDelete(Playlist playlist) {
             if (!isConnected()) {
                 return false;
             }
@@ -1718,8 +1688,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean playlistsMove(Playlist playlist, int index, int toindex)
-                throws RemoteException {
+        public boolean playlistsMove(Playlist playlist, int index, int toindex) {
             if (!isConnected()) {
                 return false;
             }
@@ -1729,7 +1698,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean playlistsNew(String name) throws RemoteException {
+        public boolean playlistsNew(String name) {
             if (!isConnected()) {
                 return false;
             }
@@ -1738,7 +1707,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean playlistsRemove(Playlist playlist, int index) throws RemoteException {
+        public boolean playlistsRemove(Playlist playlist, int index) {
             if (!isConnected()) {
                 return false;
             }
@@ -1748,7 +1717,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean playlistsRename(Playlist playlist, String newname) throws RemoteException {
+        public boolean playlistsRename(Playlist playlist, String newname) {
             if (!isConnected()) {
                 return false;
             }
@@ -1760,7 +1729,7 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous search of the SqueezeboxServer's library */
         @Override
-        public boolean search(int start, String searchString) throws RemoteException {
+        public boolean search(int start, String searchString) {
             if (!isConnected()) {
                 return false;
             }
@@ -1781,7 +1750,7 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous fetch of the squeezeservers radio type plugins */
         @Override
-        public boolean radios(int start) throws RemoteException {
+        public boolean radios(int start) {
             if (!isConnected()) {
                 return false;
             }
@@ -1791,7 +1760,7 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous fetch of the squeezeservers radio application plugins */
         @Override
-        public boolean apps(int start) throws RemoteException {
+        public boolean apps(int start) {
             if (!isConnected()) {
                 return false;
             }
@@ -1800,15 +1769,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerPluginListCallback(IServicePluginListCallback callback)
-                throws RemoteException {
+        public void registerPluginListCallback(IServicePluginListCallback callback) {
             Log.v(TAG, "PluginListCallback attached.");
             SqueezeService.this.pluginListCallback.set(callback);
         }
 
         @Override
-        public void unregisterPluginListCallback(IServicePluginListCallback callback)
-                throws RemoteException {
+        public void unregisterPluginListCallback(IServicePluginListCallback callback) {
             Log.v(TAG, "PluginListCallback detached.");
             SqueezeService.this.pluginListCallback.compareAndSet(callback, null);
             cli.cancelRequests(Plugin.class);
@@ -1817,8 +1784,7 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous fetch of the squeezeservers items of the given type */
         @Override
-        public boolean pluginItems(int start, Plugin plugin, PluginItem parent, String search)
-                throws RemoteException {
+        public boolean pluginItems(int start, Plugin plugin, PluginItem parent, String search) {
             if (!isConnected()) {
                 return false;
             }
@@ -1834,15 +1800,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void registerPluginItemListCallback(IServicePluginItemListCallback callback)
-                throws RemoteException {
+        public void registerPluginItemListCallback(IServicePluginItemListCallback callback) {
             Log.v(TAG, "SongListCallback attached.");
             SqueezeService.this.pluginItemListCallback.set(callback);
         }
 
         @Override
-        public void unregisterPluginItemListCallback(IServicePluginItemListCallback callback)
-                throws RemoteException {
+        public void unregisterPluginItemListCallback(IServicePluginItemListCallback callback) {
             Log.v(TAG, "PluginItemListCallback detached.");
             SqueezeService.this.pluginItemListCallback.compareAndSet(callback, null);
             cli.cancelRequests(PluginItem.class);

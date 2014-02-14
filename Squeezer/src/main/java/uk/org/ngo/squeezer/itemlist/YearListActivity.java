@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.RemoteException;
 
 import java.util.List;
 
@@ -34,17 +33,17 @@ public class YearListActivity extends BaseListActivity<Year> {
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerYearListCallback(yearListCallback);
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterYearListCallback(yearListCallback);
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         getService().years(start);
     }
 
@@ -54,8 +53,8 @@ public class YearListActivity extends BaseListActivity<Year> {
         context.startActivity(intent);
     }
 
-    private final IServiceYearListCallback yearListCallback = new IServiceYearListCallback.Stub() {
-        public void onYearsReceived(int count, int start, List<Year> items) throws RemoteException {
+    private final IServiceYearListCallback yearListCallback = new IServiceYearListCallback() {
+        public void onYearsReceived(int count, int start, List<Year> items) {
             onItemsReceived(count, start, items);
         }
     };

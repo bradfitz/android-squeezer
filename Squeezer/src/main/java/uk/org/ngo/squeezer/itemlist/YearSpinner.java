@@ -17,8 +17,6 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.os.Handler;
-import android.os.RemoteException;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Spinner;
@@ -52,39 +50,26 @@ public class YearSpinner {
 
     private void orderItems(int start) {
         if (callback.getService() != null) {
-            try {
-                callback.getService().years(start);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Error ordering items: " + e);
-            }
+            callback.getService().years(start);
         }
     }
 
     public void registerCallback() {
         if (callback.getService() != null) {
-            try {
-                callback.getService().registerYearListCallback(yearListCallback);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Error registering callback: " + e);
-            }
+            callback.getService().registerYearListCallback(yearListCallback);
         }
     }
 
     public void unregisterCallback() {
         if (callback.getService() != null) {
-            try {
-                callback.getService().unregisterYearListCallback(yearListCallback);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Error unregistering callback: " + e);
-            }
+            callback.getService().unregisterYearListCallback(yearListCallback);
         }
     }
 
-    private final IServiceYearListCallback yearListCallback = new IServiceYearListCallback.Stub() {
+    private final IServiceYearListCallback yearListCallback = new IServiceYearListCallback() {
         private ItemAdapter<Year> adapter;
 
-        public void onYearsReceived(final int count, final int start, final List<Year> list)
-                throws RemoteException {
+        public void onYearsReceived(final int count, final int start, final List<Year> list) {
             callback.getUIThreadHandler().post(new Runnable() {
                 public void run() {
                     if (adapter == null) {

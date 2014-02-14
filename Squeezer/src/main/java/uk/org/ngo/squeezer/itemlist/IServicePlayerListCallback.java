@@ -15,8 +15,10 @@
  */
 
 package uk.org.ngo.squeezer.itemlist;
+import java.util.List;
 
-oneway interface IServicePlaylistMaintenanceCallback {
-    void onRenameFailed(String msg);
-    void onCreateFailed(String msg);
+import uk.org.ngo.squeezer.model.Player;
+
+public interface IServicePlayerListCallback {
+    void onPlayersReceived(int count, int pos, List<Player> players);
 }

@@ -15,9 +15,11 @@
  */
 
 package uk.org.ngo.squeezer.itemlist;
-import uk.org.ngo.squeezer.model.PluginItem;
+import java.util.List;
 
-oneway interface IServicePluginItemListCallback {
-    void onPluginItemsReceived(int count, int pos, in Map parameters, in List<PluginItem> albums);
+import uk.org.ngo.squeezer.model.Plugin;
+
+public interface IServicePluginListCallback {
+    void onPluginsReceived(int count, int pos, List<Plugin> albums);
 }
 

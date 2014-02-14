@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -81,14 +80,10 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
      * Rename the playlist previously set as context.
      */
     public void playlistRename(String newName) {
-        try {
-            getService().playlistsRename(currentPlaylist, newName);
-            oldName = currentPlaylist.getName();
-            currentPlaylist.setName(newName);
-            getItemAdapter().notifyDataSetChanged();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Error renaming playlist to '" + newName + "': " + e);
-        }
+        getService().playlistsRename(currentPlaylist, newName);
+        oldName = currentPlaylist.getName();
+        currentPlaylist.setName(newName);
+        getItemAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -97,19 +92,19 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerPlaylistsCallback(playlistsCallback);
         getService().registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterPlaylistsCallback(playlistsCallback);
         getService().unregisterPlaylistMaintenanceCallback(playlistMaintenanceCallback);
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         getService().playlists(start);
     }
 
@@ -151,10 +146,9 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     private final IServicePlaylistsCallback playlistsCallback
-            = new IServicePlaylistsCallback.Stub() {
+            = new IServicePlaylistsCallback() {
         @Override
-        public void onPlaylistsReceived(int count, int start, List<Playlist> items)
-                throws RemoteException {
+        public void onPlaylistsReceived(int count, int start, List<Playlist> items) {
             onItemsReceived(count, start, items);
         }
     };
@@ -170,10 +164,10 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     private final IServicePlaylistMaintenanceCallback playlistMaintenanceCallback
-            = new IServicePlaylistMaintenanceCallback.Stub() {
+            = new IServicePlaylistMaintenanceCallback() {
 
         @Override
-        public void onRenameFailed(String msg) throws RemoteException {
+        public void onRenameFailed(String msg) {
             if (currentIndex != -1) {
                 currentPlaylist.setName(oldName);
             }
@@ -181,7 +175,7 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
         }
 
         @Override
-        public void onCreateFailed(String msg) throws RemoteException {
+        public void onCreateFailed(String msg) {
             showServiceMessage(msg);
         }
 

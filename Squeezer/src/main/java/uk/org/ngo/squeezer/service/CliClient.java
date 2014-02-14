@@ -145,13 +145,7 @@ class CliClient {
                                         .get();
                                 if (callback != null) {
                                     // If the player list activity is active, pass the discovered players to it
-                                    try {
-                                        callback.onPlayersReceived(count,
-                                                start, items);
-                                    } catch (RemoteException e) {
-                                        Log.e(TAG, e.toString());
-                                        return false;
-                                    }
+                                    callback.onPlayersReceived(count, start, items);
                                 } else if (start + items.size() >= count) {
                                     // Otherwise set the last connected player as the active player
                                     if (defaultPlayer != null) {
@@ -643,12 +637,8 @@ class CliClient {
                 Map<String, String> parameters) {
             IServiceYearListCallback callback = service.yearListCallback.get();
             if (callback != null) {
-                try {
-                    callback.onYearsReceived(count, start, items);
-                    return true;
-                } catch (RemoteException e) {
-                    Log.e(TAG, e.toString());
-                }
+                callback.onYearsReceived(count, start, items);
+                return true;
             }
             return false;
         }
@@ -661,12 +651,8 @@ class CliClient {
                 Map<String, String> parameters) {
             IServiceGenreListCallback callback = service.genreListCallback.get();
             if (callback != null) {
-                try {
-                    callback.onGenresReceived(count, start, items);
-                    return true;
-                } catch (RemoteException e) {
-                    Log.e(TAG, e.toString());
-                }
+                callback.onGenresReceived(count, start, items);
+                return true;
             }
             return false;
         }
@@ -679,12 +665,8 @@ class CliClient {
                 Map<String, String> parameters) {
             IServiceArtistListCallback callback = service.artistListCallback.get();
             if (callback != null) {
-                try {
-                    callback.onArtistsReceived(count, start, items);
-                    return true;
-                } catch (RemoteException e) {
-                    Log.e(TAG, e.toString());
-                }
+                callback.onArtistsReceived(count, start, items);
+                return true;
             }
             return false;
         }
@@ -697,12 +679,8 @@ class CliClient {
                 Map<String, String> parameters) {
             IServiceAlbumListCallback callback = service.albumListCallback.get();
             if (callback != null) {
-                try {
-                    callback.onAlbumsReceived(count, start, items);
-                    return true;
-                } catch (RemoteException e) {
-                    Log.e(TAG, e.toString());
-                }
+                callback.onAlbumsReceived(count, start, items);
+                return true;
             }
             return false;
         }
@@ -715,13 +693,8 @@ class CliClient {
                 Map<String, String> parameters) {
             IServiceMusicFolderListCallback callback = service.musicFolderListCallback.get();
             if (callback != null) {
-                try {
-                    callback.onMusicFoldersReceived(count, start,
-                            items);
-                    return true;
-                } catch (RemoteException e) {
-                    Log.e(TAG, e.toString());
-                }
+                callback.onMusicFoldersReceived(count, start, items);
+                return true;
             }
 
             return false;
@@ -735,14 +708,10 @@ class CliClient {
                 Map<String, String> parameters) {
             IServiceSongListCallback callback = service.songListCallback.get();
             if (callback != null) {
-                try {
-                    // TODO use parameters to update the current player state
-                    // service.playerState.update(parameters);
-                    callback.onSongsReceived(count, start, items);
-                    return true;
-                } catch (RemoteException e) {
-                    Log.e(TAG, e.toString());
-                }
+                // TODO use parameters to update the current player state
+                // service.playerState.update(parameters);
+                callback.onSongsReceived(count, start, items);
+                return true;
             }
             return false;
         }
@@ -755,12 +724,8 @@ class CliClient {
                 Map<String, String> parameters) {
             IServicePlaylistsCallback callback = service.playlistsCallback.get();
             if (callback != null) {
-                try {
-                    callback.onPlaylistsReceived(count, start, items);
-                    return true;
-                } catch (RemoteException e) {
-                    Log.e(TAG, e.toString());
-                }
+                callback.onPlaylistsReceived(count, start, items);
+                return true;
             }
             return false;
         }
@@ -773,12 +738,8 @@ class CliClient {
                 Map<String, String> parameters) {
             IServicePluginListCallback callback = service.pluginListCallback.get();
             if (callback != null) {
-                try {
-                    callback.onPluginsReceived(count, start, items);
-                    return true;
-                } catch (RemoteException e) {
-                    Log.e(TAG, e.toString());
-                }
+                callback.onPluginsReceived(count, start, items);
+                return true;
             }
             return false;
         }
@@ -791,13 +752,8 @@ class CliClient {
                 Map<String, String> parameters) {
             IServicePluginItemListCallback callback = service.pluginItemListCallback.get();
             if (callback != null) {
-                try {
-                    callback.onPluginItemsReceived(count, start,
-                            parameters, items);
+                    callback.onPluginItemsReceived(count, start, parameters, items);
                     return true;
-                } catch (RemoteException e) {
-                    Log.e(TAG, e.toString());
-                }
             }
             return false;
         }

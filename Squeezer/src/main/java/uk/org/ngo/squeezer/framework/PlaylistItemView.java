@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.framework;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.os.RemoteException;
 import android.util.Log;
 
 import uk.org.ngo.squeezer.Preferences;
@@ -53,7 +52,7 @@ public abstract class PlaylistItemView<T extends PlaylistItem> extends
     abstract protected PlayableItemAction getOnSelectAction();
 
     @Override
-    public void onItemSelected(int index, T item) throws RemoteException {
+    public void onItemSelected(int index, T item) {
         Log.d(getTag(), "Executing on select action");
         if (onSelectAction != null) {
             onSelectAction.execute(item);

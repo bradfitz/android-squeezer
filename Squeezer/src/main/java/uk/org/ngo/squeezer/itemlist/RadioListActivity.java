@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.RemoteException;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemView;
@@ -39,7 +38,7 @@ public class RadioListActivity extends PluginListActivity {
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         getService().radios(start);
     }
 

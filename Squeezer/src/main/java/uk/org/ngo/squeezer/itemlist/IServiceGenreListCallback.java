@@ -15,9 +15,10 @@
  */
 
 package uk.org.ngo.squeezer.itemlist;
-import uk.org.ngo.squeezer.model.Artist;
+import java.util.List;
 
-oneway interface IServiceArtistListCallback {
-    void onArtistsReceived(int count, int start, in List<Artist> artists);
+import uk.org.ngo.squeezer.model.Genre;
+
+public interface IServiceGenreListCallback {
+    void onGenresReceived(int count, int pos, List<Genre> genres);
 }
-

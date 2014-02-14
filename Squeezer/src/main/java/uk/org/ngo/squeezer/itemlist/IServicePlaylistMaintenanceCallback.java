@@ -15,9 +15,8 @@
  */
 
 package uk.org.ngo.squeezer.itemlist;
-import uk.org.ngo.squeezer.model.Plugin;
 
-oneway interface IServicePluginListCallback {
-    void onPluginsReceived(int count, int pos, in List<Plugin> albums);
+public interface IServicePlaylistMaintenanceCallback {
+    void onRenameFailed(String msg);
+    void onCreateFailed(String msg);
 }
-

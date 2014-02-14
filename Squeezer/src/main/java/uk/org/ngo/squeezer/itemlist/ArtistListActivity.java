@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Spinner;
 
@@ -103,7 +102,7 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerArtistListCallback(artistsListCallback);
         if (genreSpinner != null) {
             genreSpinner.registerCallback();
@@ -111,7 +110,7 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterArtistListCallback(artistsListCallback);
         if (genreSpinner != null) {
             genreSpinner.unregisterCallback();
@@ -119,7 +118,7 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         getService().artists(start, getSearchString(), album, genre);
     }
 
@@ -142,9 +141,8 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
     }
 
     private final IServiceArtistListCallback artistsListCallback
-            = new IServiceArtistListCallback.Stub() {
-        public void onArtistsReceived(int count, int start, List<Artist> items)
-                throws RemoteException {
+            = new IServiceArtistListCallback() {
+        public void onArtistsReceived(int count, int start, List<Artist> items) {
             onItemsReceived(count, start, items);
         }
     };

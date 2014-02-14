@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.os.RemoteException;
+
 import uk.org.ngo.squeezer.IServiceCallback;
 import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.IServiceHandshakeCallback;
@@ -43,7 +45,7 @@ import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
 
-interface ISqueezeService {
+public interface ISqueezeService {
     // For the activity to get callbacks on interesting events
     void registerCallback(IServiceCallback callback);
     void unregisterCallback(IServiceCallback callback);
@@ -75,7 +77,7 @@ interface ISqueezeService {
     void preferenceChanged(String key);
 
     // Call this to change the player we are controlling
-    void setActivePlayer(in Player player);
+    void setActivePlayer(Player player);
 
     // Returns the player we are currently controlling
     Player getActivePlayer();
@@ -104,7 +106,7 @@ interface ISqueezeService {
     boolean playlistMove(int fromIndex, int toIndex);
     boolean playlistClear();
     boolean playlistSave(String name);
-    boolean pluginPlaylistControl(in Plugin plugin, String cmd, String id);
+    boolean pluginPlaylistControl(Plugin plugin, String cmd, String id);
 
     boolean setSecondsElapsed(int seconds);
 
@@ -120,7 +122,6 @@ interface ISqueezeService {
      * interval [0, 100].
      *
      * @param newVolume
-     * @throws RemoteException
      */
     void adjustVolumeTo(int newVolume);
     void adjustVolumeBy(int delta);
@@ -133,7 +134,7 @@ interface ISqueezeService {
     // Album list
     /**
      * Starts an asynchronous fetch of album data from the server.  Any
-     * callback registered with {@link registerAlbumListCallBack} will
+     * callback registered with {@link #registerAlbumListCallback(IServiceAlbumListCallback)} will
      * be called when the data is fetched.
      *
      * @param start
@@ -143,12 +144,12 @@ interface ISqueezeService {
      * @param year
      * @param genre
      */
-    boolean albums(int start, String sortOrder, String searchString, in Artist artist, in Year year, in Genre genre, in Song song);
+    boolean albums(int start, String sortOrder, String searchString, Artist artist, Year year, Genre genre, Song song);
     void registerAlbumListCallback(IServiceAlbumListCallback callback);
     void unregisterAlbumListCallback(IServiceAlbumListCallback callback);
 
     // Artist list
-    boolean artists(int start, String searchString, in Album album, in Genre genre);
+    boolean artists(int start, String searchString, Album album, Genre genre);
     void registerArtistListCallback(IServiceArtistListCallback callback);
     void unregisterArtistListCallback(IServiceArtistListCallback callback);
 
@@ -168,9 +169,9 @@ interface ISqueezeService {
     void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback);
 
     // Song list
-    boolean songs(int start, String sortOrder, String searchString, in Album album, in Artist artist, in Year year, in Genre genre);
+    boolean songs(int start, String sortOrder, String searchString, Album album, Artist artist, Year year, Genre genre);
     boolean currentPlaylist(int start);
-    boolean playlistSongs(int start, in Playlist playlist);
+    boolean playlistSongs(int start, Playlist playlist);
     void registerSongListCallback(IServiceSongListCallback callback);
     void unregisterSongListCallback(IServiceSongListCallback callback);
 
@@ -183,10 +184,10 @@ interface ISqueezeService {
     void registerPlaylistMaintenanceCallback(IServicePlaylistMaintenanceCallback callback);
     void unregisterPlaylistMaintenanceCallback(IServicePlaylistMaintenanceCallback callback);
     boolean playlistsNew(String name);
-    boolean playlistsRename(in Playlist playlist, String newname);
-    boolean playlistsDelete(in Playlist playlist);
-    boolean playlistsMove(in Playlist playlist, int index, int toindex);
-    boolean playlistsRemove(in Playlist playlist, int index);
+    boolean playlistsRename(Playlist playlist, String newname);
+    boolean playlistsDelete(Playlist playlist);
+    boolean playlistsMove(Playlist playlist, int index, int toindex);
+    boolean playlistsRemove(Playlist playlist, int index);
 
     // Search
     boolean search(int start, String searchString);
@@ -197,7 +198,7 @@ interface ISqueezeService {
     void registerPluginListCallback(IServicePluginListCallback callback);
     void unregisterPluginListCallback(IServicePluginListCallback callback);
 
-    boolean pluginItems(int start, in Plugin plugin, in PluginItem parent, String search);
+    boolean pluginItems(int start, Plugin plugin, PluginItem parent, String search);
     void registerPluginItemListCallback(IServicePluginItemListCallback callback);
     void unregisterPluginItemListCallback(IServicePluginItemListCallback callback);
 }

@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.RemoteException;
 
 import java.util.List;
 
@@ -34,17 +33,17 @@ public class GenreListActivity extends BaseListActivity<Genre> {
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerGenreListCallback(genreListCallback);
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterGenreListCallback(genreListCallback);
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         getService().genres(start, null);
     }
 
@@ -55,9 +54,8 @@ public class GenreListActivity extends BaseListActivity<Genre> {
     }
 
     private final IServiceGenreListCallback genreListCallback
-            = new IServiceGenreListCallback.Stub() {
-        public void onGenresReceived(int count, int start, List<Genre> items)
-                throws RemoteException {
+            = new IServiceGenreListCallback() {
+        public void onGenresReceived(int count, int start, List<Genre> items) {
             onItemsReceived(count, start, items);
         }
     };

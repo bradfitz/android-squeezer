@@ -16,8 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.os.RemoteException;
-
 import java.util.List;
 
 import uk.org.ngo.squeezer.framework.BaseListActivity;
@@ -26,20 +24,19 @@ import uk.org.ngo.squeezer.model.Plugin;
 public abstract class PluginListActivity extends BaseListActivity<Plugin> {
 
     private final IServicePluginListCallback pluginListCallback
-            = new IServicePluginListCallback.Stub() {
-        public void onPluginsReceived(int count, int start, List<Plugin> items)
-                throws RemoteException {
+            = new IServicePluginListCallback() {
+        public void onPluginsReceived(int count, int start, List<Plugin> items) {
             onItemsReceived(count, start, items);
         }
     };
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerPluginListCallback(pluginListCallback);
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterPluginListCallback(pluginListCallback);
     }
 

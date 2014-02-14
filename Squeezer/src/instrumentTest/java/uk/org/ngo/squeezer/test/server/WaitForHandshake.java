@@ -3,23 +3,21 @@ package uk.org.ngo.squeezer.test.server;
 
 import junit.framework.AssertionFailedError;
 
-import android.os.RemoteException;
-
 import uk.org.ngo.squeezer.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class WaitForHandshake extends IServiceHandshakeCallback.Stub {
 
-    private Object handshakeMonitor = new Object();
+    private final Object handshakeMonitor = new Object();
 
     private boolean handshakeCompleted;
 
-    public WaitForHandshake(ISqueezeService service) throws RemoteException {
+    public WaitForHandshake(ISqueezeService service) {
         service.registerHandshakeCallback(this);
     }
 
     @Override
-    synchronized public void onHandshakeCompleted() throws RemoteException {
+    synchronized public void onHandshakeCompleted() {
         synchronized (handshakeMonitor) {
             handshakeCompleted = true;
             handshakeMonitor.notifyAll();

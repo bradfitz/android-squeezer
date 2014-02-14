@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Google Inc.
+ * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 
 package uk.org.ngo.squeezer.itemlist;
-import uk.org.ngo.squeezer.model.MusicFolderItem;
+import java.util.List;
 
-oneway interface IServiceMusicFolderListCallback {
-    void onMusicFoldersReceived(int count, int start, in List<MusicFolderItem> musicfolders);
+import uk.org.ngo.squeezer.model.Album;
+
+public interface IServiceAlbumListCallback {
+    void onAlbumsReceived(int count, int start, List<Album> albums);
 }
+

@@ -22,7 +22,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Spinner;
@@ -204,7 +203,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerAlbumListCallback(albumListCallback);
         if (genreSpinner != null) {
             genreSpinner.registerCallback();
@@ -215,7 +214,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterAlbumListCallback(albumListCallback);
         if (genreSpinner != null) {
             genreSpinner.unregisterCallback();
@@ -226,7 +225,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         if (sortOrder == null) {
             try {
                 sortOrder = AlbumViewDialog.AlbumsSortOrder.valueOf(getService().preferredAlbumSort());
@@ -315,10 +314,9 @@ public class AlbumListActivity extends BaseListActivity<Album>
     }
 
     private final IServiceAlbumListCallback albumListCallback
-            = new IServiceAlbumListCallback.Stub() {
+            = new IServiceAlbumListCallback() {
         @Override
-        public void onAlbumsReceived(int count, int start, List<Album> items)
-                throws RemoteException {
+        public void onAlbumsReceived(int count, int start, List<Album> items) {
             onItemsReceived(count, start, items);
         }
     };

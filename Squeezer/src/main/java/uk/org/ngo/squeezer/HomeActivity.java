@@ -26,7 +26,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -123,11 +122,7 @@ public class HomeActivity extends BaseActivity {
 
     private void maybeRegisterCallbacks() {
         if (!mRegisteredCallbacks) {
-            try {
-                getService().registerHandshakeCallback(mCallback);
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error registering callback: " + e);
-            }
+            getService().registerHandshakeCallback(mCallback);
             mRegisteredCallbacks = true;
         }
     }
@@ -144,7 +139,7 @@ public class HomeActivity extends BaseActivity {
          * not those abilities exist.
          */
         @Override
-        public void onHandshakeCompleted() throws RemoteException {
+        public void onHandshakeCompleted() {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -192,19 +187,11 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
-            try {
-                mCanMusicfolder = getService().canMusicfolder();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error requesting musicfolder ability: " + e);
-            }
+            mCanMusicfolder = getService().canMusicfolder();
         }
 
         if (getService() != null) {
-            try {
-                mCanRandomplay = getService().canRandomplay();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error requesting randomplay ability: " + e);
-            }
+            mCanRandomplay = getService().canRandomplay();
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
@@ -294,11 +281,7 @@ public class HomeActivity extends BaseActivity {
     public void onPause() {
         if (mRegisteredCallbacks) {
             if (getService() != null) {
-                try {
-                    getService().unregisterHandshakeCallback(mCallback);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Service exception in onPause(): " + e);
-                }
+                getService().unregisterHandshakeCallback(mCallback);
             }
             mRegisteredCallbacks = false;
         }

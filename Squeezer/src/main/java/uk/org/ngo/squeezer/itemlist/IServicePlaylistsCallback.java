@@ -15,9 +15,10 @@
  */
 
 package uk.org.ngo.squeezer.itemlist;
-import uk.org.ngo.squeezer.model.Album;
+import java.util.List;
 
-oneway interface IServiceAlbumListCallback {
-    void onAlbumsReceived(int count, int start, in List<Album> albums);
+import uk.org.ngo.squeezer.model.Playlist;
+
+public interface IServicePlaylistsCallback {
+    void onPlaylistsReceived(int count, int pos, List<Playlist> albums);
 }
-

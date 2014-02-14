@@ -16,8 +16,6 @@
 
 package uk.org.ngo.squeezer.framework;
 
-import android.os.RemoteException;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -166,11 +164,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     public void onItemSelected(int position) {
         T item = getItem(position);
         if (item != null && item.getId() != null) {
-            try {
-                mItemView.onItemSelected(position, item);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Error from default action for '" + item + "': " + e);
-            }
+            mItemView.onItemSelected(position, item);
         }
     }
 
@@ -197,14 +191,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     }
 
     public boolean doItemContext(MenuItem menuItem, int position) {
-        try {
-            return mItemView.doItemContext(menuItem, position, getItem(position));
-        } catch (RemoteException e) {
-            Item item = getItem(position);
-            Log.e(TAG, "Error executing context menu action '" + menuItem.getMenuInfo() + "' for '"
-                    + item + "': " + e);
-            return false;
-        }
+        return mItemView.doItemContext(menuItem, position, getItem(position));
     }
 
     public ItemView<T> getItemView() {

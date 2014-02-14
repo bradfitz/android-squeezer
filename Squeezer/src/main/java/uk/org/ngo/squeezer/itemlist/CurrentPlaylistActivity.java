@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -101,7 +100,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
              * Jumps to whichever song the user chose.
              */
             @Override
-            public void onItemSelected(int index, Song item) throws RemoteException {
+            public void onItemSelected(int index, Song item) {
                 getActivity().getService().playlistIndex(index);
             }
 
@@ -123,8 +122,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             }
 
             @Override
-            public boolean doItemContext(MenuItem menuItem, int index, Song selectedItem)
-                    throws RemoteException {
+            public boolean doItemContext(MenuItem menuItem, int index, Song selectedItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.play_now:
                         getService().playlistIndex(index);
@@ -164,7 +162,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         getService().currentPlaylist(start);
     }
 
@@ -179,12 +177,8 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         switch (item.getItemId()) {
             case R.id.menu_item_playlist_clear:
                 if (getService() != null) {
-                    try {
-                        getService().playlistClear();
-                        finish();
-                    } catch (RemoteException e) {
-                        Log.e(getTag(), "Error trying to clear playlist: " + e);
-                    }
+                    getService().playlistClear();
+                    finish();
                 }
                 return true;
             case R.id.menu_item_playlist_save:
@@ -198,23 +192,18 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         if (getService() == null) {
             return null;
         }
-        try {
-            return getService().getCurrentPlaylist();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception in getCurrentPlaylist(): " + e);
-        }
-        return null;
+        return getService().getCurrentPlaylist();
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerCurrentPlaylistCallback(currentPlaylistCallback);
         getService().registerSongListCallback(songListCallback);
         getService().registerMusicChangedCallback(musicChangedCallback);
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterCurrentPlaylistCallback(currentPlaylistCallback);
         getService().unregisterSongListCallback(songListCallback);
         getService().unregisterMusicChangedCallback(musicChangedCallback);
@@ -248,7 +237,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     private final IServiceMusicChangedCallback musicChangedCallback
             = new IServiceMusicChangedCallback.Stub() {
         @Override
-        public void onMusicChanged(PlayerState playerState) throws RemoteException {
+        public void onMusicChanged(PlayerState playerState) {
             Log.d(getTag(), "onMusicChanged " + playerState.getCurrentSong());
             currentPlaylistIndex = playerState.getCurrentPlaylistIndex();
             getUIThreadHandler().post(new Runnable() {
@@ -260,9 +249,9 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         }
     };
 
-    private final IServiceSongListCallback songListCallback = new IServiceSongListCallback.Stub() {
+    private final IServiceSongListCallback songListCallback = new IServiceSongListCallback() {
         @Override
-        public void onSongsReceived(int count, int start, List<Song> items) throws RemoteException {
+        public void onSongsReceived(int count, int start, List<Song> items) {
             currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
             onItemsReceived(count, start, items);
             // Initially position the list at the currently playing song.

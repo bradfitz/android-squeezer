@@ -16,14 +16,10 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import org.acra.ErrorReporter;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -94,28 +90,24 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        try {
-            switch (item.getItemId()) {
-                case R.id.play_now:
-                    play(mFolder);
-                    return true;
-                case R.id.add_to_playlist:
-                    add(mFolder);
-                    return true;
-            }
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Error executing menu action '" + item.getMenuInfo() + "': " + e);
+        switch (item.getItemId()) {
+            case R.id.play_now:
+                play(mFolder);
+                return true;
+            case R.id.add_to_playlist:
+                add(mFolder);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerMusicFolderListCallback(musicFolderListCallback);
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterMusicFolderListCallback(musicFolderListCallback);
     }
 
@@ -126,7 +118,7 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
      * @param start Where in the list of folders to start fetching.
      */
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         if (mFolder == null) {
             // No specific item, fetch from the beginning.
             getService().musicFolders(start, null);
@@ -166,10 +158,9 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
     }
 
     private final IServiceMusicFolderListCallback musicFolderListCallback
-            = new IServiceMusicFolderListCallback.Stub() {
+            = new IServiceMusicFolderListCallback() {
         @Override
-        public void onMusicFoldersReceived(int count, int start, List<MusicFolderItem> items)
-                throws RemoteException {
+        public void onMusicFoldersReceived(int count, int start, List<MusicFolderItem> items) {
             onItemsReceived(count, start, items);
         }
     };
@@ -183,14 +174,9 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
      */
     @Override
     public void downloadSong(String songId) {
-        try {
-            String url = getService().getSongDownloadUrl(songId);
+        String url = getService().getSongDownloadUrl(songId);
 
-            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            startActivity(i);
-        } catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
-            e.printStackTrace();
-        }
+        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(i);
     }
 }

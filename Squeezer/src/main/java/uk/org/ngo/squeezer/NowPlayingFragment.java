@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
@@ -209,7 +208,7 @@ public class NowPlayingFragment extends Fragment implements
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             Log.v(TAG, "ServiceConnection.onServiceConnected()");
-            mService = ISqueezeService.Stub.asInterface(binder);
+            mService = (ISqueezeService) binder;
             NowPlayingFragment.this.onServiceConnected();
         }
 
@@ -320,17 +319,13 @@ public class NowPlayingFragment extends Fragment implements
                 if (mService == null) {
                     return;
                 }
-                try {
-                    if (isConnected()) {
-                        Log.v(TAG, "Pause...");
-                        mService.togglePausePlay();
-                    } else {
-                        // When we're not connected, the play/pause
-                        // button turns into a green connect button.
-                        onUserInitiatesConnect();
-                    }
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Service exception from togglePausePlay(): " + e);
+                if (isConnected()) {
+                    Log.v(TAG, "Pause...");
+                    mService.togglePausePlay();
+                } else {
+                    // When we're not connected, the play/pause
+                    // button turns into a green connect button.
+                    onUserInitiatesConnect();
                 }
             }
         });
@@ -347,10 +342,7 @@ public class NowPlayingFragment extends Fragment implements
                     if (mService == null) {
                         return;
                     }
-                    try {
-                        mService.nextTrack();
-                    } catch (RemoteException e) {
-                    }
+                    mService.nextTrack();
                 }
             });
 
@@ -359,10 +351,7 @@ public class NowPlayingFragment extends Fragment implements
                     if (mService == null) {
                         return;
                     }
-                    try {
-                        mService.previousTrack();
-                    } catch (RemoteException e) {
-                    }
+                    mService.previousTrack();
                 }
             });
 
@@ -371,11 +360,7 @@ public class NowPlayingFragment extends Fragment implements
                     if (mService == null) {
                         return;
                     }
-                    try {
-                        mService.toggleShuffle();
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "Service exception from toggleShuffle(): " + e);
-                    }
+                    mService.toggleShuffle();
                 }
             });
 
@@ -384,11 +369,7 @@ public class NowPlayingFragment extends Fragment implements
                     if (mService == null) {
                         return;
                     }
-                    try {
-                        mService.toggleRepeat();
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "Service exception from toggleRepeat(): " + e);
-                    }
+                    mService.toggleRepeat();
                 }
             });
 
@@ -619,14 +600,10 @@ public class NowPlayingFragment extends Fragment implements
      */
     private void maybeRegisterCallbacks() {
         if (!mRegisteredCallbacks) {
-            try {
-                mService.registerCallback(serviceCallback);
-                mService.registerHandshakeCallback(handshakeCallback);
-                mService.registerMusicChangedCallback(musicChangedCallback);
-                mService.registerVolumeCallback(volumeCallback);
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error registering callback: " + e);
-            }
+            mService.registerCallback(serviceCallback);
+            mService.registerHandshakeCallback(handshakeCallback);
+            mService.registerMusicChangedCallback(musicChangedCallback);
+            mService.registerVolumeCallback(volumeCallback);
             mRegisteredCallbacks = true;
         }
     }
@@ -716,36 +693,21 @@ public class NowPlayingFragment extends Fragment implements
         if (mService == null) {
             return false;
         }
-        try {
-            return mService.setSecondsElapsed(seconds);
-        } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in setSecondsElapsed(" + seconds + "): " + e);
-        }
-        return true;
+        return mService.setSecondsElapsed(seconds);
     }
 
     private PlayerState getPlayerState() {
         if (mService == null) {
             return null;
         }
-        try {
-            return mService.getPlayerState();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in getPlayerState(): " + e);
-        }
-        return null;
+        return mService.getPlayerState();
     }
 
     private Player getActivePlayer() {
         if (mService == null) {
             return null;
         }
-        try {
-            return mService.getActivePlayer();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in getActivePlayer(): " + e);
-        }
-        return null;
+        return mService.getActivePlayer();
     }
 
     private Song getCurrentSong() {
@@ -757,48 +719,28 @@ public class NowPlayingFragment extends Fragment implements
         if (mService == null) {
             return false;
         }
-        try {
-            return mService.isConnected();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnected(): " + e);
-        }
-        return false;
+        return mService.isConnected();
     }
 
     private boolean isConnectInProgress() {
         if (mService == null) {
             return false;
         }
-        try {
-            return mService.isConnectInProgress();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in isConnectInProgress(): " + e);
-        }
-        return false;
+        return mService.isConnectInProgress();
     }
 
     private boolean canPowerOn() {
         if (mService == null) {
             return false;
         }
-        try {
-            return mService.canPowerOn();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in canPowerOn(): " + e);
-        }
-        return false;
+        return mService.canPowerOn();
     }
 
     private boolean canPowerOff() {
         if (mService == null) {
             return false;
         }
-        try {
-            return mService.canPowerOff();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Service exception in canPowerOff(): " + e);
-        }
-        return false;
+        return mService.canPowerOff();
     }
 
     @Override
@@ -814,14 +756,10 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         if (mRegisteredCallbacks) {
-            try {
-                mService.unregisterCallback(serviceCallback);
-                mService.unregisterMusicChangedCallback(musicChangedCallback);
-                mService.unregisterHandshakeCallback(handshakeCallback);
-                mService.unregisterVolumeCallback(volumeCallback);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Service exception in onPause(): " + e);
-            }
+            mService.unregisterCallback(serviceCallback);
+            mService.unregisterMusicChangedCallback(musicChangedCallback);
+            mService.unregisterHandshakeCallback(handshakeCallback);
+            mService.unregisterVolumeCallback(volumeCallback);
             mRegisteredCallbacks = false;
         }
 
@@ -967,28 +905,14 @@ public class NowPlayingFragment extends Fragment implements
                 onUserInitiatesConnect();
                 return true;
             case R.id.menu_item_disconnect:
-                try {
-                    mService.disconnect();
-                    DisconnectedActivity.show(mActivity);
-                } catch (RemoteException e) {
-                    Toast.makeText(mActivity, e.toString(),
-                            Toast.LENGTH_LONG).show();
-                }
+                mService.disconnect();
+                DisconnectedActivity.show(mActivity);
                 return true;
             case R.id.menu_item_poweron:
-                try {
-                    mService.powerOn();
-                } catch (RemoteException e) {
-                    Toast.makeText(mActivity, e.toString(), Toast.LENGTH_LONG).show();
-                }
+                mService.powerOn();
                 return true;
             case R.id.menu_item_poweroff:
-                try {
-                    mService.powerOff();
-                } catch (RemoteException e) {
-                    Toast.makeText(mActivity, e.toString(),
-                            Toast.LENGTH_LONG).show();
-                }
+                mService.powerOff();
                 return true;
             case R.id.menu_item_playlist:
                 CurrentPlaylistActivity.show(mActivity);
@@ -1104,14 +1028,9 @@ public class NowPlayingFragment extends Fragment implements
                             getText(R.string.connecting_text),
                             getString(R.string.connecting_to_text, ipPort), true, false);
                     Log.v(TAG, "startConnect, ipPort: " + ipPort);
-                    try {
-                        getConfiguredCliIpPort(preferences);
-                        mService.startConnect(ipPort, getConfiguredUserName(preferences),
-                                getConfiguredPassword(preferences));
-                    } catch (RemoteException e) {
-                        Toast.makeText(mActivity, "startConnection error: " + e,
-                                Toast.LENGTH_LONG).show();
-                    }
+                    getConfiguredCliIpPort(preferences);
+                    mService.startConnect(ipPort, getConfiguredUserName(preferences),
+                            getConfiguredPassword(preferences));
                 } catch (IllegalStateException e) {
                     Log.i(TAG, "ProgressDialog.show() was not allowed, connecting aborted: " + e);
                     connectingDialog = null;
@@ -1124,8 +1043,7 @@ public class NowPlayingFragment extends Fragment implements
         @Override
         public void onConnectionChanged(final boolean isConnected,
                 final boolean postConnect,
-                final boolean loginFailed)
-                throws RemoteException {
+                final boolean loginFailed) {
             Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
             uiThreadHandler.post(new Runnable() {
                 @Override
@@ -1136,7 +1054,7 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         @Override
-        public void onPlayerChanged(final Player player) throws RemoteException {
+        public void onPlayerChanged(final Player player) {
             uiThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1187,16 +1105,14 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         @Override
-        public void onTimeInSongChange(final int secondsIn, final int secondsTotal)
-                throws RemoteException {
+        public void onTimeInSongChange(final int secondsIn, final int secondsTotal) {
             NowPlayingFragment.this.secondsIn = secondsIn;
             NowPlayingFragment.this.secondsTotal = secondsTotal;
             uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
         }
 
         @Override
-        public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff)
-                throws RemoteException {
+        public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff) {
             uiThreadHandler.post(new Runnable() {
                 public void run() {
                     updatePowerMenuItems(canPowerOn, canPowerOff);
@@ -1208,7 +1124,7 @@ public class NowPlayingFragment extends Fragment implements
     private final IServiceMusicChangedCallback musicChangedCallback
             = new IServiceMusicChangedCallback.Stub() {
         @Override
-        public void onMusicChanged(final PlayerState playerState) throws RemoteException {
+        public void onMusicChanged(final PlayerState playerState) {
             uiThreadHandler.post(new Runnable() {
                 public void run() {
                     updateSongInfo(playerState.getCurrentSong());
@@ -1220,7 +1136,7 @@ public class NowPlayingFragment extends Fragment implements
     private final IServiceHandshakeCallback handshakeCallback
             = new IServiceHandshakeCallback.Stub() {
         @Override
-        public void onHandshakeCompleted() throws RemoteException {
+        public void onHandshakeCompleted() {
             uiThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1232,8 +1148,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback.Stub() {
         @Override
-        public void onVolumeChanged(final int newVolume, final Player player)
-                throws RemoteException {
+        public void onVolumeChanged(final int newVolume, final Player player) {
             mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
         }
     };

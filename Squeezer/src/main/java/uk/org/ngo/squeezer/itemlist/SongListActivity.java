@@ -285,7 +285,7 @@ public class SongListActivity extends AbstractSongListActivity
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         super.registerCallback();
         if (genreSpinner != null) {
             genreSpinner.registerCallback();
@@ -296,7 +296,7 @@ public class SongListActivity extends AbstractSongListActivity
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         super.unregisterCallback();
         if (genreSpinner != null) {
             genreSpinner.unregisterCallback();
@@ -307,7 +307,7 @@ public class SongListActivity extends AbstractSongListActivity
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         getService().songs(start, sortOrder.name(), searchString, album, artist, year, genre);
 
         boolean canPlay = (getCurrentPlaylistItem() != null);
@@ -392,25 +392,21 @@ public class SongListActivity extends AbstractSongListActivity
 
         // If info is null then this the context menu from the header, not a list item.
         if (info == null) {
-            try {
-                switch (item.getItemId()) {
-                    case R.id.play_now:
-                        play(album);
-                        return true;
+            switch (item.getItemId()) {
+                case R.id.play_now:
+                    play(album);
+                    return true;
 
-                    case R.id.add_to_playlist:
-                        add(album);
-                        return true;
+                case R.id.add_to_playlist:
+                    add(album);
+                    return true;
 
-                    case R.id.browse_artists:
-                        ArtistListActivity.show(this, album);
-                        return true;
+                case R.id.browse_artists:
+                    ArtistListActivity.show(this, album);
+                    return true;
 
-                    default:
-                        throw new IllegalStateException("Unknown menu ID.");
-                }
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error executing menu action '" + item.getTitle() + "': " + e);
+                default:
+                    throw new IllegalStateException("Unknown menu ID.");
             }
 
         }
@@ -431,22 +427,18 @@ public class SongListActivity extends AbstractSongListActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        try {
-            PlaylistItem playlistItem = getCurrentPlaylistItem();
-            switch (item.getItemId()) {
-                case R.id.play_now:
-                    if (playlistItem != null) {
-                        play(playlistItem);
-                    }
-                    return true;
-                case R.id.add_to_playlist:
-                    if (playlistItem != null) {
-                        add(playlistItem);
-                    }
-                    return true;
-            }
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Error executing menu action '" + item.getMenuInfo() + "': " + e);
+        PlaylistItem playlistItem = getCurrentPlaylistItem();
+        switch (item.getItemId()) {
+            case R.id.play_now:
+                if (playlistItem != null) {
+                    play(playlistItem);
+                }
+                return true;
+            case R.id.add_to_playlist:
+                if (playlistItem != null) {
+                    add(playlistItem);
+                }
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

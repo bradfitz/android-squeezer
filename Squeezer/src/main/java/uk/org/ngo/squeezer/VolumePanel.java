@@ -25,7 +25,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.os.RemoteException;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -136,10 +135,7 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
         if (fromUser) {
             ISqueezeService service = mActivity.getService();
             if (service != null) {
-                try {
-                    service.adjustVolumeTo(progress);
-                } catch (RemoteException e) {
-                }
+                service.adjustVolumeTo(progress);
             }
         }
     }

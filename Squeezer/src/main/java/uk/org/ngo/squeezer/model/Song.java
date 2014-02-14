@@ -17,8 +17,6 @@
 package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
-import android.os.RemoteException;
-import android.util.Log;
 
 import java.util.Map;
 
@@ -157,14 +155,10 @@ public class Song extends ArtworkItem {
 
     public String getArtworkUrl(ISqueezeService service) {
         if (getArtwork_track_id() != null) {
-            try {
-                if (service == null) {
-                    return null;
-                }
-                return service.getAlbumArtUrl(getArtwork_track_id());
-            } catch (RemoteException e) {
-                Log.e(getClass().getSimpleName(), "Error requesting album art url: " + e);
+            if (service == null) {
+                return null;
             }
+            return service.getAlbumArtUrl(getArtwork_track_id());
         }
         return getArtwork_url();
     }

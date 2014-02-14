@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.framework;
 import com.google.common.base.Joiner;
 
 import android.os.Parcelable.Creator;
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -342,8 +341,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * {@link #setupContextMenu(android.view.ContextMenu, int, Item)}
      */
     @Override
-    public boolean doItemContext(MenuItem menuItem, int index, T selectedItem)
-            throws RemoteException {
+    public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) {
         switch (menuItem.getItemId()) {
             case R.id.browse_songs:
                 SongListActivity.show(mActivity, selectedItem);

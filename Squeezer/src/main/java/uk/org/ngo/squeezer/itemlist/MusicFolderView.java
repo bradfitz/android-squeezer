@@ -82,7 +82,7 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
     }
 
     @Override
-    public void onItemSelected(int index, MusicFolderItem item) throws RemoteException {
+    public void onItemSelected(int index, MusicFolderItem item) {
         if (item.getType().equals("track")) {
             super.onItemSelected(index, item);
         } else
@@ -109,8 +109,7 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
     }
 
     @Override
-    public boolean doItemContext(MenuItem menuItem, int index, MusicFolderItem selectedItem)
-            throws RemoteException {
+    public boolean doItemContext(MenuItem menuItem, int index, MusicFolderItem selectedItem) {
         switch (menuItem.getItemId()) {
             case R.id.browse_songs:
                 MusicFolderListActivity.show(getActivity(), selectedItem);

@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
@@ -36,7 +35,7 @@ public class GenreView extends BaseItemView<Genre> {
         return getActivity().getResources().getQuantityString(R.plurals.genre, quantity);
     }
 
-    public void onItemSelected(int index, Genre item) throws RemoteException {
+    public void onItemSelected(int index, Genre item) {
         AlbumListActivity.show(getActivity(), item);
     }
 

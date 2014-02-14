@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.RemoteException;
 
 import java.util.List;
 
@@ -40,17 +39,17 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerPlayerListCallback(playerListCallback);
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterPlayerListCallback(playerListCallback);
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
+    protected void orderPage(int start) {
         getService().players(start);
     }
 
@@ -61,9 +60,8 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
 
     private final IServicePlayerListCallback playerListCallback
-            = new IServicePlayerListCallback.Stub() {
-        public void onPlayersReceived(int count, int start, List<Player> items)
-                throws RemoteException {
+            = new IServicePlayerListCallback() {
+        public void onPlayersReceived(int count, int start, List<Player> items) {
             activePlayer = getService().getActivePlayer();
             onItemsReceived(count, start, items);
         }

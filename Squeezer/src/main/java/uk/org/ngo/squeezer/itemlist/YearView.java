@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
@@ -36,7 +35,7 @@ public class YearView extends BaseItemView<Year> {
         return getActivity().getResources().getQuantityString(R.plurals.year, quantity);
     }
 
-    public void onItemSelected(int index, Year item) throws RemoteException {
+    public void onItemSelected(int index, Year item) {
         AlbumListActivity.show(getActivity(), item);
     }
 

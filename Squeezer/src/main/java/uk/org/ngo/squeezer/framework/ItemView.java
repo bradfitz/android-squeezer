@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcelable.Creator;
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -93,10 +92,8 @@ public interface ItemView<T extends Item> {
      *
      * @param index Position in the list of the selected item.
      * @param item The selected item. This may be null if
-     *
-     * @throws RemoteException
      */
-    void onItemSelected(int index, T item) throws RemoteException;
+    void onItemSelected(int index, T item);
 
     /**
      * Creates the context menu, and sets the menu's title to the name of the item that it is the
@@ -125,11 +122,9 @@ public interface ItemView<T extends Item> {
      *
      * @return True if the action was consumed
      *
-     * @throws RemoteException
      * @see {@link Activity#onContextItemSelected(MenuItem)}
      */
-    public boolean doItemContext(MenuItem menuItem, int index, T selectedItems)
-            throws RemoteException;
+    public boolean doItemContext(MenuItem menuItem, int index, T selectedItems);
 
     /**
      * Extra menu information provided to the {@link android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu,

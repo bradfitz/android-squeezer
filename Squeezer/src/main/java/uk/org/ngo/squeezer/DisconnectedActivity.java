@@ -21,8 +21,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -66,11 +64,7 @@ public class DisconnectedActivity extends BaseActivity {
     @Override
     public void onPause() {
         if (mRegisteredCallbacks) {
-            try {
-                getService().unregisterCallback(serviceCallback);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Service exception in onPause(): " + e);
-            }
+            getService().unregisterCallback(serviceCallback);
             mRegisteredCallbacks = false;
         }
         super.onPause();
@@ -119,11 +113,7 @@ public class DisconnectedActivity extends BaseActivity {
      */
     private void maybeRegisterCallbacks() {
         if (!mRegisteredCallbacks) {
-            try {
-                getService().registerCallback(serviceCallback);
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error registering callback: " + e);
-            }
+            getService().registerCallback(serviceCallback);
             mRegisteredCallbacks = true;
         }
     }
@@ -133,8 +123,7 @@ public class DisconnectedActivity extends BaseActivity {
 
         @Override
         public void onConnectionChanged(final boolean isConnected, final boolean postConnect,
-                final boolean loginFailed)
-                throws RemoteException {
+                final boolean loginFailed) {
             if (isConnected) {
                 // The user requested a connection to the server, which succeeded.  There's
                 // no prior activity to go to, so launch HomeActivity, with flags to
@@ -155,7 +144,7 @@ public class DisconnectedActivity extends BaseActivity {
         }
 
         @Override
-        public void onPlayerChanged(Player player) throws RemoteException {
+        public void onPlayerChanged(Player player) {
         }
 
         @Override
@@ -171,13 +160,11 @@ public class DisconnectedActivity extends BaseActivity {
         }
 
         @Override
-        public void onTimeInSongChange(final int secondsIn, final int secondsTotal)
-                throws RemoteException {
+        public void onTimeInSongChange(final int secondsIn, final int secondsTotal) {
         }
 
         @Override
-        public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff)
-                throws RemoteException {
+        public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff) {
         }
     };
 }

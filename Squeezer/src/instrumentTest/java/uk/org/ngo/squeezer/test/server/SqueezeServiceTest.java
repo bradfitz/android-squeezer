@@ -3,7 +3,6 @@ package uk.org.ngo.squeezer.test.server;
 
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.test.ServiceTestCase;
 
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog.AlbumsSortOrder;
@@ -20,7 +19,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         super(SqueezeService.class);
     }
 
-    public void testConnectionFailure() throws RemoteException, InterruptedException {
+    public void testConnectionFailure() throws InterruptedException {
         IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
         ISqueezeService service = ISqueezeService.Stub.asInterface(binder);
         ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
@@ -33,7 +32,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         assertFalse(serviceCallback.isConnected);
     }
 
-    public void testConnect() throws RemoteException, InterruptedException {
+    public void testConnect() throws InterruptedException {
         IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
         ISqueezeService service = ISqueezeService.Stub.asInterface(binder);
         ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
@@ -51,7 +50,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         assertEquals(AlbumsSortOrder.album.name(), service.preferredAlbumSort());
     }
 
-    public void testConnectProtectedServer() throws RemoteException, InterruptedException {
+    public void testConnectProtectedServer() throws InterruptedException {
         IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
         ISqueezeService service = ISqueezeService.Stub.asInterface(binder);
         ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
@@ -70,7 +69,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         assertEquals(AlbumsSortOrder.album.name(), service.preferredAlbumSort());
     }
 
-    public void testAuthenticationFailure() throws RemoteException, InterruptedException {
+    public void testAuthenticationFailure() throws InterruptedException {
         IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
         ISqueezeService service = ISqueezeService.Stub.asInterface(binder);
         ServiceCallbackTest serviceCallback = new ServiceCallbackTest();

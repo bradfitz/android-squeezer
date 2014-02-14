@@ -19,8 +19,6 @@ package uk.org.ngo.squeezer;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -41,8 +39,6 @@ import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.Song;
 
 public class SearchActivity extends ItemListActivity {
-
-    private static final String TAG = SearchActivity.class.getSimpleName();
 
     private View loadingLabel;
 
@@ -92,7 +88,7 @@ public class SearchActivity extends ItemListActivity {
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
+    protected void registerCallback() {
         getService().registerArtistListCallback(artistsCallback);
         getService().registerAlbumListCallback(albumsCallback);
         getService().registerGenreListCallback(genresCallback);
@@ -100,7 +96,7 @@ public class SearchActivity extends ItemListActivity {
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
+    protected void unregisterCallback() {
         getService().unregisterArtistListCallback(artistsCallback);
         getService().unregisterAlbumListCallback(albumsCallback);
         getService().unregisterGenreListCallback(genresCallback);
@@ -134,11 +130,7 @@ public class SearchActivity extends ItemListActivity {
 
     @Override
     protected void orderPage(int start) {
-        try {
-            getService().search(start, searchString);
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Error performing search: " + e);
-        }
+        getService().search(start, searchString);
     }
 
     /**
@@ -184,33 +176,30 @@ public class SearchActivity extends ItemListActivity {
     }
 
     private final IServiceArtistListCallback artistsCallback
-            = new IServiceArtistListCallback.Stub() {
+            = new IServiceArtistListCallback() {
         @Override
-        public void onArtistsReceived(int count, int start, List<Artist> items)
-                throws RemoteException {
+        public void onArtistsReceived(int count, int start, List<Artist> items) {
             onItemsReceived(count, start, items, Artist.class);
         }
     };
 
-    private final IServiceAlbumListCallback albumsCallback = new IServiceAlbumListCallback.Stub() {
+    private final IServiceAlbumListCallback albumsCallback = new IServiceAlbumListCallback() {
         @Override
-        public void onAlbumsReceived(int count, int start, List<Album> items)
-                throws RemoteException {
+        public void onAlbumsReceived(int count, int start, List<Album> items) {
             onItemsReceived(count, start, items, Album.class);
         }
     };
 
-    private final IServiceGenreListCallback genresCallback = new IServiceGenreListCallback.Stub() {
+    private final IServiceGenreListCallback genresCallback = new IServiceGenreListCallback() {
         @Override
-        public void onGenresReceived(int count, int start, List<Genre> items)
-                throws RemoteException {
+        public void onGenresReceived(int count, int start, List<Genre> items) {
             onItemsReceived(count, start, items, Genre.class);
         }
     };
 
-    private final IServiceSongListCallback songsCallback = new IServiceSongListCallback.Stub() {
+    private final IServiceSongListCallback songsCallback = new IServiceSongListCallback() {
         @Override
-        public void onSongsReceived(int count, int start, List<Song> items) throws RemoteException {
+        public void onSongsReceived(int count, int start, List<Song> items) {
             onItemsReceived(count, start, items, Song.class);
         }
     };

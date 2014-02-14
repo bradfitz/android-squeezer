@@ -20,7 +20,6 @@ package uk.org.ngo.squeezer.framework;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -134,11 +133,7 @@ public abstract class ItemListActivity extends BaseActivity {
 
         if (mRegisteredCallbacks) {
             if (getService() != null) {
-                try {
-                    unregisterCallback();
-                } catch (RemoteException e) {
-                    Log.e(getTag(), "Error unregistering list callback: " + e);
-                }
+                unregisterCallback();
             }
             mRegisteredCallbacks = false;
         }
@@ -161,11 +156,7 @@ public abstract class ItemListActivity extends BaseActivity {
      */
     private void maybeRegisterCallbacks() {
         if (!mRegisteredCallbacks) {
-            try {
-                registerCallback();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error registering list callback: " + e);
-            }
+            registerCallback();
             mRegisteredCallbacks = true;
         }
     }
@@ -176,17 +167,13 @@ public abstract class ItemListActivity extends BaseActivity {
      * You must register a callback for {@link SqueezeService} to call when the ordered items from
      * {@link #orderPage(int)} are received from SqueezeServer. This callback must pass these items
      * on to {@link ItemListAdapter#update(int, int, List)}.
-     *
-     * @throws RemoteException
      */
-    protected abstract void registerCallback() throws RemoteException;
+    protected abstract void registerCallback();
 
     /**
      * This is called when the service is disconnected.
-     *
-     * @throws RemoteException
      */
-    protected abstract void unregisterCallback() throws RemoteException;
+    protected abstract void unregisterCallback();
 
     protected ImageFetcher createImageFetcher(int height, int width) {
         // Get an ImageFetcher to scale artwork to the supplied size.
@@ -228,10 +215,8 @@ public abstract class ItemListActivity extends BaseActivity {
      *
      * @param start Position in list to start the fetch. Pass this on to {@link
      * uk.org.ngo.squeezer.service.SqueezeService}
-     *
-     * @throws RemoteException
      */
-    protected abstract void orderPage(int start) throws RemoteException;
+    protected abstract void orderPage(int start);
 
     /**
      * List can clear any information about which items have been received and ordered, by calling
@@ -252,12 +237,7 @@ public abstract class ItemListActivity extends BaseActivity {
         if (!mListScrolling && !mReceivedPages.contains(pagePosition) && !mOrderedPages
                 .contains(pagePosition)) {
             mOrderedPages.add(pagePosition);
-            try {
-                orderPage(pagePosition);
-            } catch (RemoteException e) {
-                mOrderedPages.remove(pagePosition);
-                Log.e(getTag(), "Error ordering items (" + pagePosition + "): " + e);
-            }
+            orderPage(pagePosition);
             return true;
         } else {
             return false;

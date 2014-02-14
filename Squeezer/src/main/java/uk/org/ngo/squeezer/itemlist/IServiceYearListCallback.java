@@ -15,9 +15,11 @@
  */
 
 package uk.org.ngo.squeezer.itemlist;
+import java.util.List;
+
 import uk.org.ngo.squeezer.model.Year;
 
-oneway interface IServiceYearListCallback {
-    void onYearsReceived(int count, int pos, in List<Year> years);
+public interface IServiceYearListCallback {
+    void onYearsReceived(int count, int pos, List<Year> years);
 }
 

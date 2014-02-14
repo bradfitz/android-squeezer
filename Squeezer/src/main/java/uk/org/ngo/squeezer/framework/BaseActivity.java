@@ -16,8 +16,6 @@
 
 package uk.org.ngo.squeezer.framework;
 
-import org.acra.ErrorReporter;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +23,6 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -76,7 +73,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            service = ISqueezeService.Stub.asInterface(binder);
+            service = (ISqueezeService) binder;
             BaseActivity.this.onServiceConnected();
         }
 
@@ -157,13 +154,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
             return false;
         }
         Log.v(getTag(), "Adjust volume by: " + delta);
-        try {
-            getService().adjustVolumeBy(delta);
-            return true;
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Error from service.adjustVolumeBy: " + e);
-        }
-        return false;
+        getService().adjustVolumeBy(delta);
+        return true;
     }
 
     // Safe accessors
@@ -172,24 +164,14 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         if (service == null) {
             return false;
         }
-        try {
-            return service.isConnected();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception in isConnected(): " + e);
-        }
-        return false;
+        return service.isConnected();
     }
 
     public String getIconUrl(String icon) {
         if (service == null || icon == null) {
             return null;
         }
-        try {
-            return service.getIconUrl(icon);
-        } catch (RemoteException e) {
-            Log.e(getClass().getSimpleName(), "Error requesting icon url '" + icon + "': " + e);
-            return null;
-        }
+        return service.getIconUrl(icon);
     }
 
     public String getServerString(ServerString stringToken) {
@@ -198,20 +180,20 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     // This section is just an easier way to call squeeze service
 
-    public void play(PlaylistItem item) throws RemoteException {
+    public void play(PlaylistItem item) {
         playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
     }
 
-    public void add(PlaylistItem item) throws RemoteException {
+    public void add(PlaylistItem item) {
         playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
     }
 
-    public void insert(PlaylistItem item) throws RemoteException {
+    public void insert(PlaylistItem item) {
         playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
     }
 
     private void playlistControl(PlaylistControlCmd cmd, PlaylistItem item, int resId)
-            throws RemoteException {
+            {
         if (service == null) {
             return;
         }
@@ -249,15 +231,10 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
          * TODO: If running on Gingerbread or greater use the Download Manager
          * APIs to have more control over the download.
          */
-        try {
-            String url = getService().getSongDownloadUrl(songId);
+        String url = getService().getSongDownloadUrl(songId);
 
-            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            startActivity(i);
-        } catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
-            e.printStackTrace();
-        }
+        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(i);
     }
 
     private enum PlaylistControlCmd {

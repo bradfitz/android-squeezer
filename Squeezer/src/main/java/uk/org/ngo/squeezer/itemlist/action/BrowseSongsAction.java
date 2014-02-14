@@ -1,6 +1,5 @@
 package uk.org.ngo.squeezer.itemlist.action;
 
-import android.os.RemoteException;
 import android.util.Log;
 
 import uk.org.ngo.squeezer.framework.ItemListActivity;
@@ -14,7 +13,7 @@ public class BrowseSongsAction extends PlayableItemAction {
     }
 
     @Override
-    public void execute(PlaylistItem item) throws RemoteException {
+    public void execute(PlaylistItem item) {
         Log.d(getTag(), "Browsing songs of " + item);
         SongListActivity.show(activity, item);
     }
