@@ -48,6 +48,7 @@ import uk.org.ngo.squeezer.itemlist.RadioListActivity;
 import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.itemlist.YearListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 
 public class HomeActivity extends BaseActivity {
 
@@ -128,7 +129,7 @@ public class HomeActivity extends BaseActivity {
     }
 
 
-    private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback.Stub() {
+    private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback() {
 
         /**
          * Sets the menu after handshaking with the SqueezeServer has completed.
@@ -167,6 +168,10 @@ public class HomeActivity extends BaseActivity {
             });
         }
 
+        @Override
+        public Object getClient() {
+            return HomeActivity.this;
+        }
     };
 
     /**

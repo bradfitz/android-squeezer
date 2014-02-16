@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.service;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.RemoteException;
 import android.util.Log;
 
 import java.io.PrintWriter;

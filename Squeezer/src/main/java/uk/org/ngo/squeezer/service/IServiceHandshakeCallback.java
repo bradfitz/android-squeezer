@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Google Inc.  All Rights Reserved.
+ * Copyright (c) 2009 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.itemlist;
+package uk.org.ngo.squeezer.service;
 
-import uk.org.ngo.squeezer.model.PlayerState;
-
-oneway interface IServiceCurrentPlaylistCallback {
-    void onAddTracks(in PlayerState playerState);
-    void onDelete(in PlayerState playerState, int index);
+public interface IServiceHandshakeCallback extends ServiceCallback {
+    // Handshaking with the server has completed.
+    void onHandshakeCompleted();
 }
+

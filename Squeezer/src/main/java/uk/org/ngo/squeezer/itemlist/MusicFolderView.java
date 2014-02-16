@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +25,6 @@ import java.util.EnumSet;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.PlaylistItemView;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;

@@ -29,7 +29,6 @@ import android.widget.ListView;
 import java.util.EnumSet;
 import java.util.List;
 
-import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
@@ -39,6 +38,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
@@ -210,7 +210,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     private final IServiceCurrentPlaylistCallback currentPlaylistCallback
-            = new IServiceCurrentPlaylistCallback.Stub() {
+            = new IServiceCurrentPlaylistCallback() {
         @Override
         public void onAddTracks(PlayerState playerState) {
             getUIThreadHandler().post(new Runnable() {
@@ -232,10 +232,15 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                 }
             });
         }
+
+        @Override
+        public Object getClient() {
+            return CurrentPlaylistActivity.this;
+        }
     };
 
     private final IServiceMusicChangedCallback musicChangedCallback
-            = new IServiceMusicChangedCallback.Stub() {
+            = new IServiceMusicChangedCallback() {
         @Override
         public void onMusicChanged(PlayerState playerState) {
             Log.d(getTag(), "onMusicChanged " + playerState.getCurrentSong());
@@ -246,6 +251,11 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                     getItemAdapter().notifyDataSetChanged();
                 }
             });
+        }
+
+        @Override
+        public Object getClient() {
+            return CurrentPlaylistActivity.this;
         }
     };
 

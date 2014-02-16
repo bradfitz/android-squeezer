@@ -72,6 +72,10 @@ import uk.org.ngo.squeezer.model.PlayerState.PlayStatus;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.service.IServiceCallback;
+import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
+import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
+import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
@@ -1039,7 +1043,7 @@ public class NowPlayingFragment extends Fragment implements
         });
     }
 
-    private final IServiceCallback serviceCallback = new IServiceCallback.Stub() {
+    private final IServiceCallback serviceCallback = new IServiceCallback() {
         @Override
         public void onConnectionChanged(final boolean isConnected,
                 final boolean postConnect,
@@ -1119,10 +1123,15 @@ public class NowPlayingFragment extends Fragment implements
                 }
             });
         }
+
+        @Override
+        public Object getClient() {
+            return NowPlayingFragment.this;
+        }
     };
 
     private final IServiceMusicChangedCallback musicChangedCallback
-            = new IServiceMusicChangedCallback.Stub() {
+            = new IServiceMusicChangedCallback() {
         @Override
         public void onMusicChanged(final PlayerState playerState) {
             uiThreadHandler.post(new Runnable() {
@@ -1131,10 +1140,15 @@ public class NowPlayingFragment extends Fragment implements
                 }
             });
         }
+
+        @Override
+        public Object getClient() {
+            return NowPlayingFragment.this;
+        }
     };
 
     private final IServiceHandshakeCallback handshakeCallback
-            = new IServiceHandshakeCallback.Stub() {
+            = new IServiceHandshakeCallback() {
         @Override
         public void onHandshakeCompleted() {
             uiThreadHandler.post(new Runnable() {
@@ -1144,12 +1158,22 @@ public class NowPlayingFragment extends Fragment implements
                 }
             });
         }
+
+        @Override
+        public Object getClient() {
+            return NowPlayingFragment.this;
+        }
     };
 
-    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback.Stub() {
+    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
         @Override
         public void onVolumeChanged(final int newVolume, final Player player) {
             mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
+        }
+
+        @Override
+        public Object getClient() {
+            return NowPlayingFragment.this;
         }
     };
 }

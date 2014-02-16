@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.service;
 
 import android.net.wifi.WifiManager;
-import android.os.RemoteException;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -143,21 +142,9 @@ class ConnectionState {
         service.executor.execute(new Runnable() {
             @Override
             public void run() {
-                int i = service.mServiceCallbacks.beginBroadcast();
-                while (i > 0) {
-                    i--;
-                    try {
-                        Log.d(TAG, "pre-call setting callback connection state to: " + currentState);
-                        service.mServiceCallbacks.getBroadcastItem(i)
-                                .onConnectionChanged(currentState, postConnect, loginFailed);
-                        Log.d(TAG, "post-call setting callback connection state.");
-
-                    } catch (RemoteException e) {
-                        // The RemoteCallbackList will take care of removing
-                        // the dead object for us.
-                    }
+                for (IServiceCallback callback : service.mServiceCallbacks) {
+                    callback.onConnectionChanged(currentState, postConnect, loginFailed);
                 }
-                service.mServiceCallbacks.finishBroadcast();
             }
         });
     }

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer;
+package uk.org.ngo.squeezer.service;
 
 import uk.org.ngo.squeezer.model.Player;
 
-oneway interface IServiceCallback {
+public interface IServiceCallback extends ServiceCallback {
     // Empty strings to denote no default player.
-    void onPlayerChanged(in Player player);
+    void onPlayerChanged(Player player);
 
     // postConnect is only true for the very first callback after a new initial connect.
     // loginFailed is true if the server disconnects before handshaking is completed

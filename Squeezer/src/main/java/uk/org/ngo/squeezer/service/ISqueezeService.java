@@ -16,12 +16,6 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.os.RemoteException;
-
-import uk.org.ngo.squeezer.IServiceCallback;
-import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
-import uk.org.ngo.squeezer.IServiceHandshakeCallback;
-import uk.org.ngo.squeezer.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlayerListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceAlbumListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceArtistListCallback;

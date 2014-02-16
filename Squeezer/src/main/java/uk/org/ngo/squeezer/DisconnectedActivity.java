@@ -26,6 +26,7 @@ import android.widget.Button;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.service.IServiceCallback;
 
 /**
  * An activity for when the user is not connected to a Squeezeserver.
@@ -118,7 +119,7 @@ public class DisconnectedActivity extends BaseActivity {
         }
     }
 
-    private final IServiceCallback serviceCallback = new IServiceCallback.Stub() {
+    private final IServiceCallback serviceCallback = new IServiceCallback() {
         // TODO: Maybe move onConnectionChanged to its own callback.
 
         @Override
@@ -165,6 +166,11 @@ public class DisconnectedActivity extends BaseActivity {
 
         @Override
         public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff) {
+        }
+
+        @Override
+        public Object getClient() {
+            return DisconnectedActivity.this;
         }
     };
 }

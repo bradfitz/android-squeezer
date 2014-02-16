@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer;
+package uk.org.ngo.squeezer.service;
 
-oneway interface IServiceHandshakeCallback {
-    // Handshaking with the server has completed.
-    void onHandshakeCompleted();
+import uk.org.ngo.squeezer.model.PlayerState;
+
+public interface IServiceMusicChangedCallback extends ServiceCallback {
+    void onMusicChanged(PlayerState playerState);
 }
-

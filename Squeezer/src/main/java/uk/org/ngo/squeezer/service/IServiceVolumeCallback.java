@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer;
+package uk.org.ngo.squeezer.service;
 
 import uk.org.ngo.squeezer.model.Player;
 
-oneway interface IServiceVolumeCallback {
-    void onVolumeChanged(int newVolume, in Player player);
+public interface IServiceVolumeCallback extends ServiceCallback {
+    void onVolumeChanged(int newVolume, Player player);
 }
