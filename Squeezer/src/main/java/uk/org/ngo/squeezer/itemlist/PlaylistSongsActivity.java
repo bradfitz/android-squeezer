@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistDeleteDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
@@ -33,7 +34,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlaylistRenameDialog;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Song;
 
-public class PlaylistSongsActivity extends AbstractSongListActivity {
+public class PlaylistSongsActivity extends BaseListActivity<Song> {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -134,7 +135,7 @@ public class PlaylistSongsActivity extends AbstractSongListActivity {
 
     @Override
     protected void orderPage(int start) {
-        getService().playlistSongs(start, playlist);
+        getService().playlistSongs(start, playlist, this);
     }
 
     @Override

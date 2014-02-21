@@ -3,10 +3,10 @@ package uk.org.ngo.squeezer.test.server;
 
 import junit.framework.AssertionFailedError;
 
-import uk.org.ngo.squeezer.IServiceHandshakeCallback;
+import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
-public class WaitForHandshake extends IServiceHandshakeCallback.Stub {
+public class WaitForHandshake implements IServiceHandshakeCallback {
 
     private final Object handshakeMonitor = new Object();
 
@@ -39,4 +39,8 @@ public class WaitForHandshake extends IServiceHandshakeCallback.Stub {
         }
     }
 
+    @Override
+    public Object getClient() {
+        return this;
+    }
 }

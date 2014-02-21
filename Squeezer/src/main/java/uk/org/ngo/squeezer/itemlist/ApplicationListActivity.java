@@ -19,11 +19,12 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 
+import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Plugin;
 
 
-public class ApplicationListActivity extends PluginListActivity {
+public class ApplicationListActivity extends BaseListActivity<Plugin> {
 
     @Override
     public ItemView<Plugin> createItemView() {
@@ -32,7 +33,7 @@ public class ApplicationListActivity extends PluginListActivity {
 
     @Override
     protected void orderPage(int start) {
-        getService().apps(start);
+        getService().apps(start, this);
     }
 
     public static void show(Context context) {

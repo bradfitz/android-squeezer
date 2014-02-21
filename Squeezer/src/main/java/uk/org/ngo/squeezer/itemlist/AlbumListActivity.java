@@ -24,11 +24,9 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.EnumSet;
-import java.util.List;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -116,17 +114,6 @@ public class AlbumListActivity extends BaseListActivity<Album>
         this.genre = genre;
     }
 
-    private GenreSpinner genreSpinner;
-
-    public void setGenreSpinner(Spinner spinner) {
-        genreSpinner = new GenreSpinner(this, this, spinner);
-    }
-
-    private YearSpinner yearSpinner;
-
-    public void setYearSpinner(Spinner spinner) {
-        yearSpinner = new YearSpinner(this, this, spinner);
-    }
 
     @Override
     public ItemView<Album> createItemView() {
@@ -203,28 +190,6 @@ public class AlbumListActivity extends BaseListActivity<Album>
     }
 
     @Override
-    protected void registerCallback() {
-        getService().registerAlbumListCallback(albumListCallback);
-        if (genreSpinner != null) {
-            genreSpinner.registerCallback();
-        }
-        if (yearSpinner != null) {
-            yearSpinner.registerCallback();
-        }
-    }
-
-    @Override
-    protected void unregisterCallback() {
-        getService().unregisterAlbumListCallback(albumListCallback);
-        if (genreSpinner != null) {
-            genreSpinner.unregisterCallback();
-        }
-        if (yearSpinner != null) {
-            yearSpinner.unregisterCallback();
-        }
-    }
-
-    @Override
     protected void orderPage(int start) {
         if (sortOrder == null) {
             try {
@@ -236,7 +201,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
         }
 
         getService().albums(start, sortOrder.name().replace("__", ""), getSearchString(), artist,
-                getYear(), getGenre(), song);
+                getYear(), getGenre(), song, this);
     }
 
     public AlbumViewDialog.AlbumsSortOrder getSortOrder() {
@@ -312,13 +277,5 @@ public class AlbumListActivity extends BaseListActivity<Album>
         }
         context.startActivity(intent);
     }
-
-    private final IServiceAlbumListCallback albumListCallback
-            = new IServiceAlbumListCallback() {
-        @Override
-        public void onAlbumsReceived(int count, int start, List<Album> items) {
-            onItemsReceived(count, start, items);
-        }
-    };
 
 }

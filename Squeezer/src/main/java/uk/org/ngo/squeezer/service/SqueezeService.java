@@ -41,18 +41,9 @@ import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.itemlist.IServiceAlbumListCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceArtistListCallback;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceGenreListCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceMusicFolderListCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePlayerListCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePlaylistsCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePluginItemListCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePluginListCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceSongListCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceYearListCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
 import uk.org.ngo.squeezer.model.Album;
@@ -117,38 +108,8 @@ public class SqueezeService extends Service {
     final ServiceCallbackList<IServiceHandshakeCallback> mHandshakeCallbacks
             = new ServiceCallbackList<IServiceHandshakeCallback>();
 
-    final AtomicReference<IServicePlayerListCallback> playerListCallback
-            = new AtomicReference<IServicePlayerListCallback>();
-
-    final AtomicReference<IServiceAlbumListCallback> albumListCallback
-            = new AtomicReference<IServiceAlbumListCallback>();
-
-    final AtomicReference<IServiceArtistListCallback> artistListCallback
-            = new AtomicReference<IServiceArtistListCallback>();
-
-    final AtomicReference<IServiceYearListCallback> yearListCallback
-            = new AtomicReference<IServiceYearListCallback>();
-
-    final AtomicReference<IServiceGenreListCallback> genreListCallback
-            = new AtomicReference<IServiceGenreListCallback>();
-
-    final AtomicReference<IServiceSongListCallback> songListCallback
-            = new AtomicReference<IServiceSongListCallback>();
-
-    final AtomicReference<IServicePlaylistsCallback> playlistsCallback
-            = new AtomicReference<IServicePlaylistsCallback>();
-
     final AtomicReference<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallback
             = new AtomicReference<IServicePlaylistMaintenanceCallback>();
-
-    final AtomicReference<IServicePluginListCallback> pluginListCallback
-            = new AtomicReference<IServicePluginListCallback>();
-
-    final AtomicReference<IServicePluginItemListCallback> pluginItemListCallback
-            = new AtomicReference<IServicePluginItemListCallback>();
-
-    final AtomicReference<IServiceMusicFolderListCallback> musicFolderListCallback
-            = new AtomicReference<IServiceMusicFolderListCallback>();
 
     final ServiceCallbackList<IServiceVolumeCallback> mVolumeCallbacks
             = new ServiceCallbackList<IServiceVolumeCallback>();
@@ -219,7 +180,7 @@ public class SqueezeService extends Service {
     }
 
     void disconnect(boolean isServerDisconnect) {
-        connectionState.disconnect(this, isServerDisconnect && mHandshakeComplete == false);
+        connectionState.disconnect(this, isServerDisconnect && !mHandshakeComplete);
         mHandshakeComplete = false;
         clearOngoingNotification();
         playerState = new PlayerState();
@@ -685,8 +646,32 @@ public class SqueezeService extends Service {
      * for asynchronous updates of server state.
      */
     private void onAuthenticated() {
-        cli.sendCommandImmediately("listen 1",
-                "players 0 1",   // initiate an async player fetch
+        // initiate an async player fetch
+        cli.requestItems("players", 0, new IServiceItemListCallback<Player>() {
+            @Override
+            public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Player> items, Class<Player> dataType) {
+                final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
+                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
+                Player defaultPlayer = null;
+                Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
+                for (Player player : items) {
+                    if (defaultPlayer == null || player.getId().equals(lastConnectedPlayer)) {
+                        defaultPlayer = player;
+                    }
+                }
+                if (defaultPlayer != null) {
+                    changeActivePlayer(defaultPlayer);
+                }
+            }
+
+            @Override
+            public Object getClient() {
+                return SqueezeService.this;
+            }
+        });
+
+        cli.sendCommandImmediately(
+                "listen 1", // subscribe to all server notifications
                 "can musicfolder ?", // learn music folder browsing support
                 "can randomplay ?",   // learn random play function functionality
                 "pref httpport ?", // learn the HTTP port (needed for images)
@@ -1277,35 +1262,31 @@ public class SqueezeService extends Service {
             getPreferences();
         }
 
+
+        /**
+         * Clean up callbacks for client
+         * @param client hosting callbacks to remove
+         */
+        @Override
+        public void cancelItemListRequests(Object client) {
+            cli.cancelClientRequests(client);
+        }
+
         /* Start an async fetch of the SqueezeboxServer's players */
         @Override
-        public boolean players(int start) {
+        public void players(int start, IServiceItemListCallback<Player> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
-            cli.requestItems("players", start);
-            return true;
-        }
-
-        @Override
-        public void registerPlayerListCallback(IServicePlayerListCallback callback) {
-            Log.v(TAG, "PlayerListCallback attached.");
-            SqueezeService.this.playerListCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterPlayerListCallback(IServicePlayerListCallback callback) {
-            Log.v(TAG, "PlayerListCallback detached.");
-            SqueezeService.this.playerListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(Player.class);
+            cli.requestItems("players", start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
         @Override
-        public boolean albums(int start, String sortOrder, String searchString,
-                Artist artist, Year year, Genre genre, Song song) {
+        public void albums(int start, String sortOrder, String searchString,
+                Artist artist, Year year, Genre genre, Song song, IServiceItemListCallback<Album> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
             List<String> parameters = new ArrayList<String>();
             parameters.add("tags:" + ALBUMTAGS);
@@ -1325,30 +1306,16 @@ public class SqueezeService extends Service {
             if (song != null) {
                 parameters.add("track_id:" + song.getId());
             }
-            cli.requestItems("albums", start, parameters);
-            return true;
-        }
-
-        @Override
-        public void registerAlbumListCallback(IServiceAlbumListCallback callback) {
-            Log.v(TAG, "AlbumListCallback attached.");
-            SqueezeService.this.albumListCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterAlbumListCallback(IServiceAlbumListCallback callback) {
-            Log.v(TAG, "AlbumListCallback detached.");
-            SqueezeService.this.albumListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(Album.class);
+            cli.requestItems("albums", start, parameters, callback);
         }
 
 
         /* Start an async fetch of the SqueezeboxServer's artists */
         @Override
-        public boolean artists(int start, String searchString, Album album,
-                Genre genre) {
+        public void artists(int start, String searchString, Album album,
+                Genre genre, IServiceItemListCallback<Artist> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
             List<String> parameters = new ArrayList<String>();
             if (searchString != null && searchString.length() > 0) {
@@ -1360,72 +1327,29 @@ public class SqueezeService extends Service {
             if (genre != null) {
                 parameters.add("genre_id:" + genre.getId());
             }
-            cli.requestItems("artists", start, parameters);
-            return true;
+            cli.requestItems("artists", start, parameters, callback);
         }
-
-        @Override
-        public void registerArtistListCallback(IServiceArtistListCallback callback) {
-            Log.v(TAG, "ArtistListCallback attached.");
-            SqueezeService.this.artistListCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterArtistListCallback(IServiceArtistListCallback callback) {
-            Log.v(TAG, "ArtistListCallback detached.");
-            SqueezeService.this.artistListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(Artist.class);
-        }
-
 
         /* Start an async fetch of the SqueezeboxServer's years */
         @Override
-        public boolean years(int start) {
+        public void years(int start, IServiceItemListCallback<Year> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
-            cli.requestItems("years", start);
-            return true;
-        }
-
-        @Override
-        public void registerYearListCallback(IServiceYearListCallback callback) {
-            Log.v(TAG, "YearListCallback attached.");
-            SqueezeService.this.yearListCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterYearListCallback(IServiceYearListCallback callback) {
-            Log.v(TAG, "YearListCallback detached.");
-            SqueezeService.this.yearListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(Year.class);
+            cli.requestItems("years", start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's genres */
         @Override
-        public boolean genres(int start, String searchString) {
+        public void genres(int start, String searchString, IServiceItemListCallback<Genre> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
             List<String> parameters = new ArrayList<String>();
             if (searchString != null && searchString.length() > 0) {
                 parameters.add("search:" + searchString);
             }
-            cli.requestItems("genres", start, parameters);
-            return true;
-        }
-
-        @Override
-        public void registerGenreListCallback(IServiceGenreListCallback callback) {
-            Log.v(TAG, "GenreListCallback attached.");
-            SqueezeService.this.genreListCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterGenreListCallback(IServiceGenreListCallback callback) {
-            Log.v(TAG, "GenreListCallback detached.");
-            SqueezeService.this.genreListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(Genre.class);
+            cli.requestItems("genres", start, parameters, callback);
         }
 
         /**
@@ -1435,18 +1359,16 @@ public class SqueezeService extends Service {
          * folderId may be null, in which case the contents of the root music
          * folder are returned.
          * <p>
-         * Results are returned through the callback registered with
-         * {@link #registerMusicFolderListCallback(IServiceMusicFolderListCallback)}.
+         * Results are returned through the given callback.
          *
          * @param start Where in the list of folders to start.
          * @param folderId The folder to view.
-         * @return <code>true</code> if the request was sent, <code>false</code>
-         *         if the service is not connected.
+         * @param callback Results will be returned through this
          */
         @Override
-        public boolean musicFolders(int start, String folderId) {
+        public void musicFolders(int start, String folderId, IServiceItemListCallback<MusicFolderItem> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
 
             List<String> parameters = new ArrayList<String>();
@@ -1455,29 +1377,15 @@ public class SqueezeService extends Service {
                 parameters.add("folder_id:" + folderId);
             }
 
-            cli.requestItems("musicfolder", start, parameters);
-            return true;
-        }
-
-        @Override
-        public void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback) {
-            Log.v(TAG, "MusicFolderListCallback attached.");
-            SqueezeService.this.musicFolderListCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback) {
-            Log.v(TAG, "MusicFolderListCallback detached.");
-            SqueezeService.this.musicFolderListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(MusicFolderItem.class);
+            cli.requestItems("musicfolder", start, parameters, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's songs */
         @Override
-        public boolean songs(int start, String sortOrder, String searchString, Album album,
-                Artist artist, Year year, Genre genre) {
+        public void songs(int start, String sortOrder, String searchString, Album album,
+                Artist artist, Year year, Genre genre, IServiceItemListCallback<Song> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
             List<String> parameters = new ArrayList<String>();
             parameters.add("tags:" + SONGTAGS);
@@ -1497,67 +1405,36 @@ public class SqueezeService extends Service {
             if (genre != null) {
                 parameters.add("genre_id:" + genre.getId());
             }
-            cli.requestItems("songs", start, parameters);
-            return true;
+            cli.requestItems("songs", start, parameters, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's current playlist */
         @Override
-        public boolean currentPlaylist(int start) {
+        public void currentPlaylist(int start, IServiceItemListCallback<Song> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
-            cli.requestPlayerItems("status", start, Arrays.asList("tags:" + SONGTAGS));
-            return true;
+            cli.requestPlayerItems("status", start, Arrays.asList("tags:" + SONGTAGS), callback);
         }
 
         /* Start an async fetch of the songs of the supplied playlist */
         @Override
-        public boolean playlistSongs(int start, Playlist playlist) {
+        public void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
             cli.requestItems("playlists tracks", start,
-                    Arrays.asList("playlist_id:" + playlist.getId(), "tags:" + SONGTAGS));
-            return true;
-        }
-
-        @Override
-        public void registerSongListCallback(IServiceSongListCallback callback) {
-            Log.v(TAG, "SongListCallback attached.");
-            SqueezeService.this.songListCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterSongListCallback(IServiceSongListCallback callback) {
-            Log.v(TAG, "SongListCallback detached.");
-            SqueezeService.this.songListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(Song.class);
+                    Arrays.asList("playlist_id:" + playlist.getId(), "tags:" + SONGTAGS), callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's playlists */
         @Override
-        public boolean playlists(int start) {
+        public void playlists(int start, IServiceItemListCallback<Playlist> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
-            cli.requestItems("playlists", start);
-            return true;
+            cli.requestItems("playlists", start, callback);
         }
-
-        @Override
-        public void registerPlaylistsCallback(IServicePlaylistsCallback callback) {
-            Log.v(TAG, "PlaylistsCallback attached.");
-            SqueezeService.this.playlistsCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterPlaylistsCallback(IServicePlaylistsCallback callback) {
-            Log.v(TAG, "PlaylistsCallback detached.");
-            SqueezeService.this.playlistsCallback.compareAndSet(callback, null);
-            cli.cancelRequests(Playlist.class);
-        }
-
 
         @Override
         public void registerPlaylistMaintenanceCallback(
@@ -1624,64 +1501,47 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous search of the SqueezeboxServer's library */
         @Override
-        public boolean search(int start, String searchString) {
+        public void search(int start, String searchString, IServiceItemListCallback itemListCallback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
 
             AlbumViewDialog.AlbumsSortOrder albumSortOrder = AlbumViewDialog.AlbumsSortOrder
                     .valueOf(
                             preferredAlbumSort());
 
-            artists(start, searchString, null, null);
+            artists(start, searchString, null, null, itemListCallback);
             albums(start, albumSortOrder.name().replace("__", ""), searchString, null, null, null,
-                    null);
-            genres(start, searchString);
+                    null, itemListCallback);
+            genres(start, searchString, itemListCallback);
             songs(start, SongViewDialog.SongsSortOrder.title.name(), searchString, null,
-                    null, null, null);
-
-            return true;
+                    null, null, null, itemListCallback);
         }
 
         /* Start an asynchronous fetch of the squeezeservers radio type plugins */
         @Override
-        public boolean radios(int start) {
+        public void radios(int start, IServiceItemListCallback<Plugin> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
-            cli.requestItems("radios", start);
-            return true;
+            cli.requestItems("radios", start, callback);
         }
 
         /* Start an asynchronous fetch of the squeezeservers radio application plugins */
         @Override
-        public boolean apps(int start) {
+        public void apps(int start, IServiceItemListCallback<Plugin> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
-            cli.requestItems("apps", start);
-            return true;
-        }
-
-        @Override
-        public void registerPluginListCallback(IServicePluginListCallback callback) {
-            Log.v(TAG, "PluginListCallback attached.");
-            SqueezeService.this.pluginListCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterPluginListCallback(IServicePluginListCallback callback) {
-            Log.v(TAG, "PluginListCallback detached.");
-            SqueezeService.this.pluginListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(Plugin.class);
+            cli.requestItems("apps", start, callback);
         }
 
 
         /* Start an asynchronous fetch of the squeezeservers items of the given type */
         @Override
-        public boolean pluginItems(int start, Plugin plugin, PluginItem parent, String search) {
+        public void pluginItems(int start, Plugin plugin, PluginItem parent, String search, IServiceItemListCallback<PluginItem> callback) {
             if (!isConnected()) {
-                return false;
+                return;
             }
             List<String> parameters = new ArrayList<String>();
             if (parent != null) {
@@ -1690,21 +1550,7 @@ public class SqueezeService extends Service {
             if (search != null && search.length() > 0) {
                 parameters.add("search:" + search);
             }
-            cli.requestPlayerItems(plugin.getId() + " items", start, parameters);
-            return true;
-        }
-
-        @Override
-        public void registerPluginItemListCallback(IServicePluginItemListCallback callback) {
-            Log.v(TAG, "SongListCallback attached.");
-            SqueezeService.this.pluginItemListCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterPluginItemListCallback(IServicePluginItemListCallback callback) {
-            Log.v(TAG, "PluginItemListCallback detached.");
-            SqueezeService.this.pluginItemListCallback.compareAndSet(callback, null);
-            cli.cancelRequests(PluginItem.class);
+            cli.requestPlayerItems(plugin.getId() + " items", start, parameters, callback);
         }
     }
 

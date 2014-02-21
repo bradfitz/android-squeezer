@@ -11,6 +11,7 @@ import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.framework.Item;
 
 abstract class BaseListHandler<T extends Item> implements ListHandler<T> {
+    private static final String TAG = BaseListHandler.class.getSimpleName();
 
     protected List<T> items;
 
@@ -20,16 +21,24 @@ abstract class BaseListHandler<T extends Item> implements ListHandler<T> {
 
     private Constructor<T> constructor;
 
+    @Override
     public Class<T> getDataType() {
         return dataType;
     }
 
+    @Override
+    public List<T> getItems() {
+        return items;
+    }
+
+    @Override
     public void clear() {
         items = new ArrayList<T>() {
             private static final long serialVersionUID = 1321113152942485275L;
         };
     }
 
+    @Override
     public void add(Map<String, String> record) {
         if (constructor == null) {
             try {

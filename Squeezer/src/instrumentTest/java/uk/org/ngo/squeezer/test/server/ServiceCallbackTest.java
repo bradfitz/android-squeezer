@@ -1,9 +1,9 @@
 package uk.org.ngo.squeezer.test.server;
 
-import uk.org.ngo.squeezer.IServiceCallback;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.service.IServiceCallback;
 
-public class ServiceCallbackTest extends IServiceCallback.Stub {
+public class ServiceCallbackTest implements IServiceCallback {
 
     int onPlayerChanged;
 
@@ -57,4 +57,8 @@ public class ServiceCallbackTest extends IServiceCallback.Stub {
         // TODO Auto-generated method stub
     }
 
+    @Override
+    public Object getClient() {
+        return this;
+    }
 }

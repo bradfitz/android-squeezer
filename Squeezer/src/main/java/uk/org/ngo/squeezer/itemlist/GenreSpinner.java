@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Spinner;
 
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
@@ -31,8 +32,6 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class GenreSpinner {
-
-    private static final String TAG = GenreSpinner.class.getName();
 
     GenreSpinnerCallback callback;
 
@@ -44,33 +43,21 @@ public class GenreSpinner {
         this.callback = callback;
         this.activity = activity;
         this.spinner = spinner;
-        registerCallback();
         orderItems(0);
     }
 
     private void orderItems(int start) {
         if (callback.getService() != null) {
-            callback.getService().genres(start, null);
+            callback.getService().genres(start, null, genreListCallback);
         }
     }
 
-    public void registerCallback() {
-        if (callback.getService() != null) {
-            callback.getService().registerGenreListCallback(genreListCallback);
-        }
-    }
-
-    public void unregisterCallback() {
-        if (callback.getService() != null) {
-                callback.getService().unregisterGenreListCallback(genreListCallback);
-        }
-    }
-
-    private final IServiceGenreListCallback genreListCallback
-            = new IServiceGenreListCallback() {
+    private final IServiceItemListCallback<Genre> genreListCallback
+            = new IServiceItemListCallback<Genre>() {
         private ItemAdapter<Genre> adapter;
 
-        public void onGenresReceived(final int count, final int start, final List<Genre> list) {
+        @Override
+        public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<Genre> list, Class<Genre> dataType) {
             callback.getUIThreadHandler().post(new Runnable() {
                 public void run() {
                     if (adapter == null) {
@@ -106,6 +93,10 @@ public class GenreSpinner {
             });
         }
 
+        @Override
+        public Object getClient() {
+            return activity;
+        }
     };
 
     public interface GenreSpinnerCallback {

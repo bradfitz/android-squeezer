@@ -16,18 +16,10 @@
 
 package uk.org.ngo.squeezer.service;
 
-import uk.org.ngo.squeezer.itemlist.IServicePlayerListCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceAlbumListCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceArtistListCallback;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceYearListCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceGenreListCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceMusicFolderListCallback;
-import uk.org.ngo.squeezer.itemlist.IServiceSongListCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePlaylistsCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePluginListCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePluginItemListCallback;
+import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Song;
@@ -120,16 +112,16 @@ public interface ISqueezeService {
     void adjustVolumeTo(int newVolume);
     void adjustVolumeBy(int delta);
 
+    // Cleanup callbacks for client
+    void cancelItemListRequests(Object client);
+
     // Player list
-    boolean players(int start);
-    void registerPlayerListCallback(IServicePlayerListCallback callback);
-    void unregisterPlayerListCallback(IServicePlayerListCallback callback);
+    void players(int start, IServiceItemListCallback<Player> callback);
 
     // Album list
     /**
-     * Starts an asynchronous fetch of album data from the server.  Any
-     * callback registered with {@link #registerAlbumListCallback(IServiceAlbumListCallback)} will
-     * be called when the data is fetched.
+     * Starts an asynchronous fetch of album data from the server. The supplied
+     * will be called when the data is fetched.
      *
      * @param start
      * @param sortOrder
@@ -138,41 +130,27 @@ public interface ISqueezeService {
      * @param year
      * @param genre
      */
-    boolean albums(int start, String sortOrder, String searchString, Artist artist, Year year, Genre genre, Song song);
-    void registerAlbumListCallback(IServiceAlbumListCallback callback);
-    void unregisterAlbumListCallback(IServiceAlbumListCallback callback);
+    void albums(int start, String sortOrder, String searchString, Artist artist, Year year, Genre genre, Song song, IServiceItemListCallback<Album> callback);
 
     // Artist list
-    boolean artists(int start, String searchString, Album album, Genre genre);
-    void registerArtistListCallback(IServiceArtistListCallback callback);
-    void unregisterArtistListCallback(IServiceArtistListCallback callback);
+    void artists(int start, String searchString, Album album, Genre genre, IServiceItemListCallback<Artist> callback);
 
     // Year list
-    boolean years(int start);
-    void registerYearListCallback(IServiceYearListCallback callback);
-    void unregisterYearListCallback(IServiceYearListCallback callback);
+    void years(int start, IServiceItemListCallback<Year> callback);
 
     // Genre list
-    boolean genres(int start, String searchString);
-    void registerGenreListCallback(IServiceGenreListCallback callback);
-    void unregisterGenreListCallback(IServiceGenreListCallback callback);
+    void genres(int start, String searchString, IServiceItemListCallback<Genre> callback);
 
     // MusicFolder list
-    boolean musicFolders(int start, String folderId);
-    void registerMusicFolderListCallback(IServiceMusicFolderListCallback callback);
-    void unregisterMusicFolderListCallback(IServiceMusicFolderListCallback callback);
+    void musicFolders(int start, String folderId, IServiceItemListCallback<MusicFolderItem> callback);
 
     // Song list
-    boolean songs(int start, String sortOrder, String searchString, Album album, Artist artist, Year year, Genre genre);
-    boolean currentPlaylist(int start);
-    boolean playlistSongs(int start, Playlist playlist);
-    void registerSongListCallback(IServiceSongListCallback callback);
-    void unregisterSongListCallback(IServiceSongListCallback callback);
+    void songs(int start, String sortOrder, String searchString, Album album, Artist artist, Year year, Genre genre, IServiceItemListCallback<Song> callback);
+    void currentPlaylist(int start, IServiceItemListCallback<Song> callback);
+    void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback);
 
     // Playlists
-    boolean playlists(int start);
-    void registerPlaylistsCallback(IServicePlaylistsCallback callback);
-    void unregisterPlaylistsCallback(IServicePlaylistsCallback callback);
+    void playlists(int start, IServiceItemListCallback<Playlist> callback);
 
     // Named playlist maintenance
     void registerPlaylistMaintenanceCallback(IServicePlaylistMaintenanceCallback callback);
@@ -184,15 +162,11 @@ public interface ISqueezeService {
     boolean playlistsRemove(Playlist playlist, int index);
 
     // Search
-    boolean search(int start, String searchString);
+    void search(int start, String searchString, IServiceItemListCallback itemListCallback);
 
     // Radios/plugins
-    boolean radios(int start);
-    boolean apps(int start);
-    void registerPluginListCallback(IServicePluginListCallback callback);
-    void unregisterPluginListCallback(IServicePluginListCallback callback);
+    void radios(int start, IServiceItemListCallback<Plugin> callback);
+    void apps(int start, IServiceItemListCallback<Plugin> callback);
 
-    boolean pluginItems(int start, Plugin plugin, PluginItem parent, String search);
-    void registerPluginItemListCallback(IServicePluginItemListCallback callback);
-    void unregisterPluginItemListCallback(IServicePluginItemListCallback callback);
+    void pluginItems(int start, Plugin plugin, PluginItem parent, String search, IServiceItemListCallback<PluginItem> callback);
 }

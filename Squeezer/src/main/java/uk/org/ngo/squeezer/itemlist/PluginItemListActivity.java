@@ -105,18 +105,8 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
     }
 
     @Override
-    protected void registerCallback() {
-        getService().registerPluginItemListCallback(pluginItemListCallback);
-    }
-
-    @Override
-    protected void unregisterCallback() {
-        getService().unregisterPluginItemListCallback(pluginItemListCallback);
-    }
-
-    @Override
     protected void orderPage(int start) {
-        getService().pluginItems(start, plugin, parent, search);
+        getService().pluginItems(start, plugin, parent, search, this);
     }
 
 
@@ -141,33 +131,31 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
-    private final IServicePluginItemListCallback pluginItemListCallback
-            = new IServicePluginItemListCallback() {
-        public void onPluginItemsReceived(int count, int start,
-                @SuppressWarnings("rawtypes") final Map parameters, List<PluginItem> items) {
-            if (parameters.containsKey("title")) {
-                getUIThreadHandler().post(new Runnable() {
-                    public void run() {
-                        setTitle((String) parameters.get("title"));
-                    }
-                });
-            }
-
-            // Automatically fetch subitems, if this is the only item.
-            // TODO: Seen an NPE here (before adding size() > 0) check. Find out
-            // why count == 1 might be true, but items.size might be 0.
-            if (count == 1 && items.size() > 0 && items.get(0).isHasitems()) {
-                parent = items.get(0);
-                getUIThreadHandler().post(new Runnable() {
-                    public void run() {
-                        clearAndReOrderItems();
-                    }
-                });
-                return;
-            }
-            onItemsReceived(count, start, items);
+    @Override
+    public void onItemsReceived(int count, int start, final Map<String, String> parameters, List<PluginItem> items, Class<PluginItem> dataType) {
+        if (parameters.containsKey("title")) {
+            getUIThreadHandler().post(new Runnable() {
+                public void run() {
+                    setTitle(parameters.get("title"));
+                }
+            });
         }
-    };
+
+        // Automatically fetch subitems, if this is the only item.
+        // TODO: Seen an NPE here (before adding size() > 0) check. Find out
+        // why count == 1 might be true, but items.size might be 0.
+        if (count == 1 && items.size() > 0 && items.get(0).isHasitems()) {
+            parent = items.get(0);
+            getUIThreadHandler().post(new Runnable() {
+                public void run() {
+                    clearAndReOrderItems();
+                }
+            });
+            return;
+        }
+        super.onItemsReceived(count, start, parameters, items, dataType);
+    }
+
 
     // Shortcuts for operations for plugin items
 

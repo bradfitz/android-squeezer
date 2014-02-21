@@ -33,8 +33,10 @@ import android.widget.ProgressBar;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -53,7 +55,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * @author Kurt Aaholst
  */
-public abstract class BaseListActivity<T extends Item> extends ItemListActivity {
+public abstract class BaseListActivity<T extends Item> extends ItemListActivity implements IServiceItemListCallback<T> {
 
     private static final String TAG = BaseListActivity.class.getName();
 
@@ -117,6 +119,15 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
 
         // Delegate context menu creation to the adapter.
         mListView.setOnCreateContextMenuListener(getItemAdapter());
+    }
+
+    @Override
+    protected void registerCallback() {
+    }
+
+    @Override
+    protected void unregisterCallback() {
+        getService().cancelItemListRequests(this);
     }
 
     /**
@@ -270,6 +281,16 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
                 getItemAdapter().update(count, start, items);
             }
         });
+    }
+
+    @Override
+    public void onItemsReceived(int count, int start, Map<String, String> parameters, List<T> items, Class<T> dataType) {
+        onItemsReceived(count, start, items);
+    }
+
+    @Override
+    public Object getClient() {
+        return this;
     }
 
     protected class ScrollListener extends ItemListActivity.ScrollListener {

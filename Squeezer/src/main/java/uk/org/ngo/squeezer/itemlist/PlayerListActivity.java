@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
@@ -39,18 +40,9 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
 
     @Override
-    protected void registerCallback() {
-        getService().registerPlayerListCallback(playerListCallback);
-    }
-
-    @Override
-    protected void unregisterCallback() {
-        getService().unregisterPlayerListCallback(playerListCallback);
-    }
-
-    @Override
     protected void orderPage(int start) {
-        getService().players(start);
+        getService().players(start, this);
+        activePlayer = getService().getActivePlayer();
     }
 
     public static void show(Context context) {
@@ -58,13 +50,5 @@ public class PlayerListActivity extends BaseListActivity<Player> {
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
-
-    private final IServicePlayerListCallback playerListCallback
-            = new IServicePlayerListCallback() {
-        public void onPlayersReceived(int count, int start, List<Player> items) {
-            activePlayer = getService().getActivePlayer();
-            onItemsReceived(count, start, items);
-        }
-    };
 
 }

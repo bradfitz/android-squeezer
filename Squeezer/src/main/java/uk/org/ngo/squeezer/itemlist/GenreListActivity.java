@@ -19,8 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.List;
-
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Genre;
@@ -33,18 +31,8 @@ public class GenreListActivity extends BaseListActivity<Genre> {
     }
 
     @Override
-    protected void registerCallback() {
-        getService().registerGenreListCallback(genreListCallback);
-    }
-
-    @Override
-    protected void unregisterCallback() {
-        getService().unregisterGenreListCallback(genreListCallback);
-    }
-
-    @Override
     protected void orderPage(int start) {
-        getService().genres(start, null);
+        getService().genres(start, null, this);
     }
 
 
@@ -52,12 +40,5 @@ public class GenreListActivity extends BaseListActivity<Genre> {
         final Intent intent = new Intent(context, GenreListActivity.class);
         context.startActivity(intent);
     }
-
-    private final IServiceGenreListCallback genreListCallback
-            = new IServiceGenreListCallback() {
-        public void onGenresReceived(int count, int start, List<Genre> items) {
-            onItemsReceived(count, start, items);
-        }
-    };
 
 }

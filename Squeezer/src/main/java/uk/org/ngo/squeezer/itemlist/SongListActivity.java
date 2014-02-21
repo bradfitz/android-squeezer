@@ -30,7 +30,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.EnumSet;
@@ -38,6 +37,7 @@ import java.util.EnumSet;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
@@ -55,7 +55,7 @@ import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-public class SongListActivity extends AbstractSongListActivity
+public class SongListActivity extends BaseListActivity<Song>
         implements GenreSpinnerCallback, YearSpinnerCallback,
         FilterMenuFragment.FilterableListActivity,
         ViewMenuItemFragment.ListActivityWithViewMenu<Song, SongViewDialog.SongListLayout, SongViewDialog.SongsSortOrder> {
@@ -118,17 +118,6 @@ public class SongListActivity extends AbstractSongListActivity
         this.genre = genre;
     }
 
-    private GenreSpinner genreSpinner;
-
-    public void setGenreSpinner(Spinner spinner) {
-        genreSpinner = new GenreSpinner(this, this, spinner);
-    }
-
-    private YearSpinner yearSpinner;
-
-    public void setYearSpinner(Spinner spinner) {
-        yearSpinner = new YearSpinner(this, this, spinner);
-    }
 
     private SongView songViewLogic;
 
@@ -284,30 +273,8 @@ public class SongListActivity extends AbstractSongListActivity
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        if (genreSpinner != null) {
-            genreSpinner.registerCallback();
-        }
-        if (yearSpinner != null) {
-            yearSpinner.registerCallback();
-        }
-    }
-
-    @Override
-    protected void unregisterCallback() {
-        super.unregisterCallback();
-        if (genreSpinner != null) {
-            genreSpinner.unregisterCallback();
-        }
-        if (yearSpinner != null) {
-            yearSpinner.unregisterCallback();
-        }
-    }
-
-    @Override
     protected void orderPage(int start) {
-        getService().songs(start, sortOrder.name(), searchString, album, artist, year, genre);
+        getService().songs(start, sortOrder.name(), searchString, album, artist, year, genre, this);
 
         boolean canPlay = (getCurrentPlaylistItem() != null);
         if (playButton != null) {

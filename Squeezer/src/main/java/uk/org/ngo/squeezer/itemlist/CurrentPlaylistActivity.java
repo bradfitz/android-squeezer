@@ -28,6 +28,7 @@ import android.widget.ListView;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
@@ -163,7 +164,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
 
     @Override
     protected void orderPage(int start) {
-        getService().currentPlaylist(start);
+        getService().currentPlaylist(start, this);
     }
 
     @Override
@@ -197,15 +198,15 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
 
     @Override
     protected void registerCallback() {
+        super.registerCallback();
         getService().registerCurrentPlaylistCallback(currentPlaylistCallback);
-        getService().registerSongListCallback(songListCallback);
         getService().registerMusicChangedCallback(musicChangedCallback);
     }
 
     @Override
     protected void unregisterCallback() {
+        super.unregisterCallback();
         getService().unregisterCurrentPlaylistCallback(currentPlaylistCallback);
-        getService().unregisterSongListCallback(songListCallback);
         getService().unregisterMusicChangedCallback(musicChangedCallback);
     }
 
@@ -259,20 +260,18 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         }
     };
 
-    private final IServiceSongListCallback songListCallback = new IServiceSongListCallback() {
-        @Override
-        public void onSongsReceived(int count, int start, List<Song> items) {
-            currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
-            onItemsReceived(count, start, items);
-            // Initially position the list at the currently playing song.
-            // Do it again once it has loaded because the newly displayed items
-            // may push the current song outside the displayed area.
-            if (start == 0 || (start <= currentPlaylistIndex && currentPlaylistIndex < start + items
-                    .size())) {
-                selectCurrentSong(currentPlaylistIndex, start);
-            }
+    @Override
+    public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
+        super.onItemsReceived(count, start, parameters, items, dataType);
+        currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
+        // Initially position the list at the currently playing song.
+        // Do it again once it has loaded because the newly displayed items
+        // may push the current song outside the displayed area.
+        if (start == 0 || (start <= currentPlaylistIndex && currentPlaylistIndex < start + items
+                .size())) {
+            selectCurrentSong(currentPlaylistIndex, start);
         }
-    };
+    }
 
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
         Log.i(getTag(), "set selection(" + start + "): " + currentPlaylistIndex);

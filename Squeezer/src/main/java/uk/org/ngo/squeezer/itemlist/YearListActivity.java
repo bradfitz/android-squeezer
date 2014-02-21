@@ -19,8 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.List;
-
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Year;
@@ -33,18 +31,8 @@ public class YearListActivity extends BaseListActivity<Year> {
     }
 
     @Override
-    protected void registerCallback() {
-        getService().registerYearListCallback(yearListCallback);
-    }
-
-    @Override
-    protected void unregisterCallback() {
-        getService().unregisterYearListCallback(yearListCallback);
-    }
-
-    @Override
     protected void orderPage(int start) {
-        getService().years(start);
+        getService().years(start, this);
     }
 
 
@@ -52,11 +40,5 @@ public class YearListActivity extends BaseListActivity<Year> {
         final Intent intent = new Intent(context, YearListActivity.class);
         context.startActivity(intent);
     }
-
-    private final IServiceYearListCallback yearListCallback = new IServiceYearListCallback() {
-        public void onYearsReceived(int count, int start, List<Year> items) {
-            onItemsReceived(count, start, items);
-        }
-    };
 
 }

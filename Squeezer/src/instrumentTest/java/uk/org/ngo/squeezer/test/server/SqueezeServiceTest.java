@@ -21,7 +21,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
     public void testConnectionFailure() throws InterruptedException {
         IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
-        ISqueezeService service = ISqueezeService.Stub.asInterface(binder);
+        ISqueezeService service = (ISqueezeService) binder;
         ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
 
         service.registerCallback(serviceCallback);
@@ -34,7 +34,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
     public void testConnect() throws InterruptedException {
         IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
-        ISqueezeService service = ISqueezeService.Stub.asInterface(binder);
+        ISqueezeService service = (ISqueezeService) binder;
         ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
         WaitForHandshake waitForHandshake = new WaitForHandshake(service);
 
@@ -52,7 +52,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
     public void testConnectProtectedServer() throws InterruptedException {
         IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
-        ISqueezeService service = ISqueezeService.Stub.asInterface(binder);
+        ISqueezeService service =(ISqueezeService) binder;
         ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
 
         SqueezeboxServerMock.starter().username("user").password("1234").start();
@@ -71,7 +71,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
     public void testAuthenticationFailure() throws InterruptedException {
         IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
-        ISqueezeService service = ISqueezeService.Stub.asInterface(binder);
+        ISqueezeService service = (ISqueezeService) binder;
         ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
 
         SqueezeboxServerMock.starter().username("user").password("1234").start();

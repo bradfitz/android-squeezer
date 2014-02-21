@@ -24,8 +24,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.List;
-
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
@@ -93,19 +91,19 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
 
     @Override
     protected void registerCallback() {
-        getService().registerPlaylistsCallback(playlistsCallback);
+        super.registerCallback();
         getService().registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
     }
 
     @Override
     protected void unregisterCallback() {
-        getService().unregisterPlaylistsCallback(playlistsCallback);
+        super.unregisterCallback();
         getService().unregisterPlaylistMaintenanceCallback(playlistMaintenanceCallback);
     }
 
     @Override
     protected void orderPage(int start) {
-        getService().playlists(start);
+        getService().playlists(start, this);
     }
 
     @Override
@@ -144,14 +142,6 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
         final Intent intent = new Intent(context, PlaylistsActivity.class);
         context.startActivity(intent);
     }
-
-    private final IServicePlaylistsCallback playlistsCallback
-            = new IServicePlaylistsCallback() {
-        @Override
-        public void onPlaylistsReceived(int count, int start, List<Playlist> items) {
-            onItemsReceived(count, start, items);
-        }
-    };
 
     private void showServiceMessage(final String msg) {
         getUIThreadHandler().post(new Runnable() {

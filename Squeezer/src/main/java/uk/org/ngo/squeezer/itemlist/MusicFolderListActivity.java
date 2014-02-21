@@ -23,8 +23,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.List;
-
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
@@ -57,8 +55,9 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
     }
 
     /**
-     * Deliberately use {@link uk.org.ngo.squeezer.framework.ItemAdapter} instead of {@link
-     * ItemListAdapator} so that the title is not updated out from under us.
+     * Deliberately use {@link uk.org.ngo.squeezer.framework.ItemAdapter} instead
+     * of {@link uk.org.ngo.squeezer.framework.ItemListAdapter} so that the title
+     * is not updated out from under us.
      */
     @Override
     protected ItemAdapter<MusicFolderItem> createItemListAdapter(
@@ -101,16 +100,6 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void registerCallback() {
-        getService().registerMusicFolderListCallback(musicFolderListCallback);
-    }
-
-    @Override
-    protected void unregisterCallback() {
-        getService().unregisterMusicFolderListCallback(musicFolderListCallback);
-    }
-
     /**
      * Fetch the contents of a folder. Fetches the contents of <code>mFolder</code> if non-null, the
      * root folder otherwise.
@@ -121,9 +110,9 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
     protected void orderPage(int start) {
         if (mFolder == null) {
             // No specific item, fetch from the beginning.
-            getService().musicFolders(start, null);
+            getService().musicFolders(start, null, this);
         } else {
-            getService().musicFolders(start, mFolder.getId());
+            getService().musicFolders(start, mFolder.getId(), this);
         }
     }
 
@@ -156,14 +145,6 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         super.onBackPressed();
         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
-
-    private final IServiceMusicFolderListCallback musicFolderListCallback
-            = new IServiceMusicFolderListCallback() {
-        @Override
-        public void onMusicFoldersReceived(int count, int start, List<MusicFolderItem> items) {
-            onItemsReceived(count, start, items);
-        }
-    };
 
     /**
      * Attempts to download the song given by songId.

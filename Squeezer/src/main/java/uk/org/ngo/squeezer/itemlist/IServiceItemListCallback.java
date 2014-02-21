@@ -18,9 +18,11 @@ package uk.org.ngo.squeezer.itemlist;
 import java.util.List;
 import java.util.Map;
 
-import uk.org.ngo.squeezer.model.PluginItem;
+import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.model.Artist;
+import uk.org.ngo.squeezer.service.ServiceCallback;
 
-public interface IServicePluginItemListCallback {
-    void onPluginItemsReceived(int count, int pos, Map parameters, List<PluginItem> albums);
+public interface IServiceItemListCallback<T extends Item> extends ServiceCallback {
+    void onItemsReceived(int count, int start, Map<String, String> parameters, List<T> items, Class<T> dataType);
 }
 

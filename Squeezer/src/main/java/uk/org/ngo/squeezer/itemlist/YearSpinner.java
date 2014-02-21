@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Spinner;
 
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
@@ -31,8 +32,6 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class YearSpinner {
-
-    private static final String TAG = YearSpinner.class.getName();
 
     YearSpinnerCallback callback;
 
@@ -44,32 +43,19 @@ public class YearSpinner {
         this.callback = callback;
         this.activity = activity;
         this.spinner = spinner;
-        registerCallback();
         orderItems(0);
     }
 
     private void orderItems(int start) {
         if (callback.getService() != null) {
-            callback.getService().years(start);
+            callback.getService().years(start, yearListCallback);
         }
     }
 
-    public void registerCallback() {
-        if (callback.getService() != null) {
-            callback.getService().registerYearListCallback(yearListCallback);
-        }
-    }
-
-    public void unregisterCallback() {
-        if (callback.getService() != null) {
-            callback.getService().unregisterYearListCallback(yearListCallback);
-        }
-    }
-
-    private final IServiceYearListCallback yearListCallback = new IServiceYearListCallback() {
+    private final IServiceItemListCallback<Year> yearListCallback = new IServiceItemListCallback<Year>() {
         private ItemAdapter<Year> adapter;
 
-        public void onYearsReceived(final int count, final int start, final List<Year> list) {
+        public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<Year> list, Class<Year> dataType) {
             callback.getUIThreadHandler().post(new Runnable() {
                 public void run() {
                     if (adapter == null) {
@@ -104,6 +90,10 @@ public class YearSpinner {
             });
         }
 
+        @Override
+        public Object getClient() {
+            return activity;
+        }
     };
 
     public interface YearSpinnerCallback {
