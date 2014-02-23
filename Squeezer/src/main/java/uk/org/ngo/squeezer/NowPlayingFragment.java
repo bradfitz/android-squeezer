@@ -760,10 +760,7 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         if (mRegisteredCallbacks) {
-            mService.unregisterCallback(serviceCallback);
-            mService.unregisterMusicChangedCallback(musicChangedCallback);
-            mService.unregisterHandshakeCallback(handshakeCallback);
-            mService.unregisterVolumeCallback(volumeCallback);
+            mService.cancelSubscriptions(this);
             mRegisteredCallbacks = false;
         }
 

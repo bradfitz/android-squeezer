@@ -145,13 +145,6 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected void unregisterCallback() {
-        super.unregisterCallback();
-        getService().unregisterPlaylistMaintenanceCallback(playlistMaintenanceCallback);
-
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.playlistmenu, menu);
         getMenuInflater().inflate(R.menu.playmenu, menu);
@@ -210,6 +203,10 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
             showServiceMessage(msg);
         }
 
+        @Override
+        public Object getClient() {
+            return PlaylistSongsActivity.this;
+        }
     };
 
 }

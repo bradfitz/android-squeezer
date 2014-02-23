@@ -16,7 +16,9 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-public interface IServicePlaylistMaintenanceCallback {
+import uk.org.ngo.squeezer.service.ServiceCallback;
+
+public interface IServicePlaylistMaintenanceCallback extends ServiceCallback {
     void onRenameFailed(String msg);
     void onCreateFailed(String msg);
 }

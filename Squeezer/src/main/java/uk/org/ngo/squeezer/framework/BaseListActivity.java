@@ -121,15 +121,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         mListView.setOnCreateContextMenuListener(getItemAdapter());
     }
 
-    @Override
-    protected void registerCallback() {
-    }
-
-    @Override
-    protected void unregisterCallback() {
-        getService().cancelItemListRequests(this);
-    }
-
     /**
      * Returns the ID of a content view to be used by this list activity.
      * <p/>

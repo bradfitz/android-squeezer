@@ -96,12 +96,6 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     @Override
-    protected void unregisterCallback() {
-        super.unregisterCallback();
-        getService().unregisterPlaylistMaintenanceCallback(playlistMaintenanceCallback);
-    }
-
-    @Override
     protected void orderPage(int start) {
         getService().playlists(start, this);
     }
@@ -169,6 +163,10 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
             showServiceMessage(msg);
         }
 
+        @Override
+        public Object getClient() {
+            return PlaylistsActivity.this;
+        }
     };
 
 }

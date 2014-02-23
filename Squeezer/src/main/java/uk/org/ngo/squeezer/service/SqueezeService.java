@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
@@ -63,7 +62,7 @@ import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
-public class SqueezeService extends Service {
+public class SqueezeService extends Service implements ServiceCallbackList.ServicePublisher {
 
     private static final String TAG = "SqueezeService";
 
@@ -96,23 +95,37 @@ public class SqueezeService extends Service {
 
     private boolean mHandshakeComplete = false;
 
+    /** Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once */
+    final Map<ServiceCallback, ServiceCallbackList> callbacks = new HashMap<ServiceCallback, ServiceCallbackList>();
+
+    @Override
+    public void addClient(ServiceCallbackList callbackList, ServiceCallback item) {
+        callbacks.put(item, callbackList);
+    }
+
+    @Override
+    public void removeClient(ServiceCallback item) {
+        callbacks.remove(item);
+    }
+
     final ServiceCallbackList<IServiceCallback> mServiceCallbacks
-            = new ServiceCallbackList<IServiceCallback>();
+            = new ServiceCallbackList<IServiceCallback>(this);
 
     final ServiceCallbackList<IServiceCurrentPlaylistCallback> mCurrentPlaylistCallbacks
-            = new ServiceCallbackList<IServiceCurrentPlaylistCallback>();
+            = new ServiceCallbackList<IServiceCurrentPlaylistCallback>(this);
 
     final ServiceCallbackList<IServiceMusicChangedCallback> mMusicChangedCallbacks
-            = new ServiceCallbackList<IServiceMusicChangedCallback>();
+            = new ServiceCallbackList<IServiceMusicChangedCallback>(this);
 
     final ServiceCallbackList<IServiceHandshakeCallback> mHandshakeCallbacks
-            = new ServiceCallbackList<IServiceHandshakeCallback>();
+            = new ServiceCallbackList<IServiceHandshakeCallback>(this);
 
-    final AtomicReference<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallback
-            = new AtomicReference<IServicePlaylistMaintenanceCallback>();
+    final ServiceCallbackList<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallbacks
+            = new ServiceCallbackList<IServicePlaylistMaintenanceCallback>(this);
 
     final ServiceCallbackList<IServiceVolumeCallback> mVolumeCallbacks
-            = new ServiceCallbackList<IServiceVolumeCallback>();
+            = new ServiceCallbackList<IServiceVolumeCallback>(this);
+
 
     ConnectionState connectionState = new ConnectionState();
 
@@ -215,22 +228,17 @@ public class SqueezeService extends Service {
                 } else if ("new".equals(tokens.get(1))) {
                     HashMap<String, String> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("overwritten_playlist_id") != null) {
-                        IServicePlaylistMaintenanceCallback callback = playlistMaintenanceCallback
-                                .get();
-                        if (callback != null) {
+                        for (IServicePlaylistMaintenanceCallback callback : playlistMaintenanceCallbacks) {
                             callback.onCreateFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                        tokenMap.get("name")));
+                                    tokenMap.get("name")));
                         }
                     }
                 } else if ("rename".equals(tokens.get(1))) {
                     HashMap<String, String> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("dry_run") != null) {
                         if (tokenMap.get("overwritten_playlist_id") != null) {
-                            IServicePlaylistMaintenanceCallback callback
-                                    = playlistMaintenanceCallback.get();
-                            if (callback != null) {
-                                callback.onRenameFailed(
-                                        getString(R.string.PLAYLIST_EXISTS_MESSAGE,
+                            for (IServicePlaylistMaintenanceCallback callback : playlistMaintenanceCallbacks) {
+                                callback.onRenameFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE,
                                                 tokenMap.get("newname")));
                             }
                         } else {
@@ -853,29 +861,13 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void unregisterCallback(IServiceCallback callback) {
-            mServiceCallbacks.unregister(callback);
-            updatePlayerSubscriptionState();
-        }
-
-        @Override
         public void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback) {
             mCurrentPlaylistCallbacks.register(callback);
         }
 
         @Override
-        public void unregisterCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback) {
-            mCurrentPlaylistCallbacks.unregister(callback);
-        }
-
-        @Override
         public void registerMusicChangedCallback(IServiceMusicChangedCallback callback) {
             mMusicChangedCallbacks.register(callback);
-        }
-
-        @Override
-        public void unregisterMusicChangedCallback(IServiceMusicChangedCallback callback) {
-            mMusicChangedCallbacks.unregister(callback);
         }
 
         @Override
@@ -889,18 +881,8 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void unregisterHandshakeCallback(IServiceHandshakeCallback callback) {
-            mHandshakeCallbacks.unregister(callback);
-        }
-
-        @Override
         public void registerVolumeCallback(IServiceVolumeCallback callback) {
             mVolumeCallbacks.register(callback);
-        }
-
-        @Override
-        public void unregisterVolumeCallback(IServiceVolumeCallback callback) {
-            mVolumeCallbacks.unregister(callback);
         }
 
         @Override
@@ -1263,16 +1245,25 @@ public class SqueezeService extends Service {
         }
 
 
-        /**
-         * Clean up callbacks for client
-         * @param client hosting callbacks to remove
-         */
         @Override
         public void cancelItemListRequests(Object client) {
             cli.cancelClientRequests(client);
         }
 
-        /* Start an async fetch of the SqueezeboxServer's players */
+        @Override
+        public void cancelSubscriptions(Object client) {
+            // First build up a list of callbacks to remove, to avoid modifying
+            // the callback list while iterating it.
+            List<ServiceCallback> serviceCallbacks = new ArrayList<ServiceCallback>();
+            for (ServiceCallback serviceCallback : callbacks.keySet()) {
+                serviceCallbacks.add(serviceCallback);
+            }
+            for (ServiceCallback serviceCallback : serviceCallbacks) {
+                callbacks.get(serviceCallback).unregister(serviceCallback);
+            }
+        }
+
+
         @Override
         public void players(int start, IServiceItemListCallback<Player> callback) {
             if (!isConnected()) {
@@ -1439,15 +1430,7 @@ public class SqueezeService extends Service {
         @Override
         public void registerPlaylistMaintenanceCallback(
                 IServicePlaylistMaintenanceCallback callback) {
-            Log.v(TAG, "PlaylistMaintenanceCallback attached.");
-            playlistMaintenanceCallback.set(callback);
-        }
-
-        @Override
-        public void unregisterPlaylistMaintenanceCallback(
-                IServicePlaylistMaintenanceCallback callback) {
-            Log.v(TAG, "PlaylistMaintenanceCallback detached.");
-            playlistMaintenanceCallback.compareAndSet(callback, null);
+            playlistMaintenanceCallbacks.register(callback);
         }
 
         @Override

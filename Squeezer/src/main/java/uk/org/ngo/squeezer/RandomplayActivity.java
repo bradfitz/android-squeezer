@@ -41,10 +41,6 @@ public class RandomplayActivity extends BaseActivity {
         setRandomplayMenu();
     }
 
-    @Override
-    protected void onServiceConnected() {
-    }
-
 
     private void setRandomplayMenu() {
         String[] values = getResources().getStringArray(R.array.randomplay_items);

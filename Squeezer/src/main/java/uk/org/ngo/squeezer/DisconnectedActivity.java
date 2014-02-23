@@ -38,11 +38,6 @@ public class DisconnectedActivity extends BaseActivity {
 
     private final String TAG = "DisconnectedActivity";
 
-    /**
-     * Keep track of whether callbacks have been registered
-     */
-    private boolean mRegisteredCallbacks;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,23 +47,6 @@ public class DisconnectedActivity extends BaseActivity {
         String ipPort = getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE).getString(
                 Preferences.KEY_SERVERADDR, null);
         btnConnect.setText(getString(R.string.connect_to_text, ipPort));
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getService() != null) {
-            maybeRegisterCallbacks();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        if (mRegisteredCallbacks) {
-            getService().unregisterCallback(serviceCallback);
-            mRegisteredCallbacks = false;
-        }
-        super.onPause();
     }
 
     /**
@@ -103,20 +81,9 @@ public class DisconnectedActivity extends BaseActivity {
     }
 
     @Override
-    protected void onServiceConnected() {
-        maybeRegisterCallbacks();
-    }
-
-    /**
-     * Register callbacks with the server, if not already registered.
-     * <p/>
-     * This is called when the service is first connected, and whenever the activity is resumed.
-     */
-    private void maybeRegisterCallbacks() {
-        if (!mRegisteredCallbacks) {
-            getService().registerCallback(serviceCallback);
-            mRegisteredCallbacks = true;
-        }
+    protected void registerCallback() {
+        super.registerCallback();
+        getService().registerCallback(serviceCallback);
     }
 
     private final IServiceCallback serviceCallback = new IServiceCallback() {

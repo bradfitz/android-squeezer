@@ -203,13 +203,6 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         getService().registerMusicChangedCallback(musicChangedCallback);
     }
 
-    @Override
-    protected void unregisterCallback() {
-        super.unregisterCallback();
-        getService().unregisterCurrentPlaylistCallback(currentPlaylistCallback);
-        getService().unregisterMusicChangedCallback(musicChangedCallback);
-    }
-
     private final IServiceCurrentPlaylistCallback currentPlaylistCallback
             = new IServiceCurrentPlaylistCallback() {
         @Override

@@ -78,8 +78,6 @@ public class HomeActivity extends BaseActivity {
 
     private static final int APPS = 11;
 
-    private boolean mRegisteredCallbacks;
-
     private boolean mCanMusicfolder = false;
 
     private boolean mCanRandomplay = false;
@@ -117,17 +115,10 @@ public class HomeActivity extends BaseActivity {
     }
 
     @Override
-    protected void onServiceConnected() {
-        maybeRegisterCallbacks();
+    protected void registerCallback() {
+        super.registerCallback();
+        getService().registerHandshakeCallback(mCallback);
     }
-
-    private void maybeRegisterCallbacks() {
-        if (!mRegisteredCallbacks) {
-            getService().registerHandshakeCallback(mCallback);
-            mRegisteredCallbacks = true;
-        }
-    }
-
 
     private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback() {
 
@@ -273,25 +264,6 @@ public class HomeActivity extends BaseActivity {
             }
         }
     };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getService() != null) {
-            maybeRegisterCallbacks();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        if (mRegisteredCallbacks) {
-            if (getService() != null) {
-                getService().unregisterHandshakeCallback(mCallback);
-            }
-            mRegisteredCallbacks = false;
-        }
-        super.onPause();
-    }
 
     @Override
     public void onDestroy() {

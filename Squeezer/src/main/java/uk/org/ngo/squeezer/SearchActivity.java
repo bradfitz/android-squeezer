@@ -80,14 +80,6 @@ public class SearchActivity extends ItemListActivity {
         }
     }
 
-    @Override
-    protected void registerCallback() {
-    }
-
-    @Override
-    protected void unregisterCallback() {
-        getService().cancelItemListRequests(this);
-    }
 
     @Override
     public final boolean onContextItemSelected(MenuItem menuItem) {

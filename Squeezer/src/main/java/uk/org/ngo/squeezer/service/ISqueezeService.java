@@ -34,23 +34,18 @@ import uk.org.ngo.squeezer.model.PluginItem;
 public interface ISqueezeService {
     // For the activity to get callbacks on interesting events
     void registerCallback(IServiceCallback callback);
-    void unregisterCallback(IServiceCallback callback);
 
     // For the activity to get callback when the current playlist is modified
     void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
-    void unregisterCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
 
     // For the activity to get callback when music changes
     void registerMusicChangedCallback(IServiceMusicChangedCallback callback);
-    void unregisterMusicChangedCallback(IServiceMusicChangedCallback callback);
 
     // For the activity to get callback when handshake completes
     void registerHandshakeCallback(IServiceHandshakeCallback callback);
-    void unregisterHandshakeCallback(IServiceHandshakeCallback callback);
 
     // For the activity to get callback when the volume changes.
     void registerVolumeCallback(IServiceVolumeCallback callback);
-    void unregisterVolumeCallback(IServiceVolumeCallback callback);
 
     // Instructing the service to connect to the SqueezeCenter server:
     // hostPort is the port of the CLI interface.
@@ -112,10 +107,13 @@ public interface ISqueezeService {
     void adjustVolumeTo(int newVolume);
     void adjustVolumeBy(int delta);
 
-    // Cleanup callbacks for client
+    /** Cancel any pending callbacks for client */
     void cancelItemListRequests(Object client);
 
-    // Player list
+    /** Cancel any subscriptions for client */
+    void cancelSubscriptions(Object client);
+
+    /** Start an async fetch of the SqueezeboxServer's players */
     void players(int start, IServiceItemListCallback<Player> callback);
 
     // Album list
@@ -154,7 +152,6 @@ public interface ISqueezeService {
 
     // Named playlist maintenance
     void registerPlaylistMaintenanceCallback(IServicePlaylistMaintenanceCallback callback);
-    void unregisterPlaylistMaintenanceCallback(IServicePlaylistMaintenanceCallback callback);
     boolean playlistsNew(String name);
     boolean playlistsRename(Playlist playlist, String newname);
     boolean playlistsDelete(Playlist playlist);

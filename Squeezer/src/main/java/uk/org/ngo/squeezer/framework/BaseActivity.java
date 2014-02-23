@@ -46,10 +46,13 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     private ISqueezeService service = null;
 
+    /**
+     * Keep track of whether callbacks have been registered
+     */
+    private boolean mRegisteredCallbacks;
+
     private final Handler uiThreadHandler = new Handler() {
     };
-
-    protected abstract void onServiceConnected();
 
     protected String getTag() {
         return getClass().getSimpleName();
@@ -102,6 +105,62 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         super.onDestroy();
         if (serviceConnection != null) {
             unbindService(serviceConnection);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (getService() != null) {
+            maybeRegisterCallbacks();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (mRegisteredCallbacks) {
+            // If we are not bound to the service, it's process is no longer
+            // running, so the callbacks are already cleaned up.
+            if (getService() != null) {
+                unregisterCallback();
+            }
+            mRegisteredCallbacks = false;
+        }
+
+        super.onPause();
+    }
+
+    protected void onServiceConnected() {
+        maybeRegisterCallbacks();
+    }
+
+    /**
+     * This is called when the service is connected.
+     * <p/>
+     * Override this to if your activity wish to subscribe to any notifications
+     * from the service.
+     */
+    protected void registerCallback() {
+    }
+
+    /**
+     * This is called when the service is disconnected.
+     * <p/>
+     * Normally you do not need to override this.
+     */
+    protected void unregisterCallback() {
+        getService().cancelItemListRequests(this);
+        getService().cancelSubscriptions(this);
+    }
+
+    /**
+     * This is called when the service is first connected, and whenever the activity is resumed.
+     */
+    private void maybeRegisterCallbacks() {
+        if (!mRegisteredCallbacks) {
+            registerCallback();
+            mRegisteredCallbacks = true;
         }
     }
 

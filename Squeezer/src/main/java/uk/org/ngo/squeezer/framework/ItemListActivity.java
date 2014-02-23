@@ -54,11 +54,6 @@ public abstract class ItemListActivity extends BaseActivity {
     private boolean mListScrolling;
 
     /**
-     * Keep track of whether callbacks have been registered
-     */
-    private boolean mRegisteredCallbacks;
-
-    /**
      * The number of items per page.
      */
     private int mPageSize;
@@ -119,23 +114,12 @@ public abstract class ItemListActivity extends BaseActivity {
         super.onResume();
 
         getImageFetcher().addImageCache(getSupportFragmentManager(), mImageCacheParams);
-
-        if (getService() != null) {
-            maybeRegisterCallbacks();
-        }
     }
 
     @Override
     public void onPause() {
         if (mImageFetcher != null) {
             mImageFetcher.closeCache();
-        }
-
-        if (mRegisteredCallbacks) {
-            if (getService() != null) {
-                unregisterCallback();
-            }
-            mRegisteredCallbacks = false;
         }
 
         // Any items coming in after callbacks have been unregistered are discarded.
@@ -145,35 +129,6 @@ public abstract class ItemListActivity extends BaseActivity {
 
         super.onPause();
     }
-
-    @Override
-    protected void onServiceConnected() {
-        maybeRegisterCallbacks();
-    }
-
-    /**
-     * This is called when the service is first connected, and whenever the activity is resumed.
-     */
-    private void maybeRegisterCallbacks() {
-        if (!mRegisteredCallbacks) {
-            registerCallback();
-            mRegisteredCallbacks = true;
-        }
-    }
-
-    /**
-     * This is called when the service is connected.
-     * <p/>
-     * You must register a callback for {@link SqueezeService} to call when the ordered items from
-     * {@link #orderPage(int)} are received from SqueezeServer. This callback must pass these items
-     * on to {@link ItemListAdapter#update(int, int, List)}.
-     */
-    protected abstract void registerCallback();
-
-    /**
-     * This is called when the service is disconnected.
-     */
-    protected abstract void unregisterCallback();
 
     protected ImageFetcher createImageFetcher(int height, int width) {
         // Get an ImageFetcher to scale artwork to the supplied size.
@@ -299,11 +254,6 @@ public abstract class ItemListActivity extends BaseActivity {
      * Removes any outstanding requests from mOrderedPages.
      */
     private void cancelOrders() {
-        if (mRegisteredCallbacks) {
-            throw new IllegalStateException(
-                    "Cannot call cancelOrders with mRegisteredCallbacks == true");
-        }
-
         mOrderedPages.clear();
     }
 
