@@ -134,11 +134,6 @@
 
     <!--  Crash notifications -->
     <string name="crash_toast_text">Sorry, er trad een fout op.</string>
-    <string name="crash_notif_ticker_text">Sorry, Squeezer is gecrashed. Gelieve een rapport te
-        versturen.
-    </string>
-    <string name="crash_notif_title">Squeezer is gecrashed.</string>
-    <string name="crash_notif_text">Selecteer om de fout op te lossen.</string>
     <string name="crash_dialog_text">Een onverwachte fout trad op, en Squeezer is gecrashd. Een
         fout-rapport is opgesteld, graag op OK drukken om het te versturen. Geen persoonlijke
         informatie is verstrekt in dit rapport.

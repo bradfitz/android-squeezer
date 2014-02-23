@@ -78,6 +78,10 @@
             android:summaryOff="@string/pref_acra_disabled"
             android:defaultValue="true"/>
 
+        <EditTextPreference android:key="acra.user.email"
+            android:title="@string/pref_acra_user_email"
+            android:summary="@string/pref_acra_user_email_summary"/>
+
         <CheckBoxPreference android:key="acra.alwaysaccept"
             android:title="@string/pref_acra_alwaysaccept"
             android:summaryOn="@string/pref_acra_alwaysaccept_enabled"

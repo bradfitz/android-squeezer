@@ -353,9 +353,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
     <!--  Crash notifications -->
     <string name="crash_toast_text">Sorry, an error occurred.</string>
-    <string name="crash_notif_ticker_text">Sorry, Squeezer crashed. Please send a report.</string>
-    <string name="crash_notif_title">Squeezer crashed.</string>
-    <string name="crash_notif_text">Select to help fix the bug.</string>
     <string name="crash_dialog_text">An unexpected error occurred, and Squeezer crashed. A bug
         report has been prepared, please press OK to send it. No personally identifying information
         is included in this report.
@@ -374,7 +371,9 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="pref_acra_disabled">Errors are caught, but you will not be prompted to send a
         report. No report is sent.
     </string>
-
+    <string name="pref_acra_user_email">Your e-mail address</string>
+    <string name="pref_acra_user_email_summary">If you provide an address then the developers may
+        contact you for more information.</string>
     <string name="pref_acra_alwaysaccept">Automatically send reports</string>
     <string name="pref_acra_alwaysaccept_enabled">Errors will automatically be reported.</string>
     <string name="pref_acra_alwaysaccept_disabled">Errors will not automatically be reported.

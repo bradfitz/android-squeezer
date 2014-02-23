@@ -160,11 +160,6 @@
 
     <!--  Crash notifications -->
     <string name="crash_toast_text">Entschuldigung, es ist ein Fehler aufgetreten.</string>
-    <string name="crash_notif_ticker_text">Entschuldigung, Squeezer ist abgestürzt. Bitte senden Sie
-        einen Fehlerbericht.
-    </string>
-    <string name="crash_notif_title">Squeezer ist abgestürzt.</string>
-    <string name="crash_notif_text">Auswählen, um bei der Problembehebung zu helfen.</string>
     <string name="crash_dialog_text">Ein unerwarteter Fehler hat Squeezer zum Absturz gebracht. Ein
         Fehlerbericht wurde erstellt. Wählen Sie OK aus, um ihn zu senden. Der Bericht enthält keine
         persönlichen Daten.
