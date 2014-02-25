@@ -1,15 +1,15 @@
 package uk.org.ngo.squeezer.service;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Holds a list of
  */
 public class ServiceCallbackList<T extends ServiceCallback> implements Iterable<T> {
     private ServicePublisher publisher;
-    private List<T> items = new ArrayList<T>();
+    private final Map<T, Boolean> items = new ConcurrentHashMap<T, Boolean>();
 
     public ServiceCallbackList(ServicePublisher publisher) {
         this.publisher = publisher;
@@ -21,7 +21,7 @@ public class ServiceCallbackList<T extends ServiceCallback> implements Iterable<
 
     public ServiceCallbackList<T> register(T item) {
         publisher.addClient(this, item);
-        items.add(item);
+        items.put(item, Boolean.TRUE);
         return this;
     }
 
@@ -33,7 +33,7 @@ public class ServiceCallbackList<T extends ServiceCallback> implements Iterable<
 
     @Override
     public Iterator<T> iterator() {
-        return items.iterator();
+        return items.keySet().iterator();
     }
 
     public interface ServicePublisher {

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
@@ -96,7 +97,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private boolean mHandshakeComplete = false;
 
     /** Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once */
-    final Map<ServiceCallback, ServiceCallbackList> callbacks = new HashMap<ServiceCallback, ServiceCallbackList>();
+    final Map<ServiceCallback, ServiceCallbackList> callbacks = new ConcurrentHashMap<ServiceCallback, ServiceCallbackList>();
 
     @Override
     public void addClient(ServiceCallbackList callbackList, ServiceCallback item) {
@@ -1252,14 +1253,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void cancelSubscriptions(Object client) {
-            // First build up a list of callbacks to remove, to avoid modifying
-            // the callback list while iterating it.
-            List<ServiceCallback> serviceCallbacks = new ArrayList<ServiceCallback>();
-            for (ServiceCallback serviceCallback : callbacks.keySet()) {
-                serviceCallbacks.add(serviceCallback);
-            }
-            for (ServiceCallback serviceCallback : serviceCallbacks) {
-                callbacks.get(serviceCallback).unregister(serviceCallback);
+            for (Entry<ServiceCallback, ServiceCallbackList> entry : callbacks.entrySet()) {
+                if (entry.getKey().getClient() == client) {
+                    entry.getValue().unregister(entry.getKey());
+                }
             }
         }
 

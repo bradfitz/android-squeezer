@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -315,7 +316,8 @@ class CliClient {
      * <p>
      * If a reply with with matching entry is this list comes in, it is discarded.
      */
-    private final Map<Integer, IServiceItemListCallback> pendingRequests = new HashMap<Integer, IServiceItemListCallback>();
+    private final Map<Integer, IServiceItemListCallback> pendingRequests
+            = new ConcurrentHashMap<Integer, IServiceItemListCallback>();
 
     public void cancelClientRequests(Object client) {
         for (Map.Entry<Integer, IServiceItemListCallback> entry : pendingRequests.entrySet()) {
@@ -509,11 +511,11 @@ class CliClient {
         // Process the lists for all the registered handlers
         int end = start + itemsPerResponse;
         int max = 0;
+        IServiceItemListCallback callback = pendingRequests.get(correlationId);
         for (SqueezeParserInfo parser : cmd.parserInfos) {
             Integer count = counts.get(parser.count_id);
             int countValue = (count == null ? 0 : count);
             if (count != null || start == 0) {
-                IServiceItemListCallback callback = pendingRequests.get(correlationId);
                 if (callback != null) {
                     callback.onItemsReceived(countValue - actionsCount, start, parameters, parser.handler.getItems(), parser.handler.getDataType());
                 }
@@ -525,7 +527,7 @@ class CliClient {
 
         // If the client is still around check if we need to order more items,
         // otherwise were done, so remove the callback
-        if (pendingRequests.get(correlationId) != null) {
+        if (callback != null) {
             if (end % pageSize != 0 && end < max) {
                 int count = (end + pageSize > max ? max - end : pageSize - itemsPerResponse);
                 StringBuilder cmdline = new StringBuilder(cmd.cmd + " " + end + " " + count);
