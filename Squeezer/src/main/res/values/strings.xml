@@ -333,6 +333,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="ADD_TO_END">Add to playlist</string>
     <string name="PLAY_NEXT">Play after the currently playing song</string>
     <string name="DOWNLOAD_ITEM">Download</string>
+    <string name="DOWNLOAD_MANAGER_NEEDED">Download requires Android 2.3 or later</string>
 
     <string name="PLAYLIST_REMOVE_ITEM">Remove from playlist</string>
     <string name="PLAYLIST_MOVE_UP">Move up</string>
@@ -469,4 +470,5 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
     <string name="settings_album_selectaction">Album select action</string>
     <string name="settings_song_selectaction">Song select action</string>
+    <string name="confirm_cancel_downloads">Cancel pending downloads?</string>
 </resources>

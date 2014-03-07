@@ -101,7 +101,7 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
         menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
-        if (item.getType().equals("track")) {
+        if (item.getType().equals("track") || item.getType().equals("folder")) {
             menu.add(Menu.NONE, R.id.download, Menu.NONE, R.string.DOWNLOAD_ITEM);
         }
     }
@@ -113,7 +113,9 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
                 MusicFolderListActivity.show(getActivity(), selectedItem);
                 return true;
             case R.id.download:
-                getActivity().downloadSong(selectedItem.getId());
+                if (selectedItem.getType().equals("track") || selectedItem.getType().equals("folder")) {
+                    getActivity().downloadItem(selectedItem);
+                }
                 return true;
         }
         return super.doItemContext(menuItem, index, selectedItem);

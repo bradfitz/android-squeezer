@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -108,12 +107,7 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
      */
     @Override
     protected void orderPage(int start) {
-        if (mFolder == null) {
-            // No specific item, fetch from the beginning.
-            getService().musicFolders(start, null, this);
-        } else {
-            getService().musicFolders(start, mFolder.getId(), this);
-        }
+        getService().musicFolders(start, mFolder, this);
     }
 
     /**
@@ -146,18 +140,4 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
-    /**
-     * Attempts to download the song given by songId.
-     * <p/>
-     * XXX: Duplicated from AbstractSongListActivity.
-     *
-     * @param songId ID of the song to download
-     */
-    @Override
-    public void downloadSong(String songId) {
-        String url = getService().getSongDownloadUrl(songId);
-
-        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(i);
-    }
 }

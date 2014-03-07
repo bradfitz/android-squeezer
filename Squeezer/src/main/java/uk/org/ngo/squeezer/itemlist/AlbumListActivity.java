@@ -200,8 +200,8 @@ public class AlbumListActivity extends BaseListActivity<Album>
             }
         }
 
-        getService().albums(start, sortOrder.name().replace("__", ""), getSearchString(), artist,
-                getYear(), getGenre(), song, this);
+        getService().albums(this, start, sortOrder.name().replace("__", ""), getSearchString(),
+                artist, getYear(), getGenre(), song);
     }
 
     public AlbumViewDialog.AlbumsSortOrder getSortOrder() {

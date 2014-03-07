@@ -43,12 +43,12 @@ public class YearSpinner {
         this.callback = callback;
         this.activity = activity;
         this.spinner = spinner;
-        orderItems(0);
+        orderItems();
     }
 
-    private void orderItems(int start) {
+    private void orderItems() {
         if (callback.getService() != null) {
-            callback.getService().years(start, yearListCallback);
+            callback.getService().years(-1, yearListCallback);
         }
     }
 
@@ -80,12 +80,6 @@ public class YearSpinner {
                     }
                     adapter.update(count, start, list);
                     spinner.setSelection(adapter.findItem(callback.getYear()));
-
-                    if (count > start + list.size()) {
-                        if ((start + list.size()) % adapter.getPageSize() == 0) {
-                            orderItems(start + list.size());
-                        }
-                    }
                 }
             });
         }

@@ -94,7 +94,7 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
 
     @Override
     protected void orderPage(int start) {
-        getService().artists(start, getSearchString(), album, genre, this);
+        getService().artists(this, start, getSearchString(), album, genre);
     }
 
     @Override

@@ -31,6 +31,11 @@ public class Song extends ArtworkItem {
         return "track_id";
     }
 
+    @Override
+    public String getFilterTag() {
+        return "track_id";
+    }
+
     private String name;
 
     @Override
@@ -133,7 +138,7 @@ public class Song extends ArtworkItem {
         this.remote = remote;
     }
 
-    public int tracknum;
+    private int tracknum;
 
     public int getTracknum() {
         return tracknum;
@@ -142,6 +147,18 @@ public class Song extends ArtworkItem {
     public void setTracknum(int tracknum) {
         this.tracknum = tracknum;
     }
+
+    private String url;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+
 
     private String artwork_url;
 
@@ -181,6 +198,7 @@ public class Song extends ArtworkItem {
         setRemote(Util.parseDecimalIntOrZero(record.get("remote")) != 0);
         setTracknum(Util.parseDecimalInt(record.get("tracknum"), 1));
         setArtwork_url(record.get("artwork_url"));
+        setUrl(record.get("url"));
 
         // Work around a (possible) bug in the Squeezeserver.
         //
@@ -229,6 +247,7 @@ public class Song extends ArtworkItem {
         album_id = source.readString();
         setArtwork_track_id(source.readString());
         tracknum = source.readInt();
+        url = source.readString();
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -243,6 +262,7 @@ public class Song extends ArtworkItem {
         dest.writeString(album_id);
         dest.writeString(getArtwork_track_id());
         dest.writeInt(tracknum);
+        dest.writeString(url);
     }
 
     @Override

@@ -73,6 +73,8 @@ class ConnectionState {
 
     private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
 
+    private final AtomicReference<String[]> mediaDirs = new AtomicReference<String[]>();
+
     private WifiManager.WifiLock wifiLock;
 
     void setWifiLock(WifiManager.WifiLock wifiLock) {
@@ -130,6 +132,7 @@ class ConnectionState {
 
         httpPort.set(null);
         activePlayer.set(null);
+        mediaDirs.set(null);
     }
 
     private void setConnectionState(final SqueezeService service, final boolean currentState,
@@ -172,6 +175,15 @@ class ConnectionState {
     void setHttpPort(Integer port) {
         httpPort.set(port);
         Log.v(TAG, "HTTP port is now: " + port);
+    }
+
+    public String[] getMediaDirs() {
+        String[] dirs = mediaDirs.get();
+        return dirs == null ? new String[0] : dirs;
+    }
+
+    public void setMediaDirs(String dirs) {
+        mediaDirs.set(dirs.split(";"));
     }
 
     void setCanMusicfolder(boolean value) {

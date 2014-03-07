@@ -274,7 +274,7 @@ public class SongListActivity extends BaseListActivity<Song>
 
     @Override
     protected void orderPage(int start) {
-        getService().songs(start, sortOrder.name(), searchString, album, artist, year, genre, this);
+        getService().songs(this, start, sortOrder.name(), searchString, album, artist, year, genre);
 
         boolean canPlay = (getCurrentPlaylistItem() != null);
         if (playButton != null) {
@@ -369,6 +369,10 @@ public class SongListActivity extends BaseListActivity<Song>
 
                 case R.id.browse_artists:
                     ArtistListActivity.show(this, album);
+                    return true;
+
+                case R.id.download:
+                    downloadItem(album);
                     return true;
 
                 default:

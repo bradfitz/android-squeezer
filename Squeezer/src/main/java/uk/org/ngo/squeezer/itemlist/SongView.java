@@ -209,10 +209,6 @@ public class SongView extends PlaylistItemView<Song> {
                 SongListActivity.show(getActivity(),
                         new Artist(selectedItem.getArtist_id(), selectedItem.getArtist()));
                 return true;
-
-            case R.id.download:
-                getActivity().downloadSong(selectedItem);
-                return true;
         }
 
         return super.doItemContext(menuItem, index, selectedItem);

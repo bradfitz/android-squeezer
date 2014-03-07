@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.annotation.TargetApi;
+import android.app.DownloadManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,8 +25,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Build;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -34,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -41,6 +47,8 @@ import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.framework.FilterItem;
+import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
@@ -85,10 +93,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * s: artist id<br/>
      * t: tracknum, if known<br/>
      * x: 1, if this is a remote track<br/>
-     * y: song year
+     * y: song year<br/>
+     * u: Song file url
      */
     // This should probably be a field in Song.
-    private static final String SONGTAGS = "aCdejJKlstxy";
+    private static final String SONGTAGS = "aCdejJKlstxyu";
 
     final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
@@ -271,6 +280,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 }
                 if ("jivealbumsort".equals(tokens.get(1)) && tokens.size() >= 3) {
                     connectionState.setPreferedAlbumSort(tokens.get(2));
+                }
+                if ("mediadirs".equals(tokens.get(1)) && tokens.size() >= 3) {
+                    connectionState.setMediaDirs(Util.decode(tokens.get(2)));
                 }
             }
         });
@@ -685,6 +697,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 "can randomplay ?",   // learn random play function functionality
                 "pref httpport ?", // learn the HTTP port (needed for images)
                 "pref jivealbumsort ?", // learn the preferred album sort order
+                "pref mediadirs ?", // learn the base path(s) of the server music library
 
                 // Fetch the version number. This must be the last thing
                 // fetched, as seeing the result triggers the
@@ -851,6 +864,86 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
+
+    /** A download request will be passed to the download manager for each song called back to this */
+    private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<Song>() {
+        @Override
+        public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
+            for (Song item : items) {
+                downloadSong(item.getId(), item.getName(), item.getUrl());
+            }
+        }
+
+        @Override
+        public Object getClient() {
+            return this;
+        }
+    };
+
+    /**
+     * For each item called to this:
+     * If it is a folder: recursive lookup items in the folder
+     * If is is a track: Enqueue a download request to the download manager
+     */
+    private final IServiceItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new IServiceItemListCallback<MusicFolderItem>() {
+        @Override
+        public void onItemsReceived(int count, int start, Map<String, String> parameters, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
+            for (MusicFolderItem item : items) {
+                squeezeService.downloadItem(item);
+            }
+        }
+
+        @Override
+        public Object getClient() {
+            return this;
+        }
+    };
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    private void downloadSong(String songId, String title, String serverUrl) {
+        if (songId == null) {
+            return;
+        }
+
+        // If running on Gingerbread or greater use the Download Manager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+            Uri uri = Uri.parse(squeezeService.getSongDownloadUrl(songId));
+            DownloadDatabase downloadDatabase = new DownloadDatabase(this);
+            String localPath = getLocalFile(serverUrl);
+            String tempFile = UUID.randomUUID().toString();
+            DownloadManager.Request request = new DownloadManager.Request(uri)
+                    .setTitle(title)
+                    .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_MUSIC, tempFile)
+                    .setVisibleInDownloadsUi(false);
+            long downloadId = downloadManager.enqueue(request);
+            if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath)) {
+                Log.w(TAG, "Could not register download entry, download cancelled");
+                downloadManager.remove(downloadId);
+            }
+        }
+    }
+
+    /**
+     * Tries to get the relative path to the server music library.
+     * <p/>
+     * If this is not possible resort to the last path segment of the server path
+     */
+    private String getLocalFile(String serverUrl) {
+        Uri serverUri = Uri.parse(serverUrl);
+        String serverPath = serverUri.getPath();
+        String mediaDir = null;
+        for (String dir : connectionState.getMediaDirs()) {
+            if (serverPath.startsWith(dir)) {
+                mediaDir = dir;
+                break;
+            }
+        }
+        if (mediaDir != null)
+            return serverPath.substring(mediaDir.length(), serverPath.length());
+        else
+            return serverUri.getLastPathSegment();
+    }
 
     private final ISqueezeService squeezeService = new SqueezeServiceBinder();
     private class SqueezeServiceBinder extends Binder implements ISqueezeService {
@@ -1070,12 +1163,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public boolean playlistControl(String cmd, String tag, String itemId) {
+        public boolean playlistControl(String cmd, PlaylistItem playlistItem) {
             if (!isConnected()) {
                 return false;
             }
 
-            cli.sendPlayerCommand("playlistcontrol cmd:" + cmd + " " + tag + ":" + itemId);
+            cli.sendPlayerCommand("playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter());
             return true;
         }
 
@@ -1271,8 +1364,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
         @Override
-        public void albums(int start, String sortOrder, String searchString,
-                Artist artist, Year year, Genre genre, Song song, IServiceItemListCallback<Album> callback) {
+        public void albums(IServiceItemListCallback<Album> callback, int start, String sortOrder, String searchString, FilterItem... filters) {
             if (!isConnected()) {
                 return;
             }
@@ -1282,26 +1374,16 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (searchString != null && searchString.length() > 0) {
                 parameters.add("search:" + searchString);
             }
-            if (artist != null) {
-                parameters.add("artist_id:" + artist.getId());
-            }
-            if (year != null) {
-                parameters.add("year:" + year.getId());
-            }
-            if (genre != null) {
-                parameters.add("genre_id:" + genre.getId());
-            }
-            if (song != null) {
-                parameters.add("track_id:" + song.getId());
-            }
+            for (FilterItem filter : filters)
+                if (filter != null)
+                    parameters.add(filter.getFilterParameter());
             cli.requestItems("albums", start, parameters, callback);
         }
 
 
         /* Start an async fetch of the SqueezeboxServer's artists */
         @Override
-        public void artists(int start, String searchString, Album album,
-                Genre genre, IServiceItemListCallback<Artist> callback) {
+        public void artists(IServiceItemListCallback<Artist> callback, int start, String searchString, FilterItem... filters) {
             if (!isConnected()) {
                 return;
             }
@@ -1309,12 +1391,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (searchString != null && searchString.length() > 0) {
                 parameters.add("search:" + searchString);
             }
-            if (album != null) {
-                parameters.add("album_id:" + album.getId());
-            }
-            if (genre != null) {
-                parameters.add("genre_id:" + genre.getId());
-            }
+            for (FilterItem filter : filters)
+                if (filter != null)
+                    parameters.add(filter.getFilterParameter());
             cli.requestItems("artists", start, parameters, callback);
         }
 
@@ -1350,19 +1429,20 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
          * Results are returned through the given callback.
          *
          * @param start Where in the list of folders to start.
-         * @param folderId The folder to view.
+         * @param musicFolderItem The folder to view.
          * @param callback Results will be returned through this
          */
         @Override
-        public void musicFolders(int start, String folderId, IServiceItemListCallback<MusicFolderItem> callback) {
+        public void musicFolders(int start, MusicFolderItem musicFolderItem, IServiceItemListCallback<MusicFolderItem> callback) {
             if (!isConnected()) {
                 return;
             }
 
             List<String> parameters = new ArrayList<String>();
 
-            if (folderId != null) {
-                parameters.add("folder_id:" + folderId);
+            parameters.add("tags:u");//TODO only available from version 7.6 so instead keep track of path
+            if (musicFolderItem != null) {
+                parameters.add(musicFolderItem.getFilterParameter());
             }
 
             cli.requestItems("musicfolder", start, parameters, callback);
@@ -1370,8 +1450,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an async fetch of the SqueezeboxServer's songs */
         @Override
-        public void songs(int start, String sortOrder, String searchString, Album album,
-                Artist artist, Year year, Genre genre, IServiceItemListCallback<Song> callback) {
+        public void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters) {
             if (!isConnected()) {
                 return;
             }
@@ -1381,18 +1460,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (searchString != null && searchString.length() > 0) {
                 parameters.add("search:" + searchString);
             }
-            if (album != null) {
-                parameters.add("album_id:" + album.getId());
-            }
-            if (artist != null) {
-                parameters.add("artist_id:" + artist.getId());
-            }
-            if (year != null) {
-                parameters.add("year:" + year.getId());
-            }
-            if (genre != null) {
-                parameters.add("genre_id:" + genre.getId());
-            }
+            for (FilterItem filter : filters)
+                if (filter != null)
+                    parameters.add(filter.getFilterParameter());
             cli.requestItems("songs", start, parameters, callback);
         }
 
@@ -1412,7 +1482,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return;
             }
             cli.requestItems("playlists tracks", start,
-                    Arrays.asList("playlist_id:" + playlist.getId(), "tags:" + SONGTAGS), callback);
+                    Arrays.asList(playlist.getFilterParameter(), "tags:" + SONGTAGS), callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's playlists */
@@ -1435,7 +1505,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendCommand("playlists delete playlist_id:" + playlist.getId());
+            cli.sendCommand("playlists delete " + playlist.getFilterParameter());
             return true;
         }
 
@@ -1444,7 +1514,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendCommand("playlists edit cmd:move playlist_id:" + playlist.getId()
+            cli.sendCommand("playlists edit cmd:move " + playlist.getFilterParameter()
                     + " index:" + index + " toindex:" + toindex);
             return true;
         }
@@ -1463,7 +1533,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendCommand("playlists edit cmd:delete playlist_id:" + playlist.getId() + " index:"
+            cli.sendCommand("playlists edit cmd:delete " + playlist.getFilterParameter() + " index:"
                     + index);
             return true;
         }
@@ -1474,7 +1544,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return false;
             }
             cli.sendCommand(
-                    "playlists rename playlist_id:" + playlist.getId() + " dry_run:1 newname:"
+                    "playlists rename " + playlist.getFilterParameter() + " dry_run:1 newname:"
                             + Util.encode(newname));
             return true;
         }
@@ -1490,12 +1560,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .valueOf(
                             preferredAlbumSort());
 
-            artists(start, searchString, null, null, itemListCallback);
-            albums(start, albumSortOrder.name().replace("__", ""), searchString, null, null, null,
-                    null, itemListCallback);
+            artists(itemListCallback, start, searchString);
+            albums(itemListCallback, start, albumSortOrder.name().replace("__", ""), searchString);
             genres(start, searchString, itemListCallback);
-            songs(start, SongViewDialog.SongsSortOrder.title.name(), searchString, null,
-                    null, null, null, itemListCallback);
+            songs(itemListCallback, start, SongViewDialog.SongsSortOrder.title.name(), searchString);
         }
 
         /* Start an asynchronous fetch of the squeezeservers radio type plugins */
@@ -1531,6 +1599,27 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 parameters.add("search:" + search);
             }
             cli.requestPlayerItems(plugin.getId() + " items", start, parameters, callback);
+        }
+
+        @Override
+        public void downloadItem(FilterItem item) {
+            if (item instanceof Song) {
+                Song song = (Song) item;
+                if (!song.isRemote()) {
+                    downloadSong(song.getId(), song.getName(), song.getUrl());
+                }
+            } else if (item instanceof Playlist) {
+                playlistSongs(-1, (Playlist) item, songDownloadCallback);
+            } else if (item instanceof MusicFolderItem) {
+                MusicFolderItem musicFolderItem = (MusicFolderItem) item;
+                if (musicFolderItem.getType().equals("track")) {
+                    downloadSong(item.getId(), musicFolderItem.getName(), musicFolderItem.getUrl());
+                } else if (musicFolderItem.getType().equals("folder")) {
+                    musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);
+                }
+            } else if (item != null) {
+                songs(songDownloadCallback, -1, SongViewDialog.SongsSortOrder.title.name(), null, item);
+            }
         }
     }
 

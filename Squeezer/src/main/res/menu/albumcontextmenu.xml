@@ -30,4 +30,7 @@
 
     <item android:id="@+id/browse_artists"
         android:title="@string/BROWSE_ARTISTS"/>
+
+    <item android:id="@+id/download"
+        android:title="@string/DOWNLOAD_ITEM"/>
 </menu>

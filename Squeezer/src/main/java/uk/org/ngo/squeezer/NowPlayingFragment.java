@@ -822,7 +822,7 @@ public class NowPlayingFragment extends Fragment implements
         // Note: Very similar to code in SongView:doItemContext().  Refactor?
         switch (item.getItemId()) {
             case R.id.download:
-                mActivity.downloadSong(song);
+                mActivity.downloadItem(song);
                 return true;
 
             case R.id.view_this_album:

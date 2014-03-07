@@ -366,6 +366,11 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             case R.id.play_next:
                 mActivity.insert((PlaylistItem) selectedItem);
                 return true;
+
+            case R.id.download:
+                if (selectedItem instanceof FilterItem)
+                    mActivity.downloadItem((FilterItem) selectedItem);
+                return true;
         }
         return false;
     }

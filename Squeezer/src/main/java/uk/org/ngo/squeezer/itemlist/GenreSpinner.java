@@ -43,12 +43,12 @@ public class GenreSpinner {
         this.callback = callback;
         this.activity = activity;
         this.spinner = spinner;
-        orderItems(0);
+        orderItems();
     }
 
-    private void orderItems(int start) {
+    private void orderItems() {
         if (callback.getService() != null) {
-            callback.getService().genres(start, null, genreListCallback);
+            callback.getService().genres(-1, null, genreListCallback);
         }
     }
 
@@ -83,12 +83,6 @@ public class GenreSpinner {
                     }
                     adapter.update(count, start, list);
                     spinner.setSelection(adapter.findItem(callback.getGenre()));
-
-                    if (count > start + list.size()) {
-                        if ((start + list.size()) % adapter.getPageSize() == 0) {
-                            orderItems(start + list.size());
-                        }
-                    }
                 }
             });
         }
