@@ -40,6 +40,11 @@ android {
         targetSdkVersion 19
     }
 
+    lintOptions {
+        // Downgrade missing translations to non-fatal severity.
+        warning 'MissingTranslation'
+    }
+
     buildTypes {
         release {
             runProguard true
