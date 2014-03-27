@@ -73,6 +73,10 @@ class ConnectionState {
 
     private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
 
+    private final AtomicReference<String> userName = new AtomicReference<String>();
+
+    private final AtomicReference<String> password = new AtomicReference<String>();
+
     private final AtomicReference<String[]> mediaDirs = new AtomicReference<String[]>();
 
     private WifiManager.WifiLock wifiLock;
@@ -301,6 +305,8 @@ class ConnectionState {
         currentHost.set(host);
         cliPort.set(port);
         httpPort.set(null);  // not known until later, after connect.
+        this.userName.set(userName);
+        this.password.set(password);
 
         // Start the off-thread connect.
         executor.execute(new Runnable() {
@@ -368,6 +374,14 @@ class ConnectionState {
 
     Integer getHttpPort() {
         return httpPort.get();
+    }
+
+    String getUserName() {
+        return userName.get();
+    }
+
+    String getPassword() {
+        return password.get();
     }
 
     String getCurrentHost() {

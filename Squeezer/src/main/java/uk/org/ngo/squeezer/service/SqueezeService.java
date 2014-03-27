@@ -31,6 +31,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.util.Base64;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -912,10 +913,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             DownloadDatabase downloadDatabase = new DownloadDatabase(this);
             String localPath = getLocalFile(serverUrl);
             String tempFile = UUID.randomUUID().toString();
+            String credentials = connectionState.getUserName() + ":" + connectionState.getPassword();
+            String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
             DownloadManager.Request request = new DownloadManager.Request(uri)
                     .setTitle(title)
                     .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_MUSIC, tempFile)
-                    .setVisibleInDownloadsUi(false);
+                    .setVisibleInDownloadsUi(false)
+                    .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
             if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath)) {
                 Log.w(TAG, "Could not register download entry, download cancelled");
