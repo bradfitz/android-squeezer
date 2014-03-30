@@ -28,6 +28,8 @@ import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -63,8 +65,7 @@ class ConnectionState {
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
 
     private final AtomicReference<Player> activePlayer = new AtomicReference<Player>();
-
-    private final AtomicReference<Player> defaultPlayer = new AtomicReference<Player>();
+    private final List<Player> players = new CopyOnWriteArrayList<Player>();
 
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
@@ -164,12 +165,12 @@ class ConnectionState {
         activePlayer.set(player);
     }
 
-    Player getDefaultPlayer() {
-        return defaultPlayer.get();
+    List<Player> getPlayers() {
+        return players;
     }
 
-    void setDefaultPlayer(Player player) {
-        defaultPlayer.set(player);
+    void addPlayers(List<Player> players) {
+        this.players.addAll(players);
     }
 
     PrintWriter getSocketWriter() {
@@ -325,7 +326,6 @@ class ConnectionState {
                     setConnectionState(service, true, true, false);
                     Log.d(TAG, "connection state broadcasted true.");
                     startListeningThread(service);
-                    setDefaultPlayer(null);
                     service.onCliPortConnectionEstablished(userName, password);
                     Authenticator.setDefault(new Authenticator() {
                         @Override

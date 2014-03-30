@@ -587,7 +587,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return;
         }
 
-        Log.v(TAG, "Active player now: " + newPlayer);
+        Log.i(TAG, "Active player now: " + newPlayer);
         final String playerId = newPlayer.getId();
         String oldPlayerId = (connectionState.getActivePlayer() != null ? connectionState
                 .getActivePlayer().getId() : null);
@@ -669,21 +669,30 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     private void onAuthenticated() {
         // initiate an async player fetch
-        cli.requestItems("players", 0, new IServiceItemListCallback<Player>() {
+        cli.requestItems("players", -1, new IServiceItemListCallback<Player>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Player> items, Class<Player> dataType) {
-                final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
-                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
-                Player defaultPlayer = null;
-                Log.v(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
-                for (Player player : items) {
-                    if (defaultPlayer == null || player.getId().equals(lastConnectedPlayer)) {
-                        defaultPlayer = player;
+                connectionState.addPlayers(items);
+                if (start + items.size() >= count) {
+                    Player initialPlayer = getInitialPlayer();
+                    if (initialPlayer != null) {
+                        changeActivePlayer(initialPlayer);
                     }
                 }
-                if (defaultPlayer != null) {
-                    changeActivePlayer(defaultPlayer);
+            }
+
+            private Player getInitialPlayer() {
+                final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
+                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
+                Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
+
+                List<Player> players = connectionState.getPlayers();
+                for (Player player : players) {
+                    if (player.getId().equals(lastConnectedPlayer)) {
+                        return player;
+                    }
                 }
+                return players.size() > 0 ? players.get(0) : null;
             }
 
             @Override
