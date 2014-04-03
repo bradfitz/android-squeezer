@@ -35,6 +35,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -47,6 +48,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -55,6 +57,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.AuthenticationDialog;
@@ -478,7 +481,7 @@ public class NowPlayingFragment extends Fragment implements
                 prevButton.setImageResource(0);
                 shuffleButton.setImageResource(0);
                 repeatButton.setImageResource(0);
-                updateUIForPlayer(null);
+                updatePlayerDropDown(null, null);
                 artistText.setText(getText(R.string.disconnected_text));
                 currentTime.setText("--:--");
                 totalTime.setText("--:--");
@@ -514,12 +517,6 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    private void updateUIForPlayer(Player player) {
-        if (mFullHeightLayout && isAdded()) {
-            mActivity.setTitle(player != null ? player.getName() : getText(R.string.app_name));
-        }
-    }
-
     private void updatePowerMenuItems(boolean canPowerOn, boolean canPowerOff) {
         boolean connected = isConnected();
 
@@ -548,6 +545,47 @@ public class NowPlayingFragment extends Fragment implements
             } else {
                 menu_item_poweroff.setVisible(false);
             }
+        }
+    }
+
+    private void updatePlayerDropDown(List<Player> players, Player activePlayer) {
+        Log.i(TAG, "updatePlayerDropDown(" + players + ", " + activePlayer + ")");
+        if (!isAdded()) {
+            return;
+        }
+
+        ActionBar actionBar = mActivity.getSupportActionBar();
+        if (players != null) {
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(mActivity, android.R.layout.simple_spinner_dropdown_item, players) {
+                @Override
+                public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                    return Util.getSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                }
+
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    return Util.getSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                }
+            };
+            actionBar.setListNavigationCallbacks(playerAdapter, new ActionBar.OnNavigationListener() {
+                @Override
+                public boolean onNavigationItemSelected(int position, long id) {
+                    Log.i(TAG, "onNavigationItemSelected(" + position + ", " + id + ")");
+                    if (!playerAdapter.getItem(position).equals(mService.getActivePlayer())) {
+                        Log.i(TAG, "onNavigationItemSelected.setActivePlayer(" + playerAdapter.getItem(position) + ")");
+                        mService.setActivePlayer(playerAdapter.getItem(position));
+                    }
+                    return true;
+                }
+            });
+            if (activePlayer != null) {
+                actionBar.setSelectedNavigationItem(playerAdapter.getPosition(activePlayer));
+            }
+        } else {
+            actionBar.setDisplayShowTitleEnabled(true);
+            actionBar.setTitle(R.string.app_name);
         }
     }
 
@@ -626,7 +664,6 @@ public class NowPlayingFragment extends Fragment implements
             updatePlayPauseIcon(playerState.getPlayStatus());
             updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
                     playerState.getCurrentSongDuration());
-            updateUIForPlayer(getActivePlayer());
             updateShuffleStatus(playerState.getShuffleStatus());
             updateRepeatStatus(playerState.getRepeatStatus());
         }
@@ -1055,11 +1092,11 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         @Override
-        public void onPlayerChanged(final Player player) {
+        public void onPlayersChanged(final List<Player> players, final Player activePlayer) {
             uiThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    updateUIForPlayer(player);
+                    updatePlayerDropDown(players, activePlayer);
                 }
             });
         }

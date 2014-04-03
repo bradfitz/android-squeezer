@@ -33,7 +33,6 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
-import uk.org.ngo.squeezer.framework.ItemListAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
@@ -60,7 +59,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     /**
      * A list adapter that highlights the view that's currently playing.
      */
-    private class HighlightingListAdapter extends ItemListAdapter<Song> {
+    private class HighlightingListAdapter extends ItemAdapter<Song> {
 
         public HighlightingListAdapter(ItemView<Song> itemView,
                 ImageFetcher imageFetcher) {

@@ -169,6 +169,10 @@ class ConnectionState {
         return players;
     }
 
+    void clearPlayers() {
+        this.players.clear();
+    }
+
     void addPlayers(List<Player> players) {
         this.players.addAll(players);
     }

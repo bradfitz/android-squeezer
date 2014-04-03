@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
@@ -53,11 +55,6 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         return new MusicFolderView(this);
     }
 
-    /**
-     * Deliberately use {@link uk.org.ngo.squeezer.framework.ItemAdapter} instead
-     * of {@link uk.org.ngo.squeezer.framework.ItemListAdapter} so that the title
-     * is not updated out from under us.
-     */
     @Override
     protected ItemAdapter<MusicFolderItem> createItemListAdapter(
             ItemView<MusicFolderItem> itemView) {
@@ -74,7 +71,9 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             mFolder = extras.getParcelable(MusicFolderItem.class.getName());
-            setTitle(mFolder.getName());
+            TextView header = (TextView) findViewById(R.id.header);
+            header.setText(mFolder.getName());
+            header.setVisibility(View.VISIBLE);
         }
     }
 

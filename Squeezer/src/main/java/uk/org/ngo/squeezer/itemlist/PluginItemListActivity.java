@@ -25,6 +25,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.List;
 import java.util.Map;
@@ -87,6 +88,12 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
         }
     }
 
+    private void updateHeader(String headerText) {
+        TextView header = (TextView) findViewById(R.id.header);
+        header.setText(headerText);
+        header.setVisibility(View.VISIBLE);
+    }
+
     public Plugin getPlugin() {
         return plugin;
     }
@@ -136,7 +143,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
         if (parameters.containsKey("title")) {
             getUIThreadHandler().post(new Runnable() {
                 public void run() {
-                    setTitle(parameters.get("title"));
+                    updateHeader(parameters.get("title"));
                 }
             });
         }

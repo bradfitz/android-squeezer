@@ -24,6 +24,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import java.util.List;
+
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.IServiceCallback;
@@ -112,7 +114,7 @@ public class DisconnectedActivity extends BaseActivity {
         }
 
         @Override
-        public void onPlayerChanged(Player player) {
+        public void onPlayersChanged(List<Player> players, Player activePlayer) {
         }
 
         @Override

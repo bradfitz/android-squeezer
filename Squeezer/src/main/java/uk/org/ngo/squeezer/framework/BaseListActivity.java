@@ -47,7 +47,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * must provide an {@link ItemView} to provide the view logic used by this activity. This is done by
  * implementing {@link #createItemView()}.
  * <p/>
- * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link ItemListAdapter}
+ * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link ItemAdapter}
  * is created using the provided {@link ItemView}. See {@link ItemListActivity} for see details of
  * ordering and receiving of list items from SqueezeServer, and handling of item selection.
  *
@@ -258,7 +258,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     }
 
     protected ItemAdapter<T> createItemListAdapter(ItemView<T> itemView) {
-        return new ItemListAdapter<T>(itemView, getImageFetcher());
+        return new ItemAdapter<T>(itemView, getImageFetcher());
     }
 
     public void onItemsReceived(final int count, final int start, final List<T> items) {

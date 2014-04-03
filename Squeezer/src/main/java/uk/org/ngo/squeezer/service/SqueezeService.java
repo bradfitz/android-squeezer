@@ -428,6 +428,22 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         return handlers;
     }
 
+    private Map<String, CmdHandler> initializeGlobalPlayerSpecificHandlers() {
+        Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
+
+        handlers.put("client", new CmdHandler() {
+            @Override
+            public void handle(List<String> tokens) {
+                Log.i(TAG, "client received: " + tokens);
+                // Something has happened to the player list, we just fetch the full list again
+                // This is simpler and handles any missed client events
+                fetchPlayers();
+            }
+        });
+
+        return handlers;
+    }
+
     private Map<String, CmdHandler> initializePrefixedPlayerSpecificHandlers() {
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
@@ -452,6 +468,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private final Map<String, CmdHandler> playerSpecificHandlers
             = initializePlayerSpecificHandlers();
 
+    private final Map<String, CmdHandler> globalPlayerSpecificHandlers
+            = initializeGlobalPlayerSpecificHandlers();
+
     private final Map<String, CmdHandler> prefixedPlayerSpecificHandlers
             = initializePrefixedPlayerSpecificHandlers();
 
@@ -470,6 +489,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return;
         }
         if ((handler = prefixedHandlers.get(tokens.get(1))) != null) {
+            handler.handle(tokens);
+            return;
+        }
+        if ((handler = globalPlayerSpecificHandlers.get(tokens.get(1))) != null) {
             handler.handle(tokens);
             return;
         }
@@ -626,7 +649,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         for (IServiceCallback callback : mServiceCallbacks) {
-            callback.onPlayerChanged(newPlayer);
+            callback.onPlayersChanged(connectionState.getPlayers(), newPlayer);
         }
     }
 
@@ -668,7 +691,25 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * for asynchronous updates of server state.
      */
     private void onAuthenticated() {
+        fetchPlayers();
+        cli.sendCommandImmediately(
+                "listen 1", // subscribe to all server notifications
+                "can musicfolder ?", // learn music folder browsing support
+                "can randomplay ?",   // learn random play function functionality
+                "pref httpport ?", // learn the HTTP port (needed for images)
+                "pref jivealbumsort ?", // learn the preferred album sort order
+                "pref mediadirs ?", // learn the base path(s) of the server music library
+
+                // Fetch the version number. This must be the last thing
+                // fetched, as seeing the result triggers the
+                // "handshake is complete" logic elsewhere.
+                "version ?"
+        );
+    }
+
+    private void fetchPlayers() {
         // initiate an async player fetch
+        connectionState.clearPlayers();
         cli.requestItems("players", -1, new IServiceItemListCallback<Player>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Player> items, Class<Player> dataType) {
@@ -700,20 +741,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return SqueezeService.this;
             }
         });
-
-        cli.sendCommandImmediately(
-                "listen 1", // subscribe to all server notifications
-                "can musicfolder ?", // learn music folder browsing support
-                "can randomplay ?",   // learn random play function functionality
-                "pref httpport ?", // learn the HTTP port (needed for images)
-                "pref jivealbumsort ?", // learn the preferred album sort order
-                "pref mediadirs ?", // learn the base path(s) of the server music library
-
-                // Fetch the version number. This must be the last thing
-                // fetched, as seeing the result triggers the
-                // "handshake is complete" logic elsewhere.
-                "version ?"
-        );
     }
 
     /* Start an asynchronous fetch of the squeezeservers localized strings */
@@ -965,6 +992,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         public void registerCallback(IServiceCallback callback) {
             mServiceCallbacks.register(callback);
             updatePlayerSubscriptionState();
+
+            // Call back immediately if we have players
+            List<Player> players = connectionState.getPlayers();
+            if (players.size() > 0) {
+                callback.onPlayersChanged(players, connectionState.getActivePlayer());
+            }
         }
 
         @Override
