@@ -51,6 +51,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -133,7 +134,11 @@ public class NowPlayingFragment extends Fragment implements
 
     private ImageView albumArt;
 
+    /** In full-screen mode, shows the current progress through the track. */
     private SeekBar seekBar;
+
+    /** In mini-mode, shows the current progress through the track. */
+    private ProgressBar mProgressBar;
 
     /**
      * Volume control panel.
@@ -298,6 +303,8 @@ public class NowPlayingFragment extends Fragment implements
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
 
+            mProgressBar = (ProgressBar) v.findViewById(R.id.progressbar);
+
             // Get an ImageFetcher to scale artwork to the size of the icon view.
             Resources resources = getResources();
             int iconSize = (Math.max(
@@ -387,7 +394,7 @@ public class NowPlayingFragment extends Fragment implements
                 // position.
                 public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
                     if (fromUser) {
-                        currentTime.setText(Util.makeTimeString(progress));
+                        currentTime.setText(Util.formatElapsedTime(progress));
                     }
                 }
 
@@ -489,12 +496,16 @@ public class NowPlayingFragment extends Fragment implements
                 seekBar.setProgress(0);
             } else {
                 albumArt.setImageResource(R.drawable.icon_album_noart);
+                mProgressBar.setEnabled(false);
+                mProgressBar.setProgress(0);
             }
         } else {
             if (mFullHeightLayout) {
                 nextButton.setImageResource(R.drawable.ic_action_next);
                 prevButton.setImageResource(R.drawable.ic_action_previous);
                 seekBar.setEnabled(true);
+            } else {
+                mProgressBar.setEnabled(true);
             }
         }
     }
@@ -674,11 +685,16 @@ public class NowPlayingFragment extends Fragment implements
             if (updateSeekBar) {
                 if (seekBar.getMax() != secondsTotal) {
                     seekBar.setMax(secondsTotal);
-                    totalTime.setText(Util.makeTimeString(secondsTotal));
+                    totalTime.setText(Util.formatElapsedTime(secondsTotal));
                 }
                 seekBar.setProgress(secondsIn);
-                currentTime.setText(Util.makeTimeString(secondsIn));
+                currentTime.setText(Util.formatElapsedTime(secondsIn));
             }
+        } else {
+            if (mProgressBar.getMax() != secondsTotal) {
+                mProgressBar.setMax(secondsTotal);
+            }
+            mProgressBar.setProgress(secondsIn);
         }
     }
 

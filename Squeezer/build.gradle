@@ -23,7 +23,7 @@ dependencies {
 
     // Third party libraries
     compile 'ch.acra:acra:4.5.0'
-    compile 'com.google.guava:guava:15.0'
+    compile 'com.google.guava:guava:16.0.1'
     // findbugs is required for Proguard to work with Guava.
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 
@@ -38,6 +38,11 @@ android {
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 19
+    }
+
+    lintOptions {
+        // Downgrade missing translations to non-fatal severity.
+        warning 'MissingTranslation'
     }
 
     buildTypes {
@@ -76,8 +81,8 @@ android {
 
     productFlavors {
         beta {
-            versionCode 17
-            versionName "1.0-beta-4"
+            versionCode 20
+            versionName "1.0.2-beta-1"
             signingConfig android.signingConfigs.release
         }
 
@@ -86,10 +91,5 @@ android {
             versionName "1.0.1"
             signingConfig android.signingConfigs.release
         }
-    }
-
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
     }
 }

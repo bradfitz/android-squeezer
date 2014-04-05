@@ -16,6 +16,10 @@
 
 package uk.org.ngo.squeezer.service;
 
+import com.google.common.base.Joiner;
+
+import org.acra.ACRA;
+
 import android.util.Log;
 
 import java.io.PrintWriter;
@@ -28,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
@@ -46,6 +51,11 @@ import uk.org.ngo.squeezer.model.Year;
 class CliClient {
 
     private static final String TAG = "CliClient";
+
+    /**
+     * Join multiple strings (skipping nulls) together with newlines.
+     */
+    private static final Joiner mNewlineJoiner = Joiner.on("\n").skipNulls();
 
     class ExtendedQueryFormatCmd {
 
@@ -255,17 +265,12 @@ class CliClient {
         if (writer == null) {
             return;
         }
-        if (commands.length == 1) {
-            Log.v(TAG, "SENDING: " + commands[0]);
-            writer.println(commands[0]);
-        } else {
-            // Get it into one packet by deferring flushing...
-            for (String command : commands) {
-                Log.v(TAG, "Send: " + command);
-                writer.print(command + "\n");
-            }
-            writer.flush();
-        }
+
+        String formattedCommands = mNewlineJoiner.join(commands);
+        Log.v(TAG, "SENDING: " + formattedCommands);
+        ACRA.getErrorReporter().putCustomData("lastCommands", formattedCommands);
+        writer.println(formattedCommands);
+        writer.flush();
     }
 
     /**
@@ -478,9 +483,7 @@ class CliClient {
             }
             String key = Util.decode(token.substring(0, colonPos));
             String value = Util.decode(token.substring(colonPos + 3));
-            if (service.debugLogging) {
-                Log.v(TAG, "key=" + key + ", value: " + value);
-            }
+            Log.v(TAG, "key=" + key + ", value: " + value);
 
             if (key.equals("rescan")) {
                 rescan = (Util.parseDecimalIntOrZero(value) == 1);
@@ -501,9 +504,7 @@ class CliClient {
                 if (itemDelimeterMap.get(key) != null) {
                     if (record != null) {
                         parserInfo.handler.add(record);
-                        if (service.debugLogging) {
-                            Log.v(TAG, "record=" + record);
-                        }
+                        Log.v(TAG, "record=" + record);
                     }
                     parserInfo = itemDelimeterMap.get(key);
                     record = new HashMap<String, String>();
@@ -520,9 +521,7 @@ class CliClient {
 
         if (record != null) {
             parserInfo.handler.add(record);
-            if (service.debugLogging) {
-                Log.v(TAG, "record=" + record);
-            }
+            Log.v(TAG, "record=" + record);
         }
 
         // Process the lists for all the registered handlers

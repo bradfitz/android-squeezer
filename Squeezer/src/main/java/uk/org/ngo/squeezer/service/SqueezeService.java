@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.service;
 
+import org.acra.ACRA;
+
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.app.Notification;
@@ -153,8 +155,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Was scrobbling enabled?
      */
     private boolean scrobblingPreviouslyEnabled;
-
-    boolean debugLogging; // Enable this if you are debugging something
 
     boolean mUpdateOngoingNotification;
 
@@ -475,9 +475,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             = initializePrefixedPlayerSpecificHandlers();
 
     void onLineReceived(String serverLine) {
-        if (debugLogging) {
-            Log.v(TAG, "LINE: " + serverLine);
-        }
+        Log.v(TAG, "LINE: " + serverLine);
+        ACRA.getErrorReporter().putCustomData("lastReceivedLine", serverLine);
+
         List<String> tokens = Arrays.asList(serverLine.split(" "));
         if (tokens.size() < 2) {
             return;
