@@ -1397,6 +1397,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     entry.getValue().unregister(entry.getKey());
                 }
             }
+            updatePlayerSubscriptionState();
         }
 
 
