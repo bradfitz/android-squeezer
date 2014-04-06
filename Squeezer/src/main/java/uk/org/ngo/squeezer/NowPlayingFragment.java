@@ -560,7 +560,6 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void updatePlayerDropDown(List<Player> players, Player activePlayer) {
-        Log.i(TAG, "updatePlayerDropDown(" + players + ", " + activePlayer + ")");
         if (!isAdded()) {
             return;
         }
@@ -583,7 +582,6 @@ public class NowPlayingFragment extends Fragment implements
             actionBar.setListNavigationCallbacks(playerAdapter, new ActionBar.OnNavigationListener() {
                 @Override
                 public boolean onNavigationItemSelected(int position, long id) {
-                    Log.i(TAG, "onNavigationItemSelected(" + position + ", " + id + ")");
                     if (!playerAdapter.getItem(position).equals(mService.getActivePlayer())) {
                         Log.i(TAG, "onNavigationItemSelected.setActivePlayer(" + playerAdapter.getItem(position) + ")");
                         mService.setActivePlayer(playerAdapter.getItem(position));
