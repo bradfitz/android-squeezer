@@ -151,6 +151,7 @@
 
     <string name="NO_ACTION">Ingen</string>
     <string name="BROWSE_SONGS">Vis sange</string>
+    <string name="BROWSE_SONGS_BY_ITEM">Vis sange af %s</string>
     <string name="BROWSE_ALBUMS">Vis album</string>
     <string name="BROWSE_ARTISTS">Vis kunstnere</string>
     <string name="BROWSE_ALBUM_SONGS">Vis sange på album</string>

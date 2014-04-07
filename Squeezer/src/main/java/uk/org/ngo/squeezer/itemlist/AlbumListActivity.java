@@ -169,6 +169,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
             details.remove(AlbumView.Details.ARTIST);
             header.setText(getString(R.string.albums_by_artist_header, artist.getName()));
             header.setVisibility(View.VISIBLE);
+            ((AlbumView) getItemView()).setArtist(artist);
         }
         if (genre != null) {
             details.remove(AlbumView.Details.GENRE);

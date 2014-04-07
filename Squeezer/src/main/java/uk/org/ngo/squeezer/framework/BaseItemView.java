@@ -337,8 +337,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     }
 
     /**
-     * The default context menu handler handles some common actions. Each action must be set up in
-     * {@link #setupContextMenu(android.view.ContextMenu, int, Item)}
+     * The default context menu handler handles some common actions.
      */
     @Override
     public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) {

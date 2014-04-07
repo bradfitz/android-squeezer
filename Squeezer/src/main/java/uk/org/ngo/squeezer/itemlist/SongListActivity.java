@@ -151,8 +151,7 @@ public class SongListActivity extends BaseListActivity<Song>
                     v.showContextMenu();
                 }
             });
-        }
-
+        } else
         if (artist != null) {
             TextView header = (TextView) findViewById(R.id.header);
             header.setVisibility(View.VISIBLE);

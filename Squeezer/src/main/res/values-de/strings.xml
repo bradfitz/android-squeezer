@@ -133,6 +133,7 @@
     </string>
 
     <string name="BROWSE_SONGS">Lieder anzeigen</string>
+    <string name="BROWSE_SONGS_BY_ITEM">Titel des %s anzeigen</string>
     <string name="BROWSE_ALBUMS">Alben anzeigen</string>
     <string name="BROWSE_ARTISTS">Künstler anzeigen</string>
     <string name="BROWSE_ALBUM_SONGS">Albumtitel anzeigen</string>
