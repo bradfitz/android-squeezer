@@ -892,7 +892,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     private void updatePowerStatus(boolean powerStatus) {
-        if (powerStatus != playerState.isPoweredOn()) {
+        Boolean currentPowerStatus = playerState.getPoweredOn();
+        if (currentPowerStatus  == null || powerStatus != currentPowerStatus) {
             playerState.setPoweredOn(powerStatus);
             for (IServiceCallback callback : mServiceCallbacks) {
                 callback.onPowerStatusChanged(squeezeService.canPowerOn(),
@@ -1051,8 +1052,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void startConnect(String hostPort, String userName, String password) {
-            connectionState
-                    .startConnect(SqueezeService.this, executor, hostPort, userName, password);
+            connectionState.startConnect(SqueezeService.this, hostPort, userName, password);
         }
 
         @Override

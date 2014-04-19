@@ -290,8 +290,8 @@ class ConnectionState {
         }
     }
 
-    void startConnect(final SqueezeService service, ScheduledThreadPoolExecutor executor,
-            String hostPort, final String userName, final String password) {
+    void startConnect(final SqueezeService service, String hostPort, final String userName,
+                      final String password) {
         Log.v(TAG, "startConnect");
         // Common mistakes, based on crash reports...
         if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
@@ -314,7 +314,7 @@ class ConnectionState {
         this.password.set(password);
 
         // Start the off-thread connect.
-        executor.execute(new Runnable() {
+        service.executor.execute(new Runnable() {
             @Override
             public void run() {
                 service.disconnect();

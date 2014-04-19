@@ -72,7 +72,7 @@ public class PlayerState implements Parcelable {
         return 0;
     }
 
-    private boolean poweredOn;
+    private Boolean poweredOn;
 
     private PlayStatus playStatus;
 
@@ -104,8 +104,12 @@ public class PlayerState implements Parcelable {
         playStatus = state;
     }
 
-    public boolean isPoweredOn() {
+    public Boolean getPoweredOn() {
         return poweredOn;
+    }
+
+    public boolean isPoweredOn() {
+        return (poweredOn != null) && poweredOn;
     }
 
     public void setPoweredOn(boolean state) {
