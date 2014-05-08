@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
@@ -57,11 +56,20 @@ class CliClient {
      */
     private static final Joiner mNewlineJoiner = Joiner.on("\n").skipNulls();
 
-    class ExtendedQueryFormatCmd {
+    enum HandlerList {
+        GLOBAL, PREFIXED, PLAYER_SPECIFIC, GLOBAL_PLAYER_SPECIFIC, PREFIXED_PLAYER_SPECIFIC
+    }
 
-        final boolean playerSpecific;
+    static class ExtendedQueryFormatCmd {
+        private static final HashSet<HandlerList> PLAYER_SPECIFIC_HANDLER_LISTS =
+                new HashSet<HandlerList>(Arrays.asList(HandlerList.PLAYER_SPECIFIC,
+                        HandlerList.GLOBAL_PLAYER_SPECIFIC, HandlerList.PREFIXED_PLAYER_SPECIFIC));
+        private static final HashSet<HandlerList> PREFIXED_HANDLER_LISTS = new HashSet<HandlerList>(
+                Arrays.asList(HandlerList.PREFIXED, HandlerList.PREFIXED_PLAYER_SPECIFIC));
 
-        final boolean prefixed;
+        final HandlerList handlerList;
+        final private boolean playerSpecific;
+        final private boolean prefixed;
 
         final String cmd;
 
@@ -69,28 +77,28 @@ class CliClient {
 
         final private SqueezeParserInfo[] parserInfos;
 
-        private ExtendedQueryFormatCmd(boolean playerSpecific, boolean prefixed, String cmd,
+        public ExtendedQueryFormatCmd(HandlerList handlerList, String cmd,
                 Set<String> taggedParameters, SqueezeParserInfo... parserInfos) {
-            this.playerSpecific = playerSpecific;
-            this.prefixed = prefixed;
+            this.handlerList = handlerList;
+            playerSpecific = PLAYER_SPECIFIC_HANDLER_LISTS.contains(handlerList);
+            prefixed = PREFIXED_HANDLER_LISTS.contains(handlerList);
             this.cmd = cmd;
             this.taggedParameters = taggedParameters;
             this.parserInfos = parserInfos;
         }
 
-        private ExtendedQueryFormatCmd(boolean playerSpecific, String cmd,
-                Set<String> taggedParameters, SqueezeParserInfo... parserInfos) {
-            this(playerSpecific, false, cmd, taggedParameters, parserInfos);
-        }
-
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
                 String itemDelimiter, ListHandler<? extends Item> handler) {
-            this(false, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
+            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
         }
 
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
                 ListHandler<? extends Item> handler) {
-            this(false, cmd, taggedParameters, new SqueezeParserInfo(handler));
+            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler));
+        }
+
+        public String toString() {
+            return "{ cmd:'" + cmd + "', list:" + handlerList + ", player specific:" + playerSpecific + ", prefixed:" + prefixed + " }";
         }
 
     }
@@ -176,7 +184,7 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        false,
+                        HandlerList.GLOBAL,
                         "search",
                         new HashSet<String>(Arrays.asList("term", "charset")),
                         new SqueezeParserInfo("genres_count", "genre_id", new GenreListHandler()),
@@ -188,7 +196,7 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        true,
+                        HandlerList.PLAYER_SPECIFIC,
                         "status",
                         new HashSet<String>(Arrays.asList("tags", "charset", "subscribe")),
                         new SqueezeParserInfo("playlist_tracks", "playlist index",
@@ -211,7 +219,7 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        true, true,
+                        HandlerList.PREFIXED_PLAYER_SPECIFIC,
                         "items",
                         new HashSet<String>(
                                 Arrays.asList("item_id", "search", "want_url", "charset")),
@@ -296,6 +304,15 @@ class CliClient {
     }
 
     /**
+     * Send the specified command for the specified player to the SqueezeboxServer
+     *
+     * @param command The command to send
+     */
+    void sendPlayerCommand(final Player player, final String command) {
+        sendCommand(Util.encode(player.getId()) + " " + command);
+    }
+
+    /**
      * Send the specified command for the active player to the SqueezeboxServer
      *
      * @param command The command to send
@@ -304,7 +321,7 @@ class CliClient {
         if (service.connectionState.getActivePlayer() == null) {
             return;
         }
-        sendCommand(Util.encode(service.connectionState.getActivePlayer().getId()) + " " + command);
+        sendPlayerCommand(service.connectionState.getActivePlayer(), command);
     }
 
 
@@ -448,7 +465,7 @@ class CliClient {
      * @param tokens List of tokens with value or key:value.
      */
     void parseSqueezerList(ExtendedQueryFormatCmd cmd, List<String> tokens) {
-        Log.v(TAG, "Parsing list: " + tokens);
+        Log.v(TAG, "Parsing list, cmd: " +cmd + ", tokens: " + tokens);
 
         int ofs = cmd.cmd.split(" ").length + (cmd.playerSpecific ? 1 : 0) + (cmd.prefixed ? 1 : 0);
         int actionsCount = 0;

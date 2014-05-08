@@ -50,6 +50,9 @@ public interface ISqueezeService {
     // For the activity to get callback when the volume changes.
     void registerVolumeCallback(IServiceVolumeCallback callback);
 
+    // For the activity to get callback when status for a player is received.
+    void registerPlayerStateCallback(IServicePlayerStateCallback callback);
+
     // Instructing the service to connect to the SqueezeCenter server:
     // hostPort is the port of the CLI interface.
     void startConnect(String hostPort, String userName, String password);
@@ -62,6 +65,7 @@ public interface ISqueezeService {
 
     // Call this to change the player we are controlling
     void setActivePlayer(Player player);
+    void togglePower(Player player);
 
     // Returns the player we are currently controlling
     Player getActivePlayer();

@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import android.util.SparseArray;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.service.ServerString;
 
 
@@ -43,6 +44,7 @@ public class PlayerState implements Parcelable {
     };
 
     private PlayerState(Parcel source) {
+        playerId = source.readString();
         playStatus = PlayStatus.valueOf(source.readString());
         poweredOn = (source.readByte() == 1);
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
@@ -56,6 +58,7 @@ public class PlayerState implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(playerId);
         dest.writeString(playStatus.name());
         dest.writeByte(poweredOn ? (byte) 1 : (byte) 0);
         dest.writeInt(shuffleStatus.getId());
@@ -71,6 +74,8 @@ public class PlayerState implements Parcelable {
     public int describeContents() {
         return 0;
     }
+
+    private String playerId;
 
     private Boolean poweredOn;
 
@@ -104,6 +109,24 @@ public class PlayerState implements Parcelable {
         playStatus = state;
     }
 
+    public void setPlayStatus(String s) {
+        playStatus = null;
+        if (s != null)
+            try {
+                setPlayStatus(PlayStatus.valueOf(s));
+            } catch (IllegalArgumentException e) {
+                // Server sent us an unknown status, nulls are handled outside this function
+            }
+    }
+
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public void setPlayerId(String playerId) {
+        this.playerId = playerId;
+    }
+
     public Boolean getPoweredOn() {
         return poweredOn;
     }
@@ -124,12 +147,20 @@ public class PlayerState implements Parcelable {
         shuffleStatus = status;
     }
 
+    public void setShuffleStatus(String s) {
+        setShuffleStatus(s != null ? ShuffleStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
+    }
+
     public RepeatStatus getRepeatStatus() {
         return repeatStatus;
     }
 
     public void setRepeatStatus(RepeatStatus status) {
         repeatStatus = status;
+    }
+
+    public void setRepeatStatus(String s) {
+        setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
     }
 
     public Song getCurrentSong() {

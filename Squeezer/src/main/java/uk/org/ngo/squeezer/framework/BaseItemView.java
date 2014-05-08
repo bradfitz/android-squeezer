@@ -76,8 +76,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
     private final LayoutInflater mLayoutInflater;
 
-    private ItemAdapter<T> mAdapter;
-
     private Class<T> mItemClass;
 
     private Creator<T> mCreator;
@@ -141,14 +139,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     @Override
     public ItemListActivity getActivity() {
         return mActivity;
-    }
-
-    public ItemAdapter<T> getAdapter() {
-        return mAdapter;
-    }
-
-    public void setAdapter(ItemAdapter<T> adapter) {
-        mAdapter = adapter;
     }
 
     public LayoutInflater getLayoutInflater() {

@@ -19,20 +19,18 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.framework.BaseListActivity;
+import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
 
 public class PlayerListActivity extends BaseListActivity<Player> {
-
-    private Player activePlayer;
-
-    public Player getActivePlayer() {
-        return activePlayer;
-    }
+    Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
 
     @Override
     public ItemView<Player> createItemView() {
@@ -42,7 +40,40 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     @Override
     protected void orderPage(int start) {
         getService().players(start, this);
-        activePlayer = getService().getActivePlayer();
+    }
+
+    @Override
+    protected void registerCallback() {
+        super.registerCallback();
+        getService().registerPlayerStateCallback(playerStateCallback);
+    }
+
+    private final IServicePlayerStateCallback playerStateCallback
+            = new IServicePlayerStateCallback() {
+        @Override
+        public void onPlayerStateReceived(final PlayerState playerState) {
+            getUIThreadHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    playerStates.put(playerState.getPlayerId(), playerState);
+                    getItemAdapter().notifyDataSetChanged();
+                }
+            });
+        }
+
+        @Override
+        public Object getClient() {
+            return PlayerListActivity.this;
+        }
+    };
+
+    public PlayerState getPlayerState(String id) {
+        return playerStates.get(id);
+    }
+
+    @Override
+    protected ItemAdapter<Player> createItemListAdapter(ItemView<Player> itemView) {
+        return new PlayerListAdapter(itemView, getImageFetcher());
     }
 
     public static void show(Context context) {

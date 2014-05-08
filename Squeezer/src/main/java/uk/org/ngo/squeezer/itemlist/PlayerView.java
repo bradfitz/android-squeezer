@@ -17,6 +17,8 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -25,41 +27,49 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class PlayerView extends BaseItemView<Player> {
 
     private static final Map<String, Integer> modelIcons = initializeModelIcons();
 
-    private final PlayerListActivity mActivity;
-
     public PlayerView(PlayerListActivity activity) {
         super(activity);
 
-        mActivity = activity;
-
         setViewParams(EnumSet.of(ViewParams.ICON));
         setLoadingViewParams(EnumSet.of(ViewParams.ICON));
+    }
+
+    @Override
+    public View getAdapterView(View convertView, ViewGroup parent, EnumSet<ViewParams> viewParams) {
+        return getAdapterView(convertView, parent, viewParams, R.layout.list_item_player);
     }
 
     public void bindView(View view, Player item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
-        viewHolder.text1.setTextAppearance(mActivity,
-                item.equals(mActivity.getActivePlayer()) ? R.style.SqueezerCurrentTextItem
-                        : R.style.SqueezerTextItem);
-
         viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
 
-        view.setBackgroundResource(
-                item.equals(mActivity.getActivePlayer()) ? R.drawable.list_item_background_current
-                        : R.drawable.list_item_background_normal);
+        ImageButton power_button = (ImageButton) view.findViewById(R.id.power_button);
+        PlayerListActivity activity = (PlayerListActivity) getActivity();
+        PlayerState playerState = activity.getPlayerState(item.getId());
+        power_button.setVisibility(playerState == null ? View.GONE : View.VISIBLE);
+        if (playerState != null) {
+            power_button.setAlpha(playerState.isPoweredOn() ? 1.0F : 0.5F);
+            power_button.setTag(item);
+            power_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Player player = (Player) view.getTag();
+                    getActivity().getService().togglePower(player);
+                }
+            });
+        }
     }
 
     public void onItemSelected(int index, Player item) {
-        getActivity().getService().setActivePlayer(item);
-        getActivity().finish();
     }
 
     public String getQuantityString(int quantity) {
