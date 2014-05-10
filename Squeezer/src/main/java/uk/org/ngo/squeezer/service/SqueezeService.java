@@ -1403,13 +1403,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             updatePlayerSubscriptionState();
         }
 
-
         @Override
         public void players(int start, IServiceItemListCallback<Player> callback) {
             if (!isConnected()) {
                 return;
             }
-            cli.requestItems("players", start, callback);
+
+            // Call back immediately if we have players
+            List<Player> players = connectionState.getPlayers();
+            if (players != null)
+                callback.onItemsReceived(players.size(), 0, null, players, Player.class);
+            else
+                cli.requestItems("players", start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
