@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -26,6 +28,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseItemView;
+import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -34,10 +37,13 @@ public class PlayerView extends BaseItemView<Player> {
 
     private static final Map<String, Integer> modelIcons = initializeModelIcons();
 
+    private final PlayerListActivity activity;
+
     public PlayerView(PlayerListActivity activity) {
         super(activity);
+        this.activity = activity;
 
-        setViewParams(EnumSet.of(ViewParams.ICON));
+        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.CONTEXT_BUTTON));
         setLoadingViewParams(EnumSet.of(ViewParams.ICON));
     }
 
@@ -70,6 +76,24 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     public void onItemSelected(int index, Player item) {
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menuInfo.menuInflater.inflate(R.menu.playercontextmenu, menu);
+    }
+
+    @Override
+    public boolean doItemContext(MenuItem menuItem, int index, Player selectedItem) {
+        activity.setCurrentPlayer(selectedItem);
+        switch (menuItem.getItemId()) {
+            case R.id.rename:
+                new PlayerRenameDialog().show(activity.getSupportFragmentManager(),
+                        PlayerRenameDialog.class.getName());
+                return true;
+        }
+        return super.doItemContext(menuItem, index, selectedItem);
     }
 
     public String getQuantityString(int quantity) {

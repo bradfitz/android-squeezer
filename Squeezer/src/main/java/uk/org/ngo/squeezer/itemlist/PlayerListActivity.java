@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,23 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
 
 public class PlayerListActivity extends BaseListActivity<Player> {
+    public static final String CURRENT_PLAYER = "currentPlayer";
+
     Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
+    Player currentPlayer;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null)
+            currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(CURRENT_PLAYER, currentPlayer);
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     public ItemView<Player> createItemView() {
@@ -71,6 +88,19 @@ public class PlayerListActivity extends BaseListActivity<Player> {
         return playerStates.get(id);
     }
 
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+    }
+
+    public void playerRename(String newName) {
+        getService().playerRename(currentPlayer, newName);
+        this.currentPlayer.setName(newName);
+        getItemAdapter().notifyDataSetChanged();
+    }
+
     @Override
     protected ItemAdapter<Player> createItemListAdapter(ItemView<Player> itemView) {
         return new PlayerListAdapter(itemView, getImageFetcher());
@@ -81,5 +111,4 @@ public class PlayerListActivity extends BaseListActivity<Player> {
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
-
 }

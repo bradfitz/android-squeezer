@@ -1062,21 +1062,23 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public boolean powerOn() {
-            if (!isConnected()) {
-                return false;
-            }
+        public void powerOn() {
             cli.sendPlayerCommand("power 1");
-            return true;
         }
 
         @Override
-        public boolean powerOff() {
-            if (!isConnected()) {
-                return false;
-            }
+        public void powerOff() {
             cli.sendPlayerCommand("power 0");
-            return true;
+        }
+
+        @Override
+        public void togglePower(Player player) {
+            cli.sendPlayerCommand(player, "power");
+        }
+
+        @Override
+        public void playerRename(Player player, String newName) {
+            cli.sendPlayerCommand(player, "name " + Util.encode(newName));
         }
 
         @Override
@@ -1297,11 +1299,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     changeActivePlayer(player);
                 }
             });
-        }
-
-        @Override
-        public void togglePower(Player player) {
-            cli.sendPlayerCommand(player, "power");
         }
 
         @Override

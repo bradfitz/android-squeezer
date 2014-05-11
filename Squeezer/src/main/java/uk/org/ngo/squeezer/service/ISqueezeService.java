@@ -65,7 +65,6 @@ public interface ISqueezeService {
 
     // Call this to change the player we are controlling
     void setActivePlayer(Player player);
-    void togglePower(Player player);
 
     // Returns the player we are currently controlling
     Player getActivePlayer();
@@ -75,8 +74,10 @@ public interface ISqueezeService {
 
     boolean canPowerOn();
     boolean canPowerOff();
-    boolean powerOn();
-    boolean powerOff();
+    void powerOn();
+    void powerOff();
+    void togglePower(Player player);
+    void playerRename(Player player, String newName);
     boolean canMusicfolder();
     boolean canRandomplay();
     String preferredAlbumSort();
