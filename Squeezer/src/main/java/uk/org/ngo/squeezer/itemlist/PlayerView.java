@@ -63,7 +63,7 @@ public class PlayerView extends BaseItemView<Player> {
         PlayerState playerState = activity.getPlayerState(item.getId());
         power_button.setVisibility(playerState == null ? View.GONE : View.VISIBLE);
         if (playerState != null) {
-            power_button.setAlpha(playerState.isPoweredOn() ? 1.0F : 0.5F);
+            power_button.getDrawable().setAlpha(playerState.isPoweredOn() ? 255 : 127);
             power_button.setTag(item);
             power_button.setOnClickListener(new View.OnClickListener() {
                 @Override
