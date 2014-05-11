@@ -53,10 +53,12 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        currentIndex = savedInstanceState.getInt(CURRENT_INDEX);
-        currentPlaylist = savedInstanceState.getParcelable(CURRENT_PLAYLIST);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            currentIndex = savedInstanceState.getInt(CURRENT_INDEX);
+            currentPlaylist = savedInstanceState.getParcelable(CURRENT_PLAYLIST);
+        }
     }
 
     @Override
