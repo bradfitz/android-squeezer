@@ -363,4 +363,10 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         }
         return false;
     }
+
+    /** Empty default context-sub-menu implementation, as most context menus doesn't have subs */
+    @Override
+    public boolean doItemContext(MenuItem menuItem) {
+        return false;
+    }
 }

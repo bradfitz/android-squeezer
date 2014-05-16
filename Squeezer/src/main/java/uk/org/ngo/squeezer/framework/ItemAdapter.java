@@ -194,6 +194,10 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
         return mItemView.doItemContext(menuItem, position, getItem(position));
     }
 
+    public boolean doItemContext(MenuItem menuItem) {
+        return mItemView.doItemContext(menuItem);
+    }
+
     public ItemView<T> getItemView() {
         return mItemView;
     }

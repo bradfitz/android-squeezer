@@ -54,6 +54,8 @@ public class PlayerState implements Parcelable {
         currentTimeSecond = source.readInt();
         currentSongDuration = source.readInt();
         currentVolume = source.readInt();
+        sleepDuration = source.readInt();
+        sleep = source.readInt();
     }
 
     @Override
@@ -68,6 +70,8 @@ public class PlayerState implements Parcelable {
         dest.writeInt(currentTimeSecond);
         dest.writeInt(currentSongDuration);
         dest.writeInt(currentVolume);
+        dest.writeInt(sleepDuration);
+        dest.writeInt(sleep);
     }
 
     @Override
@@ -96,6 +100,10 @@ public class PlayerState implements Parcelable {
     private int currentSongDuration;
 
     private int currentVolume;
+
+    private int sleepDuration;
+
+    private int sleep;
 
     public boolean isPlaying() {
         return playStatus == PlayStatus.play;
@@ -217,6 +225,22 @@ public class PlayerState implements Parcelable {
     public PlayerState setCurrentVolume(int value) {
         currentVolume = value;
         return this;
+    }
+
+    public int getSleepDuration() {
+        return sleepDuration;
+    }
+
+    public void setSleepDuration(int sleepDuration) {
+        this.sleepDuration = sleepDuration;
+    }
+
+    public int getSleep() {
+        return sleep;
+    }
+
+    public void setSleep(int sleep) {
+        this.sleep = sleep;
     }
 
     public static enum PlayStatus {

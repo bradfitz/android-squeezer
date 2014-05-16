@@ -15,7 +15,13 @@ public enum ServerString {
     SHUFFLE_ON_ALBUMS,
     SWITCH_TO_EXTENDED_LIST,
     SWITCH_TO_GALLERY,
-    ALBUM_DISPLAY_OPTIONS;
+    ALBUM_DISPLAY_OPTIONS,
+    SLEEP,
+    SLEEP_CANCEL,
+    X_MINUTES,
+    SLEEPING_IN,
+    SLEEP_AT_END_OF_SONG
+    ;
 
     private String localizedString;
 

@@ -21,16 +21,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class PlayerView extends BaseItemView<Player> {
@@ -43,8 +47,8 @@ public class PlayerView extends BaseItemView<Player> {
         super(activity);
         this.activity = activity;
 
-        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.CONTEXT_BUTTON));
-        setLoadingViewParams(EnumSet.of(ViewParams.ICON));
+        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.TWO_LINE, ViewParams.CONTEXT_BUTTON));
+        setLoadingViewParams(EnumSet.of(ViewParams.ICON, ViewParams.TWO_LINE));
     }
 
     @Override
@@ -63,7 +67,7 @@ public class PlayerView extends BaseItemView<Player> {
         PlayerState playerState = activity.getPlayerState(item.getId());
         power_button.setVisibility(playerState == null ? View.GONE : View.VISIBLE);
         if (playerState != null) {
-            power_button.getDrawable().setAlpha(playerState.isPoweredOn() ? 255 : 127);
+            Util.setAlpha(power_button, playerState.isPoweredOn() ? 1.0F : 0.5F);
             power_button.setTag(item);
             power_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -72,6 +76,9 @@ public class PlayerView extends BaseItemView<Player> {
                     getActivity().getService().togglePower(player);
                 }
             });
+
+            viewHolder.text2.setVisibility(playerState.getSleepDuration() > 0 ? View.VISIBLE : View.GONE);
+            viewHolder.text2.setText(activity.getServerString(ServerString.SLEEPING_IN) + " " + Util.formatElapsedTime(playerState.getSleep()));
         }
     }
 
@@ -82,18 +89,88 @@ public class PlayerView extends BaseItemView<Player> {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menuInfo.menuInflater.inflate(R.menu.playercontextmenu, menu);
+
+        menu.findItem(R.id.sleep).setTitle(activity.getServerString(ServerString.SLEEP));
+        String xMinutes = activity.getServerString(ServerString.X_MINUTES);
+        menu.findItem(R.id.in_15_minutes).setTitle(String.format(xMinutes, "15"));
+        menu.findItem(R.id.in_30_minutes).setTitle(String.format(xMinutes, "30"));
+        menu.findItem(R.id.in_45_minutes).setTitle(String.format(xMinutes, "45"));
+        menu.findItem(R.id.in_60_minutes).setTitle(String.format(xMinutes, "60"));
+        menu.findItem(R.id.in_90_minutes).setTitle(String.format(xMinutes, "90"));
+
+        PlayerState playerState = activity.getPlayerState(menuInfo.item.getId());
+        if (playerState != null) {
+            if (playerState.getSleepDuration() != 0) {
+                MenuItem cancelSleepItem = menu.findItem(R.id.cancel_sleep);
+                cancelSleepItem.setTitle(activity.getServerString(ServerString.SLEEP_CANCEL));
+                cancelSleepItem.setVisible(true);
+            }
+
+            Song currentSong = playerState.getCurrentSong();
+            boolean isPlaying = (playerState.isPlaying() && currentSong != null);
+            if (isPlaying && !currentSong.isRemote()) {
+                MenuItem sleepAtEndOfSongItem = menu.findItem(R.id.end_of_song);
+                sleepAtEndOfSongItem.setTitle(activity.getServerString(ServerString.SLEEP_AT_END_OF_SONG));
+                sleepAtEndOfSongItem.setVisible(true);
+            }
+        }
+
     }
 
     @Override
     public boolean doItemContext(MenuItem menuItem, int index, Player selectedItem) {
         activity.setCurrentPlayer(selectedItem);
+
         switch (menuItem.getItemId()) {
+            case R.id.sleep:
+                // This is the start of a context menu.
+                // Just return, as we have set the current player.
+                return true;
+            case R.id.cancel_sleep:
+                activity.getService().sleep(selectedItem, 0);
+                return true;
             case R.id.rename:
                 new PlayerRenameDialog().show(activity.getSupportFragmentManager(),
                         PlayerRenameDialog.class.getName());
                 return true;
         }
         return super.doItemContext(menuItem, index, selectedItem);
+    }
+
+    @Override
+    public boolean doItemContext(MenuItem menuItem) {
+        Player currentPlayer = activity.getCurrentPlayer();
+        switch (menuItem.getItemId()) {
+            case R.id.end_of_song:
+                PlayerState playerState = activity.getPlayerState(currentPlayer.getId());
+                if (playerState != null) {
+                    Song currentSong = playerState.getCurrentSong();
+                    boolean isPlaying = (playerState.isPlaying() && currentSong != null);
+                    if (isPlaying && !currentSong.isRemote()) {
+                        int sleep = playerState.getCurrentSongDuration() - playerState.getCurrentTimeSecond() + 1;
+                        if (sleep >= 0)
+                            activity.getService().sleep(currentPlayer, sleep);
+                    }
+
+                }
+                return true;
+            case R.id.in_15_minutes:
+                activity.getService().sleep(currentPlayer, 15*60);
+                return true;
+            case R.id.in_30_minutes:
+                activity.getService().sleep(currentPlayer, 30*60);
+                return true;
+            case R.id.in_45_minutes:
+                activity.getService().sleep(currentPlayer, 45*60);
+                return true;
+            case R.id.in_60_minutes:
+                activity.getService().sleep(currentPlayer, 60*60);
+                return true;
+            case R.id.in_90_minutes:
+                activity.getService().sleep(currentPlayer, 90*60);
+                return true;
+        }
+        return super.doItemContext(menuItem);
     }
 
     public String getQuantityString(int quantity) {

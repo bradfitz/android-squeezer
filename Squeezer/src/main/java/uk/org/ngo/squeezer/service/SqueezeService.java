@@ -606,9 +606,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         result.setRepeatStatus(tokenMap.get("playlist repeat"));
         result.setCurrentPlaylist(tokenMap.get("playlist_name"));
         result.setCurrentPlaylistIndex(Util.parseDecimalIntOrZero(tokenMap.get("playlist_cur_index")));
+        result.setSleepDuration(Util.parseDecimalIntOrZero(tokenMap.get("sleep")));
+        result.setSleep(Util.parseDecimalIntOrZero(tokenMap.get("will_sleep_in")));
         result.setCurrentSong(new Song(tokenMap));
-        result.setCurrentSongDuration(Util.parseDecimalIntOrZero(tokenMap.get("time")));
-        result.setCurrentTimeSecond(Util.parseDecimalIntOrZero(tokenMap.get("duration")));
+        result.setCurrentSongDuration(Util.parseDecimalIntOrZero(tokenMap.get("duration")));
+        result.setCurrentTimeSecond(Util.parseDecimalIntOrZero(tokenMap.get("time")));
 
         return result;
     }
@@ -619,7 +621,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         updateShuffleStatus(newPlayerState.getShuffleStatus());
         updateRepeatStatus(newPlayerState.getRepeatStatus());
         updateCurrentSong(newPlayerState.getCurrentSong());
-        updateTimes(newPlayerState.getCurrentSongDuration(), newPlayerState.getCurrentSongDuration());
+        updateTimes(newPlayerState.getCurrentTimeSecond(), newPlayerState.getCurrentSongDuration());
     }
 
     void changeActivePlayer(Player newPlayer) {
@@ -1079,6 +1081,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void playerRename(Player player, String newName) {
             cli.sendPlayerCommand(player, "name " + Util.encode(newName));
+        }
+
+        @Override
+        public void sleep(Player player, int duration) {
+            cli.sendPlayerCommand(player, "sleep " + duration);
         }
 
         @Override

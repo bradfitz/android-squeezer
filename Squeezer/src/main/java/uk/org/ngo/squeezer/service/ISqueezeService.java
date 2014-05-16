@@ -69,6 +69,11 @@ public interface ISqueezeService {
     // Returns the player we are currently controlling
     Player getActivePlayer();
 
+    // Player control
+    void togglePower(Player player);
+    void playerRename(Player player, String newName);
+    void sleep(Player player, int duration);
+
     ////////////////////
     // Depends on active player:
 
@@ -76,8 +81,6 @@ public interface ISqueezeService {
     boolean canPowerOff();
     void powerOn();
     void powerOff();
-    void togglePower(Player player);
-    void playerRename(Player player, String newName);
     boolean canMusicfolder();
     boolean canRandomplay();
     String preferredAlbumSort();
@@ -174,5 +177,6 @@ public interface ISqueezeService {
      * @param item Song or item with songs to download
      */
     void downloadItem(FilterItem item);
+
 
 }

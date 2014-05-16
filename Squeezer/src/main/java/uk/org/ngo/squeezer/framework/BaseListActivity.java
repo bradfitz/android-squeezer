@@ -142,7 +142,11 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     public boolean onContextItemSelected(MenuItem menuItem) {
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 
-        return itemAdapter.doItemContext(menuItem, menuInfo.position);
+        // If menuInfo is null we have a sub menu, we expect the adapter to have stored the position
+        if (menuInfo == null)
+            return itemAdapter.doItemContext(menuItem);
+        else
+            return itemAdapter.doItemContext(menuItem, menuInfo.position);
     }
 
     /**
