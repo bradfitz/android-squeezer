@@ -115,6 +115,7 @@ public interface ISqueezeService {
      *
      * @param newVolume
      */
+    void adjustVolumeTo(Player player, int newVolume);
     void adjustVolumeTo(int newVolume);
     void adjustVolumeBy(int delta);
 

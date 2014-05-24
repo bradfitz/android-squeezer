@@ -74,6 +74,28 @@ for the implementation.
             android:layout_height="wrap_content"
             android:textAppearance="@style/SqueezerTextItem"/>
 
+        <LinearLayout
+            android:id="@+id/volume_box"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/volume_value"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/SqueezerTextItemSmall"/>
+
+            <SeekBar
+                android:id="@+id/volume_slider"
+                android:max="100"
+                android:thumbOffset="8dp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/text2"
             android:layout_width="fill_parent"

@@ -143,6 +143,7 @@ public class NowPlayingFragment extends Fragment implements
     /**
      * Volume control panel.
      */
+    private boolean ignoreVolumeChange;
     private VolumePanel mVolumePanel;
 
     // Updating the seekbar
@@ -1216,12 +1217,23 @@ public class NowPlayingFragment extends Fragment implements
     private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
         @Override
         public void onVolumeChanged(final int newVolume, final Player player) {
-            mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
+            if (!ignoreVolumeChange) {
+                mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
+            }
         }
 
         @Override
         public Object getClient() {
             return NowPlayingFragment.this;
         }
+
+        @Override
+        public boolean wantAllPlayers() {
+            return false;
+        }
     };
+
+    public void setIgnoreVolumeChange(boolean ignoreVolumeChange) {
+        this.ignoreVolumeChange = ignoreVolumeChange;
+    }
 }

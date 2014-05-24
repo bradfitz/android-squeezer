@@ -23,12 +23,15 @@ import android.os.Bundle;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.NowPlayingFragment;
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
+import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 
 public class PlayerListActivity extends BaseListActivity<Player> {
     public static final String CURRENT_PLAYER = "currentPlayer";
@@ -41,6 +44,7 @@ public class PlayerListActivity extends BaseListActivity<Player> {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null)
             currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
+        ((NowPlayingFragment) getSupportFragmentManager().findFragmentById(R.id.now_playing_fragment)).setIgnoreVolumeChange(true);
     }
 
     @Override
@@ -62,6 +66,7 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     @Override
     protected void registerCallback() {
         super.registerCallback();
+        getService().registerVolumeCallback(volumeCallback);
         getService().registerPlayerStateCallback(playerStateCallback);
     }
 
@@ -81,6 +86,32 @@ public class PlayerListActivity extends BaseListActivity<Player> {
         @Override
         public Object getClient() {
             return PlayerListActivity.this;
+        }
+    };
+
+    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
+        @Override
+        public void onVolumeChanged(final int newVolume, final Player player) {
+            getUIThreadHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    PlayerState playerState = playerStates.get(player.getId());
+                    if (playerState != null) {
+                        playerState.setCurrentVolume(newVolume);
+                        getItemAdapter().notifyDataSetChanged();
+                    }
+                }
+            });
+        }
+
+        @Override
+        public Object getClient() {
+            return PlayerListActivity.this;
+        }
+
+        @Override
+        public boolean wantAllPlayers() {
+            return true;
         }
     };
 

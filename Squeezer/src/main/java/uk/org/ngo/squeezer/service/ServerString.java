@@ -20,7 +20,8 @@ public enum ServerString {
     SLEEP_CANCEL,
     X_MINUTES,
     SLEEPING_IN,
-    SLEEP_AT_END_OF_SONG
+    SLEEP_AT_END_OF_SONG,
+    VOLUME,
     ;
 
     private String localizedString;

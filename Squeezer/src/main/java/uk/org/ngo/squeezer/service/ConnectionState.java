@@ -177,6 +177,13 @@ class ConnectionState {
         this.players.addAll(players);
     }
 
+    Player getPlayer(String playerId) {
+        for (Player player : players)
+            if (playerId.equals(player.getId()))
+                return player;
+        return null;
+    }
+
     PrintWriter getSocketWriter() {
         return socketWriter.get();
     }

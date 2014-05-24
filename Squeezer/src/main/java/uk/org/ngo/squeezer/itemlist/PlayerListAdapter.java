@@ -29,7 +29,7 @@ class PlayerListAdapter extends ItemAdapter<Player> {
 
     @Override
     public boolean areAllItemsEnabled() {
-        return false;
+        return true; // Should be false, but then there is no divider
     }
 
     @Override

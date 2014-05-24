@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.EnumSet;
@@ -57,15 +58,19 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     public void bindView(View view, Player item, ImageFetcher imageFetcher) {
+        final PlayerListActivity activity = (PlayerListActivity) getActivity();
+        PlayerState playerState = activity.getPlayerState(item.getId());
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
         viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
 
         ImageButton power_button = (ImageButton) view.findViewById(R.id.power_button);
-        PlayerListActivity activity = (PlayerListActivity) getActivity();
-        PlayerState playerState = activity.getPlayerState(item.getId());
-        power_button.setVisibility(playerState == null ? View.GONE : View.VISIBLE);
+        power_button.setVisibility(item.isCanpoweroff() && playerState != null ? View.VISIBLE : View.GONE);
+
+        View volumeBox = view.findViewById(R.id.volume_box);
+        volumeBox.setVisibility(playerState != null ? View.VISIBLE : View.GONE);
+
         if (playerState != null) {
             Util.setAlpha(power_button, playerState.isPoweredOn() ? 1.0F : 0.5F);
             power_button.setTag(item);
@@ -74,6 +79,31 @@ public class PlayerView extends BaseItemView<Player> {
                 public void onClick(View view) {
                     Player player = (Player) view.getTag();
                     getActivity().getService().togglePower(player);
+                }
+            });
+
+            TextView volumeValue = (TextView) view.findViewById(R.id.volume_value);
+            volumeValue.setText(activity.getServerString(ServerString.VOLUME) + ": " + playerState.getCurrentVolume());
+
+            SeekBar volumeBar = (SeekBar) view.findViewById(R.id.volume_slider);
+            volumeBar.setProgress(playerState.getCurrentVolume());
+            volumeBar.setTag(item);
+            volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        Player player = (Player) seekBar.getTag();
+                        activity.getService().adjustVolumeTo(player, progress);
+                        seekBar.setProgress(progress);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
                 }
             });
 

@@ -379,17 +379,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 });
             }
         }
-        handlers.put("prefset", new CmdHandler() {
-            @Override
-            public void handle(List<String> tokens) {
-                Log.v(TAG, "Prefset received: " + tokens);
-                if (tokens.size() > 4 && tokens.get(2).equals("server") && tokens.get(3)
-                        .equals("volume")) {
-                    String newVolume = tokens.get(4);
-                    updatePlayerVolume(Util.parseDecimalIntOrZero(newVolume));
-                }
-            }
-        });
         handlers.put("play", new CmdHandler() {
             @Override
             public void handle(List<String> tokens) {
@@ -446,6 +435,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     }
                 } else {
                     cli.parseSqueezerList(cli.extQueryFormatCmdMap.get("status"), tokens);
+                }
+            }
+        });
+        handlers.put("prefset", new CmdHandler() {
+            @Override
+            public void handle(List<String> tokens) {
+                Log.v(TAG, "Prefset received: " + tokens);
+                if (tokens.size() > 4 && tokens.get(2).equals("server") && tokens.get(3)
+                        .equals("volume")) {
+                    String playerId = Util.decode(tokens.get(0));
+                    int newVolume = Util.parseDecimalIntOrZero(tokens.get(4));
+                    updatePlayerVolume(playerId, newVolume);
                 }
             }
         });
@@ -524,10 +525,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 .getActivePlayer().getId() : null);
     }
 
-    private void updatePlayerVolume(int newVolume) {
-        playerState.setCurrentVolume(newVolume);
-        Player player = connectionState.getActivePlayer();
+    private void updatePlayerVolume(String playerId, int newVolume) {
+        Player player = connectionState.getPlayer(playerId);
+        if (playerId.equals(getActivePlayerId())) {
+            playerState.setCurrentVolume(newVolume);
+        }
         for (IServiceVolumeCallback callback : mVolumeCallbacks) {
+            if (callback.wantAllPlayers() || playerId.equals(getActivePlayerId()))
             callback.onVolumeChanged(newVolume, player);
         }
     }
@@ -611,6 +615,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         result.setCurrentSong(new Song(tokenMap));
         result.setCurrentSongDuration(Util.parseDecimalIntOrZero(tokenMap.get("duration")));
         result.setCurrentTimeSecond(Util.parseDecimalIntOrZero(tokenMap.get("time")));
+        result.setCurrentVolume(Util.parseDecimalIntOrZero(tokenMap.get("mixer volume")));
 
         return result;
     }
@@ -1024,6 +1029,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         public void registerPlayerStateCallback(IServicePlayerStateCallback callback) {
             mPlayerStateCallbacks.register(callback);
             updatePlayerSubscriptionState();
+        }
+
+        @Override
+        public void adjustVolumeTo(Player player, int newVolume) {
+            cli.sendPlayerCommand(player, "mixer volume " + Math.min(100, Math.max(0, newVolume)));
         }
 
         @Override

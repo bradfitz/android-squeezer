@@ -19,5 +19,6 @@ package uk.org.ngo.squeezer.service;
 import uk.org.ngo.squeezer.model.Player;
 
 public interface IServiceVolumeCallback extends ServiceCallback {
+    boolean wantAllPlayers();
     void onVolumeChanged(int newVolume, Player player);
 }
