@@ -1,13 +1,8 @@
 package uk.org.ngo.squeezer.test.server;
 
-import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.IServiceCallback;
 
 public class ServiceCallbackTest implements IServiceCallback {
-
-    int onPlayerChanged;
-
-    Player currentPlayer;
 
     int onConnectionChanged;
 
@@ -17,12 +12,6 @@ public class ServiceCallbackTest implements IServiceCallback {
 
     boolean isLoginFailed;
 
-
-    @Override
-    public void onPlayerChanged(Player player) {
-        onPlayerChanged++;
-        currentPlayer = player;
-    }
 
     @Override
     public void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed) {

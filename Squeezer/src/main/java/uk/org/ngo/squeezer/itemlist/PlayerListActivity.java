@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.NowPlayingFragment;
@@ -31,6 +32,7 @@ import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
+import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 
 public class PlayerListActivity extends BaseListActivity<Player> {
@@ -67,6 +69,7 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     protected void registerCallback() {
         super.registerCallback();
         getService().registerVolumeCallback(volumeCallback);
+        getService().registerPlayersCallback(playersCallback);
         getService().registerPlayerStateCallback(playerStateCallback);
     }
 
@@ -112,6 +115,18 @@ public class PlayerListActivity extends BaseListActivity<Player> {
         @Override
         public boolean wantAllPlayers() {
             return true;
+        }
+    };
+
+    private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
+        @Override
+        public void onPlayersChanged(List<Player> players, Player activePlayer) {
+            onItemsReceived(players.size(), 0, players);
+        }
+
+        @Override
+        public Object getClient() {
+            return PlayerListActivity.this;
         }
     };
 

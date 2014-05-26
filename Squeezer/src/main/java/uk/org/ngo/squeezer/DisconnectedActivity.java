@@ -114,10 +114,6 @@ public class DisconnectedActivity extends BaseActivity {
         }
 
         @Override
-        public void onPlayersChanged(List<Player> players, Player activePlayer) {
-        }
-
-        @Override
         public void onPlayStatusChanged(final String playStatus) {
         }
 

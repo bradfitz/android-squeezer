@@ -38,6 +38,12 @@ public interface ISqueezeService {
     // For the activity to get callbacks on interesting events
     void registerCallback(IServiceCallback callback);
 
+    // For the activity to get callback when the active or connected players changes.
+    void registerPlayersCallback(IServicePlayersCallback callback);
+
+    // For the activity to get callback when the volume changes.
+    void registerVolumeCallback(IServiceVolumeCallback callback);
+
     // For the activity to get callback when the current playlist is modified
     void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
 
@@ -46,9 +52,6 @@ public interface ISqueezeService {
 
     // For the activity to get callback when handshake completes
     void registerHandshakeCallback(IServiceHandshakeCallback callback);
-
-    // For the activity to get callback when the volume changes.
-    void registerVolumeCallback(IServiceVolumeCallback callback);
 
     // For the activity to get callback when status for a player is received.
     void registerPlayerStateCallback(IServicePlayerStateCallback callback);

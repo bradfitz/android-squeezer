@@ -124,6 +124,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     final ServiceCallbackList<IServiceCallback> mServiceCallbacks
             = new ServiceCallbackList<IServiceCallback>(this);
 
+    final ServiceCallbackList<IServicePlayersCallback> mPlayersCallbacks
+            = new ServiceCallbackList<IServicePlayersCallback>(this);
+
+    final ServiceCallbackList<IServiceVolumeCallback> mVolumeCallbacks
+            = new ServiceCallbackList<IServiceVolumeCallback>(this);
+
     final ServiceCallbackList<IServiceCurrentPlaylistCallback> mCurrentPlaylistCallbacks
             = new ServiceCallbackList<IServiceCurrentPlaylistCallback>(this);
 
@@ -135,9 +141,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     final ServiceCallbackList<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallbacks
             = new ServiceCallbackList<IServicePlaylistMaintenanceCallback>(this);
-
-    final ServiceCallbackList<IServiceVolumeCallback> mVolumeCallbacks
-            = new ServiceCallbackList<IServiceVolumeCallback>(this);
 
     final ServiceCallbackList<IServicePlayerStateCallback> mPlayerStateCallbacks
             = new ServiceCallbackList<IServicePlayerStateCallback>(this);
@@ -666,7 +669,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             });
         }
 
-        for (IServiceCallback callback : mServiceCallbacks) {
+        for (IServicePlayersCallback callback : mPlayersCallbacks) {
             callback.onPlayersChanged(connectionState.getPlayers(), newPlayer);
         }
     }
@@ -992,12 +995,22 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         public void registerCallback(IServiceCallback callback) {
             mServiceCallbacks.register(callback);
             updatePlayerSubscriptionState();
+        }
+
+        @Override
+        public void registerPlayersCallback(IServicePlayersCallback callback) {
+            mPlayersCallbacks.register(callback);
 
             // Call back immediately if we have players
             List<Player> players = connectionState.getPlayers();
             if (players.size() > 0) {
                 callback.onPlayersChanged(players, connectionState.getActivePlayer());
             }
+        }
+
+        @Override
+        public void registerVolumeCallback(IServiceVolumeCallback callback) {
+            mVolumeCallbacks.register(callback);
         }
 
         @Override
@@ -1021,15 +1034,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public void registerVolumeCallback(IServiceVolumeCallback callback) {
-            mVolumeCallbacks.register(callback);
-        }
-
-        @Override
         public void registerPlayerStateCallback(IServicePlayerStateCallback callback) {
             mPlayerStateCallbacks.register(callback);
             updatePlayerSubscriptionState();
         }
+
 
         @Override
         public void adjustVolumeTo(Player player, int newVolume) {

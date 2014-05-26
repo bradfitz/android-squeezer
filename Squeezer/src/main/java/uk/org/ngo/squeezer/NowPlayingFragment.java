@@ -79,6 +79,7 @@ import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceCallback;
 import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
+import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -655,6 +656,7 @@ public class NowPlayingFragment extends Fragment implements
             mService.registerCallback(serviceCallback);
             mService.registerHandshakeCallback(handshakeCallback);
             mService.registerMusicChangedCallback(musicChangedCallback);
+            mService.registerPlayersCallback(playersCallback);
             mService.registerVolumeCallback(volumeCallback);
             mRegisteredCallbacks = true;
         }
@@ -1107,16 +1109,6 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         @Override
-        public void onPlayersChanged(final List<Player> players, final Player activePlayer) {
-            uiThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    updatePlayerDropDown(players, activePlayer);
-                }
-            });
-        }
-
-        @Override
         public void onPlayStatusChanged(final String playStatusName) {
             uiThreadHandler.post(new Runnable() {
                 @Override
@@ -1204,6 +1196,23 @@ public class NowPlayingFragment extends Fragment implements
                 @Override
                 public void run() {
                     updatePowerMenuItems(canPowerOn(), canPowerOff());
+                }
+            });
+        }
+
+        @Override
+        public Object getClient() {
+            return NowPlayingFragment.this;
+        }
+    };
+
+    private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
+        @Override
+        public void onPlayersChanged(final List<Player> players, final Player activePlayer) {
+            uiThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updatePlayerDropDown(players, activePlayer);
                 }
             });
         }
