@@ -24,11 +24,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import java.util.List;
-
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.service.IServiceCallback;
+import uk.org.ngo.squeezer.service.IServiceConnectionCallback;
 
 /**
  * An activity for when the user is not connected to a Squeezeserver.
@@ -85,10 +82,10 @@ public class DisconnectedActivity extends BaseActivity {
     @Override
     protected void registerCallback() {
         super.registerCallback();
-        getService().registerCallback(serviceCallback);
+        getService().registerConnectionCallback(connectionCallback);
     }
 
-    private final IServiceCallback serviceCallback = new IServiceCallback() {
+    private final IServiceConnectionCallback connectionCallback = new IServiceConnectionCallback() {
         // TODO: Maybe move onConnectionChanged to its own callback.
 
         @Override
@@ -111,26 +108,6 @@ public class DisconnectedActivity extends BaseActivity {
                     }
                 });
             }
-        }
-
-        @Override
-        public void onPlayStatusChanged(final String playStatus) {
-        }
-
-        @Override
-        public void onShuffleStatusChanged(final boolean initial, final int shuffleStatus) {
-        }
-
-        @Override
-        public void onRepeatStatusChanged(final boolean initial, final int repeatStatus) {
-        }
-
-        @Override
-        public void onTimeInSongChange(final int secondsIn, final int secondsTotal) {
-        }
-
-        @Override
-        public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff) {
         }
 
         @Override

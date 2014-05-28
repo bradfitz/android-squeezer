@@ -16,11 +16,9 @@
 
 package uk.org.ngo.squeezer.service;
 
-import java.util.List;
-
-import uk.org.ngo.squeezer.model.Player;
-
-public interface IServicePlayersCallback extends ServiceCallback {
-    void onPlayersChanged(List<Player> players, Player activePlayer);
+public interface IServiceConnectionCallback extends ServiceCallback {
+    // postConnect is only true for the very first callback after a new initial connect.
+    // loginFailed is true if the server disconnects before handshaking is completed
+    void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed);
 }
 

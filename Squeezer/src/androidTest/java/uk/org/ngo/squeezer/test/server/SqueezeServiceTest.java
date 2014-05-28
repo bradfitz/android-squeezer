@@ -24,7 +24,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         ISqueezeService service = (ISqueezeService) binder;
         ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
 
-        service.registerCallback(serviceCallback);
+        service.registerConnectionCallback(serviceCallback);
         service.startConnect("localhost", "test", "test");
         Thread.sleep(1000); //TODO proper synchronization
 
@@ -39,7 +39,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         WaitForHandshake waitForHandshake = new WaitForHandshake(service);
 
         SqueezeboxServerMock.starter().start();
-        service.registerCallback(serviceCallback);
+        service.registerConnectionCallback(serviceCallback);
         service.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "test", "test");
         waitForHandshake.waitForHandshakeCompleted();
 
@@ -57,7 +57,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
         SqueezeboxServerMock.starter().username("user").password("1234").start();
 
-        service.registerCallback(serviceCallback);
+        service.registerConnectionCallback(serviceCallback);
         WaitForHandshake waitForHandshake = new WaitForHandshake(service);
         service.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "user", "1234");
         waitForHandshake.waitForHandshakeCompleted();
@@ -76,7 +76,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
         SqueezeboxServerMock.starter().username("user").password("1234").start();
 
-        service.registerCallback(serviceCallback);
+        service.registerConnectionCallback(serviceCallback);
         service.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "test", "test");
         Thread.sleep(1000); //TODO proper synchronization
 

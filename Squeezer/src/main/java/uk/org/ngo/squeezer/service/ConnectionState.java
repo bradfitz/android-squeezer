@@ -150,7 +150,7 @@ class ConnectionState {
         service.executor.execute(new Runnable() {
             @Override
             public void run() {
-                for (IServiceCallback callback : service.mServiceCallbacks) {
+                for (IServiceConnectionCallback callback : service.mConnectionCallbacks) {
                     callback.onConnectionChanged(currentState, postConnect, loginFailed);
                 }
             }

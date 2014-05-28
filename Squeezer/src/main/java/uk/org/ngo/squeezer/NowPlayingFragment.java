@@ -77,6 +77,7 @@ import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceCallback;
+import uk.org.ngo.squeezer.service.IServiceConnectionCallback;
 import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
@@ -1096,19 +1097,6 @@ public class NowPlayingFragment extends Fragment implements
 
     private final IServiceCallback serviceCallback = new IServiceCallback() {
         @Override
-        public void onConnectionChanged(final boolean isConnected,
-                final boolean postConnect,
-                final boolean loginFailed) {
-            Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
-            uiThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    setConnected(isConnected, postConnect, loginFailed);
-                }
-            });
-        }
-
-        @Override
         public void onPlayStatusChanged(final String playStatusName) {
             uiThreadHandler.post(new Runnable() {
                 @Override
@@ -1161,6 +1149,26 @@ public class NowPlayingFragment extends Fragment implements
             uiThreadHandler.post(new Runnable() {
                 public void run() {
                     updatePowerMenuItems(canPowerOn, canPowerOff);
+                }
+            });
+        }
+
+        @Override
+        public Object getClient() {
+            return NowPlayingFragment.this;
+        }
+    };
+
+    private final IServiceConnectionCallback connectionCallback = new IServiceConnectionCallback() {
+        @Override
+        public void onConnectionChanged(final boolean isConnected,
+                                        final boolean postConnect,
+                                        final boolean loginFailed) {
+            Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
+            uiThreadHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    setConnected(isConnected, postConnect, loginFailed);
                 }
             });
         }

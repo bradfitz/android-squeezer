@@ -17,10 +17,6 @@
 package uk.org.ngo.squeezer.service;
 
 public interface IServiceCallback extends ServiceCallback {
-    // postConnect is only true for the very first callback after a new initial connect.
-    // loginFailed is true if the server disconnects before handshaking is completed
-    void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed);
-
     void onPlayStatusChanged(String playStatus);
     void onShuffleStatusChanged(boolean initial, int shuffleStatus);
     void onRepeatStatusChanged(boolean initial, int repeatStatus);

@@ -124,6 +124,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     final ServiceCallbackList<IServiceCallback> mServiceCallbacks
             = new ServiceCallbackList<IServiceCallback>(this);
 
+    final ServiceCallbackList<IServiceConnectionCallback> mConnectionCallbacks
+            = new ServiceCallbackList<IServiceConnectionCallback>(this);
+
     final ServiceCallbackList<IServicePlayersCallback> mPlayersCallbacks
             = new ServiceCallbackList<IServicePlayersCallback>(this);
 
@@ -995,6 +998,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         public void registerCallback(IServiceCallback callback) {
             mServiceCallbacks.register(callback);
             updatePlayerSubscriptionState();
+        }
+
+        @Override
+        public void registerConnectionCallback(IServiceConnectionCallback callback) {
+            mConnectionCallbacks.register(callback);
         }
 
         @Override
