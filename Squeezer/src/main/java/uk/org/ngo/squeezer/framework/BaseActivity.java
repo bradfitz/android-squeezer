@@ -36,6 +36,7 @@ import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.util.SqueezePlayer;
 
 /**
  * Common base class for all activities in the squeezer
@@ -113,6 +114,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         if (getService() != null) {
             maybeRegisterCallbacks();
         }
+
+        // If SqueezePlayer is installed, start it
+        SqueezePlayer.maybeStartSqueezePlayer(this);
     }
 
     @Override

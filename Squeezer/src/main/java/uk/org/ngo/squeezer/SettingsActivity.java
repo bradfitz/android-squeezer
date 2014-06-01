@@ -98,7 +98,16 @@ public class SettingsActivity extends PreferenceActivity implements
                 Preferences.KEY_AUTO_CONNECT);
         autoConnectPref.setChecked(preferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true));
 
-        // Scrobbling
+        fillScrobblePreferences(preferences);
+
+        fillPlayableItemSelectionPreferences();
+
+        CheckBoxPreference startSqueezePlayerPref = (CheckBoxPreference) findPreference(
+                Preferences.KEY_SQUEEZEPLAYER_ENABLED);
+        startSqueezePlayerPref.setChecked(preferences.getBoolean(Preferences.KEY_SQUEEZEPLAYER_ENABLED, true));
+    }
+
+    private void fillScrobblePreferences(SharedPreferences preferences) {
         CheckBoxPreference scrobblePref = (CheckBoxPreference) findPreference(
                 Preferences.KEY_SCROBBLE_ENABLED);
         scrobblePref.setOnPreferenceChangeListener(this);
@@ -124,7 +133,6 @@ public class SettingsActivity extends PreferenceActivity implements
                 editor.commit();
             }
         }
-        fillPlayableItemSelectionPreferences();
     }
 
     private void fillPlayableItemSelectionPreferences() {

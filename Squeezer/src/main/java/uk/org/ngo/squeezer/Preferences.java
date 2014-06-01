@@ -66,6 +66,9 @@ public final class Preferences {
     // Preferred song list layout.
     public static final String KEY_SONG_LIST_LAYOUT = "squeezer.song.list.layout";
 
+    // Start SqueezePlayer automatically if installed.
+    public static final String KEY_SQUEEZEPLAYER_ENABLED = "squeezer.squeezeplayer.enabled";
+
     private Preferences() {
     }
 }
