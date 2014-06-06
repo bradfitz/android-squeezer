@@ -655,6 +655,7 @@ public class NowPlayingFragment extends Fragment implements
     private void maybeRegisterCallbacks() {
         if (!mRegisteredCallbacks) {
             mService.registerCallback(serviceCallback);
+            mService.registerConnectionCallback(connectionCallback);
             mService.registerHandshakeCallback(handshakeCallback);
             mService.registerMusicChangedCallback(musicChangedCallback);
             mService.registerPlayersCallback(playersCallback);
