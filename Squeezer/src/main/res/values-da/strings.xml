@@ -84,7 +84,7 @@
     <string name="menu_item_playlist_save">Gem afspilningsliste</string>
     <string name="menu_item_volume">Indstil lydstyrke</string>
     <string name="connecting_text">Forbinder</string>
-    <string name="connect_to_text">Forbinder til %s</string>
+    <string name="connect_to_text">Forbind til %s</string>
     <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.
     </string>

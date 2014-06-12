@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer;
 
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -35,17 +34,14 @@ import uk.org.ngo.squeezer.service.IServiceConnectionCallback;
  */
 public class DisconnectedActivity extends BaseActivity {
 
-    private final String TAG = "DisconnectedActivity";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.disconnected);
 
         Button btnConnect = (Button) findViewById(R.id.btn_connect);
-        String ipPort = getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE).getString(
-                Preferences.KEY_SERVERADDR, null);
-        btnConnect.setText(getString(R.string.connect_to_text, ipPort));
+        String serverName = new Preferences(this).getServerName();
+        btnConnect.setText(getString(R.string.connect_to_text, serverName));
     }
 
     /**

@@ -55,6 +55,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     private final Handler uiThreadHandler = new Handler() {
     };
 
+    private SqueezePlayer squeezePlayer;
+
     protected String getTag() {
         return getClass().getSimpleName();
     }
@@ -116,11 +118,17 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         }
 
         // If SqueezePlayer is installed, start it
-        SqueezePlayer.maybeStartSqueezePlayer(this);
+        if (SqueezePlayer.hasSqueezePlayer(this)) {
+            squeezePlayer = new SqueezePlayer(this);
+        }
     }
 
     @Override
     public void onPause() {
+        if (squeezePlayer != null) {
+            squeezePlayer.stopControllingSqueezePlayer();
+            squeezePlayer = null;
+        }
         if (mRegisteredCallbacks) {
             // If we are not bound to the service, it's process is no longer
             // running, so the callbacks are already cleaned up.

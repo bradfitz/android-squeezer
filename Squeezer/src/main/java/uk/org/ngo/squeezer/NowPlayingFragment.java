@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -261,7 +260,7 @@ public class NowPlayingFragment extends Fragment implements
         setHasOptionsMenu(true);
 
         // Set up a server connection, if it is not present
-        if (getConfiguredCliIpPort(getSharedPreferences()) == null) {
+        if (new Preferences(mActivity).getServerAddress() == null) {
             SettingsActivity.show(mActivity);
         }
 
@@ -638,7 +637,7 @@ public class NowPlayingFragment extends Fragment implements
             updateUIFromServiceState();
         }
 
-        if (isAutoConnect(getSharedPreferences())) {
+        if (new Preferences(mActivity).isAutoConnect()) {
             mActivity.registerReceiver(broadcastReceiver, new IntentFilter(
                     ConnectivityManager.CONNECTIVITY_ACTION));
         }
@@ -811,7 +810,7 @@ public class NowPlayingFragment extends Fragment implements
         clearConnectingDialog();
         mImageFetcher.closeCache();
 
-        if (isAutoConnect(getSharedPreferences())) {
+        if (new Preferences(mActivity).isAutoConnect()) {
             mActivity.unregisterReceiver(broadcastReceiver);
         }
 
@@ -994,35 +993,6 @@ public class NowPlayingFragment extends Fragment implements
         return false;
     }
 
-    private SharedPreferences getSharedPreferences() {
-        return mActivity.getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
-    }
-
-    private String getConfiguredCliIpPort(final SharedPreferences preferences) {
-        return getStringPreference(preferences, Preferences.KEY_SERVERADDR, null);
-    }
-
-    private String getConfiguredUserName(final SharedPreferences preferences) {
-        return getStringPreference(preferences, Preferences.KEY_USERNAME, "test");
-    }
-
-    private String getConfiguredPassword(final SharedPreferences preferences) {
-        return getStringPreference(preferences, Preferences.KEY_PASSWORD, "test1");
-    }
-
-    private String getStringPreference(final SharedPreferences preferences, String preference,
-            String defaultValue) {
-        final String pref = preferences.getString(preference, null);
-        if (pref == null || pref.length() == 0) {
-            return defaultValue;
-        }
-        return pref;
-    }
-
-    private boolean isAutoConnect(final SharedPreferences preferences) {
-        return preferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true);
-    }
-
     /**
      * Has the user manually disconnected from the server?
      *
@@ -1034,7 +1004,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private void onUserInitiatesConnect() {
         // Set up a server connection, if it is not present
-        if (getConfiguredCliIpPort(getSharedPreferences()) == null) {
+        if (new Preferences(mActivity).getServerAddress() == null) {
             SettingsActivity.show(mActivity);
             return;
         }
@@ -1051,15 +1021,15 @@ public class NowPlayingFragment extends Fragment implements
         uiThreadHandler.post(new Runnable() {
             @Override
             public void run() {
-                SharedPreferences preferences = getSharedPreferences();
-                String ipPort = getConfiguredCliIpPort(preferences);
+                Preferences preferences = new Preferences(mActivity);
+                String ipPort = preferences.getServerAddress();
                 if (ipPort == null) {
                     return;
                 }
 
                 // If we are configured to automatically connect on Wi-Fi availability
                 // we will also give the user the opportunity to enable Wi-Fi
-                if (isAutoConnect(preferences)) {
+                if (preferences.isAutoConnect()) {
                     WifiManager wifiManager = (WifiManager) mActivity
                             .getSystemService(Context.WIFI_SERVICE);
                     if (!wifiManager.isWifiEnabled()) {
@@ -1083,11 +1053,10 @@ public class NowPlayingFragment extends Fragment implements
                 try {
                     connectingDialog = ProgressDialog.show(mActivity,
                             getText(R.string.connecting_text),
-                            getString(R.string.connecting_to_text, ipPort), true, false);
+                            getString(R.string.connecting_to_text, preferences.getServerName()), true, false);
                     Log.v(TAG, "startConnect, ipPort: " + ipPort);
-                    getConfiguredCliIpPort(preferences);
-                    mService.startConnect(ipPort, getConfiguredUserName(preferences),
-                            getConfiguredPassword(preferences));
+                    mService.startConnect(ipPort, preferences.getUserName("test"),
+                            preferences.getPassword("test1"));
                 } catch (IllegalStateException e) {
                     Log.i(TAG, "ProgressDialog.show() was not allowed, connecting aborted: " + e);
                     connectingDialog = null;
