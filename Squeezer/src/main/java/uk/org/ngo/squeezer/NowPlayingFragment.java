@@ -57,6 +57,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
@@ -570,7 +571,9 @@ public class NowPlayingFragment extends Fragment implements
         if (players != null) {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(mActivity, android.R.layout.simple_spinner_dropdown_item, players) {
+            // Make a copy, cause ArrayAdapter doesn't like it's data modified from a background thread
+            ArrayList<Player> playerList = new ArrayList<Player>(players);
+            final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(mActivity, android.R.layout.simple_spinner_dropdown_item, playerList) {
                 @Override
                 public View getDropDownView(int position, View convertView, ViewGroup parent) {
                     return Util.getSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
