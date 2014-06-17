@@ -19,14 +19,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Note some items use server texts -->
-    <item android:id="@+id/sleep">
+    <item android:id="@+id/sleep" android:title="">
         <menu>
             <item android:id="@+id/end_of_song" android:visible="false"/>
-            <item android:id="@+id/in_15_minutes"/>
-            <item android:id="@+id/in_30_minutes"/>
-            <item android:id="@+id/in_45_minutes"/>
-            <item android:id="@+id/in_60_minutes"/>
-            <item android:id="@+id/in_90_minutes"/>
+            <item android:id="@+id/in_15_minutes" android:title=""/>
+            <item android:id="@+id/in_30_minutes" android:title=""/>
+            <item android:id="@+id/in_45_minutes" android:title=""/>
+            <item android:id="@+id/in_60_minutes" android:title=""/>
+            <item android:id="@+id/in_90_minutes" android:title=""/>
         </menu>
     </item>
     <item android:id="@+id/cancel_sleep" android:visible="false"/>
