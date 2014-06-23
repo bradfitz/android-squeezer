@@ -19,7 +19,10 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +41,49 @@ import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 public class PlayerListActivity extends BaseListActivity<Player> {
     public static final String CURRENT_PLAYER = "currentPlayer";
 
-    Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
-    Player currentPlayer;
+    private Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
+    private Player currentPlayer;
+    private boolean trackingTouch;
+
+    private final Handler uiThreadHandler = new UiThreadHandler(this);
+
+    private final static class UiThreadHandler extends Handler {
+        private static final int VOLUME_CHANGE = 1;
+        private static final int PLAYER_STATE = 2;
+
+        WeakReference<PlayerListActivity> activity;
+
+        public UiThreadHandler(PlayerListActivity activity) {
+            this.activity = new WeakReference<PlayerListActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message message) {
+            switch (message.what) {
+                case VOLUME_CHANGE:
+                    activity.get().onVolumeChanged(message.arg1, (Player)message.obj);
+                    break;
+                case PLAYER_STATE:
+                    activity.get().onPlayerStateReceived((PlayerState) message.obj);
+                    break;
+            }
+        }
+    }
+
+    private void onVolumeChanged(int newVolume, Player player) {
+        PlayerState playerState = playerStates.get(player.getId());
+        if (playerState != null) {
+            playerState.setCurrentVolume(newVolume);
+            if (!trackingTouch)
+                getItemAdapter().notifyDataSetChanged();
+        }
+    }
+
+    private void onPlayerStateReceived(PlayerState playerState) {
+        playerStates.put(playerState.getPlayerId(), playerState);
+        if (!trackingTouch)
+            getItemAdapter().notifyDataSetChanged();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,13 +121,7 @@ public class PlayerListActivity extends BaseListActivity<Player> {
             = new IServicePlayerStateCallback() {
         @Override
         public void onPlayerStateReceived(final PlayerState playerState) {
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    playerStates.put(playerState.getPlayerId(), playerState);
-                    getItemAdapter().notifyDataSetChanged();
-                }
-            });
+            uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0, playerState).sendToTarget();
         }
 
         @Override
@@ -95,16 +133,7 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
         @Override
         public void onVolumeChanged(final int newVolume, final Player player) {
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    PlayerState playerState = playerStates.get(player.getId());
-                    if (playerState != null) {
-                        playerState.setCurrentVolume(newVolume);
-                        getItemAdapter().notifyDataSetChanged();
-                    }
-                }
-            });
+            uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, newVolume, 0, player).sendToTarget();
         }
 
         @Override
@@ -139,6 +168,10 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
     public void setCurrentPlayer(Player currentPlayer) {
         this.currentPlayer = currentPlayer;
+    }
+
+    public void setTrackingTouch(boolean trackingTouch) {
+        this.trackingTouch = trackingTouch;
     }
 
     public void playerRename(String newName) {

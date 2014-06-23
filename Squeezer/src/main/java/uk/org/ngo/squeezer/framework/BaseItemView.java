@@ -280,13 +280,13 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     public View getAdapterView(View convertView, ViewGroup parent, EnumSet<ViewParams> viewParams,
             int layoutResource) {
         ViewHolder viewHolder =
-                (convertView != null && convertView.getTag().getClass() == ViewHolder.class)
+                (convertView != null && convertView.getTag() instanceof ViewHolder)
                         ? (ViewHolder) convertView.getTag()
                         : null;
 
         if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(layoutResource, parent, false);
-            viewHolder = new ViewHolder();
+            viewHolder = createViewHolder();
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
@@ -318,6 +318,10 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         }
 
         return convertView;
+    }
+
+    public ViewHolder createViewHolder() {
+        return new ViewHolder();
     }
 
     @Override

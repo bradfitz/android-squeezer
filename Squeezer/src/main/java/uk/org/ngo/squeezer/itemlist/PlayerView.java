@@ -39,7 +39,6 @@ import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class PlayerView extends BaseItemView<Player> {
-
     private static final Map<String, Integer> modelIcons = initializeModelIcons();
 
     private final PlayerListActivity activity;
@@ -57,55 +56,37 @@ public class PlayerView extends BaseItemView<Player> {
         return getAdapterView(convertView, parent, viewParams, R.layout.list_item_player);
     }
 
+    @Override
+    public ViewHolder createViewHolder() {
+        return new PlayerViewHolder();
+    }
+
     public void bindView(View view, Player item, ImageFetcher imageFetcher) {
         final PlayerListActivity activity = (PlayerListActivity) getActivity();
         PlayerState playerState = activity.getPlayerState(item.getId());
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
+        PlayerViewHolder viewHolder = (PlayerViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
         viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
 
-        ImageButton power_button = (ImageButton) view.findViewById(R.id.power_button);
-        power_button.setVisibility(item.isCanpoweroff() && playerState != null ? View.VISIBLE : View.GONE);
+        if (viewHolder.powerButton == null) {
+            viewHolder.powerButton = (ImageButton) view.findViewById(R.id.power_button);
+            viewHolder.powerButton.setOnClickListener(new PowerButtonClickListener(item));
 
-        View volumeBox = view.findViewById(R.id.volume_box);
-        volumeBox.setVisibility(playerState != null ? View.VISIBLE : View.GONE);
+            viewHolder.volumeBox = view.findViewById(R.id.volume_box);
+            viewHolder.volumeValue = (TextView) view.findViewById(R.id.volume_value);
+            viewHolder.volumeBar = (SeekBar) view.findViewById(R.id.volume_slider);
+            viewHolder.volumeBar.setOnSeekBarChangeListener(new VolumeSeekBarChangeListener(item, viewHolder.volumeValue));
+        }
+
+        viewHolder.powerButton.setVisibility(item.isCanpoweroff() && playerState != null ? View.VISIBLE : View.GONE);
+        viewHolder.volumeBox.setVisibility(playerState != null ? View.VISIBLE : View.GONE);
 
         if (playerState != null) {
-            Util.setAlpha(power_button, playerState.isPoweredOn() ? 1.0F : 0.5F);
-            power_button.setTag(item);
-            power_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Player player = (Player) view.getTag();
-                    getActivity().getService().togglePower(player);
-                }
-            });
+            Util.setAlpha(viewHolder.powerButton, playerState.isPoweredOn() ? 1.0F : 0.5F);
 
-            TextView volumeValue = (TextView) view.findViewById(R.id.volume_value);
-            volumeValue.setText(activity.getServerString(ServerString.VOLUME) + ": " + playerState.getCurrentVolume());
-
-            SeekBar volumeBar = (SeekBar) view.findViewById(R.id.volume_slider);
-            volumeBar.setProgress(playerState.getCurrentVolume());
-            volumeBar.setTag(item);
-            volumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    if (fromUser) {
-                        Player player = (Player) seekBar.getTag();
-                        activity.getService().adjustVolumeTo(player, progress);
-                        seekBar.setProgress(progress);
-                    }
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                }
-            });
+            viewHolder.volumeBar.setProgress(playerState.getCurrentVolume());
+            viewHolder.volumeValue.setText(activity.getServerString(ServerString.VOLUME) + ": " + playerState.getCurrentVolume());
 
             viewHolder.text2.setVisibility(playerState.getSleepDuration() > 0 ? View.VISIBLE : View.GONE);
             viewHolder.text2.setText(activity.getServerString(ServerString.SLEEPING_IN) + " " + Util.formatElapsedTime(playerState.getSleep()));
@@ -227,5 +208,53 @@ public class PlayerView extends BaseItemView<Player> {
     private static int getModelIcon(String model) {
         Integer icon = modelIcons.get(model);
         return (icon != null ? icon : R.drawable.ic_blank);
+    }
+
+    private class VolumeSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
+        private Player player;
+        private TextView valueView;
+
+        public VolumeSeekBarChangeListener(Player player, TextView valueView) {
+            this.player = player;
+            this.valueView = valueView;
+        }
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (fromUser) {
+                activity.getService().adjustVolumeTo(player, progress);
+                valueView.setText(activity.getServerString(ServerString.VOLUME) + ": " + progress);
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            activity.setTrackingTouch(true);
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            activity.setTrackingTouch(false);
+        }
+    }
+
+    private class PowerButtonClickListener implements View.OnClickListener {
+        private Player player;
+
+        private PowerButtonClickListener(Player player) {
+            this.player = player;
+        }
+
+        @Override
+        public void onClick(View view) {
+            getActivity().getService().togglePower(player);
+        }
+    }
+
+    private static class PlayerViewHolder extends ViewHolder {
+        ImageButton powerButton;
+        View volumeBox;
+        SeekBar volumeBar;
+        TextView volumeValue;
     }
 }
