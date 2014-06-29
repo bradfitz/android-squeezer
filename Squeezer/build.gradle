@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
+        classpath 'com.android.tools.build:gradle:0.12.+'
     }
 }
 apply plugin: 'android'
@@ -23,7 +23,7 @@ dependencies {
 
     // Third party libraries
     compile 'ch.acra:acra:4.5.0'
-    compile 'com.google.guava:guava:15.0'
+    compile 'com.google.guava:guava:16.0.1'
     // findbugs is required for Proguard to work with Guava.
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 
@@ -33,11 +33,16 @@ dependencies {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.0"
+    buildToolsVersion "19.1.0"
 
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 19
+    }
+
+    lintOptions {
+        // Downgrade missing translations to non-fatal severity.
+        warning 'MissingTranslation'
     }
 
     buildTypes {
@@ -76,14 +81,14 @@ android {
 
     productFlavors {
         beta {
-            versionCode 17
-            versionName "1.0-beta-4"
+            versionCode 20
+            versionName "1.0.2-beta-1"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 19
-            versionName "1.0.1"
+            versionCode 21
+            versionName "1.0.2"
             signingConfig android.signingConfigs.release
         }
     }

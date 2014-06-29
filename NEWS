@@ -1,3 +1,18 @@
+1.0.2
+=====
+
+*   Include a small progress indicator just above the mini-player.
+
+*   Tapping items when browsing music folders will follow your song
+    preferences. Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=52.
+
+*   Added an option (disabled by default) to include your e-mail address
+    in error reports. If enabled and you send an error report the developers
+    may contact you for more details.
+
+*   Fixed a crash where beginBroadcast() was being called twice.
+
 1.0.1
 =====
 
