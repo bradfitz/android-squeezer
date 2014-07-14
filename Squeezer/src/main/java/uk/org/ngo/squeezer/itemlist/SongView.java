@@ -17,8 +17,6 @@
 package uk.org.ngo.squeezer.itemlist;
 
 
-import android.os.RemoteException;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 
@@ -40,9 +38,6 @@ import static android.text.format.DateUtils.formatElapsedTime;
  * A view that shows a single song with its artwork, and a context menu.
  */
 public class SongView extends PlaylistItemView<Song> {
-
-    @SuppressWarnings("unused")
-    private static final String TAG = "SongView";
 
     /**
      * Which details to show in the second line of text.
@@ -162,13 +157,7 @@ public class SongView extends PlaylistItemView<Song> {
         if (service == null) {
             return null;
         }
-
-        try {
-            return service.getAlbumArtUrl(artwork_track_id);
-        } catch (RemoteException e) {
-            Log.e(getClass().getSimpleName(), "Error requesting album art url: " + e);
-            return null;
-        }
+        return service.getAlbumArtUrl(artwork_track_id);
     }
 
     @Override
@@ -204,8 +193,7 @@ public class SongView extends PlaylistItemView<Song> {
     }
 
     @Override
-    public boolean doItemContext(android.view.MenuItem menuItem, int index, Song selectedItem)
-            throws RemoteException {
+    public boolean doItemContext(android.view.MenuItem menuItem, int index, Song selectedItem) {
         switch (menuItem.getItemId()) {
             case R.id.view_this_album:
                 SongListActivity.show(getActivity(), selectedItem.getAlbum());
@@ -220,10 +208,6 @@ public class SongView extends PlaylistItemView<Song> {
             case R.id.view_songs_by_artist:
                 SongListActivity.show(getActivity(),
                         new Artist(selectedItem.getArtist_id(), selectedItem.getArtist()));
-                return true;
-
-            case R.id.download:
-                getActivity().downloadSong(selectedItem);
                 return true;
         }
 

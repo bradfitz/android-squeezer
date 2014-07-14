@@ -19,13 +19,13 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.List;
 import java.util.Map;
@@ -88,6 +88,12 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
         }
     }
 
+    private void updateHeader(String headerText) {
+        TextView header = (TextView) findViewById(R.id.header);
+        header.setText(headerText);
+        header.setVisibility(View.VISIBLE);
+    }
+
     public Plugin getPlugin() {
         return plugin;
     }
@@ -106,18 +112,8 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
-        getService().registerPluginItemListCallback(pluginItemListCallback);
-    }
-
-    @Override
-    protected void unregisterCallback() throws RemoteException {
-        getService().unregisterPluginItemListCallback(pluginItemListCallback);
-    }
-
-    @Override
-    protected void orderPage(int start) throws RemoteException {
-        getService().pluginItems(start, plugin, parent, search);
+    protected void orderPage(int start) {
+        getService().pluginItems(start, plugin, parent, search, this);
     }
 
 
@@ -142,55 +138,51 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem> {
         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
-    private final IServicePluginItemListCallback pluginItemListCallback
-            = new IServicePluginItemListCallback.Stub() {
-        public void onPluginItemsReceived(int count, int start,
-                @SuppressWarnings("rawtypes") final Map parameters, List<PluginItem> items)
-                throws RemoteException {
-            if (parameters.containsKey("title")) {
-                getUIThreadHandler().post(new Runnable() {
-                    public void run() {
-                        setTitle((String) parameters.get("title"));
-                    }
-                });
-            }
-
-            // Automatically fetch subitems, if this is the only item.
-            // TODO: Seen an NPE here (before adding size() > 0) check. Find out
-            // why count == 1 might be true, but items.size might be 0.
-            if (count == 1 && items.size() > 0 && items.get(0).isHasitems()) {
-                parent = items.get(0);
-                getUIThreadHandler().post(new Runnable() {
-                    public void run() {
-                        clearAndReOrderItems();
-                    }
-                });
-                return;
-            }
-            onItemsReceived(count, start, items);
+    @Override
+    public void onItemsReceived(int count, int start, final Map<String, String> parameters, List<PluginItem> items, Class<PluginItem> dataType) {
+        if (parameters.containsKey("title")) {
+            getUIThreadHandler().post(new Runnable() {
+                public void run() {
+                    updateHeader(parameters.get("title"));
+                }
+            });
         }
-    };
+
+        // Automatically fetch subitems, if this is the only item.
+        // TODO: Seen an NPE here (before adding size() > 0) check. Find out
+        // why count == 1 might be true, but items.size might be 0.
+        if (count == 1 && items.size() > 0 && items.get(0).isHasitems()) {
+            parent = items.get(0);
+            getUIThreadHandler().post(new Runnable() {
+                public void run() {
+                    clearAndReOrderItems();
+                }
+            });
+            return;
+        }
+        super.onItemsReceived(count, start, parameters, items, dataType);
+    }
+
 
     // Shortcuts for operations for plugin items
 
-    public boolean play(PluginItem item) throws RemoteException {
+    public boolean play(PluginItem item) {
         return pluginPlaylistControl(PluginPlaylistControlCmd.play, item);
     }
 
-    public boolean load(PluginItem item) throws RemoteException {
+    public boolean load(PluginItem item) {
         return pluginPlaylistControl(PluginPlaylistControlCmd.load, item);
     }
 
-    public boolean insert(PluginItem item) throws RemoteException {
+    public boolean insert(PluginItem item) {
         return pluginPlaylistControl(PluginPlaylistControlCmd.insert, item);
     }
 
-    public boolean add(PluginItem item) throws RemoteException {
+    public boolean add(PluginItem item) {
         return pluginPlaylistControl(PluginPlaylistControlCmd.add, item);
     }
 
-    private boolean pluginPlaylistControl(PluginPlaylistControlCmd cmd, PluginItem item)
-            throws RemoteException {
+    private boolean pluginPlaylistControl(PluginPlaylistControlCmd cmd, PluginItem item) {
         if (getService() == null) {
             return false;
         }

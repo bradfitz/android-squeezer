@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import android.util.SparseArray;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.service.ServerString;
 
 
@@ -43,6 +44,7 @@ public class PlayerState implements Parcelable {
     };
 
     private PlayerState(Parcel source) {
+        playerId = source.readString();
         playStatus = PlayStatus.valueOf(source.readString());
         poweredOn = (source.readByte() == 1);
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
@@ -52,10 +54,13 @@ public class PlayerState implements Parcelable {
         currentTimeSecond = source.readInt();
         currentSongDuration = source.readInt();
         currentVolume = source.readInt();
+        sleepDuration = source.readInt();
+        sleep = source.readInt();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(playerId);
         dest.writeString(playStatus.name());
         dest.writeByte(poweredOn ? (byte) 1 : (byte) 0);
         dest.writeInt(shuffleStatus.getId());
@@ -65,6 +70,8 @@ public class PlayerState implements Parcelable {
         dest.writeInt(currentTimeSecond);
         dest.writeInt(currentSongDuration);
         dest.writeInt(currentVolume);
+        dest.writeInt(sleepDuration);
+        dest.writeInt(sleep);
     }
 
     @Override
@@ -72,7 +79,9 @@ public class PlayerState implements Parcelable {
         return 0;
     }
 
-    private boolean poweredOn;
+    private String playerId;
+
+    private Boolean poweredOn;
 
     private PlayStatus playStatus;
 
@@ -92,6 +101,10 @@ public class PlayerState implements Parcelable {
 
     private int currentVolume;
 
+    private int sleepDuration;
+
+    private int sleep;
+
     public boolean isPlaying() {
         return playStatus == PlayStatus.play;
     }
@@ -104,8 +117,30 @@ public class PlayerState implements Parcelable {
         playStatus = state;
     }
 
-    public boolean isPoweredOn() {
+    public void setPlayStatus(String s) {
+        playStatus = null;
+        if (s != null)
+            try {
+                setPlayStatus(PlayStatus.valueOf(s));
+            } catch (IllegalArgumentException e) {
+                // Server sent us an unknown status, nulls are handled outside this function
+            }
+    }
+
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public void setPlayerId(String playerId) {
+        this.playerId = playerId;
+    }
+
+    public Boolean getPoweredOn() {
         return poweredOn;
+    }
+
+    public boolean isPoweredOn() {
+        return (poweredOn != null) && poweredOn;
     }
 
     public void setPoweredOn(boolean state) {
@@ -120,12 +155,20 @@ public class PlayerState implements Parcelable {
         shuffleStatus = status;
     }
 
+    public void setShuffleStatus(String s) {
+        setShuffleStatus(s != null ? ShuffleStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
+    }
+
     public RepeatStatus getRepeatStatus() {
         return repeatStatus;
     }
 
     public void setRepeatStatus(RepeatStatus status) {
         repeatStatus = status;
+    }
+
+    public void setRepeatStatus(String s) {
+        setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
     }
 
     public Song getCurrentSong() {
@@ -182,6 +225,22 @@ public class PlayerState implements Parcelable {
     public PlayerState setCurrentVolume(int value) {
         currentVolume = value;
         return this;
+    }
+
+    public int getSleepDuration() {
+        return sleepDuration;
+    }
+
+    public void setSleepDuration(int sleepDuration) {
+        this.sleepDuration = sleepDuration;
+    }
+
+    public int getSleep() {
+        return sleep;
+    }
+
+    public void setSleep(int sleep) {
+        this.sleep = sleep;
     }
 
     public static enum PlayStatus {

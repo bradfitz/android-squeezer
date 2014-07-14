@@ -26,7 +26,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -50,6 +49,7 @@ import uk.org.ngo.squeezer.itemlist.RadioListActivity;
 import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.itemlist.YearListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 
 public class HomeActivity extends BaseActivity {
 
@@ -78,8 +78,6 @@ public class HomeActivity extends BaseActivity {
     private static final int FAVORITES = 10;
 
     private static final int APPS = 11;
-
-    private boolean mRegisteredCallbacks;
 
     private boolean mCanMusicfolder = false;
 
@@ -119,23 +117,12 @@ public class HomeActivity extends BaseActivity {
     }
 
     @Override
-    protected void onServiceConnected() {
-        maybeRegisterCallbacks();
+    protected void registerCallback() {
+        super.registerCallback();
+        getService().registerHandshakeCallback(mCallback);
     }
 
-    private void maybeRegisterCallbacks() {
-        if (!mRegisteredCallbacks) {
-            try {
-                getService().registerHandshakeCallback(mCallback);
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error registering callback: " + e);
-            }
-            mRegisteredCallbacks = true;
-        }
-    }
-
-
-    private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback.Stub() {
+    private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback() {
 
         /**
          * Sets the menu after handshaking with the SqueezeServer has completed.
@@ -146,7 +133,7 @@ public class HomeActivity extends BaseActivity {
          * not those abilities exist.
          */
         @Override
-        public void onHandshakeCompleted() throws RemoteException {
+        public void onHandshakeCompleted() {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -174,6 +161,10 @@ public class HomeActivity extends BaseActivity {
             });
         }
 
+        @Override
+        public Object getClient() {
+            return HomeActivity.this;
+        }
     };
 
     /**
@@ -194,19 +185,11 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
-            try {
-                mCanMusicfolder = getService().canMusicfolder();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error requesting musicfolder ability: " + e);
-            }
+            mCanMusicfolder = getService().canMusicfolder();
         }
 
         if (getService() != null) {
-            try {
-                mCanRandomplay = getService().canRandomplay();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error requesting randomplay ability: " + e);
-            }
+            mCanRandomplay = getService().canRandomplay();
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
@@ -283,29 +266,6 @@ public class HomeActivity extends BaseActivity {
             }
         }
     };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getService() != null) {
-            maybeRegisterCallbacks();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        if (mRegisteredCallbacks) {
-            if (getService() != null) {
-                try {
-                    getService().unregisterHandshakeCallback(mCallback);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Service exception in onPause(): " + e);
-                }
-            }
-            mRegisteredCallbacks = false;
-        }
-        super.onPause();
-    }
 
     @Override
     public void onDestroy() {

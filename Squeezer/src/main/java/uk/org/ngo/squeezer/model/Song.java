@@ -17,8 +17,6 @@
 package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
-import android.os.RemoteException;
-import android.util.Log;
 
 import java.util.Map;
 
@@ -30,6 +28,11 @@ public class Song extends ArtworkItem {
 
     @Override
     public String getPlaylistTag() {
+        return "track_id";
+    }
+
+    @Override
+    public String getFilterTag() {
         return "track_id";
     }
 
@@ -135,7 +138,7 @@ public class Song extends ArtworkItem {
         this.remote = remote;
     }
 
-    public int tracknum;
+    private int tracknum;
 
     public int getTracknum() {
         return tracknum;
@@ -144,6 +147,18 @@ public class Song extends ArtworkItem {
     public void setTracknum(int tracknum) {
         this.tracknum = tracknum;
     }
+
+    private String url;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+
 
     private String artwork_url;
 
@@ -157,14 +172,10 @@ public class Song extends ArtworkItem {
 
     public String getArtworkUrl(ISqueezeService service) {
         if (getArtwork_track_id() != null) {
-            try {
-                if (service == null) {
-                    return null;
-                }
-                return service.getAlbumArtUrl(getArtwork_track_id());
-            } catch (RemoteException e) {
-                Log.e(getClass().getSimpleName(), "Error requesting album art url: " + e);
+            if (service == null) {
+                return null;
             }
+            return service.getAlbumArtUrl(getArtwork_track_id());
         }
         return getArtwork_url();
     }
@@ -187,6 +198,7 @@ public class Song extends ArtworkItem {
         setRemote(Util.parseDecimalIntOrZero(record.get("remote")) != 0);
         setTracknum(Util.parseDecimalInt(record.get("tracknum"), 1));
         setArtwork_url(record.get("artwork_url"));
+        setUrl(record.get("url"));
 
         // Work around a (possible) bug in the Squeezeserver.
         //
@@ -235,6 +247,7 @@ public class Song extends ArtworkItem {
         album_id = source.readString();
         setArtwork_track_id(source.readString());
         tracknum = source.readInt();
+        url = source.readString();
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -249,6 +262,7 @@ public class Song extends ArtworkItem {
         dest.writeString(album_id);
         dest.writeString(getArtwork_track_id());
         dest.writeInt(tracknum);
+        dest.writeString(url);
     }
 
     @Override
