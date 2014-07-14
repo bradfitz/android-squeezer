@@ -1,3 +1,34 @@
+In-progress
+===========
+
+*   Show the current player name in the Action Bar at the top of the screen,
+    with a drop-down menu allowing you to easily switch between players.
+
+*   Enhance the display of available players.  You can now rename a player,
+    adjust the volume, set a sleep duaration, and power on/off players
+    directly from the list.
+
+*   Support downloading all songs by album, artist, genre, year, or music
+    folder.  This uses features only available in Android 2.3 (Gingerbread)
+    and above.
+
+*   Integration with SqueezePlayer (http://www.squeezeplayer.com/).
+    Squeezer can automatically start SqueezePlayer when Squeezer is
+    started.
+
+*   A grid layout when viewing the song list on larger devices
+
+*   When viewing albums containing songs by a searched-for artist, filter
+    the list of displayed songs to show those by that artist.  Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=51.
+
+*   Internal restructuring to make Squeezer faster and use less memory.
+
+*   Fixed a bug where Squeezer was forgetting the active player.
+
+*   Fixed a bug where Squeezer was not updating the power status of a
+    powered-off player.
+
 1.0.2
 =====
 
