@@ -542,15 +542,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
-    private void updateTimes(int secondsIn, int secondsTotal) {
-        playerState.setCurrentSongDuration(secondsTotal);
-        if (playerState.getCurrentTimeSecond() != secondsIn) {
-            playerState.setCurrentTimeSecond(secondsIn);
-            for (IServiceCallback callback : mServiceCallbacks) {
-                callback.onTimeInSongChange(secondsIn, secondsTotal);
-            }
-        }
-    }
 
     private void parsePlaylistNotification(List<String> tokens) {
         Log.v(TAG, "Playlist notification received: " + tokens);
@@ -650,6 +641,128 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         playerState = newPlayerState;
     }
 
+    /**
+     * Updates the power status of the current player.
+     * <p/>
+     * If the power status has changed then calls the
+     * {@link IServiceCallback#onPowerStatusChanged(boolean, boolean)} method of any callbacks
+     * registered using {@link SqueezeServiceBinder#registerCallback(IServiceCallback)}.
+     *
+     * @param powerStatus The new power status.
+     */
+    private void updatePowerStatus(boolean powerStatus) {
+        Boolean currentPowerStatus = playerState.getPoweredOn();
+        if (currentPowerStatus  == null || powerStatus != currentPowerStatus) {
+            playerState.setPoweredOn(powerStatus);
+            for (IServiceCallback callback : mServiceCallbacks) {
+                callback.onPowerStatusChanged(squeezeService.canPowerOn(),
+                        squeezeService.canPowerOff());
+            }
+        }
+    }
+
+    /**
+     * Updates the playing status of the current player.
+     * <p/>
+     * Updates the Wi-Fi lock and ongoing status notification as necessary.
+     * <p/>
+     * Calls the {@link IServiceCallback#onPlayStatusChanged(String)} method of any callbacks
+     * registered using {@link SqueezeServiceBinder#registerCallback(IServiceCallback)}.
+     *
+     * @param playStatus The new playing status.
+     */
+    private void updatePlayStatus(PlayStatus playStatus) {
+        if (playStatus != null && playStatus != playerState.getPlayStatus()) {
+            playerState.setPlayStatus(playStatus);
+            //TODO when do we want to keep the wiFi lock ?
+            connectionState.updateWifiLock(playerState.isPlaying());
+            updateOngoingNotification();
+            for (IServiceCallback callback : mServiceCallbacks) {
+                callback.onPlayStatusChanged(playStatus.name());
+            }
+        }
+    }
+
+    /**
+     * Updates the shuffle status of the current player.
+     * <p/>
+     * If the shuffle status has changed then calls the
+     * {@link IServiceCallback#onShuffleStatusChanged(boolean, int)}  method of any
+     * callbacks registered using {@link SqueezeServiceBinder#registerCallback(IServiceCallback)}.
+     *
+     * @param shuffleStatus The new shuffle status.
+     */
+    private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
+        if (shuffleStatus != null && shuffleStatus != playerState.getShuffleStatus()) {
+            boolean wasUnknown = playerState.getShuffleStatus() == null;
+            playerState.setShuffleStatus(shuffleStatus);
+            for (IServiceCallback callback : mServiceCallbacks) {
+                callback.onShuffleStatusChanged(wasUnknown, shuffleStatus.getId());
+            }
+        }
+    }
+
+    /**
+     * Updates the repeat status of the current player.
+     * <p/>
+     * If the repeat status has changed then Calls the
+     * {@link IServiceCallback#onRepeatStatusChanged(boolean, int)} method of any callbacks
+     * registered using {@link SqueezeServiceBinder#registerCallback(IServiceCallback)}.
+     *
+     * @param repeatStatus The new repeat status.
+     */
+    private void updateRepeatStatus(RepeatStatus repeatStatus) {
+        if (repeatStatus != null && repeatStatus != playerState.getRepeatStatus()) {
+            boolean wasUnknown = playerState.getRepeatStatus() == null;
+            playerState.setRepeatStatus(repeatStatus);
+            for (IServiceCallback callback : mServiceCallbacks) {
+                callback.onRepeatStatusChanged(wasUnknown, repeatStatus.getId());
+            }
+        }
+    }
+
+    /**
+     * Updates the current song in the player state, and ongoing notification.
+     * <p/>
+     * If the song has changed then calls the
+     * {@link IServiceMusicChangedCallback#onMusicChanged(uk.org.ngo.squeezer.model.PlayerState)}
+     * method of any callbacks registered using
+     * {@link SqueezeServiceBinder#registerMusicChangedCallback(IServiceMusicChangedCallback)}.
+     *
+     * @param song The new song.
+     */
+    private void updateCurrentSong(Song song) {
+        Song currentSong = playerState.getCurrentSong();
+        if ((song == null ? (currentSong != null) : !song.equals(currentSong))) {
+            Log.d(TAG, "updateCurrentSong: " + song);
+            playerState.setCurrentSong(song);
+            updateOngoingNotification();
+            for (IServiceMusicChangedCallback callback : mMusicChangedCallbacks) {
+                callback.onMusicChanged(playerState);
+            }
+        }
+    }
+
+    /**
+     * Updates the current position and duration for the current song.
+     * <p/>
+     * If the current position has changed then calls the
+     * {@link IServiceCallback#onTimeInSongChange(int, int)} method of any callbacks registered
+     * using {@link SqueezeServiceBinder#registerCallback(IServiceCallback)}.
+     *
+     * @param secondsIn The new position in the song.
+     * @param secondsTotal The song's duration.
+     */
+    private void updateTimes(int secondsIn, int secondsTotal) {
+        playerState.setCurrentSongDuration(secondsTotal);
+        if (playerState.getCurrentTimeSecond() != secondsIn) {
+            playerState.setCurrentTimeSecond(secondsIn);
+            for (IServiceCallback callback : mServiceCallbacks) {
+                callback.onTimeInSongChange(secondsIn, secondsTotal);
+            }
+        }
+    }
+
     void changeActivePlayer(Player newPlayer) {
         if (newPlayer == null) {
             return;
@@ -692,7 +805,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
-
     private void updatePlayerSubscriptionState() {
         // Subscribe or unsubscribe to the players realtime status updates depending on whether we
         // have a client that cares about second-to-second updates for any player or the active
@@ -706,6 +818,85 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 cli.sendPlayerCommand(player, "status - 1 subscribe:-");
             }
         }
+    }
+
+    /**
+     * Manages the state of any ongoing notification based on the player and connection state.
+     */
+    private void updateOngoingNotification() {
+        boolean playing = playerState.isPlaying();
+        String songName = playerState.getCurrentSongName();
+        String playerName = connectionState.getActivePlayer() != null ? connectionState
+                .getActivePlayer().getName() : "squeezer";
+
+        // Update scrobble state, if either we're currently scrobbling, or we
+        // were (to catch the case where we started scrobbling a song, and the
+        // user went in to settings to disable scrobbling).
+        if (scrobblingEnabled || scrobblingPreviouslyEnabled) {
+            scrobblingPreviouslyEnabled = scrobblingEnabled;
+            Song s = playerState.getCurrentSong();
+
+            if (s != null) {
+                Log.v(TAG, "Scrobbling, playing is: " + playing);
+                Intent i = new Intent();
+
+                if (Scrobble.haveScrobbleDroid()) {
+                    // http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
+                    i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
+                    i.putExtra("playing", playing);
+                    i.putExtra("track", songName);
+                    i.putExtra("album", s.getAlbum());
+                    i.putExtra("artist", s.getArtist());
+                    i.putExtra("secs", playerState.getCurrentSongDuration());
+                    i.putExtra("source", "P");
+                } else if (Scrobble.haveSls()) {
+                    // http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
+                    i.setAction("com.adam.aslfms.notify.playstatechanged");
+                    i.putExtra("state", playing ? 0 : 2);
+                    i.putExtra("app-name", getText(R.string.app_name));
+                    i.putExtra("app-package", "uk.org.ngo.squeezer");
+                    i.putExtra("track", songName);
+                    i.putExtra("album", s.getAlbum());
+                    i.putExtra("artist", s.getArtist());
+                    i.putExtra("duration", playerState.getCurrentSongDuration());
+                    i.putExtra("source", "P");
+                }
+                sendBroadcast(i);
+            }
+        }
+
+        if (!playing) {
+            if (!mUpdateOngoingNotification) {
+                clearOngoingNotification();
+                return;
+            }
+        }
+
+        NotificationManager nm =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Notification status = new Notification();
+        //status.contentView = views;
+        Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
+        if (playing) {
+            status.setLatestEventInfo(this,
+                    getString(R.string.notification_playing_text, playerName), songName, pIntent);
+            status.flags |= Notification.FLAG_ONGOING_EVENT;
+            status.icon = R.drawable.stat_notify_musicplayer;
+        } else {
+            status.setLatestEventInfo(this,
+                    getString(R.string.notification_connected_text, playerName), "-", pIntent);
+            status.flags |= Notification.FLAG_ONGOING_EVENT;
+            status.icon = R.drawable.ic_launcher;
+        }
+        nm.notify(PLAYBACKSERVICE_STATUS, status);
+    }
+
+    private void clearOngoingNotification() {
+        NotificationManager nm =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancel(PLAYBACKSERVICE_STATUS);
     }
 
     /**
@@ -789,137 +980,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /* Start an asynchronous fetch of the squeezeservers localized strings */
     private void strings() {
         cli.sendCommandImmediately("getstring " + ServerString.values()[0].name());
-    }
-
-    private void updatePlayStatus(PlayStatus playStatus) {
-        if (playStatus != null && playStatus != playerState.getPlayStatus()) {
-            playerState.setPlayStatus(playStatus);
-            //TODO when do we want to keep the wiFi lock ?
-            connectionState.updateWifiLock(playerState.isPlaying());
-            updateOngoingNotification();
-            for (IServiceCallback callback : mServiceCallbacks) {
-                callback.onPlayStatusChanged(playStatus.name());
-            }
-        }
-    }
-
-    private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
-        if (shuffleStatus != null && shuffleStatus != playerState.getShuffleStatus()) {
-            boolean wasUnknown = playerState.getShuffleStatus() == null;
-            playerState.setShuffleStatus(shuffleStatus);
-            for (IServiceCallback callback : mServiceCallbacks) {
-                callback.onShuffleStatusChanged(wasUnknown, shuffleStatus.getId());
-            }
-        }
-    }
-
-    private void updateRepeatStatus(RepeatStatus repeatStatus) {
-        if (repeatStatus != null && repeatStatus != playerState.getRepeatStatus()) {
-            boolean wasUnknown = playerState.getRepeatStatus() == null;
-            playerState.setRepeatStatus(repeatStatus);
-            for (IServiceCallback callback : mServiceCallbacks) {
-                callback.onRepeatStatusChanged(wasUnknown, repeatStatus.getId());
-            }
-        }
-    }
-
-    private void updateOngoingNotification() {
-        boolean playing = playerState.isPlaying();
-        String songName = playerState.getCurrentSongName();
-        String playerName = connectionState.getActivePlayer() != null ? connectionState
-                .getActivePlayer().getName() : "squeezer";
-
-        // Update scrobble state, if either we're currently scrobbling, or we
-        // were (to catch the case where we started scrobbling a song, and the
-        // user went in to settings to disable scrobbling).
-        if (scrobblingEnabled || scrobblingPreviouslyEnabled) {
-            scrobblingPreviouslyEnabled = scrobblingEnabled;
-            Song s = playerState.getCurrentSong();
-
-            if (s != null) {
-                Log.v(TAG, "Scrobbling, playing is: " + playing);
-                Intent i = new Intent();
-
-                if (Scrobble.haveScrobbleDroid()) {
-                    // http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
-                    i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
-                    i.putExtra("playing", playing);
-                    i.putExtra("track", songName);
-                    i.putExtra("album", s.getAlbum());
-                    i.putExtra("artist", s.getArtist());
-                    i.putExtra("secs", playerState.getCurrentSongDuration());
-                    i.putExtra("source", "P");
-                } else if (Scrobble.haveSls()) {
-                    // http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
-                    i.setAction("com.adam.aslfms.notify.playstatechanged");
-                    i.putExtra("state", playing ? 0 : 2);
-                    i.putExtra("app-name", getText(R.string.app_name));
-                    i.putExtra("app-package", "uk.org.ngo.squeezer");
-                    i.putExtra("track", songName);
-                    i.putExtra("album", s.getAlbum());
-                    i.putExtra("artist", s.getArtist());
-                    i.putExtra("duration", playerState.getCurrentSongDuration());
-                    i.putExtra("source", "P");
-                }
-                sendBroadcast(i);
-            }
-        }
-
-        if (!playing) {
-            if (!mUpdateOngoingNotification) {
-                clearOngoingNotification();
-                return;
-            }
-        }
-
-        NotificationManager nm =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification status = new Notification();
-        //status.contentView = views;
-        Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
-        if (playing) {
-            status.setLatestEventInfo(this,
-                    getString(R.string.notification_playing_text, playerName), songName, pIntent);
-            status.flags |= Notification.FLAG_ONGOING_EVENT;
-            status.icon = R.drawable.stat_notify_musicplayer;
-        } else {
-            status.setLatestEventInfo(this,
-                    getString(R.string.notification_connected_text, playerName), "-", pIntent);
-            status.flags |= Notification.FLAG_ONGOING_EVENT;
-            status.icon = R.drawable.ic_launcher;
-        }
-        nm.notify(PLAYBACKSERVICE_STATUS, status);
-    }
-
-    private void updateCurrentSong(Song song) {
-        Song currentSong = playerState.getCurrentSong();
-        if ((song == null ? (currentSong != null) : !song.equals(currentSong))) {
-            Log.d(TAG, "updateCurrentSong: " + song);
-            playerState.setCurrentSong(song);
-            updateOngoingNotification();
-            for (IServiceMusicChangedCallback callback : mMusicChangedCallbacks) {
-                callback.onMusicChanged(playerState);
-            }
-        }
-    }
-
-    private void clearOngoingNotification() {
-        NotificationManager nm =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.cancel(PLAYBACKSERVICE_STATUS);
-    }
-
-    private void updatePowerStatus(boolean powerStatus) {
-        Boolean currentPowerStatus = playerState.getPoweredOn();
-        if (currentPowerStatus  == null || powerStatus != currentPowerStatus) {
-            playerState.setPoweredOn(powerStatus);
-            for (IServiceCallback callback : mServiceCallbacks) {
-                callback.onPowerStatusChanged(squeezeService.canPowerOn(),
-                        squeezeService.canPowerOff());
-            }
-        }
     }
 
     /** A download request will be passed to the download manager for each song called back to this */
