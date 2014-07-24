@@ -52,8 +52,8 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
@@ -605,6 +605,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         return tokenMap;
     }
 
+    /**
+     *
+     * TODO: This allocates a new PlayerState every time a status line is read (approx once
+     * per second). Could fix by keeping a single spare PlayerState object around and reading
+     * in to that.
+     */
     private PlayerState parseStatusLine(List<String> tokens) {
         PlayerState result = new PlayerState();
         HashMap<String, String> tokenMap = parseTokens(tokens);
@@ -626,6 +632,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         return result;
     }
 
+    /**
+     * Updates various pieces of book-keeping information when the player state changes, and
+     * ensures that relevant callbacks are called.
+     *
+     * @param newPlayerState The new playerState.
+     */
     private void updateStatus(PlayerState newPlayerState) {
         updatePowerStatus(newPlayerState.isPoweredOn());
         updatePlayStatus(newPlayerState.getPlayStatus());
@@ -633,6 +645,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         updateRepeatStatus(newPlayerState.getRepeatStatus());
         updateCurrentSong(newPlayerState.getCurrentSong());
         updateTimes(newPlayerState.getCurrentTimeSecond(), newPlayerState.getCurrentSongDuration());
+
+        // Ensure that all other player state is saved as well.
+        playerState = newPlayerState;
     }
 
     void changeActivePlayer(Player newPlayer) {
@@ -906,7 +921,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
         }
     }
-
 
     /** A download request will be passed to the download manager for each song called back to this */
     private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<Song>() {
