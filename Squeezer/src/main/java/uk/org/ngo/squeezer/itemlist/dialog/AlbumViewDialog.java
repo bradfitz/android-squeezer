@@ -38,7 +38,7 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
         /**
          * The icon to use for this layout
          */
-        private int icon;
+        private final int icon;
 
         @Override
         public int getIcon() {
@@ -48,7 +48,7 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
         /**
          * The text to use for this layout
          */
-        private ServerString serverString;
+        private final ServerString serverString;
 
         @Override
         public String getText(Context context) {
@@ -75,7 +75,7 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
         yearalbum(ServerString.SORT_YEARALBUM),
         yearartistalbum(ServerString.SORT_YEARARTISTALBUM);
 
-        private ServerString serverString;
+        private final ServerString serverString;
 
         @Override
         public String getText(Context context) {

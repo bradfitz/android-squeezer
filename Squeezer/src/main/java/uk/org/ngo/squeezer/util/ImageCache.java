@@ -412,21 +412,21 @@ public class ImageCache {
 
         public int memCacheSize = DEFAULT_MEM_CACHE_SIZE;
 
-        public int diskCacheSize = DEFAULT_DISK_CACHE_SIZE;
+        public final int diskCacheSize = DEFAULT_DISK_CACHE_SIZE;
 
         public File diskCacheDir;
 
-        public CompressFormat compressFormat = DEFAULT_COMPRESS_FORMAT;
+        public final CompressFormat compressFormat = DEFAULT_COMPRESS_FORMAT;
 
-        public int compressQuality = DEFAULT_COMPRESS_QUALITY;
+        public final int compressQuality = DEFAULT_COMPRESS_QUALITY;
 
-        public boolean memoryCacheEnabled = DEFAULT_MEM_CACHE_ENABLED;
+        public final boolean memoryCacheEnabled = DEFAULT_MEM_CACHE_ENABLED;
 
-        public boolean diskCacheEnabled = DEFAULT_DISK_CACHE_ENABLED;
+        public final boolean diskCacheEnabled = DEFAULT_DISK_CACHE_ENABLED;
 
         public boolean clearDiskCacheOnStart = DEFAULT_CLEAR_DISK_CACHE_ON_START;
 
-        public boolean initDiskCacheOnCreate = DEFAULT_INIT_DISK_CACHE_ON_CREATE;
+        public final boolean initDiskCacheOnCreate = DEFAULT_INIT_DISK_CACHE_ON_CREATE;
 
         public ImageCacheParams(Context context, String uniqueName) {
             diskCacheDir = getDiskCacheDir(context, uniqueName);

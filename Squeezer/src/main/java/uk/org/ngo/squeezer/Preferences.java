@@ -76,8 +76,8 @@ public final class Preferences {
     public static final String KEY_SQUEEZEPLAYER_ENABLED = "squeezer.squeezeplayer.enabled";
 
 
-    private Context context;
-    private SharedPreferences sharedPreferences;
+    private final Context context;
+    private final SharedPreferences sharedPreferences;
 
     public Preferences(Context context) {
         this.context = context;

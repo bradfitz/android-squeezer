@@ -254,13 +254,13 @@ public class PlayerState implements Parcelable {
         SHUFFLE_SONG(1, R.drawable.btn_shuffle_song, ServerString.SHUFFLE_ON_SONGS),
         SHUFFLE_ALBUM(2, R.drawable.btn_shuffle_album, ServerString.SHUFFLE_ON_ALBUMS);
 
-        private int id;
+        private final int id;
 
-        private int icon;
+        private final int icon;
 
-        private ServerString text;
+        private final ServerString text;
 
-        private static EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<ShuffleStatus>(
+        private static final EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<ShuffleStatus>(
                 ShuffleStatus.class);
 
         private ShuffleStatus(int id, int icon, ServerString text) {
@@ -292,13 +292,13 @@ public class PlayerState implements Parcelable {
         REPEAT_ONE(1, R.drawable.btn_repeat_one, ServerString.REPEAT_ONE),
         REPEAT_ALL(2, R.drawable.btn_repeat_all, ServerString.REPEAT_ALL);
 
-        private int id;
+        private final int id;
 
-        private int icon;
+        private final int icon;
 
-        private ServerString text;
+        private final ServerString text;
 
-        private static EnumIdLookup<RepeatStatus> lookup = new EnumIdLookup<RepeatStatus>(
+        private static final EnumIdLookup<RepeatStatus> lookup = new EnumIdLookup<RepeatStatus>(
                 RepeatStatus.class);
 
         private RepeatStatus(int id, int icon, ServerString text) {
@@ -332,7 +332,7 @@ public class PlayerState implements Parcelable {
 
     public static class EnumIdLookup<E extends Enum<E> & EnumWithId> {
 
-        private SparseArray<E> map = new SparseArray<E>();
+        private final SparseArray<E> map = new SparseArray<E>();
 
         public EnumIdLookup(Class<E> enumType) {
             for (E v : enumType.getEnumConstants()) {

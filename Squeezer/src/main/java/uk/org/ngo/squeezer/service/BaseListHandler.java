@@ -16,7 +16,7 @@ abstract class BaseListHandler<T extends Item> implements ListHandler<T> {
     protected List<T> items;
 
     @SuppressWarnings("unchecked")
-    private Class<T> dataType = (Class<T>) Reflection
+    private final Class<T> dataType = (Class<T>) Reflection
             .getGenericClass(this.getClass(), ListHandler.class, 0);
 
     private Constructor<T> constructor;

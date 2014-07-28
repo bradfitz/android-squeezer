@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Holds a list of
  */
 public class ServiceCallbackList<T extends ServiceCallback> implements Iterable<T> {
-    private ServicePublisher publisher;
+    private final ServicePublisher publisher;
     private final Map<T, Boolean> items = new ConcurrentHashMap<T, Boolean>();
 
     public ServiceCallbackList(ServicePublisher publisher) {
