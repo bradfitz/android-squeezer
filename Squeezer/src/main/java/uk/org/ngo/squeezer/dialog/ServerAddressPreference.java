@@ -337,7 +337,7 @@ public class ServerAddressPreference extends DialogPreference {
          */
         @Override
         protected Void doInBackground(Void... unused) {
-            WifiManager.WifiLock wifiLock = null;
+            WifiManager.WifiLock wifiLock;
             DatagramSocket socket = null;
 
             // UDP broadcast data that causes Squeezeservers to reply. The
@@ -444,9 +444,7 @@ public class ServerAddressPreference extends DialogPreference {
             }
 
             Log.v(TAG, "Scanning complete, unlocking WiFi");
-            if (wifiLock != null) {
-                wifiLock.release();
-            }
+            wifiLock.release();
 
             // For testing that multiple servers are handled correctly.
             // mServerMap.put("Dummy", "127.0.0.1");
