@@ -23,7 +23,7 @@ dependencies {
 
     // Third party libraries
     compile 'ch.acra:acra:4.5.0'
-    compile 'com.google.guava:guava:16.0.1'
+    compile 'com.google.guava:guava:17.0'
     // findbugs is required for Proguard to work with Guava.
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 
