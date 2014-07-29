@@ -484,7 +484,7 @@ public class ImageCache {
 
     /**
      * A hashing method that changes a string (like a URL) into a hash suitable for using as a disk
-     * filename.
+     * filename.  The hashing method is MD5.
      */
     public static String hashKeyForDisk(String key) {
         String cacheKey;
