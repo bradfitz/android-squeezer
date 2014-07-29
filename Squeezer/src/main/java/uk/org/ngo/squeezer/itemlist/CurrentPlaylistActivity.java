@@ -72,7 +72,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             Object viewTag = view.getTag();
 
             // This test because the view tag wont be set until the album is received from the server
-            if (viewTag != null && viewTag instanceof ViewHolder) {
+            if (viewTag instanceof ViewHolder) {
                 ViewHolder viewHolder = (ViewHolder) viewTag;
                 if (position == currentPlaylistIndex) {
                     viewHolder.text1

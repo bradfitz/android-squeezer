@@ -77,9 +77,9 @@ public class Util {
         return parseDecimalInt(value, 0);
     }
 
-    private static StringBuilder sFormatBuilder = new StringBuilder();
+    private static final StringBuilder sFormatBuilder = new StringBuilder();
 
-    private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
+    private static final Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
 
     private static final Object[] sTimeArgs = new Object[5];
 

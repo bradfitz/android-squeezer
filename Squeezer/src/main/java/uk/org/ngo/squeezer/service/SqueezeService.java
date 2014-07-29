@@ -149,11 +149,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             = new ServiceCallbackList<IServicePlayerStateCallback>(this);
 
 
-    ConnectionState connectionState = new ConnectionState();
+    final ConnectionState connectionState = new ConnectionState();
 
     PlayerState playerState = new PlayerState();
 
-    CliClient cli = new CliClient(this);
+    final CliClient cli = new CliClient(this);
 
     /**
      * Is scrobbling enabled?
@@ -958,7 +958,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
             private Player getInitialPlayer() {
                 final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
-                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER, null);
+                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER,
+                        null);
                 Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
                 List<Player> players = connectionState.getPlayers();

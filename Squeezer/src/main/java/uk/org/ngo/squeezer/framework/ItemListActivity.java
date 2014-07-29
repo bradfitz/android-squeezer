@@ -27,13 +27,11 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
-import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.RetainFragment;
@@ -61,7 +59,7 @@ public abstract class ItemListActivity extends BaseActivity {
     /**
      * The pages that have been requested from the server.
      */
-    private Set<Integer> mOrderedPages = new HashSet<Integer>();
+    private final Set<Integer> mOrderedPages = new HashSet<Integer>();
 
     /**
      * The pages that have been received from the server

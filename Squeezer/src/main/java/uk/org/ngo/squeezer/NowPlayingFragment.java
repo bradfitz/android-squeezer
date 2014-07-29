@@ -171,7 +171,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private final static class UiThreadHandler extends Handler {
 
-        WeakReference<NowPlayingFragment> mFragment;
+        final WeakReference<NowPlayingFragment> mFragment;
 
         public UiThreadHandler(NowPlayingFragment fragment) {
             mFragment = new WeakReference<NowPlayingFragment>(fragment);

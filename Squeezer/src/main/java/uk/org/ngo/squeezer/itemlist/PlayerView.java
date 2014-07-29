@@ -211,8 +211,8 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     private class VolumeSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
-        private Player player;
-        private TextView valueView;
+        private final Player player;
+        private final TextView valueView;
 
         public VolumeSeekBarChangeListener(Player player, TextView valueView) {
             this.player = player;
@@ -239,7 +239,7 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     private class PowerButtonClickListener implements View.OnClickListener {
-        private Player player;
+        private final Player player;
 
         private PowerButtonClickListener(Player player) {
             this.player = player;
