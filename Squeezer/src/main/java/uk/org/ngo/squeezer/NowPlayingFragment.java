@@ -948,6 +948,11 @@ public class NowPlayingFragment extends Fragment implements
             menu_item_volume.setEnabled(connected);
         }
 
+        // Don't show the item to go to CurrentPlaylistActivity if in CurrentPlaylistActivity.
+        if (mActivity instanceof CurrentPlaylistActivity && menu_item_playlists != null) {
+            menu_item_playlists.setVisible(false);
+        }
+
         updatePowerMenuItems(canPowerOn(), canPowerOff());
     }
 
