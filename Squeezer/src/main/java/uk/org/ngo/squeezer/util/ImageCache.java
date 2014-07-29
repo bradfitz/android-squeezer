@@ -16,6 +16,9 @@
 
 package uk.org.ngo.squeezer.util;
 
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -32,8 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import uk.org.ngo.squeezer.BuildConfig;
 
@@ -75,6 +76,8 @@ public class ImageCache {
     private final Object mDiskCacheLock = new Object();
 
     private boolean mDiskCacheStarting = true;
+
+    private static final HashFunction mHashFunction = Hashing.md5();
 
     /**
      * Creating a new ImageCache object using the specified parameters.
@@ -487,28 +490,7 @@ public class ImageCache {
      * filename.  The hashing method is MD5.
      */
     public static String hashKeyForDisk(String key) {
-        String cacheKey;
-        try {
-            final MessageDigest mDigest = MessageDigest.getInstance("MD5");
-            mDigest.update(key.getBytes());
-            cacheKey = bytesToHexString(mDigest.digest());
-        } catch (NoSuchAlgorithmException e) {
-            cacheKey = String.valueOf(key.hashCode());
-        }
-        return cacheKey;
-    }
-
-    private static String bytesToHexString(byte[] bytes) {
-        // http://stackoverflow.com/questions/332079
-        StringBuilder sb = new StringBuilder();
-        for (byte aByte : bytes) {
-            String hex = Integer.toHexString(0xFF & aByte);
-            if (hex.length() == 1) {
-                sb.append('0');
-            }
-            sb.append(hex);
-        }
-        return sb.toString();
+        return mHashFunction.hashBytes(key.getBytes()).toString();
     }
 
     /**
