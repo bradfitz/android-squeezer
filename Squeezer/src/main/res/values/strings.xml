@@ -143,6 +143,9 @@
         volume.\n\nTry it now.
     </string>
 
+    <!-- Reporting errors that from the server. -->
+    <string name="server_error">%1$s reported an error: \"%2$s\".</string>
+
     <!-- Dialog buttons -->
     <string name="dialog_license">License</string>
 
