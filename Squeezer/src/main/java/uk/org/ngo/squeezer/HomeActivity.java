@@ -40,6 +40,7 @@ import de.cketti.library.changelog.ChangeLog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
+import uk.org.ngo.squeezer.itemlist.ApplicationListActivity;
 import uk.org.ngo.squeezer.itemlist.ArtistListActivity;
 import uk.org.ngo.squeezer.itemlist.FavoriteListActivity;
 import uk.org.ngo.squeezer.itemlist.GenreListActivity;
@@ -193,17 +194,13 @@ public class HomeActivity extends BaseActivity {
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
-        for (int i = ARTISTS; i <= FAVORITES; i++) {
+        for (int i = ARTISTS; i <= APPS; i++) {
             if (i == MUSIC_FOLDER && !mCanMusicfolder) {
                 continue;
             }
 
             if (i == RANDOM_MIX && !mCanRandomplay) {
                 continue;
-            }
-
-            if (i == APPS) {
-                continue; // APPS not implemented.
             }
 
             rows.add(new IconRowAdapter.IconRow(i, items[i], icons[i]));
@@ -255,10 +252,7 @@ public class HomeActivity extends BaseActivity {
                     RadioListActivity.show(HomeActivity.this);
                     break;
                 case APPS:
-                    // TODO (kaa) implement
-                    // Currently hidden, by commenting out the entry in
-                    // strings.xml.
-                    // ApplicationListActivity.show(HomeActivity.this);
+                    ApplicationListActivity.show(HomeActivity.this);
                     break;
                 case FAVORITES:
                     FavoriteListActivity.show(HomeActivity.this);

@@ -34,7 +34,7 @@ public class ApplicationView extends PluginView {
     }
 
     public void onItemSelected(int index, Plugin item) {
-        //TODO what to do?
+        PluginItemListActivity.show(getActivity(), item);
     }
 
     @Override
