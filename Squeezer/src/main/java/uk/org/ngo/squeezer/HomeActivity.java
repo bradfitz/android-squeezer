@@ -78,9 +78,13 @@ public class HomeActivity extends BaseActivity {
 
     private static final int FAVORITES = 10;
 
-    private static final int APPS = 11;
+    private static final int MY_APPS = 11;
+
+    private boolean mCanFavorites = false;
 
     private boolean mCanMusicfolder = false;
+
+    private boolean mCanMyApps = false;
 
     private boolean mCanRandomplay = false;
 
@@ -186,20 +190,27 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
+            mCanFavorites = getService().canFavorites();
             mCanMusicfolder = getService().canMusicfolder();
-        }
-
-        if (getService() != null) {
+            mCanMyApps = getService().canMyApps();
             mCanRandomplay = getService().canRandomplay();
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
-        for (int i = ARTISTS; i <= APPS; i++) {
+        for (int i = ARTISTS; i <= MY_APPS; i++) {
             if (i == MUSIC_FOLDER && !mCanMusicfolder) {
                 continue;
             }
 
             if (i == RANDOM_MIX && !mCanRandomplay) {
+                continue;
+            }
+
+            if (i == FAVORITES && !mCanFavorites) {
+                continue;
+            }
+
+            if (i == MY_APPS && !mCanMyApps) {
                 continue;
             }
 
@@ -251,11 +262,11 @@ public class HomeActivity extends BaseActivity {
                     // Log.e("MyApp", sCrashString.toString());
                     RadioListActivity.show(HomeActivity.this);
                     break;
-                case APPS:
-                    ApplicationListActivity.show(HomeActivity.this);
-                    break;
                 case FAVORITES:
                     FavoriteListActivity.show(HomeActivity.this);
+                    break;
+                case MY_APPS:
+                    ApplicationListActivity.show(HomeActivity.this);
                     break;
             }
         }

@@ -86,7 +86,9 @@ public interface ISqueezeService {
     boolean canPowerOff();
     void powerOn();
     void powerOff();
+    boolean canFavorites();
     boolean canMusicfolder();
+    boolean canMyApps();
     boolean canRandomplay();
     String preferredAlbumSort();
     boolean togglePausePlay();
