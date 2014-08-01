@@ -815,7 +815,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     (mServiceCallbacks.count() > 0 && player.equals(activePlayer))) {
                 cli.sendPlayerCommand(player, "status - 1 subscribe:1 tags:" + SONGTAGS);
             } else {
-                cli.sendPlayerCommand(player, "status - 1 subscribe:-");
+                cli.sendPlayerCommand(player, "status - 1 subscribe:- tags:" + SONGTAGS);
             }
         }
     }
