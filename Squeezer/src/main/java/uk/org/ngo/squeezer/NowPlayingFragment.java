@@ -712,8 +712,16 @@ public class NowPlayingFragment extends Fragment implements
             if (mFullHeightLayout) {
                 artistText.setText(song.getArtist());
                 if (song.isRemote()) {
+                    nextButton.setEnabled(false);
+                    nextButton.setAlpha(0.25f);
+                    prevButton.setEnabled(false);
+                    prevButton.setAlpha(0.25f);
                     btnContextMenu.setVisibility(View.GONE);
                 } else {
+                    nextButton.setEnabled(true);
+                    nextButton.setAlpha(1.0f);
+                    prevButton.setEnabled(true);
+                    prevButton.setAlpha(1.0f);
                     btnContextMenu.setVisibility(View.VISIBLE);
                 }
             }
