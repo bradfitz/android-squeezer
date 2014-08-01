@@ -897,12 +897,12 @@ public class NowPlayingFragment extends Fragment implements
 
             case R.id.view_albums_by_song:
                 AlbumListActivity.show(getActivity(),
-                        new Artist(song.getArtist_id(), song.getArtist()));
+                        new Artist(song.getArtistId(), song.getArtist()));
                 return true;
 
             case R.id.view_songs_by_artist:
                 SongListActivity.show(getActivity(),
-                        new Artist(song.getArtist_id(), song.getArtist()));
+                        new Artist(song.getArtistId(), song.getArtist()));
                 return true;
 
             default:

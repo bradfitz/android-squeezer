@@ -1,5 +1,7 @@
 package uk.org.ngo.squeezer.test.model;
 
+import com.google.common.collect.ImmutableMap;
+
 import android.test.AndroidTestCase;
 
 import java.util.HashMap;
@@ -28,37 +30,52 @@ public class SqueezerSongTest extends AndroidTestCase {
 
         assertTrue("A song equals itself (reflexive)", song1.equals(song1));
 
-        assertFalse("A song, even an empty one, is not equal to null",
-                song1.equals(null));
-
-        assertTrue("Two songs with null IDs are equal", song1.equals(song2));
+        assertTrue("Two songs with empty IDs are equal", song1.equals(song2));
         assertTrue("... and is symmetric", song2.equals(song1));
+
+        assertTrue("Identical songs have the same hashcode", song1.hashCode() == song2.hashCode());
 
         Album album1 = new Album(record1);
         assertFalse("Null song does not equal a null album", song1.equals(album1));
         assertFalse("... and is symmetric", album1.equals(song1));
 
-        song1.setId("1");
-        song2.setId("2");
+        song1 = new Song(ImmutableMap.of("id", "1"));
+        song2 = new Song(ImmutableMap.of("id", "2"));
         assertFalse("Songs with different IDs are different", song1.equals(song2));
         assertFalse("... and is symmetric", song2.equals(song1));
 
-        song1.setId("1");
-        song2.setId("1");
-        song3.setId("1");
+        song1 = new Song(ImmutableMap.of("id", "1"));
+        song2 = new Song(ImmutableMap.of("id", "1"));
+        song3 = new Song(ImmutableMap.of("id", "1"));
         assertTrue("Songs with the same ID are equivalent", song1.equals(song2));
         assertTrue("... and is symmetric", song2.equals(song1));
         assertTrue("... and is transitive (1)", song2.equals(song3));
         assertTrue("... and is transitive (2)", song1.equals(song3));
+        assertTrue("Identical songs have the same hashcode", song1.hashCode() == song2.hashCode());
 
-        song1.setId("1");
-        song1.setName("Song");
-        song2.setId("2");
-        song2.setName("Song");
+        song1 = new Song(ImmutableMap.of("id", "1", "title", "Song 1"));
+        song2 = new Song(ImmutableMap.of("id", "1", "title", "Song 1"));
+        song3 = new Song(ImmutableMap.of("id", "1", "title", "Song 1"));
+        assertTrue("Songs with the same ID/Title are equivalent", song1.equals(song2));
+        assertTrue("... and is symmetric", song2.equals(song1));
+        assertTrue("... and is transitive (1)", song2.equals(song3));
+        assertTrue("... and is transitive (2)", song1.equals(song3));
+        assertTrue("Identical songs have the same hashcode", song1.hashCode() == song2.hashCode());
+
+        song1 = new Song(ImmutableMap.of("id", "1", "title", "Song 1"));
+        song2 = new Song(ImmutableMap.of("id", "1", "title", "Song 2"));
+        song3 = new Song(ImmutableMap.of("id", "1", "title", "Song 3"));
+        assertFalse("Songs that differ by title are different", song1.equals(song2));
+        assertFalse("... and is symmetric", song2.equals(song1));
+        assertFalse("... and is transitive (1)", song2.equals(song3));
+        assertFalse("... and is transitive (2)", song1.equals(song3));
+
+        song1 = new Song(ImmutableMap.of("id", "1", "title", "Song"));
+        song1 = new Song(ImmutableMap.of("id", "21","title", "Song"));
         assertFalse("Songs with same name but different IDs are different", song1.equals(song2));
         assertFalse("... and is symmetric", song2.equals(song1));
 
-        song1.setId("1");
+        song1 = new Song(ImmutableMap.of("id", "1", "title", "Song"));
         album1.setId("1");
         assertFalse("Songs and albums with the same ID are different", song1.equals(album1));
         assertFalse("... and is symmetric", album1.equals(song1));
