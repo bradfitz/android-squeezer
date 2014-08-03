@@ -40,6 +40,7 @@ import de.cketti.library.changelog.ChangeLog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
+import uk.org.ngo.squeezer.itemlist.ApplicationListActivity;
 import uk.org.ngo.squeezer.itemlist.ArtistListActivity;
 import uk.org.ngo.squeezer.itemlist.FavoriteListActivity;
 import uk.org.ngo.squeezer.itemlist.GenreListActivity;
@@ -77,9 +78,13 @@ public class HomeActivity extends BaseActivity {
 
     private static final int FAVORITES = 10;
 
-    private static final int APPS = 11;
+    private static final int MY_APPS = 11;
+
+    private boolean mCanFavorites = false;
 
     private boolean mCanMusicfolder = false;
+
+    private boolean mCanMyApps = false;
 
     private boolean mCanRandomplay = false;
 
@@ -185,15 +190,14 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
+            mCanFavorites = getService().canFavorites();
             mCanMusicfolder = getService().canMusicfolder();
-        }
-
-        if (getService() != null) {
+            mCanMyApps = getService().canMyApps();
             mCanRandomplay = getService().canRandomplay();
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
-        for (int i = ARTISTS; i <= FAVORITES; i++) {
+        for (int i = ARTISTS; i <= MY_APPS; i++) {
             if (i == MUSIC_FOLDER && !mCanMusicfolder) {
                 continue;
             }
@@ -202,8 +206,12 @@ public class HomeActivity extends BaseActivity {
                 continue;
             }
 
-            if (i == APPS) {
-                continue; // APPS not implemented.
+            if (i == FAVORITES && !mCanFavorites) {
+                continue;
+            }
+
+            if (i == MY_APPS && !mCanMyApps) {
+                continue;
             }
 
             rows.add(new IconRowAdapter.IconRow(i, items[i], icons[i]));
@@ -254,14 +262,11 @@ public class HomeActivity extends BaseActivity {
                     // Log.e("MyApp", sCrashString.toString());
                     RadioListActivity.show(HomeActivity.this);
                     break;
-                case APPS:
-                    // TODO (kaa) implement
-                    // Currently hidden, by commenting out the entry in
-                    // strings.xml.
-                    // ApplicationListActivity.show(HomeActivity.this);
-                    break;
                 case FAVORITES:
                     FavoriteListActivity.show(HomeActivity.this);
+                    break;
+                case MY_APPS:
+                    ApplicationListActivity.show(HomeActivity.this);
                     break;
             }
         }

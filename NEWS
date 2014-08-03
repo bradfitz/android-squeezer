@@ -1,11 +1,13 @@
 In-progress
 ===========
 
+*   Support for "My Apps" installed via mysqueezebox.com.
+
 *   Show the current player name in the Action Bar at the top of the screen,
     with a drop-down menu allowing you to easily switch between players.
 
 *   Enhance the display of available players.  You can now rename a player,
-    adjust the volume, set a sleep duaration, and power on/off players
+    adjust the volume, set a sleep duration, and power on/off players
     directly from the list.
 
 *   Support downloading all songs by album, artist, genre, year, or music

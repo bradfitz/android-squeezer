@@ -300,11 +300,16 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             @Override
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Capability received: " + tokens);
+                if ("favorites".equals(tokens.get(1)) && tokens.size() >= 4) {
+                    connectionState.setCanFavorites(Util.parseDecimalIntOrZero(tokens.get(3)) == 1);
+                }
                 if ("musicfolder".equals(tokens.get(1)) && tokens.size() >= 3) {
                     connectionState
                             .setCanMusicfolder(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
                 }
-
+                if ("myapps".equals(tokens.get(1)) && tokens.size() >= 4) {
+                    connectionState.setCanMyApps(Util.parseDecimalIntOrZero(tokens.get(3)) == 1);
+                }
                 if ("randomplay".equals(tokens.get(1)) && tokens.size() >= 3) {
                     connectionState
                             .setCanRandomplay(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
@@ -929,7 +934,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         cli.sendCommandImmediately(
                 "listen 1", // subscribe to all server notifications
                 "can musicfolder ?", // learn music folder browsing support
-                "can randomplay ?",   // learn random play function functionality
+                "can randomplay ?", // learn random play function functionality
+                "can favorites items ?", // learn support for "Favorites" plugin
+                "can myapps items ?", // lean support for "MyApps" plugin
                 "pref httpport ?", // learn the HTTP port (needed for images)
                 "pref jivealbumsort ?", // learn the preferred album sort order
                 "pref mediadirs ?", // learn the base path(s) of the server music library
@@ -1206,16 +1213,40 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         /**
-         * Determines whether the Squeezeserver supports the
-         * <code>musicfolders</code> command.
+         * Does the server support the "<code>favorites items</code>" command?
          *
-         * @return <code>true</code> if it does, <code>false</code> otherwise.
+         * @return True if it does, false otherwise.
+         */
+        @Override
+        public boolean canFavorites() {
+            return connectionState.canFavorites();
+        }
+
+        /**
+         * Does the server support the "<code>musicfolders</code>" command?
+         *
+         * @return True if it does, false otherwise.
          */
         @Override
         public boolean canMusicfolder() {
             return connectionState.canMusicfolder();
         }
 
+        /**
+         * Does the server support the "<code>myapps items</code>" command?
+         *
+         * @return True if it does, false otherwise.
+         */
+        @Override
+        public boolean canMyApps() {
+            return connectionState.canMyApps();
+        }
+
+        /**
+         * Does the server support the "<code>randomplay</code>" command?
+         *
+         * @return True if it does, false otherwise.
+         */
         @Override
         public boolean canRandomplay() {
             return connectionState.canRandomplay();
