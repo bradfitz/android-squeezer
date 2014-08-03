@@ -16,12 +16,12 @@
 
 package uk.org.ngo.squeezer.model;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class Song extends ArtworkItem {
     }
 
     /** The "track" or "title" value from the server. */
-    @NonNull private String mName;
+    @NonNull private final String mName;
 
     @Override
     @NonNull
