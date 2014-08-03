@@ -143,6 +143,9 @@
         volume.\n\nTry it now.
     </string>
 
+    <string name="menu_item_power_off">Turn off</string>
+    <string name="menu_item_power_on">Turn on</string>
+
     <!-- Dialog buttons -->
     <string name="dialog_license">License</string>
 
