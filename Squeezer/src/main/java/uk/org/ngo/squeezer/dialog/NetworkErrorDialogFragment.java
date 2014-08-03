@@ -81,8 +81,7 @@ public class NetworkErrorDialogFragment extends DialogFragment {
         try {
             mListener = (NetworkErrorDialogListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() +
-                    " must implement NetworkErrorDialogListener");
+            throw new ClassCastException(activity + " must implement NetworkErrorDialogListener");
         }
     }
 
