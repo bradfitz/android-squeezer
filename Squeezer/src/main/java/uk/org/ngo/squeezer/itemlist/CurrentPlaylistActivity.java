@@ -36,9 +36,11 @@ import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
+import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
@@ -47,6 +49,8 @@ import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
  * Activity that shows the songs in the current playlist.
  */
 public class CurrentPlaylistActivity extends BaseListActivity<Song> {
+
+    private Player player;
 
     public static void show(Context context) {
         final Intent intent = new Intent(context, CurrentPlaylistActivity.class)
@@ -198,8 +202,10 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     @Override
     protected void registerCallback() {
         super.registerCallback();
+        player = getService().getActivePlayer();
         getService().registerCurrentPlaylistCallback(currentPlaylistCallback);
         getService().registerMusicChangedCallback(musicChangedCallback);
+        getService().registerPlayersCallback(playersCallback);
     }
 
     private final IServiceCurrentPlaylistCallback currentPlaylistCallback
@@ -244,6 +250,26 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                     getItemAdapter().notifyDataSetChanged();
                 }
             });
+        }
+
+        @Override
+        public Object getClient() {
+            return CurrentPlaylistActivity.this;
+        }
+    };
+
+    private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
+        @Override
+        public void onPlayersChanged(List<Player> players, final Player activePlayer) {
+            if (activePlayer != null && !activePlayer.equals(player)) {
+                getUIThreadHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        player = activePlayer;
+                        clearAndReOrderItems();
+                    }
+                });
+            }
         }
 
         @Override
