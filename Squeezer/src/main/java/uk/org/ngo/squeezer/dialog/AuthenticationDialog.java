@@ -1,5 +1,6 @@
 package uk.org.ngo.squeezer.dialog;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -21,6 +22,7 @@ public class AuthenticationDialog extends DialogFragment {
         final Preferences preferences = new Preferences(activity);
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
+        @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
         View form = activity.getLayoutInflater().inflate(R.layout.authentication_dialog, null);
         builder.setView(form);
 

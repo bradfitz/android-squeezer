@@ -33,7 +33,7 @@ import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 public abstract class PlaylistItemView<T extends PlaylistItem> extends
         BaseItemView<T> implements OnSharedPreferenceChangeListener {
 
-    protected SharedPreferences preferences;
+    protected final SharedPreferences preferences;
 
     protected PlayableItemAction onSelectAction;
 

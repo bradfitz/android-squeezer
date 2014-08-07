@@ -23,7 +23,7 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
         /**
          * The icon to use for this layout
          */
-        private int icon;
+        private final int icon;
 
         @Override
         public int getIcon() {
@@ -33,7 +33,7 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
         /**
          * The text to use for this layout
          */
-        private ServerString serverString;
+        private final ServerString serverString;
 
         @Override
         public String getText(Context context) {
@@ -62,7 +62,7 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
         /**
          * The text to use for this ordering
          */
-        private int stringResource;
+        private final int stringResource;
 
         @Override
         public String getText(Context context) {

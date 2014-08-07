@@ -16,11 +16,11 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.util.Log;
+
 import com.google.common.base.Joiner;
 
 import org.acra.ACRA;
-
-import android.util.Log;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -390,7 +390,9 @@ class CliClient {
         }
         if (full_list)
             sb.append(" full_list:1");
-        sendCommand(sb.toString() + " correlationid:" + _correlationid++);
+        sb.append(" correlationid:");
+        sb.append(_correlationid++);
+        sendCommand(sb.toString());
     }
 
     void requestItems(String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
@@ -563,11 +565,18 @@ class CliClient {
         if (callback != null) {
             if ((full_list || end % pageSize != 0) && end < max) {
                 int count = (end + pageSize > max ? max - end : full_list ? pageSize : pageSize - itemsPerResponse);
-                StringBuilder cmdline = new StringBuilder(cmd.cmd + " " + end + " " + count);
+                StringBuilder cmdline = new StringBuilder();
+                cmdline.append(playerid);
+                cmdline.append(prefix);
+                cmdline.append(cmd.cmd);
+                cmdline.append(" ");
+                cmdline.append(end);
+                cmdline.append(" ");
+                cmdline.append(count);
                 for (String parameter : taggedParameters.values()) {
                     cmdline.append(" ").append(parameter);
                 }
-                sendCommandImmediately(playerid + prefix + cmdline.toString());
+                sendCommandImmediately(cmdline.toString());
             } else
                 pendingRequests.remove(correlationId);
         }

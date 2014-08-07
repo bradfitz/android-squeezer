@@ -77,12 +77,12 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     /**
      * Number of elements to by fetched at a time
      */
-    private int pageSize;
+    private final int pageSize;
 
     /**
      * ImageFetcher for thumbnails
      */
-    private ImageFetcher mImageFetcher;
+    private final ImageFetcher mImageFetcher;
 
     public int getPageSize() {
         return pageSize;

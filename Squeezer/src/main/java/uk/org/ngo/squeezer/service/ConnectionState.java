@@ -30,7 +30,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,7 +53,13 @@ class ConnectionState {
 
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
 
+    /** Does the server support "favorites items" queries? */
+    private final AtomicBoolean mCanFavorites = new AtomicBoolean(false);
+
     private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
+
+    /** Does the server support "myapps items" queries? */
+    private final AtomicBoolean mCanMyApps = new AtomicBoolean(false);
 
     private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
 
@@ -202,12 +207,28 @@ class ConnectionState {
         mediaDirs.set(dirs.split(";"));
     }
 
+    void setCanFavorites(boolean value) {
+        mCanFavorites.set(value);
+    }
+
+    boolean canFavorites() {
+        return mCanFavorites.get();
+    }
+
     void setCanMusicfolder(boolean value) {
         mCanMusicfolder.set(value);
     }
 
     boolean canMusicfolder() {
         return mCanMusicfolder.get();
+    }
+
+    void setCanMyApps(boolean value) {
+        mCanMyApps.set(value);
+    }
+
+    boolean canMyApps() {
+        return mCanMyApps.get();
     }
 
     void setCanRandomplay(boolean value) {

@@ -16,12 +16,9 @@
 
 package uk.org.ngo.squeezer.dialog;
 
-import org.acra.ErrorReporter;
-
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -41,6 +38,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import org.acra.ErrorReporter;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -338,7 +337,7 @@ public class ServerAddressPreference extends DialogPreference {
          */
         @Override
         protected Void doInBackground(Void... unused) {
-            WifiManager.WifiLock wifiLock = null;
+            WifiManager.WifiLock wifiLock;
             DatagramSocket socket = null;
 
             // UDP broadcast data that causes Squeezeservers to reply. The
@@ -445,9 +444,7 @@ public class ServerAddressPreference extends DialogPreference {
             }
 
             Log.v(TAG, "Scanning complete, unlocking WiFi");
-            if (wifiLock != null) {
-                wifiLock.release();
-            }
+            wifiLock.release();
 
             // For testing that multiple servers are handled correctly.
             // mServerMap.put("Dummy", "127.0.0.1");
@@ -461,7 +458,7 @@ public class ServerAddressPreference extends DialogPreference {
          */
         @Override
         protected void onProgressUpdate(Integer... values) {
-            mPref.updateProgress(Math.min(mServerMap.size(), 5), values[0].intValue());
+            mPref.updateProgress(Math.min(mServerMap.size(), 5), values[0]);
         }
 
         @Override

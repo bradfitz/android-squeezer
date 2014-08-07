@@ -143,22 +143,22 @@ public interface ItemView<T extends Item> {
         /**
          * The position in the adapter for which the context menu is being displayed.
          */
-        public int position;
+        public final int position;
 
         /**
          * The {@link Item} for which the context menu is being displayed.
          */
-        public Item item;
+        public final Item item;
 
         /**
          * The {@link ItemAdapter} that is bridging the content to the list view.
          */
-        public ItemAdapter<?> adapter;
+        public final ItemAdapter<?> adapter;
 
         /**
          * A {@link android.view.MenuInflater} that can be used to inflate a menu resource.
          */
-        public MenuInflater menuInflater;
+        public final MenuInflater menuInflater;
 
         public ContextMenuInfo(int position, Item item, ItemAdapter<?> adapter,
                 MenuInflater menuInflater) {

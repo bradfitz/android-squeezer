@@ -30,7 +30,7 @@ public class SqueezePlayer extends Handler {
     private final String serverName;
     private final String userName;
     private final String password;
-    private Context context;
+    private final Context context;
 
     public SqueezePlayer(Context context) {
         this.context = context;

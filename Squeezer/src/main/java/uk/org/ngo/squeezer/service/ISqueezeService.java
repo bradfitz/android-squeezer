@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.service;
 
 import uk.org.ngo.squeezer.framework.FilterItem;
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
@@ -87,7 +86,9 @@ public interface ISqueezeService {
     boolean canPowerOff();
     void powerOn();
     void powerOff();
+    boolean canFavorites();
     boolean canMusicfolder();
+    boolean canMyApps();
     boolean canRandomplay();
     String preferredAlbumSort();
     boolean togglePausePlay();

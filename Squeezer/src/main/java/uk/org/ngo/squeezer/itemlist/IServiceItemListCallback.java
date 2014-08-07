@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.framework.Item;
-import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.service.ServiceCallback;
 
 public interface IServiceItemListCallback<T extends Item> extends ServiceCallback {

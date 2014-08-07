@@ -171,7 +171,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private final static class UiThreadHandler extends Handler {
 
-        WeakReference<NowPlayingFragment> mFragment;
+        final WeakReference<NowPlayingFragment> mFragment;
 
         public UiThreadHandler(NowPlayingFragment fragment) {
             mFragment = new WeakReference<NowPlayingFragment>(fragment);
@@ -712,8 +712,16 @@ public class NowPlayingFragment extends Fragment implements
             if (mFullHeightLayout) {
                 artistText.setText(song.getArtist());
                 if (song.isRemote()) {
+                    nextButton.setEnabled(false);
+                    Util.setAlpha(nextButton, 0.25f);
+                    prevButton.setEnabled(false);
+                    Util.setAlpha(prevButton, 0.25f);
                     btnContextMenu.setVisibility(View.GONE);
                 } else {
+                    nextButton.setEnabled(true);
+                    Util.setAlpha(nextButton, 1.0f);
+                    prevButton.setEnabled(true);
+                    Util.setAlpha(prevButton, 1.0f);
                     btnContextMenu.setVisibility(View.VISIBLE);
                 }
             }
@@ -889,12 +897,12 @@ public class NowPlayingFragment extends Fragment implements
 
             case R.id.view_albums_by_song:
                 AlbumListActivity.show(getActivity(),
-                        new Artist(song.getArtist_id(), song.getArtist()));
+                        new Artist(song.getArtistId(), song.getArtist()));
                 return true;
 
             case R.id.view_songs_by_artist:
                 SongListActivity.show(getActivity(),
-                        new Artist(song.getArtist_id(), song.getArtist()));
+                        new Artist(song.getArtistId(), song.getArtist()));
                 return true;
 
             default:
@@ -946,6 +954,11 @@ public class NowPlayingFragment extends Fragment implements
             menu_item_playlists.setEnabled(connected);
             menu_item_search.setEnabled(connected);
             menu_item_volume.setEnabled(connected);
+        }
+
+        // Don't show the item to go to CurrentPlaylistActivity if in CurrentPlaylistActivity.
+        if (mActivity instanceof CurrentPlaylistActivity && menu_item_playlists != null) {
+            menu_item_playlists.setVisible(false);
         }
 
         updatePowerMenuItems(canPowerOn(), canPowerOff());

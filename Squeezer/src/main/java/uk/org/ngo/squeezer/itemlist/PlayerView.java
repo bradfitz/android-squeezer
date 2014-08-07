@@ -20,7 +20,6 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -69,27 +68,25 @@ public class PlayerView extends BaseItemView<Player> {
         viewHolder.text1.setText(item.getName());
         viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
 
-        if (viewHolder.powerButton == null) {
-            viewHolder.powerButton = (ImageButton) view.findViewById(R.id.power_button);
-            viewHolder.powerButton.setOnClickListener(new PowerButtonClickListener(item));
-
-            viewHolder.volumeBox = view.findViewById(R.id.volume_box);
-            viewHolder.volumeValue = (TextView) view.findViewById(R.id.volume_value);
+        if (viewHolder.volumeBar == null) {
             viewHolder.volumeBar = (SeekBar) view.findViewById(R.id.volume_slider);
             viewHolder.volumeBar.setOnSeekBarChangeListener(new VolumeSeekBarChangeListener(item, viewHolder.volumeValue));
         }
 
-        viewHolder.powerButton.setVisibility(item.isCanpoweroff() && playerState != null ? View.VISIBLE : View.GONE);
-        viewHolder.volumeBox.setVisibility(playerState != null ? View.VISIBLE : View.GONE);
+        viewHolder.volumeBar.setVisibility(playerState != null ? View.VISIBLE : View.GONE);
 
         if (playerState != null) {
-            Util.setAlpha(viewHolder.powerButton, playerState.isPoweredOn() ? 1.0F : 0.5F);
+            if (playerState.isPoweredOn()) {
+                Util.setAlpha(viewHolder.text1, 1.0f);
+            } else {
+                Util.setAlpha(viewHolder.text1, 0.25f);
+            }
 
             viewHolder.volumeBar.setProgress(playerState.getCurrentVolume());
-            viewHolder.volumeValue.setText(activity.getServerString(ServerString.VOLUME) + ": " + playerState.getCurrentVolume());
 
-            viewHolder.text2.setVisibility(playerState.getSleepDuration() > 0 ? View.VISIBLE : View.GONE);
-            viewHolder.text2.setText(activity.getServerString(ServerString.SLEEPING_IN) + " " + Util.formatElapsedTime(playerState.getSleep()));
+            viewHolder.text2.setVisibility(playerState.getSleepDuration() > 0 ? View.VISIBLE : View.INVISIBLE);
+            viewHolder.text2.setText(activity.getServerString(ServerString.SLEEPING_IN)
+                    + " " + Util.formatElapsedTime(playerState.getSleep()));
         }
     }
 
@@ -124,8 +121,13 @@ public class PlayerView extends BaseItemView<Player> {
                 sleepAtEndOfSongItem.setTitle(activity.getServerString(ServerString.SLEEP_AT_END_OF_SONG));
                 sleepAtEndOfSongItem.setVisible(true);
             }
-        }
 
+            MenuItem togglePowerItem = menu.findItem(R.id.toggle_power);
+            togglePowerItem.setTitle(
+                    activity.getString(playerState.isPoweredOn() ? R.string.menu_item_power_off
+                            : R.string.menu_item_power_on));
+            togglePowerItem.setVisible(true);
+        }
     }
 
     @Override
@@ -143,6 +145,9 @@ public class PlayerView extends BaseItemView<Player> {
             case R.id.rename:
                 new PlayerRenameDialog().show(activity.getSupportFragmentManager(),
                         PlayerRenameDialog.class.getName());
+                return true;
+            case R.id.toggle_power:
+                getActivity().getService().togglePower(selectedItem);
                 return true;
         }
         return super.doItemContext(menuItem, index, selectedItem);
@@ -211,8 +216,8 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     private class VolumeSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
-        private Player player;
-        private TextView valueView;
+        private final Player player;
+        private final TextView valueView;
 
         public VolumeSeekBarChangeListener(Player player, TextView valueView) {
             this.player = player;
@@ -223,7 +228,6 @@ public class PlayerView extends BaseItemView<Player> {
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
                 activity.getService().adjustVolumeTo(player, progress);
-                valueView.setText(activity.getServerString(ServerString.VOLUME) + ": " + progress);
             }
         }
 
@@ -239,21 +243,19 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     private class PowerButtonClickListener implements View.OnClickListener {
-        private Player player;
+        private final Player player;
 
         private PowerButtonClickListener(Player player) {
             this.player = player;
         }
 
         @Override
-        public void onClick(View view) {
+        public void onClick(View v) {
             getActivity().getService().togglePower(player);
         }
     }
 
     private static class PlayerViewHolder extends ViewHolder {
-        ImageButton powerButton;
-        View volumeBox;
         SeekBar volumeBar;
         TextView volumeValue;
     }

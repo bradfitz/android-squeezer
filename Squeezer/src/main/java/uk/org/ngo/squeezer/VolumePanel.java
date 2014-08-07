@@ -21,6 +21,7 @@
  */
 package uk.org.ngo.squeezer;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Handler;
@@ -49,7 +50,7 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
 
     private static final int MSG_TIMEOUT = 2;
 
-    protected BaseActivity mActivity;
+    protected final BaseActivity mActivity;
 
     /**
      * Dialog displaying the volume panel.
@@ -69,6 +70,7 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
 
     private final SeekBar mSeekbar;
 
+    @SuppressLint({"InflateParams"}) // OK, as view is passed to Dialog.setView()
     public VolumePanel(BaseActivity activity) {
         mActivity = activity;
 

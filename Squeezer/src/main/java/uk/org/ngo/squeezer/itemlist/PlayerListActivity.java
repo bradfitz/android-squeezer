@@ -41,7 +41,7 @@ import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 public class PlayerListActivity extends BaseListActivity<Player> {
     public static final String CURRENT_PLAYER = "currentPlayer";
 
-    private Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
+    private final Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
     private Player currentPlayer;
     private boolean trackingTouch;
 
@@ -51,7 +51,7 @@ public class PlayerListActivity extends BaseListActivity<Player> {
         private static final int VOLUME_CHANGE = 1;
         private static final int PLAYER_STATE = 2;
 
-        WeakReference<PlayerListActivity> activity;
+        final WeakReference<PlayerListActivity> activity;
 
         public UiThreadHandler(PlayerListActivity activity) {
             this.activity = new WeakReference<PlayerListActivity>(activity);

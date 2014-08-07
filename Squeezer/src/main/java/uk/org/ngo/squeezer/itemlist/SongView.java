@@ -115,7 +115,7 @@ public class SongView extends PlaylistItemView<Song> {
         viewHolder.text1.setText(item.getName());
 
         viewHolder.text2.setText(mJoiner.join(
-                mDetails.contains(Details.TRACK_NO) ? item.getTracknum() : null,
+                mDetails.contains(Details.TRACK_NO) ? item.getTrackNum() : null,
                 mDetails.contains(Details.DURATION) ? formatElapsedTime(item.getDuration()) : null,
                 mDetails.contains(Details.ARTIST) ? item.getArtist() : null,
                 mDetails.contains(Details.ARTIST_IF_COMPILATION) && item.getCompilation() ? item
@@ -179,15 +179,15 @@ public class SongView extends PlaylistItemView<Song> {
 
         menuInfo.menuInflater.inflate(R.menu.songcontextmenu, menu);
 
-        if (((Song) menuInfo.item).getAlbum_id() != null && !browseByAlbum) {
+        if (((Song) menuInfo.item).getAlbumId().equals("") && !browseByAlbum) {
             menu.findItem(R.id.view_this_album).setVisible(true);
         }
 
-        if (((Song) menuInfo.item).getArtist_id() != null) {
+        if (((Song) menuInfo.item).getArtistId().equals("")) {
             menu.findItem(R.id.view_albums_by_song).setVisible(true);
         }
 
-        if (((Song) menuInfo.item).getArtist_id() != null && !browseByArtist) {
+        if (((Song) menuInfo.item).getArtistId().equals("") && !browseByArtist) {
             menu.findItem(R.id.view_songs_by_artist).setVisible(true);
         }
     }
@@ -202,12 +202,12 @@ public class SongView extends PlaylistItemView<Song> {
             // XXX: Is this actually "view albums by artist"?
             case R.id.view_albums_by_song:
                 AlbumListActivity.show(getActivity(),
-                        new Artist(selectedItem.getArtist_id(), selectedItem.getArtist()));
+                        new Artist(selectedItem.getArtistId(), selectedItem.getArtist()));
                 return true;
 
             case R.id.view_songs_by_artist:
                 SongListActivity.show(getActivity(),
-                        new Artist(selectedItem.getArtist_id(), selectedItem.getArtist()));
+                        new Artist(selectedItem.getArtistId(), selectedItem.getArtist()));
                 return true;
         }
 

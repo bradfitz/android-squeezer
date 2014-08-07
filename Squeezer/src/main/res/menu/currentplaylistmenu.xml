@@ -23,12 +23,12 @@
         android:title="@string/menu_item_playlist_clear"
         android:icon="@drawable/ic_action_playlist_clear"
         app:showAsAction="ifRoom|withText"
-        android:orderInCategory="10"/>
+        android:orderInCategory="0"/>
 
     <item
         android:id="@+id/menu_item_playlist_save"
         android:title="@string/menu_item_playlist_save"
         android:icon="@drawable/ic_action_playlist_save"
         app:showAsAction="ifRoom|withText"
-        android:orderInCategory="10"/>
+        android:orderInCategory="0"/>
 </menu>
