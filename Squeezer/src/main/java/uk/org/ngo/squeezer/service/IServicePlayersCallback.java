@@ -22,5 +22,6 @@ import uk.org.ngo.squeezer.model.Player;
 
 public interface IServicePlayersCallback extends ServiceCallback {
     void onPlayersChanged(List<Player> players, Player activePlayer);
+    void onSyncGroupsChanged(List<PlayerSyncGroup> playerSyncGroup);
 }
 

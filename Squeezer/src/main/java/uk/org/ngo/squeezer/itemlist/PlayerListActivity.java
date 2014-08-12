@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
+import android.widget.ExpandableListView;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -29,8 +31,10 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.SearchAdapter;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -40,6 +44,10 @@ import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 
 public class PlayerListActivity extends BaseListActivity<Player> {
     public static final String CURRENT_PLAYER = "currentPlayer";
+
+    private ExpandableListView mResultsExpandableListView;
+
+    private PlayerListAdapter mResultsAdapter;
 
     private final Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
     private Player currentPlayer;
@@ -91,12 +99,38 @@ public class PlayerListActivity extends BaseListActivity<Player> {
         if (savedInstanceState != null)
             currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
         ((NowPlayingFragment) getSupportFragmentManager().findFragmentById(R.id.now_playing_fragment)).setIgnoreVolumeChange(true);
+
+        mResultsAdapter = new PlayerListAdapter(this, getImageFetcher());
+        mResultsExpandableListView = (ExpandableListView) findViewById(R.id.expandable_list);
+        mResultsExpandableListView.setAdapter(mResultsAdapter);
+
+        mResultsExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
+                                        int childPosition, long id) {
+                mResultsAdapter.onChildClick(groupPosition, childPosition);
+                return true;
+            }
+        });
+
+        mResultsExpandableListView.setOnCreateContextMenuListener(mResultsAdapter);
+        mResultsExpandableListView.setOnScrollListener(new ItemListActivity.ScrollListener());
+    }
+
+    protected void onServiceConnected() {
+        super.onServiceConnected();
+        getService().syncgroups();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(CURRENT_PLAYER, currentPlayer);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected int getContentView() {
+        return R.layout.item_list_players;
     }
 
     @Override
