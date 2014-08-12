@@ -146,7 +146,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
             //
             // instead of special-casing whether or not mImageFetcher is null
             // in getAdapterView().
-            return mItemView.getAdapterView(convertView, parent, item, mImageFetcher);
+            return mItemView.getAdapterView(convertView, parent, position, item, mImageFetcher);
         }
 
         return mItemView.getAdapterView(convertView, parent,
@@ -309,6 +309,30 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
             }
         }
         return 0;
+    }
+
+    /**
+     * Remove the item at the specified position, update the count and notify the change.
+     */
+    public void removeItem(int position) {
+        T[] page = getPage(position);
+        int offset = position % pageSize;
+        int n = count - 1 - position;
+        while (n-- > 0) {
+            if (offset == pageSize - 1) {
+                T[] nextPage = getPage(position);
+                page[offset] = nextPage[0];
+                offset = 0;
+                page = nextPage;
+            } else {
+                page[offset] = page[offset+1];
+            }
+            offset++;
+        }
+
+        count--;
+        onCountUpdated();
+        notifyDataSetChanged();
     }
 
     protected T[] arrayInstance(int size) {

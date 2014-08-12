@@ -38,6 +38,7 @@ import android.util.Log;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.base.Enums;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -62,11 +63,14 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
+import uk.org.ngo.squeezer.model.Alarm;
+import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerPref;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.PlayStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
@@ -153,6 +157,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     final ServiceCallbackList<IServicePlayerStateCallback> mPlayerStateCallbacks
             = new ServiceCallbackList<IServicePlayerStateCallback>(this);
+
+    final ServiceCallbackList<IServicePlayerPrefCallback> mPlayerPrefCallbacks
+            = new ServiceCallbackList<IServicePlayerPrefCallback>(this);
+
 
     final ConnectionState connectionState = new ConnectionState();
 
@@ -273,6 +281,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     cli.parseSqueezerList(cli.extQueryFormatCmdMap.get("playlists tracks"), tokens);
                 } else {
                     cli.parseSqueezerList(cli.extQueryFormatCmdMap.get("playlists"), tokens);
+                }
+            }
+        });
+        handlers.put("alarm", new CmdHandler() {
+            @Override
+            public void handle(List<String> tokens) {
+                if ("playlists".equals(tokens.get(1))) {
+                    cli.parseSqueezerList(cli.extQueryFormatCmdMap.get("alarm playlists"), tokens);
                 }
             }
         });
@@ -419,6 +435,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 parsePlaylistNotification(tokens);
             }
         });
+        handlers.put("playerpref", new CmdHandler() {
+            @Override
+            public void handle(List<String> tokens) {
+                Log.i(TAG, "Player preference received: " + tokens);
+                if (tokens.size() == 4) {
+                    PlayerPref playerPref = PlayerPref.valueOf(Util.decode(tokens.get(2)));
+                    String value = Util.decode(tokens.get(3));
+                    for (IServicePlayerPrefCallback callback : mPlayerPrefCallbacks) {
+                        callback.onPlayerPrefReceived(playerPref, value);
+                    }
+                }
+            }
+        });
 
         return handlers;
     }
@@ -426,6 +455,16 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private Map<String, CmdHandler> initializeGlobalPlayerSpecificHandlers() {
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
+        for (final CliClient.ExtendedQueryFormatCmd cmd : cli.extQueryFormatCmds) {
+            if (cmd.handlerList == CliClient.HandlerList.GLOBAL_PLAYER_SPECIFIC) {
+                handlers.put(cmd.cmd, new CmdHandler() {
+                    @Override
+                    public void handle(List<String> tokens) {
+                        cli.parseSqueezerList(cmd, tokens);
+                    }
+                });
+            }
+        }
         handlers.put("client", new CmdHandler() {
             @Override
             public void handle(List<String> tokens) {
@@ -544,11 +583,20 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "Prefset received: " + tokens);
-                if (tokens.size() > 4 && tokens.get(2).equals("server") && tokens.get(3)
-                        .equals("volume")) {
+                if (tokens.size() == 5 && tokens.get(2).equals("server")) {
                     String playerId = Util.decode(tokens.get(0));
-                    int newVolume = Util.parseDecimalIntOrZero(tokens.get(4));
-                    updatePlayerVolume(playerId, newVolume);
+                    if (tokens.get(3).equals("volume")) {
+                        updatePlayerVolume(playerId, Util.parseDecimalIntOrZero(tokens.get(4)));
+                    }
+                    if (playerId.equals(getActivePlayerId())) {
+                        PlayerPref playerPref = Enums.getIfPresent(PlayerPref.class, tokens.get(3)).orNull();
+                        if (playerPref != null) {
+                            String value = Util.decode(tokens.get(4));
+                            for (IServicePlayerPrefCallback callback : mPlayerPrefCallbacks) {
+                                callback.onPlayerPrefReceived(playerPref, value);
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -1309,6 +1357,20 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return connectionState.getPlayerState(playerId);
         }
 
+        public void registerPlayerPrefCallback(IServicePlayerPrefCallback callback) {
+            mPlayerPrefCallbacks.register(callback);
+        }
+
+        @Override
+        public void playerPref(PlayerPref playerPref) {
+            playerPref(playerPref, "?");
+        }
+
+        @Override
+        public void playerPref(PlayerPref playerPref, String value) {
+            cli.sendPlayerCommand("playerpref " + playerPref.name() + " " + value);
+        }
+
         @Override
         public boolean canPowerOn() {
             PlayerState playerState = getActivePlayerState();
@@ -1675,6 +1737,74 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
 
             fetchPlayers();
+        }
+
+        @Override
+        public void alarms(int start, IServiceItemListCallback<Alarm> callback) {
+            if (!isConnected()) {
+                return;
+            }
+            List<String> parameters = new ArrayList<String>();
+            parameters.add("filter:all");
+            cli.requestPlayerItems("alarms", start, parameters, callback);
+        }
+
+        @Override
+        public void alarmPlaylists(int start, IServiceItemListCallback<AlarmPlaylist> callback) {
+            if (!isConnected()) {
+                return;
+            }
+            cli.requestItems("alarm playlists", start, null, callback);
+        }
+
+        @Override
+        public void alarmAdd(int time) {
+            if (!isConnected()) {
+                return;
+            }
+            cli.sendPlayerCommand("alarm add time:" + time);
+        }
+
+        @Override
+        public void alarmDelete(String id) {
+            if (!isConnected()) {
+                return;
+            }
+            cli.sendPlayerCommand("alarm delete id:" + Util.encode(id));
+        }
+
+        @Override
+        public void alarmSetTime(String id, int time) {
+            if (!isConnected()) {
+                return;
+            }
+            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " time:" + time);
+        }
+
+        @Override
+        public void alarmAddDay(String id, int day) {
+            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " dowAdd:" + day);
+        }
+
+        @Override
+        public void alarmRemoveDay(String id, int day) {
+            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " dowDel:" + day);
+        }
+
+        @Override
+        public void alarmEnable(String id, boolean enabled) {
+            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " enabled:" + (enabled ? "1" : "0"));
+        }
+
+        @Override
+        public void alarmRepeat(String id, boolean repeat) {
+            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " repeat:" + (repeat ? "1" : "0"));
+        }
+
+        @Override
+        public void alarmSetPlaylist(String id, AlarmPlaylist playlist) {
+            String url = "".equals(playlist.getId()) ? "0" : playlist.getId();
+            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " url:" + Util.encode(url));
         }
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */

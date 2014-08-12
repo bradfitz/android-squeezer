@@ -62,16 +62,15 @@ public class YearSpinner {
                         YearView itemView = new YearView(activity) {
                             @Override
                             public View getAdapterView(View convertView, ViewGroup parent,
-                                    Year item,
-                                    ImageFetcher unused) {
-                                return Util.getSpinnerItemView(getActivity(), convertView, parent,
+                                    int position, Year item, ImageFetcher unused) {
+                                return Util.getSpinnerDropDownView(getActivity(), convertView, parent,
                                         item.getName());
                             }
 
                             @Override
                             public View getAdapterView(View convertView, ViewGroup parent,
                                     String label) {
-                                return Util.getSpinnerItemView(getActivity(), convertView, parent,
+                                return Util.getSpinnerDropDownView(getActivity(), convertView, parent,
                                         label);
                             }
                         };

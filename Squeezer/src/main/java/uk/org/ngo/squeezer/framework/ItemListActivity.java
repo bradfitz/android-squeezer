@@ -32,8 +32,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.menu.BaseMenuFragment;
-import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -104,8 +102,6 @@ public abstract class ItemListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         mPageSize = getResources().getInteger(R.integer.PageSize);
-
-        BaseMenuFragment.add(this, MenuFragment.class);
 
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
 

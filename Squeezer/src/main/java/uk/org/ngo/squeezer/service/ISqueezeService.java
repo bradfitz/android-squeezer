@@ -26,6 +26,13 @@ import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
+import uk.org.ngo.squeezer.model.Alarm;
+import uk.org.ngo.squeezer.model.AlarmPlaylist;
+import uk.org.ngo.squeezer.model.MusicFolderItem;
+import uk.org.ngo.squeezer.model.PlayerPref;
+import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
@@ -91,6 +98,9 @@ public interface ISqueezeService {
     void togglePower(Player player);
     void playerRename(Player player, String newName);
     void sleep(Player player, int duration);
+    void registerPlayerPrefCallback(IServicePlayerPrefCallback callback);
+    void playerPref(PlayerPref playerPref);
+    void playerPref(PlayerPref playerPref, String value);
 
     /**
      * Synchronises the slave player to the player with masterId.
@@ -163,6 +173,23 @@ public interface ISqueezeService {
 
     /** Start an async fetch of the SqueezeboxServer's players */
     void players();
+
+    /** Alarm list */
+    void alarms(int start, IServiceItemListCallback<Alarm> callback);
+
+    /** Alarm playlists */
+    void alarmPlaylists(int start, IServiceItemListCallback<AlarmPlaylist> callback);
+
+    /** Alarm maintenance */
+    void alarmAdd(int time);
+    void alarmDelete(String id);
+    void alarmSetTime(String id, int time);
+    void alarmAddDay(String id, int day);
+    void alarmRemoveDay(String id, int day);
+    void alarmEnable(String id, boolean enabled);
+    void alarmRepeat(String id, boolean repeat);
+    void alarmSetPlaylist(String id, AlarmPlaylist playlist);
+
 
     // Album list
     /**

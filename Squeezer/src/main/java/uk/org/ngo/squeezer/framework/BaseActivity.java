@@ -27,6 +27,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -40,11 +42,15 @@ import android.widget.Toast;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
-import uk.org.ngo.squeezer.menu.BaseMenuFragment;
-import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
+
+import android.view.MenuItem;
+
+
+import uk.org.ngo.squeezer.HomeActivity;
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -129,8 +135,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
-
-        BaseMenuFragment.add(this, MenuFragment.class);
     }
 
     @Override
@@ -283,6 +287,21 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent upIntent = NavUtils.getParentActivityIntent(this);
+                if (upIntent != null) {
+                    if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+                        TaskStackBuilder.create(this)
+                                .addNextIntentWithParentStack(upIntent)
+                                .startActivities();
+                    } else {
+                        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        NavUtils.navigateUpTo(this, upIntent);
+                    }
+                } else {
+                    HomeActivity.show(this);
+                }
+                return true;
             case R.id.menu_item_volume:
                 // Show the volume dialog.
                 if (mService != null) {
@@ -300,6 +319,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
         return super.onOptionsItemSelected(item);
     }
+
 
     /**
      * Block searches, when we are not connected.

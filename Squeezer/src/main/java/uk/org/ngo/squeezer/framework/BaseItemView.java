@@ -202,7 +202,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * uses a different layout.
      */
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, T item,
+    public View getAdapterView(View convertView, ViewGroup parent, int position, T item,
             ImageFetcher imageFetcher) {
         View view = getAdapterView(convertView, parent, mViewParams);
         bindView(view, item, imageFetcher);
