@@ -30,6 +30,7 @@ import java.util.Map;
 import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
+import uk.org.ngo.squeezer.framework.DisabledItemListAdapter;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Player;
@@ -39,7 +40,7 @@ import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 
 public class PlayerListActivity extends BaseListActivity<Player> {
-    public static final String CURRENT_PLAYER = "currentPlayer";
+    private static final String CURRENT_PLAYER = "currentPlayer";
 
     private final Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
     private Player currentPlayer;
@@ -182,7 +183,7 @@ public class PlayerListActivity extends BaseListActivity<Player> {
 
     @Override
     protected ItemAdapter<Player> createItemListAdapter(ItemView<Player> itemView) {
-        return new PlayerListAdapter(itemView, getImageFetcher());
+        return new DisabledItemListAdapter<Player>(itemView, getImageFetcher());
     }
 
     public static void show(Context context) {

@@ -27,6 +27,11 @@
     </style>
     <style name="SqueezerCurrentTextItem" parent="style/SqueezerTextItem">
     </style>
+    <style name="SqueezerTextItemLarge" parent="@android:style/TextAppearance.Large">
+    </style>
+    <style name="SqueezerTextItemXLarge" parent="@android:style/TextAppearance.Large">
+        <item name="android:textSize">45sp</item>
+    </style>
     <style name="SqueezerTextItemSmall" parent="@android:style/TextAppearance.Small">
     </style>
     <style name="SqueezerCurrentTextItemSmall" parent="style/SqueezerTextItemSmall">

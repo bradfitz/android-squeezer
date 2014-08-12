@@ -65,6 +65,7 @@ import uk.org.ngo.squeezer.dialog.AuthenticationDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.HasUiThread;
+import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
@@ -83,6 +84,7 @@ import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -118,7 +120,9 @@ public class NowPlayingFragment extends Fragment implements
 
     private MenuItem menu_item_players;
 
-    private MenuItem menu_item_playlists;
+    private MenuItem menu_item_playlist;
+
+    private MenuItem menu_item_alarm;
 
     private MenuItem menu_item_search;
 
@@ -576,12 +580,12 @@ public class NowPlayingFragment extends Fragment implements
             final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(mActivity, android.R.layout.simple_spinner_dropdown_item, playerList) {
                 @Override
                 public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                    return Util.getSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                    return Util.getSpinnerDropDownView(mActivity, convertView, parent, getItem(position).getName());
                 }
 
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    return Util.getSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                    return Util.getSpinnerView(mActivity, convertView, parent, getItem(position).getName());
                 }
             };
             actionBar.setListNavigationCallbacks(playerAdapter, new ActionBar.OnNavigationListener() {
@@ -927,7 +931,8 @@ public class NowPlayingFragment extends Fragment implements
         menu_item_poweron = menu.findItem(R.id.menu_item_poweron);
         menu_item_poweroff = menu.findItem(R.id.menu_item_poweroff);
         menu_item_players = menu.findItem(R.id.menu_item_players);
-        menu_item_playlists = menu.findItem(R.id.menu_item_playlist);
+        menu_item_playlist = menu.findItem(R.id.menu_item_playlist);
+        menu_item_alarm = menu.findItem(R.id.menu_item_alarm);
         menu_item_search = menu.findItem(R.id.menu_item_search);
         menu_item_volume = menu.findItem(R.id.menu_item_volume);
 
@@ -951,14 +956,17 @@ public class NowPlayingFragment extends Fragment implements
             menu_item_connect.setVisible(!connected);
             menu_item_disconnect.setVisible(connected);
             menu_item_players.setEnabled(connected);
-            menu_item_playlists.setEnabled(connected);
+            menu_item_playlist.setEnabled(connected);
+            menu_item_alarm.setEnabled(connected);
+            if (connected)
+                menu_item_alarm.setTitle(ServerString.ALARM.getLocalizedString());
             menu_item_search.setEnabled(connected);
             menu_item_volume.setEnabled(connected);
         }
 
         // Don't show the item to go to CurrentPlaylistActivity if in CurrentPlaylistActivity.
-        if (mActivity instanceof CurrentPlaylistActivity && menu_item_playlists != null) {
-            menu_item_playlists.setVisible(false);
+        if (mActivity instanceof CurrentPlaylistActivity && menu_item_playlist != null) {
+            menu_item_playlist.setVisible(false);
         }
 
         updatePowerMenuItems(canPowerOn(), canPowerOff());
@@ -992,19 +1000,21 @@ public class NowPlayingFragment extends Fragment implements
             case R.id.menu_item_players:
                 PlayerListActivity.show(mActivity);
                 return true;
+            case R.id.menu_item_alarm:
+                    AlarmsActivity.show(mActivity);
+                return true;
             case R.id.menu_item_about:
                 new AboutDialog().show(getFragmentManager(), "AboutDialog");
                 return true;
-            case R.id.menu_item_volume:
+            case R.id.menu_item_volume: {
                 // Show the volume dialog
                 PlayerState playerState = getPlayerState();
                 Player player = getActivePlayer();
 
-                if (playerState != null) {
-                    mVolumePanel.postVolumeChanged(playerState.getCurrentVolume(),
-                            player == null ? "" : player.getName());
-                }
+                if (player != null && playerState != null)
+                    mVolumePanel.postVolumeChanged(playerState.getCurrentVolume(), player.getName());
                 return true;
+            }
         }
         return false;
     }

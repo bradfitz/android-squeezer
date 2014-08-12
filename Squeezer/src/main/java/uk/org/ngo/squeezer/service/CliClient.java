@@ -36,6 +36,8 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.model.Alarm;
+import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
@@ -121,6 +123,14 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
+                        HandlerList.GLOBAL_PLAYER_SPECIFIC,
+                        "alarms",
+                        new HashSet<String>(Arrays.asList("filter", "dow")),
+                        new SqueezeParserInfo(new BaseListHandler<Alarm>(){})
+                )
+        );
+        list.add(
+                new ExtendedQueryFormatCmd(
                         "artists",
                         new HashSet<String>(
                                 Arrays.asList("search", "genre_id", "album_id", "tags", "charset")),
@@ -181,6 +191,13 @@ class CliClient {
                         new HashSet<String>(Arrays.asList("playlist_id", "tags", "charset")),
                         "playlist index",
                         new SongListHandler())
+        );
+        list.add(
+                new ExtendedQueryFormatCmd(
+                        "alarm playlists",
+                        new HashSet<String>(),
+                        "category",
+                        new BaseListHandler<AlarmPlaylist>(){})
         );
         list.add(
                 new ExtendedQueryFormatCmd(
@@ -374,7 +391,7 @@ class CliClient {
      * @param parameters Item specific parameters for the request
      * @see #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)
      */
-    private void requestItems(String playerId, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
+    private void internalRequestItems(String playerId, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
         boolean full_list = (start < 0);
 
         pendingRequests.put(_correlationid, callback);
@@ -395,8 +412,12 @@ class CliClient {
         sendCommand(sb.toString());
     }
 
+    void requestItems(Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
+        internalRequestItems(player.getId(), cmd, start, parameters, callback);
+    }
+
     void requestItems(String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-        requestItems(null, cmd, start, parameters, callback);
+        internalRequestItems(null, cmd, start, parameters, callback);
     }
 
     void requestItems(String cmd, int start, IServiceItemListCallback callback) {
@@ -407,11 +428,7 @@ class CliClient {
         if (service.connectionState.getActivePlayer() == null) {
             return;
         }
-        requestItems(service.connectionState.getActivePlayer().getId(), cmd, start, parameters, callback);
-    }
-
-    void requestPlayerItems(String cmd, int start, IServiceItemListCallback callback) {
-        requestPlayerItems(cmd, start, null, callback);
+        internalRequestItems(service.connectionState.getActivePlayer().getId(), cmd, start, parameters, callback);
     }
 
     /**

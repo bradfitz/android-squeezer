@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.itemlist;
+package uk.org.ngo.squeezer.framework;
 
-import uk.org.ngo.squeezer.framework.ItemAdapter;
-import uk.org.ngo.squeezer.framework.ItemView;
-import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-class PlayerListAdapter extends ItemAdapter<Player> {
+/**
+ * Specialization of {@link ItemAdapter} where the items can't be selected.
+ *
+ * @param <T> Denotes the class of the items in the Adapter
+ */
+public class DisabledItemListAdapter<T extends Item> extends ItemAdapter<T> {
 
-    public PlayerListAdapter(ItemView<Player> itemView, ImageFetcher imageFetcher) {
+    public DisabledItemListAdapter(ItemView<T> itemView, ImageFetcher imageFetcher) {
         super(itemView, imageFetcher);
     }
 
