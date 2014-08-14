@@ -32,6 +32,8 @@ In-progress
     the list of displayed songs to show those by that artist.  Fixes
     https://code.google.com/p/android-squeezer/issues/detail?id=51.
 
+*   The Dutch translation is fully up to date, thanks to spamba@gmail.com.
+
 *   Internal restructuring to make Squeezer faster and use less memory.
 
 *   Fixed a bug where Squeezer was forgetting the active player.
@@ -42,6 +44,8 @@ In-progress
 *   Fixed a bug where song information for songs being remotely
     streamed would not update when the song changes.
 
+*   Fixed a bug where the current playlist is not updated if the
+    active player is changed.
 
 1.0.2
 =====
