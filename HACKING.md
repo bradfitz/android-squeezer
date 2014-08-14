@@ -40,8 +40,9 @@ Specifically:
 *   When those branches are complete and ready for release they are merged on
     `develop`.
 
-*   New releases are prepared by merging `develop` to `master`, and creating
-    a release branch from there.
+*   New releases are prepared by creating a release branch from `develop` and
+    working there, before merging changes from the release back to `develop`
+    and `master`.
 
 Starting work
 -------------
@@ -89,7 +90,7 @@ Android Studio configuration
 *   In the "Import Project from Gradle" dialog tick "Use auto-import" and
     make sure that "Use gradle wrapper (recommended)" is selected.
 
-*   Copy ide/intellij/codestyles/AndroidStyle.xml to Android Studio's config
+*   Copy `ide/intellij/codestyles/AndroidStyle.xml` to Android Studio's config
     directory.
 
     -   Linux: ~/.AndroidStudioPreview/config/codestyles
