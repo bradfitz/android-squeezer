@@ -64,6 +64,13 @@
 
         <activity android:name=".RandomplayActivity" android:label="@string/app_name"/>
         <activity android:name=".itemlist.PlayerListActivity" android:label="@string/app_name"/>
+        <activity android:name=".itemlist.AlarmsActivity" android:label="@string/app_name"/>
+        <activity android:name=".itemlist.AlarmsSettingsActivity" android:label="@string/app_name"
+            android:parentActivityName=".itemlist.AlarmsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="uk.org.ngo.squeezer.itemlist.PlayerAlarmsActivity"/>
+        </activity>
         <activity android:name=".itemlist.ArtistListActivity" android:label="@string/app_name"/>
         <activity android:name=".itemlist.AlbumListActivity" android:label="@string/app_name"/>
         <activity android:name=".itemlist.YearListActivity" android:label="@string/app_name"/>

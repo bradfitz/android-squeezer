@@ -92,15 +92,31 @@ public class Util {
      * @param elapsedSeconds the elapsed time, in seconds.
      */
     public synchronized static String formatElapsedTime(long elapsedSeconds) {
+        calculateTimeArgs(elapsedSeconds);
         sFormatBuilder.setLength(0);
+        return sFormatter.format("%2$d:%5$02d", sTimeArgs).toString();
+    }
 
-        final Object[] timeArgs = sTimeArgs;
-        timeArgs[0] = elapsedSeconds / 3600;
-        timeArgs[1] = elapsedSeconds / 60;
-        timeArgs[2] = (elapsedSeconds / 60) % 60;
-        timeArgs[3] = elapsedSeconds;
-        timeArgs[4] = elapsedSeconds % 60;
-        return sFormatter.format("%2$d:%5$02d", timeArgs).toString();
+    private static void calculateTimeArgs(long elapsedSeconds) {
+        sTimeArgs[0] = elapsedSeconds / 3600;
+        sTimeArgs[1] = elapsedSeconds / 60;
+        sTimeArgs[2] = (elapsedSeconds / 60) % 60;
+        sTimeArgs[3] = elapsedSeconds;
+        sTimeArgs[4] = elapsedSeconds % 60;
+    }
+
+    /**
+     * Formats a time of day in the form "M:SS" or "H:MM:SS" for display.
+     * <p/>
+     * Like {@link android.text.format.DateUtils#formatElapsedTime(long)} but without the leading
+     * zeroes if the number of minutes is < 10.
+     *
+     * @param tod Time of day in seconds since midnight.
+     */
+    public synchronized static String formatTimeOfDay(long tod) {
+        calculateTimeArgs(tod);
+        sFormatBuilder.setLength(0);
+        return sFormatter.format("%1$02d:%3$02d", sTimeArgs).toString();
     }
 
     public static String encode(String string) {
@@ -119,14 +135,20 @@ public class Util {
         }
     }
 
-    public static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent,
-            String label) {
+    public static View getSpinnerView(Activity activity, View convertView, ViewGroup parent,
+                                      String label) {
+        return getSpinnerItemView(activity, convertView, parent, label,
+                android.R.layout.simple_spinner_item);
+    }
+
+    public static View getSpinnerDropDownView(Activity activity, View convertView, ViewGroup parent,
+                                      String label) {
         return getSpinnerItemView(activity, convertView, parent, label,
                 android.R.layout.simple_spinner_dropdown_item);
     }
 
-    public static View getActionBarSpinnerItemView(Activity activity, View convertView,
-                                                   ViewGroup parent, String label) {
+    public static View getActionBarSpinnerView(Activity activity, View convertView,
+                                               ViewGroup parent, String label) {
         return getSpinnerItemView(activity, convertView, parent, label,
                 android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item);
     }
@@ -141,6 +163,7 @@ public class Util {
         view.setText(label);
         return view;
     }
+
 
     /**
      * Count how many of the supplied booleans are true.

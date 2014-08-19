@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ Copyright (c) 2014 Kurt Aaholst.  All Rights Reserved
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:minHeight="48dp"
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp">
+
+    <RelativeLayout
+        android:id="@+id/line1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        >
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/item_background"
+            android:textAppearance="@style/SqueezerTextItemXLarge"
+            android:text=""/>
+
+        <include
+            layout="@layout/squeezer_switch"
+            android:id="@+id/enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            />
+    </RelativeLayout>
+
+    <CheckBox
+        android:id="@+id/repeat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/line1"
+        android:layout_marginTop="12dp"
+        android:layout_alignParentLeft="true"
+        />
+    <TextView
+        android:id="@+id/repeat_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/repeat"
+        android:layout_toRightOf="@id/repeat"
+        android:textAppearance="@style/SqueezerTextItem"
+        android:text="Repeat"
+        />
+    <ImageButton
+        android:id="@+id/repeat_desc"
+        android:src="@android:drawable/ic_menu_info_details"
+        android:background="@drawable/item_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/repeat"
+        android:layout_toRightOf="@id/repeat_label"
+        />
+    <ImageButton
+        android:id="@+id/delete"
+        android:src="@drawable/ic_delete"
+        android:background="@drawable/item_background"
+        android:padding="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/repeat"
+        android:layout_alignParentRight="true"
+        />
+
+    <LinearLayout
+        android:id="@+id/dow"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/repeat"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <include layout="@layout/day_of_week_button"/>
+        <include layout="@layout/day_of_week_button"/>
+        <include layout="@layout/day_of_week_button"/>
+        <include layout="@layout/day_of_week_button"/>
+        <include layout="@layout/day_of_week_button"/>
+        <include layout="@layout/day_of_week_button"/>
+        <include layout="@layout/day_of_week_button"/>
+    </LinearLayout>
+
+    <Spinner
+        android:id="@+id/playlist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dow"
+        />
+</RelativeLayout>

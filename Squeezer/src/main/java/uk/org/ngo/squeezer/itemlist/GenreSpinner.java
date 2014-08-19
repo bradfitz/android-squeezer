@@ -64,16 +64,15 @@ public class GenreSpinner {
                         GenreView itemView = new GenreView(activity) {
                             @Override
                             public View getAdapterView(View convertView, ViewGroup parent,
-                                    Genre item,
-                                    ImageFetcher unused) {
-                                return Util.getSpinnerItemView(getActivity(), convertView, parent,
+                                    int position, Genre item, ImageFetcher unused) {
+                                return Util.getSpinnerDropDownView(getActivity(), convertView, parent,
                                         item.getName());
                             }
 
                             @Override
                             public View getAdapterView(View convertView, ViewGroup parent,
                                     String label) {
-                                return Util.getSpinnerItemView(getActivity(), convertView, parent,
+                                return Util.getSpinnerDropDownView(getActivity(), convertView, parent,
                                         label);
                             }
 
