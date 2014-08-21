@@ -16,8 +16,6 @@
 
 package uk.org.ngo.squeezer.service;
 
-import org.acra.ACRA;
-
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.app.Notification;
@@ -35,6 +33,8 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
+
+import org.acra.ACRA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -959,6 +959,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     Player initialPlayer = getInitialPlayer();
                     if (initialPlayer != null) {
                         changeActivePlayer(initialPlayer);
+                    }
+
+                    List<Player> players = connectionState.getPlayers();
+                    if (players.size() > 0) {
+                        for (IServicePlayersCallback callback : mPlayersCallbacks) {
+                            callback.onPlayersChanged(players, connectionState.getActivePlayer());
+                        }
                     }
                 }
             }

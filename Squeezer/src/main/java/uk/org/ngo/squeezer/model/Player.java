@@ -26,14 +26,10 @@ import uk.org.ngo.squeezer.framework.Item;
 
 public class Player extends Item {
 
-    private String ip;
+    private final String ip;
 
     public String getIp() {
         return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
     }
 
     private String name;
@@ -48,24 +44,27 @@ public class Player extends Item {
         return this;
     }
 
-    private boolean canpoweroff;
+    private final boolean canpoweroff;
 
     public boolean isCanpoweroff() {
         return canpoweroff;
     }
 
-    public void setCanpoweroff(boolean canpoweroff) {
-        this.canpoweroff = canpoweroff;
-    }
-
-    private String model;
+    private final String model;
 
     public String getModel() {
         return model;
     }
 
-    public void setModel(String model) {
-        this.model = model;
+    /** Is the player connected? */
+    private boolean mConnected;
+
+    public void setConnected(boolean connected) {
+        mConnected = connected;
+    }
+
+    public boolean getConnected() {
+        return mConnected;
     }
 
     public Player(Map<String, String> record) {
@@ -74,6 +73,7 @@ public class Player extends Item {
         name = record.get("name");
         model = record.get("model");
         canpoweroff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
+        mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;
     }
 
     public static final Creator<Player> CREATOR = new Creator<Player>() {
@@ -92,6 +92,7 @@ public class Player extends Item {
         name = source.readString();
         model = source.readString();
         canpoweroff = (source.readByte() == 1);
+        mConnected = (source.readByte() == 1);
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -100,13 +101,14 @@ public class Player extends Item {
         dest.writeString(name);
         dest.writeString(model);
         dest.writeByte(canpoweroff ? (byte) 1 : (byte) 0);
+        dest.writeByte(mConnected ? (byte) 1 : (byte) 0);
     }
 
 
     @Override
     public String toString() {
         return "id=" + getId() + ", name=" + name + ", model=" + model + ", canpoweroff="
-                + canpoweroff + ", ip=" + ip;
+                + canpoweroff + ", ip=" + ip + ", connected=" + mConnected;
     }
 
 }
