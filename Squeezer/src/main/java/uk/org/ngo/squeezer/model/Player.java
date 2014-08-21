@@ -26,38 +26,56 @@ import uk.org.ngo.squeezer.framework.Item;
 
 public class Player extends Item {
 
-    private final String ip;
+    private String mName;
 
-    public String getIp() {
-        return ip;
-    }
+    private final String mIp;
 
-    private String name;
+    private final String mModel;
 
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public Player setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    private final boolean canpoweroff;
-
-    public boolean isCanpoweroff() {
-        return canpoweroff;
-    }
-
-    private final String model;
-
-    public String getModel() {
-        return model;
-    }
+    private final boolean mCanPowerOff;
 
     /** Is the player connected? */
     private boolean mConnected;
+
+    public Player(Map<String, String> record) {
+        setId(record.get("playerid"));
+        mIp = record.get("ip");
+        mName = record.get("name");
+        mModel = record.get("model");
+        mCanPowerOff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
+        mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;
+    }
+
+    private Player(Parcel source) {
+        setId(source.readString());
+        mIp = source.readString();
+        mName = source.readString();
+        mModel = source.readString();
+        mCanPowerOff = (source.readByte() == 1);
+        mConnected = (source.readByte() == 1);
+    }
+
+    @Override
+    public String getName() {
+        return mName;
+    }
+
+    public Player setName(String name) {
+        this.mName = name;
+        return this;
+    }
+
+    public String getIp() {
+        return mIp;
+    }
+
+    public String getModel() {
+        return mModel;
+    }
+
+    public boolean isCanpoweroff() {
+        return mCanPowerOff;
+    }
 
     public void setConnected(boolean connected) {
         mConnected = connected;
@@ -65,15 +83,6 @@ public class Player extends Item {
 
     public boolean getConnected() {
         return mConnected;
-    }
-
-    public Player(Map<String, String> record) {
-        setId(record.get("playerid"));
-        ip = record.get("ip");
-        name = record.get("name");
-        model = record.get("model");
-        canpoweroff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
-        mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;
     }
 
     public static final Creator<Player> CREATOR = new Creator<Player>() {
@@ -86,29 +95,18 @@ public class Player extends Item {
         }
     };
 
-    private Player(Parcel source) {
-        setId(source.readString());
-        ip = source.readString();
-        name = source.readString();
-        model = source.readString();
-        canpoweroff = (source.readByte() == 1);
-        mConnected = (source.readByte() == 1);
-    }
-
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
-        dest.writeString(ip);
-        dest.writeString(name);
-        dest.writeString(model);
-        dest.writeByte(canpoweroff ? (byte) 1 : (byte) 0);
+        dest.writeString(mIp);
+        dest.writeString(mName);
+        dest.writeString(mModel);
+        dest.writeByte(mCanPowerOff ? (byte) 1 : (byte) 0);
         dest.writeByte(mConnected ? (byte) 1 : (byte) 0);
     }
 
-
     @Override
     public String toString() {
-        return "id=" + getId() + ", name=" + name + ", model=" + model + ", canpoweroff="
-                + canpoweroff + ", ip=" + ip + ", connected=" + mConnected;
+        return "id=" + getId() + ", name=" + mName + ", model=" + mModel + ", canpoweroff="
+                + mCanPowerOff + ", ip=" + mIp + ", connected=" + mConnected;
     }
-
 }
