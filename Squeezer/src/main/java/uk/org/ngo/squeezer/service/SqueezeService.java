@@ -1264,6 +1264,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return connectionState.getPreferredAlbumSort();
         }
 
+        @Override
+        public void setPreferredAlbumSort(String preferredAlbumSort) {
+            if (isConnected()) {
+                cli.sendCommand("pref jivealbumsort " + Util.encode(preferredAlbumSort));
+            }
+        }
+
         private String fadeInSecs() {
             return mFadeInSecs > 0 ? " " + mFadeInSecs : "";
         }

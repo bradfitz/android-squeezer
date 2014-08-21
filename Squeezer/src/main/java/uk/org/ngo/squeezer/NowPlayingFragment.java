@@ -592,12 +592,12 @@ public class NowPlayingFragment extends Fragment implements
                     mActivity, android.R.layout.simple_spinner_dropdown_item, connectedPlayers) {
                 @Override
                 public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                    return Util.getSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                    return Util.getActionBarSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
                 }
 
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    return Util.getSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                    return Util.getActionBarSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
                 }
             };
             actionBar.setListNavigationCallbacks(playerAdapter, new ActionBar.OnNavigationListener() {
