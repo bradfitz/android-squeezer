@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 
 import uk.org.ngo.squeezer.HomeActivity;
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
@@ -118,7 +119,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         }
 
         // If SqueezePlayer is installed, start it
-        if (SqueezePlayer.hasSqueezePlayer(this)) {
+        if (SqueezePlayer.hasSqueezePlayer(this) && new Preferences(this).controlSqueezePlayer()) {
             squeezePlayer = new SqueezePlayer(this);
         }
     }
