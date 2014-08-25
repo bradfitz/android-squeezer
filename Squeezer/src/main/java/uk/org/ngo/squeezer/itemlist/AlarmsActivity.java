@@ -59,12 +59,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        alarmsEnabledButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_enabled), new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                getService().playerPref(PlayerPref.alarmsEnabled, isChecked ? "1" : "0");
-            }
-        });
+        alarmsEnabledButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_enabled));
         findViewById(R.id.all_alarms_desc).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,6 +79,17 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
             }
         });
 
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        alarmsEnabledButton.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                getService().playerPref(PlayerPref.alarmsEnabled, isChecked ? "1" : "0");
+            }
+        });
     }
 
     public static void show(Activity context) {

@@ -95,14 +95,16 @@ public class AlarmView extends BaseItemView<Alarm> {
             convertView = getLayoutInflater().inflate(R.layout.list_item_alarm, parent, false);
             final AlarmViewHolder viewHolder = new AlarmViewHolder();
             viewHolder.time = (TextView) convertView.findViewById(R.id.time);
-            viewHolder.enabled = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.enabled), new CompoundButton.OnCheckedChangeListener() {
+            viewHolder.enabled = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.enabled));
+            viewHolder.enabled.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     viewHolder.alarm.setEnabled(b);
                     getActivity().getService().alarmEnable(viewHolder.alarm.getId(), b);
                 }
             });
-            viewHolder.repeat = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.repeat), new CompoundButton.OnCheckedChangeListener() {
+            viewHolder.repeat = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.repeat));
+            viewHolder.repeat.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     viewHolder.alarm.setRepeat(b);
