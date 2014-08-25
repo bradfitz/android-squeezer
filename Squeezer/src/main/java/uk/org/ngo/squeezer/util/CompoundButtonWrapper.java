@@ -24,16 +24,20 @@ import android.widget.CompoundButton;
 */
 public class CompoundButtonWrapper {
     private final CompoundButton button;
-    private final CompoundButton.OnCheckedChangeListener listener;
+    private CompoundButton.OnCheckedChangeListener onCheckedChangeListener;
 
-    public CompoundButtonWrapper(CompoundButton button, CompoundButton.OnCheckedChangeListener listener) {
+    public CompoundButtonWrapper(CompoundButton button) {
         this.button = button;
-        this.listener = listener;
     }
 
     public void setChecked(boolean checked) {
         button.setOnCheckedChangeListener(null);
         button.setChecked(checked);
+        button.setOnCheckedChangeListener(onCheckedChangeListener);
+    }
+
+    public void setOncheckedChangeListener(CompoundButton.OnCheckedChangeListener listener) {
+        this.onCheckedChangeListener = listener;
         button.setOnCheckedChangeListener(listener);
     }
 }

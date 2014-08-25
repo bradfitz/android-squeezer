@@ -104,7 +104,13 @@ public class AlarmsSettingsActivity extends BaseActivity {
 
         TextView alarms_fade_label = (TextView) findViewById(R.id.alarms_fade_label);
         alarms_fade_label.setText(ServerString.ALARM_FADE.getLocalizedString());
-        alarmsFadeButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_fade), new CompoundButton.OnCheckedChangeListener() {
+        alarmsFadeButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_fade));
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        alarmsFadeButton.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 savePlayerPref(PlayerPref.alarmfadeseconds, isChecked ? 1 : 0);
