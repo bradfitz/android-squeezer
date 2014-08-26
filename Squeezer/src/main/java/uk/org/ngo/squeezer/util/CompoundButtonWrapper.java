@@ -40,4 +40,8 @@ public class CompoundButtonWrapper {
         this.onCheckedChangeListener = listener;
         button.setOnCheckedChangeListener(listener);
     }
+
+    public void setEnabled(boolean enabled) {
+        button.setEnabled(enabled);
+    }
 }
