@@ -37,9 +37,6 @@ import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 
 public class AlarmsSettingsActivity extends BaseActivity {
 
-    private SeekBar volumeSlider;
-    private SeekBar snoozeSlider;
-    private SeekBar timeoutSlider;
     private CompoundButtonWrapper alarmsFadeButton;
 
     public static void show(Activity context) {
@@ -56,13 +53,13 @@ public class AlarmsSettingsActivity extends BaseActivity {
 
         View alarms_volume = findViewById(R.id.alarms_volume);
         TextView volumeValue = (TextView) alarms_volume.findViewById(R.id.value);
-        volumeSlider = (SeekBar) alarms_volume.findViewById(R.id.slider);
+        SeekBar volumeSlider = (SeekBar) alarms_volume.findViewById(R.id.slider);
         volumeSlider.setMax(100);
+        SliderPlayerPref volumePref = new SliderPlayerPref(PlayerPref.alarmDefaultVolume, 1, volumeSlider);
         volumeSlider.setOnSeekBarChangeListener(
-                new PlayerPrefSeekBarTracker(PlayerPref.alarmDefaultVolume,
-                        volumeValue,
-                        ServerString.ALARM_VOLUME.getLocalizedString(), 1)
+                new PlayerPrefSeekBarTracker(volumePref, volumeValue, ServerString.ALARM_VOLUME.getLocalizedString())
         );
+        playerPrefs.put(PlayerPref.alarmDefaultVolume, volumePref);
         alarms_volume.findViewById(R.id.info).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,13 +69,13 @@ public class AlarmsSettingsActivity extends BaseActivity {
 
         View alarms_snooze = findViewById(R.id.alarms_snooze);
         TextView snoozeValue = (TextView) alarms_snooze.findViewById(R.id.value);
-        snoozeSlider = (SeekBar) alarms_snooze.findViewById(R.id.slider);
+        SeekBar snoozeSlider = (SeekBar) alarms_snooze.findViewById(R.id.slider);
         snoozeSlider.setMax(30);
+        SliderPlayerPref snoozePref = new SliderPlayerPref(PlayerPref.alarmSnoozeSeconds, 60, snoozeSlider);
         snoozeSlider.setOnSeekBarChangeListener(
-                new PlayerPrefSeekBarTracker(PlayerPref.alarmSnoozeSeconds,
-                        snoozeValue,
-                        ServerString.SETUP_SNOOZE_MINUTES.getLocalizedString(), 60)
+                new PlayerPrefSeekBarTracker(snoozePref, snoozeValue, ServerString.SETUP_SNOOZE_MINUTES.getLocalizedString())
         );
+        playerPrefs.put(PlayerPref.alarmSnoozeSeconds, snoozePref);
         alarms_snooze.findViewById(R.id.info).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,13 +85,13 @@ public class AlarmsSettingsActivity extends BaseActivity {
 
         View alarms_timeout = findViewById(R.id.alarms_timeout);
         TextView timeoutValue = (TextView) alarms_timeout.findViewById(R.id.value);
-        timeoutSlider = (SeekBar) alarms_timeout.findViewById(R.id.slider);
+        SeekBar timeoutSlider = (SeekBar) alarms_timeout.findViewById(R.id.slider);
         timeoutSlider.setMax(90);
+        SliderPlayerPref timeoutPref = new SliderPlayerPref(PlayerPref.alarmTimeoutSeconds, 60, timeoutSlider);
         timeoutSlider.setOnSeekBarChangeListener(
-                new PlayerPrefSeekBarTracker(PlayerPref.alarmTimeoutSeconds,
-                        timeoutValue,
-                        ServerString.SETUP_ALARM_TIMEOUT.getLocalizedString(), 60)
+                new PlayerPrefSeekBarTracker(timeoutPref, timeoutValue, ServerString.SETUP_ALARM_TIMEOUT.getLocalizedString())
         );
+        playerPrefs.put(PlayerPref.alarmTimeoutSeconds, timeoutPref);
         alarms_timeout.findViewById(R.id.info).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,6 +102,7 @@ public class AlarmsSettingsActivity extends BaseActivity {
         TextView alarms_fade_label = (TextView) findViewById(R.id.alarms_fade_label);
         alarms_fade_label.setText(ServerString.ALARM_FADE.getLocalizedString());
         alarmsFadeButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_fade));
+        playerPrefs.put(PlayerPref.alarmfadeseconds, new CompoundButtonPlayerPref(alarmsFadeButton));
     }
 
     @Override
@@ -113,16 +111,9 @@ public class AlarmsSettingsActivity extends BaseActivity {
         alarmsFadeButton.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                savePlayerPref(PlayerPref.alarmfadeseconds, isChecked ? 1 : 0);
+                getService().playerPref(PlayerPref.alarmfadeseconds, isChecked ? "1" : "0");
             }
         });
-    }
-
-    private void updateViews() {
-        volumeSlider.setProgress(getPlayerPref(PlayerPref.alarmDefaultVolume));
-        snoozeSlider.setProgress(getPlayerPref(PlayerPref.alarmSnoozeSeconds) / 60);
-        timeoutSlider.setProgress(getPlayerPref(PlayerPref.alarmTimeoutSeconds) / 60);
-        alarmsFadeButton.setChecked(getPlayerPref(PlayerPref.alarmfadeseconds) > 0);
     }
 
     @Override
@@ -133,28 +124,20 @@ public class AlarmsSettingsActivity extends BaseActivity {
         getService().playerPref(PlayerPref.alarmDefaultVolume);
         getService().playerPref(PlayerPref.alarmSnoozeSeconds);
         getService().playerPref(PlayerPref.alarmTimeoutSeconds);
+
+        for (PlayerPrefCallbacks callbacks : playerPrefs.values())
+            callbacks.setEnabled(false);
     }
 
-    public int getPlayerPref(PlayerPref playerPref) {
-        Integer prefValue = playerPrefs.get(playerPref);
-        return prefValue == null ? 0 : prefValue;
-    }
-
-    public void savePlayerPref(PlayerPref playerPref, int newValue) {
-        playerPrefs.put(playerPref, newValue);
-        getService().playerPref(playerPref, String.valueOf(newValue));
-    }
-
-
-    private Map<PlayerPref, Integer> playerPrefs = new HashMap<PlayerPref, Integer>();
     private final IServicePlayerPrefCallback playerPrefCallback = new IServicePlayerPrefCallback() {
         @Override
         public void onPlayerPrefReceived(final PlayerPref playerPref, final String value) {
             getUIThreadHandler().post(new Runnable() {
                 @Override
                 public void run() {
-                    playerPrefs.put(playerPref, Integer.valueOf(value));
-                    updateViews();
+                    PlayerPrefCallbacks callbacks = playerPrefs.get(playerPref);
+                    callbacks.setEnabled(true);
+                    callbacks.updateView(Integer.valueOf(value));
                 }
             });
         }
@@ -166,19 +149,15 @@ public class AlarmsSettingsActivity extends BaseActivity {
     };
 
     private class PlayerPrefSeekBarTracker implements SeekBar.OnSeekBarChangeListener {
+        private final SliderPlayerPref sliderPref;
         private final TextView valueView;
-        private final PlayerPref playerPref;
         private final String text;
-        private final int factor;
 
-        public PlayerPrefSeekBarTracker(PlayerPref playerPref, TextView valueView, String text, int factor) {
+        public PlayerPrefSeekBarTracker(SliderPlayerPref sliderPref, TextView valueView, String text) {
             this.valueView = valueView;
-            this.playerPref = playerPref;
+            this.sliderPref = sliderPref;
             this.text = text;
-            this.factor = factor;
         }
-
-
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -191,7 +170,54 @@ public class AlarmsSettingsActivity extends BaseActivity {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            getService().playerPref(playerPref, String.valueOf(seekBar.getProgress()*factor));
+            getService().playerPref(sliderPref.playerPref, String.valueOf(seekBar.getProgress() * sliderPref.factor));
         }
     }
+
+    private Map<PlayerPref, PlayerPrefCallbacks> playerPrefs = new HashMap<PlayerPref, PlayerPrefCallbacks>();
+    private interface PlayerPrefCallbacks {
+        void setEnabled(boolean enabled);
+        void updateView(int value);
+    }
+
+    private class SliderPlayerPref implements PlayerPrefCallbacks {
+        private PlayerPref playerPref;
+        private final int factor;
+        private final SeekBar slider;
+
+        private SliderPlayerPref(PlayerPref playerPref, int factor, SeekBar slider) {
+            this.playerPref = playerPref;
+            this.factor = factor;
+            this.slider = slider;
+        }
+
+        @Override
+        public void setEnabled(boolean enabled) {
+            slider.setEnabled(enabled);
+        }
+
+        @Override
+        public void updateView(int value) {
+            slider.setProgress(value / factor);
+        }
+    }
+
+    private class CompoundButtonPlayerPref implements PlayerPrefCallbacks {
+        private final CompoundButtonWrapper view;
+
+        private CompoundButtonPlayerPref(CompoundButtonWrapper view) {
+            this.view = view;
+        }
+
+        @Override
+        public void setEnabled(boolean enabled) {
+            view.setEnabled(enabled);
+        }
+
+        @Override
+        public void updateView(int value) {
+            view.setChecked(value > 0);
+        }
+    }
+
 }

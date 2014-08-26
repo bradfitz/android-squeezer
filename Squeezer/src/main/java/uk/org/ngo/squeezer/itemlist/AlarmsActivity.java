@@ -125,7 +125,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     @Override
     protected void orderPage(int start) {
         getService().alarms(start, this);
-        if (start == 0) getService().playerPref(PlayerPref.alarmsEnabled);
+        if (start == 0) {
+            alarmsEnabledButton.setEnabled(false);
+            getService().playerPref(PlayerPref.alarmsEnabled);
+        }
     }
 
     private List<AlarmPlaylist> alarmPlaylists = new ArrayList<AlarmPlaylist>();
@@ -157,6 +160,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
                 @Override
                 public void run() {
                     if (playerPref == PlayerPref.alarmsEnabled) {
+                        alarmsEnabledButton.setEnabled(true);
                         alarmsEnabledButton.setChecked(Integer.valueOf(value) > 0);
                     }
                 }
