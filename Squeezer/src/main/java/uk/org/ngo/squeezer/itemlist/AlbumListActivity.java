@@ -211,6 +211,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
 
     public void setSortOrder(AlbumViewDialog.AlbumsSortOrder sortOrder) {
         this.sortOrder = sortOrder;
+        getService().setPreferredAlbumSort(sortOrder.name());
         getIntent().putExtra(AlbumViewDialog.AlbumsSortOrder.class.getName(), sortOrder.name());
         clearAndReOrderItems();
     }

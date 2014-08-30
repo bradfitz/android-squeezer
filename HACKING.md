@@ -93,9 +93,9 @@ Android Studio configuration
 *   Copy `ide/intellij/codestyles/AndroidStyle.xml` to Android Studio's config
     directory.
 
-    -   Linux: ~/.AndroidStudioPreview/config/codestyles
-    -   OS X: ~/Library/Preferences/AndroidStudioPreview/codestyles
-    -   Windows: ~/.AndroidStudioPreview/config/codestyles
+    -   Linux: `~/.AndroidStudioPreview/config/codestyles`
+    -   OS X: `~/Library/Preferences/AndroidStudioPreview/codestyles`
+    -   Windows: `~/.AndroidStudioPreview/config/codestyles`
 
 *   Go to Settings (or Preferences in Mac OS X) > Code Style > Java, select
     "AndroidStyle", as well as Code Style > XML and select "AndroidStyle".

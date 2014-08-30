@@ -121,12 +121,23 @@ public class Util {
 
     public static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent,
             String label) {
+        return getSpinnerItemView(activity, convertView, parent, label,
+                android.R.layout.simple_spinner_dropdown_item);
+    }
+
+    public static View getActionBarSpinnerItemView(Activity activity, View convertView,
+                                                   ViewGroup parent, String label) {
+        return getSpinnerItemView(activity, convertView, parent, label,
+                android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item);
+    }
+
+    private static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent,
+                                          String label, int layout) {
         TextView view;
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
-                : activity.getLayoutInflater()
-                        .inflate(android.R.layout.simple_spinner_dropdown_item, parent, false));
+                : activity.getLayoutInflater().inflate(layout, parent, false));
         view.setText(label);
         return view;
     }
