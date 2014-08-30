@@ -124,6 +124,13 @@ public class Song extends ArtworkItem {
 
     @NonNull private String mArtworkUrl;
 
+    /**
+     * @return Whether the song has artwork associated with it.
+     */
+    public boolean hasArtwork() {
+        return "".equals(mArtworkUrl);
+    }
+
     @NonNull
     public String getArtworkUrl() {
         return mArtworkUrl;
