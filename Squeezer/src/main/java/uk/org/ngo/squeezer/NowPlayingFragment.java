@@ -562,26 +562,42 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
+    /**
+     * Manage the list of connected players in the action bar.
+     *
+     * @param players
+     * @param activePlayer
+     */
     private void updatePlayerDropDown(List<Player> players, Player activePlayer) {
         if (!isAdded()) {
             return;
         }
 
+        // Only include players that are connected to the server.
+        ArrayList<Player> connectedPlayers = new ArrayList<Player>();
+        for (Player player : players) {
+            if (player.getConnected()) {
+                connectedPlayers.add(player);
+            }
+        }
+
         ActionBar actionBar = mActivity.getSupportActionBar();
-        if (players != null) {
+
+        // If there are multiple players connected then show a spinner allowing the user to
+        // choose between them.
+        if (connectedPlayers.size() > 1) {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            // Make a copy, cause ArrayAdapter doesn't like it's data modified from a background thread
-            ArrayList<Player> playerList = new ArrayList<Player>(players);
-            final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(mActivity, android.R.layout.simple_spinner_dropdown_item, playerList) {
+            final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(
+                    mActivity, android.R.layout.simple_spinner_dropdown_item, connectedPlayers) {
                 @Override
                 public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                    return Util.getSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                    return Util.getActionBarSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
                 }
 
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    return Util.getSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                    return Util.getActionBarSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
                 }
             };
             actionBar.setListNavigationCallbacks(playerAdapter, new ActionBar.OnNavigationListener() {
@@ -598,8 +614,17 @@ public class NowPlayingFragment extends Fragment implements
                 actionBar.setSelectedNavigationItem(playerAdapter.getPosition(activePlayer));
             }
         } else {
+            // 0 or 1 players, disable the spinner, and either show the sole player in the
+            // action bar, or the app name if there are no players.
             actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setTitle(R.string.app_name);
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+
+            if (connectedPlayers.size() == 1) {
+                actionBar.setTitle(connectedPlayers.get(0).getName());
+            } else {
+                // TODO: Alert the user if there are no connected players.
+                actionBar.setTitle(R.string.app_name);
+            }
         }
     }
 

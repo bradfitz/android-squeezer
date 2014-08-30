@@ -91,6 +91,7 @@ public interface ISqueezeService {
     boolean canMyApps();
     boolean canRandomplay();
     String preferredAlbumSort();
+    void setPreferredAlbumSort(String preferredAlbumSort);
     boolean togglePausePlay();
     boolean play();
     boolean stop();

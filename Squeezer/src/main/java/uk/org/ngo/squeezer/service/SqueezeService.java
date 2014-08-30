@@ -16,8 +16,6 @@
 
 package uk.org.ngo.squeezer.service;
 
-import org.acra.ACRA;
-
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.app.Notification;
@@ -35,6 +33,8 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
+
+import org.acra.ACRA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -960,6 +960,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     if (initialPlayer != null) {
                         changeActivePlayer(initialPlayer);
                     }
+
+                    List<Player> players = connectionState.getPlayers();
+                    if (players.size() > 0) {
+                        for (IServicePlayersCallback callback : mPlayersCallbacks) {
+                            callback.onPlayersChanged(players, connectionState.getActivePlayer());
+                        }
+                    }
                 }
             }
 
@@ -1255,6 +1262,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public String preferredAlbumSort() {
             return connectionState.getPreferredAlbumSort();
+        }
+
+        @Override
+        public void setPreferredAlbumSort(String preferredAlbumSort) {
+            if (isConnected()) {
+                cli.sendCommand("pref jivealbumsort " + Util.encode(preferredAlbumSort));
+            }
         }
 
         private String fadeInSecs() {
