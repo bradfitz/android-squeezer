@@ -2,6 +2,17 @@
 
 <changelog>
     <release
+        version="1.1.0-beta-3"
+        versioncode="24">
+        <change>Only start SqueezePlayer if the relevant preference is enabled.</change>
+
+        <change>Save album sort-order preference on the server.</change>
+
+        <change>The action bar spinner only shows connected players. No spinner is shown if only
+            one player is connected.</change>
+    </release>
+
+    <release
         version="1.1.0-beta-2"
         versioncode="23">
         <change>The Dutch translation is fully up to date, thanks to spamba@gmail.com.</change>
