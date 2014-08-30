@@ -31,13 +31,13 @@ import android.widget.Toast;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.SettingsActivity;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
+import uk.org.ngo.squeezer.util.ThemeManager;
 
 /**
  * Common base class for all activities in the squeezer
@@ -47,6 +47,8 @@ import uk.org.ngo.squeezer.util.SqueezePlayer;
 public abstract class BaseActivity extends ActionBarActivity implements HasUiThread {
 
     private ISqueezeService service = null;
+
+    private final ThemeManager mTheme = new ThemeManager();
 
     /**
      * Keep track of whether callbacks have been registered
@@ -61,9 +63,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     protected String getTag() {
         return getClass().getSimpleName();
     }
-
-    /** The current theme applied to the app. */
-    private int mCurrentTheme;
 
     /**
      * @return The squeezeservice, or null if not bound
@@ -97,10 +96,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Ensure the activity uses the correct theme.
-        mCurrentTheme = getThemePreference();
-        setTheme(mCurrentTheme);
-
+        mTheme.onCreate(this);
         ActionBar actionBar = getSupportActionBar();
 
         actionBar.setIcon(R.drawable.ic_launcher);
@@ -122,16 +118,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     public void onResume() {
         super.onResume();
 
-        // Themes can only be applied before views are instantiated.  If the current theme
-        // changed while this activity was paused (e.g., because the user went to the
-        // SettingsActivity and changed it) then restart this activity with the new theme.
-        if (mCurrentTheme != getThemePreference()) {
-            Intent intent = getIntent();
-            finish();
-            overridePendingTransition(0, 0);
-            startActivity(intent);
-            overridePendingTransition(0, 0);
-        }
+        mTheme.onResume(this);
 
         if (getService() != null) {
             maybeRegisterCallbacks();
@@ -312,20 +299,5 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         load,
         add,
         insert
-    }
-
-    /**
-     * Retrive the user's theme preference.
-     *
-     * @return A resource identifier for the user's chosen theme.
-     */
-    private int getThemePreference() {
-        try {
-            SettingsActivity.Theme theme = SettingsActivity.Theme
-                    .valueOf(new Preferences(this).getTheme());
-            return theme.mThemeId;
-        } catch (Exception e) {
-            return SettingsActivity.Theme.getDefaultTheme().mThemeId;
-        }
     }
 }

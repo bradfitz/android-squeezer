@@ -46,6 +46,7 @@ import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Scrobble;
+import uk.org.ngo.squeezer.util.ThemeManager;
 
 public class SettingsActivity extends PreferenceActivity implements
         OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
@@ -65,6 +66,8 @@ public class SettingsActivity extends PreferenceActivity implements
     private ListPreference onSelectSongPref;
 
     private ListPreference onSelectThemePref;
+
+    private final ThemeManager mThemeManager = new ThemeManager();
 
     public static enum Theme {
         LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar),
@@ -95,6 +98,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mThemeManager.onCreate(this);
         super.onCreate(savedInstanceState);
 
         bindService(new Intent(this, SqueezeService.class), serviceConnection,
@@ -222,6 +226,12 @@ public class SettingsActivity extends PreferenceActivity implements
         }
         onSelectThemePref.setOnPreferenceChangeListener(this);
         updateSelectThemeSummary(onSelectThemePref.getValue());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mThemeManager.onResume(this);
     }
 
     @Override
