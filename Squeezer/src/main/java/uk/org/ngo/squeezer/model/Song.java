@@ -128,7 +128,11 @@ public class Song extends ArtworkItem {
      * @return Whether the song has artwork associated with it.
      */
     public boolean hasArtwork() {
-        return "".equals(mArtworkUrl);
+        if (!mRemote) {
+            return getArtwork_track_id() != null;
+        } else {
+            return ! "".equals(mArtworkUrl);
+        }
     }
 
     @NonNull
