@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -299,5 +300,17 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         load,
         add,
         insert
+    }
+
+    /**
+     * Look up an attribute resource styled for the current theme.
+     *
+     * @param attribute Attribute identifier to look up.
+     * @return The resource identifier for the given attribute.
+     */
+    public int getAttributeValue(int attribute) {
+        TypedValue v = new TypedValue();
+        getTheme().resolveAttribute(attribute, v, true);
+        return v.resourceId;
     }
 }

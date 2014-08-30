@@ -32,6 +32,8 @@
         <item name="ic_action_av_shuffle_off">@drawable/btn_shuffle_off</item>
         <item name="ic_action_av_shuffle_song">@drawable/btn_shuffle_song</item>
         <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
+
+        <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -48,6 +50,8 @@
         <item name="ic_action_av_shuffle_off">@drawable/ic_action_av_shuffle_holo_light</item>
         <item name="ic_action_av_shuffle_song">@drawable/btn_shuffle_song</item>
         <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
+
+        <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
     </style>
 
     <!-- Text Styles -->
