@@ -69,23 +69,6 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private final ThemeManager mThemeManager = new ThemeManager();
 
-    public static enum Theme {
-        LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar),
-        DARK(R.string.settings_theme_dark, R.style.AppTheme);
-
-        public final int mLabelId;
-        public final int mThemeId;
-
-        Theme(int labelId, int themeId) {
-            mLabelId = labelId;
-            mThemeId = themeId;
-        }
-
-        public static Theme getDefaultTheme() {
-            return LIGHT_DARKACTIONBAR;
-        }
-    }
-
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
             SettingsActivity.this.service = (ISqueezeService) service;
@@ -207,21 +190,21 @@ public class SettingsActivity extends PreferenceActivity implements
         ArrayList<String> entryValues = new ArrayList<String>();
         ArrayList<String> entries = new ArrayList<String>();
 
-        for (Theme theme : Theme.values()) {
+        for (ThemeManager.Theme theme : ThemeManager.Theme.values()) {
             entryValues.add(theme.name());
             entries.add(getString(theme.mLabelId));
         }
 
         onSelectThemePref.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
         onSelectThemePref.setEntries(entries.toArray(new String[entries.size()]));
-        onSelectThemePref.setDefaultValue(Theme.getDefaultTheme().name());
+        onSelectThemePref.setDefaultValue(ThemeManager.getDefaultTheme().name());
         if (onSelectThemePref.getValue() == null) {
-            onSelectThemePref.setValue(Theme.getDefaultTheme().name());
+            onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
         } else {
             try {
-                Theme t = Theme.valueOf(onSelectThemePref.getValue());
+                ThemeManager.Theme t = ThemeManager.Theme.valueOf(onSelectThemePref.getValue());
             } catch (Exception e) {
-                onSelectThemePref.setValue(Theme.getDefaultTheme().name());
+                onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
             }
         }
         onSelectThemePref.setOnPreferenceChangeListener(this);

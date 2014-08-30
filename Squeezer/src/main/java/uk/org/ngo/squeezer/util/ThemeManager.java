@@ -21,7 +21,7 @@ import android.app.Activity;
 import android.content.Intent;
 
 import uk.org.ngo.squeezer.Preferences;
-import uk.org.ngo.squeezer.SettingsActivity;
+import uk.org.ngo.squeezer.R;
 
 /**
  * Manage the user's choice of theme and ensure that activities respect it.
@@ -35,6 +35,20 @@ import uk.org.ngo.squeezer.SettingsActivity;
 public class ThemeManager {
     /** The current theme applied to the app. */
     private int mCurrentTheme;
+
+    /** Available themes. */
+    public static enum Theme {
+        LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar),
+        DARK(R.string.settings_theme_dark, R.style.AppTheme);
+
+        public final int mLabelId;
+        public final int mThemeId;
+
+        Theme(int labelId, int themeId) {
+            mLabelId = labelId;
+            mThemeId = themeId;
+        }
+    }
 
     /**
      * Call this from each activity's onCreate() method before setContentView() or similar
@@ -71,17 +85,24 @@ public class ThemeManager {
     }
 
     /**
+     * @return The application's default theme if the user did not choose one.
+     */
+    public static Theme getDefaultTheme() {
+        return Theme.LIGHT_DARKACTIONBAR;
+    }
+
+    /**
      * Retrieve the user's theme preference.
      *
      * @return A resource identifier for the user's chosen theme.
      */
     private int getThemePreference(Activity activity) {
         try {
-            SettingsActivity.Theme theme = SettingsActivity.Theme
+            Theme theme = Theme
                     .valueOf(new Preferences(activity).getTheme());
             return theme.mThemeId;
         } catch (Exception e) {
-            return SettingsActivity.Theme.getDefaultTheme().mThemeId;
+            return getDefaultTheme().mThemeId;
         }
     }
 }
