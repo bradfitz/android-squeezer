@@ -73,6 +73,10 @@
         <ListPreference
             android:key="squeezer.action.onselect.song"
             android:title="@string/settings_song_selectaction"/>
+
+        <ListPreference
+            android:key="squeezer.theme"
+            android:title="Theme"/>
     </PreferenceCategory>
 
     <PreferenceCategory

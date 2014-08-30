@@ -38,6 +38,7 @@ import android.support.v7.app.ActionBar;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -483,7 +484,7 @@ public class NowPlayingFragment extends Fragment implements
         if (!connected) {
             updateSongInfo(null);
 
-            playPauseButton.setImageResource(R.drawable.presence_online); // green circle
+            playPauseButton.setImageResource(getAttributeValue(R.attr.ic_action_av_connect)); // green circle
 
             if (mFullHeightLayout) {
                 albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
@@ -504,8 +505,8 @@ public class NowPlayingFragment extends Fragment implements
             }
         } else {
             if (mFullHeightLayout) {
-                nextButton.setImageResource(R.drawable.ic_action_next);
-                prevButton.setImageResource(R.drawable.ic_action_previous);
+                nextButton.setImageResource(getAttributeValue(R.attr.ic_action_av_next));
+                prevButton.setImageResource(getAttributeValue(R.attr.ic_action_av_previous));
                 seekBar.setEnabled(true);
             } else {
                 mProgressBar.setEnabled(true);
@@ -513,21 +514,35 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
+    /**
+     * Look up an attribute resource styled for the current theme.
+     *
+     * @param attribute
+     * @return
+     */
+    private int getAttributeValue(int attribute) {
+        TypedValue v = new TypedValue();
+        mActivity.getTheme().resolveAttribute(attribute, v, true);
+        return v.resourceId;
+    }
+
     private void updatePlayPauseIcon(PlayStatus playStatus) {
         playPauseButton
-                .setImageResource((playStatus == PlayStatus.play) ? R.drawable.ic_action_pause
-                        : R.drawable.ic_action_play);
+                .setImageResource((playStatus == PlayStatus.play) ?
+                        getAttributeValue(R.attr.ic_action_av_pause)
+                        : getAttributeValue(R.attr.ic_action_av_play));
+
     }
 
     private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
         if (mFullHeightLayout && shuffleStatus != null) {
-            shuffleButton.setImageResource(shuffleStatus.getIcon());
+            shuffleButton.setImageResource(getAttributeValue(shuffleStatus.getIcon()));
         }
     }
 
     private void updateRepeatStatus(RepeatStatus repeatStatus) {
         if (mFullHeightLayout && repeatStatus != null) {
-            repeatButton.setImageResource(repeatStatus.getIcon());
+            repeatButton.setImageResource(getAttributeValue(repeatStatus.getIcon()));
         }
     }
 
@@ -589,7 +604,7 @@ public class NowPlayingFragment extends Fragment implements
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(
-                    mActivity, android.R.layout.simple_spinner_dropdown_item, connectedPlayers) {
+                    actionBar.getThemedContext(), android.R.layout.simple_spinner_dropdown_item, connectedPlayers) {
                 @Override
                 public View getDropDownView(int position, View convertView, ViewGroup parent) {
                     return Util.getActionBarSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());

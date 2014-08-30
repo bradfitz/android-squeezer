@@ -39,6 +39,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import uk.org.ngo.squeezer.dialog.ServerAddressPreference;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -61,6 +63,25 @@ public class SettingsActivity extends PreferenceActivity implements
     private ListPreference onSelectAlbumPref;
 
     private ListPreference onSelectSongPref;
+
+    private ListPreference onSelectThemePref;
+
+    public static enum Theme {
+        LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar),
+        DARK(R.string.settings_theme_dark, R.style.AppTheme);
+
+        public final int mLabelId;
+        public final int mThemeId;
+
+        Theme(int labelId, int themeId) {
+            mLabelId = labelId;
+            mThemeId = themeId;
+        }
+
+        public static Theme getDefaultTheme() {
+            return LIGHT_DARKACTIONBAR;
+        }
+    }
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -101,6 +122,8 @@ public class SettingsActivity extends PreferenceActivity implements
         fillScrobblePreferences(preferences);
 
         fillPlayableItemSelectionPreferences();
+
+        fillThemeSelectionPreferences();
 
         CheckBoxPreference startSqueezePlayerPref = (CheckBoxPreference) findPreference(
                 Preferences.KEY_SQUEEZEPLAYER_ENABLED);
@@ -175,6 +198,32 @@ public class SettingsActivity extends PreferenceActivity implements
         updateSelectSongSummary(onSelectSongPref.getValue());
     }
 
+    private void fillThemeSelectionPreferences() {
+        onSelectThemePref = (ListPreference) findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
+        ArrayList<String> entryValues = new ArrayList<String>();
+        ArrayList<String> entries = new ArrayList<String>();
+
+        for (Theme theme : Theme.values()) {
+            entryValues.add(theme.name());
+            entries.add(getString(theme.mLabelId));
+        }
+
+        onSelectThemePref.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
+        onSelectThemePref.setEntries(entries.toArray(new String[entries.size()]));
+        onSelectThemePref.setDefaultValue(Theme.getDefaultTheme().name());
+        if (onSelectThemePref.getValue() == null) {
+            onSelectThemePref.setValue(Theme.getDefaultTheme().name());
+        } else {
+            try {
+                Theme t = Theme.valueOf(onSelectThemePref.getValue());
+            } catch (Exception e) {
+                onSelectThemePref.setValue(Theme.getDefaultTheme().name());
+            }
+        }
+        onSelectThemePref.setOnPreferenceChangeListener(this);
+        updateSelectThemeSummary(onSelectThemePref.getValue());
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -212,6 +261,13 @@ public class SettingsActivity extends PreferenceActivity implements
         onSelectSongPref.setSummary(entries[index]);
     }
 
+    private void updateSelectThemeSummary(String value) {
+        CharSequence[] entries = onSelectThemePref.getEntries();
+        int index = onSelectThemePref.findIndexOfValue(value);
+
+        onSelectThemePref.setSummary(entries[index]);
+    }
+
     /**
      * A preference has been changed by the user, but has not yet been persisted.
      *
@@ -243,6 +299,11 @@ public class SettingsActivity extends PreferenceActivity implements
 
         if (Preferences.KEY_ON_SELECT_SONG_ACTION.equals(key)) {
             updateSelectSongSummary(newValue.toString());
+            return true;
+        }
+
+        if (Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
+            updateSelectThemeSummary(newValue.toString());
             return true;
         }
 

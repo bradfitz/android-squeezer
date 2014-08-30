@@ -21,4 +21,19 @@
         <attr name="borderDrawable" format="reference"/>
     </declare-styleable>
 
+    <declare-styleable name="ic_action">
+        <attr name="ic_action_av_connect" format="reference"/>
+        <attr name="ic_action_av_next" format="reference"/>
+        <attr name="ic_action_av_pause" format="reference"/>
+        <attr name="ic_action_av_play" format="reference"/>
+        <attr name="ic_action_av_previous" format="reference"/>
+
+        <attr name="ic_action_av_repeat_off" format="reference"/>
+        <attr name="ic_action_av_repeat_one" format="reference"/>
+        <attr name="ic_action_av_repeat_all" format="reference"/>
+
+        <attr name="ic_action_av_shuffle_off" format="reference"/>
+        <attr name="ic_action_av_shuffle_song" format="reference"/>
+        <attr name="ic_action_av_shuffle_album" format="reference"/>
+    </declare-styleable>
 </resources>

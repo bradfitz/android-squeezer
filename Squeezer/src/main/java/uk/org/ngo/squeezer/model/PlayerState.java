@@ -250,9 +250,9 @@ public class PlayerState implements Parcelable {
     }
 
     public static enum ShuffleStatus implements EnumWithId {
-        SHUFFLE_OFF(0, R.drawable.btn_shuffle_off, ServerString.SHUFFLE_OFF),
-        SHUFFLE_SONG(1, R.drawable.btn_shuffle_song, ServerString.SHUFFLE_ON_SONGS),
-        SHUFFLE_ALBUM(2, R.drawable.btn_shuffle_album, ServerString.SHUFFLE_ON_ALBUMS);
+        SHUFFLE_OFF(0, R.attr.ic_action_av_shuffle_off, ServerString.SHUFFLE_OFF),
+        SHUFFLE_SONG(1, R.attr.ic_action_av_shuffle_song, ServerString.SHUFFLE_ON_SONGS),
+        SHUFFLE_ALBUM(2, R.attr.ic_action_av_shuffle_album, ServerString.SHUFFLE_ON_ALBUMS);
 
         private final int id;
 
@@ -288,9 +288,9 @@ public class PlayerState implements Parcelable {
     }
 
     public static enum RepeatStatus implements EnumWithId {
-        REPEAT_OFF(0, R.drawable.btn_repeat_off, ServerString.REPEAT_OFF),
-        REPEAT_ONE(1, R.drawable.btn_repeat_one, ServerString.REPEAT_ONE),
-        REPEAT_ALL(2, R.drawable.btn_repeat_all, ServerString.REPEAT_ALL);
+        REPEAT_OFF(0, R.attr.ic_action_av_repeat_off, ServerString.REPEAT_OFF),
+        REPEAT_ONE(1, R.attr.ic_action_av_repeat_one, ServerString.REPEAT_ONE),
+        REPEAT_ALL(2, R.attr.ic_action_av_repeat_all, ServerString.REPEAT_ALL);
 
         private final int id;
 

@@ -29,9 +29,9 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.SettingsActivity;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -61,6 +61,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     protected String getTag() {
         return getClass().getSimpleName();
     }
+
+    /** The current theme applied to the app. */
+    private int mCurrentTheme;
 
     /**
      * @return The squeezeservice, or null if not bound
@@ -93,6 +96,11 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @Override
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Ensure the activity uses the correct theme.
+        mCurrentTheme = getThemePreference();
+        setTheme(mCurrentTheme);
+
         ActionBar actionBar = getSupportActionBar();
 
         actionBar.setIcon(R.drawable.ic_launcher);
@@ -113,6 +121,17 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @Override
     public void onResume() {
         super.onResume();
+
+        // Themes can only be applied before views are instantiated.  If the current theme
+        // changed while this activity was paused (e.g., because the user went to the
+        // SettingsActivity and changed it) then restart this activity with the new theme.
+        if (mCurrentTheme != getThemePreference()) {
+            Intent intent = getIntent();
+            finish();
+            overridePendingTransition(0, 0);
+            startActivity(intent);
+            overridePendingTransition(0, 0);
+        }
 
         if (getService() != null) {
             maybeRegisterCallbacks();
@@ -295,4 +314,18 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         insert
     }
 
+    /**
+     * Retrive the user's theme preference.
+     *
+     * @return A resource identifier for the user's chosen theme.
+     */
+    private int getThemePreference() {
+        try {
+            SettingsActivity.Theme theme = SettingsActivity.Theme
+                    .valueOf(new Preferences(this).getTheme());
+            return theme.mThemeId;
+        } catch (Exception e) {
+            return SettingsActivity.Theme.getDefaultTheme().mThemeId;
+        }
+    }
 }
