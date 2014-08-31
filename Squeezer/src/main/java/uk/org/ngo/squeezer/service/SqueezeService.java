@@ -958,14 +958,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 if (start + items.size() >= count) {
                     Player initialPlayer = getInitialPlayer();
                     if (initialPlayer != null) {
+                        // Note: changeActivePlayer() calls any registered IServicePlayersCallbacks.
                         changeActivePlayer(initialPlayer);
-                    }
-
-                    List<Player> players = connectionState.getPlayers();
-                    if (players.size() > 0) {
-                        for (IServicePlayersCallback callback : mPlayersCallbacks) {
-                            callback.onPlayersChanged(players, connectionState.getActivePlayer());
-                        }
                     }
                 }
             }
