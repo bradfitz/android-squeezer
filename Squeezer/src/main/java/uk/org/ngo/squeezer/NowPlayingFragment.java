@@ -767,7 +767,7 @@ public class NowPlayingFragment extends Fragment implements
 
     // Should only be called from the UI thread.
     private void updateAlbumArt(Song song) {
-        if (song == null || song.getArtworkUrl(mService) == null) {
+        if (song == null || !song.hasArtwork()) {
             if (mFullHeightLayout) {
                 albumArt.setImageResource(song != null && song.isRemote()
                         ? R.drawable.icon_iradio_noart_fullscreen

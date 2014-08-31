@@ -22,6 +22,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
@@ -80,7 +81,9 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                         File localFolder = localFile.getParentFile();
                         if (!localFolder.exists())
                             localFolder.mkdirs();
-                        if (!tempFile.renameTo(localFile)) {
+                        if (tempFile.renameTo(localFile)) {
+                            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(localFile)));
+                        } else {
                             Log.w(TAG, "Could not rename [" + tempFile + "] to [" + localFile + "]");
                         }
                         break;
