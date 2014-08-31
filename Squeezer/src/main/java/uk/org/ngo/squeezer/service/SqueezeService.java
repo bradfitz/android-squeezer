@@ -31,8 +31,11 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
+
+import com.google.common.collect.Lists;
 
 import org.acra.ACRA;
 
@@ -66,6 +69,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.PlayStatus;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
+import uk.org.ngo.squeezer.model.PlayerSyncGroup;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
@@ -108,7 +112,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     private boolean mHandshakeComplete = false;
 
-    /** Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once */
+    /**
+     * Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once
+     */
     final Map<ServiceCallback, ServiceCallbackList> callbacks = new ConcurrentHashMap<ServiceCallback, ServiceCallbackList>();
 
     @Override
@@ -259,7 +265,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         if (tokenMap.get("overwritten_playlist_id") != null) {
                             for (IServicePlaylistMaintenanceCallback callback : playlistMaintenanceCallbacks) {
                                 callback.onRenameFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                                tokenMap.get("newname")));
+                                        tokenMap.get("newname")));
                             }
                         } else {
                             cli.sendCommandImmediately(
@@ -336,6 +342,43 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     cli.sendCommandImmediately(
                             "getstring " + ServerString.values()[maxOrdinal + 1].name());
                 }
+            }
+        });
+        handlers.put("syncgroups", new CmdHandler() {
+            @Override
+            public void handle(List<String> tokens) {
+                String[] kv;
+                String members;
+                String memberNames;
+
+                List<PlayerSyncGroup> playerSyncGroups = new ArrayList<PlayerSyncGroup>();
+                tokens.remove(0);
+
+                if (tokens.size() % 2 != 0) {
+                    Log.e(TAG, "Response from syncgroups is not even: " + tokens);
+                    return;
+                }
+
+                for (List<String> group : Lists.partition(tokens, 2)) {
+                    kv = parseToken(group.get(0));
+                    if ("sync_members".equals(kv[0])) {
+                        members = kv[1];
+                    } else {
+                        Log.e(TAG, "First entry in syncgroups pair is not 'sync_members': " + kv[0]);
+                        continue;
+                    }
+
+                    kv = parseToken(group.get(1));
+                    if ("sync_member_names".equals(kv[0])) {
+                        memberNames = kv[1];
+                    } else {
+                        Log.e(TAG, "Second entry in syncgroups pair is not 'sync_member_names': " + kv[0]);
+                        continue;
+                    }
+
+                    playerSyncGroups.add(new PlayerSyncGroup(members, memberNames));
+                }
+                connectionState.addPlayerSyncGroup(playerSyncGroups);
             }
         });
         handlers.put("version", new CmdHandler() {
@@ -583,22 +626,44 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     private HashMap<String, String> parseTokens(List<String> tokens) {
         HashMap<String, String> tokenMap = new HashMap<String, String>();
-        String key, value;
+        String[] kv;
         for (String token : tokens) {
-            if (token == null || token.length() == 0) {
+            kv = parseToken(token);
+            if (kv.length == 0)
                 continue;
-            }
-            int colonPos = token.indexOf("%3A");
-            if (colonPos == -1) {
-                key = Util.decode(token);
-                value = null;
-            } else {
-                key = Util.decode(token.substring(0, colonPos));
-                value = Util.decode(token.substring(colonPos + 3));
-            }
-            tokenMap.put(key, value);
+
+            tokenMap.put(kv[0], kv[1]);
         }
         return tokenMap;
+    }
+
+    /**
+     * Parse a token in to a key-value pair.  The value is optional.
+     * <p/>
+     * The token is assumed to be URL encoded, with the key and value separated by ':' (encoded
+     * as '%3A').
+     *
+     * @param token The string to decode.
+     * @return An array -- empty if token is null or empty, otherwise with two elements. The first
+     * is the key, the second, which may be null, is the value. The elements are decoded.
+     */
+    private String[] parseToken(@Nullable String token) {
+        String key, value;
+
+        if (token == null || token.length() == 0) {
+            return new String[]{};
+        }
+
+        int colonPos = token.indexOf("%3A");
+        if (colonPos == -1) {
+            key = Util.decode(token);
+            value = null;
+        } else {
+            key = Util.decode(token.substring(0, colonPos));
+            value = Util.decode(token.substring(colonPos + 3));
+        }
+
+        return new String[]{key, value};
     }
 
     /**
@@ -1549,17 +1614,21 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public void players(int start, IServiceItemListCallback<Player> callback) {
+        public void players() {
             if (!isConnected()) {
                 return;
             }
 
-            // Call back immediately if we have players
-            List<Player> players = connectionState.getPlayers();
-            if (players != null)
-                callback.onItemsReceived(players.size(), 0, null, players, Player.class);
-            else
-                cli.requestItems("players", start, callback);
+            fetchPlayers();
+        }
+
+        @Override
+        public void syncgroups() {
+            if (!isConnected()) {
+                return;
+            }
+
+            cli.sendCommand("syncgroups ?");
         }
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */

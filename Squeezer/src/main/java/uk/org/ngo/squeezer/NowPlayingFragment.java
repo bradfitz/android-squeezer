@@ -75,6 +75,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.PlayStatus;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
+import uk.org.ngo.squeezer.model.PlayerSyncGroup;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceCallback;
 import uk.org.ngo.squeezer.service.IServiceConnectionCallback;
@@ -1234,6 +1235,11 @@ public class NowPlayingFragment extends Fragment implements
                     updatePlayerDropDown(players, activePlayer);
                 }
             });
+        }
+
+        @Override
+        public void onSyncGroupsChanged(final List<PlayerSyncGroup> playerSyncGroups) {
+            // TODO: Do something.
         }
 
         @Override

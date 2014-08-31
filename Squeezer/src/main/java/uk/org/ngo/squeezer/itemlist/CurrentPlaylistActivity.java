@@ -38,6 +38,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.PlayerSyncGroup;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
@@ -270,6 +271,11 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                     }
                 });
             }
+        }
+
+        @Override
+        public void onSyncGroupsChanged(final List<PlayerSyncGroup> playerSyncGroups) {
+            // TODO: Do something.
         }
 
         @Override

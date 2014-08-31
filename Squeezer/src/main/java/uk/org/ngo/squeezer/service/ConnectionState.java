@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerSyncGroup;
 
 class ConnectionState {
 
@@ -71,6 +72,8 @@ class ConnectionState {
 
     private final AtomicReference<Player> activePlayer = new AtomicReference<Player>();
     private final List<Player> players = new CopyOnWriteArrayList<Player>();
+
+    private final List<PlayerSyncGroup> mPlayerSyncGroups = new CopyOnWriteArrayList<PlayerSyncGroup>();
 
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
@@ -180,6 +183,14 @@ class ConnectionState {
 
     void addPlayers(List<Player> players) {
         this.players.addAll(players);
+    }
+
+    void clearPlayerSyncGroup() {
+        mPlayerSyncGroups.clear();
+    }
+
+    void addPlayerSyncGroup(List<PlayerSyncGroup> playerSyncGroups) {
+        mPlayerSyncGroups.addAll(playerSyncGroups);
     }
 
     Player getPlayer(String playerId) {

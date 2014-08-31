@@ -31,18 +31,15 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.SearchAdapter;
-import uk.org.ngo.squeezer.framework.BaseListActivity;
-import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
-import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.PlayerSyncGroup;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 
-public class PlayerListActivity extends BaseListActivity<Player> {
+public class PlayerListActivity extends ItemListActivity {
     public static final String CURRENT_PLAYER = "currentPlayer";
 
     private ExpandableListView mResultsExpandableListView;
@@ -83,19 +80,21 @@ public class PlayerListActivity extends BaseListActivity<Player> {
         if (playerState != null) {
             playerState.setCurrentVolume(newVolume);
             if (!trackingTouch)
-                getItemAdapter().notifyDataSetChanged();
+                mResultsAdapter.notifyDataSetChanged();
         }
     }
 
     private void onPlayerStateReceived(PlayerState playerState) {
         playerStates.put(playerState.getPlayerId(), playerState);
         if (!trackingTouch)
-            getItemAdapter().notifyDataSetChanged();
+            mResultsAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.item_list_players);
         if (savedInstanceState != null)
             currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
         ((NowPlayingFragment) getSupportFragmentManager().findFragmentById(R.id.now_playing_fragment)).setIgnoreVolumeChange(true);
@@ -129,18 +128,8 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
 
     @Override
-    protected int getContentView() {
-        return R.layout.item_list_players;
-    }
-
-    @Override
-    public ItemView<Player> createItemView() {
-        return new PlayerView(this);
-    }
-
-    @Override
     protected void orderPage(int start) {
-        getService().players(start, this);
+        getService().players();
     }
 
     @Override
@@ -184,7 +173,13 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
         @Override
         public void onPlayersChanged(List<Player> players, Player activePlayer) {
-            onItemsReceived(players.size(), 0, players);
+            mResultsAdapter.updatePlayers(players, activePlayer);
+            mResultsExpandableListView.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void onSyncGroupsChanged(List<PlayerSyncGroup> playerSyncGroups) {
+            mResultsAdapter.updateSyncGroups(playerSyncGroups);
         }
 
         @Override
@@ -211,12 +206,12 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     public void playerRename(String newName) {
         getService().playerRename(currentPlayer, newName);
         this.currentPlayer.setName(newName);
-        getItemAdapter().notifyDataSetChanged();
+        mResultsAdapter.notifyDataSetChanged();
     }
 
     @Override
-    protected ItemAdapter<Player> createItemListAdapter(ItemView<Player> itemView) {
-        return new PlayerListAdapter(itemView, getImageFetcher());
+    protected void clearItemAdapter() {
+        mResultsAdapter.clear();
     }
 
     public static void show(Context context) {

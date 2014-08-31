@@ -22,41 +22,76 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 
-import uk.org.ngo.squeezer.framework.Item;
+import java.util.ArrayList;
+import java.util.List;
+
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerSyncGroup;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCreateContextMenuListener {
 
     private final PlayerListActivity mActivity;
 
-    private final ItemAdapter<? extends Item>[] mChildAdapters;
+    private final List<ItemAdapter<Player>> mChildAdapters = new ArrayList<ItemAdapter<Player>>();
 
-    private final Map<Class<? extends Item>, ItemAdapter<? extends Item>> mChildAdapterMap
-            = new HashMap<Class<? extends Item>, ItemAdapter<? extends Item>>();
+    private Player mActivePlayer;
+
+    private List<Player> mPlayers;
+
+    private List<PlayerSyncGroup> mPlayerSyncGroups;
+
+    private ImageFetcher mImageFetcher;
 
     public PlayerListAdapter(PlayerListActivity activity, ImageFetcher imageFetcher) {
         mActivity = activity;
-
-        ItemAdapter<?>[] adapters = {
-//                new ItemAdapter<Song>(new SongViewWithArt(activity), imageFetcher),
-//                new ItemAdapter<Album>(new AlbumView(activity), imageFetcher),
-//                new ItemAdapter<Artist>(new ArtistView(activity)),
-//                new ItemAdapter<Genre>(new GenreView(activity)),
-        };
-
-        mChildAdapters = adapters;
-        for (ItemAdapter<? extends Item> itemAdapter : mChildAdapters) {
-            mChildAdapterMap.put(itemAdapter.getItemView().getItemClass(), itemAdapter);
-        }
+        mImageFetcher = imageFetcher;
     }
 
     public void onChildClick(int groupPosition, int childPosition) {
-        mChildAdapters[groupPosition].onItemSelected(childPosition);
+        mChildAdapters.get(groupPosition).onItemSelected(childPosition);
+    }
+
+    public void clear() {
+        for (ItemAdapter<Player> itemAdapter : mChildAdapters) {
+            itemAdapter.clear();
+        }
+        mChildAdapters.clear();
+    }
+
+    public void updatePlayers(List<Player> players, Player activePlayer) {
+        mPlayers = players;
+        mActivePlayer = activePlayer;
+        update();
+    }
+
+    public void updateSyncGroups(List<PlayerSyncGroup> playerSyncGroups) {
+        mPlayerSyncGroups = playerSyncGroups;
+        update();
+    }
+
+    private void update() {
+        clear();
+        // How many adapters are needed?
+
+        // No sync groups -- one adapter per player.
+        if (true) { // (mPlayerSyncGroups.size() == 0) {
+            for (Player player : mPlayers) {
+                ItemAdapter<Player> childAdapter = new ItemAdapter<Player>(new PlayerView(mActivity), mImageFetcher);
+                childAdapter.update(1, 0, ImmutableList.of(player));
+                mChildAdapters.add(childAdapter);
+                childAdapter.notifyDataSetChanged();
+            }
+        }
+
+        notifyDataSetChanged();
     }
 
     @Override
@@ -71,7 +106,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
             AdapterView.AdapterContextMenuInfo adapterContextMenuInfo = new AdapterView.AdapterContextMenuInfo(
                     contextMenuInfo.targetView, childPosition, contextMenuInfo.id);
 
-            mChildAdapters[groupPosition].onCreateContextMenu(menu, v, adapterContextMenuInfo);
+            mChildAdapters.get(groupPosition).onCreateContextMenu(menu, v, adapterContextMenuInfo);
         }
     }
 
@@ -82,37 +117,37 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        return mChildAdapters[groupPosition].getView(childPosition, convertView, parent);
+        return mChildAdapters.get(groupPosition).getView(childPosition, convertView, parent);
     }
 
     @Override
     public int getGroupCount() {
-        return 0;
+        return mChildAdapters.size();
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 0;
+        return mChildAdapters.get(groupPosition).getCount();
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return null;
+        return mChildAdapters.get(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return null;
+        return (Player) mChildAdapters.get(groupPosition).getItem(childPosition);
     }
 
     @Override
     public long getGroupId(int groupPosition) {
-        return 0;
+        return groupPosition;
     }
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return 0;
+        return childPosition;
     }
 
     @Override
@@ -122,7 +157,20 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        return null;
+        View row = mActivity.getLayoutInflater().inflate(R.layout.group_item, parent, false);
+
+        TextView label = (TextView) row.findViewById(R.id.label);
+
+        ItemAdapter<Player> adapter = mChildAdapters.get(groupPosition);
+        List<String> playerNames = new ArrayList<String>();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            Player p = adapter.getItem(i);
+            playerNames.add(p.getName());
+        }
+        String header = Joiner.on(", ").join(playerNames);
+        label.setText(mActivity.getString(R.string.player_group_header, header));
+
+        return row;
     }
 
     @Override

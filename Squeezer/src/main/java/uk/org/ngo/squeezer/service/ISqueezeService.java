@@ -18,20 +18,20 @@ package uk.org.ngo.squeezer.service;
 
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
-import uk.org.ngo.squeezer.model.MusicFolderItem;
-import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
-import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.model.Genre;
+import uk.org.ngo.squeezer.model.MusicFolderItem;
+import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
+import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.model.Year;
 
 public interface ISqueezeService {
     // For the activity to get callbacks on interesting events
@@ -134,7 +134,10 @@ public interface ISqueezeService {
     void cancelSubscriptions(Object client);
 
     /** Start an async fetch of the SqueezeboxServer's players */
-    void players(int start, IServiceItemListCallback<Player> callback);
+    void players();
+
+    /** Start an async fetch of the server's sync groups. */
+    void syncgroups();
 
     // Album list
     /**
