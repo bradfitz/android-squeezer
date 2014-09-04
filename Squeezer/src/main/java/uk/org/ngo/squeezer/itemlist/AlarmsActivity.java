@@ -93,7 +93,8 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     }
 
     public static void show(Activity context) {
-        final Intent intent = new Intent(context, AlarmsActivity.class);
+        final Intent intent = new Intent(context, AlarmsActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
 
