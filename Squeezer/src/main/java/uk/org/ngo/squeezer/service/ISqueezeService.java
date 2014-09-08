@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.service;
 
+import java.util.List;
+
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
@@ -73,6 +75,13 @@ public interface ISqueezeService {
 
     // Returns the player we are currently controlling
     Player getActivePlayer();
+
+    // Returns all the players we know about.
+    List<Player> getPlayers();
+
+    // XXX: Delete, now that PlayerState is tracked in the player?
+    PlayerState getActivePlayerState();
+    PlayerState getPlayerState(String playerId);
 
     // Player control
     void togglePower(Player player);
@@ -135,9 +144,6 @@ public interface ISqueezeService {
 
     /** Start an async fetch of the SqueezeboxServer's players */
     void players();
-
-    /** Start an async fetch of the server's sync groups. */
-    void syncgroups();
 
     // Album list
     /**

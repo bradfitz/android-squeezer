@@ -21,20 +21,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.PlayerSyncGroup;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
@@ -46,9 +44,11 @@ public class PlayerListActivity extends ItemListActivity {
 
     private PlayerListAdapter mResultsAdapter;
 
-    private final Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
     private Player currentPlayer;
-    private boolean trackingTouch;
+    private boolean mTrackingTouch;
+
+    /** An update arrived while tracking touches. Player state should be resynced. */
+    private boolean mUpdateWhileTracking = false;
 
     private final Handler uiThreadHandler = new UiThreadHandler(this);
 
@@ -69,25 +69,31 @@ public class PlayerListActivity extends ItemListActivity {
                     activity.get().onVolumeChanged(message.arg1, (Player)message.obj);
                     break;
                 case PLAYER_STATE:
-                    activity.get().onPlayerStateReceived((PlayerState) message.obj);
+                    activity.get().onPlayerStateReceived();
                     break;
             }
         }
     }
 
     private void onVolumeChanged(int newVolume, Player player) {
-        PlayerState playerState = playerStates.get(player.getId());
+        PlayerState playerState = getService().getPlayerState(player.getId());
         if (playerState != null) {
             playerState.setCurrentVolume(newVolume);
-            if (!trackingTouch)
+            Log.d("PlayerListActivity", "Received new volume for + " + player.getName() + " vol: "+ newVolume);
+            if (!mTrackingTouch)
                 mResultsAdapter.notifyDataSetChanged();
         }
     }
 
-    private void onPlayerStateReceived(PlayerState playerState) {
-        playerStates.put(playerState.getPlayerId(), playerState);
-        if (!trackingTouch)
-            mResultsAdapter.notifyDataSetChanged();
+    private void onPlayerStateReceived() {
+        if (!mTrackingTouch) {
+            mResultsAdapter.updatePlayers(getService().getPlayers(), getService().getActivePlayer());
+            for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
+                mResultsExpandableListView.expandGroup(i);
+            }
+        } else {
+            mUpdateWhileTracking = true;
+        }
     }
 
     @Override
@@ -116,11 +122,6 @@ public class PlayerListActivity extends ItemListActivity {
         mResultsExpandableListView.setOnScrollListener(new ItemListActivity.ScrollListener());
     }
 
-    protected void onServiceConnected() {
-        super.onServiceConnected();
-        getService().syncgroups();
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(CURRENT_PLAYER, currentPlayer);
@@ -143,8 +144,8 @@ public class PlayerListActivity extends ItemListActivity {
     private final IServicePlayerStateCallback playerStateCallback
             = new IServicePlayerStateCallback() {
         @Override
-        public void onPlayerStateReceived(final PlayerState playerState) {
-            uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0, playerState).sendToTarget();
+        public void onPlayerStateReceived(final Player player, final PlayerState playerState) {
+            uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0).sendToTarget();
         }
 
         @Override
@@ -174,12 +175,9 @@ public class PlayerListActivity extends ItemListActivity {
         @Override
         public void onPlayersChanged(List<Player> players, Player activePlayer) {
             mResultsAdapter.updatePlayers(players, activePlayer);
-            mResultsExpandableListView.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        public void onSyncGroupsChanged(List<PlayerSyncGroup> playerSyncGroups) {
-            mResultsAdapter.updateSyncGroups(playerSyncGroups);
+            for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
+                mResultsExpandableListView.expandGroup(i);
+            }
         }
 
         @Override
@@ -189,7 +187,7 @@ public class PlayerListActivity extends ItemListActivity {
     };
 
     public PlayerState getPlayerState(String id) {
-        return playerStates.get(id);
+        return getService().getPlayerState(id);
     }
 
     public Player getCurrentPlayer() {
@@ -200,7 +198,14 @@ public class PlayerListActivity extends ItemListActivity {
     }
 
     public void setTrackingTouch(boolean trackingTouch) {
-        this.trackingTouch = trackingTouch;
+        mTrackingTouch = trackingTouch;
+        if (!mTrackingTouch) {
+            if (mUpdateWhileTracking) {
+                mUpdateWhileTracking = false;
+                // XXX: Revisit later.
+                // clearAndReOrderItems();
+            }
+        }
     }
 
     public void playerRename(String newName) {

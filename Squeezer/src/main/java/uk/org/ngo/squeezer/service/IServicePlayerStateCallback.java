@@ -16,8 +16,9 @@
 
 package uk.org.ngo.squeezer.service;
 
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 
 public interface IServicePlayerStateCallback extends ServiceCallback {
-    void onPlayerStateReceived(PlayerState playerState);
+    void onPlayerStateReceived(Player player, PlayerState playerState);
 }

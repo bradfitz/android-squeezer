@@ -19,10 +19,8 @@ package uk.org.ngo.squeezer.service;
 import java.util.List;
 
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerSyncGroup;
 
 public interface IServicePlayersCallback extends ServiceCallback {
     void onPlayersChanged(List<Player> players, Player activePlayer);
-    void onSyncGroupsChanged(List<PlayerSyncGroup> playerSyncGroups);
 }
 
