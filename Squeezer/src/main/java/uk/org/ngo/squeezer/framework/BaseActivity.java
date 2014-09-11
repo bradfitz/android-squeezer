@@ -47,7 +47,7 @@ import uk.org.ngo.squeezer.util.SqueezePlayer;
  */
 public abstract class BaseActivity extends ActionBarActivity implements HasUiThread {
 
-    @Nullable private ISqueezeService service = null;
+    @Nullable private ISqueezeService mService = null;
 
     /**
      * Keep track of whether callbacks have been registered
@@ -68,7 +68,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
      */
     @Nullable
     public ISqueezeService getService() {
-        return service;
+        return mService;
     }
 
     /**
@@ -82,13 +82,13 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            service = (ISqueezeService) binder;
+            mService = (ISqueezeService) binder;
             BaseActivity.this.onServiceConnected();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            service = null;
+            mService = null;
         }
     };
 
@@ -237,17 +237,17 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     public boolean isConnected() {
-        if (service == null) {
+        if (mService == null) {
             return false;
         }
-        return service.isConnected();
+        return mService.isConnected();
     }
 
     public String getIconUrl(String icon) {
-        if (service == null || icon == null) {
+        if (mService == null || icon == null) {
             return null;
         }
-        return service.getIconUrl(icon);
+        return mService.getIconUrl(icon);
     }
 
     public String getServerString(ServerString stringToken) {
@@ -270,11 +270,11 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     private void playlistControl(PlaylistControlCmd cmd, PlaylistItem item, int resId)
             {
-        if (service == null) {
+        if (mService == null) {
             return;
         }
 
-        service.playlistControl(cmd.name(), item);
+        mService.playlistControl(cmd.name(), item);
         Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
     }
 
@@ -286,7 +286,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
      */
     public void downloadItem(FilterItem item) {
         if (canDownload())
-            service.downloadItem(item);
+            mService.downloadItem(item);
         else
             Toast.makeText(this, R.string.DOWNLOAD_MANAGER_NEEDED, Toast.LENGTH_LONG).show();
     }
