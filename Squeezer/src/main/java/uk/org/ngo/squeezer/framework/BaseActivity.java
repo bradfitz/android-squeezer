@@ -23,12 +23,13 @@ import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
-
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -46,7 +47,7 @@ import uk.org.ngo.squeezer.util.SqueezePlayer;
  */
 public abstract class BaseActivity extends ActionBarActivity implements HasUiThread {
 
-    private ISqueezeService service = null;
+    @Nullable private ISqueezeService service = null;
 
     /**
      * Keep track of whether callbacks have been registered
@@ -65,6 +66,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     /**
      * @return The squeezeservice, or null if not bound
      */
+    @Nullable
     public ISqueezeService getService() {
         return service;
     }
