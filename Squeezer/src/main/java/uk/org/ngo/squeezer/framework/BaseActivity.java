@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -140,6 +142,29 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         }
 
         super.onPause();
+    }
+
+    private boolean mIsRestoredToTop;
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if ((intent.getFlags() | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT) > 0) {
+            mIsRestoredToTop  = true;
+        }
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public void finish() {
+        super.finish();
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && !isTaskRoot() && mIsRestoredToTop) {
+            // 4.4.2 platform issues for FLAG_ACTIVITY_REORDER_TO_FRONT,
+            // reordered activity back press will go to home unexpectedly,
+            // Workaround: move reordered activity current task to front when it's finished.
+            ActivityManager tasksManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+            tasksManager.moveTaskToFront(getTaskId(), ActivityManager.MOVE_TASK_NO_USER_ACTION);
+        }
     }
 
     protected void onServiceConnected() {
