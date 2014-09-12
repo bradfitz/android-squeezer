@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerListActivity extends BaseListActivity<Player> {
     public static final String CURRENT_PLAYER = "currentPlayer";
@@ -110,11 +112,12 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        getService().registerVolumeCallback(volumeCallback);
-        getService().registerPlayersCallback(playersCallback);
-        getService().registerPlayerStateCallback(playerStateCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+
+        service.registerVolumeCallback(volumeCallback);
+        service.registerPlayersCallback(playersCallback);
+        service.registerPlayerStateCallback(playerStateCallback);
     }
 
     private final IServicePlayerStateCallback playerStateCallback

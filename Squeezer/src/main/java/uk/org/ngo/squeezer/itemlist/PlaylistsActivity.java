@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +30,7 @@ import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistsNewDialog;
 import uk.org.ngo.squeezer.model.Playlist;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlaylistsActivity extends BaseListActivity<Playlist> {
 
@@ -92,9 +94,9 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        getService().registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
     }
 
     @Override

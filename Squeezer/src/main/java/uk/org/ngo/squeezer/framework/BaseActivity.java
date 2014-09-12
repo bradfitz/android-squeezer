@@ -83,7 +83,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             mService = (ISqueezeService) binder;
-            BaseActivity.this.onServiceConnected();
+            BaseActivity.this.onServiceConnected(mService);
         }
 
         @Override
@@ -116,8 +116,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     public void onResume() {
         super.onResume();
 
-        if (getService() != null) {
-            maybeRegisterCallbacks();
+        if (mService != null) {
+            maybeRegisterCallbacks(mService);
         }
 
         // If SqueezePlayer is installed, start it
@@ -144,17 +144,25 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         super.onPause();
     }
 
-    protected void onServiceConnected() {
-        maybeRegisterCallbacks();
+    /**
+     * Performs any actions necessary after the service has been connected. Sub-classes must
+     * call through to this implementation.
+     * <p/>
+     * Ensures that callbacks are registered.
+     *
+     * @param service The connection to the bound service.
+     */
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        maybeRegisterCallbacks(service);
     }
 
     /**
-     * This is called when the service is connected.
-     * <p/>
-     * Override this to if your activity wish to subscribe to any notifications
-     * from the service.
+     * Registers any callbacks with the bound service. The default implementation does nothing,
+     * sub-classes should override this as appropriate.
+     *
+     * @param service The connection to the bound service.
      */
-    protected void registerCallback() {
+    protected void registerCallback(@NonNull ISqueezeService service) {
     }
 
     /**
@@ -163,16 +171,24 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
      * Normally you do not need to override this.
      */
     protected void unregisterCallback() {
-        getService().cancelItemListRequests(this);
-        getService().cancelSubscriptions(this);
+        if (mService == null) return;
+
+        mService.cancelItemListRequests(this);
+        mService.cancelSubscriptions(this);
     }
 
     /**
-     * This is called when the service is first connected, and whenever the activity is resumed.
+     * Conditionally registers callbacks.
+     * <p/>
+     * Callback registration can happen in {@link #onResume()} and
+     * {@link #onServiceConnected(uk.org.ngo.squeezer.service.ISqueezeService)}, this ensures
+     * that it only happens once.
+     *
+     * @param service The connection to the bound service.
      */
-    private void maybeRegisterCallbacks() {
+    private void maybeRegisterCallbacks(@NonNull ISqueezeService service) {
         if (!mRegisteredCallbacks) {
-            registerCallback();
+            registerCallback(service);
             mRegisteredCallbacks = true;
         }
     }

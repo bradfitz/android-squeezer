@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -41,6 +42,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
@@ -200,12 +202,12 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        player = getService().getActivePlayer();
-        getService().registerCurrentPlaylistCallback(currentPlaylistCallback);
-        getService().registerMusicChangedCallback(musicChangedCallback);
-        getService().registerPlayersCallback(playersCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        player = service.getActivePlayer();
+        service.registerCurrentPlaylistCallback(currentPlaylistCallback);
+        service.registerMusicChangedCallback(musicChangedCallback);
+        service.registerPlayersCallback(playersCallback);
     }
 
     private final IServiceCurrentPlaylistCallback currentPlaylistCallback

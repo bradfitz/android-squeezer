@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -53,6 +54,7 @@ import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class SongListActivity extends BaseListActivity<Song>
@@ -199,8 +201,8 @@ public class SongListActivity extends BaseListActivity<Song>
     }
 
     @Override
-    protected void onServiceConnected() {
-        super.onServiceConnected();
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
 
         // Set artwork that requires a service connection.
         if (album != null) {

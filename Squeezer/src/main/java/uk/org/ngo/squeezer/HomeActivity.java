@@ -27,6 +27,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -51,6 +52,7 @@ import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.itemlist.YearListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class HomeActivity extends BaseActivity {
 
@@ -122,9 +124,9 @@ public class HomeActivity extends BaseActivity {
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        getService().registerHandshakeCallback(mCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerHandshakeCallback(mCallback);
     }
 
     private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback() {
