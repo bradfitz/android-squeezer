@@ -100,8 +100,8 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().playlists(start, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.playlists(start, this);
     }
 
     @Override

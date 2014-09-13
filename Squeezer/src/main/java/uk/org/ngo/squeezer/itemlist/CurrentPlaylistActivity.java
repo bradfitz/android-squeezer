@@ -168,8 +168,8 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().currentPlaylist(start, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.currentPlaylist(start, this);
     }
 
     @Override

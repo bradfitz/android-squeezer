@@ -107,8 +107,8 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().players(start, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.players(start, this);
     }
 
     @Override

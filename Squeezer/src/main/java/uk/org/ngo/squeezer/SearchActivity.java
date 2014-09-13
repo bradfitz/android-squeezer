@@ -109,8 +109,8 @@ public class SearchActivity extends ItemListActivity {
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().search(start, searchString, itemListCallback);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.search(start, searchString, itemListCallback);
     }
 
     /**

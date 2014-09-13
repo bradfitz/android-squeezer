@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -46,6 +47,7 @@ import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 /**
@@ -191,17 +193,17 @@ public class AlbumListActivity extends BaseListActivity<Album>
     }
 
     @Override
-    protected void orderPage(int start) {
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
         if (sortOrder == null) {
             try {
-                sortOrder = AlbumViewDialog.AlbumsSortOrder.valueOf(getService().preferredAlbumSort());
+                sortOrder = AlbumViewDialog.AlbumsSortOrder.valueOf(service.preferredAlbumSort());
             } catch (IllegalArgumentException e) {
                 Log.w(getTag(), "Unknown preferred album sort: " + e);
                 sortOrder = AlbumViewDialog.AlbumsSortOrder.album;
             }
         }
 
-        getService().albums(this, start, sortOrder.name().replace("__", ""), getSearchString(),
+        service.albums(this, start, sortOrder.name().replace("__", ""), getSearchString(),
                 artist, getYear(), getGenre(), song);
     }
 

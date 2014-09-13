@@ -274,8 +274,8 @@ public class SongListActivity extends BaseListActivity<Song>
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().songs(this, start, sortOrder.name(), searchString, album, artist, year, genre);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.songs(this, start, sortOrder.name(), searchString, album, artist, year, genre);
 
         boolean canPlay = (getCurrentPlaylistItem() != null);
         if (playButton != null) {

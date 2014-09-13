@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,7 @@ import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /**
  * Display a list of Squeezebox music folders.
@@ -105,8 +107,8 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
      * @param start Where in the list of folders to start fetching.
      */
     @Override
-    protected void orderPage(int start) {
-        getService().musicFolders(start, mFolder, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.musicFolders(start, mFolder, this);
     }
 
     /**
