@@ -217,6 +217,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     activity.getService().alarmAdd((timePicker.getCurrentHour() * 60 + timePicker.getCurrentMinute()) * 60);
+                    // TODO add to list and animate the new alarm in
                     activity.clearAndReOrderItems();
                 }
             });

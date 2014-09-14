@@ -34,6 +34,10 @@ import android.text.style.StyleSpan;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
@@ -59,6 +63,7 @@ import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class AlarmView extends BaseItemView<Alarm> {
+    private static final int ANIMATION_DURATION = 300;
 
     private final BaseListActivity activity;
     private final Resources resources;
@@ -85,7 +90,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         return view;
     }
 
-    private View getAdapterView(View convertView, ViewGroup parent) {
+    private View getAdapterView(View convertView, final ViewGroup parent) {
         AlarmViewHolder currentViewHolder =
                 (convertView != null && convertView.getTag() instanceof AlarmViewHolder)
                         ? (AlarmViewHolder) convertView.getTag()
@@ -93,6 +98,7 @@ public class AlarmView extends BaseItemView<Alarm> {
 
         if (currentViewHolder == null) {
             convertView = getLayoutInflater().inflate(R.layout.list_item_alarm, parent, false);
+            final View alarmView = convertView;
             final AlarmViewHolder viewHolder = new AlarmViewHolder();
             viewHolder.time = (TextView) convertView.findViewById(R.id.time);
             viewHolder.enabled = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.enabled));
@@ -147,8 +153,30 @@ public class AlarmView extends BaseItemView<Alarm> {
             viewHolder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    activity.getService().alarmDelete(viewHolder.alarm.getId());
-                    activity.getItemAdapter().removeItem(viewHolder.position);
+                    final Animation collapseAnimation = new ScaleAnimation(1F, 1F, 1F, 0.5F);
+                    final Animation fadeOutAnimation = new AlphaAnimation(1F, 0F);
+
+                    final AnimationSet animationSet = new AnimationSet(true);
+                    animationSet.addAnimation(collapseAnimation);
+                    animationSet.addAnimation(fadeOutAnimation);
+                    animationSet.setDuration(ANIMATION_DURATION);
+                    animationSet.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            activity.getService().alarmDelete(viewHolder.alarm.getId());
+                            activity.getItemAdapter().removeItem(viewHolder.position);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+                    });
+
+                    alarmView.startAnimation(animationSet);
                 }
             });
             viewHolder.playlist.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -256,7 +284,6 @@ public class AlarmView extends BaseItemView<Alarm> {
 
     public static class TimePickerFragment extends DialogFragment {
         BaseListActivity activity;
-
         Alarm alarm;
 
         @Override
