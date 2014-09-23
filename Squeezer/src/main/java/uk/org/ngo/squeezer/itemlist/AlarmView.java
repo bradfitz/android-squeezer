@@ -61,17 +61,19 @@ import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.widget.AnimationEndListener;
+import uk.org.ngo.squeezer.widget.UndoBarController;
 
 public class AlarmView extends BaseItemView<Alarm> {
     private static final int ANIMATION_DURATION = 300;
 
-    private final BaseListActivity activity;
+    private final AlarmsActivity activity;
     private final Resources resources;
     private final int colorSelected;
     private final float density;
     private List<AlarmPlaylist> alarmPlaylists;
 
-    public AlarmView(BaseListActivity activity) {
+    public AlarmView(AlarmsActivity activity) {
         super(activity);
         this.activity = activity;
         resources = activity.getResources();
@@ -152,27 +154,16 @@ public class AlarmView extends BaseItemView<Alarm> {
             });
             viewHolder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
-                    final Animation collapseAnimation = new ScaleAnimation(1F, 1F, 1F, 0.5F);
-                    final Animation fadeOutAnimation = new AlphaAnimation(1F, 0F);
-
+                public void onClick(final View view) {
                     final AnimationSet animationSet = new AnimationSet(true);
-                    animationSet.addAnimation(collapseAnimation);
-                    animationSet.addAnimation(fadeOutAnimation);
+                    animationSet.addAnimation(new ScaleAnimation(1F, 1F, 1F, 0.5F));
+                    animationSet.addAnimation(new AlphaAnimation(1F, 0F));
                     animationSet.setDuration(ANIMATION_DURATION);
-                    animationSet.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                        }
-
+                    animationSet.setAnimationListener(new AnimationEndListener() {
                         @Override
                         public void onAnimationEnd(Animation animation) {
-                            activity.getService().alarmDelete(viewHolder.alarm.getId());
                             activity.getItemAdapter().removeItem(viewHolder.position);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
+                            UndoBarController.show(getActivity(), ServerString.ALARM_DELETING.getLocalizedString(), new UndoListener(viewHolder.position, viewHolder.alarm));
                         }
                     });
 
@@ -358,6 +349,26 @@ public class AlarmView extends BaseItemView<Alarm> {
                 spinnerItemView.setText(getItem(position).getName());
                 return view;
             }
+        }
+    }
+
+    private class UndoListener implements UndoBarController.UndoListener {
+        private final int position;
+        private final Alarm alarm;
+
+        public UndoListener(int position, Alarm alarm) {
+            this.position = position;
+            this.alarm = alarm;
+        }
+
+        @Override
+        public void onUndo() {
+            activity.getItemAdapter().insertItem(position, alarm);
+        }
+
+        @Override
+        public void onDone() {
+            activity.getService().alarmDelete(alarm.getId());
         }
     }
 }
