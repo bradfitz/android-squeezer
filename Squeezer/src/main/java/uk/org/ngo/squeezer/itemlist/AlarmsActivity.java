@@ -49,6 +49,7 @@ import uk.org.ngo.squeezer.service.IServicePlayerPrefCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
+import uk.org.ngo.squeezer.widget.UndoBarController;
 
 public class AlarmsActivity extends BaseListActivity<Alarm> {
     private Player player;
@@ -90,6 +91,12 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
                 getService().playerPref(PlayerPref.alarmsEnabled, isChecked ? "1" : "0");
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        UndoBarController.hide(this);
     }
 
     public static void show(Activity context) {

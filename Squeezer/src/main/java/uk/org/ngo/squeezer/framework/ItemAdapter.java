@@ -35,10 +35,8 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
  * A generic class for an adapter to list items of a particular SqueezeServer data type. The data
  * type is defined by the generic type argument, and must be an extension of {@link Item}.
  * <p/>
- * If you need an adapter for a {@link BaseListActivity}, then use {@link ItemListAdapter} instead.
- * <p/>
- * Normally there is no need to extend this (or {@link ItemListAdapter}), as we delegate all type
- * dependent stuff to {@link ItemView}.
+ * Normally there is no need to extend this as we delegate all type dependent stuff to
+ * {@link ItemView}.
  *
  * @param <T> Denotes the class of the items this class should list
  *
@@ -47,8 +45,6 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
  */
 public class ItemAdapter<T extends Item> extends BaseAdapter implements
         OnCreateContextMenuListener {
-
-    private static final String TAG = ItemAdapter.class.getSimpleName();
 
     /**
      * View logic for this adapter
@@ -84,13 +80,9 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
      */
     private final ImageFetcher mImageFetcher;
 
-    public int getPageSize() {
-        return pageSize;
-    }
-
     /**
      * Creates a new adapter. Initially the item list is populated with items displaying the
-     * localized "loading" text. Call {@link #update(int, int, int, List)} as items arrives from
+     * localized "loading" text. Call {@link #update(int, int, List)} as items arrives from
      * SqueezeServer.
      *
      * @param itemView The {@link ItemView} to use with this adapter
@@ -108,14 +100,14 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     }
 
     /**
-     * Calls {@link #BaseAdapter(ItemView, boolean, ImageFetcher)}, with emptyItem = false
+     * Calls {@link ItemAdapter(ItemView, boolean, ImageFetcher)}, with emptyItem = false
      */
     public ItemAdapter(ItemView<T> itemView, ImageFetcher imageFetcher) {
         this(itemView, false, imageFetcher);
     }
 
     /**
-     * Calls {@link #BaseAdapter(ItemView, boolean, ImageFetcher)}, with emptyItem = false
+     * Calls {@link ItemAdapter(ItemView, boolean, ImageFetcher)}, with emptyItem = false
      * and a null ImageFetcher.
      */
     public ItemAdapter(ItemView<T> itemView) {
@@ -170,7 +162,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
 
     /**
      * Creates the context menu for the selected item by calling {@link
-     * ItemView.onCreateContextMenu} which the subclass should have specialised.
+     * ItemView#onCreateContextMenu} which the subclass should have specialised.
      * <p/>
      * Unpacks the {@link ContextMenu.ContextMenuInfo} passed to this method, and creates a {@link
      * ItemView.ContextMenuInfo} suitable for passing to subclasses of {@link BaseItemView}.
@@ -276,7 +268,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
      * The size of the list of items is automatically adjusted if necessary, to obey the given
      * parameters.
      *
-     * @param count Number of items as reported by squeezeserver.
+     * @param count Number of items as reported by SqueezeServer.
      * @param start The start position of items in this update.
      * @param items New items to insert in the main list
      */
@@ -294,8 +286,6 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     }
 
     /**
-     * @param item
-     *
      * @return The position of the given item in this adapter or 0 if not found
      */
     public int findItem(T item) {
@@ -317,8 +307,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     public void removeItem(int position) {
         T[] page = getPage(position);
         int offset = position % pageSize;
-        int n = count - 1 - position;
-        while (n-- > 0) {
+        while (position++ <= count) {
             if (offset == pageSize - 1) {
                 T[] nextPage = getPage(position);
                 page[offset] = nextPage[0];
@@ -326,11 +315,33 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
                 page = nextPage;
             } else {
                 page[offset] = page[offset+1];
+                offset++;
             }
-            offset++;
         }
 
         count--;
+        onCountUpdated();
+        notifyDataSetChanged();
+    }
+
+    public void insertItem(int position, T item) {
+        int n = count;
+        T[] page = getPage(n);
+        int offset = n % pageSize;
+        while (n-- > position) {
+            if (offset == 0) {
+                T[] nextPage = getPage(n);
+                offset = pageSize - 1;
+                page[0] = nextPage[offset];
+                page = nextPage;
+            } else {
+                page[offset] = page[offset-1];
+                offset--;
+            }
+        }
+        page[offset] = item;
+
+        count++;
         onCountUpdated();
         notifyDataSetChanged();
     }
