@@ -127,7 +127,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         player = getService().getActivePlayer();
         getService().registerPlayerPrefCallback(playerPrefCallback);
         getService().registerPlayersCallback(playersCallback);
-        getService().alarmPlaylists(-1, alarmPlaylistsCallback);
+        getService().alarmPlaylists(alarmPlaylistsCallback);
     }
 
     @Override

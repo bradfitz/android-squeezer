@@ -146,7 +146,7 @@ public interface ISqueezeService {
     void alarms(int start, IServiceItemListCallback<Alarm> callback);
 
     /** Alarm playlists */
-    void alarmPlaylists(int start, IServiceItemListCallback<AlarmPlaylist> callback);
+    void alarmPlaylists(IServiceItemListCallback<AlarmPlaylist> callback);
 
     /** Alarm maintenance */
     void alarmAdd(int time);
