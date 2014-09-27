@@ -369,6 +369,36 @@ class CliClient {
     /**
      * Send an asynchronous request to the SqueezeboxServer for the specified items.
      * <p/>
+     * Items are returned to the caller via the specified callback.
+     * <p/>
+     * See {@link #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for details.
+     *
+     * @param playerId Id of the current player or null
+     * @param cmd Identifies the type of items
+     * @param start First item to return
+     * @param pageSize No of items to return
+     * @param parameters Item specific parameters for the request
+     * @see #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)
+     */
+    private void internalRequestItems(String playerId, String cmd, int start, int pageSize, List<String> parameters, IServiceItemListCallback callback) {
+        pendingRequests.put(_correlationid, callback);
+        final StringBuilder sb = new StringBuilder(cmd + " " + start + " " + pageSize);
+        if (playerId != null) {
+            sb.insert(0, Util.encode(playerId) + " ");
+        }
+        if (parameters != null) {
+            for (String parameter : parameters) {
+                sb.append(" ").append(Util.encode(parameter));
+            }
+        }
+        sb.append(" correlationid:");
+        sb.append(_correlationid++);
+        sendCommand(sb.toString());
+    }
+
+    /**
+     * Send an asynchronous request to the SqueezeboxServer for the specified items.
+     * <p/>
      * Items are requested in chunks of <code>R.integer.PageSize</code>, and returned
      * to the caller via the specified callback.
      * <p/>
@@ -393,22 +423,13 @@ class CliClient {
     private void internalRequestItems(String playerId, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
         boolean full_list = (start < 0);
 
-        pendingRequests.put(_correlationid, callback);
-        final StringBuilder sb = new StringBuilder(
-                cmd + " " + (full_list ? 0 : start) + " " + (start == 0 ? 1 : pageSize));
-        if (playerId != null) {
-            sb.insert(0, Util.encode(playerId) + " ");
+        if (full_list) {
+            if (parameters == null)
+                parameters = new ArrayList<String>();
+            parameters.add("full_list:1");
         }
-        if (parameters != null) {
-            for (String parameter : parameters) {
-                sb.append(" ").append(Util.encode(parameter));
-            }
-        }
-        if (full_list)
-            sb.append(" full_list:1");
-        sb.append(" correlationid:");
-        sb.append(_correlationid++);
-        sendCommand(sb.toString());
+
+        internalRequestItems(playerId, cmd, (full_list ? 0 : start), (start == 0 ? 1 : pageSize), parameters, callback);
     }
 
     void requestItems(Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
@@ -421,6 +442,14 @@ class CliClient {
 
     void requestItems(String cmd, int start, IServiceItemListCallback callback) {
         requestItems(cmd, start, null, callback);
+    }
+
+    void requestItems(String cmd, int start, int pageSize, List<String> parameters, IServiceItemListCallback callback) {
+        internalRequestItems(null, cmd, start, pageSize, parameters, callback);
+    }
+
+    void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback callback) {
+        requestItems(cmd, start, pageSize, null, callback);
     }
 
     void requestPlayerItems(String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {

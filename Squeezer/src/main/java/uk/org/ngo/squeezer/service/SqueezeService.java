@@ -1750,11 +1750,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public void alarmPlaylists(int start, IServiceItemListCallback<AlarmPlaylist> callback) {
+        public void alarmPlaylists(IServiceItemListCallback<AlarmPlaylist> callback) {
             if (!isConnected()) {
                 return;
             }
-            cli.requestItems("alarm playlists", start, null, callback);
+            // The LMS documentation states that
+            // The "alarm playlists" returns all the playlists, sounds, favorites etc. available to alarms.
+            // This will however return only one playlist: the current playlist.
+            // Inspection of the LMS code reveals that the "alarm playlists" command takes the
+            // customary <start> and <itemsPerResponse> parameters, but these are interpreted as
+            // categories (eg. Favorites, Natural Sounds etc.), but the returned list is flattened,
+            // i.e. contains all items of the requested categories.
+            // So we order all playlists like below, hoping there are no more than 99 categories.
+            cli.requestItems("alarm playlists", 0, 99, callback);
         }
 
         @Override
