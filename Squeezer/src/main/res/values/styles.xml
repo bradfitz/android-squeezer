@@ -112,9 +112,7 @@
         <item name="android:orientation">horizontal</item>
         <item name="android:background">@android:drawable/toast_frame</item>
         <item name="android:clickable">true</item>
-        <item name="android:showDividers">middle</item>
         <item name="android:divider">@drawable/undobar_divider</item>
-        <item name="android:dividerPadding">8dp</item>
     </style>
 
     <style name="UndoBarMessage">
