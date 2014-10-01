@@ -125,6 +125,19 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Sets the enabled state of the R.menu.playlistsmenu items.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final MenuItem item = menu.findItem(R.id.menu_item_playlists_new);
+        final boolean boundToService = getService() != null;
+
+        item.setEnabled(boundToService);
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

@@ -396,6 +396,21 @@ public class SongListActivity extends BaseListActivity<Song>
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Sets the enabled state of the R.menu.currentplaylistmenu items.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final boolean boundToService = getService() != null;
+
+        if (album == null) {
+            playButton.setEnabled(boundToService);
+            addButton.setEnabled(boundToService);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         PlaylistItem playlistItem = getCurrentPlaylistItem();

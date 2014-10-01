@@ -153,6 +153,27 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Sets the enabled state of the R.menu.playlistmenu and R.menu.playmenu items.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final int[] ids = {
+                R.id.menu_item_playlists_delete,
+                R.id.menu_item_playlists_rename,
+                R.id.play_now,
+                R.id.add_to_playlist
+        };
+        final boolean boundToService = getService() != null;
+
+        for (int id : ids) {
+            MenuItem item = menu.findItem(id);
+            item.setEnabled(boundToService);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

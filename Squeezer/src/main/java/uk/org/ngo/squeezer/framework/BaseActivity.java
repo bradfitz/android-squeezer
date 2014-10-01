@@ -23,12 +23,13 @@ import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.widget.Toast;
 
 import uk.org.ngo.squeezer.Preferences;
@@ -147,12 +148,17 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     /**
      * Performs any actions necessary after the service has been connected. Sub-classes must
      * call through to this implementation.
-     * <p/>
-     * Ensures that callbacks are registered.
+     *
+     * <ul>
+     *     <li>Invalidates the options menu so that menu items can be adjusted based on
+     *     the state of the service connection.</li>
+     *     <li>Ensures that callbacks are registered.</li>
+     * </ul>
      *
      * @param service The connection to the bound service.
      */
     protected void onServiceConnected(@NonNull ISqueezeService service) {
+        supportInvalidateOptionsMenu();
         maybeRegisterCallbacks(service);
     }
 
