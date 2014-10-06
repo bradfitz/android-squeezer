@@ -8,6 +8,7 @@ import android.support.v4.app.DialogFragment;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.PlaylistsActivity;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlaylistsDeleteDialog extends DialogFragment {
 
@@ -22,7 +23,12 @@ public class PlaylistsDeleteDialog extends DialogFragment {
         builder.setMessage(R.string.delete__message);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                activity.getService().playlistsDelete(activity.getCurrentPlaylist());
+                ISqueezeService service = activity.getService();
+                if (service == null) {
+                    return;
+                }
+
+                service.playlistsDelete(activity.getCurrentPlaylist());
                 activity.clearAndReOrderItems();
             }
         });

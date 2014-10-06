@@ -64,14 +64,24 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
 
     public void playlistRename(String newName) {
         oldName = playlist.getName();
-        getService().playlistsRename(playlist, newName);
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        service.playlistsRename(playlist, newName);
         playlist.setName(newName);
         getIntent().putExtra("playlist", playlist);
         setResult(PlaylistsActivity.PLAYLIST_RENAMED);
     }
 
     public void playlistDelete() {
-        getService().playlistsDelete(getPlaylist());
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        service.playlistsDelete(getPlaylist());
         setResult(PlaylistsActivity.PLAYLIST_DELETED);
         finish();
     }
@@ -96,6 +106,11 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
 
             @Override
             public boolean doItemContext(MenuItem menuItem, int index, Song selectedItem) {
+                ISqueezeService service = getService();
+                if (service == null) {
+                    return super.doItemContext(menuItem, index, selectedItem);
+                }
+
                 switch (menuItem.getItemId()) {
                     case R.id.play_now:
                         play(selectedItem);
@@ -110,17 +125,17 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
                         return true;
 
                     case R.id.remove_from_playlist:
-                        getService().playlistsRemove(playlist, index);
+                        service.playlistsRemove(playlist, index);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_up:
-                        getService().playlistsMove(playlist, index, index - 1);
+                        service.playlistsMove(playlist, index, index - 1);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_down:
-                        getService().playlistsMove(playlist, index, index + 1);
+                        service.playlistsMove(playlist, index, index + 1);
                         clearAndReOrderItems();
                         return true;
 

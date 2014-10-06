@@ -159,7 +159,15 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
         // value is an error message suitable for displaying to the user.
         if (parameters.containsKey("networkerror")) {
             Resources resources = getResources();
-            String playerName = getService().getActivePlayer().getName();
+            ISqueezeService service = getService();
+            String playerName;
+
+            if (service == null) {
+                playerName = "Unknown";
+            } else {
+                playerName = service.getActivePlayer().getName();
+            }
+
             String errorMsg = parameters.get("networkerror");
 
             String errorMessage = String.format(resources.getString(R.string.server_error),

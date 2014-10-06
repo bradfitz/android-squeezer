@@ -82,7 +82,12 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
      * Rename the playlist previously set as context.
      */
     public void playlistRename(String newName) {
-        getService().playlistsRename(currentPlaylist, newName);
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        service.playlistsRename(currentPlaylist, newName);
         oldName = currentPlaylist.getName();
         currentPlaylist.setName(newName);
         getItemAdapter().notifyDataSetChanged();

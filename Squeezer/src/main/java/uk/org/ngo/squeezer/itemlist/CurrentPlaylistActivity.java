@@ -107,7 +107,12 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
              */
             @Override
             public void onItemSelected(int index, Song item) {
-                getActivity().getService().playlistIndex(index);
+                ISqueezeService service = getActivity().getService();
+                if (service == null) {
+                    return;
+                }
+
+                service.playlistIndex(index);
             }
 
             @Override
@@ -129,23 +134,28 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
 
             @Override
             public boolean doItemContext(MenuItem menuItem, int index, Song selectedItem) {
+                ISqueezeService service = getService();
+                if (service == null) {
+                    return true;
+                }
+
                 switch (menuItem.getItemId()) {
                     case R.id.play_now:
-                        getService().playlistIndex(index);
+                        service.playlistIndex(index);
                         return true;
 
                     case R.id.remove_from_playlist:
-                        getService().playlistRemove(index);
+                        service.playlistRemove(index);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_up:
-                        getService().playlistMove(index, index - 1);
+                        service.playlistMove(index, index - 1);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_down:
-                        getService().playlistMove(index, index + 1);
+                        service.playlistMove(index, index + 1);
                         clearAndReOrderItems();
                         return true;
 
@@ -299,7 +309,12 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     @Override
     public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
         super.onItemsReceived(count, start, parameters, items, dataType);
-        currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        currentPlaylistIndex = service.getPlayerState().getCurrentPlaylistIndex();
         // Initially position the list at the currently playing song.
         // Do it again once it has loaded because the newly displayed items
         // may push the current song outside the displayed area.

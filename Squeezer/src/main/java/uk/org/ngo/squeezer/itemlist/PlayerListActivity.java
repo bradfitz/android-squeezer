@@ -178,7 +178,12 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
 
     public void playerRename(String newName) {
-        getService().playerRename(currentPlayer, newName);
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        service.playerRename(currentPlayer, newName);
         this.currentPlayer.setName(newName);
         getItemAdapter().notifyDataSetChanged();
     }
