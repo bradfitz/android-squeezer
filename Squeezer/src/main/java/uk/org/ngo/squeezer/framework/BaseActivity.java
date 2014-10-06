@@ -222,11 +222,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
-                changeVolumeBy(+5);
-                return true;
+                return changeVolumeBy(+5);
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                changeVolumeBy(-5);
-                return true;
+                return changeVolumeBy(-5);
         }
 
         return super.onKeyDown(keyCode, event);
@@ -244,11 +242,12 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     private boolean changeVolumeBy(int delta) {
-        if (getService() == null) {
+        ISqueezeService service = getService();
+        if (service == null) {
             return false;
         }
         Log.v(getTag(), "Adjust volume by: " + delta);
-        getService().adjustVolumeBy(delta);
+        service.adjustVolumeBy(delta);
         return true;
     }
 
