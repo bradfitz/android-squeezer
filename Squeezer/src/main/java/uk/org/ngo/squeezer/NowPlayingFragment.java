@@ -32,6 +32,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -58,6 +60,7 @@ import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
@@ -491,7 +494,7 @@ public class NowPlayingFragment extends Fragment implements
                 prevButton.setImageResource(0);
                 shuffleButton.setImageResource(0);
                 repeatButton.setImageResource(0);
-                updatePlayerDropDown(null, null);
+                updatePlayerDropDown(Collections.<Player>emptyList(), null);
                 artistText.setText(getText(R.string.disconnected_text));
                 currentTime.setText("--:--");
                 totalTime.setText("--:--");
@@ -563,12 +566,13 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     /**
-     * Manage the list of connected players in the action bar.
+     * Manages the list of connected players in the action bar.
      *
-     * @param players
-     * @param activePlayer
+     * @param players A list of players to show. May be empty (use
+     *            {@code Collections.&lt;Player>emptyList()}) but not null.
+     * @param activePlayer The currently active player. May be null.
      */
-    private void updatePlayerDropDown(List<Player> players, Player activePlayer) {
+    private void updatePlayerDropDown(@NonNull List<Player> players, @Nullable Player activePlayer) {
         if (!isAdded()) {
             return;
         }

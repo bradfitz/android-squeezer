@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'com.android.tools.build:gradle:0.12.2'
     }
 }
 apply plugin: 'com.android.application'
@@ -81,8 +81,8 @@ android {
 
     productFlavors {
         beta {
-            versionCode 25
-            versionName "1.1.0-beta-4"
+            versionCode 26
+            versionName "1.1.0-beta-5"
             signingConfig android.signingConfigs.release
         }
 
