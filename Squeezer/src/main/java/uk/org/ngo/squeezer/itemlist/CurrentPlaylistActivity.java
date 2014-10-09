@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -41,6 +42,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
@@ -105,7 +107,12 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
              */
             @Override
             public void onItemSelected(int index, Song item) {
-                getActivity().getService().playlistIndex(index);
+                ISqueezeService service = getActivity().getService();
+                if (service == null) {
+                    return;
+                }
+
+                service.playlistIndex(index);
             }
 
             @Override
@@ -127,23 +134,28 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
 
             @Override
             public boolean doItemContext(MenuItem menuItem, int index, Song selectedItem) {
+                ISqueezeService service = getService();
+                if (service == null) {
+                    return true;
+                }
+
                 switch (menuItem.getItemId()) {
                     case R.id.play_now:
-                        getService().playlistIndex(index);
+                        service.playlistIndex(index);
                         return true;
 
                     case R.id.remove_from_playlist:
-                        getService().playlistRemove(index);
+                        service.playlistRemove(index);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_up:
-                        getService().playlistMove(index, index - 1);
+                        service.playlistMove(index, index - 1);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_down:
-                        getService().playlistMove(index, index + 1);
+                        service.playlistMove(index, index + 1);
                         clearAndReOrderItems();
                         return true;
 
@@ -166,14 +178,30 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().currentPlaylist(start, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.currentPlaylist(start, this);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.currentplaylistmenu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Sets the enabled state of the R.menu.currentplaylistmenu items.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save};
+        final boolean boundToService = getService() != null;
+
+        for (int id : ids) {
+            MenuItem item = menu.findItem(id);
+            item.setEnabled(boundToService);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -200,12 +228,12 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        player = getService().getActivePlayer();
-        getService().registerCurrentPlaylistCallback(currentPlaylistCallback);
-        getService().registerMusicChangedCallback(musicChangedCallback);
-        getService().registerPlayersCallback(playersCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        player = service.getActivePlayer();
+        service.registerCurrentPlaylistCallback(currentPlaylistCallback);
+        service.registerMusicChangedCallback(musicChangedCallback);
+        service.registerPlayersCallback(playersCallback);
     }
 
     private final IServiceCurrentPlaylistCallback currentPlaylistCallback
@@ -281,7 +309,12 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     @Override
     public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
         super.onItemsReceived(count, start, parameters, items, dataType);
-        currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        currentPlaylistIndex = service.getPlayerState().getCurrentPlaylistIndex();
         // Initially position the list at the currently playing song.
         // Do it again once it has loaded because the newly displayed items
         // may push the current song outside the displayed area.

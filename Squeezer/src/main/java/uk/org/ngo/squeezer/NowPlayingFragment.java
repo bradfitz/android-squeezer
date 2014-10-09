@@ -97,7 +97,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private BaseActivity mActivity;
 
-    private ISqueezeService mService = null;
+    @Nullable private ISqueezeService mService = null;
 
     private TextView albumText;
 
@@ -226,8 +226,7 @@ public class NowPlayingFragment extends Fragment implements
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             Log.v(TAG, "ServiceConnection.onServiceConnected()");
-            mService = (ISqueezeService) binder;
-            NowPlayingFragment.this.onServiceConnected();
+            NowPlayingFragment.this.onServiceConnected((ISqueezeService) binder);
         }
 
         @Override
@@ -474,7 +473,8 @@ public class NowPlayingFragment extends Fragment implements
                     .show(mActivity.getSupportFragmentManager(), "AuthenticationDialog");
         }
 
-        setMenuItemStateFromConnection();
+        // Ensure that option menu item state is adjusted as appropriate.
+        getActivity().supportInvalidateOptionsMenu();
 
         if (mFullHeightLayout) {
             nextButton.setEnabled(connected);
@@ -632,9 +632,11 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    protected void onServiceConnected() {
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
         Log.v(TAG, "Service bound");
-        maybeRegisterCallbacks();
+        mService = service;
+
+        maybeRegisterCallbacks(mService);
         uiThreadHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -665,7 +667,7 @@ public class NowPlayingFragment extends Fragment implements
         mActivity.startService(new Intent(mActivity, SqueezeService.class));
 
         if (mService != null) {
-            maybeRegisterCallbacks();
+            maybeRegisterCallbacks(mService);
             updateUIFromServiceState();
         }
 
@@ -683,14 +685,14 @@ public class NowPlayingFragment extends Fragment implements
     /**
      * This is called when the service is first connected, and whenever the activity is resumed.
      */
-    private void maybeRegisterCallbacks() {
+    private void maybeRegisterCallbacks(@NonNull ISqueezeService service) {
         if (!mRegisteredCallbacks) {
-            mService.registerCallback(serviceCallback);
-            mService.registerConnectionCallback(connectionCallback);
-            mService.registerHandshakeCallback(handshakeCallback);
-            mService.registerMusicChangedCallback(musicChangedCallback);
-            mService.registerPlayersCallback(playersCallback);
-            mService.registerVolumeCallback(volumeCallback);
+            service.registerCallback(serviceCallback);
+            service.registerConnectionCallback(connectionCallback);
+            service.registerHandshakeCallback(handshakeCallback);
+            service.registerMusicChangedCallback(musicChangedCallback);
+            service.registerPlayersCallback(playersCallback);
+            service.registerVolumeCallback(volumeCallback);
             mRegisteredCallbacks = true;
         }
     }
@@ -959,20 +961,14 @@ public class NowPlayingFragment extends Fragment implements
         menu_item_playlists = menu.findItem(R.id.menu_item_playlist);
         menu_item_search = menu.findItem(R.id.menu_item_search);
         menu_item_volume = menu.findItem(R.id.menu_item_volume);
-
-        // On Android 2.3.x and lower onCreateOptionsMenu() is called when the menu is opened,
-        // almost certainly post-connection to the service.  On 3.0 and higher it's called when
-        // the activity is created, before the service connection is made.  Set the visibility
-        // of the menu items accordingly.
-        // XXX: onPrepareOptionsMenu() instead?
-        setMenuItemStateFromConnection();
     }
 
     /**
      * Sets the state of assorted option menu items based on whether or not there is a connection to
      * the server.
      */
-    private void setMenuItemStateFromConnection() {
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
         boolean connected = isConnected();
 
         // These are all set at the same time, so one check is sufficient
@@ -1063,6 +1059,10 @@ public class NowPlayingFragment extends Fragment implements
 
     public void startVisibleConnection() {
         Log.v(TAG, "startVisibleConnection");
+        if (mService == null) {
+            return;
+        }
+
         uiThreadHandler.post(new Runnable() {
             @Override
             public void run() {

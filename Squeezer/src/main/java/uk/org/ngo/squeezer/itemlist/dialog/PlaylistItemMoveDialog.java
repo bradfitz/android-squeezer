@@ -8,6 +8,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.model.Playlist;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlaylistItemMoveDialog extends BaseEditTextDialog {
 
@@ -36,10 +37,15 @@ public class PlaylistItemMoveDialog extends BaseEditTextDialog {
     protected boolean commit(String targetString) {
         int targetIndex = Util.parseDecimalInt(targetString, -1);
         if (targetIndex > 0 && targetIndex <= activity.getItemAdapter().getCount()) {
+            ISqueezeService service = activity.getService();
+            if (service == null) {
+                return false;
+            }
+
             if (playlist == null) {
-                activity.getService().playlistMove(fromIndex - 1, targetIndex - 1);
+                service.playlistMove(fromIndex - 1, targetIndex - 1);
             } else {
-                activity.getService().playlistsMove(playlist, fromIndex - 1, targetIndex - 1);
+                service.playlistsMove(playlist, fromIndex - 1, targetIndex - 1);
             }
             activity.clearAndReOrderItems();
             return true;
