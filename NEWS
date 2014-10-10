@@ -47,6 +47,13 @@ In-progress
 *   Fixed a bug where the current playlist is not updated if the
     active player is changed.
 
+*   Fixed https://code.google.com/p/android/issues/detail?id=63570, a bug
+    in Android 4.4.2 when tasks are re-ordered.
+
+*   Fixed assorted null pointer bugs.
+
+*   Use Crashlytics instead of ACRA for crash reporting.
+
 1.0.2
 =====
 
