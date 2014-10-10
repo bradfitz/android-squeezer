@@ -17,8 +17,6 @@
 package uk.org.ngo.squeezer;
 
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,6 +31,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import com.crashlytics.android.Crashlytics;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,6 +99,7 @@ public class HomeActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crashlytics.start(this);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
 
@@ -259,9 +261,8 @@ public class HomeActivity extends BaseActivity {
                 case INTERNET_RADIO:
                     // Uncomment these next two lines as an easy way to check
                     // crash reporting functionality.
-
-                    // String sCrashString = null;
-                    // Log.e("MyApp", sCrashString.toString());
+                    //String sCrashString = null;
+                    //Log.e("MyApp", sCrashString);
                     RadioListActivity.show(HomeActivity.this);
                     break;
                 case FAVORITES:

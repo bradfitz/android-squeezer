@@ -39,7 +39,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.acra.ErrorReporter;
+import com.crashlytics.android.Crashlytics;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -430,13 +430,13 @@ public class ServerAddressPreference extends DialogPreference {
                 }
             } catch (SocketException e) {
                 // new DatagramSocket(3483)
-                ErrorReporter.getInstance().handleException(e);
+                Crashlytics.logException(e);
             } catch (UnknownHostException e) {
                 // InetAddress.getByName()
-                ErrorReporter.getInstance().handleException(e);
+                Crashlytics.logException(e);
             } catch (IOException e) {
                 // socket.send()
-                ErrorReporter.getInstance().handleException(e);
+                Crashlytics.logException(e);
             }
 
             if (socket != null) {

@@ -160,34 +160,8 @@
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Nummer</string>
 
-    <!--  Crash notifications -->
-    <string name="crash_toast_text">Entschuldigung, es ist ein Fehler aufgetreten.</string>
-    <string name="crash_dialog_text">Ein unerwarteter Fehler hat Squeezer zum Absturz gebracht. Ein
-        Fehlerbericht wurde erstellt. Wählen Sie OK aus, um ihn zu senden. Der Bericht enthält keine
-        persönlichen Daten.
-    </string>
-    <string name="crash_dialog_comment_prompt">Hier können Sie weitere Kommentare eingeben, die bei
-        der Behebung des Problems hilfreich sein können.
-    </string>
-    <string name="crash_dialog_ok_toast">Vielen Dank für Ihre Hilfe, Squeezer zu Verbessern.
-    </string>
-
-    <!--  ACRA preference strings -->
-    <string name="pref_cat_error_reports">Fehlerberichte und Statistiken</string>
-    <string name="pref_disable_acra">Fehlerberichte senden</string>
-    <string name="pref_acra_enabled">Sie haben die Möglichkeit, im Fehlerfall einen Bericht an die
-        Entwickler zu senden.
-    </string>
-    <string name="pref_acra_disabled">Es werden keine Fehlerberichte gesendet.</string>
-
-    <string name="pref_acra_alwaysaccept">Fehlerbericht automatisch senden</string>
-    <string name="pref_acra_alwaysaccept_enabled">Fehlerberichte werden automatisch gesendet.
-    </string>
-    <string name="pref_acra_alwaysaccept_disabled">Fehlerberichte werden nicht automatisch
-        gesendet.
-    </string>
-
     <!--  Analytics preference strings -->
+    <string name="pref_cat_error_reports">Fehlerberichte und Statistiken</string>
     <string name="pref_analytics_enable">Benutzungsstatistiken senden</string>
     <string name="pref_analytics_enable_enabled">Anonyme Benutzungsstatistiken werden mit Google
         Analytics erstellt.

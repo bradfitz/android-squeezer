@@ -18,9 +18,8 @@ package uk.org.ngo.squeezer.service;
 
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
-
-import org.acra.ACRA;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -276,7 +275,7 @@ class CliClient {
 
         String formattedCommands = mNewlineJoiner.join(commands);
         Log.v(TAG, "SENDING: " + formattedCommands);
-        ACRA.getErrorReporter().putCustomData("lastCommands", formattedCommands);
+        Crashlytics.setString("lastCommands", formattedCommands);
         writer.println(formattedCommands);
         writer.flush();
     }
