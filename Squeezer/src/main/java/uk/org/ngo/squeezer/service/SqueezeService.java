@@ -507,7 +507,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         if (changedSong) {
                             updateOngoingNotification();
                             for (IServiceMusicChangedCallback callback : mMusicChangedCallbacks) {
-                                callback.onMusicChanged(connectionState.getActivePlayerState());
+                                callback.onMusicChanged(playerState);
                             }
                         }
 
