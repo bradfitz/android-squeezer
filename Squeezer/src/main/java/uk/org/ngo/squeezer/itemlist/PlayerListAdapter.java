@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -170,6 +171,10 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
             mChildAdapters.get(groupPosition).onCreateContextMenu(menu, v, adapterContextMenuInfo);
         }
+    }
+
+    public boolean doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
+        return mChildAdapters.get(groupPosition).doItemContext(menuItem, childPosition);
     }
 
     @Override

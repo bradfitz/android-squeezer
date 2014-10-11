@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
 
@@ -32,7 +33,6 @@ import java.util.List;
 import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
-import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
@@ -132,10 +132,21 @@ public class PlayerListActivity extends ItemListActivity {
         super.onSaveInstanceState(outState);
     }
 
-//    @Override
-//    public ItemView<Player> createItemView() {
-//        return new PlayerView(this);
-//    }
+    @Override
+    public final boolean onContextItemSelected(MenuItem item) {
+        if (getService() != null) {
+            ExpandableListView.ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListView.ExpandableListContextMenuInfo) item
+                    .getMenuInfo();
+            long packedPosition = contextMenuInfo.packedPosition;
+            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+            int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+            if (ExpandableListView.getPackedPositionType(packedPosition)
+                    == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                return mResultsAdapter.doItemContext(item, groupPosition, childPosition);
+            }
+        }
+        return false;
+    }
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
