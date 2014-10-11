@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -31,11 +32,14 @@ import java.util.List;
 import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
+
 
 public class PlayerListActivity extends ItemListActivity {
     public static final String CURRENT_PLAYER = "currentPlayer";
@@ -79,7 +83,7 @@ public class PlayerListActivity extends ItemListActivity {
         PlayerState playerState = getService().getPlayerState(player.getId());
         if (playerState != null) {
             playerState.setCurrentVolume(newVolume);
-            Log.d("PlayerListActivity", "Received new volume for + " + player.getName() + " vol: "+ newVolume);
+            Log.d("PlayerListActivity", "Received new volume for + " + player.getName() + " vol: " + newVolume);
             if (!mTrackingTouch)
                 mResultsAdapter.notifyDataSetChanged();
         }
@@ -128,17 +132,23 @@ public class PlayerListActivity extends ItemListActivity {
         super.onSaveInstanceState(outState);
     }
 
+//    @Override
+//    public ItemView<Player> createItemView() {
+//        return new PlayerView(this);
+//    }
+
     @Override
-    protected void orderPage(int start) {
-        getService().players();
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.players();
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        getService().registerVolumeCallback(volumeCallback);
-        getService().registerPlayersCallback(playersCallback);
-        getService().registerPlayerStateCallback(playerStateCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+
+        service.registerVolumeCallback(volumeCallback);
+        service.registerPlayersCallback(playersCallback);
+        service.registerPlayerStateCallback(playerStateCallback);
     }
 
     private final IServicePlayerStateCallback playerStateCallback
@@ -209,7 +219,12 @@ public class PlayerListActivity extends ItemListActivity {
     }
 
     public void playerRename(String newName) {
-        getService().playerRename(currentPlayer, newName);
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        service.playerRename(currentPlayer, newName);
         this.currentPlayer.setName(newName);
         mResultsAdapter.notifyDataSetChanged();
     }

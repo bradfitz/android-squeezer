@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +34,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistRenameDialog;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlaylistSongsActivity extends BaseListActivity<Song> {
 
@@ -62,14 +64,24 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
 
     public void playlistRename(String newName) {
         oldName = playlist.getName();
-        getService().playlistsRename(playlist, newName);
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        service.playlistsRename(playlist, newName);
         playlist.setName(newName);
         getIntent().putExtra("playlist", playlist);
         setResult(PlaylistsActivity.PLAYLIST_RENAMED);
     }
 
     public void playlistDelete() {
-        getService().playlistsDelete(getPlaylist());
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        service.playlistsDelete(getPlaylist());
         setResult(PlaylistsActivity.PLAYLIST_DELETED);
         finish();
     }
@@ -94,6 +106,11 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
 
             @Override
             public boolean doItemContext(MenuItem menuItem, int index, Song selectedItem) {
+                ISqueezeService service = getService();
+                if (service == null) {
+                    return super.doItemContext(menuItem, index, selectedItem);
+                }
+
                 switch (menuItem.getItemId()) {
                     case R.id.play_now:
                         play(selectedItem);
@@ -108,17 +125,17 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
                         return true;
 
                     case R.id.remove_from_playlist:
-                        getService().playlistsRemove(playlist, index);
+                        service.playlistsRemove(playlist, index);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_up:
-                        getService().playlistsMove(playlist, index, index - 1);
+                        service.playlistsMove(playlist, index, index - 1);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_down:
-                        getService().playlistsMove(playlist, index, index + 1);
+                        service.playlistsMove(playlist, index, index + 1);
                         clearAndReOrderItems();
                         return true;
 
@@ -134,14 +151,14 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().playlistSongs(start, playlist, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.playlistSongs(start, playlist, this);
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        getService().registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
     }
 
     @Override
@@ -149,6 +166,27 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
         getMenuInflater().inflate(R.menu.playlistmenu, menu);
         getMenuInflater().inflate(R.menu.playmenu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Sets the enabled state of the R.menu.playlistmenu and R.menu.playmenu items.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final int[] ids = {
+                R.id.menu_item_playlists_delete,
+                R.id.menu_item_playlists_rename,
+                R.id.play_now,
+                R.id.add_to_playlist
+        };
+        final boolean boundToService = getService() != null;
+
+        for (int id : ids) {
+            MenuItem item = menu.findItem(id);
+            item.setEnabled(boundToService);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override

@@ -161,34 +161,8 @@
     <string name="song_display_options">Opties bij view nummer</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Nummer</string>
-    <!--Crash notifications-->
-    <string name="crash_toast_text">Sorry, er trad een fout op.</string>
-    <string name="crash_dialog_text">Een onverwachte fout trad op, en Squeezer is gecrashed. Een
-        fouten-rapport is opgesteld, graag op OK drukken om het te versturen. Geen persoonlijke
-        informatie wordt verstrekt in dit rapport.
-    </string>
-    <string name="crash_dialog_comment_prompt">Als er andere toevoegingen zijn waarvan u denkt dat ze
-      handig zijn, gelieve ze hier in te vullen.
-    </string>
-    <string name="crash_dialog_ok_toast">Bedankt voor het meehelpen aan het verbeteren van
-        Squeezer.
-    </string>
-    <!--ACRA preference strings-->
-    <string name="pref_cat_error_reports">Fouten rapporten en statistieken</string>
-    <string name="pref_disable_acra">Rapporteer fouten</string>
-    <string name="pref_acra_enabled">Fouten worden afgehandeld, en u heeft de optie een rapport te
-        versturen naar de ontwikkelaars.
-    </string>
-    <string name="pref_acra_disabled">Fouten worden afgehandeld, maar u wordt niet gedwongen een
-        rapport te versturen. Er is geen rapport verzonden.
-    </string>
-    <string name="pref_acra_user_email">Je e-mail adres</string>
-    <string name="pref_acra_user_email_summary">Als je een geldig adres achterlaat dan kunnen de ontwikkelaars
-        je benaderen voor het verschaffen van meer informatie.</string>
-    <string name="pref_acra_alwaysaccept">Verstuur rapporten automatisch.</string>
-    <string name="pref_acra_alwaysaccept_enabled">Fouten zullen automatisch worden gerapporteerd.</string>
-    <string name="pref_acra_alwaysaccept_disabled">Fouten worden niet automatisch gerapporteerd.</string>
     <!--Analytics preference strings-->
+    <string name="pref_cat_error_reports">Fouten rapporten en statistieken</string>
     <string name="pref_analytics_enable">Verzend gebruiks-statistieken</string>
     <string name="pref_analytics_enable_enabled">Anonieme gebruiks-statistieken zijn verzameld met
         behulp van Google Analytics.

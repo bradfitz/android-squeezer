@@ -35,10 +35,9 @@ import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-
-import org.acra.ACRA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -586,7 +585,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     void onLineReceived(String serverLine) {
         Log.v(TAG, "LINE: " + serverLine);
-        ACRA.getErrorReporter().putCustomData("lastReceivedLine", serverLine);
+        Crashlytics.setString("lastReceivedLine", serverLine);
 
         List<String> tokens = Arrays.asList(serverLine.split(" "));
         if (tokens.size() < 2) {

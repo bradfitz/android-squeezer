@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,7 @@ import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /**
  * Display a list of Squeezebox music folders.
@@ -85,6 +87,22 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Sets the enabled state of the R.menu.playmenu items.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final int[] ids = {R.id.play_now, R.id.add_to_playlist};
+        final boolean boundToService = getService() != null;
+
+        for (int id : ids) {
+            MenuItem item = menu.findItem(id);
+            item.setEnabled(boundToService);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -105,8 +123,8 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
      * @param start Where in the list of folders to start fetching.
      */
     @Override
-    protected void orderPage(int start) {
-        getService().musicFolders(start, mFolder, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.musicFolders(start, mFolder, this);
     }
 
     /**

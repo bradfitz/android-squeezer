@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -30,6 +31,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class SearchActivity extends ItemListActivity {
 
@@ -101,14 +103,14 @@ public class SearchActivity extends ItemListActivity {
      * Performs the search now that the service connection is active.
      */
     @Override
-    protected void onServiceConnected() {
-        super.onServiceConnected();
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
         doSearch();
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().search(start, searchString, itemListCallback);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.search(start, searchString, itemListCallback);
     }
 
     /**
