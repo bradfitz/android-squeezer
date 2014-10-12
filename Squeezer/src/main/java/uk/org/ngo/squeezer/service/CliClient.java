@@ -316,7 +316,7 @@ class CliClient {
      *
      * @param command The command to send
      */
-    void sendPlayerCommand(final String command) {
+    void sendActivePlayerCommand(final String command) {
         if (service.connectionState.getActivePlayer() == null) {
             return;
         }

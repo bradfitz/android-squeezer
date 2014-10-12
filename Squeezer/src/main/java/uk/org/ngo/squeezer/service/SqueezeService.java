@@ -641,7 +641,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             // When we don't subscribe to the current players status, we rely
             // on playlist notifications and order song details here.
             // TODO keep track of subscribe status
-            cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
+            cli.sendActivePlayerCommand("status - 1 tags:" + SONGTAGS);
         } else if ("play".equals(notification)) {
             updatePlayStatus(PlayerState.PlayStatus.play);
         } else if ("stop".equals(notification)) {
@@ -788,7 +788,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         // Start an async fetch of its status.
-        cli.sendPlayerCommand("status - 1 tags:" + SONGTAGS);
+        cli.sendActivePlayerCommand("status - 1 tags:" + SONGTAGS);
 
         if (changed) {
             updatePlayerSubscriptionState();
@@ -1155,15 +1155,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void adjustVolumeTo(int newVolume) {
-            cli.sendPlayerCommand("mixer volume " + Math.min(100, Math.max(0, newVolume)));
+            cli.sendActivePlayerCommand("mixer volume " + Math.min(100, Math.max(0, newVolume)));
         }
 
         @Override
         public void adjustVolumeBy(int delta) {
             if (delta > 0) {
-                cli.sendPlayerCommand("mixer volume %2B" + delta);
+                cli.sendActivePlayerCommand("mixer volume %2B" + delta);
             } else if (delta < 0) {
-                cli.sendPlayerCommand("mixer volume " + delta);
+                cli.sendActivePlayerCommand("mixer volume " + delta);
             }
         }
 
@@ -1192,12 +1192,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void powerOn() {
-            cli.sendPlayerCommand("power 1");
+            cli.sendActivePlayerCommand("power 1");
         }
 
         @Override
         public void powerOff() {
-            cli.sendPlayerCommand("power 0");
+            cli.sendActivePlayerCommand("power 0");
         }
 
         @Override
@@ -1320,13 +1320,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     // because then we'd get confused when they came back in to us, not being
                     // able to differentiate ours coming back on the listen channel vs. those
                     // of those idiots at the dinner party messing around.
-                    cli.sendPlayerCommand("pause 1");
+                    cli.sendActivePlayerCommand("pause 1");
                     break;
                 case stop:
-                    cli.sendPlayerCommand("play" + fadeInSecs());
+                    cli.sendActivePlayerCommand("play" + fadeInSecs());
                     break;
                 case pause:
-                    cli.sendPlayerCommand("pause 0" + fadeInSecs());
+                    cli.sendActivePlayerCommand("pause 0" + fadeInSecs());
                     break;
             }
             return true;
@@ -1337,7 +1337,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("play" + fadeInSecs());
+            cli.sendActivePlayerCommand("play" + fadeInSecs());
             return true;
         }
 
@@ -1346,7 +1346,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("stop");
+            cli.sendActivePlayerCommand("stop");
             return true;
         }
 
@@ -1355,7 +1355,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
-            cli.sendPlayerCommand("button jump_fwd");
+            cli.sendActivePlayerCommand("button jump_fwd");
             return true;
         }
 
@@ -1364,7 +1364,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
-            cli.sendPlayerCommand("button jump_rew");
+            cli.sendActivePlayerCommand("button jump_rew");
             return true;
         }
 
@@ -1373,7 +1373,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("playlist shuffle");
+            cli.sendActivePlayerCommand("playlist shuffle");
             return true;
         }
 
@@ -1382,7 +1382,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("playlist repeat");
+            cli.sendActivePlayerCommand("playlist repeat");
             return true;
         }
 
@@ -1392,7 +1392,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return false;
             }
 
-            cli.sendPlayerCommand("playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter());
+            cli.sendActivePlayerCommand("playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter());
             return true;
         }
 
@@ -1401,7 +1401,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("randomplay " + type);
+            cli.sendActivePlayerCommand("randomplay " + type);
             return true;
         }
 
@@ -1415,7 +1415,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("playlist index " + index + fadeInSecs());
+            cli.sendActivePlayerCommand("playlist index " + index + fadeInSecs());
             return true;
         }
 
@@ -1424,7 +1424,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("playlist delete " + index);
+            cli.sendActivePlayerCommand("playlist delete " + index);
             return true;
         }
 
@@ -1433,7 +1433,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("playlist move " + fromIndex + " " + toIndex);
+            cli.sendActivePlayerCommand("playlist move " + fromIndex + " " + toIndex);
             return true;
         }
 
@@ -1442,7 +1442,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("playlist clear");
+            cli.sendActivePlayerCommand("playlist clear");
             return true;
         }
 
@@ -1451,7 +1451,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand("playlist save " + Util.encode(name));
+            cli.sendActivePlayerCommand("playlist save " + Util.encode(name));
             return true;
         }
 
@@ -1460,7 +1460,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            cli.sendPlayerCommand(plugin.getId() + " playlist " + cmd + " item_id:" + itemId);
+            cli.sendActivePlayerCommand(plugin.getId() + " playlist " + cmd + " item_id:" + itemId);
             return true;
 
         }
@@ -1545,7 +1545,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return false;
             }
 
-            cli.sendPlayerCommand("time " + seconds);
+            cli.sendActivePlayerCommand("time " + seconds);
 
             return true;
         }
