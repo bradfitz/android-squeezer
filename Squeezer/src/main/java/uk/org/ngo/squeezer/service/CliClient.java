@@ -274,7 +274,7 @@ class CliClient {
         }
 
         String formattedCommands = mNewlineJoiner.join(commands);
-        Log.v(TAG, "SENDING: " + formattedCommands);
+        Log.v(TAG, "SEND: " + formattedCommands);
         Crashlytics.setString("lastCommands", formattedCommands);
         writer.println(formattedCommands);
         writer.flush();

@@ -584,7 +584,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             = initializePrefixedPlayerSpecificHandlers();
 
     void onLineReceived(String serverLine) {
-        Log.v(TAG, "LINE: " + serverLine);
+        Log.v(TAG, "RECV: " + serverLine);
         Crashlytics.setString("lastReceivedLine", serverLine);
 
         List<String> tokens = Arrays.asList(serverLine.split(" "));
