@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import uk.org.ngo.squeezer.framework.BaseListActivity;
@@ -32,6 +33,7 @@ import uk.org.ngo.squeezer.menu.FilterMenuFragment.FilterableListActivity;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class ArtistListActivity extends BaseListActivity<Artist> implements
         GenreSpinnerCallback, FilterableListActivity {
@@ -93,8 +95,8 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().artists(this, start, getSearchString(), album, genre);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.artists(this, start, getSearchString(), album, genre);
     }
 
     @Override

@@ -1,15 +1,19 @@
 buildscript {
     repositories {
         mavenCentral()
+        maven { url 'http://download.crashlytics.com/maven' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'com.android.tools.build:gradle:0.12.2'
+        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
 }
 apply plugin: 'com.android.application'
+apply plugin: 'crashlytics'
 
 repositories {
     mavenCentral()
+    maven { url 'http://download.crashlytics.com/maven' }
 }
 
 dependencies {
@@ -22,13 +26,13 @@ dependencies {
     compile 'com.android.support:appcompat-v7:20.0.0'
 
     // Third party libraries
-    compile 'ch.acra:acra:4.5.0'
     compile 'com.google.guava:guava:17.0'
     // findbugs is required for Proguard to work with Guava.
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
+    compile 'com.crashlytics.android:crashlytics:1.+'
 }
 
 android {
@@ -52,7 +56,7 @@ android {
             // same effect, but this ensures that any changes to
             // proguard-android-optimize.txt are automatically included.
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
-            proguardFile "proguard-acra.cfg"
+            proguardFile "proguard-crashlytics.cfg"
             proguardFile "proguard-guava.cfg"
             proguardFile "proguard-squeezer.cfg"
         }
@@ -81,14 +85,14 @@ android {
 
     productFlavors {
         beta {
-            versionCode 25
-            versionName "1.1.0-beta-4"
+            versionCode 27
+            versionName "1.1.0-beta-6"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 21
-            versionName "1.0.2"
+            versionCode 28
+            versionName "1.1.0"
             signingConfig android.signingConfigs.release
         }
     }

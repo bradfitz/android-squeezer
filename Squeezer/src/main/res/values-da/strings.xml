@@ -180,33 +180,8 @@
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Spor</string>
 
-    <!--  Crash notifications -->
-    <string name="crash_toast_text">Beklager, der opstod en fejl.</string>
-    <string name="crash_dialog_text">En uventet fejl opstod, og Squeezer gik ned. En fejlrapport er
-        udarbejdet, tryk venligst på OK for at sende den. Ingen personidentificerende oplysninger er
-        medtaget i denne rapport.
-    </string>
-    <string name="crash_dialog_comment_prompt">Hvis du har yderligere kommentarer, som du mener er
-        nyttigte, kan du indtaste dem her.
-    </string>
-    <string name="crash_dialog_ok_toast">Tak fordi du hjælper os med at forbedre Squeezer.</string>
-
-    <!--  ACRA preference strings -->
-    <string name="pref_cat_error_reports">Fejlrapporter og statistik</string>
-    <string name="pref_disable_acra">Rapportér fejl</string>
-    <string name="pref_acra_enabled">Fejl fanges, og du har mulighed for at sende en rapport til
-        udviklerne.
-    </string>
-    <string name="pref_acra_disabled">Fejl bliver fanget, men du vil ikke blive bedt om at sende en
-        rapport. Ingen rapport sendes.
-    </string>
-
-    <string name="pref_acra_alwaysaccept">Send rapporter automatisk</string>
-    <string name="pref_acra_alwaysaccept_enabled">Fejl vil automatisk blive rapporteret.</string>
-    <string name="pref_acra_alwaysaccept_disabled">Fejl vil ikke automatisk blive rapporteret.
-    </string>
-
     <!--  Analytics preference strings -->
+    <string name="pref_cat_error_reports">Fejlrapporter og statistik</string>
     <string name="pref_analytics_enable">Send brugsstatistikker</string>
     <string name="pref_analytics_enable_enabled">Anonyme brugsstatistikker indsamles ved hjælp af
         Google Analytics.

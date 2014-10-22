@@ -17,8 +17,6 @@
 package uk.org.ngo.squeezer;
 
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,11 +25,15 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import com.crashlytics.android.Crashlytics;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,7 @@ import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.itemlist.YearListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class HomeActivity extends BaseActivity {
 
@@ -96,6 +99,7 @@ public class HomeActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crashlytics.start(this);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
 
@@ -122,9 +126,9 @@ public class HomeActivity extends BaseActivity {
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        getService().registerHandshakeCallback(mCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerHandshakeCallback(mCallback);
     }
 
     private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback() {
@@ -257,9 +261,8 @@ public class HomeActivity extends BaseActivity {
                 case INTERNET_RADIO:
                     // Uncomment these next two lines as an easy way to check
                     // crash reporting functionality.
-
-                    // String sCrashString = null;
-                    // Log.e("MyApp", sCrashString.toString());
+                    //String sCrashString = null;
+                    //Log.e("MyApp", sCrashString);
                     RadioListActivity.show(HomeActivity.this);
                     break;
                 case FAVORITES:

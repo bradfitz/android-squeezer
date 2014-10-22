@@ -20,6 +20,7 @@ package uk.org.ngo.squeezer.framework;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,10 +29,12 @@ import android.widget.AbsListView.OnScrollListener;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.RetainFragment;
@@ -65,6 +68,13 @@ public abstract class ItemListActivity extends BaseActivity {
      * The pages that have been received from the server
      */
     private Set<Integer> mReceivedPages;
+
+    /**
+     * Pages requested before the service connection was bound. A stack on the assumption
+     * that once the service is bound the most recently requested pages should be ordered
+     * first.
+     */
+    private Stack<Integer> mOrderedPagesBeforeBinding = new Stack<Integer>();
 
     /**
      * Tag for mReceivedPages in mRetainFragment.
@@ -115,6 +125,16 @@ public abstract class ItemListActivity extends BaseActivity {
     }
 
     @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+
+        // Order any pages that were requested before the service was bound.
+        while (!mOrderedPagesBeforeBinding.empty()) {
+            maybeOrderPage(mOrderedPagesBeforeBinding.pop());
+        }
+    }
+
+    @Override
     public void onPause() {
         if (mImageFetcher != null) {
             mImageFetcher.closeCache();
@@ -162,14 +182,15 @@ public abstract class ItemListActivity extends BaseActivity {
         return mImageFetcher;
     }
 
-
     /**
-     * Implementations must start an asynchronous fetch of items, when this is called.
+     * Starts an asynchronous fetch of items from the server. Will only be called after the
+     * service connection has been bound.
      *
+     * @param service The connection to the bound service.
      * @param start Position in list to start the fetch. Pass this on to {@link
      * uk.org.ngo.squeezer.service.SqueezeService}
      */
-    protected abstract void orderPage(int start);
+    protected abstract void orderPage(@NonNull ISqueezeService service, int start);
 
     /**
      * List can clear any information about which items have been received and ordered, by calling
@@ -189,8 +210,16 @@ public abstract class ItemListActivity extends BaseActivity {
     public boolean maybeOrderPage(int pagePosition) {
         if (!mListScrolling && !mReceivedPages.contains(pagePosition) && !mOrderedPages
                 .contains(pagePosition)) {
-            mOrderedPages.add(pagePosition);
-            orderPage(pagePosition);
+            ISqueezeService service = getService();
+
+            // If the service connection hasn't happened yet then store the page request
+            // where it can be used in onServiceConnected().
+            if (service == null) {
+                mOrderedPagesBeforeBinding.push(pagePosition);
+            } else {
+                mOrderedPages.add(pagePosition);
+                orderPage(service, pagePosition);
+            }
             return true;
         } else {
             return false;

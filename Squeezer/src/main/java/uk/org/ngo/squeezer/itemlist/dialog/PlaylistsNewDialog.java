@@ -6,6 +6,7 @@ import android.text.InputType;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.PlaylistsActivity;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlaylistsNewDialog extends BaseEditTextDialog {
 
@@ -25,7 +26,12 @@ public class PlaylistsNewDialog extends BaseEditTextDialog {
 
     @Override
     protected boolean commit(String name) {
-        activity.getService().playlistsNew(name);
+        ISqueezeService service = activity.getService();
+        if (service == null) {
+            return false;
+        }
+
+        service.playlistsNew(name);
         activity.clearAndReOrderItems();
         return true;
     }
