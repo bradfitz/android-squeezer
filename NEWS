@@ -1,6 +1,10 @@
 In-progress
 ===========
 
+
+1.1.0
+=====
+
 *   Support for "My Apps" installed via mysqueezebox.com.  Fixes
     https://code.google.com/p/android-squeezer/issues/detail?id=26,
     https://code.google.com/p/android-squeezer/issues/detail?id=46.
