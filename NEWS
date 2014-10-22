@@ -1,6 +1,10 @@
 In-progress
 ===========
 
+1.1.1
+=====
+
+*   Fix potential crash opening the music folder list.
 
 1.1.0
 =====
