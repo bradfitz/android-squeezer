@@ -92,12 +92,14 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        final int[] ids = {R.id.play_now, R.id.add_to_playlist};
-        final boolean boundToService = getService() != null;
+        if (mFolder != null) {
+            final int[] ids = {R.id.play_now, R.id.add_to_playlist};
+            final boolean boundToService = getService() != null;
 
-        for (int id : ids) {
-            MenuItem item = menu.findItem(id);
-            item.setEnabled(boundToService);
+            for (int id : ids) {
+                MenuItem item = menu.findItem(id);
+                item.setEnabled(boundToService);
+            }
         }
 
         return super.onPrepareOptionsMenu(menu);
