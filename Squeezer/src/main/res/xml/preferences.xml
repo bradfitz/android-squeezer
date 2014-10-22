@@ -50,6 +50,12 @@
         android:summaryOff="@string/settings_scrobble_off"
         android:persistent="true"/>
 
+    <CheckBoxPreference
+        android:key="squeezer.squeezeplayer.enabled"
+        android:title="@string/settings_squeezeplayer_title"
+        android:summary="@string/settings_squeezeplayer_summary"
+        android:persistent="true"/>
+
     <PreferenceCategory
         android:title="@string/settings_category_ui">
 
@@ -71,18 +77,6 @@
 
     <PreferenceCategory
         android:title="@string/pref_cat_error_reports">
-
-        <CheckBoxPreference android:key="acra.enable"
-            android:title="@string/pref_disable_acra"
-            android:summaryOn="@string/pref_acra_enabled"
-            android:summaryOff="@string/pref_acra_disabled"
-            android:defaultValue="true"/>
-
-        <CheckBoxPreference android:key="acra.alwaysaccept"
-            android:title="@string/pref_acra_alwaysaccept"
-            android:summaryOn="@string/pref_acra_alwaysaccept_enabled"
-            android:summaryOff="@string/pref_acra_alwaysaccept_disabled"
-            android:defaultValue="false"/>
 
         <CheckBoxPreference android:key="squeezer.analytics.enabled"
             android:title="@string/pref_analytics_enable"

@@ -18,13 +18,12 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.RemoteException;
-
-import java.util.List;
+import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class YearListActivity extends BaseListActivity<Year> {
 
@@ -34,30 +33,13 @@ public class YearListActivity extends BaseListActivity<Year> {
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
-        getService().registerYearListCallback(yearListCallback);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.years(start, this);
     }
-
-    @Override
-    protected void unregisterCallback() throws RemoteException {
-        getService().unregisterYearListCallback(yearListCallback);
-    }
-
-    @Override
-    protected void orderPage(int start) throws RemoteException {
-        getService().years(start);
-    }
-
 
     public static void show(Context context) {
         final Intent intent = new Intent(context, YearListActivity.class);
         context.startActivity(intent);
     }
-
-    private final IServiceYearListCallback yearListCallback = new IServiceYearListCallback.Stub() {
-        public void onYearsReceived(int count, int start, List<Year> items) throws RemoteException {
-            onItemsReceived(count, start, items);
-        }
-    };
 
 }

@@ -17,8 +17,6 @@
 package uk.org.ngo.squeezer;
 
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,12 +24,16 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.RemoteException;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+
+import com.crashlytics.android.Crashlytics;
+import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,7 @@ import de.cketti.library.changelog.ChangeLog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
+import uk.org.ngo.squeezer.itemlist.ApplicationListActivity;
 import uk.org.ngo.squeezer.itemlist.ArtistListActivity;
 import uk.org.ngo.squeezer.itemlist.FavoriteListActivity;
 import uk.org.ngo.squeezer.itemlist.GenreListActivity;
@@ -49,6 +52,8 @@ import uk.org.ngo.squeezer.itemlist.RadioListActivity;
 import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.itemlist.YearListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class HomeActivity extends BaseActivity {
 
@@ -76,11 +81,13 @@ public class HomeActivity extends BaseActivity {
 
     private static final int FAVORITES = 10;
 
-    private static final int APPS = 11;
+    private static final int MY_APPS = 11;
 
-    private boolean mRegisteredCallbacks;
+    private boolean mCanFavorites = false;
 
     private boolean mCanMusicfolder = false;
+
+    private boolean mCanMyApps = false;
 
     private boolean mCanRandomplay = false;
 
@@ -92,9 +99,11 @@ public class HomeActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crashlytics.start(this);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
 
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
 
         // Enable Analytics if the option is on, and we're not running in debug
@@ -117,23 +126,12 @@ public class HomeActivity extends BaseActivity {
     }
 
     @Override
-    protected void onServiceConnected() {
-        maybeRegisterCallbacks();
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerHandshakeCallback(mCallback);
     }
 
-    private void maybeRegisterCallbacks() {
-        if (!mRegisteredCallbacks) {
-            try {
-                getService().registerHandshakeCallback(mCallback);
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error registering callback: " + e);
-            }
-            mRegisteredCallbacks = true;
-        }
-    }
-
-
-    private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback.Stub() {
+    private final IServiceHandshakeCallback mCallback = new IServiceHandshakeCallback() {
 
         /**
          * Sets the menu after handshaking with the SqueezeServer has completed.
@@ -144,7 +142,7 @@ public class HomeActivity extends BaseActivity {
          * not those abilities exist.
          */
         @Override
-        public void onHandshakeCompleted() throws RemoteException {
+        public void onHandshakeCompleted() {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -172,6 +170,10 @@ public class HomeActivity extends BaseActivity {
             });
         }
 
+        @Override
+        public Object getClient() {
+            return HomeActivity.this;
+        }
     };
 
     /**
@@ -192,23 +194,14 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
-            try {
-                mCanMusicfolder = getService().canMusicfolder();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error requesting musicfolder ability: " + e);
-            }
-        }
-
-        if (getService() != null) {
-            try {
-                mCanRandomplay = getService().canRandomplay();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error requesting randomplay ability: " + e);
-            }
+            mCanFavorites = getService().canFavorites();
+            mCanMusicfolder = getService().canMusicfolder();
+            mCanMyApps = getService().canMyApps();
+            mCanRandomplay = getService().canRandomplay();
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
-        for (int i = ARTISTS; i <= FAVORITES; i++) {
+        for (int i = ARTISTS; i <= MY_APPS; i++) {
             if (i == MUSIC_FOLDER && !mCanMusicfolder) {
                 continue;
             }
@@ -217,8 +210,12 @@ public class HomeActivity extends BaseActivity {
                 continue;
             }
 
-            if (i == APPS) {
-                continue; // APPS not implemented.
+            if (i == FAVORITES && !mCanFavorites) {
+                continue;
+            }
+
+            if (i == MY_APPS && !mCanMyApps) {
+                continue;
             }
 
             rows.add(new IconRowAdapter.IconRow(i, items[i], icons[i]));
@@ -264,46 +261,19 @@ public class HomeActivity extends BaseActivity {
                 case INTERNET_RADIO:
                     // Uncomment these next two lines as an easy way to check
                     // crash reporting functionality.
-
-                    // String sCrashString = null;
-                    // Log.e("MyApp", sCrashString.toString());
+                    //String sCrashString = null;
+                    //Log.e("MyApp", sCrashString);
                     RadioListActivity.show(HomeActivity.this);
-                    break;
-                case APPS:
-                    // TODO (kaa) implement
-                    // Currently hidden, by commenting out the entry in
-                    // strings.xml.
-                    // ApplicationListActivity.show(HomeActivity.this);
                     break;
                 case FAVORITES:
                     FavoriteListActivity.show(HomeActivity.this);
                     break;
+                case MY_APPS:
+                    ApplicationListActivity.show(HomeActivity.this);
+                    break;
             }
         }
     };
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getService() != null) {
-            maybeRegisterCallbacks();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        if (mRegisteredCallbacks) {
-            if (getService() != null) {
-                try {
-                    getService().unregisterHandshakeCallback(mCallback);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Service exception in onPause(): " + e);
-                }
-            }
-            mRegisteredCallbacks = false;
-        }
-        super.onPause();
-    }
 
     @Override
     public void onDestroy() {

@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer;
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 
 import java.io.UnsupportedEncodingException;
@@ -31,16 +32,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Util {
 
     private Util() {
-    }
-
-    public static String nonNullString(AtomicReference<String> ref) {
-        String string = ref.get();
-        return string == null ? "" : string;
-    }
-
-    public static int getAtomicInteger(AtomicReference<Integer> ref, int defaultValue) {
-        Integer integer = ref.get();
-        return integer == null ? 0 : integer;
     }
 
 
@@ -86,25 +77,29 @@ public class Util {
         return parseDecimalInt(value, 0);
     }
 
-    private static StringBuilder sFormatBuilder = new StringBuilder();
+    private static final StringBuilder sFormatBuilder = new StringBuilder();
 
-    private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
+    private static final Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
 
     private static final Object[] sTimeArgs = new Object[5];
 
-    // TODO(nik): I think this can be removed in favour of Android's built in duration formatter
-    public synchronized static String makeTimeString(long secs) {
-        /* Provide multiple arguments so the format can be changed easily
-         * by modifying the xml.
-         */
+    /**
+     * Formats an elapsed time in the form "M:SS" or "H:MM:SS" for display.
+     * <p/>
+     * Like {@link android.text.format.DateUtils#formatElapsedTime(long)} but without the leading
+     * zeroes if the number of minutes is < 10.
+     *
+     * @param elapsedSeconds the elapsed time, in seconds.
+     */
+    public synchronized static String formatElapsedTime(long elapsedSeconds) {
         sFormatBuilder.setLength(0);
 
         final Object[] timeArgs = sTimeArgs;
-        timeArgs[0] = secs / 3600;
-        timeArgs[1] = secs / 60;
-        timeArgs[2] = (secs / 60) % 60;
-        timeArgs[3] = secs;
-        timeArgs[4] = secs % 60;
+        timeArgs[0] = elapsedSeconds / 3600;
+        timeArgs[1] = elapsedSeconds / 60;
+        timeArgs[2] = (elapsedSeconds / 60) % 60;
+        timeArgs[3] = elapsedSeconds;
+        timeArgs[4] = elapsedSeconds % 60;
         return sFormatter.format("%2$d:%5$02d", timeArgs).toString();
     }
 
@@ -126,12 +121,23 @@ public class Util {
 
     public static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent,
             String label) {
+        return getSpinnerItemView(activity, convertView, parent, label,
+                android.R.layout.simple_spinner_dropdown_item);
+    }
+
+    public static View getActionBarSpinnerItemView(Activity activity, View convertView,
+                                                   ViewGroup parent, String label) {
+        return getSpinnerItemView(activity, convertView, parent, label,
+                android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item);
+    }
+
+    private static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent,
+                                          String label, int layout) {
         TextView view;
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
-                : activity.getLayoutInflater()
-                        .inflate(android.R.layout.simple_spinner_dropdown_item, parent, false));
+                : activity.getLayoutInflater().inflate(layout, parent, false));
         view.setText(label);
         return view;
     }
@@ -151,5 +157,15 @@ public class Util {
             }
         }
         return count;
+    }
+
+    /** Helper to set alpha value for a view, since View.setAlpha is API level 11 */
+    public static View setAlpha(View view, float alpha) {
+        AlphaAnimation alphaAnimation = new AlphaAnimation(alpha, alpha);
+        alphaAnimation.setDuration(0);
+        alphaAnimation.setFillAfter(true);
+        view.startAnimation(alphaAnimation);
+
+        return view;
     }
 }

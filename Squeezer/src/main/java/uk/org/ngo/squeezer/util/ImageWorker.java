@@ -29,6 +29,8 @@ import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 
+import javax.annotation.Nullable;
+
 import uk.org.ngo.squeezer.BuildConfig;
 
 /**
@@ -56,7 +58,7 @@ public abstract class ImageWorker {
 
     private final Object mPauseWorkLock = new Object();
 
-    protected Resources mResources;
+    protected final Resources mResources;
 
     private static final int MESSAGE_CLEAR = 0;
 
@@ -171,8 +173,9 @@ public abstract class ImageWorker {
      * @param data The data to identify which image to process, as provided by {@link
      * ImageWorker#loadImage(Object, ImageView)}
      *
-     * @return The processed bitmap
+     * @return The processed bitmap, or null if processing failed.
      */
+    @Nullable
     protected abstract Bitmap processBitmap(Object data);
 
     /**

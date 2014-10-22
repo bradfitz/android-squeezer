@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -29,17 +29,20 @@ import android.widget.ListView;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
-import uk.org.ngo.squeezer.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
-import uk.org.ngo.squeezer.framework.ItemListAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
+import uk.org.ngo.squeezer.service.IServicePlayersCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
@@ -48,6 +51,8 @@ import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
  * Activity that shows the songs in the current playlist.
  */
 public class CurrentPlaylistActivity extends BaseListActivity<Song> {
+
+    private Player player;
 
     public static void show(Context context) {
         final Intent intent = new Intent(context, CurrentPlaylistActivity.class)
@@ -60,7 +65,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     /**
      * A list adapter that highlights the view that's currently playing.
      */
-    private class HighlightingListAdapter extends ItemListAdapter<Song> {
+    private class HighlightingListAdapter extends ItemAdapter<Song> {
 
         public HighlightingListAdapter(ItemView<Song> itemView,
                 ImageFetcher imageFetcher) {
@@ -73,7 +78,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             Object viewTag = view.getTag();
 
             // This test because the view tag wont be set until the album is received from the server
-            if (viewTag != null && viewTag instanceof ViewHolder) {
+            if (viewTag instanceof ViewHolder) {
                 ViewHolder viewHolder = (ViewHolder) viewTag;
                 if (position == currentPlaylistIndex) {
                     viewHolder.text1
@@ -101,8 +106,13 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
              * Jumps to whichever song the user chose.
              */
             @Override
-            public void onItemSelected(int index, Song item) throws RemoteException {
-                getActivity().getService().playlistIndex(index);
+            public void onItemSelected(int index, Song item) {
+                ISqueezeService service = getActivity().getService();
+                if (service == null) {
+                    return;
+                }
+
+                service.playlistIndex(index);
             }
 
             @Override
@@ -123,25 +133,29 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             }
 
             @Override
-            public boolean doItemContext(MenuItem menuItem, int index, Song selectedItem)
-                    throws RemoteException {
+            public boolean doItemContext(MenuItem menuItem, int index, Song selectedItem) {
+                ISqueezeService service = getService();
+                if (service == null) {
+                    return true;
+                }
+
                 switch (menuItem.getItemId()) {
                     case R.id.play_now:
-                        getService().playlistIndex(index);
+                        service.playlistIndex(index);
                         return true;
 
                     case R.id.remove_from_playlist:
-                        getService().playlistRemove(index);
+                        service.playlistRemove(index);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_up:
-                        getService().playlistMove(index, index - 1);
+                        service.playlistMove(index, index - 1);
                         clearAndReOrderItems();
                         return true;
 
                     case R.id.playlist_move_down:
-                        getService().playlistMove(index, index + 1);
+                        service.playlistMove(index, index + 1);
                         clearAndReOrderItems();
                         return true;
 
@@ -164,8 +178,8 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected void orderPage(int start) throws RemoteException {
-        getService().currentPlaylist(start);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.currentPlaylist(start, this);
     }
 
     @Override
@@ -174,17 +188,29 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Sets the enabled state of the R.menu.currentplaylistmenu items.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save};
+        final boolean boundToService = getService() != null;
+
+        for (int id : ids) {
+            MenuItem item = menu.findItem(id);
+            item.setEnabled(boundToService);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_playlist_clear:
                 if (getService() != null) {
-                    try {
-                        getService().playlistClear();
-                        finish();
-                    } catch (RemoteException e) {
-                        Log.e(getTag(), "Error trying to clear playlist: " + e);
-                    }
+                    getService().playlistClear();
+                    finish();
                 }
                 return true;
             case R.id.menu_item_playlist_save:
@@ -198,30 +224,20 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         if (getService() == null) {
             return null;
         }
-        try {
-            return getService().getCurrentPlaylist();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Service exception in getCurrentPlaylist(): " + e);
-        }
-        return null;
+        return getService().getCurrentPlaylist();
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
-        getService().registerCurrentPlaylistCallback(currentPlaylistCallback);
-        getService().registerSongListCallback(songListCallback);
-        getService().registerMusicChangedCallback(musicChangedCallback);
-    }
-
-    @Override
-    protected void unregisterCallback() throws RemoteException {
-        getService().unregisterCurrentPlaylistCallback(currentPlaylistCallback);
-        getService().unregisterSongListCallback(songListCallback);
-        getService().unregisterMusicChangedCallback(musicChangedCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        player = service.getActivePlayer();
+        service.registerCurrentPlaylistCallback(currentPlaylistCallback);
+        service.registerMusicChangedCallback(musicChangedCallback);
+        service.registerPlayersCallback(playersCallback);
     }
 
     private final IServiceCurrentPlaylistCallback currentPlaylistCallback
-            = new IServiceCurrentPlaylistCallback.Stub() {
+            = new IServiceCurrentPlaylistCallback() {
         @Override
         public void onAddTracks(PlayerState playerState) {
             getUIThreadHandler().post(new Runnable() {
@@ -243,12 +259,17 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                 }
             });
         }
+
+        @Override
+        public Object getClient() {
+            return CurrentPlaylistActivity.this;
+        }
     };
 
     private final IServiceMusicChangedCallback musicChangedCallback
-            = new IServiceMusicChangedCallback.Stub() {
+            = new IServiceMusicChangedCallback() {
         @Override
-        public void onMusicChanged(PlayerState playerState) throws RemoteException {
+        public void onMusicChanged(PlayerState playerState) {
             Log.d(getTag(), "onMusicChanged " + playerState.getCurrentSong());
             currentPlaylistIndex = playerState.getCurrentPlaylistIndex();
             getUIThreadHandler().post(new Runnable() {
@@ -258,22 +279,50 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                 }
             });
         }
-    };
 
-    private final IServiceSongListCallback songListCallback = new IServiceSongListCallback.Stub() {
         @Override
-        public void onSongsReceived(int count, int start, List<Song> items) throws RemoteException {
-            currentPlaylistIndex = getService().getPlayerState().getCurrentPlaylistIndex();
-            onItemsReceived(count, start, items);
-            // Initially position the list at the currently playing song.
-            // Do it again once it has loaded because the newly displayed items
-            // may push the current song outside the displayed area.
-            if (start == 0 || (start <= currentPlaylistIndex && currentPlaylistIndex < start + items
-                    .size())) {
-                selectCurrentSong(currentPlaylistIndex, start);
-            }
+        public Object getClient() {
+            return CurrentPlaylistActivity.this;
         }
     };
+
+    private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
+        @Override
+        public void onPlayersChanged(List<Player> players, final Player activePlayer) {
+            if (activePlayer != null && !activePlayer.equals(player)) {
+                getUIThreadHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        player = activePlayer;
+                        clearAndReOrderItems();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public Object getClient() {
+            return CurrentPlaylistActivity.this;
+        }
+    };
+
+    @Override
+    public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
+        super.onItemsReceived(count, start, parameters, items, dataType);
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        currentPlaylistIndex = service.getPlayerState().getCurrentPlaylistIndex();
+        // Initially position the list at the currently playing song.
+        // Do it again once it has loaded because the newly displayed items
+        // may push the current song outside the displayed area.
+        if (start == 0 || (start <= currentPlaylistIndex && currentPlaylistIndex < start + items
+                .size())) {
+            selectCurrentSong(currentPlaylistIndex, start);
+        }
+    }
 
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
         Log.i(getTag(), "set selection(" + start + "): " + currentPlaylistIndex);

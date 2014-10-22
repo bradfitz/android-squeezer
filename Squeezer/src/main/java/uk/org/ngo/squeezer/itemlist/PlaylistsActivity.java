@@ -19,19 +19,18 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
-import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistsNewDialog;
 import uk.org.ngo.squeezer.model.Playlist;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlaylistsActivity extends BaseListActivity<Playlist> {
 
@@ -56,10 +55,12 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        currentIndex = savedInstanceState.getInt(CURRENT_INDEX);
-        currentPlaylist = savedInstanceState.getParcelable(CURRENT_PLAYLIST);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            currentIndex = savedInstanceState.getInt(CURRENT_INDEX);
+            currentPlaylist = savedInstanceState.getParcelable(CURRENT_PLAYLIST);
+        }
     }
 
     @Override
@@ -81,14 +82,15 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
      * Rename the playlist previously set as context.
      */
     public void playlistRename(String newName) {
-        try {
-            getService().playlistsRename(currentPlaylist, newName);
-            oldName = currentPlaylist.getName();
-            currentPlaylist.setName(newName);
-            getItemAdapter().notifyDataSetChanged();
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Error renaming playlist to '" + newName + "': " + e);
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
         }
+
+        service.playlistsRename(currentPlaylist, newName);
+        oldName = currentPlaylist.getName();
+        currentPlaylist.setName(newName);
+        getItemAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -97,20 +99,14 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     @Override
-    protected void registerCallback() throws RemoteException {
-        getService().registerPlaylistsCallback(playlistsCallback);
-        getService().registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
     }
 
     @Override
-    protected void unregisterCallback() throws RemoteException {
-        getService().unregisterPlaylistsCallback(playlistsCallback);
-        getService().unregisterPlaylistMaintenanceCallback(playlistMaintenanceCallback);
-    }
-
-    @Override
-    protected void orderPage(int start) throws RemoteException {
-        getService().playlists(start);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.playlists(start, this);
     }
 
     @Override
@@ -134,6 +130,19 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Sets the enabled state of the R.menu.playlistsmenu items.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final MenuItem item = menu.findItem(R.id.menu_item_playlists_new);
+        final boolean boundToService = getService() != null;
+
+        item.setEnabled(boundToService);
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -150,15 +159,6 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
         context.startActivity(intent);
     }
 
-    private final IServicePlaylistsCallback playlistsCallback
-            = new IServicePlaylistsCallback.Stub() {
-        @Override
-        public void onPlaylistsReceived(int count, int start, List<Playlist> items)
-                throws RemoteException {
-            onItemsReceived(count, start, items);
-        }
-    };
-
     private void showServiceMessage(final String msg) {
         getUIThreadHandler().post(new Runnable() {
             @Override
@@ -170,10 +170,10 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     private final IServicePlaylistMaintenanceCallback playlistMaintenanceCallback
-            = new IServicePlaylistMaintenanceCallback.Stub() {
+            = new IServicePlaylistMaintenanceCallback() {
 
         @Override
-        public void onRenameFailed(String msg) throws RemoteException {
+        public void onRenameFailed(String msg) {
             if (currentIndex != -1) {
                 currentPlaylist.setName(oldName);
             }
@@ -181,10 +181,14 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
         }
 
         @Override
-        public void onCreateFailed(String msg) throws RemoteException {
+        public void onCreateFailed(String msg) {
             showServiceMessage(msg);
         }
 
+        @Override
+        public Object getClient() {
+            return PlaylistsActivity.this;
+        }
     };
 
 }

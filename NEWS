@@ -1,3 +1,127 @@
+In-progress
+===========
+
+
+1.1.0
+=====
+
+*   Support for "My Apps" installed via mysqueezebox.com.  Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=26,
+    https://code.google.com/p/android-squeezer/issues/detail?id=46.
+
+*   Show the current player name in the Action Bar at the top of the screen,
+    with a drop-down menu allowing you to easily switch between players.
+    Fixes https://code.google.com/p/android-squeezer/issues/detail?id=53.
+
+*   Enhance the display of available players.  You can now rename a player,
+    adjust the volume, set a sleep duration, and power on/off players
+    directly from the list. Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=47,
+    https://code.google.com/p/android-squeezer/issues/detail?id=63,
+    https://code.google.com/p/android-squeezer/issues/detail?id=64.
+
+*   Support downloading all songs by album, artist, genre, year, or music
+    folder.  This uses features only available in Android 2.3 (Gingerbread)
+    and above. Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=55.
+
+*   Integration with SqueezePlayer (http://www.squeezeplayer.com/).
+    Squeezer can automatically start SqueezePlayer when Squeezer is
+    started. Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=48.
+
+*   A grid layout when viewing the song list on larger devices.
+
+*   When viewing albums containing songs by a searched-for artist, filter
+    the list of displayed songs to show those by that artist.  Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=51.
+
+*   The Dutch translation is fully up to date, thanks to spamba@gmail.com.
+
+*   Internal restructuring to make Squeezer faster and use less memory.
+
+*   Fixed a bug where Squeezer was forgetting the active player.
+
+*   Fixed a bug where Squeezer was not updating the power status of a
+    powered-off player.
+
+*   Fixed a bug where song information for songs being remotely
+    streamed would not update when the song changes.
+
+*   Fixed a bug where the current playlist is not updated if the
+    active player is changed.
+
+*   Fixed https://code.google.com/p/android/issues/detail?id=63570, a bug
+    in Android 4.4.2 when tasks are re-ordered.
+
+*   Fixed assorted null pointer bugs.
+
+*   Use Crashlytics instead of ACRA for crash reporting.
+
+1.0.2
+=====
+
+*   Include a small progress indicator just above the mini-player.
+
+*   Tapping items when browsing music folders will follow your song
+    preferences. Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=52.
+
+*   Added an option (disabled by default) to include your e-mail address
+    in error reports. If enabled and you send an error report the developers
+    may contact you for more details.
+
+*   Fixed a crash where beginBroadcast() was being called twice.
+
+1.0.1
+=====
+
+*   Fixed crash after a fragment was detached from an activity.
+
+*   Fixed crash when zero plugin items are returned by the SqueezeServer.
+
+*   Fixed crash when an IO error occurs processing artwork.
+
+*   Fixed crash when some versions of the SqueezeServer don't return play
+    state (play, pause, stop).
+
+1.0.0
+=====
+
+*   A complete refresh of the UI to match modern Android guidelines. The
+    logo is by Reddit user http://www.reddit.com/user/PdtS.
+
+*   A persistent mini-player on all screens (see what's playing, quickly
+    pause/play the track).
+
+*   A grid layout when viewing albums on larger devices (and it's
+    selectable on smaller devices).
+
+*   Moving through the UI is now smoother than ever.
+
+*   Viewing an album shows all the tracks on that album, with additional
+    track information.
+
+*   User preferences to control the order in which albums, tracks, and other
+    information is shown.
+
+*   Proper support for orientation changes -- flipping your device no longer
+    sends you back to the start of the list.
+
+*   The action to take when tapping an item (like a song or an album) is now
+    configurable -- no more inadvertently tapping a song and having it start
+    playing if that's not what you want.
+
+*   Voice support for searches.
+
+*   A German translation, contributed by Olaf Sebelin
+    (https://github.com/osebelin).
+
+*   Login support, for password protected servers.
+
+*   Only show the "Tips" dialog after successfully connecting to a server.
+
+
 0.9.1
 =====
 

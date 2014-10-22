@@ -20,7 +20,7 @@ package uk.org.ngo.squeezer.framework;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,13 +28,13 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
-import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.RetainFragment;
@@ -55,11 +55,6 @@ public abstract class ItemListActivity extends BaseActivity {
     private boolean mListScrolling;
 
     /**
-     * Keep track of whether callbacks have been registered
-     */
-    private boolean mRegisteredCallbacks;
-
-    /**
      * The number of items per page.
      */
     private int mPageSize;
@@ -67,12 +62,19 @@ public abstract class ItemListActivity extends BaseActivity {
     /**
      * The pages that have been requested from the server.
      */
-    private Set<Integer> mOrderedPages = new HashSet<Integer>();
+    private final Set<Integer> mOrderedPages = new HashSet<Integer>();
 
     /**
      * The pages that have been received from the server
      */
     private Set<Integer> mReceivedPages;
+
+    /**
+     * Pages requested before the service connection was bound. A stack on the assumption
+     * that once the service is bound the most recently requested pages should be ordered
+     * first.
+     */
+    private Stack<Integer> mOrderedPagesBeforeBinding = new Stack<Integer>();
 
     /**
      * Tag for mReceivedPages in mRetainFragment.
@@ -120,9 +122,15 @@ public abstract class ItemListActivity extends BaseActivity {
         super.onResume();
 
         getImageFetcher().addImageCache(getSupportFragmentManager(), mImageCacheParams);
+    }
 
-        if (getService() != null) {
-            maybeRegisterCallbacks();
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+
+        // Order any pages that were requested before the service was bound.
+        while (!mOrderedPagesBeforeBinding.empty()) {
+            maybeOrderPage(mOrderedPagesBeforeBinding.pop());
         }
     }
 
@@ -130,17 +138,6 @@ public abstract class ItemListActivity extends BaseActivity {
     public void onPause() {
         if (mImageFetcher != null) {
             mImageFetcher.closeCache();
-        }
-
-        if (mRegisteredCallbacks) {
-            if (getService() != null) {
-                try {
-                    unregisterCallback();
-                } catch (RemoteException e) {
-                    Log.e(getTag(), "Error unregistering list callback: " + e);
-                }
-            }
-            mRegisteredCallbacks = false;
         }
 
         // Any items coming in after callbacks have been unregistered are discarded.
@@ -151,52 +148,20 @@ public abstract class ItemListActivity extends BaseActivity {
         super.onPause();
     }
 
-    @Override
-    protected void onServiceConnected() {
-        maybeRegisterCallbacks();
+    protected ImageFetcher createImageFetcher(int height, int width) {
+        // Get an ImageFetcher to scale artwork to the supplied size.
+        int iconSize = (Math.max(height, width));
+        ImageFetcher imageFetcher = new ImageFetcher(this, iconSize);
+        imageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+        return imageFetcher;
     }
-
-    /**
-     * This is called when the service is first connected, and whenever the activity is resumed.
-     */
-    private void maybeRegisterCallbacks() {
-        if (!mRegisteredCallbacks) {
-            try {
-                registerCallback();
-            } catch (RemoteException e) {
-                Log.e(getTag(), "Error registering list callback: " + e);
-            }
-            mRegisteredCallbacks = true;
-        }
-    }
-
-    /**
-     * This is called when the service is connected.
-     * <p/>
-     * You must register a callback for {@link SqueezeService} to call when the ordered items from
-     * {@link #orderPage(int)} are received from SqueezeServer. This callback must pass these items
-     * on to {@link ItemListAdapter#update(int, int, List)}.
-     *
-     * @throws RemoteException
-     */
-    protected abstract void registerCallback() throws RemoteException;
-
-    /**
-     * This is called when the service is disconnected.
-     *
-     * @throws RemoteException
-     */
-    protected abstract void unregisterCallback() throws RemoteException;
 
     protected ImageFetcher createImageFetcher() {
         // Get an ImageFetcher to scale artwork to the size of the icon view.
         Resources resources = getResources();
-        int iconSize = (Math.max(
+        return createImageFetcher(
                 resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
-                resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
-        ImageFetcher imageFetcher = new ImageFetcher(this, iconSize);
-        imageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
-        return imageFetcher;
+                resources.getDimensionPixelSize(R.dimen.album_art_icon_width));
     }
 
     protected void createImageCacheParams() {
@@ -217,16 +182,15 @@ public abstract class ItemListActivity extends BaseActivity {
         return mImageFetcher;
     }
 
-
     /**
-     * Implementations must start an asynchronous fetch of items, when this is called.
+     * Starts an asynchronous fetch of items from the server. Will only be called after the
+     * service connection has been bound.
      *
+     * @param service The connection to the bound service.
      * @param start Position in list to start the fetch. Pass this on to {@link
      * uk.org.ngo.squeezer.service.SqueezeService}
-     *
-     * @throws RemoteException
      */
-    protected abstract void orderPage(int start) throws RemoteException;
+    protected abstract void orderPage(@NonNull ISqueezeService service, int start);
 
     /**
      * List can clear any information about which items have been received and ordered, by calling
@@ -246,12 +210,15 @@ public abstract class ItemListActivity extends BaseActivity {
     public boolean maybeOrderPage(int pagePosition) {
         if (!mListScrolling && !mReceivedPages.contains(pagePosition) && !mOrderedPages
                 .contains(pagePosition)) {
-            mOrderedPages.add(pagePosition);
-            try {
-                orderPage(pagePosition);
-            } catch (RemoteException e) {
-                mOrderedPages.remove(pagePosition);
-                Log.e(getTag(), "Error ordering items (" + pagePosition + "): " + e);
+            ISqueezeService service = getService();
+
+            // If the service connection hasn't happened yet then store the page request
+            // where it can be used in onServiceConnected().
+            if (service == null) {
+                mOrderedPagesBeforeBinding.push(pagePosition);
+            } else {
+                mOrderedPages.add(pagePosition);
+                orderPage(service, pagePosition);
             }
             return true;
         } else {
@@ -314,11 +281,6 @@ public abstract class ItemListActivity extends BaseActivity {
      * Removes any outstanding requests from mOrderedPages.
      */
     private void cancelOrders() {
-        if (mRegisteredCallbacks) {
-            throw new IllegalStateException(
-                    "Cannot call cancelOrders with mRegisteredCallbacks == true");
-        }
-
         mOrderedPages.clear();
     }
 

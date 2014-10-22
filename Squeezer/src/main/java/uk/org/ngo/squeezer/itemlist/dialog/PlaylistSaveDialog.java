@@ -2,12 +2,11 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.text.InputType;
-import android.util.Log;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlaylistSaveDialog extends BaseEditTextDialog {
 
@@ -33,11 +32,12 @@ public class PlaylistSaveDialog extends BaseEditTextDialog {
 
     @Override
     protected boolean commit(String name) {
-        try {
-            activity.getService().playlistSave(name);
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Error saving playlist as '" + name + "': " + e);
+        ISqueezeService service = activity.getService();
+        if (service == null) {
+            return false;
         }
+
+        service.playlistSave(name);
         return true;
     }
 

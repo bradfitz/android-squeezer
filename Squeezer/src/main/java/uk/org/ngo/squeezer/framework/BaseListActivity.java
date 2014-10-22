@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.framework;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,8 +34,11 @@ import android.widget.ProgressBar;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -45,7 +49,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * must provide an {@link ItemView} to provide the view logic used by this activity. This is done by
  * implementing {@link #createItemView()}.
  * <p/>
- * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link ItemListAdapter}
+ * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link ItemAdapter}
  * is created using the provided {@link ItemView}. See {@link ItemListActivity} for see details of
  * ordering and receiving of list items from SqueezeServer, and handling of item selection.
  *
@@ -53,7 +57,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * @author Kurt Aaholst
  */
-public abstract class BaseListActivity<T extends Item> extends ItemListActivity {
+public abstract class BaseListActivity<T extends Item> extends ItemListActivity implements IServiceItemListCallback<T> {
 
     private static final String TAG = BaseListActivity.class.getName();
 
@@ -140,7 +144,11 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     public boolean onContextItemSelected(MenuItem menuItem) {
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 
-        return itemAdapter.doItemContext(menuItem, menuInfo.position);
+        // If menuInfo is null we have a sub menu, we expect the adapter to have stored the position
+        if (menuInfo == null)
+            return itemAdapter.doItemContext(menuItem);
+        else
+            return itemAdapter.doItemContext(menuItem, menuInfo.position);
     }
 
     /**
@@ -176,8 +184,8 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
 
 
     @Override
-    protected void onServiceConnected() {
-        super.onServiceConnected();
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
 
         maybeOrderVisiblePages(mListView);
         setAdapter();
@@ -256,7 +264,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     }
 
     protected ItemAdapter<T> createItemListAdapter(ItemView<T> itemView) {
-        return new ItemListAdapter<T>(itemView, getImageFetcher());
+        return new ItemAdapter<T>(itemView, getImageFetcher());
     }
 
     public void onItemsReceived(final int count, final int start, final List<T> items) {
@@ -270,6 +278,16 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
                 getItemAdapter().update(count, start, items);
             }
         });
+    }
+
+    @Override
+    public void onItemsReceived(int count, int start, Map<String, String> parameters, List<T> items, Class<T> dataType) {
+        onItemsReceived(count, start, items);
+    }
+
+    @Override
+    public Object getClient() {
+        return this;
     }
 
     protected class ScrollListener extends ItemListActivity.ScrollListener {

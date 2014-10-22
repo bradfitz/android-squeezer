@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.os.RemoteException;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,9 +23,11 @@ import android.view.View;
 
 import java.util.EnumSet;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.framework.PlaylistItemView;
+import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
@@ -38,7 +39,7 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
  *
  * @author nik
  */
-public class MusicFolderView extends BaseItemView<MusicFolderItem> {
+public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
 
     @SuppressWarnings("unused")
     private final static String TAG = "MusicFolderView";
@@ -72,7 +73,17 @@ public class MusicFolderView extends BaseItemView<MusicFolderItem> {
     }
 
     @Override
-    public void onItemSelected(int index, MusicFolderItem item) throws RemoteException {
+    protected PlayableItemAction getOnSelectAction() {
+        String actionType = preferences.getString(Preferences.KEY_ON_SELECT_SONG_ACTION,
+                PlayableItemAction.Type.NONE.name());
+        return PlayableItemAction.createAction(getActivity(), actionType);
+    }
+
+    @Override
+    public void onItemSelected(int index, MusicFolderItem item) {
+        if (item.getType().equals("track")) {
+            super.onItemSelected(index, item);
+        } else
         if (item.getType().equals("folder")) {
             MusicFolderListActivity.show(getActivity(), item);
         }
@@ -90,20 +101,21 @@ public class MusicFolderView extends BaseItemView<MusicFolderItem> {
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
         menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
-        if (item.getType().equals("track")) {
+        if (item.getType().equals("track") || item.getType().equals("folder")) {
             menu.add(Menu.NONE, R.id.download, Menu.NONE, R.string.DOWNLOAD_ITEM);
         }
     }
 
     @Override
-    public boolean doItemContext(MenuItem menuItem, int index, MusicFolderItem selectedItem)
-            throws RemoteException {
+    public boolean doItemContext(MenuItem menuItem, int index, MusicFolderItem selectedItem) {
         switch (menuItem.getItemId()) {
             case R.id.browse_songs:
                 MusicFolderListActivity.show(getActivity(), selectedItem);
                 return true;
             case R.id.download:
-                getActivity().downloadSong(selectedItem.getId());
+                if (selectedItem.getType().equals("track") || selectedItem.getType().equals("folder")) {
+                    getActivity().downloadItem(selectedItem);
+                }
                 return true;
         }
         return super.doItemContext(menuItem, index, selectedItem);

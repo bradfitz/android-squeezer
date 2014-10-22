@@ -16,24 +16,21 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import org.acra.ErrorReporter;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.util.Log;
+import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import java.util.List;
+import android.view.View;
+import android.widget.TextView;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /**
  * Display a list of Squeezebox music folders.
@@ -60,10 +57,6 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         return new MusicFolderView(this);
     }
 
-    /**
-     * Deliberately use {@link uk.org.ngo.squeezer.framework.ItemAdapter} instead of {@link
-     * ItemListAdapator} so that the title is not updated out from under us.
-     */
     @Override
     protected ItemAdapter<MusicFolderItem> createItemListAdapter(
             ItemView<MusicFolderItem> itemView) {
@@ -80,7 +73,9 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             mFolder = extras.getParcelable(MusicFolderItem.class.getName());
-            setTitle(mFolder.getName());
+            TextView header = (TextView) findViewById(R.id.header);
+            header.setText(mFolder.getName());
+            header.setVisibility(View.VISIBLE);
         }
     }
 
@@ -92,31 +87,33 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Sets the enabled state of the R.menu.playmenu items.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        final int[] ids = {R.id.play_now, R.id.add_to_playlist};
+        final boolean boundToService = getService() != null;
+
+        for (int id : ids) {
+            MenuItem item = menu.findItem(id);
+            item.setEnabled(boundToService);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        try {
-            switch (item.getItemId()) {
-                case R.id.play_now:
-                    play(mFolder);
-                    return true;
-                case R.id.add_to_playlist:
-                    add(mFolder);
-                    return true;
-            }
-        } catch (RemoteException e) {
-            Log.e(getTag(), "Error executing menu action '" + item.getMenuInfo() + "': " + e);
+        switch (item.getItemId()) {
+            case R.id.play_now:
+                play(mFolder);
+                return true;
+            case R.id.add_to_playlist:
+                add(mFolder);
+                return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void registerCallback() throws RemoteException {
-        getService().registerMusicFolderListCallback(musicFolderListCallback);
-    }
-
-    @Override
-    protected void unregisterCallback() throws RemoteException {
-        getService().unregisterMusicFolderListCallback(musicFolderListCallback);
     }
 
     /**
@@ -126,13 +123,8 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
      * @param start Where in the list of folders to start fetching.
      */
     @Override
-    protected void orderPage(int start) throws RemoteException {
-        if (mFolder == null) {
-            // No specific item, fetch from the beginning.
-            getService().musicFolders(start, null);
-        } else {
-            getService().musicFolders(start, mFolder.getId());
-        }
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.musicFolders(start, mFolder, this);
     }
 
     /**
@@ -165,32 +157,4 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
-    private final IServiceMusicFolderListCallback musicFolderListCallback
-            = new IServiceMusicFolderListCallback.Stub() {
-        @Override
-        public void onMusicFoldersReceived(int count, int start, List<MusicFolderItem> items)
-                throws RemoteException {
-            onItemsReceived(count, start, items);
-        }
-    };
-
-    /**
-     * Attempts to download the song given by songId.
-     * <p/>
-     * XXX: Duplicated from AbstractSongListActivity.
-     *
-     * @param songId ID of the song to download
-     */
-    @Override
-    public void downloadSong(String songId) {
-        try {
-            String url = getService().getSongDownloadUrl(songId);
-
-            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            startActivity(i);
-        } catch (RemoteException e) {
-            ErrorReporter.getInstance().handleException(e);
-            e.printStackTrace();
-        }
-    }
 }
