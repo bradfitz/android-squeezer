@@ -16,6 +16,11 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
+
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,11 +29,6 @@ import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,20 +66,26 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
         notifyDataSetChanged();
     }
 
-    public void updatePlayers(List<Player> newPlayers, Player activePlayer) {
-        mPlayers = ImmutableList.copyOf(newPlayers);
+    /**
+     * Sets the players in to the adapter.
+     *
+     * @param players List of players.
+     * @param activePlayer The currently active player.
+     */
+    public void setPlayers(List<Player> players, Player activePlayer) {
+        mPlayers = ImmutableList.copyOf(players);
         mActivePlayer = activePlayer;
 
         clear();
 
-        List<Player> players = new ArrayList<Player>();
+        List<Player> connectedPlayers = new ArrayList<Player>();
 
         // Make a copy of the players we know about, ignoring unconnected ones.
         for (Player player : mPlayers) {
             if (!player.getConnected())
                 continue;
 
-            players.add(player);
+            connectedPlayers.add(player);
         }
 
         // Map master player IDs to the list of the players they control.
@@ -91,11 +97,10 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
         List<String> syncSlaves;
         List<Player> masterPlayers = new ArrayList<Player>();
 
-        // Iterate over all the players to build the sync groups.
-        for (Player player : players) {
+        // Iterate over all the connected players to build the sync groups.
+        for (Player player : connectedPlayers) {
             playerId = player.getId();
             playerState = mActivity.getPlayerState(playerId);
-
 
             // Ignore players that do not have a sync master, they don't participate in
             // a sync group.
@@ -124,12 +129,12 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
             // Find all the slaves, add them to this list, and remove them from players.
             for (String id : syncGroups.get(masterPlayer.getId())) {
-                for (int i = 0; i < players.size(); i++) {
-                    Player player = players.get(i);
+                for (int i = 0; i < connectedPlayers.size(); i++) {
+                    Player player = connectedPlayers.get(i);
 
                     if (player.getId().equals(id)) {
                         syncGroupPlayers.add(player);
-                        players.remove(i);
+                        connectedPlayers.remove(i);
                         break;
                     }
                 }
@@ -141,10 +146,10 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
         }
 
         // Sort the remaining list of players to be stable.
-        Collections.sort(players, Player.compareById);
+        Collections.sort(connectedPlayers, Player.compareById);
 
         // Any players still in players is not in a sync group.  Add each one to its own group.
-        for (Player player : players) {
+        for (Player player : connectedPlayers) {
             // If any players are synced to this one then it's a master, and can be ignored.
             if (player.getPlayerState().getSyncSlaves().size() != 0)
                 continue;

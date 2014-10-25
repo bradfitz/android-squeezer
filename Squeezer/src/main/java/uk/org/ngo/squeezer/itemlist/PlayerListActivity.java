@@ -28,7 +28,6 @@ import android.view.View;
 import android.widget.ExpandableListView;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
@@ -36,7 +35,6 @@ import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
-import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
@@ -51,7 +49,7 @@ public class PlayerListActivity extends ItemListActivity {
     private Player currentPlayer;
     private boolean mTrackingTouch;
 
-    /** An update arrived while tracking touches. Player state should be resynced. */
+    /** An update arrived while tracking touches. UI should be re-synced. */
     private boolean mUpdateWhileTracking = false;
 
     private final Handler uiThreadHandler = new UiThreadHandler(this);
@@ -91,12 +89,20 @@ public class PlayerListActivity extends ItemListActivity {
 
     private void onPlayerStateReceived() {
         if (!mTrackingTouch) {
-            mResultsAdapter.updatePlayers(getService().getPlayers(), getService().getActivePlayer());
-            for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
-                mResultsExpandableListView.expandGroup(i);
-            }
+            updateAndExpandPlayerList();
         } else {
             mUpdateWhileTracking = true;
+        }
+    }
+
+    /**
+     * Updates the adapter with the current players, and ensures that the list view is
+     * expanded.
+     */
+    private void updateAndExpandPlayerList() {
+        mResultsAdapter.setPlayers(getService().getPlayers(), getService().getActivePlayer());
+        for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
+            mResultsExpandableListView.expandGroup(i);
         }
     }
 
@@ -150,15 +156,17 @@ public class PlayerListActivity extends ItemListActivity {
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
-        service.players();
+        // Do nothing -- the service has been tracking players from the time it
+        // initially connected to the server.
     }
 
     @Override
     protected void registerCallback(@NonNull ISqueezeService service) {
         super.registerCallback(service);
 
+        updateAndExpandPlayerList();
+
         service.registerVolumeCallback(volumeCallback);
-        service.registerPlayersCallback(playersCallback);
         service.registerPlayerStateCallback(playerStateCallback);
     }
 
@@ -192,21 +200,6 @@ public class PlayerListActivity extends ItemListActivity {
         }
     };
 
-    private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
-        @Override
-        public void onPlayersChanged(List<Player> players, Player activePlayer) {
-            mResultsAdapter.updatePlayers(players, activePlayer);
-            for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
-                mResultsExpandableListView.expandGroup(i);
-            }
-        }
-
-        @Override
-        public Object getClient() {
-            return PlayerListActivity.this;
-        }
-    };
-
     public PlayerState getPlayerState(String id) {
         return getService().getPlayerState(id);
     }
@@ -223,8 +216,7 @@ public class PlayerListActivity extends ItemListActivity {
         if (!mTrackingTouch) {
             if (mUpdateWhileTracking) {
                 mUpdateWhileTracking = false;
-                // XXX: Revisit later.
-                // clearAndReOrderItems();
+                updateAndExpandPlayerList();
             }
         }
     }
