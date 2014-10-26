@@ -128,6 +128,15 @@ public class PlayerListActivity extends ItemListActivity {
             }
         });
 
+        // Disable collapsing the list.
+        mResultsExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition,
+                    long id) {
+                return true;
+            }
+        });
+
         mResultsExpandableListView.setOnCreateContextMenuListener(mResultsAdapter);
         mResultsExpandableListView.setOnScrollListener(new ItemListActivity.ScrollListener());
     }
