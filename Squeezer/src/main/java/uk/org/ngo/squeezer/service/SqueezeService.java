@@ -1480,6 +1480,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
+        @Nullable
         public Player getActivePlayer() {
             return connectionState.getActivePlayer();
         }

@@ -168,15 +168,16 @@ class ConnectionState {
         });
     }
 
-    Player getActivePlayer() {
+    @Nullable Player getActivePlayer() {
         return activePlayer.get();
     }
 
-    void setActivePlayer(Player player) {
+    void setActivePlayer(@Nullable Player player) {
         activePlayer.set(player);
     }
 
-    public PlayerState getActivePlayerState() {
+
+    @Nullable public PlayerState getActivePlayerState() {
         if (activePlayer.get() == null)
             return null;
 

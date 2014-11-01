@@ -1231,7 +1231,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
         @Override
-        public void onPlayersChanged(final List<Player> players, final Player activePlayer) {
+        public void onPlayersChanged(final List<Player> players, final @Nullable Player activePlayer) {
             uiThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {

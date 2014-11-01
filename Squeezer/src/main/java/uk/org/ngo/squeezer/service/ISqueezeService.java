@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.support.annotation.Nullable;
+
 import java.util.List;
 
 import uk.org.ngo.squeezer.framework.FilterItem;
@@ -74,6 +76,7 @@ public interface ISqueezeService {
     void setActivePlayer(Player player);
 
     // Returns the player we are currently controlling
+    @Nullable
     Player getActivePlayer();
 
     // Returns all the players we know about.
