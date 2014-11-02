@@ -309,17 +309,20 @@ public class PlayerState implements Parcelable {
         return true;
     }
 
-    public boolean setSyncMaster(String syncMaster) {
-        if (syncMaster == null)
-            syncMaster = "";
-
-        if (syncMaster.equals(mSyncMaster))
+    public boolean setSyncMaster(@Nullable String syncMaster) {
+        if (syncMaster == null && mSyncMaster == null)
             return false;
+
+        if (syncMaster != null) {
+            if (syncMaster.equals(mSyncMaster))
+                return false;
+        }
 
         mSyncMaster = syncMaster;
         return true;
     }
 
+    @Nullable
     public String getSyncMaster() {
         return mSyncMaster;
     }
