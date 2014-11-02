@@ -35,9 +35,10 @@ import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+
+import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -169,6 +170,20 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     boolean mUpdateOngoingNotification;
 
     int mFadeInSecs;
+
+    /**
+     * Types of player status subscription.
+     */
+    private enum PlayerSubscriptionType {
+        /** Do not subscribe to updates. */
+        none,
+
+        /** Subscribe to updates when the status changes. */
+        on_change,
+
+        /** Receive real-time (second to second) updates. */
+        real_time
+    }
 
     @Override
     public void onCreate() {
@@ -633,7 +648,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
-
     private void parsePlaylistNotification(List<String> tokens) {
         Log.v(TAG, "Playlist notification received: " + tokens);
         String notification = tokens.get(2);
@@ -665,7 +679,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         } else if ("1".equals(explicitPause)) {
             updatePlayStatus(PlayerState.PlayStatus.pause);
         }
-        updatePlayerSubscriptionState();
+        updateAllPlayerSubscriptionStates();
     }
 
     private HashMap<String, String> parseTokens(List<String> tokens) {
@@ -772,52 +786,61 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
-    void changeActivePlayer(Player newPlayer) {
-        if (newPlayer == null) {
+    /**
+     * Change the player that is controlled by Squeezer (the "active" player).
+     *
+     * @param newActivePlayer May be null, in which case no players are controlled.
+     */
+    void changeActivePlayer(@Nullable final Player newActivePlayer) {
+        Player prevActivePlayer = connectionState.getActivePlayer();
+
+        // Do nothing if they player hasn't actually changed.
+        if (prevActivePlayer == newActivePlayer) {
             return;
         }
 
-        Log.i(TAG, "Active player now: " + newPlayer);
-        final String playerId = newPlayer.getId();
-        String oldPlayerId = getActivePlayerId();
-        boolean changed = false;
-        if (oldPlayerId == null || !oldPlayerId.equals(playerId)) {
-            connectionState.setActivePlayer(newPlayer);
-            //playerState = new PlayerState();
-            changed = true;
+        connectionState.setActivePlayer(newActivePlayer);
+        Log.i(TAG, "Active player now: " + newActivePlayer);
+
+        // If this is a new player then start an async fetch of its status.
+        if (newActivePlayer != null) {
+            cli.sendActivePlayerCommand("status - 1 tags:" + SONGTAGS);
         }
 
-        // Start an async fetch of its status.
-        cli.sendActivePlayerCommand("status - 1 tags:" + SONGTAGS);
+        updateAllPlayerSubscriptionStates();
 
-        if (changed) {
-            updatePlayerSubscriptionState();
+        // NOTE: this involves a write and can block (sqlite lookup via binder call), so
+        // should be done off-thread, so we can process service requests & send our callback
+        // as quickly as possible.
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
+                        MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
 
-            // NOTE: this involves a write and can block (sqlite lookup via binder call), so
-            // should be done off-thread, so we can process service requests & send our callback
-            // as quickly as possible.
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    Log.v(TAG, "Saving " + Preferences.KEY_LASTPLAYER + "=" + playerId);
-                    final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
-                            MODE_PRIVATE);
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString(Preferences.KEY_LASTPLAYER, playerId);
-                    editor.commit();
+                if (newActivePlayer == null) {
+                    Log.v(TAG, "Clearing " + Preferences.KEY_LASTPLAYER);
+                    editor.remove(Preferences.KEY_LASTPLAYER);
+                } else {
+                    Log.v(TAG, "Saving " + Preferences.KEY_LASTPLAYER + "=" + newActivePlayer.getId());
+                    editor.putString(Preferences.KEY_LASTPLAYER, newActivePlayer.getId());
                 }
-            });
-        }
 
+                editor.commit();
+            }
+        });
+
+        List<Player> players = connectionState.getPlayers();
         for (IServicePlayersCallback callback : mPlayersCallbacks) {
-            callback.onPlayersChanged(connectionState.getPlayers(), newPlayer);
+            callback.onPlayersChanged(players, newActivePlayer);
         }
     }
 
-    private void updatePlayerSubscriptionState() {
-        // Subscribe or unsubscribe to the players realtime status updates depending on whether we
-        // have a client that cares about second-to-second updates for any player or the active
-        // player
+    /**
+     * Adjusts the subscription to players' status updates.
+     */
+    private void updateAllPlayerSubscriptionStates() {
         Player activePlayer = connectionState.getActivePlayer();
         for (Player player : connectionState.getPlayers()) {
             if (mPlayerStateCallbacks.count() > 0 ||
@@ -825,20 +848,44 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 if (player.equals(activePlayer)) {
                     // If it's the active player then get second-to-second updates.
                     if (player.getPlayerState().isPlaying()) {
-                        cli.sendPlayerCommand(player, "status - 1 subscribe:1 tags:" + SONGTAGS);
+                        updatePlayerSubscription(player, PlayerSubscriptionType.real_time);
                     } else {
                         // Paused? Listen for updates when they come, not every second.
                         // XXX: Not while debugging
-                        cli.sendPlayerCommand(player, "status - 1 subscribe:1 tags:" + SONGTAGS);
+                        updatePlayerSubscription(player, PlayerSubscriptionType.real_time);
                     }
                 } else {
-                    // Subscribe to changes for all other players when they happen.
+                    // Subscribe to changes for non-active players when they happen.
                     // XXX: Check if this makes sense for all activities that register in mPlayerStateCallbacks
-                    cli.sendPlayerCommand(player, "status - 1 subscribe:0 tags:" + SONGTAGS);
+                    updatePlayerSubscription(player, PlayerSubscriptionType.on_change);
                 }
             } else {
-                cli.sendPlayerCommand(player, "status - 1 subscribe:- tags:" + SONGTAGS);
+                // Disable subscription for this player's status updates.
+                updatePlayerSubscription(player, PlayerSubscriptionType.none);
             }
+        }
+    }
+
+    /**
+     * Manage subscription to a player's status updates.
+     *
+     * @param player player to manage.
+     * @param playerSubscriptionType the new subscription type
+     */
+    private void updatePlayerSubscription(Player player, PlayerSubscriptionType playerSubscriptionType) {
+        switch (playerSubscriptionType) {
+            case none:
+                cli.sendPlayerCommand(player, "status - 1 subscribe:- tags:" + SONGTAGS);
+                break;
+
+            case on_change:
+                cli.sendPlayerCommand(player, "status - 1 subscribe:0 tags:" + SONGTAGS);
+                break;
+
+            case real_time:
+                cli.sendPlayerCommand(player, "status - 1 subscribe:1 tags:" + SONGTAGS);
+                break;
+
         }
     }
 
@@ -965,13 +1012,24 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         );
     }
 
+    /**
+     * Start an asynchronous fetch of all players from the server.
+     */
     private void fetchPlayers() {
-        // initiate an async player fetch
+        // Unsubscribe to any existing player states, and clear the list of
+        for (Player player : connectionState.getPlayers()) {
+            updatePlayerSubscription(player, PlayerSubscriptionType.none);
+        }
+
         connectionState.clearPlayers();
+
+        // Initiate an async player fetch
         cli.requestItems("players", -1, new IServiceItemListCallback<Player>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Player> items, Class<Player> dataType) {
                 connectionState.addPlayers(items);
+
+                // If all players have been received then determine the new active player.
                 if (start + items.size() >= count) {
                     Player initialPlayer = getInitialPlayer();
                     if (initialPlayer != null) {
@@ -981,6 +1039,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 }
             }
 
+            /**
+             * @return The player that should be chosen as the active player. This is either the
+             *     last active player (if known), the first player the server knows about if
+             *     there are connected players, or null if there are no connected players.
+             */
+            @Nullable
             private Player getInitialPlayer() {
                 final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
                 final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER,
@@ -1097,7 +1161,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void registerCallback(IServiceCallback callback) {
             mServiceCallbacks.register(callback);
-            updatePlayerSubscriptionState();
+            updateAllPlayerSubscriptionStates();
         }
 
         @Override
@@ -1144,7 +1208,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void registerPlayerStateCallback(IServicePlayerStateCallback callback) {
             mPlayerStateCallbacks.register(callback);
-            updatePlayerSubscriptionState();
+            updateAllPlayerSubscriptionStates();
         }
 
 
@@ -1581,7 +1645,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     entry.getValue().unregister(entry.getKey());
                 }
             }
-            updatePlayerSubscriptionState();
+            updateAllPlayerSubscriptionStates();
         }
 
         @Override
