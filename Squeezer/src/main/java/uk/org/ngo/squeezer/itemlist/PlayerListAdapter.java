@@ -16,11 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
-
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +26,10 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +37,6 @@ import java.util.List;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCreateContextMenuListener {
@@ -69,93 +68,24 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     /**
      * Sets the players in to the adapter.
      *
-     * @param players List of players.
-     * @param activePlayer The currently active player.
+     * @param playerSyncGroups Multimap, mapping from the player ID of the syncmaster to the
+     *     Players synced to that master. See
+     *     {@link PlayerListActivity#createSyncGroups(List, Player)} for how this map is
+     *     generated.
      */
-    public void setPlayers(List<Player> players, Player activePlayer) {
-        mPlayers = ImmutableList.copyOf(players);
-        mActivePlayer = activePlayer;
-
+    public void setSyncGroups(Multimap<String, Player> playerSyncGroups) {
         clear();
 
-        List<Player> connectedPlayers = new ArrayList<Player>();
+        List<String> masters = new ArrayList<String>(playerSyncGroups.keySet());
+        Log.v("PlayerListAdapter", masters.toString());
+        Collections.sort(masters);
 
-        // Make a copy of the players we know about, ignoring unconnected ones.
-        for (Player player : mPlayers) {
-            if (!player.getConnected())
-                continue;
-
-            connectedPlayers.add(player);
-        }
-
-        // Map master player IDs to the list of the players they control.
-        ListMultimap<String, String> syncGroups = ArrayListMultimap.create();
-
-        String playerId;
-        PlayerState playerState;
-        String syncMaster;
-        List<String> syncSlaves;
-        List<Player> masterPlayers = new ArrayList<Player>();
-
-        // Iterate over all the connected players to build the sync groups.
-        for (Player player : connectedPlayers) {
-            playerId = player.getId();
-            playerState = mActivity.getPlayerState(playerId);
-
-            // Ignore players that do not have a sync master, they don't participate in
-            // a sync group.
-            syncMaster = playerState.getSyncMaster();
-            if (syncMaster == null)
-                continue;
-
-            // Ignore players that are not the master for their group.
-            if (! syncMaster.equals(playerId))
-                continue;
-
-            syncGroups.putAll(playerId, playerState.getSyncSlaves());
-            masterPlayers.add(player);
-        }
-
-        // Sort the list by ID to be stable.
-        Collections.sort(masterPlayers, Player.compareById);
-
-        // Iterate over each sync group master to create the child adapters.
-        for (Player masterPlayer : masterPlayers) {
+        for (String masterId : masters) {
             ItemAdapter<Player> childAdapter = new ItemAdapter<Player>(new PlayerView(mActivity), mImageFetcher);
-            List<Player> syncGroupPlayers = new ArrayList<Player>();
 
-            // Add the master player as the first player in this group.
-            syncGroupPlayers.add(masterPlayer);
-
-            // Find all the slaves, add them to this list, and remove them from players.
-            for (String id : syncGroups.get(masterPlayer.getId())) {
-                for (int i = 0; i < connectedPlayers.size(); i++) {
-                    Player player = connectedPlayers.get(i);
-
-                    if (player.getId().equals(id)) {
-                        syncGroupPlayers.add(player);
-                        connectedPlayers.remove(i);
-                        break;
-                    }
-                }
-            }
-
-            // Add all the found players in this sync group to this adapter.
-            childAdapter.update(syncGroupPlayers.size(), 0, syncGroupPlayers);
-            mChildAdapters.add(childAdapter);
-        }
-
-        // Sort the remaining list of players to be stable.
-        Collections.sort(connectedPlayers, Player.compareById);
-
-        // Any players still in players is not in a sync group.  Add each one to its own group.
-        for (Player player : connectedPlayers) {
-            // If any players are synced to this one then it's a master, and can be ignored.
-            if (player.getPlayerState().getSyncSlaves().size() != 0)
-                continue;
-
-            ItemAdapter<Player> childAdapter = new ItemAdapter<Player>(new PlayerView(mActivity), mImageFetcher);
-            childAdapter.update(1, 0, ImmutableList.of(player));
+            List<Player> slaves = new ArrayList<Player>(playerSyncGroups.get(masterId));
+            Collections.sort(slaves, Player.compareById);
+            childAdapter.update(slaves.size(), 0, slaves);
             mChildAdapters.add(childAdapter);
         }
 

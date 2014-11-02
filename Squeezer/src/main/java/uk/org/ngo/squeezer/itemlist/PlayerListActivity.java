@@ -27,7 +27,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
@@ -100,7 +106,10 @@ public class PlayerListActivity extends ItemListActivity {
      * expanded.
      */
     private void updateAndExpandPlayerList() {
-        mResultsAdapter.setPlayers(getService().getPlayers(), getService().getActivePlayer());
+        Multimap<String, Player> playerSyncGroups = createSyncGroups(
+                getService().getPlayers(), getService().getActivePlayer());
+        mResultsAdapter.setSyncGroups(playerSyncGroups);
+
         for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
             mResultsExpandableListView.expandGroup(i);
         }
@@ -208,6 +217,56 @@ public class PlayerListActivity extends ItemListActivity {
             return true;
         }
     };
+
+    /**
+     * Builds the list of lists that is a sync group.
+     *
+     * @param players List of players.
+     * @param activePlayer The currently active player.
+     * @return a Multimap, mapping from the player ID of the syncmaster to the Players
+     *     synced to that master.
+     */
+    public Multimap<String, Player> createSyncGroups(List<Player> players, Player activePlayer) {
+        Map<String, Player> connectedPlayers = new HashMap<String, Player>();
+
+        // Make a copy of the players we know about, ignoring unconnected ones.
+        for (Player player : players) {
+            if (!player.getConnected())
+                continue;
+
+            connectedPlayers.put(player.getId(), player);
+        }
+
+        // Map master player IDs to the list of the players they control.
+        // Key is the master player ID, value is the player ID that's synced to it.
+        Multimap<String, Player> masterSlaveMap = HashMultimap.create();
+
+        // Iterate over all the connected players to build the list of master players.
+        for (Player player : connectedPlayers.values()) {
+            String playerId = player.getId();
+            PlayerState playerState = player.getPlayerState();
+            String syncMaster = playerState.getSyncMaster();
+
+            // If a player doesn't have a sync master then it's in a group of its own.
+            if (syncMaster == null) {
+                masterSlaveMap.put(playerId, player);
+                continue;
+            }
+
+            // If the master is this player then add itself and all the slaves.
+            if (playerId.equals(syncMaster)) {
+                masterSlaveMap.put(playerId, player);
+                continue;
+            }
+
+            // Must be a slave. Add it under the master. This might have already
+            // happened (in the block above), but might not. For example, it's possible
+            // to have a player that's a syncslave of an player that is not connected.
+            masterSlaveMap.put(syncMaster, player);
+        }
+
+        return masterSlaveMap;
+    }
 
     public PlayerState getPlayerState(String id) {
         return getService().getPlayerState(id);
