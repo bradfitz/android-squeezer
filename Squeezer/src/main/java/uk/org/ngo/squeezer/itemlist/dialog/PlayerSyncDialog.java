@@ -37,6 +37,9 @@ public class PlayerSyncDialog extends DialogFragment {
 
     PlayerSyncDialogHost mHost;
 
+    /** The sync group the user selected. */
+    int mSelectedGroup = 0;
+
     // Override the Fragment.onAttach() method to instantiate the PlayerSyncDialogHost.
     @Override
     public void onAttach(Activity activity) {
@@ -100,19 +103,30 @@ public class PlayerSyncDialog extends DialogFragment {
         playerSyncGroupNames.add(getString(R.string.menu_item_player_unsync));
 
         ArrayAdapter<String> playerSyncGroupAdapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_1, playerSyncGroupNames);
+                android.R.layout.simple_list_item_single_choice, playerSyncGroupNames);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getString(R.string.sync_title, currentPlayer.getName()))
-                .setAdapter(playerSyncGroupAdapter, new DialogInterface.OnClickListener() {
+                .setSingleChoiceItems(playerSyncGroupAdapter, mSelectedGroup,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                mSelectedGroup = which;
+                            }
+                        })
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // The "No synchronisation" option is always last.
-                        if (which == playerSyncGroupMasterIds.size()) {
+                        if (mSelectedGroup == playerSyncGroupMasterIds.size()) {
                             mHost.unsyncPlayer(currentPlayer);
                         } else {
                             mHost.syncPlayerToPlayer(currentPlayer,
-                                    playerSyncGroupMasterIds.get(which));
+                                    playerSyncGroupMasterIds.get(mSelectedGroup));
                         }
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog, nothing to do.
                     }
                 });
         return builder.create();
