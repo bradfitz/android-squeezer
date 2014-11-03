@@ -38,6 +38,7 @@ import java.util.Map;
 import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
@@ -45,7 +46,8 @@ import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 
-public class PlayerListActivity extends ItemListActivity {
+public class PlayerListActivity extends ItemListActivity implements
+        PlayerSyncDialog.PlayerSyncDialogHost {
     public static final String CURRENT_PLAYER = "currentPlayer";
 
     private ExpandableListView mResultsExpandableListView;
@@ -59,6 +61,9 @@ public class PlayerListActivity extends ItemListActivity {
     private boolean mUpdateWhileTracking = false;
 
     private final Handler uiThreadHandler = new UiThreadHandler(this);
+
+    /** Map from player IDs to Players synced to that player ID. */
+    private final Multimap<String, Player> mPlayerSyncGroups = HashMultimap.create();
 
     private final static class UiThreadHandler extends Handler {
         private static final int VOLUME_CHANGE = 1;
@@ -106,9 +111,8 @@ public class PlayerListActivity extends ItemListActivity {
      * expanded.
      */
     private void updateAndExpandPlayerList() {
-        Multimap<String, Player> playerSyncGroups = createSyncGroups(
-                getService().getPlayers(), getService().getActivePlayer());
-        mResultsAdapter.setSyncGroups(playerSyncGroups);
+        updateSyncGroups(getService().getPlayers(), getService().getActivePlayer());
+        mResultsAdapter.setSyncGroups(mPlayerSyncGroups);
 
         for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
             mResultsExpandableListView.expandGroup(i);
@@ -223,10 +227,8 @@ public class PlayerListActivity extends ItemListActivity {
      *
      * @param players List of players.
      * @param activePlayer The currently active player.
-     * @return a Multimap, mapping from the player ID of the syncmaster to the Players
-     *     synced to that master.
      */
-    public Multimap<String, Player> createSyncGroups(List<Player> players, Player activePlayer) {
+    public void updateSyncGroups(List<Player> players, Player activePlayer) {
         Map<String, Player> connectedPlayers = new HashMap<String, Player>();
 
         // Make a copy of the players we know about, ignoring unconnected ones.
@@ -237,9 +239,7 @@ public class PlayerListActivity extends ItemListActivity {
             connectedPlayers.put(player.getId(), player);
         }
 
-        // Map master player IDs to the list of the players they control.
-        // Key is the master player ID, value is the player ID that's synced to it.
-        Multimap<String, Player> masterSlaveMap = HashMultimap.create();
+        mPlayerSyncGroups.clear();
 
         // Iterate over all the connected players to build the list of master players.
         for (Player player : connectedPlayers.values()) {
@@ -249,23 +249,26 @@ public class PlayerListActivity extends ItemListActivity {
 
             // If a player doesn't have a sync master then it's in a group of its own.
             if (syncMaster == null) {
-                masterSlaveMap.put(playerId, player);
+                mPlayerSyncGroups.put(playerId, player);
                 continue;
             }
 
             // If the master is this player then add itself and all the slaves.
             if (playerId.equals(syncMaster)) {
-                masterSlaveMap.put(playerId, player);
+                mPlayerSyncGroups.put(playerId, player);
                 continue;
             }
 
             // Must be a slave. Add it under the master. This might have already
             // happened (in the block above), but might not. For example, it's possible
             // to have a player that's a syncslave of an player that is not connected.
-            masterSlaveMap.put(syncMaster, player);
+            mPlayerSyncGroups.put(syncMaster, player);
         }
+    }
 
-        return masterSlaveMap;
+    @NonNull
+    public Multimap<String, Player> getPlayerSyncGroups() {
+        return mPlayerSyncGroups;
     }
 
     public PlayerState getPlayerState(String id) {
@@ -303,6 +306,25 @@ public class PlayerListActivity extends ItemListActivity {
     @Override
     protected void clearItemAdapter() {
         mResultsAdapter.clear();
+    }
+
+    /**
+     * Synchronises the slave player to the player with masterId.
+     *
+     * @param slave the player to sync.
+     * @param masterId ID of the player to sync to.
+     */
+    public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
+        getService().syncPlayerToPlayer(slave, masterId);
+    }
+
+    /**
+     * Removes the player from any sync groups.
+     *
+     * @param player the player to be removed from sync groups.
+     */
+    public void unsyncPlayer(@NonNull Player player) {
+        getService().unsyncPlayer(player);
     }
 
     public static void show(Context context) {

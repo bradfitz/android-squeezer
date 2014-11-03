@@ -51,6 +51,9 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     private final ImageFetcher mImageFetcher;
 
+    /** Count of how many players are in the adapter. */
+    private int mPlayerCount;
+
     public PlayerListAdapter(PlayerListActivity activity, ImageFetcher imageFetcher) {
         mActivity = activity;
         mImageFetcher = imageFetcher;
@@ -62,6 +65,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     public void clear() {
         mChildAdapters.clear();
+        mPlayerCount = 0;
         notifyDataSetChanged();
     }
 
@@ -70,7 +74,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      *
      * @param playerSyncGroups Multimap, mapping from the player ID of the syncmaster to the
      *     Players synced to that master. See
-     *     {@link PlayerListActivity#createSyncGroups(List, Player)} for how this map is
+     *     {@link PlayerListActivity#updateSyncGroups(List, Player)} for how this map is
      *     generated.
      */
     public void setSyncGroups(Multimap<String, Player> playerSyncGroups) {
@@ -84,6 +88,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
             ItemAdapter<Player> childAdapter = new ItemAdapter<Player>(new PlayerView(mActivity), mImageFetcher);
 
             List<Player> slaves = new ArrayList<Player>(playerSyncGroups.get(masterId));
+            mPlayerCount += slaves.size();
             Collections.sort(slaves, Player.compareById);
             childAdapter.update(slaves.size(), 0, slaves);
             mChildAdapters.add(childAdapter);
@@ -105,6 +110,11 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
                     contextMenuInfo.targetView, childPosition, contextMenuInfo.id);
 
             mChildAdapters.get(groupPosition).onCreateContextMenu(menu, v, adapterContextMenuInfo);
+        }
+
+        // Enable player sync menu options if there's more than one player.
+        if (mPlayerCount > 1) {
+            menu.findItem(R.id.player_sync).setVisible(true);
         }
     }
 

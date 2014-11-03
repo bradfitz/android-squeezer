@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.List;
@@ -90,6 +91,21 @@ public interface ISqueezeService {
     void togglePower(Player player);
     void playerRename(Player player, String newName);
     void sleep(Player player, int duration);
+
+    /**
+     * Synchronises the slave player to the player with masterId.
+     *
+     * @param player the player to sync.
+     * @param masterId ID of the player to sync to.
+     */
+    void syncPlayerToPlayer(@NonNull Player player, @NonNull String masterId);
+
+    /**
+     * Removes the player with playerId from any sync groups.
+     *
+     * @param player the player to be removed from sync groups.
+     */
+    void unsyncPlayer(@NonNull Player player);
 
     ////////////////////
     // Depends on active player:

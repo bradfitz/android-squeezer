@@ -31,6 +31,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
@@ -1277,6 +1278,17 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void sleep(Player player, int duration) {
             cli.sendPlayerCommand(player, "sleep " + duration);
+        }
+
+        @Override
+        public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
+            Player master = connectionState.getPlayer(masterId);
+            cli.sendPlayerCommand(master, "sync " + Util.encode(slave.getId()));
+        }
+
+        @Override
+        public void unsyncPlayer(@NonNull Player player) {
+            cli.sendPlayerCommand(player, "sync -");
         }
 
         @Override
