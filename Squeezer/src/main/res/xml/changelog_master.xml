@@ -2,34 +2,14 @@
 
 <changelog>
     <release
-        version="1.1.0-beta-4"
-        versioncode="25">
-        <change>Fix a bug when determining whether album artwork is available.</change>
+        version="1.1.1"
+        versioncode="29">
+        <change>Fix potential crash when browsing music folders.</change>
     </release>
 
     <release
-        version="1.1.0-beta-3"
-        versioncode="24">
-        <change>Only start SqueezePlayer if the relevant preference is enabled.</change>
-
-        <change>Save album sort-order preference on the server.</change>
-
-        <change>The action bar spinner only shows connected players. No spinner is shown if only
-            one player is connected.</change>
-    </release>
-
-    <release
-        version="1.1.0-beta-2"
-        versioncode="23">
-        <change>The Dutch translation is fully up to date, thanks to spamba@gmail.com.</change>
-
-        <change>Fixed a bug where the current playlist was not updated after the current player
-            changed.</change>
-    </release>
-
-    <release
-        version="1.1.0-beta-1"
-        versioncode="22">
+        version="1.1.0"
+        versioncode="28">
         <change>Support for "My Apps" installed via mysqueezebox.com.  Fixes
             https://code.google.com/p/android-squeezer/issues/detail?id=26,
             https://code.google.com/p/android-squeezer/issues/detail?id=46.</change>
@@ -48,6 +28,9 @@
             uses features only available in Android 2.3 (Gingerbread) and above. Fixes
             https://code.google.com/p/android-squeezer/issues/detail?id=55.</change>
 
+        <change>Add newly downloaded files to the device's media library when they
+            are downloaded.</change>
+
         <change>Integration with SqueezePlayer (http://www.squeezeplayer.com/). Squeezer can
             automatically start SqueezePlayer when Squeezer is started. Fixes
             https://code.google.com/p/android-squeezer/issues/detail?id=48.</change>
@@ -58,7 +41,9 @@
             displayed songs to show those by that artist.  Fixes
             https://code.google.com/p/android-squeezer/issues/detail?id=51.</change>
 
-        <change>Internal restructuring to make Squeezer faster and use less memory.</change>
+        <change>The Dutch translation is fully up to date, thanks to spamba@gmail.com.</change>
+
+        <change>Save album sort-order preference on the server.</change>
 
         <change>Fixed a bug where Squeezer was forgetting the active player.</change>
 
@@ -67,6 +52,20 @@
 
         <change>Fixed a bug where song information for songs being remotely streamed would not
             update when the song changes.</change>
+
+        <change>Fixed a bug where the current playlist was not updated after the current player
+            changed.</change>
+
+        <change>Fix a bug when determining whether album artwork is available.</change>
+
+        <change>Fixed https://code.google.com/p/android/issues/detail?id=63570, a bug
+            in Android 4.4.2 when tasks are re-ordered.</change>
+
+        <change>Internal restructuring to make Squeezer faster and use less memory.</change>
+
+        <change>Fixed assorted null pointer bugs.</change>
+
+        <change>Use Crashlytics instead of ACRA for crash reporting.</change>
     </release>
 
     <release

@@ -21,6 +21,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -38,6 +39,7 @@ import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /*
  * The activity's content view scrolls in from the right, and disappear to the left, to provide a
@@ -116,8 +118,8 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().pluginItems(start, plugin, parent, search, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.pluginItems(start, plugin, parent, search, this);
     }
 
 
@@ -157,7 +159,15 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
         // value is an error message suitable for displaying to the user.
         if (parameters.containsKey("networkerror")) {
             Resources resources = getResources();
-            String playerName = getService().getActivePlayer().getName();
+            ISqueezeService service = getService();
+            String playerName;
+
+            if (service == null) {
+                playerName = "Unknown";
+            } else {
+                playerName = service.getActivePlayer().getName();
+            }
+
             String errorMsg = parameters.get("networkerror");
 
             String errorMessage = String.format(resources.getString(R.string.server_error),

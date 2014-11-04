@@ -19,11 +19,13 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /*
  * Display a list of radio stations.
@@ -39,8 +41,8 @@ public class RadioListActivity extends BaseListActivity<Plugin> {
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().radios(start, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.radios(start, this);
     }
 
     public static void show(Activity activity) {

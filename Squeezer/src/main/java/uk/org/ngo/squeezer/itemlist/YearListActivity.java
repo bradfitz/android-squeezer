@@ -18,10 +18,12 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class YearListActivity extends BaseListActivity<Year> {
 
@@ -31,10 +33,9 @@ public class YearListActivity extends BaseListActivity<Year> {
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().years(start, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.years(start, this);
     }
-
 
     public static void show(Context context) {
         final Intent intent = new Intent(context, YearListActivity.class);

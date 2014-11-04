@@ -20,6 +20,7 @@ package uk.org.ngo.squeezer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -28,6 +29,7 @@ import android.widget.ListView;
 import java.util.Arrays;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class RandomplayActivity extends BaseActivity {
 
@@ -38,11 +40,15 @@ public class RandomplayActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
-        setRandomplayMenu();
     }
 
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
 
-    private void setRandomplayMenu() {
+        setRandomPlayList(service);
+    }
+
+    private void setRandomPlayList(@NonNull ISqueezeService service) {
         String[] values = getResources().getStringArray(R.array.randomplay_items);
         int[] icons = new int[values.length];
         Arrays.fill(icons, R.drawable.ic_random);
@@ -51,18 +57,27 @@ public class RandomplayActivity extends BaseActivity {
         // drawn from" functionality.
         // icons[icons.length - 1] = R.drawable.ic_genres;
         listView.setAdapter(new IconRowAdapter(this, values, icons));
-        listView.setOnItemClickListener(onRandomplayItemClick);
+        listView.setOnItemClickListener(new OnRandomPlayClickListener(service));
     }
 
-    private final OnItemClickListener onRandomplayItemClick = new OnItemClickListener() {
-        @Override
+    /**
+     * Provides an OnItemClickListener where the onItemClick() method is known to require
+     * a functioning ISqueezeService.
+     */
+    private class OnRandomPlayClickListener implements OnItemClickListener {
+        @NonNull protected final ISqueezeService mService;
+
+        OnRandomPlayClickListener(@NonNull ISqueezeService service) {
+            mService = service;
+        }
+
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (position < RandomPlayType.values().length) {
-                getService().randomPlay(RandomPlayType.values()[position].toString());
+                mService.randomPlay(RandomPlayType.values()[position].toString());
                 NowPlayingActivity.show(RandomplayActivity.this);
             }
         }
-    };
+    }
 
     static void show(Context context) {
         final Intent intent = new Intent(context, RandomplayActivity.class);
