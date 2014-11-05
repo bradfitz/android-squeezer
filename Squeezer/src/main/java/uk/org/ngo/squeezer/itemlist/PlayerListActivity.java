@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.org.ngo.squeezer.NowPlayingFragment;
-import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
@@ -92,7 +90,8 @@ public class PlayerListActivity extends BaseListActivity<Player> {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null)
             currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
-        ((NowPlayingFragment) getSupportFragmentManager().findFragmentById(R.id.now_playing_fragment)).setIgnoreVolumeChange(true);
+
+        setIgnoreVolumeChange(true);
     }
 
     @Override

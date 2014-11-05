@@ -42,11 +42,6 @@
         squeezer:showAsAction="ifRoom|withText"/>
 
     <item
-        android:id="@+id/menu_item_volume"
-        android:title="@string/menu_item_volume"
-        android:icon="@drawable/ic_volume"/>
-
-    <item
         android:id="@+id/menu_item_poweron"
         android:title="@string/menu_item_poweron"
         android:icon="@android:drawable/ic_lock_power_off"/>
