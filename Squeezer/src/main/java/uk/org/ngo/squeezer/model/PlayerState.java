@@ -56,6 +56,7 @@ public class PlayerState implements Parcelable {
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
         repeatStatus = RepeatStatus.valueOf(source.readInt());
         currentSong = source.readParcelable(null);
+        currentPlaylist = source.readString();
         currentPlaylistIndex = source.readInt();
         currentTimeSecond = source.readInt();
         currentSongDuration = source.readInt();
@@ -74,6 +75,7 @@ public class PlayerState implements Parcelable {
         dest.writeInt(shuffleStatus.getId());
         dest.writeInt(repeatStatus.getId());
         dest.writeParcelable(currentSong, 0);
+        dest.writeString(currentPlaylist);
         dest.writeInt(currentPlaylistIndex);
         dest.writeInt(currentTimeSecond);
         dest.writeInt(currentSongDuration);
@@ -101,6 +103,7 @@ public class PlayerState implements Parcelable {
 
     private Song currentSong;
 
+    /** The name of the current playlist, if it has one. */
     private String currentPlaylist;
 
     private int currentPlaylistIndex;
