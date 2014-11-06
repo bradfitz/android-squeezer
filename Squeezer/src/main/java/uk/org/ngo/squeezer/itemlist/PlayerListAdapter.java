@@ -45,6 +45,9 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     private final List<ItemAdapter<Player>> mChildAdapters = new ArrayList<ItemAdapter<Player>>();
 
+    /** The group position of the item that was most recently selected. */
+    private int mLastGroupPosition;
+
     private Player mActivePlayer;
 
     private List<Player> mPlayers = new ImmutableList.Builder<Player>().build();
@@ -119,7 +122,18 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     }
 
     public boolean doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
+        mLastGroupPosition = groupPosition;
         return mChildAdapters.get(groupPosition).doItemContext(menuItem, childPosition);
+    }
+
+    /**
+     * Handle sub menu items of context menus.
+     *
+     * @param menuItem
+     * @return
+     */
+    public boolean doItemContext(MenuItem menuItem) {
+        return mChildAdapters.get(mLastGroupPosition).doItemContext(menuItem);
     }
 
     @Override

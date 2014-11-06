@@ -165,12 +165,19 @@ public class PlayerListActivity extends ItemListActivity implements
         if (getService() != null) {
             ExpandableListView.ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListView.ExpandableListContextMenuInfo) item
                     .getMenuInfo();
-            long packedPosition = contextMenuInfo.packedPosition;
-            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-            int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-            if (ExpandableListView.getPackedPositionType(packedPosition)
-                    == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                return mResultsAdapter.doItemContext(item, groupPosition, childPosition);
+
+            // If menuInfo is null we have a sub menu, we expect the adapter to have stored the position
+            if (contextMenuInfo == null) {
+                return mResultsAdapter.doItemContext(item);
+            } else {
+
+                long packedPosition = contextMenuInfo.packedPosition;
+                int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+                int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+                if (ExpandableListView.getPackedPositionType(packedPosition)
+                        == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                    return mResultsAdapter.doItemContext(item, groupPosition, childPosition);
+                }
             }
         }
         return false;
