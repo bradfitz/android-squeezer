@@ -172,20 +172,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     int mFadeInSecs;
 
-    /**
-     * Types of player status subscription.
-     */
-    private enum PlayerSubscriptionType {
-        /** Do not subscribe to updates. */
-        none,
-
-        /** Subscribe to updates when the status changes. */
-        on_change,
-
-        /** Receive real-time (second to second) updates. */
-        real_time
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -480,14 +466,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     boolean changedVolume = playerState.setCurrentVolume(Util.parseDecimalIntOrZero(tokenMap.get("mixer volume")));
                     boolean changedSyncMaster = playerState.setSyncMaster(tokenMap.get("sync_master"));
                     boolean changedSyncSlaves = playerState.setSyncSlaves(Splitter.on(",").omitEmptyStrings().splitToList(Strings.nullToEmpty(tokenMap.get("sync_slaves"))));
+                    boolean changedSubscription = playerState.setSubscriptionType(tokenMap.get("subscribe"));
+
+                    player.setPlayerState(playerState);
 
                     // Kept as its own method because other methods call it, unlike the explicit
                     // calls to the callbacks below.
                     updatePlayStatus(tokenMap.get("mode"), player);
-                    // XXX: Suspect a bug here -- the play status that was just set will be
-                    // XXX: overridden by the line below.
 
-                    player.setPlayerState(playerState);
+                    updatePlayerSubscription(player, getPlayerSubscriptionType(player));
 
                     // Note to self: The problem here is that with second-to-second updates enabled
                     // the playerlistactivity callback will be called every second.  Thinking that
@@ -844,26 +831,35 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private void updateAllPlayerSubscriptionStates() {
         Player activePlayer = connectionState.getActivePlayer();
         for (Player player : connectionState.getPlayers()) {
-            if (mPlayerStateCallbacks.count() > 0 ||
-                    (mServiceCallbacks.count() > 0 && player.equals(activePlayer))) {
-                if (player.equals(activePlayer)) {
-                    // If it's the active player then get second-to-second updates.
-                    if (player.getPlayerState().isPlaying()) {
-                        updatePlayerSubscription(player, PlayerSubscriptionType.real_time);
-                    } else {
-                        // Paused? Listen for updates when they come, not every second.
-                        // XXX: Not while debugging
-                        updatePlayerSubscription(player, PlayerSubscriptionType.real_time);
-                    }
-                } else {
-                    // Subscribe to changes for non-active players when they happen.
-                    // XXX: Check if this makes sense for all activities that register in mPlayerStateCallbacks
-                    updatePlayerSubscription(player, PlayerSubscriptionType.on_change);
-                }
+            updatePlayerSubscription(player, getPlayerSubscriptionType(player));
+        }
+    }
+
+    /**
+     * Determine the correct player status subscription.
+     */
+    private PlayerState.PlayerSubscriptionType getPlayerSubscriptionType(Player player) {
+        Player activePlayer = connectionState.getActivePlayer();
+
+        if (mPlayerStateCallbacks.count() > 0 ||
+                (mServiceCallbacks.count() > 0 && player.equals(activePlayer))) {
+            if (player.equals(activePlayer)) {
+                // If it's the active player then get second-to-second updates.
+                return PlayerState.PlayerSubscriptionType.real_time;
             } else {
-                // Disable subscription for this player's status updates.
-                updatePlayerSubscription(player, PlayerSubscriptionType.none);
+                // For other players get updates only when the player status changes...
+                // ... unless the player has a sleep duration set. In that case we need
+                // real_time updates, as on_change events are not fired as the will_sleep_in
+                // timer counts down.
+                if (player.getPlayerState().getSleep() > 0) {
+                    return PlayerState.PlayerSubscriptionType.real_time;
+                } else {
+                    return PlayerState.PlayerSubscriptionType.on_change;
+                }
             }
+        } else {
+            // Disable subscription for this player's status updates.
+            return PlayerState.PlayerSubscriptionType.none;
         }
     }
 
@@ -873,7 +869,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * @param player player to manage.
      * @param playerSubscriptionType the new subscription type
      */
-    private void updatePlayerSubscription(Player player, PlayerSubscriptionType playerSubscriptionType) {
+    private void updatePlayerSubscription(Player player, PlayerState.PlayerSubscriptionType playerSubscriptionType) {
+        PlayerState playerState = player.getPlayerState();
+
+        // Do nothing if the player subscription type hasn't changed. This prevents sending a
+        // subscription update "status" message which will be echoed back by the server and
+        // trigger processing of the status message by the service.
+        if (playerState != null) {
+            if (playerState.getSubscriptionType() == playerSubscriptionType) {
+                return;
+            }
+        }
+
         switch (playerSubscriptionType) {
             case none:
                 cli.sendPlayerCommand(player, "status - 1 subscribe:- tags:" + SONGTAGS);
@@ -1019,7 +1026,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private void fetchPlayers() {
         // Unsubscribe to any existing player states, and clear the list of
         for (Player player : connectionState.getPlayers()) {
-            updatePlayerSubscription(player, PlayerSubscriptionType.none);
+            updatePlayerSubscription(player, PlayerState.PlayerSubscriptionType.none);
         }
 
         connectionState.clearPlayers();
