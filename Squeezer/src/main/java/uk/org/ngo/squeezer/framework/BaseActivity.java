@@ -31,7 +31,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.widget.Toast;
 
 import uk.org.ngo.squeezer.Preferences;
