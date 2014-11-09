@@ -109,15 +109,16 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
             int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
             int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
 
-            AdapterView.AdapterContextMenuInfo adapterContextMenuInfo = new AdapterView.AdapterContextMenuInfo(
+            AdapterView.AdapterContextMenuInfo adapterContextMenuInfo
+                    = new AdapterView.AdapterContextMenuInfo(
                     contextMenuInfo.targetView, childPosition, contextMenuInfo.id);
 
             mChildAdapters.get(groupPosition).onCreateContextMenu(menu, v, adapterContextMenuInfo);
-        }
 
-        // Enable player sync menu options if there's more than one player.
-        if (mPlayerCount > 1) {
-            menu.findItem(R.id.player_sync).setVisible(true);
+            // Enable player sync menu options if there's more than one player.
+            if (mPlayerCount > 1) {
+                menu.findItem(R.id.player_sync).setVisible(true);
+            }
         }
     }
 
