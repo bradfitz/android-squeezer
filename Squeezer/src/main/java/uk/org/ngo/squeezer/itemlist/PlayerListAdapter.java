@@ -37,6 +37,7 @@ import java.util.List;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCreateContextMenuListener {
@@ -53,6 +54,9 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     private List<Player> mPlayers = new ImmutableList.Builder<Player>().build();
 
     private final ImageFetcher mImageFetcher;
+
+    /** Joins elements together with ' - ', skipping nulls. */
+    private static final Joiner mJoiner = Joiner.on(" - ").skipNulls();
 
     /** Count of how many players are in the adapter. */
     private int mPlayerCount;
@@ -194,7 +198,8 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         View row = mActivity.getLayoutInflater().inflate(R.layout.group_player, parent, false);
 
-        TextView label = (TextView) row.findViewById(R.id.label);
+        TextView text1 = (TextView) row.findViewById(R.id.text1);
+        TextView text2 = (TextView) row.findViewById(R.id.text2);
 
         ItemAdapter<Player> adapter = mChildAdapters.get(groupPosition);
         List<String> playerNames = new ArrayList<String>();
@@ -203,8 +208,14 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
             playerNames.add(p.getName());
         }
         String header = Joiner.on(", ").join(playerNames);
-        label.setText(mActivity.getString(R.string.player_group_header, header));
+        text1.setText(mActivity.getString(R.string.player_group_header, header));
 
+        Song groupSong = adapter.getItem(0).getPlayerState().getCurrentSong();
+
+        if (groupSong != null) {
+            text2.setText(mJoiner.join(groupSong.getName(), groupSong.getArtist(),
+                    groupSong.getAlbumName()));
+        }
         return row;
     }
 
