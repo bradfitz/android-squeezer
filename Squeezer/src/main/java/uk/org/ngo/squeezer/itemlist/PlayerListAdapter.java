@@ -168,7 +168,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return (Player) mChildAdapters.get(groupPosition).getItem(childPosition);
+        return mChildAdapters.get(groupPosition).getItem(childPosition);
     }
 
     /**
