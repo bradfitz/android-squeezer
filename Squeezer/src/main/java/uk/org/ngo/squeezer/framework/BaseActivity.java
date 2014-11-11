@@ -30,6 +30,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -41,6 +42,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
+import uk.org.ngo.squeezer.util.ThemeManager;
 
 /**
  * Common base class for all activities in the squeezer
@@ -50,6 +52,8 @@ import uk.org.ngo.squeezer.util.SqueezePlayer;
 public abstract class BaseActivity extends ActionBarActivity implements HasUiThread {
 
     @Nullable private ISqueezeService mService = null;
+
+    private final ThemeManager mTheme = new ThemeManager();
 
     /**
      * Keep track of whether callbacks have been registered
@@ -97,6 +101,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @Override
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mTheme.onCreate(this);
         ActionBar actionBar = getSupportActionBar();
 
         actionBar.setIcon(R.drawable.ic_launcher);
@@ -117,6 +123,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @Override
     public void onResume() {
         super.onResume();
+
+        mTheme.onResume(this);
 
         if (mService != null) {
             maybeRegisterCallbacks(mService);
@@ -343,4 +351,15 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         insert
     }
 
+    /**
+     * Look up an attribute resource styled for the current theme.
+     *
+     * @param attribute Attribute identifier to look up.
+     * @return The resource identifier for the given attribute.
+     */
+    public int getAttributeValue(int attribute) {
+        TypedValue v = new TypedValue();
+        getTheme().resolveAttribute(attribute, v, true);
+        return v.resourceId;
+    }
 }

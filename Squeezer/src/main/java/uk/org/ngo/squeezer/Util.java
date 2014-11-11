@@ -16,8 +16,9 @@
 
 package uk.org.ngo.squeezer;
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -122,25 +123,26 @@ public class Util {
         }
     }
 
-    public static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent,
+    public static View getSpinnerItemView(Context context, View convertView, ViewGroup parent,
             String label) {
-        return getSpinnerItemView(activity, convertView, parent, label,
+        return getSpinnerItemView(context, convertView, parent, label,
                 android.R.layout.simple_spinner_dropdown_item);
     }
 
-    public static View getActionBarSpinnerItemView(Activity activity, View convertView,
+    public static View getActionBarSpinnerItemView(Context context, View convertView,
                                                    ViewGroup parent, String label) {
-        return getSpinnerItemView(activity, convertView, parent, label,
+        return getSpinnerItemView(context, convertView, parent, label,
                 android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item);
     }
 
-    private static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent,
+    private static View getSpinnerItemView(Context context, View convertView, ViewGroup parent,
                                           String label, int layout) {
         TextView view;
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
-                : activity.getLayoutInflater().inflate(layout, parent, false));
+                : ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+                        layout, parent, false));
         view.setText(label);
         return view;
     }

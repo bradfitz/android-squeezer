@@ -75,6 +75,8 @@ public final class Preferences {
     // Start SqueezePlayer automatically if installed.
     public static final String KEY_SQUEEZEPLAYER_ENABLED = "squeezer.squeezeplayer.enabled";
 
+    // Preferred UI theme.
+    public static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
@@ -129,6 +131,10 @@ public final class Preferences {
         editor.putString(KEY_USERNAME, userName);
         editor.putString(KEY_PASSWORD, password);
         editor.commit();
+    }
+
+    public String getTheme() {
+        return getStringPreference(Preferences.KEY_ON_THEME_SELECT_ACTION, null);
     }
 
     public boolean isAutoConnect() {
