@@ -32,4 +32,5 @@
     <item android:id="@+id/cancel_sleep" android:visible="false"/>
     <item android:id="@+id/rename" android:title="@string/menu_item_rename"/>
     <item android:id="@+id/toggle_power" android:visible="false"/>
+    <item android:id="@+id/player_sync" android:title="@string/menu_item_player_sync" android:visible="false"/>
 </menu>

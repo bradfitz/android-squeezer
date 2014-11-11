@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.service;
 
 import android.net.wifi.WifiManager;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -28,8 +29,10 @@ import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerState;
 
 class ConnectionState {
 
@@ -70,7 +74,9 @@ class ConnectionState {
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
 
     private final AtomicReference<Player> activePlayer = new AtomicReference<Player>();
-    private final List<Player> players = new CopyOnWriteArrayList<Player>();
+
+    /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
+    private final Map<String, Player> mPlayers = new HashMap<String, Player>();
 
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
@@ -162,31 +168,50 @@ class ConnectionState {
         });
     }
 
-    Player getActivePlayer() {
+    @Nullable Player getActivePlayer() {
         return activePlayer.get();
     }
 
-    void setActivePlayer(Player player) {
+    void setActivePlayer(@Nullable Player player) {
         activePlayer.set(player);
     }
 
+
+    @Nullable public PlayerState getActivePlayerState() {
+        if (activePlayer.get() == null)
+            return null;
+
+        return activePlayer.get().getPlayerState();
+    }
+
+    @Nullable public PlayerState getPlayerState(String playerId) {
+        if (!mPlayers.containsKey(playerId))
+            return null;
+
+        return mPlayers.get(playerId).getPlayerState();
+    }
+
     List<Player> getPlayers() {
-        return players;
+        return new ArrayList<Player>(mPlayers.values());  // XXX: Immutable list? Return the map?
     }
 
     void clearPlayers() {
-        this.players.clear();
+        mPlayers.clear();
+    }
+
+    public void addPlayer(Player player) {
+        mPlayers.put(player.getId(), player);
     }
 
     void addPlayers(List<Player> players) {
-        this.players.addAll(players);
+        for (Player player : players) {
+            mPlayers.put(player.getId(), player);
+        }
     }
 
+    @Nullable
     Player getPlayer(String playerId) {
-        for (Player player : players)
-            if (playerId.equals(player.getId()))
-                return player;
-        return null;
+        return mPlayers.get(playerId);
     }
 
     PrintWriter getSocketWriter() {

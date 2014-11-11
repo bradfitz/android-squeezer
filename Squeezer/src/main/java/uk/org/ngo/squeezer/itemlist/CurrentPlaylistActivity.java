@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -288,7 +289,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
 
     private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
         @Override
-        public void onPlayersChanged(List<Player> players, final Player activePlayer) {
+        public void onPlayersChanged(List<Player> players, final @Nullable Player activePlayer) {
             if (activePlayer != null && !activePlayer.equals(player)) {
                 getUIThreadHandler().post(new Runnable() {
                     @Override

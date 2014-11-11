@@ -99,7 +99,10 @@ public class HomeActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Crashlytics.start(this);
+        if (!BuildConfig.DEBUG) {
+            Crashlytics.start(this);
+        }
+
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
 
