@@ -356,7 +356,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
         @Override
         public void onVolumeChanged(final int newVolume, final Player player) {
-            if (!mIgnoreVolumeChange) {
+            if (!mIgnoreVolumeChange && mVolumePanel != null) {
                 mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
             }
         }
