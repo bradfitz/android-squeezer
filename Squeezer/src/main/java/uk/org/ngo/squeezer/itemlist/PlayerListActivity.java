@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
@@ -126,7 +125,6 @@ public class PlayerListActivity extends ItemListActivity implements
         setContentView(R.layout.item_list_players);
         if (savedInstanceState != null)
             currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
-        ((NowPlayingFragment) getSupportFragmentManager().findFragmentById(R.id.now_playing_fragment)).setIgnoreVolumeChange(true);
 
         mResultsAdapter = new PlayerListAdapter(this, getImageFetcher());
         mResultsExpandableListView = (ExpandableListView) findViewById(R.id.expandable_list);
@@ -152,6 +150,8 @@ public class PlayerListActivity extends ItemListActivity implements
 
         mResultsExpandableListView.setOnCreateContextMenuListener(mResultsAdapter);
         mResultsExpandableListView.setOnScrollListener(new ItemListActivity.ScrollListener());
+
+        setIgnoreVolumeChange(true);
     }
 
     @Override
