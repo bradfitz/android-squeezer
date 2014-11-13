@@ -48,9 +48,6 @@ public interface ISqueezeService {
     // For the activity to get callback when the active or connected players changes.
     void registerPlayersCallback(IServicePlayersCallback callback);
 
-    // For the activity to get callback when the volume changes.
-    void registerVolumeCallback(IServiceVolumeCallback callback);
-
     // For the activity to get callback when the current playlist is modified
     void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
 

@@ -37,6 +37,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
@@ -44,10 +45,10 @@ import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
@@ -134,9 +135,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unbindService(serviceConnection);
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().registerSticky(this);
     }
 
     @Override
@@ -176,6 +177,18 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         }
 
         super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
     }
 
     /** Fix for https://code.google.com/p/android/issues/detail?id=63570. */
@@ -220,16 +233,11 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     /**
-     * Registers any callbacks with the bound service. The default implementation manages volume
-     * control.
-     * <p/>
-     * Derived classes should call through to the base class for it to perform volume control.
+     * Registers any callbacks with the bound service.
      *
      * @param service The connection to the bound service.
      */
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        service.registerVolumeCallback(volumeCallback);
-    }
+    protected void registerCallback(@NonNull ISqueezeService service) {}
 
     /**
      * This is called when the service is disconnected.
@@ -353,24 +361,12 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         return true;
     }
 
-    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
-        @Override
-        public void onVolumeChanged(final int newVolume, final Player player) {
-            if (!mIgnoreVolumeChange && mVolumePanel != null) {
-                mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
-            }
+    public void onEvent(PlayerVolume event) {
+        if (!mIgnoreVolumeChange && mVolumePanel != null && event.mPlayer == mService.getActivePlayer()) {
+            mVolumePanel.postVolumeChanged(event.mVolume,
+                    event.mPlayer == null ? "" : event.mPlayer.getName());
         }
-
-        @Override
-        public Object getClient() {
-            return this;
-        }
-
-        @Override
-        public boolean wantAllPlayers() {
-            return false;
-        }
-    };
+    }
 
     public void setIgnoreVolumeChange(boolean ignoreVolumeChange) {
         mIgnoreVolumeChange = ignoreVolumeChange;

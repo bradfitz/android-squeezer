@@ -41,8 +41,8 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
-import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 
 
 public class PlayerListActivity extends ItemListActivity implements
@@ -195,7 +195,6 @@ public class PlayerListActivity extends ItemListActivity implements
 
         updateAndExpandPlayerList();
 
-        service.registerVolumeCallback(volumeCallback);
         service.registerPlayerStateCallback(playerStateCallback);
     }
 
@@ -212,22 +211,10 @@ public class PlayerListActivity extends ItemListActivity implements
         }
     };
 
-    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
-        @Override
-        public void onVolumeChanged(final int newVolume, final Player player) {
-            uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, newVolume, 0, player).sendToTarget();
-        }
-
-        @Override
-        public Object getClient() {
-            return PlayerListActivity.this;
-        }
-
-        @Override
-        public boolean wantAllPlayers() {
-            return true;
-        }
-    };
+    public void onEvent(PlayerVolume event) {
+        uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, event.mVolume,
+                0, event.mPlayer).sendToTarget();
+    }
 
     /**
      * Builds the list of lists that is a sync group.

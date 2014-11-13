@@ -51,6 +51,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -75,6 +76,7 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
@@ -135,9 +137,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     final ServiceCallbackList<IServicePlayersCallback> mPlayersCallbacks
             = new ServiceCallbackList<IServicePlayersCallback>(this);
-
-    final ServiceCallbackList<IServiceVolumeCallback> mVolumeCallbacks
-            = new ServiceCallbackList<IServiceVolumeCallback>(this);
 
     final ServiceCallbackList<IServiceCurrentPlaylistCallback> mCurrentPlaylistCallbacks
             = new ServiceCallbackList<IServiceCurrentPlaylistCallback>(this);
@@ -629,11 +628,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     private void updatePlayerVolume(String playerId, int newVolume) {
         Player player = connectionState.getPlayer(playerId);
+        if (player == null)
+            return;
         connectionState.getPlayer(playerId).getPlayerState().setCurrentVolume(newVolume);
-        for (IServiceVolumeCallback callback : mVolumeCallbacks) {
-            if (callback.wantAllPlayers() || playerId.equals(getActivePlayerId()))
-            callback.onVolumeChanged(newVolume, player);
-        }
+        EventBus.getDefault().post(new PlayerVolume(newVolume, player));
     }
 
     private void parsePlaylistNotification(List<String> tokens) {
@@ -1186,11 +1184,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (players.size() > 0) {
                 callback.onPlayersChanged(players, connectionState.getActivePlayer());
             }
-        }
-
-        @Override
-        public void registerVolumeCallback(IServiceVolumeCallback callback) {
-            mVolumeCallbacks.register(callback);
         }
 
         @Override
