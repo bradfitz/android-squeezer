@@ -63,7 +63,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.AuthenticationDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
@@ -659,12 +658,6 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().registerSticky(this);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume...");
@@ -705,7 +698,7 @@ public class NowPlayingFragment extends Fragment implements
             service.registerPlayersCallback(playersCallback);
             mRegisteredCallbacks = true;
 
-            HandshakeComplete event = EventBus.getDefault().getStickyEvent(
+            HandshakeComplete event = service.getEventBus().getStickyEvent(
                     HandshakeComplete.class);
             if (event != null) {
                 onEventMainThread(event);
@@ -878,16 +871,11 @@ public class NowPlayingFragment extends Fragment implements
 
         if (mRegisteredCallbacks) {
             mService.cancelSubscriptions(this);
+            mService.getEventBus().unregister(this);
             mRegisteredCallbacks = false;
         }
 
         super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
     }
 
     @Override

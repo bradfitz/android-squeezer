@@ -21,6 +21,7 @@ import android.support.annotation.Nullable;
 
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
@@ -39,6 +40,11 @@ import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 
 public interface ISqueezeService {
+    /**
+     * @return the EventBus the activity posts events to.
+     */
+    @NonNull EventBus getEventBus();
+
     // For the activity to get callbacks on interesting events
     void registerCallback(IServiceCallback callback);
 

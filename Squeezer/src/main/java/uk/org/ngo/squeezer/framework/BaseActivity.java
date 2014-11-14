@@ -37,7 +37,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
@@ -135,12 +134,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().registerSticky(this);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
@@ -170,19 +163,15 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         if (mRegisteredCallbacks) {
             // If we are not bound to the service, it's process is no longer
             // running, so the callbacks are already cleaned up.
-            if (getService() != null) {
+            ISqueezeService service = getService();
+            if (service != null) {
+                service.getEventBus().unregister(this);
                 unregisterCallback();
             }
             mRegisteredCallbacks = false;
         }
 
         super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -263,6 +252,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
      */
     private void maybeRegisterCallbacks(@NonNull ISqueezeService service) {
         if (!mRegisteredCallbacks) {
+            service.getEventBus().registerSticky(this);
             registerCallback(service);
             mRegisteredCallbacks = true;
         }
