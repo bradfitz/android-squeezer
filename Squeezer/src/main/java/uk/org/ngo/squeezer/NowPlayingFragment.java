@@ -63,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.AuthenticationDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
@@ -81,11 +82,11 @@ import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceCallback;
 import uk.org.ngo.squeezer.service.IServiceConnectionCallback;
-import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
@@ -96,7 +97,8 @@ public class NowPlayingFragment extends Fragment implements
 
     private BaseActivity mActivity;
 
-    @Nullable private ISqueezeService mService = null;
+    @Nullable
+    private ISqueezeService mService = null;
 
     private TextView albumText;
 
@@ -566,11 +568,12 @@ public class NowPlayingFragment extends Fragment implements
     /**
      * Manages the list of connected players in the action bar.
      *
-     * @param players A list of players to show. May be empty (use
-     *            {@code Collections.&lt;Player>emptyList()}) but not null.
+     * @param players A list of players to show. May be empty (use {@code
+     * Collections.&lt;Player>emptyList()}) but not null.
      * @param activePlayer The currently active player. May be null.
      */
-    private void updatePlayerDropDown(@NonNull List<Player> players, @Nullable Player activePlayer) {
+    private void updatePlayerDropDown(@NonNull List<Player> players,
+            @Nullable Player activePlayer) {
         if (!isAdded()) {
             return;
         }
@@ -591,27 +594,34 @@ public class NowPlayingFragment extends Fragment implements
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(
-                    actionBar.getThemedContext(), android.R.layout.simple_spinner_dropdown_item, connectedPlayers) {
+                    actionBar.getThemedContext(), android.R.layout.simple_spinner_dropdown_item,
+                    connectedPlayers) {
                 @Override
                 public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent, getItem(position).getName());
+                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent,
+                            getItem(position).getName());
                 }
 
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent, getItem(position).getName());
+                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent,
+                            getItem(position).getName());
                 }
             };
-            actionBar.setListNavigationCallbacks(playerAdapter, new ActionBar.OnNavigationListener() {
-                @Override
-                public boolean onNavigationItemSelected(int position, long id) {
-                    if (!playerAdapter.getItem(position).equals(mService.getActivePlayer())) {
-                        Log.i(TAG, "onNavigationItemSelected.setActivePlayer(" + playerAdapter.getItem(position) + ")");
-                        mService.setActivePlayer(playerAdapter.getItem(position));
-                    }
-                    return true;
-                }
-            });
+            actionBar.setListNavigationCallbacks(playerAdapter,
+                    new ActionBar.OnNavigationListener() {
+                        @Override
+                        public boolean onNavigationItemSelected(int position, long id) {
+                            if (!playerAdapter.getItem(position)
+                                    .equals(mService.getActivePlayer())) {
+                                Log.i(TAG,
+                                        "onNavigationItemSelected.setActivePlayer(" + playerAdapter
+                                                .getItem(position) + ")");
+                                mService.setActivePlayer(playerAdapter.getItem(position));
+                            }
+                            return true;
+                        }
+                    });
             if (activePlayer != null) {
                 actionBar.setSelectedNavigationItem(playerAdapter.getPosition(activePlayer));
             }
@@ -646,6 +656,12 @@ public class NowPlayingFragment extends Fragment implements
         if (!isConnected() && !isManualDisconnect()) {
             startVisibleConnection();
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().registerSticky(this);
     }
 
     @Override
@@ -685,10 +701,15 @@ public class NowPlayingFragment extends Fragment implements
         if (!mRegisteredCallbacks) {
             service.registerCallback(serviceCallback);
             service.registerConnectionCallback(connectionCallback);
-            service.registerHandshakeCallback(handshakeCallback);
             service.registerMusicChangedCallback(musicChangedCallback);
             service.registerPlayersCallback(playersCallback);
             mRegisteredCallbacks = true;
+
+            HandshakeComplete event = EventBus.getDefault().getStickyEvent(
+                    HandshakeComplete.class);
+            if (event != null) {
+                onEventMainThread(event);
+            }
         }
     }
 
@@ -861,6 +882,12 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -1086,7 +1113,8 @@ public class NowPlayingFragment extends Fragment implements
                 try {
                     connectingDialog = ProgressDialog.show(mActivity,
                             getText(R.string.connecting_text),
-                            getString(R.string.connecting_to_text, preferences.getServerName()), true, false);
+                            getString(R.string.connecting_to_text, preferences.getServerName()),
+                            true, false);
                     Log.v(TAG, "startConnect, ipPort: " + ipPort);
                     mService.startConnect(ipPort, preferences.getUserName("test"),
                             preferences.getPassword("test1"));
@@ -1165,8 +1193,8 @@ public class NowPlayingFragment extends Fragment implements
     private final IServiceConnectionCallback connectionCallback = new IServiceConnectionCallback() {
         @Override
         public void onConnectionChanged(final boolean isConnected,
-                                        final boolean postConnect,
-                                        final boolean loginFailed) {
+                final boolean postConnect,
+                final boolean loginFailed) {
             Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
             uiThreadHandler.post(new Runnable() {
                 @Override
@@ -1199,23 +1227,15 @@ public class NowPlayingFragment extends Fragment implements
         }
     };
 
-    private final IServiceHandshakeCallback handshakeCallback
-            = new IServiceHandshakeCallback() {
-        @Override
-        public void onHandshakeCompleted() {
-            uiThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    updatePowerMenuItems(canPowerOn(), canPowerOff());
-                }
-            });
-        }
+    public void onEventMainThread(HandshakeComplete event) {
+        // Event might arrive before this fragment has connected to the service (e.g.,
+        // the activity connected before this fragment did).
+        if (mService == null)
+            return;
 
-        @Override
-        public Object getClient() {
-            return NowPlayingFragment.this;
-        }
-    };
+        Log.d(TAG, "Handshake complete");
+        updatePowerMenuItems(canPowerOn(), canPowerOff());
+    }
 
     private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
         @Override

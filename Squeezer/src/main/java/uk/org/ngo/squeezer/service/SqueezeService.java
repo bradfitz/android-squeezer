@@ -76,6 +76,7 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.util.Scrobble;
 
@@ -143,9 +144,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     final ServiceCallbackList<IServiceMusicChangedCallback> mMusicChangedCallbacks
             = new ServiceCallbackList<IServiceMusicChangedCallback>(this);
-
-    final ServiceCallbackList<IServiceHandshakeCallback> mHandshakeCallbacks
-            = new ServiceCallbackList<IServiceHandshakeCallback>(this);
 
     final ServiceCallbackList<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallbacks
             = new ServiceCallbackList<IServicePlaylistMaintenanceCallback>(this);
@@ -343,8 +341,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             /**
              * Seeing the <code>version</code> result indicates that the
              * handshake has completed (see
-             * {@link SqueezeService#onCliPortConnectionEstablished(String, String)}), call any handshake
-             * callbacks that have been registered.
+             * {@link SqueezeService#onCliPortConnectionEstablished(String, String)}),
+             * post a {@link uk.org.ngo.squeezer.service.event.HandshakeComplete} event.
              */
             @Override
             public void handle(List<String> tokens) {
@@ -352,9 +350,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 mHandshakeComplete = true;
                 strings();
 
-                for (IServiceHandshakeCallback callback : mHandshakeCallbacks) {
-                    callback.onHandshakeCompleted();
-                }
+                EventBus.getDefault().postSticky(new HandshakeComplete());
             }
         });
 
@@ -1032,7 +1028,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         // Initiate an async player fetch
         cli.requestItems("players", -1, new IServiceItemListCallback<Player>() {
             @Override
-            public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Player> items, Class<Player> dataType) {
+            public void onItemsReceived(int count, int start, Map<String, String> parameters,
+                    List<Player> items, Class<Player> dataType) {
                 connectionState.addPlayers(items);
 
                 // If all players have been received then determine the new active player.
@@ -1052,7 +1049,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
              */
             @Nullable
             private Player getInitialPlayer() {
-                final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
+                final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
+                        Context.MODE_PRIVATE);
                 final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER,
                         null);
                 Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
@@ -1194,16 +1192,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void registerMusicChangedCallback(IServiceMusicChangedCallback callback) {
             mMusicChangedCallbacks.register(callback);
-        }
-
-        @Override
-        public void registerHandshakeCallback(IServiceHandshakeCallback callback) {
-            mHandshakeCallbacks.register(callback);
-
-            // Call onHandshakeCompleted() immediately if handshaking is done.
-            if (mHandshakeComplete) {
-                callback.onHandshakeCompleted();
-            }
         }
 
         @Override

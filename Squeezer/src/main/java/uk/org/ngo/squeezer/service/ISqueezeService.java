@@ -54,9 +54,6 @@ public interface ISqueezeService {
     // For the activity to get callback when music changes
     void registerMusicChangedCallback(IServiceMusicChangedCallback callback);
 
-    // For the activity to get callback when handshake completes
-    void registerHandshakeCallback(IServiceHandshakeCallback callback);
-
     // For the activity to get callback when status for a player is received.
     void registerPlayerStateCallback(IServicePlayerStateCallback callback);
 
