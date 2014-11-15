@@ -113,4 +113,12 @@ public class UtilTest extends TestCase {
                 Util.decode("album%3A100%2080'er%20hits%20(disc%201)"));
     }
 
+    public void testMacToLong() {
+        assertEquals("All zeros is zero", 0L, Util.MacToLong("00:00:00:00:00:00"));
+        assertEquals("...:01 is one", 1L, Util.MacToLong("00:00:00:00:00:01"));
+        assertEquals("...:ff is 255", 255, Util.MacToLong("00:00:00:00:00:ff"));
+        assertEquals("...:FF is also 255", 255, Util.MacToLong("00:00:00:00:00:FF"));
+        assertEquals("...:01:00 is 256", 256, Util.MacToLong("00:00:00:00:01:00"));
+        assertEquals("...:01:FF is 511", 511, Util.MacToLong("00:00:00:00:01:FF"));
+    }
 }

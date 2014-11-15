@@ -20,11 +20,13 @@ package uk.org.ngo.squeezer;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.service.IServiceConnectionCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /**
  * An activity for when the user is not connected to a Squeezeserver.
@@ -76,9 +78,9 @@ public class DisconnectedActivity extends BaseActivity {
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        getService().registerConnectionCallback(connectionCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerConnectionCallback(connectionCallback);
     }
 
     private final IServiceConnectionCallback connectionCallback = new IServiceConnectionCallback() {

@@ -31,9 +31,11 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
@@ -133,6 +135,10 @@ public class PlayerView extends BaseItemView<Player> {
     @Override
     public boolean doItemContext(MenuItem menuItem, int index, Player selectedItem) {
         activity.setCurrentPlayer(selectedItem);
+        ISqueezeService service = activity.getService();
+        if (service == null) {
+            return super.doItemContext(menuItem, index, selectedItem);
+        }
 
         switch (menuItem.getItemId()) {
             case R.id.sleep:
@@ -140,14 +146,18 @@ public class PlayerView extends BaseItemView<Player> {
                 // Just return, as we have set the current player.
                 return true;
             case R.id.cancel_sleep:
-                activity.getService().sleep(selectedItem, 0);
+                service.sleep(selectedItem, 0);
                 return true;
             case R.id.rename:
                 new PlayerRenameDialog().show(activity.getSupportFragmentManager(),
                         PlayerRenameDialog.class.getName());
                 return true;
             case R.id.toggle_power:
-                getActivity().getService().togglePower(selectedItem);
+                service.togglePower(selectedItem);
+                return true;
+            case R.id.player_sync:
+                new PlayerSyncDialog().show(activity.getSupportFragmentManager(),
+                        PlayerSyncDialog.class.getName());
                 return true;
         }
         return super.doItemContext(menuItem, index, selectedItem);
@@ -155,6 +165,11 @@ public class PlayerView extends BaseItemView<Player> {
 
     @Override
     public boolean doItemContext(MenuItem menuItem) {
+        ISqueezeService service = activity.getService();
+        if (service == null) {
+            return super.doItemContext(menuItem);
+        }
+
         Player currentPlayer = activity.getCurrentPlayer();
         switch (menuItem.getItemId()) {
             case R.id.end_of_song:
@@ -165,25 +180,25 @@ public class PlayerView extends BaseItemView<Player> {
                     if (isPlaying && !currentSong.isRemote()) {
                         int sleep = playerState.getCurrentSongDuration() - playerState.getCurrentTimeSecond() + 1;
                         if (sleep >= 0)
-                            activity.getService().sleep(currentPlayer, sleep);
+                            service.sleep(currentPlayer, sleep);
                     }
 
                 }
                 return true;
             case R.id.in_15_minutes:
-                activity.getService().sleep(currentPlayer, 15*60);
+                service.sleep(currentPlayer, 15*60);
                 return true;
             case R.id.in_30_minutes:
-                activity.getService().sleep(currentPlayer, 30*60);
+                service.sleep(currentPlayer, 30*60);
                 return true;
             case R.id.in_45_minutes:
-                activity.getService().sleep(currentPlayer, 45*60);
+                service.sleep(currentPlayer, 45*60);
                 return true;
             case R.id.in_60_minutes:
-                activity.getService().sleep(currentPlayer, 60*60);
+                service.sleep(currentPlayer, 60*60);
                 return true;
             case R.id.in_90_minutes:
-                activity.getService().sleep(currentPlayer, 90*60);
+                service.sleep(currentPlayer, 90*60);
                 return true;
         }
         return super.doItemContext(menuItem);
@@ -227,7 +242,11 @@ public class PlayerView extends BaseItemView<Player> {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
-                activity.getService().adjustVolumeTo(player, progress);
+                ISqueezeService service = activity.getService();
+                if (service == null) {
+                    return;
+                }
+                service.adjustVolumeTo(player, progress);
             }
         }
 
@@ -251,7 +270,11 @@ public class PlayerView extends BaseItemView<Player> {
 
         @Override
         public void onClick(View v) {
-            getActivity().getService().togglePower(player);
+            ISqueezeService service = activity.getService();
+            if (service == null) {
+                return;
+            }
+            service.togglePower(player);
         }
     }
 

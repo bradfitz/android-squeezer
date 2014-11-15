@@ -17,7 +17,9 @@
 package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
+import android.support.annotation.NonNull;
 
+import java.util.Comparator;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
@@ -33,6 +35,8 @@ public class Player extends Item {
     private final String mModel;
 
     private final boolean mCanPowerOff;
+
+    private PlayerState mPlayerState = new PlayerState();
 
     /** Is the player connected? */
     private boolean mConnected;
@@ -85,6 +89,14 @@ public class Player extends Item {
         return mConnected;
     }
 
+    public PlayerState getPlayerState() {
+        return mPlayerState;
+    }
+
+    public void setPlayerState(@NonNull PlayerState playerState) {
+        mPlayerState = playerState;
+    }
+
     public static final Creator<Player> CREATOR = new Creator<Player>() {
         public Player[] newArray(int size) {
             return new Player[size];
@@ -103,6 +115,23 @@ public class Player extends Item {
         dest.writeByte(mCanPowerOff ? (byte) 1 : (byte) 0);
         dest.writeByte(mConnected ? (byte) 1 : (byte) 0);
     }
+
+    /**
+     * @return The player's ID as a long (48 of 64 bits used).
+     */
+    public long getIdAsLong() {
+        return Util.MacToLong(getId());
+    }
+
+    /**
+     * Comparator to compare two players by ID.
+     */
+    public static Comparator<Player> compareById = new Comparator<Player>() {
+        @Override
+        public int compare(Player lhs, Player rhs) {
+            return lhs.getId().compareTo(rhs.getId());
+        }
+    };
 
     @Override
     public String toString() {

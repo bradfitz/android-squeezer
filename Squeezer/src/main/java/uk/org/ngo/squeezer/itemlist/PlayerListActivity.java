@@ -21,31 +21,48 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ExpandableListView;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.org.ngo.squeezer.NowPlayingFragment;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.BaseListActivity;
-import uk.org.ngo.squeezer.framework.ItemAdapter;
-import uk.org.ngo.squeezer.framework.ItemView;
+import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
-import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
-public class PlayerListActivity extends BaseListActivity<Player> {
+
+public class PlayerListActivity extends ItemListActivity implements
+        PlayerSyncDialog.PlayerSyncDialogHost {
     public static final String CURRENT_PLAYER = "currentPlayer";
 
-    private final Map<String, PlayerState> playerStates = new HashMap<String, PlayerState>();
+    private ExpandableListView mResultsExpandableListView;
+
+    private PlayerListAdapter mResultsAdapter;
+
     private Player currentPlayer;
-    private boolean trackingTouch;
+    private boolean mTrackingTouch;
+
+    /** An update arrived while tracking touches. UI should be re-synced. */
+    private boolean mUpdateWhileTracking = false;
 
     private final Handler uiThreadHandler = new UiThreadHandler(this);
+
+    /** Map from player IDs to Players synced to that player ID. */
+    private final Multimap<String, Player> mPlayerSyncGroups = HashMultimap.create();
 
     private final static class UiThreadHandler extends Handler {
         private static final int VOLUME_CHANGE = 1;
@@ -64,33 +81,77 @@ public class PlayerListActivity extends BaseListActivity<Player> {
                     activity.get().onVolumeChanged(message.arg1, (Player)message.obj);
                     break;
                 case PLAYER_STATE:
-                    activity.get().onPlayerStateReceived((PlayerState) message.obj);
+                    activity.get().onPlayerStateReceived();
                     break;
             }
         }
     }
 
     private void onVolumeChanged(int newVolume, Player player) {
-        PlayerState playerState = playerStates.get(player.getId());
+        PlayerState playerState = getService().getPlayerState(player.getId());
         if (playerState != null) {
             playerState.setCurrentVolume(newVolume);
-            if (!trackingTouch)
-                getItemAdapter().notifyDataSetChanged();
+            Log.d("PlayerListActivity", "Received new volume for + " + player.getName() + " vol: " + newVolume);
+            if (!mTrackingTouch)
+                mResultsAdapter.notifyDataSetChanged();
         }
     }
 
-    private void onPlayerStateReceived(PlayerState playerState) {
-        playerStates.put(playerState.getPlayerId(), playerState);
-        if (!trackingTouch)
-            getItemAdapter().notifyDataSetChanged();
+    private void onPlayerStateReceived() {
+        if (!mTrackingTouch) {
+            updateAndExpandPlayerList();
+        } else {
+            mUpdateWhileTracking = true;
+        }
+    }
+
+    /**
+     * Updates the adapter with the current players, and ensures that the list view is
+     * expanded.
+     */
+    private void updateAndExpandPlayerList() {
+        updateSyncGroups(getService().getPlayers(), getService().getActivePlayer());
+        mResultsAdapter.setSyncGroups(mPlayerSyncGroups);
+
+        for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
+            mResultsExpandableListView.expandGroup(i);
+        }
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.item_list_players);
         if (savedInstanceState != null)
             currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
-        ((NowPlayingFragment) getSupportFragmentManager().findFragmentById(R.id.now_playing_fragment)).setIgnoreVolumeChange(true);
+
+        mResultsAdapter = new PlayerListAdapter(this, getImageFetcher());
+        mResultsExpandableListView = (ExpandableListView) findViewById(R.id.expandable_list);
+        mResultsExpandableListView.setAdapter(mResultsAdapter);
+
+        mResultsExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
+                                        int childPosition, long id) {
+                mResultsAdapter.onChildClick(groupPosition, childPosition);
+                return true;
+            }
+        });
+
+        // Disable collapsing the list.
+        mResultsExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition,
+                    long id) {
+                return true;
+            }
+        });
+
+        mResultsExpandableListView.setOnCreateContextMenuListener(mResultsAdapter);
+        mResultsExpandableListView.setOnScrollListener(new ItemListActivity.ScrollListener());
+
+        setIgnoreVolumeChange(true);
     }
 
     @Override
@@ -100,28 +161,49 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
 
     @Override
-    public ItemView<Player> createItemView() {
-        return new PlayerView(this);
+    public final boolean onContextItemSelected(MenuItem item) {
+        if (getService() != null) {
+            ExpandableListView.ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListView.ExpandableListContextMenuInfo) item
+                    .getMenuInfo();
+
+            // If menuInfo is null we have a sub menu, we expect the adapter to have stored the position
+            if (contextMenuInfo == null) {
+                return mResultsAdapter.doItemContext(item);
+            } else {
+
+                long packedPosition = contextMenuInfo.packedPosition;
+                int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+                int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+                if (ExpandableListView.getPackedPositionType(packedPosition)
+                        == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                    return mResultsAdapter.doItemContext(item, groupPosition, childPosition);
+                }
+            }
+        }
+        return false;
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().players(start, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        // Do nothing -- the service has been tracking players from the time it
+        // initially connected to the server.
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        getService().registerVolumeCallback(volumeCallback);
-        getService().registerPlayersCallback(playersCallback);
-        getService().registerPlayerStateCallback(playerStateCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+
+        updateAndExpandPlayerList();
+
+        service.registerVolumeCallback(volumeCallback);
+        service.registerPlayerStateCallback(playerStateCallback);
     }
 
     private final IServicePlayerStateCallback playerStateCallback
             = new IServicePlayerStateCallback() {
         @Override
-        public void onPlayerStateReceived(final PlayerState playerState) {
-            uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0, playerState).sendToTarget();
+        public void onPlayerStateReceived(final Player player, final PlayerState playerState) {
+            uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0).sendToTarget();
         }
 
         @Override
@@ -147,20 +229,57 @@ public class PlayerListActivity extends BaseListActivity<Player> {
         }
     };
 
-    private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
-        @Override
-        public void onPlayersChanged(List<Player> players, Player activePlayer) {
-            onItemsReceived(players.size(), 0, players);
+    /**
+     * Builds the list of lists that is a sync group.
+     *
+     * @param players List of players.
+     * @param activePlayer The currently active player.
+     */
+    public void updateSyncGroups(List<Player> players, Player activePlayer) {
+        Map<String, Player> connectedPlayers = new HashMap<String, Player>();
+
+        // Make a copy of the players we know about, ignoring unconnected ones.
+        for (Player player : players) {
+            if (!player.getConnected())
+                continue;
+
+            connectedPlayers.put(player.getId(), player);
         }
 
-        @Override
-        public Object getClient() {
-            return PlayerListActivity.this;
+        mPlayerSyncGroups.clear();
+
+        // Iterate over all the connected players to build the list of master players.
+        for (Player player : connectedPlayers.values()) {
+            String playerId = player.getId();
+            PlayerState playerState = player.getPlayerState();
+            String syncMaster = playerState.getSyncMaster();
+
+            // If a player doesn't have a sync master then it's in a group of its own.
+            if (syncMaster == null) {
+                mPlayerSyncGroups.put(playerId, player);
+                continue;
+            }
+
+            // If the master is this player then add itself and all the slaves.
+            if (playerId.equals(syncMaster)) {
+                mPlayerSyncGroups.put(playerId, player);
+                continue;
+            }
+
+            // Must be a slave. Add it under the master. This might have already
+            // happened (in the block above), but might not. For example, it's possible
+            // to have a player that's a syncslave of an player that is not connected.
+            mPlayerSyncGroups.put(syncMaster, player);
         }
-    };
+    }
+
+    @NonNull
+    public Multimap<String, Player> getPlayerSyncGroups() {
+        return mPlayerSyncGroups;
+    }
 
     public PlayerState getPlayerState(String id) {
-        return playerStates.get(id);
+        return getService().getPlayerState(id);
     }
 
     public Player getCurrentPlayer() {
@@ -171,18 +290,48 @@ public class PlayerListActivity extends BaseListActivity<Player> {
     }
 
     public void setTrackingTouch(boolean trackingTouch) {
-        this.trackingTouch = trackingTouch;
+        mTrackingTouch = trackingTouch;
+        if (!mTrackingTouch) {
+            if (mUpdateWhileTracking) {
+                mUpdateWhileTracking = false;
+                updateAndExpandPlayerList();
+            }
+        }
     }
 
     public void playerRename(String newName) {
-        getService().playerRename(currentPlayer, newName);
+        ISqueezeService service = getService();
+        if (service == null) {
+            return;
+        }
+
+        service.playerRename(currentPlayer, newName);
         this.currentPlayer.setName(newName);
-        getItemAdapter().notifyDataSetChanged();
+        mResultsAdapter.notifyDataSetChanged();
     }
 
     @Override
-    protected ItemAdapter<Player> createItemListAdapter(ItemView<Player> itemView) {
-        return new PlayerListAdapter(itemView, getImageFetcher());
+    protected void clearItemAdapter() {
+        mResultsAdapter.clear();
+    }
+
+    /**
+     * Synchronises the slave player to the player with masterId.
+     *
+     * @param slave the player to sync.
+     * @param masterId ID of the player to sync to.
+     */
+    public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
+        getService().syncPlayerToPlayer(slave, masterId);
+    }
+
+    /**
+     * Removes the player from any sync groups.
+     *
+     * @param player the player to be removed from sync groups.
+     */
+    public void unsyncPlayer(@NonNull Player player) {
+        getService().unsyncPlayer(player);
     }
 
     public static void show(Context context) {

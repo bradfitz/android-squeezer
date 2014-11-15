@@ -39,11 +39,14 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import uk.org.ngo.squeezer.dialog.ServerAddressPreference;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Scrobble;
+import uk.org.ngo.squeezer.util.ThemeManager;
 
 public class SettingsActivity extends PreferenceActivity implements
         OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
@@ -62,6 +65,10 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private ListPreference onSelectSongPref;
 
+    private ListPreference onSelectThemePref;
+
+    private final ThemeManager mThemeManager = new ThemeManager();
+
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
             SettingsActivity.this.service = (ISqueezeService) service;
@@ -74,6 +81,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mThemeManager.onCreate(this);
         super.onCreate(savedInstanceState);
 
         bindService(new Intent(this, SqueezeService.class), serviceConnection,
@@ -101,6 +109,8 @@ public class SettingsActivity extends PreferenceActivity implements
         fillScrobblePreferences(preferences);
 
         fillPlayableItemSelectionPreferences();
+
+        fillThemeSelectionPreferences();
 
         CheckBoxPreference startSqueezePlayerPref = (CheckBoxPreference) findPreference(
                 Preferences.KEY_SQUEEZEPLAYER_ENABLED);
@@ -175,6 +185,38 @@ public class SettingsActivity extends PreferenceActivity implements
         updateSelectSongSummary(onSelectSongPref.getValue());
     }
 
+    private void fillThemeSelectionPreferences() {
+        onSelectThemePref = (ListPreference) findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
+        ArrayList<String> entryValues = new ArrayList<String>();
+        ArrayList<String> entries = new ArrayList<String>();
+
+        for (ThemeManager.Theme theme : ThemeManager.Theme.values()) {
+            entryValues.add(theme.name());
+            entries.add(getString(theme.mLabelId));
+        }
+
+        onSelectThemePref.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
+        onSelectThemePref.setEntries(entries.toArray(new String[entries.size()]));
+        onSelectThemePref.setDefaultValue(ThemeManager.getDefaultTheme().name());
+        if (onSelectThemePref.getValue() == null) {
+            onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
+        } else {
+            try {
+                ThemeManager.Theme t = ThemeManager.Theme.valueOf(onSelectThemePref.getValue());
+            } catch (Exception e) {
+                onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
+            }
+        }
+        onSelectThemePref.setOnPreferenceChangeListener(this);
+        updateSelectThemeSummary(onSelectThemePref.getValue());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mThemeManager.onResume(this);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -212,6 +254,13 @@ public class SettingsActivity extends PreferenceActivity implements
         onSelectSongPref.setSummary(entries[index]);
     }
 
+    private void updateSelectThemeSummary(String value) {
+        CharSequence[] entries = onSelectThemePref.getEntries();
+        int index = onSelectThemePref.findIndexOfValue(value);
+
+        onSelectThemePref.setSummary(entries[index]);
+    }
+
     /**
      * A preference has been changed by the user, but has not yet been persisted.
      *
@@ -243,6 +292,11 @@ public class SettingsActivity extends PreferenceActivity implements
 
         if (Preferences.KEY_ON_SELECT_SONG_ACTION.equals(key)) {
             updateSelectSongSummary(newValue.toString());
+            return true;
+        }
+
+        if (Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
+            updateSelectThemeSummary(newValue.toString());
             return true;
         }
 

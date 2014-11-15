@@ -19,7 +19,14 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -27,6 +34,31 @@ import uk.org.ngo.squeezer.service.ServerString;
 
 
 public class PlayerState implements Parcelable {
+
+    /**
+     * Types of player status subscription.
+     */
+    public enum PlayerSubscriptionType {
+        /** Do not subscribe to updates. */
+        none('-'),
+
+        /** Subscribe to updates when the status changes. */
+        on_change('0'),
+
+        /** Receive real-time (second to second) updates. */
+        real_time('1');
+
+        private char mToken;
+
+        private PlayerSubscriptionType(char token) {
+            mToken = token;
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(mToken);
+        }
+    }
 
     public PlayerState() {
     }
@@ -50,12 +82,16 @@ public class PlayerState implements Parcelable {
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
         repeatStatus = RepeatStatus.valueOf(source.readInt());
         currentSong = source.readParcelable(null);
+        currentPlaylist = source.readString();
         currentPlaylistIndex = source.readInt();
         currentTimeSecond = source.readInt();
         currentSongDuration = source.readInt();
         currentVolume = source.readInt();
         sleepDuration = source.readInt();
         sleep = source.readInt();
+        mSyncMaster = source.readString();
+        source.readStringList(mSyncSlaves);
+        mPlayerSubscriptionType = PlayerSubscriptionType.valueOf(source.readString());
     }
 
     @Override
@@ -66,12 +102,16 @@ public class PlayerState implements Parcelable {
         dest.writeInt(shuffleStatus.getId());
         dest.writeInt(repeatStatus.getId());
         dest.writeParcelable(currentSong, 0);
+        dest.writeString(currentPlaylist);
         dest.writeInt(currentPlaylistIndex);
         dest.writeInt(currentTimeSecond);
         dest.writeInt(currentSongDuration);
         dest.writeInt(currentVolume);
         dest.writeInt(sleepDuration);
         dest.writeInt(sleep);
+        dest.writeString(mSyncMaster);
+        dest.writeStringList(mSyncSlaves);
+        dest.writeString(mPlayerSubscriptionType.toString());
     }
 
     @Override
@@ -81,7 +121,7 @@ public class PlayerState implements Parcelable {
 
     private String playerId;
 
-    private Boolean poweredOn;
+    private boolean poweredOn;
 
     private PlayStatus playStatus;
 
@@ -91,6 +131,7 @@ public class PlayerState implements Parcelable {
 
     private Song currentSong;
 
+    /** The name of the current playlist, if it has one. */
     private String currentPlaylist;
 
     private int currentPlaylistIndex;
@@ -105,6 +146,17 @@ public class PlayerState implements Parcelable {
 
     private int sleep;
 
+    /** The player this player is synced to (null if none). */
+    @Nullable
+    private String mSyncMaster;
+
+    /** The players synced to this player. */
+    private ImmutableList<String> mSyncSlaves = new ImmutableList.Builder<String>().build();
+
+    /** How the server is subscribed to the player's status changes. */
+    @NonNull
+    private PlayerSubscriptionType mPlayerSubscriptionType = PlayerSubscriptionType.none;
+
     public boolean isPlaying() {
         return playStatus == PlayStatus.play;
     }
@@ -113,18 +165,24 @@ public class PlayerState implements Parcelable {
         return playStatus;
     }
 
-    public void setPlayStatus(PlayStatus state) {
+    public boolean setPlayStatus(PlayStatus state) {
+        if (state == playStatus)
+            return false;
+
         playStatus = state;
+        return true;
     }
 
-    public void setPlayStatus(String s) {
+    public boolean setPlayStatus(String s) {
         playStatus = null;
         if (s != null)
             try {
-                setPlayStatus(PlayStatus.valueOf(s));
+                return setPlayStatus(PlayStatus.valueOf(s));
             } catch (IllegalArgumentException e) {
                 // Server sent us an unknown status, nulls are handled outside this function
             }
+
+        return true;
     }
 
     public String getPlayerId() {
@@ -135,40 +193,52 @@ public class PlayerState implements Parcelable {
         this.playerId = playerId;
     }
 
-    public Boolean getPoweredOn() {
+    public boolean getPoweredOn() {
         return poweredOn;
     }
 
     public boolean isPoweredOn() {
-        return (poweredOn != null) && poweredOn;
+        return poweredOn;
     }
 
-    public void setPoweredOn(boolean state) {
+    public boolean setPoweredOn(boolean state) {
+        if (state == poweredOn)
+            return false;
+
         poweredOn = state;
+        return true;
     }
 
     public ShuffleStatus getShuffleStatus() {
         return shuffleStatus;
     }
 
-    public void setShuffleStatus(ShuffleStatus status) {
+    public boolean setShuffleStatus(ShuffleStatus status) {
+        if (status == shuffleStatus)
+            return false;
+
         shuffleStatus = status;
+        return true;
     }
 
-    public void setShuffleStatus(String s) {
-        setShuffleStatus(s != null ? ShuffleStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
+    public boolean setShuffleStatus(String s) {
+        return setShuffleStatus(s != null ? ShuffleStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
     }
 
     public RepeatStatus getRepeatStatus() {
         return repeatStatus;
     }
 
-    public void setRepeatStatus(RepeatStatus status) {
+    public boolean setRepeatStatus(RepeatStatus status) {
+        if (status == repeatStatus)
+            return false;
+
         repeatStatus = status;
+        return true;
     }
 
-    public void setRepeatStatus(String s) {
-        setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
+    public boolean setRepeatStatus(String s) {
+        return setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
     }
 
     public Song getCurrentSong() {
@@ -179,8 +249,12 @@ public class PlayerState implements Parcelable {
         return (currentSong != null) ? currentSong.getName() : "";
     }
 
-    public void setCurrentSong(Song song) {
+    public boolean setCurrentSong(Song song) {
+        if (song == currentSong)
+            return false;
+
         currentSong = song;
+        return true;
     }
 
     public String getCurrentPlaylist() {
@@ -191,56 +265,150 @@ public class PlayerState implements Parcelable {
         return currentPlaylistIndex;
     }
 
-    public void setCurrentPlaylist(String playlist) {
+    public boolean setCurrentPlaylist(String playlist) {
+        if (playlist == null)
+            playlist = "";
+
+        if (playlist.equals(currentPlaylist))
+            return false;
+
         currentPlaylist = playlist;
+        return true;
     }
 
-    public PlayerState setCurrentPlaylistIndex(int value) {
+    public boolean setCurrentPlaylistIndex(int value) {
+        if (value == currentPlaylistIndex)
+            return false;
+
         currentPlaylistIndex = value;
-        return this;
+        return true;
     }
 
     public int getCurrentTimeSecond() {
         return currentTimeSecond;
     }
 
-    public PlayerState setCurrentTimeSecond(int value) {
+    public boolean setCurrentTimeSecond(int value) {
+        if (value == currentTimeSecond)
+            return false;
+
         currentTimeSecond = value;
-        return this;
+        return true;
     }
 
     public int getCurrentSongDuration() {
         return currentSongDuration;
     }
 
-    public PlayerState setCurrentSongDuration(int value) {
+    public boolean setCurrentSongDuration(int value) {
+        if (value == currentSongDuration)
+            return false;
+
         currentSongDuration = value;
-        return this;
+        return true;
     }
 
     public int getCurrentVolume() {
         return currentVolume;
     }
 
-    public PlayerState setCurrentVolume(int value) {
+    public boolean setCurrentVolume(int value) {
+        if (value == currentVolume)
+            return false;
+
         currentVolume = value;
-        return this;
+        return true;
     }
 
     public int getSleepDuration() {
         return sleepDuration;
     }
 
-    public void setSleepDuration(int sleepDuration) {
+    public boolean setSleepDuration(int sleepDuration) {
+        if (sleepDuration == this.sleepDuration)
+            return false;
+
         this.sleepDuration = sleepDuration;
+        return true;
     }
 
+    /** @return seconds left until the player sleeps. */
     public int getSleep() {
         return sleep;
     }
 
-    public void setSleep(int sleep) {
+    /**
+     *
+     * @param sleep seconds left until the player sleeps.
+     * @return True if the sleep value was changed, false otherwise.
+     */
+    public boolean setSleep(int sleep) {
+        if (sleep == this.sleep)
+            return false;
+
         this.sleep = sleep;
+        return true;
+    }
+
+    public boolean setSyncMaster(@Nullable String syncMaster) {
+        if (syncMaster == null && mSyncMaster == null)
+            return false;
+
+        if (syncMaster != null) {
+            if (syncMaster.equals(mSyncMaster))
+                return false;
+        }
+
+        mSyncMaster = syncMaster;
+        return true;
+    }
+
+    @Nullable
+    public String getSyncMaster() {
+        return mSyncMaster;
+    }
+
+    public boolean setSyncSlaves(@NonNull List<String> syncSlaves) {
+        if (syncSlaves.equals(mSyncSlaves))
+            return false;
+
+        mSyncSlaves = ImmutableList.copyOf(syncSlaves);
+        return true;
+    }
+
+    public ImmutableList<String> getSyncSlaves() {
+        return mSyncSlaves;
+    }
+
+    public PlayerSubscriptionType getSubscriptionType() {
+        return mPlayerSubscriptionType;
+    }
+
+    public boolean setSubscriptionType(@Nullable String type) {
+        if (Strings.isNullOrEmpty(type))
+            return setSubscriptionType(PlayerSubscriptionType.none);
+
+        switch (type.charAt(0)) {
+            case '-':
+                return setSubscriptionType(PlayerSubscriptionType.none);
+
+            case '0':
+                return setSubscriptionType(PlayerSubscriptionType.on_change);
+
+            case '1':
+                return setSubscriptionType(PlayerSubscriptionType.real_time);
+
+            default:
+                throw new IllegalArgumentException("Unknown subscription type: " + type);
+        }
+    }
+
+    public boolean setSubscriptionType(@NonNull PlayerSubscriptionType type) {
+        if (type == mPlayerSubscriptionType)
+            return false;
+
+        mPlayerSubscriptionType = type;
+        return true;
     }
 
     public static enum PlayStatus {
@@ -250,9 +418,9 @@ public class PlayerState implements Parcelable {
     }
 
     public static enum ShuffleStatus implements EnumWithId {
-        SHUFFLE_OFF(0, R.drawable.btn_shuffle_off, ServerString.SHUFFLE_OFF),
-        SHUFFLE_SONG(1, R.drawable.btn_shuffle_song, ServerString.SHUFFLE_ON_SONGS),
-        SHUFFLE_ALBUM(2, R.drawable.btn_shuffle_album, ServerString.SHUFFLE_ON_ALBUMS);
+        SHUFFLE_OFF(0, R.attr.ic_action_av_shuffle_off, ServerString.SHUFFLE_OFF),
+        SHUFFLE_SONG(1, R.attr.ic_action_av_shuffle_song, ServerString.SHUFFLE_ON_SONGS),
+        SHUFFLE_ALBUM(2, R.attr.ic_action_av_shuffle_album, ServerString.SHUFFLE_ON_ALBUMS);
 
         private final int id;
 
@@ -288,9 +456,9 @@ public class PlayerState implements Parcelable {
     }
 
     public static enum RepeatStatus implements EnumWithId {
-        REPEAT_OFF(0, R.drawable.btn_repeat_off, ServerString.REPEAT_OFF),
-        REPEAT_ONE(1, R.drawable.btn_repeat_one, ServerString.REPEAT_ONE),
-        REPEAT_ALL(2, R.drawable.btn_repeat_all, ServerString.REPEAT_ALL);
+        REPEAT_OFF(0, R.attr.ic_action_av_repeat_off, ServerString.REPEAT_OFF),
+        REPEAT_ONE(1, R.attr.ic_action_av_repeat_one, ServerString.REPEAT_ONE),
+        REPEAT_ALL(2, R.attr.ic_action_av_repeat_all, ServerString.REPEAT_ALL);
 
         private final int id;
 

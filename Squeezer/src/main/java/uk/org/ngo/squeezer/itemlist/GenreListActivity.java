@@ -18,10 +18,12 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Genre;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class GenreListActivity extends BaseListActivity<Genre> {
 
@@ -31,8 +33,8 @@ public class GenreListActivity extends BaseListActivity<Genre> {
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().genres(start, null, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.genres(start, null, this);
     }
 
 

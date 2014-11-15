@@ -73,26 +73,14 @@
         <ListPreference
             android:key="squeezer.action.onselect.song"
             android:title="@string/settings_song_selectaction"/>
+
+        <ListPreference
+            android:key="squeezer.theme"
+            android:title="Theme"/>
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/pref_cat_error_reports">
-
-        <CheckBoxPreference android:key="acra.enable"
-            android:title="@string/pref_disable_acra"
-            android:summaryOn="@string/pref_acra_enabled"
-            android:summaryOff="@string/pref_acra_disabled"
-            android:defaultValue="true"/>
-
-        <EditTextPreference android:key="acra.user.email"
-            android:title="@string/pref_acra_user_email"
-            android:summary="@string/pref_acra_user_email_summary"/>
-
-        <CheckBoxPreference android:key="acra.alwaysaccept"
-            android:title="@string/pref_acra_alwaysaccept"
-            android:summaryOn="@string/pref_acra_alwaysaccept_enabled"
-            android:summaryOff="@string/pref_acra_alwaysaccept_disabled"
-            android:defaultValue="false"/>
 
         <CheckBoxPreference android:key="squeezer.analytics.enabled"
             android:title="@string/pref_analytics_enable"
