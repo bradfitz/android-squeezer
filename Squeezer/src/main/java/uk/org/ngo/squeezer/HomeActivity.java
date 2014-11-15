@@ -256,7 +256,9 @@ public class HomeActivity extends BaseActivity {
                     MusicFolderListActivity.show(HomeActivity.this);
                     break;
                 case RANDOM_MIX:
-                    RandomplayActivity.show(HomeActivity.this);
+                    final Intent intent = new Intent(HomeActivity.this, MultiPropertyAnimation.class);
+                    startActivity(intent);
+                    //TODO RandomplayActivity.show(HomeActivity.this);
                     break;
                 case PLAYLISTS:
                     PlaylistsActivity.show(HomeActivity.this);

@@ -16,16 +16,13 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.text.SpannableString;
 import android.text.format.DateFormat;
@@ -46,8 +43,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.android.datetimepicker.time.RadialPickerLayout;
+import com.android.datetimepicker.time.TimePickerDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -200,7 +199,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         viewHolder.time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerFragment.show(getActivity().getSupportFragmentManager(), item);
+                TimePickerFragment.show(getActivity().getSupportFragmentManager(), item, DateFormat.is24HourFormat(getActivity()));
             }
         });
         viewHolder.enabled.setChecked(item.isEnabled());
@@ -273,7 +272,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         TextView[] dowTexts = new TextView[7];
     }
 
-    public static class TimePickerFragment extends DialogFragment {
+    public static class TimePickerFragment extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {
         BaseListActivity activity;
         Alarm alarm;
 
@@ -282,35 +281,30 @@ public class AlarmView extends BaseItemView<Alarm> {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             activity = (BaseListActivity) getActivity();
             alarm = getArguments().getParcelable("alarm");
+            setOnTimeSetListener(this);
+            return super.onCreateDialog(savedInstanceState);
+        }
+
+        public static void show(FragmentManager manager, Alarm alarm, boolean is24HourFormat) {
             long tod = alarm.getTod();
             int hour = (int) (tod / 3600);
             int minute = (int) ((tod / 60) % 60);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            final TimePicker timePicker = new TimePicker(getActivity());
-            timePicker.setIs24HourView(DateFormat.is24HourFormat(getActivity()));
-            timePicker.setCurrentHour(hour);
-            timePicker.setCurrentMinute(minute);
-            builder.setView(timePicker);
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    int time = (timePicker.getCurrentHour() * 60 + timePicker.getCurrentMinute()) * 60;
-                    alarm.setTod(time);
-                    activity.getService().alarmSetTime(alarm.getId(), time);
-                    activity.getItemAdapter().notifyDataSetChanged();
-                }
-            });
-            builder.setNegativeButton(android.R.string.cancel, null);
-            return builder.create();
-        }
-
-        public static void show(FragmentManager manager, Alarm alarm) {
             TimePickerFragment fragment = new TimePickerFragment();
             Bundle bundle = new Bundle();
             bundle.putParcelable("alarm", alarm);
             fragment.setArguments(bundle);
+            fragment.initialize(fragment, hour, minute, is24HourFormat);
+            fragment.setThemeDark(true);
             fragment.show(manager, TimePickerFragment.class.getSimpleName());
+        }
+
+        @Override
+        public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
+            int time = (hourOfDay * 60 + minute) * 60;
+            alarm.setTod(time);
+            activity.getService().alarmSetTime(alarm.getId(), time);
+            activity.getItemAdapter().notifyDataSetChanged();
         }
     }
 

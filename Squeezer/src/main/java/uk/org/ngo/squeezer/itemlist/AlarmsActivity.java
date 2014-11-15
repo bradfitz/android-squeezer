@@ -17,19 +17,18 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.android.datetimepicker.time.RadialPickerLayout;
+import com.android.datetimepicker.time.TimePickerDialog;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -70,7 +69,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         findViewById(R.id.add_alarm).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePickerFragment.show(getSupportFragmentManager());
+                TimePickerFragment.show(getSupportFragmentManager(), DateFormat.is24HourFormat(AlarmsActivity.this));
             }
         });
         findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
@@ -201,40 +200,35 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         }
     };
 
-    public static class TimePickerFragment extends DialogFragment {
+
+    public static class TimePickerFragment extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {
         BaseListActivity activity;
 
         @Override
         @NonNull
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             activity = (BaseListActivity) getActivity();
+            setOnTimeSetListener(this);
+            return super.onCreateDialog(savedInstanceState);
+        }
 
+        public static void show(FragmentManager manager, boolean is24HourMode) {
             // Use the current time as the default values for the picker
             final Calendar c = Calendar.getInstance();
             int hour = c.get(Calendar.HOUR_OF_DAY);
             int minute = c.get(Calendar.MINUTE);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            final TimePicker timePicker = new TimePicker(getActivity());
-            timePicker.setIs24HourView(DateFormat.is24HourFormat(getActivity()));
-            timePicker.setCurrentHour(hour);
-            timePicker.setCurrentMinute(minute);
-            builder.setView(timePicker);
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    activity.getService().alarmAdd((timePicker.getCurrentHour() * 60 + timePicker.getCurrentMinute()) * 60);
-                    // TODO add to list and animate the new alarm in
-                    activity.clearAndReOrderItems();
-                }
-            });
-            builder.setNegativeButton(android.R.string.cancel, null);
-            return builder.create();
+            TimePickerFragment fragment = new TimePickerFragment();
+            fragment.initialize(fragment, hour, minute, is24HourMode);
+            fragment.setThemeDark(true);
+            fragment.show(manager, TimePickerFragment.class.getSimpleName());
         }
 
-        public static void show(FragmentManager manager) {
-            TimePickerFragment fragment = new TimePickerFragment();
-            fragment.show(manager, TimePickerFragment.class.getSimpleName());
+        @Override
+        public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
+            activity.getService().alarmAdd((hourOfDay * 60 + minute) * 60);
+            // TODO add to list and animate the new alarm in
+            activity.clearAndReOrderItems();
         }
     }
 
