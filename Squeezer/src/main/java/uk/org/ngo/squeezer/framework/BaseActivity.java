@@ -363,7 +363,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
         @Override
         public Object getClient() {
-            return this;
+            return BaseActivity.this;
         }
 
         @Override
