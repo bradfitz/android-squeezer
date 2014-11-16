@@ -25,8 +25,8 @@ import android.view.View;
 import android.widget.Button;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.service.IServiceConnectionCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 /**
  * An activity for when the user is not connected to a Squeezeserver.
@@ -80,37 +80,20 @@ public class DisconnectedActivity extends BaseActivity {
     @Override
     protected void registerCallback(@NonNull ISqueezeService service) {
         super.registerCallback(service);
-        service.registerConnectionCallback(connectionCallback);
     }
 
-    private final IServiceConnectionCallback connectionCallback = new IServiceConnectionCallback() {
-        // TODO: Maybe move onConnectionChanged to its own callback.
-
-        @Override
-        public void onConnectionChanged(final boolean isConnected, final boolean postConnect,
-                final boolean loginFailed) {
-            if (isConnected) {
-                // The user requested a connection to the server, which succeeded.  There's
-                // no prior activity to go to, so launch HomeActivity, with flags to
-                // clear other activities so hitting "back" won't show this activity again.
-                getUIThreadHandler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        final Intent intent = new Intent(DisconnectedActivity.this,
-                                HomeActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        DisconnectedActivity.this.startActivity(intent);
-                        DisconnectedActivity.this.overridePendingTransition(android.R.anim.fade_in,
-                                android.R.anim.fade_out);
-                    }
-                });
-            }
+    public void onEventMainThread(ConnectionChanged event) {
+        if (event.mIsConnected) {
+            // The user requested a connection to the server, which succeeded.  There's
+            // no prior activity to go to, so launch HomeActivity, with flags to
+            // clear other activities so hitting "back" won't show this activity again.
+            final Intent intent = new Intent(DisconnectedActivity.this,
+                    HomeActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            DisconnectedActivity.this.startActivity(intent);
+            DisconnectedActivity.this.overridePendingTransition(android.R.anim.fade_in,
+                    android.R.anim.fade_out);
         }
-
-        @Override
-        public Object getClient() {
-            return DisconnectedActivity.this;
-        }
-    };
+    }
 }

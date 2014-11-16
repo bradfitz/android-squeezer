@@ -80,11 +80,11 @@ import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceCallback;
-import uk.org.ngo.squeezer.service.IServiceConnectionCallback;
 import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -692,17 +692,12 @@ public class NowPlayingFragment extends Fragment implements
      */
     private void maybeRegisterCallbacks(@NonNull ISqueezeService service) {
         if (!mRegisteredCallbacks) {
+            service.getEventBus().registerSticky(this);
+
             service.registerCallback(serviceCallback);
-            service.registerConnectionCallback(connectionCallback);
             service.registerMusicChangedCallback(musicChangedCallback);
             service.registerPlayersCallback(playersCallback);
             mRegisteredCallbacks = true;
-
-            HandshakeComplete event = service.getEventBus().getStickyEvent(
-                    HandshakeComplete.class);
-            if (event != null) {
-                onEventMainThread(event);
-            }
         }
     }
 
@@ -1178,25 +1173,11 @@ public class NowPlayingFragment extends Fragment implements
         }
     };
 
-    private final IServiceConnectionCallback connectionCallback = new IServiceConnectionCallback() {
-        @Override
-        public void onConnectionChanged(final boolean isConnected,
-                final boolean postConnect,
-                final boolean loginFailed) {
-            Log.v(TAG, "Connected == " + isConnected + " (postConnect==" + postConnect + ")");
-            uiThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    setConnected(isConnected, postConnect, loginFailed);
-                }
-            });
-        }
-
-        @Override
-        public Object getClient() {
-            return NowPlayingFragment.this;
-        }
-    };
+    public void onEventMainThread(ConnectionChanged event) {
+        Log.v(TAG, "Connected == " + event.mIsConnected + " (postConnect==" + event.mPostConnect
+                + ")");
+        setConnected(event.mIsConnected, event.mPostConnect, event.mLoginFailed);
+    }
 
     private final IServiceMusicChangedCallback musicChangedCallback
             = new IServiceMusicChangedCallback() {

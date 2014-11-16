@@ -48,9 +48,6 @@ public interface ISqueezeService {
     // For the activity to get callbacks on interesting events
     void registerCallback(IServiceCallback callback);
 
-    // For the activity to get callback when the connection changes.
-    void registerConnectionCallback(IServiceConnectionCallback callback);
-
     // For the activity to get callback when the active or connected players changes.
     void registerPlayersCallback(IServicePlayersCallback callback);
 
