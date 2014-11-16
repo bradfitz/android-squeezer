@@ -41,9 +41,9 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
@@ -245,7 +245,6 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         super.registerCallback(service);
         player = service.getActivePlayer();
         service.registerCurrentPlaylistCallback(currentPlaylistCallback);
-        service.registerMusicChangedCallback(musicChangedCallback);
         service.registerPlayersCallback(playersCallback);
     }
 
@@ -279,25 +278,11 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         }
     };
 
-    private final IServiceMusicChangedCallback musicChangedCallback
-            = new IServiceMusicChangedCallback() {
-        @Override
-        public void onMusicChanged(PlayerState playerState) {
-            Log.d(getTag(), "onMusicChanged " + playerState.getCurrentSong());
-            currentPlaylistIndex = playerState.getCurrentPlaylistIndex();
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    getItemAdapter().notifyDataSetChanged();
-                }
-            });
-        }
-
-        @Override
-        public Object getClient() {
-            return CurrentPlaylistActivity.this;
-        }
-    };
+    public void onEventMainThread(MusicChanged event) {
+        Log.d(getTag(), "onMusicChanged " + event.mPlayerState.getCurrentSong());
+        currentPlaylistIndex = event.mPlayerState.getCurrentPlaylistIndex();
+        getItemAdapter().notifyDataSetChanged();
+    }
 
     private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
         @Override

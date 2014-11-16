@@ -80,12 +80,12 @@ import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceCallback;
-import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
@@ -695,7 +695,6 @@ public class NowPlayingFragment extends Fragment implements
             service.getEventBus().registerSticky(this);
 
             service.registerCallback(serviceCallback);
-            service.registerMusicChangedCallback(musicChangedCallback);
             service.registerPlayersCallback(playersCallback);
             mRegisteredCallbacks = true;
         }
@@ -1179,23 +1178,6 @@ public class NowPlayingFragment extends Fragment implements
         setConnected(event.mIsConnected, event.mPostConnect, event.mLoginFailed);
     }
 
-    private final IServiceMusicChangedCallback musicChangedCallback
-            = new IServiceMusicChangedCallback() {
-        @Override
-        public void onMusicChanged(final PlayerState playerState) {
-            uiThreadHandler.post(new Runnable() {
-                public void run() {
-                    updateSongInfo(playerState.getCurrentSong());
-                }
-            });
-        }
-
-        @Override
-        public Object getClient() {
-            return NowPlayingFragment.this;
-        }
-    };
-
     public void onEventMainThread(HandshakeComplete event) {
         // Event might arrive before this fragment has connected to the service (e.g.,
         // the activity connected before this fragment did).
@@ -1204,6 +1186,10 @@ public class NowPlayingFragment extends Fragment implements
 
         Log.d(TAG, "Handshake complete");
         updatePowerMenuItems(canPowerOn(), canPowerOff());
+    }
+
+    public void onEventMainThread(MusicChanged event) {
+        updateSongInfo(event.mPlayerState.getCurrentSong());
     }
 
     private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {

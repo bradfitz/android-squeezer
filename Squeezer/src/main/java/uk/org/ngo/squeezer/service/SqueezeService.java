@@ -77,6 +77,7 @@ import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.util.Scrobble;
 
@@ -141,9 +142,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     final ServiceCallbackList<IServiceCurrentPlaylistCallback> mCurrentPlaylistCallbacks
             = new ServiceCallbackList<IServiceCurrentPlaylistCallback>(this);
-
-    final ServiceCallbackList<IServiceMusicChangedCallback> mMusicChangedCallbacks
-            = new ServiceCallbackList<IServiceMusicChangedCallback>(this);
 
     final ServiceCallbackList<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallbacks
             = new ServiceCallbackList<IServicePlaylistMaintenanceCallback>(this);
@@ -501,9 +499,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         // Current song
                         if (changedSong) {
                             updateOngoingNotification();
-                            for (IServiceMusicChangedCallback callback : mMusicChangedCallbacks) {
-                                callback.onMusicChanged(playerState);
-                            }
+                            mEventBus.post(new MusicChanged(playerState));
                         }
 
                         // Shuffle status.
@@ -1185,11 +1181,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback) {
             mCurrentPlaylistCallbacks.register(callback);
-        }
-
-        @Override
-        public void registerMusicChangedCallback(IServiceMusicChangedCallback callback) {
-            mMusicChangedCallbacks.register(callback);
         }
 
         @Override
