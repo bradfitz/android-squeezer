@@ -40,8 +40,8 @@ import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 
 
@@ -194,22 +194,11 @@ public class PlayerListActivity extends ItemListActivity implements
         super.registerCallback(service);
 
         updateAndExpandPlayerList();
-
-        service.registerPlayerStateCallback(playerStateCallback);
     }
 
-    private final IServicePlayerStateCallback playerStateCallback
-            = new IServicePlayerStateCallback() {
-        @Override
-        public void onPlayerStateReceived(final Player player, final PlayerState playerState) {
-            uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0).sendToTarget();
-        }
-
-        @Override
-        public Object getClient() {
-            return PlayerListActivity.this;
-        }
-    };
+    public void onEvent(PlayerStateChanged event) {
+        uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0).sendToTarget();
+    }
 
     public void onEvent(PlayerVolume event) {
         uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, event.mVolume,

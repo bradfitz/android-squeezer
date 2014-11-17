@@ -51,9 +51,6 @@ public interface ISqueezeService {
     // For the activity to get callback when the current playlist is modified
     void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
 
-    // For the activity to get callback when status for a player is received.
-    void registerPlayerStateCallback(IServicePlayerStateCallback callback);
-
     // Instructing the service to connect to the SqueezeCenter server:
     // hostPort is the port of the CLI interface.
     void startConnect(String hostPort, String userName, String password);

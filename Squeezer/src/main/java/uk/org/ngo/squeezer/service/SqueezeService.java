@@ -78,6 +78,7 @@ import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
+import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.Scrobble;
@@ -143,9 +144,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     final ServiceCallbackList<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallbacks
             = new ServiceCallbackList<IServicePlaylistMaintenanceCallback>(this);
-
-    final ServiceCallbackList<IServicePlayerStateCallback> mPlayerStateCallbacks
-            = new ServiceCallbackList<IServicePlayerStateCallback>(this);
 
     final ConnectionState connectionState = new ConnectionState();
 
@@ -480,9 +478,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
                     if (changedPower || changedSleep || changedSleepDuration || changedVolume
                             || changedSyncMaster || changedSyncSlaves) {
-                        for (IServicePlayerStateCallback callback : mPlayerStateCallbacks) {
-                            callback.onPlayerStateReceived(player, playerState);
-                        }
+                        mEventBus.post(new PlayerStateChanged(player, playerState));
                     }
 
                     if (player.getId().equals(getActivePlayerId())) {
@@ -825,7 +821,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private PlayerState.PlayerSubscriptionType getPlayerSubscriptionType(Player player) {
         Player activePlayer = connectionState.getActivePlayer();
 
-        if (mPlayerStateCallbacks.count() > 0 ||
+        if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class) ||
                 (mServiceCallbacks.count() > 0 && player.equals(activePlayer))) {
             if (player.equals(activePlayer)) {
                 // If it's the active player then get second-to-second updates.
@@ -1167,13 +1163,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         public void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback) {
             mCurrentPlaylistCallbacks.register(callback);
         }
-
-        @Override
-        public void registerPlayerStateCallback(IServicePlayerStateCallback callback) {
-            mPlayerStateCallbacks.register(callback);
-            updateAllPlayerSubscriptionStates();
-        }
-
 
         @Override
         public void adjustVolumeTo(Player player, int newVolume) {

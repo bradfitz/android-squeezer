@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,24 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
+
+
+import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 
-public interface IServicePlayerStateCallback extends ServiceCallback {
-    void onPlayerStateReceived(Player player, PlayerState playerState);
+/** A player's state has changed. */
+public class PlayerStateChanged {
+    /** The player with changed state. */
+    @NonNull public Player mPlayer;
+
+    /** The player's new state. */
+    @NonNull public PlayerState mPlayerState;
+
+    public PlayerStateChanged(@NonNull Player player, @NonNull PlayerState playerState) {
+        mPlayer = player;
+        mPlayerState = playerState;
+    }
 }
