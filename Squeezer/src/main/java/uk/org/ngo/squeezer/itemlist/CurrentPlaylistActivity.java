@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -41,9 +40,9 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
+import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
@@ -245,7 +244,6 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         super.registerCallback(service);
         player = service.getActivePlayer();
         service.registerCurrentPlaylistCallback(currentPlaylistCallback);
-        service.registerPlayersCallback(playersCallback);
     }
 
     private final IServiceCurrentPlaylistCallback currentPlaylistCallback
@@ -284,25 +282,12 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         getItemAdapter().notifyDataSetChanged();
     }
 
-    private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
-        @Override
-        public void onPlayersChanged(List<Player> players, final @Nullable Player activePlayer) {
-            if (activePlayer != null && !activePlayer.equals(player)) {
-                getUIThreadHandler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        player = activePlayer;
-                        clearAndReOrderItems();
-                    }
-                });
-            }
+    public void onEventMainThread(PlayersChanged event) {
+        if (event.mActivePlayer != null && !event.mActivePlayer.equals(player)) {
+            player = event.mActivePlayer;
+            clearAndReOrderItems();
         }
-
-        @Override
-        public Object getClient() {
-            return CurrentPlaylistActivity.this;
-        }
-    };
+    }
 
     @Override
     public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {

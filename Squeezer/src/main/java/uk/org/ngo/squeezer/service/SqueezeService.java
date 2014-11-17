@@ -79,6 +79,7 @@ import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
+import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
@@ -136,9 +137,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     final ServiceCallbackList<IServiceCallback> mServiceCallbacks
             = new ServiceCallbackList<IServiceCallback>(this);
-
-    final ServiceCallbackList<IServicePlayersCallback> mPlayersCallbacks
-            = new ServiceCallbackList<IServicePlayersCallback>(this);
 
     final ServiceCallbackList<IServiceCurrentPlaylistCallback> mCurrentPlaylistCallbacks
             = new ServiceCallbackList<IServiceCurrentPlaylistCallback>(this);
@@ -808,9 +806,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         });
 
         List<Player> players = connectionState.getPlayers();
-        for (IServicePlayersCallback callback : mPlayersCallbacks) {
-            callback.onPlayersChanged(players, newActivePlayer);
-        }
+        mEventBus.postSticky(new PlayersChanged(players, newActivePlayer));
     }
 
     /**
@@ -1165,17 +1161,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         public void registerCallback(IServiceCallback callback) {
             mServiceCallbacks.register(callback);
             updateAllPlayerSubscriptionStates();
-        }
-
-        @Override
-        public void registerPlayersCallback(IServicePlayersCallback callback) {
-            mPlayersCallbacks.register(callback);
-
-            // Call back immediately if we have players
-            List<Player> players = connectionState.getPlayers();
-            if (players.size() > 0) {
-                callback.onPlayersChanged(players, connectionState.getActivePlayer());
-            }
         }
 
         @Override

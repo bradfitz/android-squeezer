@@ -80,12 +80,12 @@ import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.IServiceCallback;
-import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
+import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
@@ -695,7 +695,6 @@ public class NowPlayingFragment extends Fragment implements
             service.getEventBus().registerSticky(this);
 
             service.registerCallback(serviceCallback);
-            service.registerPlayersCallback(playersCallback);
             mRegisteredCallbacks = true;
         }
     }
@@ -1192,20 +1191,7 @@ public class NowPlayingFragment extends Fragment implements
         updateSongInfo(event.mPlayerState.getCurrentSong());
     }
 
-    private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
-        @Override
-        public void onPlayersChanged(final List<Player> players, final @Nullable Player activePlayer) {
-            uiThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    updatePlayerDropDown(players, activePlayer);
-                }
-            });
-        }
-
-        @Override
-        public Object getClient() {
-            return NowPlayingFragment.this;
-        }
-    };
+    public void onEventMainThread(PlayersChanged event) {
+        updatePlayerDropDown(event.mPlayers, event.mActivePlayer);
+    }
 }
