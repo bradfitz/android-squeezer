@@ -702,6 +702,11 @@ public class NowPlayingFragment extends Fragment implements
         setConnected(connected, false, false);
         if (connected) {
             PlayerState playerState = getPlayerState();
+
+            // May be no players connected.
+            if (playerState == null)
+                return;
+
             updateSongInfo(playerState.getCurrentSong());
             updatePlayPauseIcon(playerState.getPlayStatus());
             updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
