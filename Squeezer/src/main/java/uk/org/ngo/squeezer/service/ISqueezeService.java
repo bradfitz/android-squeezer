@@ -24,7 +24,6 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
-import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.model.Album;
@@ -44,9 +43,6 @@ public interface ISqueezeService {
      * @return the EventBus the activity posts events to.
      */
     @NonNull EventBus getEventBus();
-
-    // For the activity to get callback when the current playlist is modified
-    void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
 
     // Instructing the service to connect to the SqueezeCenter server:
     // hostPort is the port of the CLI interface.

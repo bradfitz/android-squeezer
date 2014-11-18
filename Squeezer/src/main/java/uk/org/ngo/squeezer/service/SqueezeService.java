@@ -58,7 +58,6 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
-import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
@@ -82,6 +81,8 @@ import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
+import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
+import uk.org.ngo.squeezer.service.event.PlaylistTracksDeleted;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
@@ -140,9 +141,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     public void removeClient(ServiceCallback item) {
         callbacks.remove(item);
     }
-
-    final ServiceCallbackList<IServiceCurrentPlaylistCallback> mCurrentPlaylistCallbacks
-            = new ServiceCallbackList<IServiceCurrentPlaylistCallback>(this);
 
     final ServiceCallbackList<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallbacks
             = new ServiceCallbackList<IServicePlaylistMaintenanceCallback>(this);
@@ -631,13 +629,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         } else if ("pause".equals(notification)) {
             parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
         } else if ("addtracks".equals(notification)) {
-            for (IServiceCurrentPlaylistCallback callback : mCurrentPlaylistCallbacks) {
-                callback.onAddTracks(connectionState.getActivePlayer().getPlayerState());
-            }
+            mEventBus.post(new PlaylistTracksAdded());
         } else if ("delete".equals(notification)) {
-            for (IServiceCurrentPlaylistCallback callback : mCurrentPlaylistCallbacks) {
-                callback.onDelete(connectionState.getActivePlayer().getPlayerState(), Integer.parseInt(tokens.get(3)));
-            }
+            mEventBus.post(new PlaylistTracksDeleted());
         }
     }
 
@@ -1144,11 +1138,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @NonNull
         public EventBus getEventBus() {
             return mEventBus;
-        }
-
-        @Override
-        public void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback) {
-            mCurrentPlaylistCallbacks.register(callback);
         }
 
         @Override

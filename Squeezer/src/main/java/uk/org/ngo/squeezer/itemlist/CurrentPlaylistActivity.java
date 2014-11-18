@@ -38,11 +38,12 @@ import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
+import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
+import uk.org.ngo.squeezer.service.event.PlaylistTracksDeleted;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
@@ -243,38 +244,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     protected void registerCallback(@NonNull ISqueezeService service) {
         super.registerCallback(service);
         player = service.getActivePlayer();
-        service.registerCurrentPlaylistCallback(currentPlaylistCallback);
     }
-
-    private final IServiceCurrentPlaylistCallback currentPlaylistCallback
-            = new IServiceCurrentPlaylistCallback() {
-        @Override
-        public void onAddTracks(PlayerState playerState) {
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    clearAndReOrderItems();
-                    getItemAdapter().notifyDataSetChanged();
-                }
-            });
-        }
-
-        public void onDelete(PlayerState playerState, int index) {
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    // TODO: Investigate feasibility of deleting single items from the adapter.
-                    clearAndReOrderItems();
-                    getItemAdapter().notifyDataSetChanged();
-                }
-            });
-        }
-
-        @Override
-        public Object getClient() {
-            return CurrentPlaylistActivity.this;
-        }
-    };
 
     public void onEventMainThread(MusicChanged event) {
         Log.d(getTag(), "onMusicChanged " + event.mPlayerState.getCurrentSong());
@@ -287,6 +257,17 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             player = event.mActivePlayer;
             clearAndReOrderItems();
         }
+    }
+
+    public void onEventMainThread(PlaylistTracksAdded event) {
+        clearAndReOrderItems();
+        getItemAdapter().notifyDataSetChanged();
+    }
+
+    public void onEventMainThread(PlaylistTracksDeleted event) {
+        // TODO: Investigate feasibility of deleting single items from the adapter.
+        clearAndReOrderItems();
+        getItemAdapter().notifyDataSetChanged();
     }
 
     @Override
