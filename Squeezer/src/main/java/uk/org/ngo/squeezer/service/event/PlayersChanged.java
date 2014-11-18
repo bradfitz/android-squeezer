@@ -23,8 +23,8 @@ import java.util.List;
 import uk.org.ngo.squeezer.model.Player;
 
 /**
- * Either the currently active player has changed, or the list of players
- * connected to the server has changed.
+ * Event sent when either the currently active player has changed, or the list
+ * of players connected to the server has changed.
  */
 public class PlayersChanged {
     /** The players connected to the Squeezeserver. May be the empty list. */

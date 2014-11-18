@@ -22,7 +22,7 @@ import android.support.annotation.NonNull;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 
-/** A player's state has changed. */
+/** Event sent when a player's state has changed. */
 public class PlayerStateChanged {
     /** The player with changed state. */
     @NonNull public Player mPlayer;

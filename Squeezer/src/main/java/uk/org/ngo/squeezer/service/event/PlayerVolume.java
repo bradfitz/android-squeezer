@@ -20,17 +20,15 @@ import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 
+/** Event sent when a player's volume has changed. */
 public class PlayerVolume {
+    /** The player's new volume. */
     public final int mVolume;
 
+    /** The player that was affected. */
     @NonNull
     public final Player mPlayer;
 
-    /**
-     *
-     * @param volume the new volume value
-     * @param player the affected player
-     */
     public PlayerVolume(int volume, @NonNull Player player) {
         mVolume = volume;
         mPlayer = player;
