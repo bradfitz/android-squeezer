@@ -250,7 +250,7 @@ public class PlayerState implements Parcelable {
     }
 
     public boolean setCurrentSong(Song song) {
-        if (song == currentSong)
+        if (song.equals(currentSong))
             return false;
 
         currentSong = song;
