@@ -490,7 +490,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     // player state (ignore changes to Song, SongDuration, SongTime).
 
                     if (changedPower || changedSleep || changedSleepDuration || changedVolume
-                            || changedSyncMaster || changedSyncSlaves) {
+                            || changedSong || changedSyncMaster || changedSyncSlaves) {
                         for (IServicePlayerStateCallback callback : mPlayerStateCallbacks) {
                             callback.onPlayerStateReceived(player, playerState);
                         }
