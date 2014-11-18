@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Google Inc.  All Rights Reserved.
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
 
-public interface IServiceCallback extends ServiceCallback {
-    void onPlayStatusChanged(String playStatus);
-    void onShuffleStatusChanged(boolean initial, int shuffleStatus);
-    void onRepeatStatusChanged(boolean initial, int repeatStatus);
-    void onTimeInSongChange(int secondsIn, int secondsTotal);
-    void onPowerStatusChanged(boolean canPowerOn, boolean canPowerOff);
+/** Event sent when the duration or current play position of the current song has changed. */
+public class SongTimeChanged {
+    /** The current position of the player in the song, measured in seconds. */
+    public int mCurrentPosition;
+
+    /** The song's duration, measured in seconds. */
+    public int mDuration;
+
+    public SongTimeChanged(int currentPosition, int duration) {
+        mCurrentPosition = currentPosition;
+        mDuration = duration;
+    }
 }
-

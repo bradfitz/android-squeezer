@@ -78,9 +78,14 @@ import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
+import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
+import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
+import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
+import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
+import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
@@ -135,9 +140,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     public void removeClient(ServiceCallback item) {
         callbacks.remove(item);
     }
-
-    final ServiceCallbackList<IServiceCallback> mServiceCallbacks
-            = new ServiceCallbackList<IServiceCallback>(this);
 
     final ServiceCallbackList<IServiceCurrentPlaylistCallback> mCurrentPlaylistCallbacks
             = new ServiceCallbackList<IServiceCurrentPlaylistCallback>(this);
@@ -484,10 +486,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     if (player.getId().equals(getActivePlayerId())) {
                         // Power status
                         if (changedPower) {
-                            for (IServiceCallback callback : mServiceCallbacks) {
-                                callback.onPowerStatusChanged(squeezeService.canPowerOn(),
-                                        squeezeService.canPowerOff());
-                            }
+                            mEventBus.post(new PowerStatusChanged(
+                                    squeezeService.canPowerOn(),
+                                    squeezeService.canPowerOff()));
                         }
 
                         // Current song
@@ -498,24 +499,21 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
                         // Shuffle status.
                         if (changedShuffleStatus) {
-                            for (IServiceCallback callback : mServiceCallbacks) {
-                                callback.onShuffleStatusChanged(unknownShuffleStatus, playerState.getShuffleStatus().getId());
-                            }
+                            mEventBus.post(new ShuffleStatusChanged(
+                                    unknownShuffleStatus, playerState.getShuffleStatus()));
                         }
 
                         // Repeat status.
                         if (changedRepeatStatus) {
-                            for (IServiceCallback callback : mServiceCallbacks) {
-                                callback.onRepeatStatusChanged(unknownRepeatStatus, playerState.getRepeatStatus().getId());
-                            }
+                            mEventBus.post(new RepeatStatusChanged(
+                                    unknownRepeatStatus, playerState.getRepeatStatus()));
                         }
 
                         // Position in song
                         if (changedSongDuration || changedSongTime) {
-                            for (IServiceCallback callback : mServiceCallbacks) {
-                                callback.onTimeInSongChange(playerState.getCurrentTimeSecond(),
-                                        playerState.getCurrentSongDuration());
-                            }
+                            mEventBus.post(new SongTimeChanged(
+                                    playerState.getCurrentTimeSecond(),
+                                    playerState.getCurrentSongDuration()));
                         }
                     }
                 } else {
@@ -730,9 +728,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (player == connectionState.getActivePlayer()) {
                 connectionState.updateWifiLock(playerState.isPlaying());
                 updateOngoingNotification();
-                for (IServiceCallback callback : mServiceCallbacks) {
-                    callback.onPlayStatusChanged(playStatus.name());
-                }
+                mEventBus.post(new PlayStatusChanged(playStatus));
             }
         }
     }
@@ -740,9 +736,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Updates the shuffle status of the current player.
      * <p/>
-     * If the shuffle status has changed then calls the
-     * {@link IServiceCallback#onShuffleStatusChanged(boolean, int)}  method of any
-     * callbacks registered using {@link SqueezeServiceBinder#registerCallback(IServiceCallback)}.
+     * If the shuffle status has changed then posts a
+     * {@link ShuffleStatusChanged} message.
      *
      * @param shuffleStatus The new shuffle status.
      */
@@ -750,9 +745,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         if (shuffleStatus != null && shuffleStatus != connectionState.getActivePlayerState().getShuffleStatus()) {
             boolean wasUnknown = connectionState.getActivePlayerState().getShuffleStatus() == null;
             connectionState.getActivePlayerState().setShuffleStatus(shuffleStatus);
-            for (IServiceCallback callback : mServiceCallbacks) {
-                callback.onShuffleStatusChanged(wasUnknown, shuffleStatus.getId());
-            }
+            mEventBus.post(new ShuffleStatusChanged(wasUnknown, shuffleStatus));
         }
     }
 
@@ -822,7 +815,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         Player activePlayer = connectionState.getActivePlayer();
 
         if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class) ||
-                (mServiceCallbacks.count() > 0 && player.equals(activePlayer))) {
+                (mEventBus.hasSubscriberForEvent(SongTimeChanged.class) && player.equals(activePlayer))) {
             if (player.equals(activePlayer)) {
                 // If it's the active player then get second-to-second updates.
                 return PlayerState.PlayerSubscriptionType.real_time;
@@ -1151,12 +1144,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @NonNull
         public EventBus getEventBus() {
             return mEventBus;
-        }
-
-        @Override
-        public void registerCallback(IServiceCallback callback) {
-            mServiceCallbacks.register(callback);
-            updateAllPlayerSubscriptionStates();
         }
 
         @Override

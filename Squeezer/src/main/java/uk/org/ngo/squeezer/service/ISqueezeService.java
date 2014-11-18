@@ -45,9 +45,6 @@ public interface ISqueezeService {
      */
     @NonNull EventBus getEventBus();
 
-    // For the activity to get callbacks on interesting events
-    void registerCallback(IServiceCallback callback);
-
     // For the activity to get callback when the current playlist is modified
     void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
 

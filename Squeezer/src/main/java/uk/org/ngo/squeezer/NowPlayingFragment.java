@@ -79,13 +79,17 @@ import uk.org.ngo.squeezer.model.PlayerState.PlayStatus;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.service.IServiceCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
+import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
+import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
+import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
+import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
+import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
@@ -694,7 +698,6 @@ public class NowPlayingFragment extends Fragment implements
         if (!mRegisteredCallbacks) {
             service.getEventBus().registerSticky(this);
 
-            service.registerCallback(serviceCallback);
             mRegisteredCallbacks = true;
         }
     }
@@ -1107,70 +1110,6 @@ public class NowPlayingFragment extends Fragment implements
         });
     }
 
-    private final IServiceCallback serviceCallback = new IServiceCallback() {
-        @Override
-        public void onPlayStatusChanged(final String playStatusName) {
-            uiThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    updatePlayPauseIcon(PlayStatus.valueOf(playStatusName));
-                }
-            });
-        }
-
-        @Override
-        public void onShuffleStatusChanged(final boolean initial, final int shuffleStatusId) {
-            uiThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    ShuffleStatus shuffleStatus = ShuffleStatus.valueOf(shuffleStatusId);
-                    updateShuffleStatus(shuffleStatus);
-                    if (!initial) {
-                        Toast.makeText(mActivity,
-                                mActivity.getServerString(shuffleStatus.getText()),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onRepeatStatusChanged(final boolean initial, final int repeatStatusId) {
-            uiThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    RepeatStatus repeatStatus = RepeatStatus.valueOf(repeatStatusId);
-                    updateRepeatStatus(repeatStatus);
-                    if (!initial) {
-                        Toast.makeText(mActivity, mActivity.getServerString(repeatStatus.getText()),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onTimeInSongChange(final int secondsIn, final int secondsTotal) {
-            NowPlayingFragment.this.secondsIn = secondsIn;
-            NowPlayingFragment.this.secondsTotal = secondsTotal;
-            uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
-        }
-
-        @Override
-        public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff) {
-            uiThreadHandler.post(new Runnable() {
-                public void run() {
-                    updatePowerMenuItems(canPowerOn, canPowerOff);
-                }
-            });
-        }
-
-        @Override
-        public Object getClient() {
-            return NowPlayingFragment.this;
-        }
-    };
-
     public void onEventMainThread(ConnectionChanged event) {
         Log.v(TAG, "Connected == " + event.mIsConnected + " (postConnect==" + event.mPostConnect
                 + ")");
@@ -1180,8 +1119,9 @@ public class NowPlayingFragment extends Fragment implements
     public void onEventMainThread(HandshakeComplete event) {
         // Event might arrive before this fragment has connected to the service (e.g.,
         // the activity connected before this fragment did).
-        if (mService == null)
+        if (mService == null) {
             return;
+        }
 
         Log.d(TAG, "Handshake complete");
         updatePowerMenuItems(canPowerOn(), canPowerOff());
@@ -1193,5 +1133,36 @@ public class NowPlayingFragment extends Fragment implements
 
     public void onEventMainThread(PlayersChanged event) {
         updatePlayerDropDown(event.mPlayers, event.mActivePlayer);
+    }
+
+    public void onEventMainThread(PlayStatusChanged event) {
+        updatePlayPauseIcon(event.mPlayStatus);
+    }
+
+    public void onEventMainThread(PowerStatusChanged event) {
+        updatePowerMenuItems(event.mCanPowerOn, event.mCanPowerOff);
+    }
+
+    public void onEventMainThread(RepeatStatusChanged event) {
+        updateRepeatStatus(event.mRepeatStatus);
+        if (!event.mInitial) {
+            Toast.makeText(mActivity, mActivity.getServerString(event.mRepeatStatus.getText()),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void onEventMainThread(ShuffleStatusChanged event) {
+        updateShuffleStatus(event.mShuffleStatus);
+        if (!event.mInitial) {
+            Toast.makeText(mActivity,
+                    mActivity.getServerString(event.mShuffleStatus.getText()),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void onEvent(SongTimeChanged event) {
+        NowPlayingFragment.this.secondsIn = event.mCurrentPosition;
+        NowPlayingFragment.this.secondsTotal = event.mDuration;
+        uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
     }
 }
