@@ -59,7 +59,6 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
 import uk.org.ngo.squeezer.model.Album;
@@ -81,6 +80,8 @@ import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
+import uk.org.ngo.squeezer.service.event.PlaylistCreateFailed;
+import uk.org.ngo.squeezer.service.event.PlaylistRenameFailed;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksDeleted;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
@@ -141,9 +142,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     public void removeClient(ServiceCallback item) {
         callbacks.remove(item);
     }
-
-    final ServiceCallbackList<IServicePlaylistMaintenanceCallback> playlistMaintenanceCallbacks
-            = new ServiceCallbackList<IServicePlaylistMaintenanceCallback>(this);
 
     final ConnectionState connectionState = new ConnectionState();
 
@@ -239,19 +237,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 } else if ("new".equals(tokens.get(1))) {
                     HashMap<String, String> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("overwritten_playlist_id") != null) {
-                        for (IServicePlaylistMaintenanceCallback callback : playlistMaintenanceCallbacks) {
-                            callback.onCreateFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                    tokenMap.get("name")));
-                        }
+                        mEventBus.post(new PlaylistCreateFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE,
+                                tokenMap.get("name"))));
                     }
                 } else if ("rename".equals(tokens.get(1))) {
                     HashMap<String, String> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("dry_run") != null) {
                         if (tokenMap.get("overwritten_playlist_id") != null) {
-                            for (IServicePlaylistMaintenanceCallback callback : playlistMaintenanceCallbacks) {
-                                callback.onRenameFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                        tokenMap.get("newname")));
-                            }
+                            mEventBus.post(new PlaylistRenameFailed(getString(R.string.PLAYLIST_EXISTS_MESSAGE,
+                                        tokenMap.get("newname"))));
                         } else {
                             cli.sendCommandImmediately(
                                     "playlists rename playlist_id:" + tokenMap.get("playlist_id")
@@ -1396,7 +1390,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return false;
             }
 
-            cli.sendActivePlayerCommand("playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter());
+            cli.sendActivePlayerCommand(
+                    "playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter());
             return true;
         }
 
@@ -1727,12 +1722,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return;
             }
             cli.requestItems("playlists", start, callback);
-        }
-
-        @Override
-        public void registerPlaylistMaintenanceCallback(
-                IServicePlaylistMaintenanceCallback callback) {
-            playlistMaintenanceCallbacks.register(callback);
         }
 
         @Override

@@ -25,7 +25,6 @@ import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
@@ -173,7 +172,6 @@ public interface ISqueezeService {
     void playlists(int start, IServiceItemListCallback<Playlist> callback);
 
     // Named playlist maintenance
-    void registerPlaylistMaintenanceCallback(IServicePlaylistMaintenanceCallback callback);
     boolean playlistsNew(String name);
     boolean playlistsRename(Playlist playlist, String newname);
     boolean playlistsDelete(Playlist playlist);
