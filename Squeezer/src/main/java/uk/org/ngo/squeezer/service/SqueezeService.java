@@ -328,7 +328,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
              * Seeing the <code>version</code> result indicates that the
              * handshake has completed (see
              * {@link SqueezeService#onCliPortConnectionEstablished(String, String)}),
-             * post a {@link uk.org.ngo.squeezer.service.event.HandshakeComplete} event.
+             * post a {@link HandshakeComplete} event.
              */
             @Override
             public void handle(List<String> tokens) {
@@ -685,8 +685,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * <p/>
      * Updates the Wi-Fi lock and ongoing status notification as necessary.
      * <p/>
-     * Calls the {@link IServiceCallback#onPlayStatusChanged(String)} method of any callbacks
-     * registered using {@link SqueezeServiceBinder#registerCallback(IServiceCallback)}.
+     * Posts a {@link PlayStatusChanged} message to event listeners.
      *
      * @param playStatus The new playing status.
      */
@@ -1003,7 +1002,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 if (start + items.size() >= count) {
                     Player initialPlayer = getInitialPlayer();
                     if (initialPlayer != null) {
-                        // Note: changeActivePlayer() calls any registered IServicePlayersCallbacks.
+                        // Note: changeActivePlayer() posts a PlayersChanged event.
                         changeActivePlayer(initialPlayer);
                     }
                 }
