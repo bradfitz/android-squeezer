@@ -23,11 +23,11 @@ import uk.org.ngo.squeezer.model.PlayerState;
 /** Event sent when the shuffle status of the active player has changed. */
 public class ShuffleStatusChanged {
     /** True if the previous shuffle status was unknown. */
-    public boolean mInitial;
+    public final boolean mInitial;
 
     /** The new shuffle status. */
     @NonNull
-    public PlayerState.ShuffleStatus mShuffleStatus;
+    public final PlayerState.ShuffleStatus mShuffleStatus;
 
     public ShuffleStatusChanged(boolean initial, @NonNull PlayerState.ShuffleStatus shuffleStatus) {
         mInitial = initial;

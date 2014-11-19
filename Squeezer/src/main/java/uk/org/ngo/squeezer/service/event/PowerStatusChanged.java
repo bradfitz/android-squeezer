@@ -19,10 +19,10 @@ package uk.org.ngo.squeezer.service.event;
 /** Event sent when the power status of the active player has changed. */
 public class PowerStatusChanged {
     /** Whether the active player supports being powered on by the server. */
-    public boolean mCanPowerOn;
+    public final boolean mCanPowerOn;
 
     /** Whether the active player supports being turned off by the server. */
-    public boolean mCanPowerOff;
+    public final boolean mCanPowerOff;
 
     public PowerStatusChanged(boolean canPowerOn, boolean canPowerOff) {
         mCanPowerOn = canPowerOn;

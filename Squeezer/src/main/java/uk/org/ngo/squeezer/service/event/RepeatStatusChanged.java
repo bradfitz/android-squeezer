@@ -23,11 +23,11 @@ import uk.org.ngo.squeezer.model.PlayerState;
 /** Event sent when the repeat status of the active player has changed. */
 public class RepeatStatusChanged {
     /** True if the previous repeat status was unknown. */
-    public boolean mInitial;
+    public final boolean mInitial;
 
     /** The new repeat status. */
     @NonNull
-    public PlayerState.RepeatStatus mRepeatStatus;
+    public final PlayerState.RepeatStatus mRepeatStatus;
 
     public RepeatStatusChanged(boolean initial, @NonNull PlayerState.RepeatStatus repeatStatus) {
         mInitial = initial;

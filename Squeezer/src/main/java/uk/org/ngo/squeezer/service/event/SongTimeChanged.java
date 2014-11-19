@@ -19,10 +19,10 @@ package uk.org.ngo.squeezer.service.event;
 /** Event sent when the duration or current play position of the current song has changed. */
 public class SongTimeChanged {
     /** The current position of the player in the song, measured in seconds. */
-    public int mCurrentPosition;
+    public final int mCurrentPosition;
 
     /** The song's duration, measured in seconds. */
-    public int mDuration;
+    public final int mDuration;
 
     public SongTimeChanged(int currentPosition, int duration) {
         mCurrentPosition = currentPosition;
