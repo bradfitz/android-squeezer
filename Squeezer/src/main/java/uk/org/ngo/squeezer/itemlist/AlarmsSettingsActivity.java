@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
@@ -32,6 +33,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.PlayerPref;
 import uk.org.ngo.squeezer.service.IServicePlayerPrefCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 
@@ -117,13 +119,13 @@ public class AlarmsSettingsActivity extends BaseActivity {
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        getService().registerPlayerPrefCallback(playerPrefCallback);
-        getService().playerPref(PlayerPref.alarmfadeseconds);
-        getService().playerPref(PlayerPref.alarmDefaultVolume);
-        getService().playerPref(PlayerPref.alarmSnoozeSeconds);
-        getService().playerPref(PlayerPref.alarmTimeoutSeconds);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerPlayerPrefCallback(playerPrefCallback);
+        service.playerPref(PlayerPref.alarmfadeseconds);
+        service.playerPref(PlayerPref.alarmDefaultVolume);
+        service.playerPref(PlayerPref.alarmSnoozeSeconds);
+        service.playerPref(PlayerPref.alarmTimeoutSeconds);
 
         for (PlayerPrefCallbacks callbacks : playerPrefs.values())
             callbacks.setEnabled(false);

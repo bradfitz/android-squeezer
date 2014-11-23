@@ -1368,7 +1368,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void playerPref(PlayerPref playerPref, String value) {
-            cli.sendPlayerCommand("playerpref " + playerPref.name() + " " + value);
+            cli.sendActivePlayerCommand("playerpref " + playerPref.name() + " " + value);
         }
 
         @Override
@@ -1770,7 +1770,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return;
             }
-            cli.sendPlayerCommand("alarm add time:" + time);
+            cli.sendActivePlayerCommand("alarm add time:" + time);
         }
 
         @Override
@@ -1778,7 +1778,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return;
             }
-            cli.sendPlayerCommand("alarm delete id:" + Util.encode(id));
+            cli.sendActivePlayerCommand("alarm delete id:" + Util.encode(id));
         }
 
         @Override
@@ -1786,33 +1786,33 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return;
             }
-            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " time:" + time);
+            cli.sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " time:" + time);
         }
 
         @Override
         public void alarmAddDay(String id, int day) {
-            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " dowAdd:" + day);
+            cli.sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " dowAdd:" + day);
         }
 
         @Override
         public void alarmRemoveDay(String id, int day) {
-            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " dowDel:" + day);
+            cli.sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " dowDel:" + day);
         }
 
         @Override
         public void alarmEnable(String id, boolean enabled) {
-            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " enabled:" + (enabled ? "1" : "0"));
+            cli.sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " enabled:" + (enabled ? "1" : "0"));
         }
 
         @Override
         public void alarmRepeat(String id, boolean repeat) {
-            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " repeat:" + (repeat ? "1" : "0"));
+            cli.sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " repeat:" + (repeat ? "1" : "0"));
         }
 
         @Override
         public void alarmSetPlaylist(String id, AlarmPlaylist playlist) {
             String url = "".equals(playlist.getId()) ? "0" : playlist.getId();
-            cli.sendPlayerCommand("alarm update id:" + Util.encode(id) + " url:" + Util.encode(url));
+            cli.sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " url:" + Util.encode(url));
         }
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */

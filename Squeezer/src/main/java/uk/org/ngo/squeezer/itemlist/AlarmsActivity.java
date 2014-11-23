@@ -46,6 +46,7 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerPref;
 import uk.org.ngo.squeezer.service.IServicePlayerPrefCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.widget.UndoBarController;
@@ -121,20 +122,20 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     }
 
     @Override
-    protected void registerCallback() {
-        super.registerCallback();
-        player = getService().getActivePlayer();
-        getService().registerPlayerPrefCallback(playerPrefCallback);
-        getService().registerPlayersCallback(playersCallback);
-        getService().alarmPlaylists(alarmPlaylistsCallback);
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        player = service.getActivePlayer();
+        service.registerPlayerPrefCallback(playerPrefCallback);
+        service.registerPlayersCallback(playersCallback);
+        service.alarmPlaylists(alarmPlaylistsCallback);
     }
 
     @Override
-    protected void orderPage(int start) {
-        getService().alarms(start, this);
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.alarms(start, this);
         if (start == 0) {
             alarmsEnabledButton.setEnabled(false);
-            getService().playerPref(PlayerPref.alarmsEnabled);
+            service.playerPref(PlayerPref.alarmsEnabled);
         }
     }
 

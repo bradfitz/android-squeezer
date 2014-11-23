@@ -326,7 +326,7 @@ public class AlarmView extends BaseItemView<Alarm> {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-           return Util.getSpinnerView(getActivity(), convertView, parent, getItem(position).getName());
+           return Util.getSpinnerItemView(getActivity(), convertView, parent, getItem(position).getName());
         }
 
         @Override
