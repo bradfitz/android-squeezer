@@ -113,7 +113,9 @@ public class AlarmsSettingsActivity extends BaseActivity {
         alarmsFadeButton.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                getService().playerPref(PlayerPref.alarmfadeseconds, isChecked ? "1" : "0");
+                if (getService() != null) {
+                    getService().playerPref(PlayerPref.alarmfadeseconds, isChecked ? "1" : "0");
+                }
             }
         });
     }
@@ -172,7 +174,9 @@ public class AlarmsSettingsActivity extends BaseActivity {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            getService().playerPref(sliderPref.playerPref, String.valueOf(seekBar.getProgress() * sliderPref.factor));
+            if (getService() != null) {
+                getService().playerPref(sliderPref.playerPref, String.valueOf(seekBar.getProgress() * sliderPref.factor));
+            }
         }
     }
 

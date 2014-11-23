@@ -88,7 +88,9 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         alarmsEnabledButton.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                getService().playerPref(PlayerPref.alarmsEnabled, isChecked ? "1" : "0");
+                if (getService() != null) {
+                    getService().playerPref(PlayerPref.alarmsEnabled, isChecked ? "1" : "0");
+                }
             }
         });
     }
@@ -227,9 +229,11 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
 
         @Override
         public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-            activity.getService().alarmAdd((hourOfDay * 60 + minute) * 60);
-            // TODO add to list and animate the new alarm in
-            activity.clearAndReOrderItems();
+            if (activity.getService() != null) {
+                activity.getService().alarmAdd((hourOfDay * 60 + minute) * 60);
+                // TODO add to list and animate the new alarm in
+                activity.clearAndReOrderItems();
+            }
         }
     }
 

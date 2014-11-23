@@ -106,17 +106,21 @@ public class AlarmView extends BaseItemView<Alarm> {
             viewHolder.enabled.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    viewHolder.alarm.setEnabled(b);
-                    getActivity().getService().alarmEnable(viewHolder.alarm.getId(), b);
+                    if (getActivity().getService() != null) {
+                        viewHolder.alarm.setEnabled(b);
+                        getActivity().getService().alarmEnable(viewHolder.alarm.getId(), b);
+                    }
                 }
             });
             viewHolder.repeat = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.repeat));
             viewHolder.repeat.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    viewHolder.alarm.setRepeat(b);
-                    getActivity().getService().alarmRepeat(viewHolder.alarm.getId(), b);
-                    viewHolder.dowHolder.setVisibility(b ? View.VISIBLE : View.GONE);
+                    if (getActivity().getService() != null) {
+                        viewHolder.alarm.setRepeat(b);
+                        getActivity().getService().alarmRepeat(viewHolder.alarm.getId(), b);
+                        viewHolder.dowHolder.setVisibility(b ? View.VISIBLE : View.GONE);
+                    }
                 }
             });
             viewHolder.repeatLabel = (TextView) convertView.findViewById(R.id.repeat_label);
@@ -131,16 +135,18 @@ public class AlarmView extends BaseItemView<Alarm> {
                 dowButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final Alarm alarm = viewHolder.alarm;
-                        boolean wasChecked = alarm.isDayActive(finalDay);
-                        if (wasChecked) {
-                            alarm.clearDay(finalDay);
-                            getActivity().getService().alarmRemoveDay(alarm.getId(), finalDay);
-                        } else {
-                            alarm.setDay(finalDay);
-                            getActivity().getService().alarmAddDay(alarm.getId(), finalDay);
+                        if (getActivity().getService() != null) {
+                            final Alarm alarm = viewHolder.alarm;
+                            boolean wasChecked = alarm.isDayActive(finalDay);
+                            if (wasChecked) {
+                                alarm.clearDay(finalDay);
+                                getActivity().getService().alarmRemoveDay(alarm.getId(), finalDay);
+                            } else {
+                                alarm.setDay(finalDay);
+                                getActivity().getService().alarmAddDay(alarm.getId(), finalDay);
+                            }
+                            setDowText(viewHolder, finalDay);
                         }
-                        setDowText(viewHolder, finalDay);
                     }
                 });
                 viewHolder.dowTexts[day] = (TextView) dowButton.getChildAt(0);
@@ -174,7 +180,8 @@ public class AlarmView extends BaseItemView<Alarm> {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     final AlarmPlaylist selectedAlarmPlaylist = alarmPlaylists.get(position);
                     final Alarm alarm = viewHolder.alarm;
-                    if (selectedAlarmPlaylist.getId() != null &&
+                    if (getActivity().getService() != null &&
+                            selectedAlarmPlaylist.getId() != null &&
                             !selectedAlarmPlaylist.getId().equals(alarm.getUrl())) {
                         alarm.setUrl(selectedAlarmPlaylist.getId());
                         getActivity().getService().alarmSetPlaylist(alarm.getId(), selectedAlarmPlaylist);
@@ -301,10 +308,12 @@ public class AlarmView extends BaseItemView<Alarm> {
 
         @Override
         public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute) {
-            int time = (hourOfDay * 60 + minute) * 60;
-            alarm.setTod(time);
-            activity.getService().alarmSetTime(alarm.getId(), time);
-            activity.getItemAdapter().notifyDataSetChanged();
+            if (activity.getService() != null) {
+                int time = (hourOfDay * 60 + minute) * 60;
+                alarm.setTod(time);
+                activity.getService().alarmSetTime(alarm.getId(), time);
+                activity.getItemAdapter().notifyDataSetChanged();
+            }
         }
     }
 
@@ -362,7 +371,9 @@ public class AlarmView extends BaseItemView<Alarm> {
 
         @Override
         public void onDone() {
-            activity.getService().alarmDelete(alarm.getId());
+            if (activity.getService() != null) {
+                activity.getService().alarmDelete(alarm.getId());
+            }
         }
     }
 }
