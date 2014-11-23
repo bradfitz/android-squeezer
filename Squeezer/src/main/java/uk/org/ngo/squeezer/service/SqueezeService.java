@@ -490,7 +490,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     // player state (ignore changes to Song, SongDuration, SongTime).
 
                     if (changedPower || changedSleep || changedSleepDuration || changedVolume
-                            || changedSyncMaster || changedSyncSlaves) {
+                            || changedSong || changedSyncMaster || changedSyncSlaves) {
                         for (IServicePlayerStateCallback callback : mPlayerStateCallbacks) {
                             callback.onPlayerStateReceived(player, playerState);
                         }
@@ -1388,14 +1388,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return false;
             }
 
-            PlayerState.PlayStatus playStatus = getActivePlayerState().getPlayStatus();
+            PlayerState activePlayerState = getActivePlayerState();
 
             // May be null (e.g., connected to a server with no connected
             // players. TODO: Handle this better, since it's not obvious in the
             // UI.
-            if (playStatus == null) {
+            if (activePlayerState == null)
                 return false;
-            }
+
+            PlayerState.PlayStatus playStatus = activePlayerState.getPlayStatus();
 
             switch (playStatus) {
                 case play:
