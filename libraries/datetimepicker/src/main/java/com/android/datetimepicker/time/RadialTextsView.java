@@ -46,6 +46,7 @@ public class RadialTextsView extends View {
 
     private boolean mDrawValuesReady;
     private boolean mIsInitialized;
+    private boolean mAnimationsReady;
 
     private Typeface mTypefaceLight;
     private Typeface mTypefaceRegular;
@@ -201,7 +202,9 @@ public class RadialTextsView extends View {
             }
 
             // Because the text positions will be static, pre-render the animations.
-            renderAnimations();
+            if (!mAnimationsReady) {
+                renderAnimations();
+            }
 
             mTextGridValuesDirty = true;
             mDrawValuesReady = true;
@@ -341,21 +344,29 @@ public class RadialTextsView extends View {
         mFadeInAnimator = ObjectAnimator.ofPropertyValuesHolder(
                 target, fadeIn).setDuration(totalDuration);
         mFadeInAnimator.addUpdateListener(mInvalidateUpdateListener);
+
+        mAnimationsReady = true;
     }
 
     public List<ObjectAnimator> getDisappearAnimator() {
-        if (!mIsInitialized || !mDrawValuesReady || mRadiusDisappearAnimator == null) {
+        if (!mIsInitialized /*|| !mDrawValuesReady*/) {
             Log.e(TAG, "RadialTextView was not ready for animation.");
             return null;
+        }
+        if (!mAnimationsReady) {
+            renderAnimations();
         }
 
         return Arrays.asList(mRadiusDisappearAnimator, mFadeOutAnimator);
     }
 
     public List<ObjectAnimator> getReappearAnimator() {
-        if (!mIsInitialized || !mDrawValuesReady || mRadiusReappearAnimator == null) {
+        if (!mIsInitialized /*|| !mDrawValuesReady*/) {
             Log.e(TAG, "RadialTextView was not ready for animation.");
             return null;
+        }
+        if (!mAnimationsReady) {
+            renderAnimations();
         }
 
         return Arrays.asList(mRadiusReappearAnimator, mFadeInAnimator);

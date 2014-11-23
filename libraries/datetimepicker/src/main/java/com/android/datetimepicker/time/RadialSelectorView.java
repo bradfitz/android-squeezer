@@ -326,7 +326,7 @@ public class RadialSelectorView extends View {
     }
 
     public List<ObjectAnimator> getDisappearAnimator() {
-        if (!mIsInitialized || !mDrawValuesReady) {
+        if (!mIsInitialized /*|| !mDrawValuesReady*/) {
             Log.e(TAG, "RadialSelectorView was not ready for animation.");
             return null;
         }
@@ -357,7 +357,7 @@ public class RadialSelectorView extends View {
     }
 
     public List<ObjectAnimator> getReappearAnimator() {
-        if (!mIsInitialized || !mDrawValuesReady) {
+        if (!mIsInitialized /*|| !mDrawValuesReady*/) {
             Log.e(TAG, "RadialSelectorView was not ready for animation.");
             return null;
         }
