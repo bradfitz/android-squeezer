@@ -34,15 +34,15 @@ public class MusicFolderItem extends PlaylistItem {
 
     @Override
     public String getPlaylistTag() {
-        if (type.equals("track")) {
+        if ("track".equals(type)) {
             return "track_id";
         }
 
-        if (type.equals("playlist")) {
+        if ("playlist".equals(type)) {
             return "playlist_id";
         }
 
-        if (type.equals("folder")) {
+        if ("folder".equals(type)) {
             return "folder_id";
         }
 

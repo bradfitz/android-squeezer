@@ -503,15 +503,15 @@ class CliClient {
             String value = Util.decode(token.substring(colonPos + 3));
             Log.v(TAG, "key=" + key + ", value: " + value);
 
-            if (key.equals("rescan")) {
+            if ("rescan".equals(key)) {
                 rescan = (Util.parseDecimalIntOrZero(value) == 1);
-            } else if (key.equals("full_list")) {
+            } else if ("full_list".equals(key)) {
                 full_list = (Util.parseDecimalIntOrZero(value) == 1);
                 taggedParameters.put(key, token);
-            } else if (key.equals("correlationid")) {
+            } else if ("correlationid".equals(key)) {
                 correlationId = Util.parseDecimalIntOrZero(value);
                 taggedParameters.put(key, token);
-            } else if (key.equals("actions")) {
+            } else if ("actions".equals(key)) {
                 // Apparently squeezer returns some commands which are
                 // included in the count of the current request
                 actionsCount++;

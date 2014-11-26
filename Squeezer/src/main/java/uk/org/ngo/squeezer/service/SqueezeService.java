@@ -544,8 +544,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "Prefset received: " + tokens);
-                if (tokens.size() > 4 && tokens.get(2).equals("server") && tokens.get(3)
-                        .equals("volume")) {
+                if (tokens.size() > 4 && "server".equals(tokens.get(2)) && "volume".equals(tokens.get(3))) {
                     String playerId = Util.decode(tokens.get(0));
                     int newVolume = Util.parseDecimalIntOrZero(tokens.get(4));
                     updatePlayerVolume(playerId, newVolume);
@@ -1927,9 +1926,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 playlistSongs(-1, (Playlist) item, songDownloadCallback);
             } else if (item instanceof MusicFolderItem) {
                 MusicFolderItem musicFolderItem = (MusicFolderItem) item;
-                if (musicFolderItem.getType().equals("track")) {
+                if ("track".equals(musicFolderItem.getType())) {
                     downloadSong(item.getId(), musicFolderItem.getName(), musicFolderItem.getUrl());
-                } else if (musicFolderItem.getType().equals("folder")) {
+                } else if ("folder".equals(musicFolderItem.getType())) {
                     musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);
                 }
             } else if (item != null) {
