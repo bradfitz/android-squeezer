@@ -664,7 +664,6 @@ public class NowPlayingFragment extends Fragment implements
 
         if (mService != null) {
             maybeRegisterCallbacks(mService);
-            updateUIFromServiceState();
         }
 
         if (new Preferences(mActivity).isAutoConnect()) {
@@ -1207,6 +1206,7 @@ public class NowPlayingFragment extends Fragment implements
                 @Override
                 public void run() {
                     updatePowerMenuItems(canPowerOn(), canPowerOff());
+                    updateUIFromServiceState();
                 }
             });
         }
