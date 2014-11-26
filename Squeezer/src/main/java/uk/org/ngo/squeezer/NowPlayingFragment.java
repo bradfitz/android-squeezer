@@ -867,9 +867,7 @@ public class NowPlayingFragment extends Fragment implements
     public void onDestroy() {
         super.onDestroy();
         if (mService != null) {
-            if (serviceConnection != null) {
-                mActivity.unbindService(serviceConnection);
-            }
+            mActivity.unbindService(serviceConnection);
         }
     }
 
