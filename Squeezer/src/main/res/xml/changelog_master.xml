@@ -2,6 +2,14 @@
 
 <changelog>
     <release
+        version="1.2.0-beta-2"
+        versioncode="31">
+        <change>Fixed a bug where returning to Squeezer from some other application (using the
+            "Recent Apps" button) would result in incomplete information being displayed. Fixes
+            https://code.google.com/p/android-squeezer/issues/detail?id=79.</change>
+    </release>
+
+    <release
         version="1.2.0-beta-1"
         versioncode="30">
         <change>Support creating and managing groups of players. Fixes
