@@ -828,7 +828,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Adjusts the subscription to players' status updates.
      */
     private void updateAllPlayerSubscriptionStates() {
-        Player activePlayer = connectionState.getActivePlayer();
         for (Player player : connectionState.getPlayers()) {
             updatePlayerSubscription(player, getPlayerSubscriptionType(player));
         }
