@@ -50,6 +50,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.regex.Pattern;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
@@ -83,6 +84,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private static final String TAG = "SqueezeService";
 
     private static final int PLAYBACKSERVICE_STATUS = 1;
+
+    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
+    private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
 
     private static final String ALBUMTAGS = "alyj";
 
@@ -589,7 +593,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         Log.v(TAG, "RECV: " + serverLine);
         Crashlytics.setString("lastReceivedLine", serverLine);
 
-        List<String> tokens = Arrays.asList(serverLine.split(" "));
+        List<String> tokens = Arrays.asList(mSpaceSplitPattern.split(serverLine));
         if (tokens.size() < 2) {
             return;
         }

@@ -32,8 +32,11 @@ import java.net.URLEncoder;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 public class Util {
+    /** {@link Pattern} that splits strings on colons. */
+    private static final Pattern mColonSplitPattern = Pattern.compile(":");
 
     private Util() {
     }
@@ -171,7 +174,7 @@ public class Util {
      * @return The MAC address in the form of a long.
      */
     public static long MacToLong(@NonNull String mac) {
-        String[] octets = mac.split(":");
+        String[] octets = mColonSplitPattern.split(mac);
         byte[] bytes = new byte[] {
                 0,
                 0,
