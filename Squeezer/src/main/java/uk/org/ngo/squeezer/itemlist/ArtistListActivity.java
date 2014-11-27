@@ -58,7 +58,7 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
         this.album = album;
     }
 
-    Genre genre;
+    private Genre genre;
 
     public Genre getGenre() {
         return genre;

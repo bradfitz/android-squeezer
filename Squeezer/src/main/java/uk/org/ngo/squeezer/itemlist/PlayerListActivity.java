@@ -47,7 +47,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerListActivity extends ItemListActivity implements
         PlayerSyncDialog.PlayerSyncDialogHost {
-    public static final String CURRENT_PLAYER = "currentPlayer";
+    private static final String CURRENT_PLAYER = "currentPlayer";
 
     private ExpandableListView mResultsExpandableListView;
 

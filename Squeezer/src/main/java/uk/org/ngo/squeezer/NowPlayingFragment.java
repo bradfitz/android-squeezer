@@ -104,7 +104,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private TextView trackText;
 
-    ImageView btnContextMenu;
+    private ImageView btnContextMenu;
 
     private TextView currentTime;
 

@@ -51,10 +51,10 @@ public class PlayerSyncDialog extends DialogFragment {
         public void unsyncPlayer(@NonNull Player player);
     }
 
-    PlayerSyncDialogHost mHost;
+    private PlayerSyncDialogHost mHost;
 
     /** The sync group the user selected. */
-    int mSelectedGroup = 0;
+    private int mSelectedGroup = 0;
 
     // Override the Fragment.onAttach() method to instantiate the PlayerSyncDialogHost.
     @Override

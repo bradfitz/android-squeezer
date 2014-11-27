@@ -51,7 +51,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     private Player mActivePlayer;
 
-    private List<Player> mPlayers = new ImmutableList.Builder<Player>().build();
+    private final List<Player> mPlayers = new ImmutableList.Builder<Player>().build();
 
     private final ImageFetcher mImageFetcher;
 
