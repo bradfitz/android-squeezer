@@ -55,6 +55,7 @@ import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class SongListActivity extends BaseListActivity<Song>
@@ -119,7 +120,6 @@ public class SongListActivity extends BaseListActivity<Song>
     public void setGenre(Genre genre) {
         this.genre = genre;
     }
-
 
     private SongView songViewLogic;
 
@@ -200,10 +200,11 @@ public class SongListActivity extends BaseListActivity<Song>
                 : super.getContentView();
     }
 
-    @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
-
+    /**
+     * Updates the artwork in the UI. Can only be called after the server handshake has
+     * completed, as the IP port is required to construct the artwork URL.
+     */
+    private void updateArtwork() {
         // Set artwork that requires a service connection.
         if (album != null) {
             ImageView artwork = (ImageView) findViewById(R.id.album);
@@ -219,6 +220,13 @@ public class SongListActivity extends BaseListActivity<Song>
         }
     }
 
+    /**
+     * Ensures that the artwork in the UI is updated after the server handshake completes.
+     */
+    public void onEventMainThread(HandshakeComplete event) {
+        updateArtwork();
+    }
+
     public static void show(Context context, Item... items) {
         final Intent intent = new Intent(context, SongListActivity.class);
         for (Item item : items) {
@@ -226,7 +234,6 @@ public class SongListActivity extends BaseListActivity<Song>
         }
         context.startActivity(intent);
     }
-
 
     @Override
     public ItemView<Song> createItemView() {

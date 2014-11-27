@@ -677,7 +677,6 @@ public class NowPlayingFragment extends Fragment implements
 
         if (mService != null) {
             maybeRegisterCallbacks(mService);
-            updateUIFromServiceState();
         }
 
         if (new Preferences(mActivity).isAutoConnect()) {
@@ -1125,6 +1124,7 @@ public class NowPlayingFragment extends Fragment implements
 
         Log.d(TAG, "Handshake complete");
         updatePowerMenuItems(canPowerOn(), canPowerOff());
+        updateUIFromServiceState();
     }
 
     public void onEventMainThread(MusicChanged event) {

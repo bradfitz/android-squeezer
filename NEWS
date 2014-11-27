@@ -4,6 +4,17 @@ In-progress
 *   Support creating and managing groups of players. Fixes
     https://code.google.com/p/android-squeezer/issues/detail?id=4.
 
+*   Fixed a bug where returning to Squeezer from some other application
+    (using the "Recent Apps" button) would result in incomplete
+    information being displayed. Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=79.
+
+*   Change the default colour theme to light with a dark action
+    bar.
+
+*   Fixed potential crash when no players are connected to the
+    server.
+
 1.1.1
 =====
 

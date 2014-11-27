@@ -35,6 +35,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageCache;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.RetainFragment;
@@ -59,6 +60,9 @@ public abstract class ItemListActivity extends BaseActivity {
      */
     private int mPageSize;
 
+    /** Records whether the handshake with the server has completed. */
+    private boolean mHandshakeComplete = false;
+
     /**
      * The pages that have been requested from the server.
      */
@@ -74,7 +78,7 @@ public abstract class ItemListActivity extends BaseActivity {
      * that once the service is bound the most recently requested pages should be ordered
      * first.
      */
-    private Stack<Integer> mOrderedPagesBeforeBinding = new Stack<Integer>();
+    private Stack<Integer> mOrderedPagesBeforeHandshake = new Stack<Integer>();
 
     /**
      * Tag for mReceivedPages in mRetainFragment.
@@ -122,16 +126,6 @@ public abstract class ItemListActivity extends BaseActivity {
         super.onResume();
 
         getImageFetcher().addImageCache(getSupportFragmentManager(), mImageCacheParams);
-    }
-
-    @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
-
-        // Order any pages that were requested before the service was bound.
-        while (!mOrderedPagesBeforeBinding.empty()) {
-            maybeOrderPage(mOrderedPagesBeforeBinding.pop());
-        }
     }
 
     @Override
@@ -188,7 +182,7 @@ public abstract class ItemListActivity extends BaseActivity {
      *
      * @param service The connection to the bound service.
      * @param start Position in list to start the fetch. Pass this on to {@link
-     * uk.org.ngo.squeezer.service.SqueezeService}
+     *     uk.org.ngo.squeezer.service.SqueezeService}
      */
     protected abstract void orderPage(@NonNull ISqueezeService service, int start);
 
@@ -200,11 +194,10 @@ public abstract class ItemListActivity extends BaseActivity {
     protected abstract void clearItemAdapter();
 
     /**
-     * Order a page worth of data, starting at the specified position, if it has not already been
-     * ordered.
+     * Orders a page worth of data, starting at the specified position, if it has not already been
+     * ordered, and if the service is connected and the handshake has completed.
      *
      * @param pagePosition position in the list to start the fetch.
-     *
      * @return True if the page needed to be ordered (even if the order failed), false otherwise.
      */
     public boolean maybeOrderPage(int pagePosition) {
@@ -212,10 +205,10 @@ public abstract class ItemListActivity extends BaseActivity {
                 .contains(pagePosition)) {
             ISqueezeService service = getService();
 
-            // If the service connection hasn't happened yet then store the page request
-            // where it can be used in onServiceConnected().
-            if (service == null) {
-                mOrderedPagesBeforeBinding.push(pagePosition);
+            // If the service connection or handshake hasn't happened yet then store the page
+            // request where it can be used in mHandshakeComplete.
+            if (service == null || !mHandshakeComplete) {
+                mOrderedPagesBeforeHandshake.push(pagePosition);
             } else {
                 mOrderedPages.add(pagePosition);
                 orderPage(service, pagePosition);
@@ -223,6 +216,19 @@ public abstract class ItemListActivity extends BaseActivity {
             return true;
         } else {
             return false;
+        }
+    }
+
+    /**
+     * Marks the handshake as complete, and orders any pages requested before the handshake
+     * completed.
+     */
+    public void onEvent(HandshakeComplete event) {
+        mHandshakeComplete = true;
+
+        // Order any pages that were requested before the handshake complete.
+        while (!mOrderedPagesBeforeHandshake.empty()) {
+            maybeOrderPage(mOrderedPagesBeforeHandshake.pop());
         }
     }
 
