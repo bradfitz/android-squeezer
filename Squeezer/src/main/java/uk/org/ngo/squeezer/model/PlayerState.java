@@ -161,6 +161,12 @@ public class PlayerState implements Parcelable {
         return playStatus == PlayStatus.play;
     }
 
+    /**
+     * @return the player's state. May be null, which indicates that Squeezer has received
+     *     a "players" response for this player, but has not yet received a status message
+     *     for it.
+     */
+    @Nullable
     public PlayStatus getPlayStatus() {
         return playStatus;
     }
