@@ -41,6 +41,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 
@@ -189,10 +190,7 @@ public class PlayerListActivity extends ItemListActivity implements
         // initially connected to the server.
     }
 
-    @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-
+    public void onEventMainThread(HandshakeComplete event) {
         updateAndExpandPlayerList();
     }
 

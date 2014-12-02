@@ -40,6 +40,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
@@ -240,10 +241,9 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         return getService().getCurrentPlaylist();
     }
 
-    @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-        player = service.getActivePlayer();
+    public void onEvent(HandshakeComplete event) {
+        super.onEvent(event);
+        player = getService().getActivePlayer();
     }
 
     public void onEventMainThread(MusicChanged event) {
