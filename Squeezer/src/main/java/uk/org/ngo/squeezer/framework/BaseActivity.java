@@ -163,10 +163,10 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         if (mRegisteredCallbacks) {
             // If we are not bound to the service, it's process is no longer
             // running, so the callbacks are already cleaned up.
-            ISqueezeService service = getService();
-            if (service != null) {
-                service.getEventBus().unregister(this);
-                unregisterCallback();
+            if (mService != null) {
+                mService.getEventBus().unregister(this);
+                mService.cancelItemListRequests(this);
+                mService.cancelSubscriptions(this);
             }
             mRegisteredCallbacks = false;
         }
@@ -222,26 +222,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     /**
-     * Registers any callbacks with the bound service.
-     *
-     * @param service The connection to the bound service.
-     */
-    protected void registerCallback(@NonNull ISqueezeService service) {}
-
-    /**
-     * This is called when the service is disconnected.
-     * <p/>
-     * Normally you do not need to override this.
-     */
-    protected void unregisterCallback() {
-        if (mService == null)
-            return;
-
-        mService.cancelItemListRequests(this);
-        mService.cancelSubscriptions(this);
-    }
-
-    /**
      * Conditionally registers callbacks.
      * <p/>
      * Callback registration can happen in {@link #onResume()} and {@link
@@ -253,7 +233,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     private void maybeRegisterCallbacks(@NonNull ISqueezeService service) {
         if (!mRegisteredCallbacks) {
             service.getEventBus().registerSticky(this);
-            registerCallback(service);
             mRegisteredCallbacks = true;
         }
     }
