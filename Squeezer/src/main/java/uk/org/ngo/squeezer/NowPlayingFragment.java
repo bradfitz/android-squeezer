@@ -109,7 +109,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private TextView trackText;
 
-    ImageView btnContextMenu;
+    private ImageView btnContextMenu;
 
     private TextView currentTime;
 
@@ -877,9 +877,7 @@ public class NowPlayingFragment extends Fragment implements
     public void onDestroy() {
         super.onDestroy();
         if (mService != null) {
-            if (serviceConnection != null) {
-                mActivity.unbindService(serviceConnection);
-            }
+            mActivity.unbindService(serviceConnection);
         }
     }
 

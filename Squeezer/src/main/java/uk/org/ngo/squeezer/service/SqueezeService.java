@@ -50,6 +50,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.NowPlayingActivity;
@@ -96,6 +97,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private static final String TAG = "SqueezeService";
 
     private static final int PLAYBACKSERVICE_STATUS = 1;
+
+    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
+    private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
 
     private static final String ALBUMTAGS = "alyj";
 
@@ -528,8 +532,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "Prefset received: " + tokens);
-                if (tokens.size() > 4 && tokens.get(2).equals("server") && tokens.get(3)
-                        .equals("volume")) {
+                if (tokens.size() > 4 && "server".equals(tokens.get(2)) && "volume".equals(tokens.get(3))) {
                     String playerId = Util.decode(tokens.get(0));
                     int newVolume = Util.parseDecimalIntOrZero(tokens.get(4));
                     updatePlayerVolume(playerId, newVolume);
@@ -574,7 +577,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         Log.v(TAG, "RECV: " + serverLine);
         Crashlytics.setString("lastReceivedLine", serverLine);
 
-        List<String> tokens = Arrays.asList(serverLine.split(" "));
+        List<String> tokens = Arrays.asList(mSpaceSplitPattern.split(serverLine));
         if (tokens.size() < 2) {
             return;
         }
@@ -800,7 +803,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Adjusts the subscription to players' status updates.
      */
     private void updateAllPlayerSubscriptionStates() {
-        Player activePlayer = connectionState.getActivePlayer();
         for (Player player : connectionState.getPlayers()) {
             updatePlayerSubscription(player, getPlayerSubscriptionType(player));
         }
@@ -1337,6 +1339,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
             PlayerState.PlayStatus playStatus = activePlayerState.getPlayStatus();
 
+            // May be null -- race condition when connecting to a server that
+            // has a player. Squeezer knows the player exists, but has not yet
+            // determined its state.
+            if (playStatus == null)
+                return false;
+
             switch (playStatus) {
                 case play:
                     // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
@@ -1864,9 +1872,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 playlistSongs(-1, (Playlist) item, songDownloadCallback);
             } else if (item instanceof MusicFolderItem) {
                 MusicFolderItem musicFolderItem = (MusicFolderItem) item;
-                if (musicFolderItem.getType().equals("track")) {
+                if ("track".equals(musicFolderItem.getType())) {
                     downloadSong(item.getId(), musicFolderItem.getName(), musicFolderItem.getUrl());
-                } else if (musicFolderItem.getType().equals("folder")) {
+                } else if ("folder".equals(musicFolderItem.getType())) {
                     musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);
                 }
             } else if (item != null) {

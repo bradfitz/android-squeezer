@@ -48,7 +48,7 @@ public class PlayerState implements Parcelable {
         /** Receive real-time (second to second) updates. */
         real_time('1');
 
-        private char mToken;
+        private final char mToken;
 
         private PlayerSubscriptionType(char token) {
             mToken = token;
@@ -161,6 +161,12 @@ public class PlayerState implements Parcelable {
         return playStatus == PlayStatus.play;
     }
 
+    /**
+     * @return the player's state. May be null, which indicates that Squeezer has received
+     *     a "players" response for this player, but has not yet received a status message
+     *     for it.
+     */
+    @Nullable
     public PlayStatus getPlayStatus() {
         return playStatus;
     }

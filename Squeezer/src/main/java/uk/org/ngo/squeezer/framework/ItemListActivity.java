@@ -78,7 +78,7 @@ public abstract class ItemListActivity extends BaseActivity {
      * that once the service is bound the most recently requested pages should be ordered
      * first.
      */
-    private Stack<Integer> mOrderedPagesBeforeHandshake = new Stack<Integer>();
+    private final Stack<Integer> mOrderedPagesBeforeHandshake = new Stack<Integer>();
 
     /**
      * Tag for mReceivedPages in mRetainFragment.
