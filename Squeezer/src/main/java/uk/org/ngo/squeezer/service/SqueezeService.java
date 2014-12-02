@@ -1424,6 +1424,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
             PlayerState.PlayStatus playStatus = activePlayerState.getPlayStatus();
 
+            // May be null -- race condition when connecting to a server that
+            // has a player. Squeezer knows the player exists, but has not yet
+            // determined its state.
+            if (playStatus == null)
+                return false;
+
             switch (playStatus) {
                 case play:
                     // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
