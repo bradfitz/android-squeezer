@@ -20,12 +20,10 @@ package uk.org.ngo.squeezer;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 /**
@@ -75,11 +73,6 @@ public class DisconnectedActivity extends BaseActivity {
                 .findFragmentById(
                         R.id.now_playing_fragment);
         fragment.startVisibleConnection();
-    }
-
-    @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
     }
 
     public void onEventMainThread(ConnectionChanged event) {

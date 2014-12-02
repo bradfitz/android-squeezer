@@ -101,11 +101,6 @@ public class PlaylistsActivity extends BaseListActivity<Playlist> {
     }
 
     @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-    }
-
-    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.playlists(start, this);
     }
