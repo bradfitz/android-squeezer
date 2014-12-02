@@ -50,7 +50,7 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
 
     private static final int MSG_TIMEOUT = 2;
 
-    protected final BaseActivity mActivity;
+    private final BaseActivity mActivity;
 
     /**
      * Dialog displaying the volume panel.
