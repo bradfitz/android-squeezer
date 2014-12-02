@@ -63,10 +63,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     private final ThemeManager mTheme = new ThemeManager();
 
-    /**
-     * Keep track of whether callbacks have been registered
-     */
-    private boolean mRegisteredCallbacks;
+    /** Records whether the activity has registered on the service's event bus. */
+    private boolean mRegisteredOnEventBus;
 
     private final Handler uiThreadHandler = new Handler() {
     };
@@ -140,7 +138,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         mTheme.onResume(this);
 
         if (mService != null) {
-            maybeRegisterCallbacks(mService);
+            maybeRegisterOnEventBus(mService);
         }
 
         mVolumePanel = new VolumePanel(this);
@@ -160,7 +158,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
             squeezePlayer.stopControllingSqueezePlayer();
             squeezePlayer = null;
         }
-        if (mRegisteredCallbacks) {
+        if (mRegisteredOnEventBus) {
             // If we are not bound to the service, it's process is no longer
             // running, so the callbacks are already cleaned up.
             if (mService != null) {
@@ -168,7 +166,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
                 mService.cancelItemListRequests(this);
                 mService.cancelSubscriptions(this);
             }
-            mRegisteredCallbacks = false;
+            mRegisteredOnEventBus = false;
         }
 
         super.onPause();
@@ -218,22 +216,22 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
      */
     protected void onServiceConnected(@NonNull ISqueezeService service) {
         supportInvalidateOptionsMenu();
-        maybeRegisterCallbacks(service);
+        maybeRegisterOnEventBus(service);
     }
 
     /**
-     * Conditionally registers callbacks.
+     * Conditionally registers with the service's EventBus.
      * <p/>
-     * Callback registration can happen in {@link #onResume()} and {@link
+     * Registration can happen in {@link #onResume()} and {@link
      * #onServiceConnected(uk.org.ngo.squeezer.service.ISqueezeService)}, this ensures that it only
      * happens once.
      *
      * @param service The connection to the bound service.
      */
-    private void maybeRegisterCallbacks(@NonNull ISqueezeService service) {
-        if (!mRegisteredCallbacks) {
+    private void maybeRegisterOnEventBus(@NonNull ISqueezeService service) {
+        if (!mRegisteredOnEventBus) {
             service.getEventBus().registerSticky(this);
-            mRegisteredCallbacks = true;
+            mRegisteredOnEventBus = true;
         }
     }
 
