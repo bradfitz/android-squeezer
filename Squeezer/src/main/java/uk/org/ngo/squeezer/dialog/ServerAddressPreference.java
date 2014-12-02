@@ -26,6 +26,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.preference.DialogPreference;
+import android.support.annotation.NonNull;
 import android.text.format.Formatter;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -89,7 +90,7 @@ public class ServerAddressPreference extends DialogPreference {
     }
 
     @Override
-    protected void onBindDialogView(View view) {
+    protected void onBindDialogView(@NonNull View view) {
         super.onBindDialogView(view);
 
         Preferences preferences = new Preferences(getContext());

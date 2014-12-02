@@ -2,6 +2,7 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -23,6 +24,7 @@ public class AlbumFilterDialog extends BaseFilterDialog {
 
     private EditText editText;
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);

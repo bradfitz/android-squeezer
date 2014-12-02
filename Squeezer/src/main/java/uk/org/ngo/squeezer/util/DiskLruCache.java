@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.util;
 
+import android.support.annotation.NonNull;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -868,7 +870,7 @@ public final class DiskLruCache implements Closeable {
                 }
             }
 
-            @Override public void write(byte[] buffer, int offset, int length) {
+            @Override public void write(@NonNull byte[] buffer, int offset, int length) {
                 try {
                     out.write(buffer, offset, length);
                 } catch (IOException e) {

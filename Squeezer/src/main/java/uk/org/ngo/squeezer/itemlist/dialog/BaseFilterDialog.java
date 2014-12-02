@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 import android.view.View;
@@ -21,6 +22,7 @@ public abstract class BaseFilterDialog extends DialogFragment {
 
     @SuppressLint("InflateParams") // OK, as view is passed to AlertDialog.Builder.setView()
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         filterForm = getActivity().getLayoutInflater().inflate(R.layout.filter_dialog, null);
