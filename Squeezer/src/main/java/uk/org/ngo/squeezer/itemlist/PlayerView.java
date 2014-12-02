@@ -31,6 +31,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
@@ -153,6 +154,10 @@ public class PlayerView extends BaseItemView<Player> {
                 return true;
             case R.id.toggle_power:
                 service.togglePower(selectedItem);
+                return true;
+            case R.id.player_sync:
+                new PlayerSyncDialog().show(activity.getSupportFragmentManager(),
+                        PlayerSyncDialog.class.getName());
                 return true;
         }
         return super.doItemContext(menuItem, index, selectedItem);

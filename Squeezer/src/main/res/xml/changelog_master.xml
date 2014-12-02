@@ -2,6 +2,21 @@
 
 <changelog>
     <release
+        version="1.2.0"
+        versioncode="32">
+        <change>Support creating and managing groups of players. Fixes
+            https://code.google.com/p/android-squeezer/issues/detail?id=4.</change>
+
+        <change>Change the default colour theme to light with a dark action bar.</change>
+
+        <change>Fixed a bug where returning to Squeezer from some other application (using the
+            "Recent Apps" button) would result in incomplete information being displayed. Fixes
+            https://code.google.com/p/android-squeezer/issues/detail?id=79.</change>
+
+        <change>Fixed potential crash when no players are connected to the server.</change>
+    </release>
+
+    <release
         version="1.1.1"
         versioncode="29">
         <change>Fix potential crash when browsing music folders.</change>

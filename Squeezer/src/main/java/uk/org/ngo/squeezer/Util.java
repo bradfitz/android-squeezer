@@ -16,11 +16,15 @@
 
 package uk.org.ngo.squeezer;
 
-import android.app.Activity;
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
+
+import com.google.common.primitives.Longs;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -119,25 +123,26 @@ public class Util {
         }
     }
 
-    public static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent,
+    public static View getSpinnerItemView(Context context, View convertView, ViewGroup parent,
             String label) {
-        return getSpinnerItemView(activity, convertView, parent, label,
+        return getSpinnerItemView(context, convertView, parent, label,
                 android.R.layout.simple_spinner_dropdown_item);
     }
 
-    public static View getActionBarSpinnerItemView(Activity activity, View convertView,
+    public static View getActionBarSpinnerItemView(Context context, View convertView,
                                                    ViewGroup parent, String label) {
-        return getSpinnerItemView(activity, convertView, parent, label,
+        return getSpinnerItemView(context, convertView, parent, label,
                 android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item);
     }
 
-    private static View getSpinnerItemView(Activity activity, View convertView, ViewGroup parent,
+    private static View getSpinnerItemView(Context context, View convertView, ViewGroup parent,
                                           String label, int layout) {
         TextView view;
         view = (TextView) (convertView != null
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
-                : activity.getLayoutInflater().inflate(layout, parent, false));
+                : ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+                        layout, parent, false));
         view.setText(label);
         return view;
     }
@@ -157,6 +162,28 @@ public class Util {
             }
         }
         return count;
+    }
+
+    /**
+     * Converts a MAC address (48bit) to a long.
+     *
+     * @param mac The MAC address.
+     * @return The MAC address in the form of a long.
+     */
+    public static long MacToLong(@NonNull String mac) {
+        String[] octets = mac.split(":");
+        byte[] bytes = new byte[] {
+                0,
+                0,
+                (byte)Integer.parseInt(octets[0], 16),
+                (byte)Integer.parseInt(octets[1], 16),
+                (byte)Integer.parseInt(octets[2], 16),
+                (byte)Integer.parseInt(octets[3], 16),
+                (byte)Integer.parseInt(octets[4], 16),
+                (byte)Integer.parseInt(octets[5], 16),
+        };
+
+        return Longs.fromByteArray(bytes);
     }
 
     /** Helper to set alpha value for a view, since View.setAlpha is API level 11 */

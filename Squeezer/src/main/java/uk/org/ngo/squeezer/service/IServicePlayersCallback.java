@@ -16,11 +16,13 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.support.annotation.Nullable;
+
 import java.util.List;
 
 import uk.org.ngo.squeezer.model.Player;
 
 public interface IServicePlayersCallback extends ServiceCallback {
-    void onPlayersChanged(List<Player> players, Player activePlayer);
+    void onPlayersChanged(List<Player> players, final @Nullable Player activePlayer);
 }
 

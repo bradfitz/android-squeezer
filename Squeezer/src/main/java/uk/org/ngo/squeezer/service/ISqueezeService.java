@@ -16,22 +16,27 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.List;
+
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
-import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
-import uk.org.ngo.squeezer.model.MusicFolderItem;
-import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
-import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.model.Genre;
+import uk.org.ngo.squeezer.model.MusicFolderItem;
+import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
+import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.model.Year;
 
 public interface ISqueezeService {
     // For the activity to get callbacks on interesting events
@@ -72,12 +77,35 @@ public interface ISqueezeService {
     void setActivePlayer(Player player);
 
     // Returns the player we are currently controlling
+    @Nullable
     Player getActivePlayer();
+
+    // Returns all the players we know about.
+    List<Player> getPlayers();
+
+    // XXX: Delete, now that PlayerState is tracked in the player?
+    PlayerState getActivePlayerState();
+    PlayerState getPlayerState(String playerId);
 
     // Player control
     void togglePower(Player player);
     void playerRename(Player player, String newName);
     void sleep(Player player, int duration);
+
+    /**
+     * Synchronises the slave player to the player with masterId.
+     *
+     * @param player the player to sync.
+     * @param masterId ID of the player to sync to.
+     */
+    void syncPlayerToPlayer(@NonNull Player player, @NonNull String masterId);
+
+    /**
+     * Removes the player with playerId from any sync groups.
+     *
+     * @param player the player to be removed from sync groups.
+     */
+    void unsyncPlayer(@NonNull Player player);
 
     ////////////////////
     // Depends on active player:
@@ -86,11 +114,11 @@ public interface ISqueezeService {
     boolean canPowerOff();
     void powerOn();
     void powerOff();
-    boolean canFavorites();
-    boolean canMusicfolder();
-    boolean canMyApps();
-    boolean canRandomplay();
-    String preferredAlbumSort();
+    boolean canFavorites() throws SqueezeService.HandshakeNotCompleteException;
+    boolean canMusicfolder() throws SqueezeService.HandshakeNotCompleteException;
+    boolean canMyApps() throws SqueezeService.HandshakeNotCompleteException;
+    boolean canRandomplay() throws SqueezeService.HandshakeNotCompleteException;
+    String preferredAlbumSort() throws SqueezeService.HandshakeNotCompleteException;
     void setPreferredAlbumSort(String preferredAlbumSort);
     boolean togglePausePlay();
     boolean play();
@@ -100,7 +128,7 @@ public interface ISqueezeService {
     boolean toggleShuffle();
     boolean toggleRepeat();
     boolean playlistControl(String cmd, PlaylistItem playlistItem);
-    boolean randomPlay(String type);
+    boolean randomPlay(String type) throws SqueezeService.HandshakeNotCompleteException;
     boolean playlistIndex(int index);
     boolean playlistRemove(int index);
     boolean playlistMove(int fromIndex, int toIndex);
@@ -112,10 +140,10 @@ public interface ISqueezeService {
 
     PlayerState getPlayerState();
     String getCurrentPlaylist();
-    String getAlbumArtUrl(String artworkTrackId);
-    String getIconUrl(String icon);
+    String getAlbumArtUrl(String artworkTrackId) throws SqueezeService.HandshakeNotCompleteException;
+    String getIconUrl(String icon) throws SqueezeService.HandshakeNotCompleteException;
 
-    String getSongDownloadUrl(String songTrackId);
+    String getSongDownloadUrl(String songTrackId) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
      * Sets the volume to the absolute volume in newVolume, which will be clamped to the
@@ -134,34 +162,34 @@ public interface ISqueezeService {
     void cancelSubscriptions(Object client);
 
     /** Start an async fetch of the SqueezeboxServer's players */
-    void players(int start, IServiceItemListCallback<Player> callback);
+    void players() throws SqueezeService.HandshakeNotCompleteException;
 
     // Album list
     /**
      * Starts an asynchronous fetch of album data from the server. The supplied
      * will be called when the data is fetched.
      */
-    void albums(IServiceItemListCallback<Album> callback, int start, String sortOrder, String searchString, FilterItem... filters);
+    void albums(IServiceItemListCallback<Album> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
 
     // Artist list
-    void artists(IServiceItemListCallback<Artist> callback, int start, String searchString, FilterItem... filters);
+    void artists(IServiceItemListCallback<Artist> callback, int start, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
 
     // Year list
-    void years(int start, IServiceItemListCallback<Year> callback);
+    void years(int start, IServiceItemListCallback<Year> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     // Genre list
-    void genres(int start, String searchString, IServiceItemListCallback<Genre> callback);
+    void genres(int start, String searchString, IServiceItemListCallback<Genre> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     // MusicFolder list
-    void musicFolders(int start, MusicFolderItem musicFolderItem, IServiceItemListCallback<MusicFolderItem> callback);
+    void musicFolders(int start, MusicFolderItem musicFolderItem, IServiceItemListCallback<MusicFolderItem> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     // Song list
-    void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters);
-    void currentPlaylist(int start, IServiceItemListCallback<Song> callback);
-    void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback);
+    void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
+    void currentPlaylist(int start, IServiceItemListCallback<Song> callback) throws SqueezeService.HandshakeNotCompleteException;
+    void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     // Playlists
-    void playlists(int start, IServiceItemListCallback<Playlist> callback);
+    void playlists(int start, IServiceItemListCallback<Playlist> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     // Named playlist maintenance
     void registerPlaylistMaintenanceCallback(IServicePlaylistMaintenanceCallback callback);
@@ -172,20 +200,20 @@ public interface ISqueezeService {
     boolean playlistsRemove(Playlist playlist, int index);
 
     // Search
-    void search(int start, String searchString, IServiceItemListCallback itemListCallback);
+    void search(int start, String searchString, IServiceItemListCallback itemListCallback) throws SqueezeService.HandshakeNotCompleteException;
 
     // Radios/plugins
-    void radios(int start, IServiceItemListCallback<Plugin> callback);
-    void apps(int start, IServiceItemListCallback<Plugin> callback);
+    void radios(int start, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+    void apps(int start, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
 
-    void pluginItems(int start, Plugin plugin, PluginItem parent, String search, IServiceItemListCallback<PluginItem> callback);
+    void pluginItems(int start, Plugin plugin, PluginItem parent, String search, IServiceItemListCallback<PluginItem> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
      * Initiate download of songs for the supplied item.
      *
      * @param item Song or item with songs to download
      */
-    void downloadItem(FilterItem item);
+    void downloadItem(FilterItem item) throws SqueezeService.HandshakeNotCompleteException;
 
 
 }

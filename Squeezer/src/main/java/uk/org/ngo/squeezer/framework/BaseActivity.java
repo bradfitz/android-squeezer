@@ -30,27 +30,38 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
+import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
+import uk.org.ngo.squeezer.util.ThemeManager;
 
 /**
- * Common base class for all activities in the squeezer
+ * Common base class for all activities in Squeezer.
  *
  * @author Kurt Aaholst
  */
 public abstract class BaseActivity extends ActionBarActivity implements HasUiThread {
 
-    @Nullable private ISqueezeService mService = null;
+    @Nullable
+    private ISqueezeService mService = null;
+
+    private final ThemeManager mTheme = new ThemeManager();
 
     /**
      * Keep track of whether callbacks have been registered
@@ -61,6 +72,17 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     };
 
     private SqueezePlayer squeezePlayer;
+
+    /** Option menu volume control entry. */
+    @Nullable
+    private MenuItem mMenuItemVolume;
+
+    /** Whether volume changes should be ignored. */
+    private boolean mIgnoreVolumeChange;
+
+    /** Volume control panel. */
+    @Nullable
+    private VolumePanel mVolumePanel;
 
     protected String getTag() {
         return getClass().getSimpleName();
@@ -98,6 +120,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @Override
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mTheme.onCreate(this);
         ActionBar actionBar = getSupportActionBar();
 
         actionBar.setIcon(R.drawable.ic_launcher);
@@ -119,9 +143,13 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     public void onResume() {
         super.onResume();
 
+        mTheme.onResume(this);
+
         if (mService != null) {
             maybeRegisterCallbacks(mService);
         }
+
+        mVolumePanel = new VolumePanel(this);
 
         // If SqueezePlayer is installed, start it
         if (SqueezePlayer.hasSqueezePlayer(this) && new Preferences(this).controlSqueezePlayer()) {
@@ -131,6 +159,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     @Override
     public void onPause() {
+        mVolumePanel.dismiss();
+        mVolumePanel = null;
+
         if (squeezePlayer != null) {
             squeezePlayer.stopControllingSqueezePlayer();
             squeezePlayer = null;
@@ -162,7 +193,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public void finish() {
         super.finish();
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && !isTaskRoot() && mIsRestoredToTop) {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && !isTaskRoot()
+                && mIsRestoredToTop) {
             // 4.4.2 platform issues for FLAG_ACTIVITY_REORDER_TO_FRONT,
             // reordered activity back press will go to home unexpectedly,
             // Workaround: move reordered activity current task to front when it's finished.
@@ -172,9 +204,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     /**
-     * Performs any actions necessary after the service has been connected. Sub-classes must
-     * call through to this implementation.
-     *
+     * Performs any actions necessary after the service has been connected. Derived classes
+     * should call through to the base class.
      * <ul>
      *     <li>Invalidates the options menu so that menu items can be adjusted based on
      *     the state of the service connection.</li>
@@ -189,12 +220,15 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     /**
-     * Registers any callbacks with the bound service. The default implementation does nothing,
-     * sub-classes should override this as appropriate.
+     * Registers any callbacks with the bound service. The default implementation manages volume
+     * control.
+     * <p/>
+     * Derived classes should call through to the base class for it to perform volume control.
      *
      * @param service The connection to the bound service.
      */
     protected void registerCallback(@NonNull ISqueezeService service) {
+        service.registerVolumeCallback(volumeCallback);
     }
 
     /**
@@ -203,7 +237,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
      * Normally you do not need to override this.
      */
     protected void unregisterCallback() {
-        if (mService == null) return;
+        if (mService == null)
+            return;
 
         mService.cancelItemListRequests(this);
         mService.cancelSubscriptions(this);
@@ -212,9 +247,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     /**
      * Conditionally registers callbacks.
      * <p/>
-     * Callback registration can happen in {@link #onResume()} and
-     * {@link #onServiceConnected(uk.org.ngo.squeezer.service.ISqueezeService)}, this ensures
-     * that it only happens once.
+     * Callback registration can happen in {@link #onResume()} and {@link
+     * #onServiceConnected(uk.org.ngo.squeezer.service.ISqueezeService)}, this ensures that it only
+     * happens once.
      *
      * @param service The connection to the bound service.
      */
@@ -223,6 +258,47 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
             registerCallback(service);
             mRegisteredCallbacks = true;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.base_activity, menu);
+
+        mMenuItemVolume = menu.findItem(R.id.menu_item_volume);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean connected = isConnected();
+
+        if (mMenuItemVolume != null) {
+            mMenuItemVolume.setEnabled(connected);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_volume:
+                // Show the volume dialog.
+                if (mService != null) {
+                    PlayerState playerState = mService.getPlayerState();
+                    Player player = mService.getActivePlayer();
+
+                    if (playerState != null  && mVolumePanel != null) {
+                        mVolumePanel.postVolumeChanged(playerState.getCurrentVolume(),
+                                player == null ? "" : player.getName());
+                    }
+
+                    return true;
+                }
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -275,6 +351,29 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         Log.v(getTag(), "Adjust volume by: " + delta);
         service.adjustVolumeBy(delta);
         return true;
+    }
+
+    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
+        @Override
+        public void onVolumeChanged(final int newVolume, final Player player) {
+            if (!mIgnoreVolumeChange && mVolumePanel != null) {
+                mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
+            }
+        }
+
+        @Override
+        public Object getClient() {
+            return BaseActivity.this;
+        }
+
+        @Override
+        public boolean wantAllPlayers() {
+            return false;
+        }
+    };
+
+    public void setIgnoreVolumeChange(boolean ignoreVolumeChange) {
+        mIgnoreVolumeChange = ignoreVolumeChange;
     }
 
     // Safe accessors
@@ -344,4 +443,15 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         insert
     }
 
+    /**
+     * Look up an attribute resource styled for the current theme.
+     *
+     * @param attribute Attribute identifier to look up.
+     * @return The resource identifier for the given attribute.
+     */
+    public int getAttributeValue(int attribute) {
+        TypedValue v = new TypedValue();
+        getTheme().resolveAttribute(attribute, v, true);
+        return v.resourceId;
+    }
 }

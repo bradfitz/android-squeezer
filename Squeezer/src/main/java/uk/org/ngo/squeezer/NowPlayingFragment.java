@@ -84,7 +84,6 @@ import uk.org.ngo.squeezer.service.IServiceConnectionCallback;
 import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.IServiceMusicChangedCallback;
 import uk.org.ngo.squeezer.service.IServicePlayersCallback;
-import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
@@ -125,8 +124,6 @@ public class NowPlayingFragment extends Fragment implements
 
     private MenuItem menu_item_search;
 
-    private MenuItem menu_item_volume;
-
     private ImageButton playPauseButton;
 
     private ImageButton nextButton;
@@ -144,12 +141,6 @@ public class NowPlayingFragment extends Fragment implements
 
     /** In mini-mode, shows the current progress through the track. */
     private ProgressBar mProgressBar;
-
-    /**
-     * Volume control panel.
-     */
-    private boolean ignoreVolumeChange;
-    private VolumePanel mVolumePanel;
 
     // Updating the seekbar
     private boolean updateSeekBar = true;
@@ -486,7 +477,8 @@ public class NowPlayingFragment extends Fragment implements
         if (!connected) {
             updateSongInfo(null);
 
-            playPauseButton.setImageResource(R.drawable.presence_online); // green circle
+            playPauseButton.setImageResource(
+                    mActivity.getAttributeValue(R.attr.ic_action_av_connect));
 
             if (mFullHeightLayout) {
                 albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
@@ -507,8 +499,10 @@ public class NowPlayingFragment extends Fragment implements
             }
         } else {
             if (mFullHeightLayout) {
-                nextButton.setImageResource(R.drawable.ic_action_next);
-                prevButton.setImageResource(R.drawable.ic_action_previous);
+                nextButton.setImageResource(
+                        mActivity.getAttributeValue(R.attr.ic_action_av_next));
+                prevButton.setImageResource(
+                        mActivity.getAttributeValue(R.attr.ic_action_av_previous));
                 seekBar.setEnabled(true);
             } else {
                 mProgressBar.setEnabled(true);
@@ -518,19 +512,23 @@ public class NowPlayingFragment extends Fragment implements
 
     private void updatePlayPauseIcon(PlayStatus playStatus) {
         playPauseButton
-                .setImageResource((playStatus == PlayStatus.play) ? R.drawable.ic_action_pause
-                        : R.drawable.ic_action_play);
+                .setImageResource((playStatus == PlayStatus.play) ?
+                        mActivity.getAttributeValue(R.attr.ic_action_av_pause)
+                        : mActivity.getAttributeValue(R.attr.ic_action_av_play));
+
     }
 
     private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
         if (mFullHeightLayout && shuffleStatus != null) {
-            shuffleButton.setImageResource(shuffleStatus.getIcon());
+            shuffleButton.setImageResource(
+                    mActivity.getAttributeValue(shuffleStatus.getIcon()));
         }
     }
 
     private void updateRepeatStatus(RepeatStatus repeatStatus) {
         if (mFullHeightLayout && repeatStatus != null) {
-            repeatButton.setImageResource(repeatStatus.getIcon());
+            repeatButton.setImageResource(
+                    mActivity.getAttributeValue(repeatStatus.getIcon()));
         }
     }
 
@@ -593,15 +591,15 @@ public class NowPlayingFragment extends Fragment implements
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(
-                    mActivity, android.R.layout.simple_spinner_dropdown_item, connectedPlayers) {
+                    actionBar.getThemedContext(), android.R.layout.simple_spinner_dropdown_item, connectedPlayers) {
                 @Override
                 public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent, getItem(position).getName());
                 }
 
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(mActivity, convertView, parent, getItem(position).getName());
+                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent, getItem(position).getName());
                 }
             };
             actionBar.setListNavigationCallbacks(playerAdapter, new ActionBar.OnNavigationListener() {
@@ -655,8 +653,6 @@ public class NowPlayingFragment extends Fragment implements
         super.onResume();
         Log.d(TAG, "onResume...");
 
-        mVolumePanel = new VolumePanel(mActivity);
-
         mImageFetcher.addImageCache(mActivity.getSupportFragmentManager(), mImageCacheParams);
 
         // Start it and have it run forever (until it shuts itself down).
@@ -668,7 +664,6 @@ public class NowPlayingFragment extends Fragment implements
 
         if (mService != null) {
             maybeRegisterCallbacks(mService);
-            updateUIFromServiceState();
         }
 
         if (new Preferences(mActivity).isAutoConnect()) {
@@ -692,7 +687,6 @@ public class NowPlayingFragment extends Fragment implements
             service.registerHandshakeCallback(handshakeCallback);
             service.registerMusicChangedCallback(musicChangedCallback);
             service.registerPlayersCallback(playersCallback);
-            service.registerVolumeCallback(volumeCallback);
             mRegisteredCallbacks = true;
         }
     }
@@ -707,6 +701,11 @@ public class NowPlayingFragment extends Fragment implements
         setConnected(connected, false, false);
         if (connected) {
             PlayerState playerState = getPlayerState();
+
+            // May be no players connected.
+            if (playerState == null)
+                return;
+
             updateSongInfo(playerState.getCurrentSong());
             updatePlayPauseIcon(playerState.getPlayStatus());
             updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
@@ -848,7 +847,6 @@ public class NowPlayingFragment extends Fragment implements
     public void onPause() {
         Log.d(TAG, "onPause...");
 
-        mVolumePanel.dismiss();
         clearConnectingDialog();
         mImageFetcher.closeCache();
 
@@ -951,7 +949,7 @@ public class NowPlayingFragment extends Fragment implements
         // an argument here doesn't work -- but if you do it crashes without
         // a stracktrace on API 7.
         MenuInflater i = mActivity.getMenuInflater();
-        i.inflate(R.menu.squeezer, menu);
+        i.inflate(R.menu.now_playing_fragment, menu);
 
         menu_item_connect = menu.findItem(R.id.menu_item_connect);
         menu_item_disconnect = menu.findItem(R.id.menu_item_disconnect);
@@ -960,7 +958,6 @@ public class NowPlayingFragment extends Fragment implements
         menu_item_players = menu.findItem(R.id.menu_item_players);
         menu_item_playlists = menu.findItem(R.id.menu_item_playlist);
         menu_item_search = menu.findItem(R.id.menu_item_search);
-        menu_item_volume = menu.findItem(R.id.menu_item_volume);
     }
 
     /**
@@ -978,7 +975,6 @@ public class NowPlayingFragment extends Fragment implements
             menu_item_players.setEnabled(connected);
             menu_item_playlists.setEnabled(connected);
             menu_item_search.setEnabled(connected);
-            menu_item_volume.setEnabled(connected);
         }
 
         // Don't show the item to go to CurrentPlaylistActivity if in CurrentPlaylistActivity.
@@ -1020,18 +1016,9 @@ public class NowPlayingFragment extends Fragment implements
             case R.id.menu_item_about:
                 new AboutDialog().show(getFragmentManager(), "AboutDialog");
                 return true;
-            case R.id.menu_item_volume:
-                // Show the volume dialog
-                PlayerState playerState = getPlayerState();
-                Player player = getActivePlayer();
-
-                if (playerState != null) {
-                    mVolumePanel.postVolumeChanged(playerState.getCurrentVolume(),
-                            player == null ? "" : player.getName());
-                }
-                return true;
         }
-        return false;
+
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -1219,6 +1206,7 @@ public class NowPlayingFragment extends Fragment implements
                 @Override
                 public void run() {
                     updatePowerMenuItems(canPowerOn(), canPowerOff());
+                    updateUIFromServiceState();
                 }
             });
         }
@@ -1231,7 +1219,7 @@ public class NowPlayingFragment extends Fragment implements
 
     private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
         @Override
-        public void onPlayersChanged(final List<Player> players, final Player activePlayer) {
+        public void onPlayersChanged(final List<Player> players, final @Nullable Player activePlayer) {
             uiThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1245,27 +1233,4 @@ public class NowPlayingFragment extends Fragment implements
             return NowPlayingFragment.this;
         }
     };
-
-    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
-        @Override
-        public void onVolumeChanged(final int newVolume, final Player player) {
-            if (!ignoreVolumeChange) {
-                mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
-            }
-        }
-
-        @Override
-        public Object getClient() {
-            return NowPlayingFragment.this;
-        }
-
-        @Override
-        public boolean wantAllPlayers() {
-            return false;
-        }
-    };
-
-    public void setIgnoreVolumeChange(boolean ignoreVolumeChange) {
-        this.ignoreVolumeChange = ignoreVolumeChange;
-    }
 }

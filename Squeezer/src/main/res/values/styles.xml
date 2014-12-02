@@ -19,18 +19,46 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat">
-        <!-- TODO: Consider Theme.AppCompat.Light.DarkActionBar -->
+        <item name="ic_action_av_connect">@drawable/presence_online</item>
+        <item name="ic_action_av_next">@drawable/ic_action_next</item>
+        <item name="ic_action_av_pause">@drawable/ic_action_pause</item>
+        <item name="ic_action_av_play">@drawable/ic_action_play</item>
+        <item name="ic_action_av_previous">@drawable/ic_action_previous</item>
+
+        <item name="ic_action_av_repeat_off">@drawable/btn_repeat_off</item>
+        <item name="ic_action_av_repeat_one">@drawable/btn_repeat_one</item>
+        <item name="ic_action_av_repeat_all">@drawable/btn_repeat_all</item>
+
+        <item name="ic_action_av_shuffle_off">@drawable/btn_shuffle_off</item>
+        <item name="ic_action_av_shuffle_song">@drawable/btn_shuffle_song</item>
+        <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
+
+        <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
+    </style>
+
+    <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="ic_action_av_connect">@drawable/presence_online</item>
+        <item name="ic_action_av_next">@drawable/ic_action_av_next_holo_light</item>
+        <item name="ic_action_av_pause">@drawable/ic_action_av_pause_holo_light</item>
+        <item name="ic_action_av_play">@drawable/ic_action_av_play_holo_light</item>
+        <item name="ic_action_av_previous">@drawable/ic_action_av_previous_holo_light</item>
+
+        <item name="ic_action_av_repeat_off">@drawable/ic_action_av_repeat_holo_light</item>
+        <item name="ic_action_av_repeat_one">@drawable/btn_repeat_one</item>
+        <item name="ic_action_av_repeat_all">@drawable/btn_repeat_all</item>
+
+        <item name="ic_action_av_shuffle_off">@drawable/ic_action_av_shuffle_holo_light</item>
+        <item name="ic_action_av_shuffle_song">@drawable/btn_shuffle_song</item>
+        <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
+
+        <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
     </style>
 
     <!-- Text Styles -->
-    <style name="SqueezerTextItem" parent="@android:style/TextAppearance.Medium">
-    </style>
-    <style name="SqueezerCurrentTextItem" parent="style/SqueezerTextItem">
-    </style>
-    <style name="SqueezerTextItemSmall" parent="@android:style/TextAppearance.Small">
-    </style>
-    <style name="SqueezerCurrentTextItemSmall" parent="style/SqueezerTextItemSmall">
-    </style>
+    <style name="SqueezerTextItem" parent="@android:style/TextAppearance.Medium" />
+    <style name="SqueezerCurrentTextItem" parent="style/SqueezerTextItem" />
+    <style name="SqueezerTextItemSmall" parent="@android:style/TextAppearance.Small" />
+    <style name="SqueezerCurrentTextItemSmall" parent="style/SqueezerTextItemSmall" />
 
     <!-- Media controller styles -->
     <style name="MediaButton">
@@ -41,23 +69,23 @@
     </style>
 
     <style name="MediaButton.Previous">
-        <item name="android:src">@drawable/ic_action_previous</item>
+        <item name="android:src">?attr/ic_action_av_previous</item>
     </style>
 
     <style name="MediaButton.Next">
-        <item name="android:src">@drawable/ic_action_next</item>
+        <item name="android:src">?attr/ic_action_av_next</item>
     </style>
 
     <style name="MediaButton.Play">
-        <item name="android:src">@drawable/ic_action_play</item>
+        <item name="android:src">?attr/ic_action_av_play</item>
     </style>
 
     <style name="MediaButton.Shuffle">
-        <item name="android:src">@drawable/btn_shuffle_off</item>
+        <item name="android:src">?attr/ic_action_av_shuffle_off</item>
     </style>
 
     <style name="MediaButton.Repeat">
-        <item name="android:src">@drawable/btn_repeat_off</item>
+        <item name="android:src">?attr/ic_action_av_repeat_off</item>
     </style>
 
     <style name="VolumePanel" parent="@android:style/Theme.Panel">

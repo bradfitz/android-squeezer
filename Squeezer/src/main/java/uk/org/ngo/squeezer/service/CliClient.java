@@ -274,7 +274,7 @@ class CliClient {
         }
 
         String formattedCommands = mNewlineJoiner.join(commands);
-        Log.v(TAG, "SENDING: " + formattedCommands);
+        Log.v(TAG, "SEND: " + formattedCommands);
         Crashlytics.setString("lastCommands", formattedCommands);
         writer.println(formattedCommands);
         writer.flush();
@@ -316,7 +316,7 @@ class CliClient {
      *
      * @param command The command to send
      */
-    void sendPlayerCommand(final String command) {
+    void sendActivePlayerCommand(final String command) {
         if (service.connectionState.getActivePlayer() == null) {
             return;
         }
