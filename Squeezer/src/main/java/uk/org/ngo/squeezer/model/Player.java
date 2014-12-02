@@ -98,15 +98,18 @@ public class Player extends Item {
     }
 
     public static final Creator<Player> CREATOR = new Creator<Player>() {
+        @Override
         public Player[] newArray(int size) {
             return new Player[size];
         }
 
+        @Override
         public Player createFromParcel(Parcel source) {
             return new Player(source);
         }
     };
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(mIp);

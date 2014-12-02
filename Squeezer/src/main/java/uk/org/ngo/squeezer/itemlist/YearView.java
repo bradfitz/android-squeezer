@@ -31,10 +31,12 @@ public class YearView extends BaseItemView<Year> {
         super(activity);
     }
 
+    @Override
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.year, quantity);
     }
 
+    @Override
     public void onItemSelected(int index, Year item) {
         AlbumListActivity.show(getActivity(), item);
     }

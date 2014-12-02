@@ -101,10 +101,12 @@ public class MusicFolderItem extends PlaylistItem {
     }
 
     public static final Creator<MusicFolderItem> CREATOR = new Creator<MusicFolderItem>() {
+        @Override
         public MusicFolderItem[] newArray(int size) {
             return new MusicFolderItem[size];
         }
 
+        @Override
         public MusicFolderItem createFromParcel(Parcel source) {
             return new MusicFolderItem(source);
         }
@@ -117,6 +119,7 @@ public class MusicFolderItem extends PlaylistItem {
         url = source.readString();
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(name);

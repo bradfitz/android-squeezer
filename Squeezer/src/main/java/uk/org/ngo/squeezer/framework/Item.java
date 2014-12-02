@@ -38,6 +38,7 @@ public abstract class Item implements Parcelable {
 
     abstract public String getName();
 
+    @Override
     public int describeContents() {
         return 0;
     }

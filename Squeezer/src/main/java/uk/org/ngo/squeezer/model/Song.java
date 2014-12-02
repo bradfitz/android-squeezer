@@ -200,10 +200,12 @@ public class Song extends ArtworkItem {
     }
 
     public static final Creator<Song> CREATOR = new Creator<Song>() {
+        @Override
         public Song[] newArray(int size) {
             return new Song[size];
         }
 
+        @Override
         public Song createFromParcel(Parcel source) {
             return new Song(source);
         }
@@ -224,6 +226,7 @@ public class Song extends ArtworkItem {
         mUrl = source.readString();
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(mName);

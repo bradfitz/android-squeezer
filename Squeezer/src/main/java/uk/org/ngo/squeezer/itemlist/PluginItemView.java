@@ -41,6 +41,7 @@ public class PluginItemView extends BaseItemView<PluginItem> {
         setLoadingViewParams(EnumSet.of(ViewParams.ICON));
     }
 
+    @Override
     public void bindView(View view, PluginItem item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 

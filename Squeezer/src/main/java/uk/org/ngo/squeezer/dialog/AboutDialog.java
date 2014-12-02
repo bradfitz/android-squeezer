@@ -63,6 +63,7 @@ public class AboutDialog extends DialogFragment {
             }
         });
         builder.setNegativeButton(R.string.dialog_license, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int which) {
                 new LicenseDialog()
                         .show(getActivity().getSupportFragmentManager(), "LicenseDialog");

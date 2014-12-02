@@ -35,6 +35,7 @@ public class AuthenticationDialog extends DialogFragment {
         passwordEditText.setText(preferences.getPassword());
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int which) {
                 preferences.saveUserCredentials(userNameEditText.getText().toString(), passwordEditText.getText().toString());
 

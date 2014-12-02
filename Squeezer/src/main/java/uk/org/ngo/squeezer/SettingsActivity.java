@@ -70,10 +70,12 @@ public class SettingsActivity extends PreferenceActivity implements
     private final ThemeManager mThemeManager = new ThemeManager();
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             SettingsActivity.this.service = (ISqueezeService) service;
         }
 
+        @Override
         public void onServiceDisconnected(ComponentName name) {
             service = null;
         }
@@ -269,6 +271,7 @@ public class SettingsActivity extends PreferenceActivity implements
      *
      * @return
      */
+    @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         final String key = preference.getKey();
         Log.v(TAG, "preference change for: " + key);
@@ -324,6 +327,7 @@ public class SettingsActivity extends PreferenceActivity implements
      * @param sharedPreferences
      * @param key
      */
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.v(TAG, "Preference changed: " + key);
         if (service != null) {
@@ -362,6 +366,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
                 final Context context = dialog.getContext();
                 appList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position,
                             long id) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);

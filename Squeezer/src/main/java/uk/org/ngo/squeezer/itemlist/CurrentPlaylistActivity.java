@@ -262,6 +262,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             });
         }
 
+        @Override
         public void onDelete(PlayerState playerState, int index) {
             getUIThreadHandler().post(new Runnable() {
                 @Override

@@ -23,6 +23,7 @@ public class PlaylistDeleteDialog extends DialogFragment {
         builder.setTitle(getString(R.string.delete_title, activity.getPlaylist().getName()));
         builder.setMessage(R.string.delete__message);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int which) {
                 activity.playlistDelete();
             }

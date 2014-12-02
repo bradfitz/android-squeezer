@@ -136,6 +136,7 @@ public class ServerAddressPreference extends DialogPreference {
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
             scanBtn.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     startNetworkScan();
                 }
@@ -277,12 +278,14 @@ public class ServerAddressPreference extends DialogPreference {
      */
     private class MyOnItemSelectedListener implements OnItemSelectedListener {
 
+        @Override
         public void onItemSelected(AdapterView<?> parent,
                 View view, int pos, long id) {
             mServerAddressEditText.setText(mDiscoveredServers.get(parent.getItemAtPosition(pos)
                     .toString()));
         }
 
+        @Override
         public void onNothingSelected(AdapterView<?> parent) {
             // Do nothing.
         }

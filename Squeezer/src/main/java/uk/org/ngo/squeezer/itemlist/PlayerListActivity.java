@@ -273,6 +273,7 @@ public class PlayerListActivity extends ItemListActivity implements
         }
     }
 
+    @Override
     @NonNull
     public Multimap<String, Player> getPlayerSyncGroups() {
         return mPlayerSyncGroups;
@@ -282,6 +283,7 @@ public class PlayerListActivity extends ItemListActivity implements
         return getService().getPlayerState(id);
     }
 
+    @Override
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
@@ -321,6 +323,7 @@ public class PlayerListActivity extends ItemListActivity implements
      * @param slave the player to sync.
      * @param masterId ID of the player to sync to.
      */
+    @Override
     public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
         getService().syncPlayerToPlayer(slave, masterId);
     }
@@ -330,6 +333,7 @@ public class PlayerListActivity extends ItemListActivity implements
      *
      * @param player the player to be removed from sync groups.
      */
+    @Override
     public void unsyncPlayer(@NonNull Player player) {
         getService().unsyncPlayer(player);
     }

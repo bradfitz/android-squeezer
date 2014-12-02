@@ -53,6 +53,7 @@ public class TipsDialog extends DialogFragment implements OnKeyListener {
      * 
      * TODO: Do this for all the dialog.
      */
+    @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:

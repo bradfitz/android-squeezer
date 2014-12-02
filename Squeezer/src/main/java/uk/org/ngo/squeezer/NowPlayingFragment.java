@@ -325,6 +325,7 @@ public class NowPlayingFragment extends Fragment implements
         trackText.requestFocus();
 
         playPauseButton.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 if (mService == null) {
                     return;
@@ -348,6 +349,7 @@ public class NowPlayingFragment extends Fragment implements
              * android:onClick attribute.
              */
             nextButton.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     if (mService == null) {
                         return;
@@ -357,6 +359,7 @@ public class NowPlayingFragment extends Fragment implements
             });
 
             prevButton.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     if (mService == null) {
                         return;
@@ -366,6 +369,7 @@ public class NowPlayingFragment extends Fragment implements
             });
 
             shuffleButton.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     if (mService == null) {
                         return;
@@ -375,6 +379,7 @@ public class NowPlayingFragment extends Fragment implements
             });
 
             repeatButton.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     if (mService == null) {
                         return;
@@ -388,6 +393,7 @@ public class NowPlayingFragment extends Fragment implements
 
                 // Update the time indicator to reflect the dragged thumb
                 // position.
+                @Override
                 public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
                     if (fromUser) {
                         currentTime.setText(Util.formatElapsedTime(progress));
@@ -395,6 +401,7 @@ public class NowPlayingFragment extends Fragment implements
                 }
 
                 // Disable updates when user drags the thumb.
+                @Override
                 public void onStartTrackingTouch(SeekBar s) {
                     seekingSong = getCurrentSong();
                     updateSeekBar = false;
@@ -403,6 +410,7 @@ public class NowPlayingFragment extends Fragment implements
                 // Re-enable updates. If the current song is the same as when
                 // we started seeking then jump to the new point in the track,
                 // otherwise ignore the seek.
+                @Override
                 public void onStopTrackingTouch(SeekBar s) {
                     Song thisSong = getCurrentSong();
 
@@ -416,6 +424,7 @@ public class NowPlayingFragment extends Fragment implements
         } else {
             // Clicking on the layout goes to NowPlayingActivity.
             v.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     NowPlayingActivity.show(mActivity);
                 }
@@ -428,6 +437,7 @@ public class NowPlayingFragment extends Fragment implements
     /**
      * Use this to post Runnables to work off thread
      */
+    @Override
     public Handler getUIThreadHandler() {
         return uiThreadHandler;
     }
@@ -883,6 +893,7 @@ public class NowPlayingFragment extends Fragment implements
      * @param v
      * @param menuInfo
      */
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -907,6 +918,7 @@ public class NowPlayingFragment extends Fragment implements
      *
      * @return
      */
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         Song song = getCurrentSong();
         if (song == null || song.isRemote()) {
@@ -1148,6 +1160,7 @@ public class NowPlayingFragment extends Fragment implements
         @Override
         public void onPowerStatusChanged(final boolean canPowerOn, final boolean canPowerOff) {
             uiThreadHandler.post(new Runnable() {
+                @Override
                 public void run() {
                     updatePowerMenuItems(canPowerOn, canPowerOff);
                 }
@@ -1185,6 +1198,7 @@ public class NowPlayingFragment extends Fragment implements
         @Override
         public void onMusicChanged(final PlayerState playerState) {
             uiThreadHandler.post(new Runnable() {
+                @Override
                 public void run() {
                     updateSongInfo(playerState.getCurrentSong());
                 }

@@ -30,10 +30,12 @@ public class RadioView extends PluginView {
         super(activity);
     }
 
+    @Override
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.radio, quantity);
     }
 
+    @Override
     public void onItemSelected(int index, Plugin item) {
         PluginItemListActivity.show(getActivity(), item);
     }

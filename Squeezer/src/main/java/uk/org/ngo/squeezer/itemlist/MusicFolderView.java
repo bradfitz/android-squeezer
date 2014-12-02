@@ -51,6 +51,7 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
         setLoadingViewParams(EnumSet.of(ViewParams.ICON));
     }
 
+    @Override
     public void bindView(View view, MusicFolderItem item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 

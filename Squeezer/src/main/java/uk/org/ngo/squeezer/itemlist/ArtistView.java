@@ -33,6 +33,7 @@ public class ArtistView extends BaseItemView<Artist> {
     }
 
     // XXX: Consider making this extend PlaylistItemView and make the action user definable.
+    @Override
     public void onItemSelected(int index, Artist item) {
         AlbumListActivity.show(getActivity(), item);
     }
@@ -49,6 +50,7 @@ public class ArtistView extends BaseItemView<Artist> {
         menu.add(Menu.NONE, R.id.download, 4, R.string.DOWNLOAD_ITEM);
     }
 
+    @Override
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.artist, quantity);
     }

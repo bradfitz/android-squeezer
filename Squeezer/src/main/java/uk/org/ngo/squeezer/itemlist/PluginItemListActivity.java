@@ -74,6 +74,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
             final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
 
             searchCriteriaText.setOnKeyListener(new OnKeyListener() {
+                @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if ((event.getAction() == KeyEvent.ACTION_DOWN)
                             && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -85,6 +86,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
             });
 
             searchButton.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     if (getService() != null) {
                         clearAndReOrderItems(searchCriteriaText.getText().toString());
@@ -148,6 +150,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
     public void onItemsReceived(int count, int start, final Map<String, String> parameters, List<PluginItem> items, Class<PluginItem> dataType) {
         if (parameters.containsKey("title")) {
             runOnUiThread(new Runnable() {
+                @Override
                 public void run() {
                     updateHeader(parameters.get("title"));
                 }
@@ -183,6 +186,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
         if (count == 1 && items.size() > 0 && items.get(0).isHasitems()) {
             parent = items.get(0);
             getUIThreadHandler().post(new Runnable() {
+                @Override
                 public void run() {
                     clearAndReOrderItems();
                 }
@@ -196,8 +200,10 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
      * The user dismissed the network error dialog box. There's nothing more to do, so finish
      * the activity.
      */
+    @Override
     public void onDialogDismissed(DialogInterface dialog) {
         runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 finish();
             }
