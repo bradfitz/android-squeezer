@@ -251,6 +251,7 @@ public class PlayerState implements Parcelable {
         return currentSong;
     }
 
+    @NonNull
     public String getCurrentSongName() {
         return (currentSong != null) ? currentSong.getName() : "";
     }
