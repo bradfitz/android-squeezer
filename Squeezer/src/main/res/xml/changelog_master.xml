@@ -2,6 +2,14 @@
 
 <changelog>
     <release
+        version="1.2.1"
+        versioncode="33">
+        <change>Fix potential crash when the notification message is updated.</change>
+
+        <change>Fix potential crash when disconnecting and reconnecting to the server.</change>
+    </release>
+
+    <release
         version="1.2.0"
         versioncode="32">
         <change>Support creating and managing groups of players. Fixes
