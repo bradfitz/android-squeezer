@@ -65,7 +65,7 @@ public class AlbumView extends AlbumArtView<Album> {
         mDetails = details;
     }
 
-    Artist mArtist;
+    private Artist mArtist;
 
     public void setArtist(Artist artist) {
         mArtist = artist;

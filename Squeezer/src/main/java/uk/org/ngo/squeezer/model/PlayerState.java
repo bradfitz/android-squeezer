@@ -48,7 +48,7 @@ public class PlayerState implements Parcelable {
         /** Receive real-time (second to second) updates. */
         real_time('1');
 
-        private char mToken;
+        private final char mToken;
 
         private PlayerSubscriptionType(char token) {
             mToken = token;
@@ -251,6 +251,7 @@ public class PlayerState implements Parcelable {
         return currentSong;
     }
 
+    @NonNull
     public String getCurrentSongName() {
         return (currentSong != null) ? currentSong.getName() : "";
     }
