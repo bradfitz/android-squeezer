@@ -1,3 +1,11 @@
+1.2.1
+=====
+
+*   Fix potential crash when the notification message is updated.
+
+*   Fix potential crash when disconnecting and reconnecting to the
+    server.
+
 1.2.0
 =====
 
