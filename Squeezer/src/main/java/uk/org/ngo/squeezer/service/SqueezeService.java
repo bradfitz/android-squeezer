@@ -114,7 +114,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     Thread mainThread;
 
-    private boolean mHandshakeComplete = false;
+    /** True if the handshake with the server has completed, otherwise false. */
+    private volatile boolean mHandshakeComplete = false;
 
     /**
      * Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once
