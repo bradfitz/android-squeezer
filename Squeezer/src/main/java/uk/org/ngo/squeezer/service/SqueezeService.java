@@ -114,7 +114,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     Thread mainThread;
 
-    private boolean mHandshakeComplete = false;
+    /** True if the handshake with the server has completed, otherwise false. */
+    private volatile boolean mHandshakeComplete = false;
 
     /**
      * Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once
@@ -365,6 +366,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             @Override
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Version received: " + tokens);
+                Crashlytics.setString("server_version", tokens.get(1));
                 mHandshakeComplete = true;
                 strings();
 
@@ -1105,7 +1107,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     };
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void downloadSong(String songId, String title, String serverUrl) {
+    private void downloadSong(String songId, String title, @NonNull String serverUrl) {
         if (songId == null) {
             return;
         }
@@ -1137,7 +1139,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * <p/>
      * If this is not possible resort to the last path segment of the server path
      */
-    private String getLocalFile(String serverUrl) {
+    private String getLocalFile(@NonNull String serverUrl) {
         Uri serverUri = Uri.parse(serverUrl);
         String serverPath = serverUri.getPath();
         String mediaDir = null;
@@ -1561,7 +1563,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         private boolean isPlaying() {
-            return connectionState.getActivePlayerState().isPlaying();
+            PlayerState playerState = connectionState.getActivePlayerState();
+            return playerState != null && playerState.isPlaying();
         }
 
         @Override
@@ -1590,9 +1593,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return connectionState.getActivePlayerState();
         }
 
+        /**
+         * @return null if there is no active player, otherwise the name of the current playlist,
+         *     which may be the empty string.
+         */
         @Override
+        @Nullable
         public String getCurrentPlaylist() {
-            return connectionState.getActivePlayerState().getCurrentPlaylist();
+            PlayerState playerState = connectionState.getActivePlayerState();
+
+            if (playerState == null)
+                return null;
+
+            return playerState.getCurrentPlaylist();
         }
 
         @Override
@@ -1942,7 +1955,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             } else if (item instanceof MusicFolderItem) {
                 MusicFolderItem musicFolderItem = (MusicFolderItem) item;
                 if ("track".equals(musicFolderItem.getType())) {
-                    downloadSong(item.getId(), musicFolderItem.getName(), musicFolderItem.getUrl());
+                    String url = musicFolderItem.getUrl();
+                    if (url != null) {
+                        downloadSong(item.getId(), musicFolderItem.getName(), url);
+                    }
                 } else if ("folder".equals(musicFolderItem.getType())) {
                     musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);
                 }

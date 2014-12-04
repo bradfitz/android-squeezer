@@ -207,11 +207,11 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save};
-        final boolean boundToService = getService() != null;
+        final boolean knowCurrentPlaylist = getCurrentPlaylist() == null;
 
         for (int id : ids) {
             MenuItem item = menu.findItem(id);
-            item.setEnabled(boundToService);
+            item.setVisible(knowCurrentPlaylist);
         }
 
         return super.onPrepareOptionsMenu(menu);
@@ -303,7 +303,15 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
         @Override
         public void onPlayersChanged(List<Player> players, final @Nullable Player activePlayer) {
-            if (activePlayer != null && !activePlayer.equals(player)) {
+            supportInvalidateOptionsMenu();
+
+            if (activePlayer == null) {
+                player = null;
+                clearItems();
+                return;
+            }
+
+            if (!activePlayer.equals(player)) {
                 getUIThreadHandler().post(new Runnable() {
                     @Override
                     public void run() {
