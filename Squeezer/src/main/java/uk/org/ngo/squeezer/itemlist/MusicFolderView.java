@@ -101,7 +101,13 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
         menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
-        if ("track".equals(item.getType()) || "folder".equals(item.getType())) {
+
+        // Support downloading tracks and folders, but only if the server provided a URL for
+        // them. At least one server seen in the wild does not, see the crash at
+        // https://www.crashlytics.com/squeezer/android/apps/uk.org.ngo.squeezer/issues/5480783765f8dfea153f1e34/sessions/5480787e0060000179ac2a75b3a3f1e2
+        // for an example.
+        if (("track".equals(item.getType()) || "folder".equals(item.getType()))
+                && (item.getUrl() != null)) {
             menu.add(Menu.NONE, R.id.download, Menu.NONE, R.string.DOWNLOAD_ITEM);
         }
     }
