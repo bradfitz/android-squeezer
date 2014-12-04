@@ -366,6 +366,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             @Override
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Version received: " + tokens);
+                Crashlytics.setString("server_version", tokens.get(1));
                 mHandshakeComplete = true;
                 strings();
 
