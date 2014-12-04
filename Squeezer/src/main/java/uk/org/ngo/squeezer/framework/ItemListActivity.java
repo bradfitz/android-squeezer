@@ -292,9 +292,15 @@ public abstract class ItemListActivity extends BaseActivity {
      * Empties the variables that track which pages have been requested, and orders page 0.
      */
     public void clearAndReOrderItems() {
+        clearItems();
+        maybeOrderPage(0);
+    }
+
+    /** Empty the variables that track which pages have been requested. */
+    public void clearItems() {
+        mOrderedPagesBeforeHandshake.clear();
         mOrderedPages.clear();
         mReceivedPages.clear();
-        maybeOrderPage(0);
         clearItemAdapter();
     }
 

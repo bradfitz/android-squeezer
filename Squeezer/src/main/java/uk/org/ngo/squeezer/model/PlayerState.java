@@ -131,7 +131,8 @@ public class PlayerState implements Parcelable {
 
     private Song currentSong;
 
-    /** The name of the current playlist, if it has one. */
+    /** The name of the current playlist, which may be the empty string. */
+    @NonNull
     private String currentPlaylist;
 
     private int currentPlaylistIndex;
@@ -264,6 +265,8 @@ public class PlayerState implements Parcelable {
         return true;
     }
 
+    /** @return the name of the current playlist, may be the empty string. */
+    @NonNull
     public String getCurrentPlaylist() {
         return currentPlaylist;
     }
@@ -272,7 +275,7 @@ public class PlayerState implements Parcelable {
         return currentPlaylistIndex;
     }
 
-    public boolean setCurrentPlaylist(String playlist) {
+    public boolean setCurrentPlaylist(@Nullable String playlist) {
         if (playlist == null)
             playlist = "";
 

@@ -1591,9 +1591,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return connectionState.getActivePlayerState();
         }
 
+        /**
+         * @return null if there is no active player, otherwise the name of the current playlist,
+         *     which may be the empty string.
+         */
         @Override
+        @Nullable
         public String getCurrentPlaylist() {
-            return connectionState.getActivePlayerState().getCurrentPlaylist();
+            PlayerState playerState = connectionState.getActivePlayerState();
+
+            if (playerState == null)
+                return null;
+
+            return playerState.getCurrentPlaylist();
         }
 
         @Override
