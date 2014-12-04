@@ -1562,7 +1562,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         private boolean isPlaying() {
-            return connectionState.getActivePlayerState().isPlaying();
+            PlayerState playerState = connectionState.getActivePlayerState();
+            return playerState != null && playerState.isPlaying();
         }
 
         @Override
