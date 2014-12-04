@@ -2,6 +2,17 @@
 
 <changelog>
     <release
+        version="1.2.2"
+        versioncode="34">
+        <change>Fix potential crash after connecting to the server.</change>
+
+        <change>Fix potential crash downloading music folder items from servers older than
+            version 7.6.</change>
+
+        <change>Fix potential crash when viewing the current playlist.</change>
+    </release>
+
+    <release
         version="1.2.1"
         versioncode="33">
         <change>Fix potential crash when the notification message is updated.</change>
