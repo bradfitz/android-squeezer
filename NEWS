@@ -1,3 +1,13 @@
+1.2.2
+=====
+
+*   Fix potential crash after connecting to the server.
+
+*   Fix potential crash downloading music folder items from servers
+    older than version 7.6.
+
+*   Fix potential crash when viewing the current playlist.
+
 1.2.1
 =====
 
