@@ -172,8 +172,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     }
 
     /**
-     * Generates a 64 bit group ID by using the 48 bits of the ID of the first player in
-     * the group OR'd with 0x00FF000000000000.
+     * Use the ID of the first player in the group as the identifier for the group.
      * <p/>
      * {@inheritDoc}
      * @param groupPosition
@@ -181,7 +180,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      */
     @Override
     public long getGroupId(int groupPosition) {
-        return mChildAdapters.get(groupPosition).getItem(0).getIdAsLong() | 0x00FF000000000000L;
+        return mChildAdapters.get(groupPosition).getItem(0).getIdAsLong();
     }
 
     @Override
