@@ -183,7 +183,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
         // Automatically fetch subitems, if this is the only item.
         // TODO: Seen an NPE here (before adding size() > 0) check. Find out
         // why count == 1 might be true, but items.size might be 0.
-        if (count == 1 && items.size() > 0 && items.get(0).isHasitems()) {
+        if (count == 1 && !items.isEmpty() && items.get(0).isHasitems()) {
             parent = items.get(0);
             getUIThreadHandler().post(new Runnable() {
                 @Override

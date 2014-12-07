@@ -1057,7 +1057,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         return player;
                     }
                 }
-                return players.size() > 0 ? players.get(0) : null;
+                return !players.isEmpty() ? players.get(0) : null;
             }
 
             @Override
@@ -1175,7 +1175,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
             // Call back immediately if we have players
             List<Player> players = connectionState.getPlayers();
-            if (players.size() > 0) {
+            if (!players.isEmpty()) {
                 callback.onPlayersChanged(players, connectionState.getActivePlayer());
             }
         }
