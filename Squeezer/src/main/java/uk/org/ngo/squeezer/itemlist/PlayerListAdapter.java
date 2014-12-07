@@ -127,6 +127,10 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     }
 
     public boolean doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
+        // May be empty if all players disconnected after the context menu was opened.
+        if (mChildAdapters.isEmpty())
+            return false;
+
         mLastGroupPosition = groupPosition;
         return mChildAdapters.get(groupPosition).doItemContext(menuItem, childPosition);
     }
@@ -138,6 +142,10 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      * @return
      */
     public boolean doItemContext(MenuItem menuItem) {
+        // May be empty if all players disconnected after the context menu was opened.
+        if (mChildAdapters.isEmpty())
+            return false;
+
         return mChildAdapters.get(mLastGroupPosition).doItemContext(menuItem);
     }
 
