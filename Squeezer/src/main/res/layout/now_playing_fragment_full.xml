@@ -33,27 +33,39 @@
         android:paddingTop="8dp"
         android:scaleType="fitCenter"/>
 
-    <TextView
-        android:id="@+id/trackname"
-        android:layout_width="wrap_content"
+    <!-- The trackname TextView needs to be wrapped in a LinearLayout.
+
+         If you do not do this then changing the contents of any other item in the layout
+         will cause the layout to reflow, which causes the scrolling marquee text to
+         reset.  Wrapping the trackname TextView in a LinearLayout means that the TextView
+         will not change size when then the layout is recalculated, and the text continues
+         to scroll. -->
+    <LinearLayout
+        android:id="@+id/track_wrapper"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/album"
-        android:ellipsize="marquee"
-        android:gravity="left|top"
-        android:hint="@string/unknown_track"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:paddingRight="8dp"
-        android:paddingTop="2dp"
-        android:singleLine="true"
-        android:focusableInTouchMode="true"
-        android:focusable="true"
-        android:textAppearance="@style/SqueezerTextItem"/>
+        android:layout_below="@id/album">
+        <TextView
+            android:id="@+id/trackname"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:gravity="left|top"
+            android:hint="@string/unknown_track"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:paddingRight="8dp"
+            android:paddingTop="2dp"
+            android:singleLine="true"
+            android:focusableInTouchMode="true"
+            android:focusable="true"
+            android:textAppearance="@style/SqueezerTextItem"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/albumname"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/trackname"
+        android:layout_below="@id/track_wrapper"
         android:layout_toLeftOf="@id/context_menu"
         android:gravity="left|top"
         android:hint="@string/unknown_album"
@@ -80,7 +92,7 @@
         android:layout_height="48dp"
         android:layout_alignBottom="@+id/artistname"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/trackname"
+        android:layout_below="@id/track_wrapper"
         android:background="@drawable/list_selector_holo_dark"
         android:contentDescription="@string/app_name"
         android:minWidth="48dp"

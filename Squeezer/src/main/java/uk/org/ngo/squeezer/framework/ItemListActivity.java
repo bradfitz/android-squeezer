@@ -200,7 +200,7 @@ public abstract class ItemListActivity extends BaseActivity {
      */
     public boolean maybeOrderPage(int pagePosition) {
         if (!mListScrolling && !mReceivedPages.contains(pagePosition) && !mOrderedPages
-                .contains(pagePosition)) {
+                .contains(pagePosition) && !mOrderedPagesBeforeHandshake.contains(pagePosition)) {
             ISqueezeService service = getService();
 
             // If the service connection hasn't happened yet then store the page

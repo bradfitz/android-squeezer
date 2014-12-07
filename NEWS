@@ -1,3 +1,19 @@
+1.2.3
+=====
+
+*   Fix bug that hid playlist management options.
+
+*   Fix crash when all players disconnect and a player context menu
+    is open.
+
+*   Fix tracknames not scrolling properly on the "Now playing" screen.
+
+*   Fix crash if a player's identifier is not its MAC address.
+
+*   Fix crashes caused be initialising the UI before the connection
+    to the server completes.
+
+*
 1.2.2
 =====
 

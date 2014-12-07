@@ -207,7 +207,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save};
-        final boolean knowCurrentPlaylist = getCurrentPlaylist() == null;
+        final boolean knowCurrentPlaylist = getCurrentPlaylist() != null;
 
         for (int id : ids) {
             MenuItem item = menu.findItem(id);
