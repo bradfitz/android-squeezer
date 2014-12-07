@@ -92,7 +92,7 @@
         android:layout_height="48dp"
         android:layout_alignBottom="@+id/artistname"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/trackname"
+        android:layout_below="@id/track_wrapper"
         android:background="@drawable/list_selector_holo_dark"
         android:contentDescription="@string/app_name"
         android:minWidth="48dp"
