@@ -2,6 +2,21 @@
 
 <changelog>
     <release
+        version="1.2.3"
+        versioncode="35">
+        <change>Fix bug that hid playlist management options.</change>
+
+        <change>Fix crash when all players disconnect and a player context menu is open.</change>
+
+        <change>Fix tracknames not scrolling properly on the "Now playing" screen.</change>
+
+        <change>Fix crash if a player's identifier is not its MAC address.</change>
+
+        <change>Fix crashes caused be initialising the UI before the connection to the server
+            completes.</change>
+    </release>
+
+    <release
         version="1.2.2"
         versioncode="34">
         <change>Fix potential crash after connecting to the server.</change>
