@@ -1,3 +1,11 @@
+1.2.4
+=====
+
+*   Fix potential crash when resuming Squeezer.
+
+*   Fix bug with players not showing on devices running Android 2.1 and
+    2.2.x.
+
 1.2.3
 =====
 
@@ -13,7 +21,6 @@
 *   Fix crashes caused be initialising the UI before the connection
     to the server completes.
 
-*
 1.2.2
 =====
 
