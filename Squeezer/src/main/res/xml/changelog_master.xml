@@ -2,6 +2,15 @@
 
 <changelog>
     <release
+        version="1.2.4"
+        versioncode="36">
+        <change>Fix potential crash when resuming Squeezer.</change>
+
+        <change>Fix bug with players not showing on devices running Android 2.1 and
+            2.2.x.</change>
+    </release>
+
+    <release
         version="1.2.3"
         versioncode="35">
         <change>Fix bug that hid playlist management options.</change>

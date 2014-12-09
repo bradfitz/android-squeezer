@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.model;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
@@ -24,6 +25,7 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Comparator;
 import java.util.Map;
 
@@ -59,7 +61,22 @@ public class Player extends Item {
         mModel = record.get("model");
         mCanPowerOff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
         mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;
-        mHashCode = mHashFunction.hashString(getId(), Charsets.UTF_8);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            mHashCode = mHashFunction.hashString(getId(), Charsets.UTF_8);
+        } else {
+            // API versions < GINGERBREAD do not have String.getBytes(Charset charset),
+            // which hashString() ends up calling. This will trigger an exception.
+            byte[] bytes;
+            try {
+                bytes = getId().getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // Can't happen, Android's native charset is UTF-8. But just in case
+                // we're running on something wacky, fallback to the un-parsed bytes.
+                bytes = getId().getBytes();
+            }
+            mHashCode = mHashFunction.hashBytes(bytes);
+        }
     }
 
     private Player(Parcel source) {

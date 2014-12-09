@@ -197,7 +197,8 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         @Override
         public void onHandshakeCompleted() {
             maybeOrderVisiblePages(mListView);
-            setAdapter();
+            if (mListView.getAdapter() == null)
+                setAdapter();
         }
 
         @Override

@@ -206,7 +206,8 @@ public class PlayerListActivity extends ItemListActivity implements
     private final IServiceHandshakeCallback mHandshakeCallback = new IServiceHandshakeCallback() {
         @Override
         public void onHandshakeCompleted() {
-            mResultsExpandableListView.setAdapter(mResultsAdapter);
+            if (mResultsExpandableListView.getExpandableListAdapter() == null)
+                mResultsExpandableListView.setAdapter(mResultsAdapter);
             updateAndExpandPlayerList();
         }
 
