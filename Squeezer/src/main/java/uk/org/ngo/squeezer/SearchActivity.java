@@ -122,7 +122,8 @@ public class SearchActivity extends ItemListActivity {
             = new IServiceHandshakeCallback() {
         @Override
         public void onHandshakeCompleted() {
-            resultsExpandableListView.setAdapter(searchResultsAdapter);
+            if (resultsExpandableListView.getExpandableListAdapter() == null)
+                resultsExpandableListView.setAdapter(searchResultsAdapter);
             doSearch();
         }
 
