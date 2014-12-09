@@ -72,7 +72,7 @@ public class Player extends Item {
                 bytes = getId().getBytes("UTF-8");
             } catch (UnsupportedEncodingException e) {
                 // Can't happen, Android's native charset is UTF-8. But just in case
-                // we're running on something wacky, fallback to the un-parsed bytes..
+                // we're running on something wacky, fallback to the un-parsed bytes.
                 bytes = getId().getBytes();
             }
             mHashCode = mHashFunction.hashBytes(bytes);
