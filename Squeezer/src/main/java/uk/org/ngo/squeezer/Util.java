@@ -17,14 +17,11 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
-
-import com.google.common.primitives.Longs;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -165,28 +162,6 @@ public class Util {
             }
         }
         return count;
-    }
-
-    /**
-     * Converts a MAC address (48bit) to a long.
-     *
-     * @param mac The MAC address.
-     * @return The MAC address in the form of a long.
-     */
-    public static long MacToLong(@NonNull String mac) {
-        String[] octets = mColonSplitPattern.split(mac);
-        byte[] bytes = new byte[] {
-                0,
-                0,
-                (byte)Integer.parseInt(octets[0], 16),
-                (byte)Integer.parseInt(octets[1], 16),
-                (byte)Integer.parseInt(octets[2], 16),
-                (byte)Integer.parseInt(octets[3], 16),
-                (byte)Integer.parseInt(octets[4], 16),
-                (byte)Integer.parseInt(octets[5], 16),
-        };
-
-        return Longs.fromByteArray(bytes);
     }
 
     /** Helper to set alpha value for a view, since View.setAlpha is API level 11 */

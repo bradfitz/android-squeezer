@@ -1324,7 +1324,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
          * @return True if it does, false otherwise.
          */
         @Override
-        public boolean canFavorites() throws HandshakeNotCompleteException{
+        public boolean canFavorites() throws HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
