@@ -1,8 +1,37 @@
-In-progress
-===========
+1.2.2
+=====
+
+*   Fix potential crash after connecting to the server.
+
+*   Fix potential crash downloading music folder items from servers
+    older than version 7.6.
+
+*   Fix potential crash when viewing the current playlist.
+
+1.2.1
+=====
+
+*   Fix potential crash when the notification message is updated.
+
+*   Fix potential crash when disconnecting and reconnecting to the
+    server.
+
+1.2.0
+=====
 
 *   Support creating and managing groups of players. Fixes
     https://code.google.com/p/android-squeezer/issues/detail?id=4.
+
+*   Fixed a bug where returning to Squeezer from some other application
+    (using the "Recent Apps" button) would result in incomplete
+    information being displayed. Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=79.
+
+*   Change the default colour theme to light with a dark action
+    bar.
+
+*   Fixed potential crash when no players are connected to the
+    server.
 
 1.1.1
 =====

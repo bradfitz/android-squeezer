@@ -179,15 +179,15 @@ public class SongView extends PlaylistItemView<Song> {
 
         menuInfo.menuInflater.inflate(R.menu.songcontextmenu, menu);
 
-        if (((Song) menuInfo.item).getAlbumId().equals("") && !browseByAlbum) {
+        if ("".equals(((Song) menuInfo.item).getAlbumId()) && !browseByAlbum) {
             menu.findItem(R.id.view_this_album).setVisible(true);
         }
 
-        if (((Song) menuInfo.item).getArtistId().equals("")) {
+        if ("".equals(((Song) menuInfo.item).getArtistId())) {
             menu.findItem(R.id.view_albums_by_song).setVisible(true);
         }
 
-        if (((Song) menuInfo.item).getArtistId().equals("") && !browseByArtist) {
+        if ("".equals(((Song) menuInfo.item).getArtistId()) && !browseByArtist) {
             menu.findItem(R.id.view_songs_by_artist).setVisible(true);
         }
     }

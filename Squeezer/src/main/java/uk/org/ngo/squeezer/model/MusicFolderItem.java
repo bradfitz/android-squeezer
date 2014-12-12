@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
+import android.support.annotation.Nullable;
 
 import java.util.Map;
 
@@ -34,15 +35,15 @@ public class MusicFolderItem extends PlaylistItem {
 
     @Override
     public String getPlaylistTag() {
-        if (type.equals("track")) {
+        if ("track".equals(type)) {
             return "track_id";
         }
 
-        if (type.equals("playlist")) {
+        if ("playlist".equals(type)) {
             return "playlist_id";
         }
 
-        if (type.equals("folder")) {
+        if ("folder".equals(type)) {
             return "folder_id";
         }
 
@@ -81,17 +82,17 @@ public class MusicFolderItem extends PlaylistItem {
         return this;
     }
 
-
+    @Nullable
     private String url;
 
+    @Nullable
     public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
+    public void setUrl(@Nullable String url) {
         this.url = url;
     }
-
 
     public MusicFolderItem(Map<String, String> record) {
         setId(record.get("id"));

@@ -274,7 +274,7 @@ public class ServerAddressPreference extends DialogPreference {
     /**
      * Inserts the selected address in to the edittext widget.
      */
-    public class MyOnItemSelectedListener implements OnItemSelectedListener {
+    private class MyOnItemSelectedListener implements OnItemSelectedListener {
 
         public void onItemSelected(AdapterView<?> parent,
                 View view, int pos, long id) {
