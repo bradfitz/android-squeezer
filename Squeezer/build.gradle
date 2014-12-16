@@ -4,10 +4,11 @@ buildscript {
         maven { url 'http://download.crashlytics.com/maven' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.2'
+        classpath 'com.android.tools.build:gradle:1.0.0'
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
 }
+
 apply plugin: 'com.android.application'
 apply plugin: 'crashlytics'
 
@@ -91,8 +92,8 @@ android {
         }
 
         live {
-            versionCode 32
-            versionName "1.2.0"
+            versionCode 37
+            versionName "1.2.5"
             signingConfig android.signingConfigs.release
         }
     }

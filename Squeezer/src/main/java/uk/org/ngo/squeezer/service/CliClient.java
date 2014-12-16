@@ -18,8 +18,9 @@ package uk.org.ngo.squeezer.service;
 
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
+
+import com.crashlytics.android.Crashlytics;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -49,6 +51,9 @@ import uk.org.ngo.squeezer.model.Year;
 class CliClient {
 
     private static final String TAG = "CliClient";
+
+    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
+    private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
 
     /**
      * Join multiple strings (skipping nulls) together with newlines.
@@ -275,7 +280,14 @@ class CliClient {
 
         String formattedCommands = mNewlineJoiner.join(commands);
         Log.v(TAG, "SEND: " + formattedCommands);
-        Crashlytics.setString("lastCommands", formattedCommands);
+
+        // Make sure that username/password do not make it to Crashlytics.
+        if (commands[0].startsWith("login ")) {
+            Crashlytics.setString("lastCommands", "login [username] [password]");
+        } else {
+            Crashlytics.setString("lastCommands", formattedCommands);
+        }
+
         writer.println(formattedCommands);
         writer.flush();
     }
@@ -468,7 +480,7 @@ class CliClient {
     void parseSqueezerList(ExtendedQueryFormatCmd cmd, List<String> tokens) {
         Log.v(TAG, "Parsing list, cmd: " +cmd + ", tokens: " + tokens);
 
-        int ofs = cmd.cmd.split(" ").length + (cmd.playerSpecific ? 1 : 0) + (cmd.prefixed ? 1 : 0);
+        int ofs = mSpaceSplitPattern.split(cmd.cmd).length + (cmd.playerSpecific ? 1 : 0) + (cmd.prefixed ? 1 : 0);
         int actionsCount = 0;
         String playerid = (cmd.playerSpecific ? tokens.get(0) + " " : "");
         String prefix = (cmd.prefixed ? tokens.get(cmd.playerSpecific ? 1 : 0) + " " : "");
@@ -503,15 +515,15 @@ class CliClient {
             String value = Util.decode(token.substring(colonPos + 3));
             Log.v(TAG, "key=" + key + ", value: " + value);
 
-            if (key.equals("rescan")) {
+            if ("rescan".equals(key)) {
                 rescan = (Util.parseDecimalIntOrZero(value) == 1);
-            } else if (key.equals("full_list")) {
+            } else if ("full_list".equals(key)) {
                 full_list = (Util.parseDecimalIntOrZero(value) == 1);
                 taggedParameters.put(key, token);
-            } else if (key.equals("correlationid")) {
+            } else if ("correlationid".equals(key)) {
                 correlationId = Util.parseDecimalIntOrZero(value);
                 taggedParameters.put(key, token);
-            } else if (key.equals("actions")) {
+            } else if ("actions".equals(key)) {
                 // Apparently squeezer returns some commands which are
                 // included in the count of the current request
                 actionsCount++;

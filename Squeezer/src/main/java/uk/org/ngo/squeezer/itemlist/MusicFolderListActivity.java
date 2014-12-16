@@ -50,7 +50,7 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
     /**
      * The folder to view. The root folder if null.
      */
-    MusicFolderItem mFolder;
+    private MusicFolderItem mFolder;
 
     @Override
     public ItemView<MusicFolderItem> createItemView() {

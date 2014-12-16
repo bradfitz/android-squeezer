@@ -31,6 +31,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class SearchActivity extends ItemListActivity {
@@ -52,7 +53,6 @@ public class SearchActivity extends ItemListActivity {
 
         searchResultsAdapter = new SearchAdapter(this, getImageFetcher());
         resultsExpandableListView = (ExpandableListView) findViewById(R.id.search_expandable_list);
-        resultsExpandableListView.setAdapter(searchResultsAdapter);
 
         resultsExpandableListView.setOnChildClickListener(new OnChildClickListener() {
             @Override
@@ -82,7 +82,6 @@ public class SearchActivity extends ItemListActivity {
         }
     }
 
-
     @Override
     public final boolean onContextItemSelected(MenuItem menuItem) {
         if (getService() != null) {
@@ -109,13 +108,44 @@ public class SearchActivity extends ItemListActivity {
     }
 
     @Override
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerHandshakeCallback(mHandshakeCallback);
+    }
+
+    /**
+     * Setting the list adapter will trigger a layout pass, which requires information from
+     * the server.  Only do this after the handshake has completed.  When done, perform the
+     * search.
+     */
+    private final IServiceHandshakeCallback mHandshakeCallback
+            = new IServiceHandshakeCallback() {
+        @Override
+        public void onHandshakeCompleted() {
+            if (resultsExpandableListView.getExpandableListAdapter() == null)
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        resultsExpandableListView.setAdapter(searchResultsAdapter);
+                        doSearch();
+                    }
+                });
+        }
+
+        @Override
+        public Object getClient() {
+            return SearchActivity.this;
+        }
+    };
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.search(start, searchString, itemListCallback);
     }
 
     /**
      * Saves the search query, and attempts to query the service for <code>searchString</code>. If
-     * the service binding has not completed yet then {@link #onServiceConnected()} will re-query
+     * the service handshake has not completed yet then {@link #mHandshakeCallback} will re-query
      * for the saved search query.
      *
      * @param searchString The string to search fo.

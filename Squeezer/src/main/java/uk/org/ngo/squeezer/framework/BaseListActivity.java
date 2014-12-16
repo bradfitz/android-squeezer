@@ -38,6 +38,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
@@ -155,12 +156,12 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * Set our adapter on the list view.
      * <p/>
      * This can't be done in {@link #onCreate(android.os.Bundle)} because getView might be called
-     * before the service is connected, so we need to delay it.
+     * before the handshake is complete, so we need to delay it.
      * <p/>
      * However when we set the adapter after onCreate the list is scrolled to top, so we retain the
      * visible position.
      * <p/>
-     * Call this method when the service is connected
+     * Call this method after the handshake is complete.
      */
     private void setAdapter() {
         // setAdapter is not defined for AbsListView before API level 11, but
@@ -182,24 +183,34 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         }
     }
 
-
     @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
-
-        maybeOrderVisiblePages(mListView);
-        setAdapter();
+    protected void registerCallback(@NonNull ISqueezeService service) {
+        super.registerCallback(service);
+        service.registerHandshakeCallback(mHandshakeCallback);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (getService() != null) {
-            maybeOrderVisiblePages(mListView);
-            setAdapter();
+    /**
+     * Order visible pages, and set the list adapter.
+     */
+    private final IServiceHandshakeCallback mHandshakeCallback
+            = new IServiceHandshakeCallback() {
+        @Override
+        public void onHandshakeCompleted() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    maybeOrderVisiblePages(mListView);
+                    if (mListView.getAdapter() == null)
+                        setAdapter();
+                }
+            });
         }
-    }
+
+        @Override
+        public Object getClient() {
+            return BaseListActivity.this;
+        }
+    };
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

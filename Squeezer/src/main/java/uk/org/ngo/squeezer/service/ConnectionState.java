@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
@@ -45,6 +46,9 @@ import uk.org.ngo.squeezer.model.PlayerState;
 class ConnectionState {
 
     private static final String TAG = "ConnectionState";
+
+    /** {@link java.util.regex.Pattern} that splits strings on semi-colons. */
+    private static final Pattern mSemicolonSplitPattern = Pattern.compile(";");
 
     // Incremented once per new connection and given to the Thread
     // that's listening on the socket.  So if it dies and it's not the
@@ -229,7 +233,7 @@ class ConnectionState {
     }
 
     public void setMediaDirs(String dirs) {
-        mediaDirs.set(dirs.split(";"));
+        mediaDirs.set(mSemicolonSplitPattern.split(dirs));
     }
 
     void setCanFavorites(boolean value) {
