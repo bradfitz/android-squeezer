@@ -648,12 +648,6 @@ public class NowPlayingFragment extends Fragment implements
         mService = service;
 
         maybeRegisterCallbacks(mService);
-        uiThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                updateUIFromServiceState();
-            }
-        });
 
         // Assume they want to connect (unless manually disconnected).
         if (!isConnected() && !isManualDisconnect()) {

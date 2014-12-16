@@ -129,7 +129,6 @@ public class PlayerListActivity extends ItemListActivity implements
 
         mResultsAdapter = new PlayerListAdapter(this, getImageFetcher());
         mResultsExpandableListView = (ExpandableListView) findViewById(R.id.expandable_list);
-        mResultsExpandableListView.setAdapter(mResultsAdapter);
 
         mResultsExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
@@ -191,6 +190,8 @@ public class PlayerListActivity extends ItemListActivity implements
     }
 
     public void onEventMainThread(HandshakeComplete event) {
+        if (mResultsExpandableListView.getExpandableListAdapter() == null)
+            mResultsExpandableListView.setAdapter(mResultsAdapter);
         updateAndExpandPlayerList();
     }
 
@@ -198,6 +199,7 @@ public class PlayerListActivity extends ItemListActivity implements
         uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0).sendToTarget();
     }
 
+    @Override
     public void onEvent(PlayerVolume event) {
         uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, event.mVolume,
                 0, event.mPlayer).sendToTarget();

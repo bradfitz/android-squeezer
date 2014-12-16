@@ -134,6 +134,9 @@
     <string name="menu_item_player_sync">Synchronize…</string>
     <string name="menu_item_player_unsync">No synchronization</string>
 
+    <string name="player_list_changed">Connected players changed while context menu was open,
+        ignoring request</string>
+
     <string name="albums_by_artist_header">Albums with songs by %s</string>
     <string name="albums_by_genre_header">Albums with songs in genre \"%s\"</string>
     <string name="albums_by_year_header">Albums with songs from %s</string>

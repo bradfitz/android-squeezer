@@ -18,8 +18,9 @@ package uk.org.ngo.squeezer.service;
 
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
+
+import com.crashlytics.android.Crashlytics;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -279,7 +280,14 @@ class CliClient {
 
         String formattedCommands = mNewlineJoiner.join(commands);
         Log.v(TAG, "SEND: " + formattedCommands);
-        Crashlytics.setString("lastCommands", formattedCommands);
+
+        // Make sure that username/password do not make it to Crashlytics.
+        if (commands[0].startsWith("login ")) {
+            Crashlytics.setString("lastCommands", "login [username] [password]");
+        } else {
+            Crashlytics.setString("lastCommands", formattedCommands);
+        }
+
         writer.println(formattedCommands);
         writer.flush();
     }

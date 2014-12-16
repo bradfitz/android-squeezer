@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.framework;
 
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +37,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -123,6 +122,11 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         mListView.setOnCreateContextMenuListener(getItemAdapter());
     }
 
+    public void onEventMainThread(HandshakeComplete event) {
+        maybeOrderVisiblePages(mListView);
+        setAdapter();
+    }
+
     /**
      * Returns the ID of a content view to be used by this list activity.
      * <p/>
@@ -155,12 +159,12 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * Set our adapter on the list view.
      * <p/>
      * This can't be done in {@link #onCreate(android.os.Bundle)} because getView might be called
-     * before the service is connected, so we need to delay it.
+     * before the handshake is complete, so we need to delay it.
      * <p/>
      * However when we set the adapter after onCreate the list is scrolled to top, so we retain the
      * visible position.
      * <p/>
-     * Call this method when the service is connected
+     * Call this method after the handshake is complete.
      */
     private void setAdapter() {
         // setAdapter is not defined for AbsListView before API level 11, but
@@ -182,25 +186,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         }
     }
 
-
-    @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
-
-        maybeOrderVisiblePages(mListView);
-        setAdapter();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (getService() != null) {
-            maybeOrderVisiblePages(mListView);
-            setAdapter();
-        }
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -216,7 +201,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     private void saveVisiblePosition() {
         mRetainFragment.put(TAG_POSITION, mListView.getFirstVisiblePosition());
     }
-
 
     /**
      * @return The current {@link ItemAdapter}'s {@link ItemView}

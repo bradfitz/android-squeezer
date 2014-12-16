@@ -208,11 +208,11 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save};
-        final boolean boundToService = getService() != null;
+        final boolean knowCurrentPlaylist = getCurrentPlaylist() != null;
 
         for (int id : ids) {
             MenuItem item = menu.findItem(id);
-            item.setEnabled(boundToService);
+            item.setVisible(knowCurrentPlaylist);
         }
 
         return super.onPrepareOptionsMenu(menu);
@@ -241,6 +241,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         return getService().getCurrentPlaylist();
     }
 
+    @Override
     public void onEvent(HandshakeComplete event) {
         super.onEvent(event);
         player = getService().getActivePlayer();
@@ -253,7 +254,15 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     public void onEventMainThread(PlayersChanged event) {
-        if (event.mActivePlayer != null && !event.mActivePlayer.equals(player)) {
+        supportInvalidateOptionsMenu();
+
+        if (event.mActivePlayer == null) {
+            player = null;
+            clearItems();
+            return;
+        }
+
+        if (!event.mActivePlayer.equals(player)) {
             player = event.mActivePlayer;
             clearAndReOrderItems();
         }

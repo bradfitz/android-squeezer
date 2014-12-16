@@ -16,9 +16,16 @@
 
 package uk.org.ngo.squeezer.model;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
+import com.google.common.base.Charsets;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+
+import java.io.UnsupportedEncodingException;
 import java.util.Comparator;
 import java.util.Map;
 
@@ -36,6 +43,12 @@ public class Player extends Item {
 
     private final boolean mCanPowerOff;
 
+    /** Hash function to generate at least 64 bits of hashcode from a player's ID. */
+    private static final HashFunction mHashFunction = Hashing.goodFastHash(64);
+
+    /**  A hash of the player's ID. */
+    private final HashCode mHashCode;
+
     private PlayerState mPlayerState = new PlayerState();
 
     /** Is the player connected? */
@@ -48,6 +61,22 @@ public class Player extends Item {
         mModel = record.get("model");
         mCanPowerOff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
         mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            mHashCode = mHashFunction.hashString(getId(), Charsets.UTF_8);
+        } else {
+            // API versions < GINGERBREAD do not have String.getBytes(Charset charset),
+            // which hashString() ends up calling. This will trigger an exception.
+            byte[] bytes;
+            try {
+                bytes = getId().getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // Can't happen, Android's native charset is UTF-8. But just in case
+                // we're running on something wacky, fallback to the un-parsed bytes.
+                bytes = getId().getBytes();
+            }
+            mHashCode = mHashFunction.hashBytes(bytes);
+        }
     }
 
     private Player(Parcel source) {
@@ -57,6 +86,7 @@ public class Player extends Item {
         mModel = source.readString();
         mCanPowerOff = (source.readByte() == 1);
         mConnected = (source.readByte() == 1);
+        mHashCode = HashCode.fromString(source.readString());
     }
 
     @Override
@@ -114,13 +144,19 @@ public class Player extends Item {
         dest.writeString(mModel);
         dest.writeByte(mCanPowerOff ? (byte) 1 : (byte) 0);
         dest.writeByte(mConnected ? (byte) 1 : (byte) 0);
+        dest.writeString(mHashCode.toString());
     }
 
     /**
-     * @return The player's ID as a long (48 of 64 bits used).
+     * Returns a 64 bit identifier for the player.  The ID tracked by the server is a unique
+     * string that identifies the player.  It may be -- but is not required to be -- the
+     * player's MAC address.  Rather than assume it is the MAC address, calculate a 64 bit
+     * hash of the ID and use that.
+     *
+     * @return The hash of the player's ID.
      */
     public long getIdAsLong() {
-        return Util.MacToLong(getId());
+        return mHashCode.asLong();
     }
 
     /**
