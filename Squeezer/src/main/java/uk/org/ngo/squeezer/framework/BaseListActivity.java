@@ -196,9 +196,14 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
             = new IServiceHandshakeCallback() {
         @Override
         public void onHandshakeCompleted() {
-            maybeOrderVisiblePages(mListView);
-            if (mListView.getAdapter() == null)
-                setAdapter();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    maybeOrderVisiblePages(mListView);
+                    if (mListView.getAdapter() == null)
+                        setAdapter();
+                }
+            });
         }
 
         @Override

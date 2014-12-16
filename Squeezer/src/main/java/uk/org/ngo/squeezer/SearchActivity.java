@@ -123,8 +123,13 @@ public class SearchActivity extends ItemListActivity {
         @Override
         public void onHandshakeCompleted() {
             if (resultsExpandableListView.getExpandableListAdapter() == null)
-                resultsExpandableListView.setAdapter(searchResultsAdapter);
-            doSearch();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        resultsExpandableListView.setAdapter(searchResultsAdapter);
+                        doSearch();
+                    }
+                });
         }
 
         @Override
