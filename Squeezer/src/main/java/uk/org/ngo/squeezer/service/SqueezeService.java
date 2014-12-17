@@ -605,7 +605,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     void onLineReceived(String serverLine) {
         Log.v(TAG, "RECV: " + serverLine);
-        Crashlytics.setString("lastReceivedLine", serverLine);
+
+        // Make sure that username/password do not make it to Crashlytics.
+        if (serverLine.startsWith("login ")) {
+            Crashlytics.setString("lastReceivedLine", "login [username] [password]");
+        } else {
+            Crashlytics.setString("lastReceivedLine", serverLine);
+        }
 
         List<String> tokens = Arrays.asList(mSpaceSplitPattern.split(serverLine));
         if (tokens.size() < 2) {
@@ -978,7 +984,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * instead of as documented
      * <pre>
      * login user wrongpassword
-     * (Connection terminted)
+     * (Connection terminated)
      * </pre>
      * therefore a disconnect when handshake (the next step after authentication) is not completed,
      * is considered an authentication failure.
@@ -1127,8 +1133,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .setVisibleInDownloadsUi(false)
                     .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
+
+            Crashlytics.log("Registering new download");
+            Crashlytics.log("downloadId: " + downloadId);
+            Crashlytics.log("tempFile: " + tempFile);
+            Crashlytics.log("localPath: " + localPath);
+
             if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath)) {
-                Log.w(TAG, "Could not register download entry, download cancelled");
+                Crashlytics.log(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
                 downloadManager.remove(downloadId);
             }
         }

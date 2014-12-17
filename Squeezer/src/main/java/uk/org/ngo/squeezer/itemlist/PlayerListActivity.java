@@ -203,12 +203,18 @@ public class PlayerListActivity extends ItemListActivity implements
      * server. Only do this after the handshake has completed.  When done, display the
      * player list.
      */
-    private final IServiceHandshakeCallback mHandshakeCallback = new IServiceHandshakeCallback() {
+    private final IServiceHandshakeCallback mHandshakeCallback
+            = new IServiceHandshakeCallback() {
         @Override
         public void onHandshakeCompleted() {
-            if (mResultsExpandableListView.getExpandableListAdapter() == null)
-                mResultsExpandableListView.setAdapter(mResultsAdapter);
-            updateAndExpandPlayerList();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mResultsExpandableListView.getExpandableListAdapter() == null)
+                        mResultsExpandableListView.setAdapter(mResultsAdapter);
+                    updateAndExpandPlayerList();
+                }
+            });
         }
 
         @Override

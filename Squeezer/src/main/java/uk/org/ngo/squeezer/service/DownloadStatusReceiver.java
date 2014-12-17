@@ -27,6 +27,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.File;
 
 
@@ -73,6 +75,20 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                 String local_url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
 
                 DownloadDatabase.DownloadEntry downloadEntry = downloadDatabase.popDownloadEntry(downloadId);
+
+                if (downloadEntry == null)
+                    continue;
+
+                // Seen a crash where downloadEntry.tempName is null. Check for this, and if it
+                // happens skip the entry and log additional details.
+                if (downloadEntry.tempName == null) {
+                    Crashlytics.log("Bogus downloadEntry detected in handleDownloadComplete.");
+                    Crashlytics.log("tempName is null");
+                    Crashlytics.log("downloadId: " + downloadEntry.downloadId);
+                    Crashlytics.log("filename: " + downloadEntry.fileName);
+                    Crashlytics.logException(new NullPointerException());
+                    continue;
+                }
 
                 switch (status) {
                     case DownloadManager.STATUS_SUCCESSFUL:
