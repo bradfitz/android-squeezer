@@ -68,6 +68,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     private ISqueezeService mService = null;
 
     private final ThemeManager mTheme = new ThemeManager();
+    private int mThemeId = mTheme.getDefaultTheme().mThemeId;
 
     /**
      * Keep track of whether callbacks have been registered
@@ -100,6 +101,10 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @Nullable
     public ISqueezeService getService() {
         return mService;
+    }
+
+    public int getThemeId() {
+        return mThemeId;
     }
 
     /**
@@ -135,6 +140,12 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
+    }
+
+    @Override
+    public void setTheme(int resId) {
+        super.setTheme(resId);
+        mThemeId = resId;
     }
 
     @Override

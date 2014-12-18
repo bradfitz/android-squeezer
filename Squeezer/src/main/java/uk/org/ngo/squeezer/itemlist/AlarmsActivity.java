@@ -70,7 +70,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         findViewById(R.id.add_alarm).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePickerFragment.show(getSupportFragmentManager(), DateFormat.is24HourFormat(AlarmsActivity.this));
+                TimePickerFragment.show(getSupportFragmentManager(), DateFormat.is24HourFormat(AlarmsActivity.this), getThemeId() == R.style.AppTheme);
             }
         });
         findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
@@ -215,7 +215,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
             return super.onCreateDialog(savedInstanceState);
         }
 
-        public static void show(FragmentManager manager, boolean is24HourMode) {
+        public static void show(FragmentManager manager, boolean is24HourMode, boolean dark) {
             // Use the current time as the default values for the picker
             final Calendar c = Calendar.getInstance();
             int hour = c.get(Calendar.HOUR_OF_DAY);
@@ -223,7 +223,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
 
             TimePickerFragment fragment = new TimePickerFragment();
             fragment.initialize(fragment, hour, minute, is24HourMode);
-            fragment.setThemeDark(true);
+            fragment.setThemeDark(dark);
             fragment.show(manager, TimePickerFragment.class.getSimpleName());
         }
 

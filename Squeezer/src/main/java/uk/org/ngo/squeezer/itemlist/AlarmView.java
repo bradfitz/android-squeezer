@@ -206,7 +206,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         viewHolder.time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerFragment.show(getActivity().getSupportFragmentManager(), item, DateFormat.is24HourFormat(getActivity()));
+                TimePickerFragment.show(getActivity().getSupportFragmentManager(), item, DateFormat.is24HourFormat(getActivity()), getActivity().getThemeId() == R.style.AppTheme);
             }
         });
         viewHolder.enabled.setChecked(item.isEnabled());
@@ -292,7 +292,7 @@ public class AlarmView extends BaseItemView<Alarm> {
             return super.onCreateDialog(savedInstanceState);
         }
 
-        public static void show(FragmentManager manager, Alarm alarm, boolean is24HourFormat) {
+        public static void show(FragmentManager manager, Alarm alarm, boolean is24HourFormat, boolean dark) {
             long tod = alarm.getTod();
             int hour = (int) (tod / 3600);
             int minute = (int) ((tod / 60) % 60);
@@ -302,7 +302,7 @@ public class AlarmView extends BaseItemView<Alarm> {
             bundle.putParcelable("alarm", alarm);
             fragment.setArguments(bundle);
             fragment.initialize(fragment, hour, minute, is24HourFormat);
-            fragment.setThemeDark(true);
+            fragment.setThemeDark(dark);
             fragment.show(manager, TimePickerFragment.class.getSimpleName());
         }
 
