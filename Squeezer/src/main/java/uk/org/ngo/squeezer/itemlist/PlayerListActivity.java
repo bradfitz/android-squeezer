@@ -40,6 +40,7 @@ import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
 import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -47,7 +48,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class PlayerListActivity extends ItemListActivity implements
         PlayerSyncDialog.PlayerSyncDialogHost {
-    public static final String CURRENT_PLAYER = "currentPlayer";
+    private static final String CURRENT_PLAYER = "currentPlayer";
 
     private ExpandableListView mResultsExpandableListView;
 
@@ -128,7 +129,6 @@ public class PlayerListActivity extends ItemListActivity implements
 
         mResultsAdapter = new PlayerListAdapter(this, getImageFetcher());
         mResultsExpandableListView = (ExpandableListView) findViewById(R.id.expandable_list);
-        mResultsExpandableListView.setAdapter(mResultsAdapter);
 
         mResultsExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
@@ -193,11 +193,35 @@ public class PlayerListActivity extends ItemListActivity implements
     protected void registerCallback(@NonNull ISqueezeService service) {
         super.registerCallback(service);
 
-        updateAndExpandPlayerList();
-
+        service.registerHandshakeCallback(mHandshakeCallback);
         service.registerVolumeCallback(volumeCallback);
         service.registerPlayerStateCallback(playerStateCallback);
     }
+
+    /**
+     * Setting the list adapter will trigger a layout pass, which requires data from the
+     * server. Only do this after the handshake has completed.  When done, display the
+     * player list.
+     */
+    private final IServiceHandshakeCallback mHandshakeCallback
+            = new IServiceHandshakeCallback() {
+        @Override
+        public void onHandshakeCompleted() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mResultsExpandableListView.getExpandableListAdapter() == null)
+                        mResultsExpandableListView.setAdapter(mResultsAdapter);
+                    updateAndExpandPlayerList();
+                }
+            });
+        }
+
+        @Override
+        public Object getClient() {
+            return PlayerListActivity.this;
+        }
+    };
 
     private final IServicePlayerStateCallback playerStateCallback
             = new IServicePlayerStateCallback() {

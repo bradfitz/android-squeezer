@@ -33,7 +33,7 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class GenreSpinner {
 
-    final GenreSpinnerCallback callback;
+    private final GenreSpinnerCallback callback;
 
     private final ItemListActivity activity;
 

@@ -1,13 +1,74 @@
-In-progress
-===========
+1.2.5
+=====
+
+*   Fixed potential crash if the connected players change while a
+    player's context menu is open.
+
+*   Fixed potential crash when setAdapter() is called from the
+    wrong thread.
+
+1.2.4
+=====
+
+*   Fixed potential crash when resuming Squeezer.
+
+*   Fixed bug with players not showing on devices running Android 2.1 and
+    2.2.x.
+
+1.2.3
+=====
+
+*   Fixed bug that hid playlist management options.
+
+*   Fixed crash when all players disconnect and a player context menu
+    is open.
+
+*   Fixed tracknames not scrolling properly on the "Now playing" screen.
+
+*   Fixed crash if a player's identifier is not its MAC address.
+
+*   Fixed crashes caused by initialising the UI before the connection
+    to the server completes.
+
+1.2.2
+=====
+
+*   Fixed potential crash after connecting to the server.
+
+*   Fixed potential crash downloading music folder items from servers
+    older than version 7.6.
+
+*   Fixed potential crash when viewing the current playlist.
+
+1.2.1
+=====
+
+*   Fixed potential crash when the notification message is updated.
+
+*   Fixed potential crash when disconnecting and reconnecting to the
+    server.
+
+1.2.0
+=====
 
 *   Support creating and managing groups of players. Fixes
     https://code.google.com/p/android-squeezer/issues/detail?id=4.
 
+*   Fixed a bug where returning to Squeezer from some other application
+    (using the "Recent Apps" button) would result in incomplete
+    information being displayed. Fixes
+    https://code.google.com/p/android-squeezer/issues/detail?id=79.
+
+*   Change the default colour theme to light with a dark action
+    bar.
+
+*   Fixed potential crash when no players are connected to the
+    server.
+
 1.1.1
 =====
 
-*   Fix potential crash opening the music folder list.
+*   Fixed potential crash opening the music folder list.
 
 1.1.0
 =====
@@ -215,7 +276,7 @@ In-progress
 0.6.2
 =====
 
-*   Fix crashes on orientation change, and assorted Honeycomb crashes after incorrect
+*   Fixed crashes on orientation change, and assorted Honeycomb crashes after incorrect
     API selection.
 
 

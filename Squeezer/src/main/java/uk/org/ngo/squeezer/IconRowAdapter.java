@@ -44,7 +44,7 @@ public class IconRowAdapter extends BaseAdapter {
     /**
      * Rows to display in the list.
      */
-    List<IconRow> mRows = new ArrayList<IconRow>();
+    private List<IconRow> mRows = new ArrayList<IconRow>();
 
     public int getCount() {
         return mRows.size();

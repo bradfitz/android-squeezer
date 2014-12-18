@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -46,12 +47,15 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     private final List<ItemAdapter<Player>> mChildAdapters = new ArrayList<ItemAdapter<Player>>();
 
+    /** Indicates if the list of players has changed. */
+    private boolean mPlayersChanged;
+
     /** The group position of the item that was most recently selected. */
     private int mLastGroupPosition;
 
     private Player mActivePlayer;
 
-    private List<Player> mPlayers = new ImmutableList.Builder<Player>().build();
+    private final List<Player> mPlayers = new ImmutableList.Builder<Player>().build();
 
     private final ImageFetcher mImageFetcher;
 
@@ -71,6 +75,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     }
 
     public void clear() {
+        mPlayersChanged = true;
         mChildAdapters.clear();
         mPlayerCount = 0;
         notifyDataSetChanged();
@@ -106,6 +111,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        mPlayersChanged = false;
         ExpandableListView.ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
         long packedPosition = contextMenuInfo.packedPosition;
         if (ExpandableListView.getPackedPositionType(packedPosition)
@@ -127,6 +133,12 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     }
 
     public boolean doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
+        if (mPlayersChanged) {
+            Toast.makeText(mActivity, mActivity.getText(R.string.player_list_changed),
+                    Toast.LENGTH_LONG).show();
+            return true;
+        }
+
         mLastGroupPosition = groupPosition;
         return mChildAdapters.get(groupPosition).doItemContext(menuItem, childPosition);
     }
@@ -138,6 +150,12 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      * @return
      */
     public boolean doItemContext(MenuItem menuItem) {
+        if (mPlayersChanged) {
+            Toast.makeText(mActivity, mActivity.getText(R.string.player_list_changed),
+                    Toast.LENGTH_LONG).show();
+            return true;
+        }
+
         return mChildAdapters.get(mLastGroupPosition).doItemContext(menuItem);
     }
 
@@ -172,8 +190,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     }
 
     /**
-     * Generates a 64 bit group ID by using the 48 bits of the ID of the first player in
-     * the group OR'd with 0x00FF000000000000.
+     * Use the ID of the first player in the group as the identifier for the group.
      * <p/>
      * {@inheritDoc}
      * @param groupPosition
@@ -181,7 +198,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      */
     @Override
     public long getGroupId(int groupPosition) {
-        return mChildAdapters.get(groupPosition).getItem(0).getIdAsLong() | 0x00FF000000000000L;
+        return mChildAdapters.get(groupPosition).getItem(0).getIdAsLong();
     }
 
     @Override

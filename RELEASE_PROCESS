@@ -52,14 +52,6 @@ Take new screenshots for market/screenshots.
 
   git branch -d release-x.y.z
 
-* Tag the release.
-
-Where <version> is the numeric version string (e.g., 0.6.1).
-
-  git tag -a <version> -m "Code for the <version> release."
-
-* Merge the changes back to the develop and master branches.
-
 * Upload the release APK to the Android Market.
 
 Go to https://play.google.com/apps/publish/?dev_acc=15144721977608796045#AppListPlace

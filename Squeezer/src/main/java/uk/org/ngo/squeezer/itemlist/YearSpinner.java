@@ -33,7 +33,7 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class YearSpinner {
 
-    final YearSpinnerCallback callback;
+    private final YearSpinnerCallback callback;
 
     private final ItemListActivity activity;
 

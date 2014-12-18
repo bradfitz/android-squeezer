@@ -2,9 +2,77 @@
 
 <changelog>
     <release
+        version="1.2.5"
+        versioncode="37">
+        <change>Fixed potential crash if the connected players change while a
+            player's context menu is open.</change>
+
+        <change>Fixed potential crash when setAdapter() is called from the
+            wrong thread.</change>
+    </release>
+
+    <release
+        version="1.2.4"
+        versioncode="36">
+        <change>Fixed potential crash when resuming Squeezer.</change>
+
+        <change>Fixed bug with players not showing on devices running Android 2.1 and
+            2.2.x.</change>
+    </release>
+
+    <release
+        version="1.2.3"
+        versioncode="35">
+        <change>Fixed bug that hid playlist management options.</change>
+
+        <change>Fixed crash when all players disconnect and a player context menu is open.</change>
+
+        <change>Fixed tracknames not scrolling properly on the "Now playing" screen.</change>
+
+        <change>Fixed crash if a player's identifier is not its MAC address.</change>
+
+        <change>Fixed crashes caused by initialising the UI before the connection to the server
+            completes.</change>
+    </release>
+
+    <release
+        version="1.2.2"
+        versioncode="34">
+        <change>Fixed potential crash after connecting to the server.</change>
+
+        <change>Fixed potential crash downloading music folder items from servers older than
+            version 7.6.</change>
+
+        <change>Fixed potential crash when viewing the current playlist.</change>
+    </release>
+
+    <release
+        version="1.2.1"
+        versioncode="33">
+        <change>Fixed potential crash when the notification message is updated.</change>
+
+        <change>Fixed potential crash when disconnecting and reconnecting to the server.</change>
+    </release>
+
+    <release
+        version="1.2.0"
+        versioncode="32">
+        <change>Support creating and managing groups of players. Fixes
+            https://code.google.com/p/android-squeezer/issues/detail?id=4.</change>
+
+        <change>Change the default colour theme to light with a dark action bar.</change>
+
+        <change>Fixed a bug where returning to Squeezer from some other application (using the
+            "Recent Apps" button) would result in incomplete information being displayed. Fixes
+            https://code.google.com/p/android-squeezer/issues/detail?id=79.</change>
+
+        <change>Fixed potential crash when no players are connected to the server.</change>
+    </release>
+
+    <release
         version="1.1.1"
         versioncode="29">
-        <change>Fix potential crash when browsing music folders.</change>
+        <change>Fixed potential crash when browsing music folders.</change>
     </release>
 
     <release
@@ -56,7 +124,7 @@
         <change>Fixed a bug where the current playlist was not updated after the current player
             changed.</change>
 
-        <change>Fix a bug when determining whether album artwork is available.</change>
+        <change>Fixed a bug when determining whether album artwork is available.</change>
 
         <change>Fixed https://code.google.com/p/android/issues/detail?id=63570, a bug
             in Android 4.4.2 when tasks are re-ordered.</change>
@@ -241,7 +309,7 @@
     <release
         version="0.6.2"
         versioncode="8">
-        <change>Fix crashes on orientation change, and assorted Honeycomb crashes after incorrect
+        <change>Fixed crashes on orientation change, and assorted Honeycomb crashes after incorrect
             API selection.
         </change>
     </release>

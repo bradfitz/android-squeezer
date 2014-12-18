@@ -59,13 +59,13 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
         String type = item.getType();
         int icon_resource = R.drawable.ic_unknown;
 
-        if (type.equals("folder")) {
+        if ("folder".equals(type)) {
             icon_resource = R.drawable.ic_music_folder;
         }
-        if (type.equals("track")) {
+        if ("track".equals(type)) {
             icon_resource = R.drawable.ic_songs;
         }
-        if (type.equals("playlist")) {
+        if ("playlist".equals(type)) {
             icon_resource = R.drawable.ic_playlists;
         }
 
@@ -81,10 +81,10 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
 
     @Override
     public void onItemSelected(int index, MusicFolderItem item) {
-        if (item.getType().equals("track")) {
+        if ("track".equals(item.getType())) {
             super.onItemSelected(index, item);
         } else
-        if (item.getType().equals("folder")) {
+        if ("folder".equals(item.getType())) {
             MusicFolderListActivity.show(getActivity(), item);
         }
     }
@@ -95,13 +95,19 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
         super.onCreateContextMenu(menu, v, menuInfo);
 
         MusicFolderItem item = (MusicFolderItem) menuInfo.item;
-        if (item.getType().equals("folder")) {
+        if ("folder".equals(item.getType())) {
             menu.add(Menu.NONE, R.id.browse_songs, Menu.NONE, R.string.BROWSE_SONGS);
         }
         menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
         menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
         menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
-        if (item.getType().equals("track") || item.getType().equals("folder")) {
+
+        // Support downloading tracks and folders, but only if the server provided a URL for
+        // them. At least one server seen in the wild does not, see the crash at
+        // https://www.crashlytics.com/squeezer/android/apps/uk.org.ngo.squeezer/issues/5480783765f8dfea153f1e34/sessions/5480787e0060000179ac2a75b3a3f1e2
+        // for an example.
+        if (("track".equals(item.getType()) || "folder".equals(item.getType()))
+                && (item.getUrl() != null)) {
             menu.add(Menu.NONE, R.id.download, Menu.NONE, R.string.DOWNLOAD_ITEM);
         }
     }
@@ -113,7 +119,7 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
                 MusicFolderListActivity.show(getActivity(), selectedItem);
                 return true;
             case R.id.download:
-                if (selectedItem.getType().equals("track") || selectedItem.getType().equals("folder")) {
+                if ("track".equals(selectedItem.getType()) || "folder".equals(selectedItem.getType())) {
                     getActivity().downloadItem(selectedItem);
                 }
                 return true;

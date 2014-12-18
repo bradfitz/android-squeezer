@@ -4,10 +4,11 @@ buildscript {
         maven { url 'http://download.crashlytics.com/maven' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.0'
+        classpath 'com.android.tools.build:gradle:1.0.0'
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
 }
+
 apply plugin: 'com.android.application'
 apply plugin: 'crashlytics'
 
@@ -21,11 +22,10 @@ dependencies {
     // Android support libraries
     // Note: these libraries require the "Google Repository" and "Android
     //       Support Repository" to be installed via the SDK manager.
-    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.android.support:support-v4:21.0.2'
     compile 'com.android.support:appcompat-v7:20.0.0'
     // Third party libraries
-    compile 'ch.acra:acra:4.5.0'
-    compile 'com.google.guava:guava:17.0'
+    compile 'com.google.guava:guava:18.0'
     // findbugs is required for Proguard to work with Guava.
     compile 'com.google.code.findbugs:jsr305:2.0.2'
     // Changelogs, see https://github.com/cketti/ckChangeLog.
@@ -38,7 +38,7 @@ dependencies {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '19.1.0'
+    buildToolsVersion "21.1.1"
 
     defaultConfig {
         minSdkVersion 7
@@ -52,7 +52,7 @@ android {
 
     buildTypes {
         release {
-            runProguard true
+            minifyEnabled true
             // You could use 'proguardFile "proguard.cfg"' here and get the
             // same effect, but this ensures that any changes to
             // proguard-android-optimize.txt are automatically included.
@@ -86,14 +86,14 @@ android {
 
     productFlavors {
         beta {
-            versionCode 27
-            versionName "1.1.0-beta-6"
+            versionCode 31
+            versionName "1.2.0-beta-2"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 29
-            versionName "1.1.1"
+            versionCode 37
+            versionName "1.2.5"
             signingConfig android.signingConfigs.release
         }
     }

@@ -51,6 +51,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.regex.Pattern;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
@@ -88,6 +89,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     private static final int PLAYBACKSERVICE_STATUS = 1;
 
+    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
+    private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
+
     private static final String ALBUMTAGS = "alyj";
 
     /**
@@ -114,7 +118,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     Thread mainThread;
 
-    private boolean mHandshakeComplete = false;
+    /** True if the handshake with the server has completed, otherwise false. */
+    private volatile boolean mHandshakeComplete = false;
 
     /**
      * Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once
@@ -179,6 +184,17 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     boolean mUpdateOngoingNotification;
 
     int mFadeInSecs;
+
+    /**
+     * Thrown when the service is asked to send a command to the server before the server
+     * handshake completes.
+     */
+    public static class HandshakeNotCompleteException extends IllegalStateException {
+        public HandshakeNotCompleteException() { super(); }
+        public HandshakeNotCompleteException(String message) { super(message); }
+        public HandshakeNotCompleteException(String message, Throwable cause) { super(message, cause); }
+        public HandshakeNotCompleteException(Throwable cause) { super(cause); }
+    }
 
     @Override
     public void onCreate() {
@@ -366,6 +382,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             @Override
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Version received: " + tokens);
+                Crashlytics.setString("server_version", tokens.get(1));
                 mHandshakeComplete = true;
                 strings();
 
@@ -636,9 +653,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     void onLineReceived(String serverLine) {
         Log.v(TAG, "RECV: " + serverLine);
-        Crashlytics.setString("lastReceivedLine", serverLine);
 
-        List<String> tokens = Arrays.asList(serverLine.split(" "));
+        // Make sure that username/password do not make it to Crashlytics.
+        if (serverLine.startsWith("login ")) {
+            Crashlytics.setString("lastReceivedLine", "login [username] [password]");
+        } else {
+            Crashlytics.setString("lastReceivedLine", serverLine);
+        }
+
+        List<String> tokens = Arrays.asList(mSpaceSplitPattern.split(serverLine));
         if (tokens.size() < 2) {
             return;
         }
@@ -877,7 +900,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Adjusts the subscription to players' status updates.
      */
     private void updateAllPlayerSubscriptionStates() {
-        Player activePlayer = connectionState.getActivePlayer();
         for (Player player : connectionState.getPlayers()) {
             updatePlayerSubscription(player, getPlayerSubscriptionType(player));
         }
@@ -949,46 +971,20 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Manages the state of any ongoing notification based on the player and connection state.
      */
     private void updateOngoingNotification() {
-        boolean playing = connectionState.getActivePlayerState().isPlaying();
-        String songName = connectionState.getActivePlayerState().getCurrentSongName();
-        String playerName = connectionState.getActivePlayer() != null ? connectionState
-                .getActivePlayer().getName() : "squeezer";
+        PlayerState activePlayerState = connectionState.getActivePlayerState();
 
         // Update scrobble state, if either we're currently scrobbling, or we
         // were (to catch the case where we started scrobbling a song, and the
         // user went in to settings to disable scrobbling).
         if (scrobblingEnabled || scrobblingPreviouslyEnabled) {
             scrobblingPreviouslyEnabled = scrobblingEnabled;
-            Song s = connectionState.getActivePlayerState().getCurrentSong();
-
-            if (s != null) {
-                Log.v(TAG, "Scrobbling, playing is: " + playing);
-                Intent i = new Intent();
-
-                if (Scrobble.haveScrobbleDroid()) {
-                    // http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
-                    i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
-                    i.putExtra("playing", playing);
-                    i.putExtra("track", songName);
-                    i.putExtra("album", s.getAlbum());
-                    i.putExtra("artist", s.getArtist());
-                    i.putExtra("secs", connectionState.getActivePlayerState().getCurrentSongDuration());
-                    i.putExtra("source", "P");
-                } else if (Scrobble.haveSls()) {
-                    // http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
-                    i.setAction("com.adam.aslfms.notify.playstatechanged");
-                    i.putExtra("state", playing ? 0 : 2);
-                    i.putExtra("app-name", getText(R.string.app_name));
-                    i.putExtra("app-package", "uk.org.ngo.squeezer");
-                    i.putExtra("track", songName);
-                    i.putExtra("album", s.getAlbum());
-                    i.putExtra("artist", s.getArtist());
-                    i.putExtra("duration", connectionState.getActivePlayerState().getCurrentSongDuration());
-                    i.putExtra("source", "P");
-                }
-                sendBroadcast(i);
-            }
+            Scrobble.scrobbleFromPlayerState(this, activePlayerState);
         }
+
+        Song currentSong = (activePlayerState != null ? activePlayerState.getCurrentSong() : null);
+        boolean playing = (activePlayerState != null && activePlayerState.isPlaying());
+        String playerName = connectionState.getActivePlayer() != null ? connectionState
+                .getActivePlayer().getName() : "squeezer";
 
         if (!playing) {
             if (!mUpdateOngoingNotification) {
@@ -1004,9 +1000,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
-        if (playing) {
+        if (playing && currentSong != null) {
             status.setLatestEventInfo(this,
-                    getString(R.string.notification_playing_text, playerName), songName, pIntent);
+                    getString(R.string.notification_playing_text, playerName), currentSong.getName(), pIntent);
             status.flags |= Notification.FLAG_ONGOING_EVENT;
             status.icon = R.drawable.stat_notify_musicplayer;
         } else {
@@ -1036,7 +1032,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * instead of as documented
      * <pre>
      * login user wrongpassword
-     * (Connection terminted)
+     * (Connection terminated)
      * </pre>
      * therefore a disconnect when handshake (the next step after authentication) is not completed,
      * is considered an authentication failure.
@@ -1082,7 +1078,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         // Initiate an async player fetch
         cli.requestItems("players", -1, new IServiceItemListCallback<Player>() {
             @Override
-            public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Player> items, Class<Player> dataType) {
+            public void onItemsReceived(int count, int start, Map<String, String> parameters,
+                    List<Player> items, Class<Player> dataType) {
                 connectionState.addPlayers(items);
 
                 // If all players have been received then determine the new active player.
@@ -1102,7 +1099,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
              */
             @Nullable
             private Player getInitialPlayer() {
-                final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
+                final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
+                        Context.MODE_PRIVATE);
                 final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER,
                         null);
                 Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
@@ -1163,7 +1161,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     };
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void downloadSong(String songId, String title, String serverUrl) {
+    private void downloadSong(String songId, String title, @NonNull String serverUrl) {
         if (songId == null) {
             return;
         }
@@ -1183,8 +1181,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .setVisibleInDownloadsUi(false)
                     .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
+
+            Crashlytics.log("Registering new download");
+            Crashlytics.log("downloadId: " + downloadId);
+            Crashlytics.log("tempFile: " + tempFile);
+            Crashlytics.log("localPath: " + localPath);
+
             if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath)) {
-                Log.w(TAG, "Could not register download entry, download cancelled");
+                Crashlytics.log(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
                 downloadManager.remove(downloadId);
             }
         }
@@ -1195,7 +1199,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * <p/>
      * If this is not possible resort to the last path segment of the server path
      */
-    private String getLocalFile(String serverUrl) {
+    private String getLocalFile(@NonNull String serverUrl) {
         Uri serverUri = Uri.parse(serverUrl);
         String serverPath = serverUri.getPath();
         String mediaDir = null;
@@ -1394,7 +1398,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
          * @return True if it does, false otherwise.
          */
         @Override
-        public boolean canFavorites() {
+        public boolean canFavorites() throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
             return connectionState.canFavorites();
         }
 
@@ -1404,7 +1411,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
          * @return True if it does, false otherwise.
          */
         @Override
-        public boolean canMusicfolder() {
+        public boolean canMusicfolder() throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
             return connectionState.canMusicfolder();
         }
 
@@ -1414,7 +1424,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
          * @return True if it does, false otherwise.
          */
         @Override
-        public boolean canMyApps() {
+        public boolean canMyApps() throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
             return connectionState.canMyApps();
         }
 
@@ -1424,12 +1437,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
          * @return True if it does, false otherwise.
          */
         @Override
-        public boolean canRandomplay() {
+        public boolean canRandomplay() throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
             return connectionState.canRandomplay();
         }
 
         @Override
-        public String preferredAlbumSort() {
+        public String preferredAlbumSort() throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
             return connectionState.getPreferredAlbumSort();
         }
 
@@ -1459,6 +1478,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return false;
 
             PlayerState.PlayStatus playStatus = activePlayerState.getPlayStatus();
+
+            // May be null -- race condition when connecting to a server that
+            // has a player. Squeezer knows the player exists, but has not yet
+            // determined its state.
+            if (playStatus == null)
+                return false;
 
             switch (playStatus) {
                 case play:
@@ -1543,9 +1568,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public boolean randomPlay(String type) {
-            if (!isConnected()) {
-                return false;
+        public boolean randomPlay(String type) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             cli.sendActivePlayerCommand("randomplay " + type);
             return true;
@@ -1612,7 +1637,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         private boolean isPlaying() {
-            return connectionState.getActivePlayerState().isPlaying();
+            PlayerState playerState = connectionState.getActivePlayerState();
+            return playerState != null && playerState.isPlaying();
         }
 
         @Override
@@ -1641,13 +1667,23 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return connectionState.getActivePlayerState();
         }
 
+        /**
+         * @return null if there is no active player, otherwise the name of the current playlist,
+         *     which may be the empty string.
+         */
         @Override
+        @Nullable
         public String getCurrentPlaylist() {
-            return connectionState.getActivePlayerState().getCurrentPlaylist();
+            PlayerState playerState = connectionState.getActivePlayerState();
+
+            if (playerState == null)
+                return null;
+
+            return playerState.getCurrentPlaylist();
         }
 
         @Override
-        public String getAlbumArtUrl(String artworkTrackId) {
+        public String getAlbumArtUrl(String artworkTrackId) throws HandshakeNotCompleteException {
             return getAbsoluteUrl(artworkTrackIdUrl(artworkTrackId));
         }
 
@@ -1662,7 +1698,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
          * @return The URL (as a string)
          */
         @Override
-        public String getSongDownloadUrl(String songId) {
+        public String getSongDownloadUrl(String songId) throws HandshakeNotCompleteException {
             return getAbsoluteUrl(songDownloadUrl(songId));
         }
 
@@ -1671,11 +1707,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public String getIconUrl(String icon) {
+        public String getIconUrl(String icon) throws HandshakeNotCompleteException {
             return getAbsoluteUrl('/' + icon);
         }
 
-        private String getAbsoluteUrl(String relativeUrl) {
+        private String getAbsoluteUrl(String relativeUrl) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
             Integer port = connectionState.getHttpPort();
             if (port == null || port == 0) {
                 return "";
@@ -1731,9 +1770,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public void players() {
-            if (!isConnected()) {
-                return;
+        public void players() throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
 
             fetchPlayers();
@@ -1817,9 +1856,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
         @Override
-        public void albums(IServiceItemListCallback<Album> callback, int start, String sortOrder, String searchString, FilterItem... filters) {
-            if (!isConnected()) {
-                return;
+        public void albums(IServiceItemListCallback<Album> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             List<String> parameters = new ArrayList<String>();
             parameters.add("tags:" + ALBUMTAGS);
@@ -1836,9 +1875,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an async fetch of the SqueezeboxServer's artists */
         @Override
-        public void artists(IServiceItemListCallback<Artist> callback, int start, String searchString, FilterItem... filters) {
-            if (!isConnected()) {
-                return;
+        public void artists(IServiceItemListCallback<Artist> callback, int start, String searchString, FilterItem... filters) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             List<String> parameters = new ArrayList<String>();
             if (searchString != null && searchString.length() > 0) {
@@ -1852,18 +1891,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an async fetch of the SqueezeboxServer's years */
         @Override
-        public void years(int start, IServiceItemListCallback<Year> callback) {
-            if (!isConnected()) {
-                return;
+        public void years(int start, IServiceItemListCallback<Year> callback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             cli.requestItems("years", start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's genres */
         @Override
-        public void genres(int start, String searchString, IServiceItemListCallback<Genre> callback) {
-            if (!isConnected()) {
-                return;
+        public void genres(int start, String searchString, IServiceItemListCallback<Genre> callback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             List<String> parameters = new ArrayList<String>();
             if (searchString != null && searchString.length() > 0) {
@@ -1886,9 +1925,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
          * @param callback Results will be returned through this
          */
         @Override
-        public void musicFolders(int start, MusicFolderItem musicFolderItem, IServiceItemListCallback<MusicFolderItem> callback) {
-            if (!isConnected()) {
-                return;
+        public void musicFolders(int start, MusicFolderItem musicFolderItem, IServiceItemListCallback<MusicFolderItem> callback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
 
             List<String> parameters = new ArrayList<String>();
@@ -1903,9 +1942,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an async fetch of the SqueezeboxServer's songs */
         @Override
-        public void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters) {
-            if (!isConnected()) {
-                return;
+        public void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             List<String> parameters = new ArrayList<String>();
             parameters.add("tags:" + SONGTAGS);
@@ -1921,18 +1960,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an async fetch of the SqueezeboxServer's current playlist */
         @Override
-        public void currentPlaylist(int start, IServiceItemListCallback<Song> callback) {
-            if (!isConnected()) {
-                return;
+        public void currentPlaylist(int start, IServiceItemListCallback<Song> callback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             cli.requestPlayerItems("status", start, Arrays.asList("tags:" + SONGTAGS), callback);
         }
 
         /* Start an async fetch of the songs of the supplied playlist */
         @Override
-        public void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) {
-            if (!isConnected()) {
-                return;
+        public void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             cli.requestItems("playlists tracks", start,
                     Arrays.asList(playlist.getFilterParameter(), "tags:" + SONGTAGS), callback);
@@ -1940,9 +1979,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an async fetch of the SqueezeboxServer's playlists */
         @Override
-        public void playlists(int start, IServiceItemListCallback<Playlist> callback) {
-            if (!isConnected()) {
-                return;
+        public void playlists(int start, IServiceItemListCallback<Playlist> callback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             cli.requestItems("playlists", start, callback);
         }
@@ -2004,9 +2043,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an asynchronous search of the SqueezeboxServer's library */
         @Override
-        public void search(int start, String searchString, IServiceItemListCallback itemListCallback) {
-            if (!isConnected()) {
-                return;
+        public void search(int start, String searchString, IServiceItemListCallback itemListCallback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
 
             AlbumViewDialog.AlbumsSortOrder albumSortOrder = AlbumViewDialog.AlbumsSortOrder
@@ -2021,18 +2060,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an asynchronous fetch of the squeezeservers radio type plugins */
         @Override
-        public void radios(int start, IServiceItemListCallback<Plugin> callback) {
-            if (!isConnected()) {
-                return;
+        public void radios(int start, IServiceItemListCallback<Plugin> callback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             cli.requestItems("radios", start, callback);
         }
 
         /* Start an asynchronous fetch of the squeezeservers radio application plugins */
         @Override
-        public void apps(int start, IServiceItemListCallback<Plugin> callback) {
-            if (!isConnected()) {
-                return;
+        public void apps(int start, IServiceItemListCallback<Plugin> callback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             cli.requestItems("apps", start, callback);
         }
@@ -2040,9 +2079,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /* Start an asynchronous fetch of the squeezeservers items of the given type */
         @Override
-        public void pluginItems(int start, Plugin plugin, PluginItem parent, String search, IServiceItemListCallback<PluginItem> callback) {
-            if (!isConnected()) {
-                return;
+        public void pluginItems(int start, Plugin plugin, PluginItem parent, String search, IServiceItemListCallback<PluginItem> callback) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             List<String> parameters = new ArrayList<String>();
             if (parent != null) {
@@ -2055,7 +2094,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public void downloadItem(FilterItem item) {
+        public void downloadItem(FilterItem item) throws HandshakeNotCompleteException {
             if (item instanceof Song) {
                 Song song = (Song) item;
                 if (!song.isRemote()) {
@@ -2065,9 +2104,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 playlistSongs(-1, (Playlist) item, songDownloadCallback);
             } else if (item instanceof MusicFolderItem) {
                 MusicFolderItem musicFolderItem = (MusicFolderItem) item;
-                if (musicFolderItem.getType().equals("track")) {
-                    downloadSong(item.getId(), musicFolderItem.getName(), musicFolderItem.getUrl());
-                } else if (musicFolderItem.getType().equals("folder")) {
+                if ("track".equals(musicFolderItem.getType())) {
+                    String url = musicFolderItem.getUrl();
+                    if (url != null) {
+                        downloadSong(item.getId(), musicFolderItem.getName(), url);
+                    }
+                } else if ("folder".equals(musicFolderItem.getType())) {
                     musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);
                 }
             } else if (item != null) {
