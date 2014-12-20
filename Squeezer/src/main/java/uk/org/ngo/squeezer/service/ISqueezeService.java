@@ -21,11 +21,10 @@ import android.support.annotation.Nullable;
 
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
-import uk.org.ngo.squeezer.itemlist.IServiceCurrentPlaylistCallback;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.itemlist.IServicePlaylistMaintenanceCallback;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
@@ -39,29 +38,10 @@ import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 
 public interface ISqueezeService {
-    // For the activity to get callbacks on interesting events
-    void registerCallback(IServiceCallback callback);
-
-    // For the activity to get callback when the connection changes.
-    void registerConnectionCallback(IServiceConnectionCallback callback);
-
-    // For the activity to get callback when the active or connected players changes.
-    void registerPlayersCallback(IServicePlayersCallback callback);
-
-    // For the activity to get callback when the volume changes.
-    void registerVolumeCallback(IServiceVolumeCallback callback);
-
-    // For the activity to get callback when the current playlist is modified
-    void registerCurrentPlaylistCallback(IServiceCurrentPlaylistCallback callback);
-
-    // For the activity to get callback when music changes
-    void registerMusicChangedCallback(IServiceMusicChangedCallback callback);
-
-    // For the activity to get callback when handshake completes
-    void registerHandshakeCallback(IServiceHandshakeCallback callback);
-
-    // For the activity to get callback when status for a player is received.
-    void registerPlayerStateCallback(IServicePlayerStateCallback callback);
+    /**
+     * @return the EventBus the activity posts events to.
+     */
+    @NonNull EventBus getEventBus();
 
     // Instructing the service to connect to the SqueezeCenter server:
     // hostPort is the port of the CLI interface.
@@ -114,10 +94,6 @@ public interface ISqueezeService {
     boolean canPowerOff();
     void powerOn();
     void powerOff();
-    boolean canFavorites() throws SqueezeService.HandshakeNotCompleteException;
-    boolean canMusicfolder() throws SqueezeService.HandshakeNotCompleteException;
-    boolean canMyApps() throws SqueezeService.HandshakeNotCompleteException;
-    boolean canRandomplay() throws SqueezeService.HandshakeNotCompleteException;
     String preferredAlbumSort() throws SqueezeService.HandshakeNotCompleteException;
     void setPreferredAlbumSort(String preferredAlbumSort);
     boolean togglePausePlay();
@@ -192,7 +168,6 @@ public interface ISqueezeService {
     void playlists(int start, IServiceItemListCallback<Playlist> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     // Named playlist maintenance
-    void registerPlaylistMaintenanceCallback(IServicePlaylistMaintenanceCallback callback);
     boolean playlistsNew(String name);
     boolean playlistsRename(Playlist playlist, String newname);
     boolean playlistsDelete(Playlist playlist);
