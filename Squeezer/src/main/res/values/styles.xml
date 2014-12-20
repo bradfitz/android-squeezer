@@ -34,6 +34,14 @@
         <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
 
         <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
+
+        <item name="alarm_dow_selected">@android:color/white</item>
+        <item name="transparent_themed">@color/transparent_white</item>
+        <item name="alarm_list_background">@color/alarm_list_background</item>
+        <item name="item_background">@drawable/item_background</item>
+        <item name="main_button_background">@drawable/main_button_normal</item>
+        <item name="ic_alarm_settings">@drawable/ic_alarm_settings</item>
+        <item name="ic_delete">@drawable/ic_delete</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -52,6 +60,14 @@
         <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
 
         <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
+
+        <item name="alarm_dow_selected">@android:color/black</item>
+        <item name="transparent_themed">@color/transparent_black</item>
+        <item name="alarm_list_background">@color/alarm_list_background_light</item>
+        <item name="item_background">@drawable/item_background_light</item>
+        <item name="main_button_background">@drawable/main_button_light</item>
+        <item name="ic_alarm_settings">@drawable/ic_alarm_settings_light</item>
+        <item name="ic_delete">@drawable/ic_delete_light</item>
     </style>
 
     <!-- Text Styles -->

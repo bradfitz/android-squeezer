@@ -25,6 +25,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.datetimepicker.time.RadialPickerLayout;
@@ -60,6 +61,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ((TextView)findViewById(R.id.all_alarms_text)).setText(ServerString.ALARM_ALL_ALARMS.getLocalizedString());
         alarmsEnabledButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_enabled));
         findViewById(R.id.all_alarms_desc).setOnClickListener(new View.OnClickListener() {
             @Override

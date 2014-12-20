@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
- Copyright (c) 2013 Google Inc.
+ Copyright (c) 2014 Kurt Aaholst.  All Rights Reserved
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -38,20 +38,22 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             style="@style/SqueezerTextItem"
-            android:text="All Alarms"/>
+            tools:text="All Alarms"/>
         <ImageButton
             android:id="@+id/all_alarms_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/all_alarms_text"
+            android:layout_toEndOf="@id/all_alarms_text"
             android:layout_centerVertical="true"
             android:src="@android:drawable/ic_menu_info_details"
-            android:background="@drawable/item_background"
+            android:background="?item_background"
             />
         <include
             layout="@layout/squeezer_switch"
             android:id="@+id/alarms_enabled"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -62,7 +64,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/alarm_list_background"
+        android:background="?alarm_list_background"
         android:fastScrollEnabled="true"/>
 
     <ProgressBar
@@ -85,18 +87,18 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/ic_add"
-            android:background="@drawable/main_button_normal"
+            android:background="?main_button_background"
             android:layout_centerHorizontal="true"
-            android:text="New Alarm"/>
+            />
         <ImageButton
             android:id="@+id/settings"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_alarm_settings"
-            android:background="@drawable/item_background"
+            android:src="?ic_alarm_settings"
+            android:background="?item_background"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:text="New Alarm"/>
+            />
     </RelativeLayout>
 
     <fragment

@@ -27,4 +27,8 @@
     <color name="main_button_selected">#909090</color>
     <color name="black_overlay">#66000000</color>
 
+    <color name="transparent_black">#33000000</color>
+    <color name="alarm_list_background_light">#e5e5e5</color>
+    <color name="main_button_normal_light">#b0b0b0</color>
+    <color name="main_button_selected_light">#e0e0e0</color>
 </resources>

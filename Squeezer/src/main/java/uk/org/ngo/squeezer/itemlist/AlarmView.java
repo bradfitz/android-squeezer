@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2014 Kurt Aaholst <kaaholst@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         super(activity);
         this.activity = activity;
         resources = activity.getResources();
-        colorSelected = resources.getColor(android.R.color.white);
+        colorSelected = resources.getColor(getActivity().getAttributeValue(R.attr.alarm_dow_selected));
         density = resources.getDisplayMetrics().density;
     }
 

@@ -7,7 +7,7 @@
     <ImageButton
         android:id="@+id/info"
         android:src="@android:drawable/ic_menu_info_details"
-        android:background="@drawable/item_background"
+        android:background="?item_background"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center_vertical"
