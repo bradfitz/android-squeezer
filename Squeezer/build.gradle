@@ -61,6 +61,7 @@ android {
             // proguard-android-optimize.txt are automatically included.
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFile "proguard-crashlytics.cfg"
+            proguardFile "proguard-eventbus.cfg"
             proguardFile "proguard-guava.cfg"
             proguardFile "proguard-squeezer.cfg"
         }
@@ -89,8 +90,8 @@ android {
 
     productFlavors {
         beta {
-            versionCode 31
-            versionName "1.2.0-beta-2"
+            versionCode 38
+            versionName "1.2.6-beta-1"
             signingConfig android.signingConfigs.release
         }
 
