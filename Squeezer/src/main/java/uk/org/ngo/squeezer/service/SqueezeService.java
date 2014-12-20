@@ -36,10 +36,9 @@ import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-
-import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,6 +74,7 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
@@ -221,7 +221,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     void disconnect(boolean isServerDisconnect) {
+        mEventBus.removeAllStickyEvents();
         connectionState.disconnect(this, isServerDisconnect && !mHandshakeComplete);
+        mEventBus.post(new ConnectionChanged(false, false, false));
         mHandshakeComplete = false;
         clearOngoingNotification();
     }

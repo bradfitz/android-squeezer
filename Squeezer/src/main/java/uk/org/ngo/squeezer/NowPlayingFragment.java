@@ -446,6 +446,11 @@ public class NowPlayingFragment extends Fragment implements
             return;
         }
 
+        if (!connected && !postConnect && !loginFailure && !isManualDisconnect()) {
+            DisconnectedActivity.show(mActivity);
+            return;
+        }
+
         if (postConnect) {
             clearConnectingDialog();
             if (!connected) {
@@ -1002,7 +1007,6 @@ public class NowPlayingFragment extends Fragment implements
                 return true;
             case R.id.menu_item_disconnect:
                 mService.disconnect();
-                DisconnectedActivity.show(mActivity);
                 return true;
             case R.id.menu_item_poweron:
                 mService.powerOn();
