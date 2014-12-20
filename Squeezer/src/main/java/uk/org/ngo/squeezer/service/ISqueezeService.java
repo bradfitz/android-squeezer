@@ -94,10 +94,6 @@ public interface ISqueezeService {
     boolean canPowerOff();
     void powerOn();
     void powerOff();
-    boolean canFavorites() throws SqueezeService.HandshakeNotCompleteException;
-    boolean canMusicfolder() throws SqueezeService.HandshakeNotCompleteException;
-    boolean canMyApps() throws SqueezeService.HandshakeNotCompleteException;
-    boolean canRandomplay() throws SqueezeService.HandshakeNotCompleteException;
     String preferredAlbumSort() throws SqueezeService.HandshakeNotCompleteException;
     void setPreferredAlbumSort(String preferredAlbumSort);
     boolean togglePausePlay();

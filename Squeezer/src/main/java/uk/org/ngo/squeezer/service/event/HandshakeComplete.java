@@ -20,7 +20,23 @@ package uk.org.ngo.squeezer.service.event;
  * Event sent after handshaking with the server is complete.
  */
 public class HandshakeComplete {
-    public HandshakeComplete() {
+    /** Does the server support the {@code favorites items} command? */
+    public final boolean mCanFavourites;
 
+    /** Does the server support the {@code musicfolders} command? */
+    public final boolean mCanMusicFolders;
+
+    /** Does the server support the {@code myapps items} command? */
+    public final boolean mCanMyApps;
+
+    /** Does the server support the {@code randomplay} command? */
+    public final boolean mCanRandomPlay;
+
+    public HandshakeComplete(boolean canFavourites, boolean canMusicFolders,
+                             boolean canMyApps, boolean canRandomPlay) {
+        mCanFavourites = canFavourites;
+        mCanMusicFolders = canMusicFolders;
+        mCanMyApps = canMyApps;
+        mCanRandomPlay = canRandomPlay;
     }
 }

@@ -127,34 +127,6 @@ public class HomeActivity extends BaseActivity {
     }
 
     public void onEventMainThread(HandshakeComplete event) {
-        createListItems();
-
-        // Show a tip about volume controls, if this is the first time this app
-        // has run. TODO: Add more robust and general 'tips' functionality.
-        PackageInfo pInfo;
-        try {
-            final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
-                    0);
-
-            pInfo = getPackageManager().getPackageInfo(getPackageName(),
-                    PackageManager.GET_META_DATA);
-            if (preferences.getLong("lastRunVersionCode", 0) == 0) {
-                new TipsDialog().show(getSupportFragmentManager(), "TipsDialog");
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putLong("lastRunVersionCode", pInfo.versionCode);
-                editor.commit();
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            // Nothing to do, don't crash.
-        }
-    }
-
-    /**
-     * Creates the list of items to show in the activity.
-     * <p/>
-     * Must be run on the UI thread.
-     */
-    private void createListItems() {
         int[] icons = new int[]{
                 R.drawable.ic_artists,
                 R.drawable.ic_albums, R.drawable.ic_songs,
@@ -167,13 +139,13 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
-            mCanFavorites = getService().canFavorites();
-            mCanMusicfolder = getService().canMusicfolder();
-            mCanMyApps = getService().canMyApps();
-            mCanRandomplay = getService().canRandomplay();
+            mCanFavorites = event.mCanFavourites;
+            mCanMusicfolder = event.mCanMusicFolders;
+            mCanMyApps = event.mCanMyApps;
+            mCanRandomplay = event.mCanRandomPlay;
         }
 
-        List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>();
+        List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>(MY_APPS + 1);
         for (int i = ARTISTS; i <= MY_APPS; i++) {
             if (i == MUSIC_FOLDER && !mCanMusicfolder) {
                 continue;
@@ -196,6 +168,25 @@ public class HomeActivity extends BaseActivity {
 
         listView.setAdapter(new IconRowAdapter(this, rows));
         listView.setOnItemClickListener(onHomeItemClick);
+
+        // Show a tip about volume controls, if this is the first time this app
+        // has run. TODO: Add more robust and general 'tips' functionality.
+        PackageInfo pInfo;
+        try {
+            final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
+                    0);
+
+            pInfo = getPackageManager().getPackageInfo(getPackageName(),
+                    PackageManager.GET_META_DATA);
+            if (preferences.getLong("lastRunVersionCode", 0) == 0) {
+                new TipsDialog().show(getSupportFragmentManager(), "TipsDialog");
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putLong("lastRunVersionCode", pInfo.versionCode);
+                editor.commit();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            // Nothing to do, don't crash.
+        }
     }
 
     private final OnItemClickListener onHomeItemClick = new OnItemClickListener() {

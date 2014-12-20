@@ -353,7 +353,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 mHandshakeComplete = true;
                 strings();
 
-                mEventBus.postSticky(new HandshakeComplete());
+                mEventBus.postSticky(new HandshakeComplete(
+                        connectionState.canFavorites(), connectionState.canMusicfolder(),
+                        connectionState.canMusicfolder(), connectionState.canRandomplay()));
             }
         });
 
@@ -1239,58 +1241,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         private boolean canPower() {
             Player player = connectionState.getActivePlayer();
             return connectionState.isConnected() && player != null && player.isCanpoweroff();
-        }
-
-        /**
-         * Does the server support the "<code>favorites items</code>" command?
-         *
-         * @return True if it does, false otherwise.
-         */
-        @Override
-        public boolean canFavorites() throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            return connectionState.canFavorites();
-        }
-
-        /**
-         * Does the server support the "<code>musicfolders</code>" command?
-         *
-         * @return True if it does, false otherwise.
-         */
-        @Override
-        public boolean canMusicfolder() throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            return connectionState.canMusicfolder();
-        }
-
-        /**
-         * Does the server support the "<code>myapps items</code>" command?
-         *
-         * @return True if it does, false otherwise.
-         */
-        @Override
-        public boolean canMyApps() throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            return connectionState.canMyApps();
-        }
-
-        /**
-         * Does the server support the "<code>randomplay</code>" command?
-         *
-         * @return True if it does, false otherwise.
-         */
-        @Override
-        public boolean canRandomplay() throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            return connectionState.canRandomplay();
         }
 
         @Override
