@@ -45,10 +45,10 @@ import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerPref;
-import uk.org.ngo.squeezer.service.IServicePlayerPrefCallback;
-import uk.org.ngo.squeezer.service.IServicePlayersCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
+import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
+import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
@@ -126,18 +126,12 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     }
 
     @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-        player = service.getActivePlayer();
-        service.registerPlayerPrefCallback(playerPrefCallback);
-        service.registerPlayersCallback(playersCallback);
-        service.alarmPlaylists(alarmPlaylistsCallback);
-    }
-
-    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.alarms(start, this);
         if (start == 0) {
+            player = service.getActivePlayer();
+            service.alarmPlaylists(alarmPlaylistsCallback);
+
             alarmsEnabledButton.setEnabled(false);
             service.playerPref(PlayerPref.alarmsEnabled);
         }
@@ -165,45 +159,19 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         }
     };
 
-    private final IServicePlayerPrefCallback playerPrefCallback = new IServicePlayerPrefCallback() {
-        @Override
-        public void onPlayerPrefReceived(final PlayerPref playerPref, final String value) {
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    if (playerPref == PlayerPref.alarmsEnabled) {
-                        alarmsEnabledButton.setEnabled(true);
-                        alarmsEnabledButton.setChecked(Integer.valueOf(value) > 0);
-                    }
-                }
-            });
+    public void onEventMainThread(PlayerPrefReceived event) {
+        if (event.mPlayerPref == PlayerPref.alarmsEnabled) {
+            alarmsEnabledButton.setEnabled(true);
+            alarmsEnabledButton.setChecked(Integer.valueOf(event.mValue) > 0);
         }
+    }
 
-        @Override
-        public Object getClient() {
-            return AlarmsActivity.this;
+    public void onEventMainThread(PlayersChanged event) {
+        if (event.mActivePlayer != null && !event.mActivePlayer.equals(player)) {
+            player = event.mActivePlayer;
+            clearAndReOrderItems();
         }
-    };
-
-    private final IServicePlayersCallback playersCallback = new IServicePlayersCallback() {
-        @Override
-        public void onPlayersChanged(final List<Player> players, final Player activePlayer) {
-            if (activePlayer != null && !activePlayer.equals(player)) {
-                getUIThreadHandler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        player = activePlayer;
-                        clearAndReOrderItems();
-                    }
-                });
-            }
-        }
-
-        @Override
-        public Object getClient() {
-            return AlarmsActivity.this;
-        }
-    };
+    }
 
 
     public static class TimePickerFragment extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {

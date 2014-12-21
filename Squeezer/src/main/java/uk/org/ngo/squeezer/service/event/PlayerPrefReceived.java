@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2014 Kurt Aaholst.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,22 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
+
+import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.PlayerPref;
 
-public interface IServicePlayerPrefCallback extends ServiceCallback {
-    void onPlayerPrefReceived(PlayerPref playerPref, String value);
+/** Event sent when the shuffle status of the active player has changed. */
+public class PlayerPrefReceived {
+    /** True if the previous shuffle status was unknown. */
+    @NonNull public final PlayerPref mPlayerPref;
+
+    /** The value of the preference. */
+    @NonNull public final String mValue;
+
+    public PlayerPrefReceived(@NonNull PlayerPref playerPref, @NonNull String value) {
+        mPlayerPref = playerPref;
+        mValue = value;
+    }
 }

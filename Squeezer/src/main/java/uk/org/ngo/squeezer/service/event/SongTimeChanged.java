@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.Nullable;
+/** Event sent when the duration or current play position of the current song has changed. */
+public class SongTimeChanged {
+    /** The current position of the player in the song, measured in seconds. */
+    public final int mCurrentPosition;
 
-import java.util.List;
+    /** The song's duration, measured in seconds. */
+    public final int mDuration;
 
-import uk.org.ngo.squeezer.model.Player;
-
-public interface IServicePlayersCallback extends ServiceCallback {
-    void onPlayersChanged(List<Player> players, final @Nullable Player activePlayer);
+    public SongTimeChanged(int currentPosition, int duration) {
+        mCurrentPosition = currentPosition;
+        mDuration = duration;
+    }
 }
-

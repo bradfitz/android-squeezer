@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Google Inc.  All Rights Reserved.
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
 
-public interface IServiceCallback extends ServiceCallback {
-    void onPlayStatusChanged(String playStatus);
-    void onShuffleStatusChanged(boolean initial, int shuffleStatus);
-    void onRepeatStatusChanged(boolean initial, int repeatStatus);
-    void onTimeInSongChange(int secondsIn, int secondsTotal);
-    void onPowerStatusChanged(boolean canPowerOn, boolean canPowerOff);
+/** Event sent when a track is added to a playlist. */
+public class PlaylistTracksAdded {
+    public PlaylistTracksAdded() {
+    }
 }
-

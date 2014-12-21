@@ -32,9 +32,9 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.PlayerPref;
-import uk.org.ngo.squeezer.service.IServicePlayerPrefCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
+import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 
 public class AlarmsSettingsActivity extends BaseActivity {
@@ -121,36 +121,38 @@ public class AlarmsSettingsActivity extends BaseActivity {
     }
 
     @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-        service.registerPlayerPrefCallback(playerPrefCallback);
-        service.playerPref(PlayerPref.alarmfadeseconds);
-        service.playerPref(PlayerPref.alarmDefaultVolume);
-        service.playerPref(PlayerPref.alarmSnoozeSeconds);
-        service.playerPref(PlayerPref.alarmTimeoutSeconds);
-
-        for (PlayerPrefCallbacks callbacks : playerPrefs.values())
-            callbacks.setEnabled(false);
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        maybeOrderPrefs(service);
     }
 
-    private final IServicePlayerPrefCallback playerPrefCallback = new IServicePlayerPrefCallback() {
-        @Override
-        public void onPlayerPrefReceived(final PlayerPref playerPref, final String value) {
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    PlayerPrefCallbacks callbacks = playerPrefs.get(playerPref);
-                    callbacks.setEnabled(true);
-                    callbacks.updateView(Integer.valueOf(value));
-                }
-            });
-        }
+    @Override
+    public void onResume() {
+        super.onResume();
+        ISqueezeService service = getService();
+        if (service != null) maybeOrderPrefs(service);
+    }
 
-        @Override
-        public Object getClient() {
-            return AlarmsSettingsActivity.this;
+    private boolean prefsOrdered = false;
+    private void maybeOrderPrefs(ISqueezeService service) {
+        if (!prefsOrdered) {
+            prefsOrdered = true;
+
+            service.playerPref(PlayerPref.alarmfadeseconds);
+            service.playerPref(PlayerPref.alarmDefaultVolume);
+            service.playerPref(PlayerPref.alarmSnoozeSeconds);
+            service.playerPref(PlayerPref.alarmTimeoutSeconds);
+
+            for (PlayerPrefCallbacks callbacks : playerPrefs.values())
+                callbacks.setEnabled(false);
         }
-    };
+    }
+
+    public void onEventMainThread(PlayerPrefReceived event) {
+        PlayerPrefCallbacks callbacks = playerPrefs.get(event.mPlayerPref);
+        callbacks.setEnabled(true);
+        callbacks.updateView(Integer.valueOf(event.mValue));
+    }
 
     private class PlayerPrefSeekBarTracker implements SeekBar.OnSeekBarChangeListener {
         private final SliderPlayerPref sliderPref;

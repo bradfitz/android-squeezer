@@ -32,9 +32,9 @@ import java.util.Set;
 import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageCache;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.RetainFragment;
@@ -217,31 +217,15 @@ public abstract class ItemListActivity extends BaseActivity {
         }
     }
 
-    @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-        service.registerHandshakeCallback(mHandshakeCallback);
-    }
-
     /**
-     * Marks the handshake as complete, and orders any pages requested before the handshake
-     * completed.
+     * Orders any pages requested before the handshake completed.
      */
-    private final IServiceHandshakeCallback mHandshakeCallback
-            = new IServiceHandshakeCallback() {
-        @Override
-        public void onHandshakeCompleted() {
-            // Order any pages that were requested before the handshake completed.
-            while (!mOrderedPagesBeforeHandshake.empty()) {
-                maybeOrderPage(mOrderedPagesBeforeHandshake.pop());
-            }
+    public void onEvent(HandshakeComplete event) {
+        // Order any pages that were requested before the handshake complete.
+        while (!mOrderedPagesBeforeHandshake.empty()) {
+            maybeOrderPage(mOrderedPagesBeforeHandshake.pop());
         }
-
-        @Override
-        public Object getClient() {
-            return ItemListActivity.this;
-        }
-    };
+    }
 
     /**
      * Orders pages that correspond to visible rows in the listview.
