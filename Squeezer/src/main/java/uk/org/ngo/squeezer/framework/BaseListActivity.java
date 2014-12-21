@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.framework;
 
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,8 +37,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
-import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -124,6 +122,11 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         mListView.setOnCreateContextMenuListener(getItemAdapter());
     }
 
+    public void onEventMainThread(HandshakeComplete event) {
+        maybeOrderVisiblePages(mListView);
+        setAdapter();
+    }
+
     /**
      * Returns the ID of a content view to be used by this list activity.
      * <p/>
@@ -184,35 +187,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     }
 
     @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-        service.registerHandshakeCallback(mHandshakeCallback);
-    }
-
-    /**
-     * Order visible pages, and set the list adapter.
-     */
-    private final IServiceHandshakeCallback mHandshakeCallback
-            = new IServiceHandshakeCallback() {
-        @Override
-        public void onHandshakeCompleted() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    maybeOrderVisiblePages(mListView);
-                    if (mListView.getAdapter() == null)
-                        setAdapter();
-                }
-            });
-        }
-
-        @Override
-        public Object getClient() {
-            return BaseListActivity.this;
-        }
-    };
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         saveVisiblePosition();
@@ -227,7 +201,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     private void saveVisiblePosition() {
         mRetainFragment.put(TAG_POSITION, mListView.getFirstVisiblePosition());
     }
-
 
     /**
      * @return The current {@link ItemAdapter}'s {@link ItemView}

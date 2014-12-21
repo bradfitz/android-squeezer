@@ -42,6 +42,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 class ConnectionState {
 
@@ -146,7 +147,6 @@ class ConnectionState {
         }
         socketRef.set(null);
         socketWriter.set(null);
-        isConnected.set(false);
 
         setConnectionState(service, false, false, loginFailed);
 
@@ -162,14 +162,7 @@ class ConnectionState {
             isConnectInProgress.set(false);
         }
 
-        service.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                for (IServiceConnectionCallback callback : service.mConnectionCallbacks) {
-                    callback.onConnectionChanged(currentState, postConnect, loginFailed);
-                }
-            }
-        });
+        service.mEventBus.postSticky(new ConnectionChanged(currentState, postConnect, loginFailed));
     }
 
     @Nullable Player getActivePlayer() {

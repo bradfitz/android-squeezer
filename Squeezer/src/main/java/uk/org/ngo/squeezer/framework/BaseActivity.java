@@ -44,10 +44,10 @@ import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
@@ -63,10 +63,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     private final ThemeManager mTheme = new ThemeManager();
 
-    /**
-     * Keep track of whether callbacks have been registered
-     */
-    private boolean mRegisteredCallbacks;
+    /** Records whether the activity has registered on the service's event bus. */
+    private boolean mRegisteredOnEventBus;
 
     private final Handler uiThreadHandler = new Handler() {
     };
@@ -134,19 +132,13 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unbindService(serviceConnection);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
         mTheme.onResume(this);
 
         if (mService != null) {
-            maybeRegisterCallbacks(mService);
+            maybeRegisterOnEventBus(mService);
         }
 
         mVolumePanel = new VolumePanel(this);
@@ -166,16 +158,24 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
             squeezePlayer.stopControllingSqueezePlayer();
             squeezePlayer = null;
         }
-        if (mRegisteredCallbacks) {
+        if (mRegisteredOnEventBus) {
             // If we are not bound to the service, it's process is no longer
             // running, so the callbacks are already cleaned up.
-            if (getService() != null) {
-                unregisterCallback();
+            if (mService != null) {
+                mService.getEventBus().unregister(this);
+                mService.cancelItemListRequests(this);
+                mService.cancelSubscriptions(this);
             }
-            mRegisteredCallbacks = false;
+            mRegisteredOnEventBus = false;
         }
 
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
     }
 
     /** Fix for https://code.google.com/p/android/issues/detail?id=63570. */
@@ -216,47 +216,22 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
      */
     protected void onServiceConnected(@NonNull ISqueezeService service) {
         supportInvalidateOptionsMenu();
-        maybeRegisterCallbacks(service);
+        maybeRegisterOnEventBus(service);
     }
 
     /**
-     * Registers any callbacks with the bound service. The default implementation manages volume
-     * control.
+     * Conditionally registers with the service's EventBus.
      * <p/>
-     * Derived classes should call through to the base class for it to perform volume control.
-     *
-     * @param service The connection to the bound service.
-     */
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        service.registerVolumeCallback(volumeCallback);
-    }
-
-    /**
-     * This is called when the service is disconnected.
-     * <p/>
-     * Normally you do not need to override this.
-     */
-    protected void unregisterCallback() {
-        if (mService == null)
-            return;
-
-        mService.cancelItemListRequests(this);
-        mService.cancelSubscriptions(this);
-    }
-
-    /**
-     * Conditionally registers callbacks.
-     * <p/>
-     * Callback registration can happen in {@link #onResume()} and {@link
+     * Registration can happen in {@link #onResume()} and {@link
      * #onServiceConnected(uk.org.ngo.squeezer.service.ISqueezeService)}, this ensures that it only
      * happens once.
      *
      * @param service The connection to the bound service.
      */
-    private void maybeRegisterCallbacks(@NonNull ISqueezeService service) {
-        if (!mRegisteredCallbacks) {
-            registerCallback(service);
-            mRegisteredCallbacks = true;
+    private void maybeRegisterOnEventBus(@NonNull ISqueezeService service) {
+        if (!mRegisteredOnEventBus) {
+            service.getEventBus().registerSticky(this);
+            mRegisteredOnEventBus = true;
         }
     }
 
@@ -353,24 +328,11 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         return true;
     }
 
-    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
-        @Override
-        public void onVolumeChanged(final int newVolume, final Player player) {
-            if (!mIgnoreVolumeChange && mVolumePanel != null) {
-                mVolumePanel.postVolumeChanged(newVolume, player == null ? "" : player.getName());
-            }
+    public void onEvent(PlayerVolume event) {
+        if (!mIgnoreVolumeChange && mVolumePanel != null && event.mPlayer == mService.getActivePlayer()) {
+            mVolumePanel.postVolumeChanged(event.mVolume, event.mPlayer.getName());
         }
-
-        @Override
-        public Object getClient() {
-            return BaseActivity.this;
-        }
-
-        @Override
-        public boolean wantAllPlayers() {
-            return false;
-        }
-    };
+    }
 
     public void setIgnoreVolumeChange(boolean ignoreVolumeChange) {
         mIgnoreVolumeChange = ignoreVolumeChange;
