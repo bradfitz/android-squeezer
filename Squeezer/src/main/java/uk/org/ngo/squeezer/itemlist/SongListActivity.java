@@ -223,7 +223,9 @@ public class SongListActivity extends BaseListActivity<Song>
     /**
      * Ensures that the artwork in the UI is updated after the server handshake completes.
      */
+    @Override
     public void onEventMainThread(HandshakeComplete event) {
+        super.onEventMainThread(event);
         updateArtwork();
     }
 
