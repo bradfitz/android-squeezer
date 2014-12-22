@@ -90,8 +90,8 @@ android {
 
     productFlavors {
         beta {
-            versionCode 38
-            versionName "1.2.6-beta-1"
+            versionCode 39
+            versionName "1.2.6-beta-2"
             signingConfig android.signingConfigs.release
         }
 
