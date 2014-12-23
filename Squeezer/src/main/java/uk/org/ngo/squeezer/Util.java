@@ -109,20 +109,6 @@ public class Util {
         sTimeArgs[4] = elapsedSeconds % 60;
     }
 
-    /**
-     * Formats a time of day in the form "M:SS" or "H:MM:SS" for display.
-     * <p/>
-     * Like {@link android.text.format.DateUtils#formatElapsedTime(long)} but without the leading
-     * zeroes if the number of minutes is < 10.
-     *
-     * @param tod Time of day in seconds since midnight.
-     */
-    public synchronized static String formatTimeOfDay(long tod) {
-        calculateTimeArgs(tod);
-        sFormatBuilder.setLength(0);
-        return sFormatter.format("%1$02d:%3$02d", sTimeArgs).toString();
-    }
-
     public static String encode(String string) {
         try {
             return URLEncoder.encode(string, "UTF-8").replace("+", "%20");

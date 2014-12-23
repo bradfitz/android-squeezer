@@ -48,6 +48,7 @@ import android.widget.Toast;
 import com.android.datetimepicker.time.RadialPickerLayout;
 import com.android.datetimepicker.time.TimePickerDialog;
 
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,7 +102,14 @@ public class AlarmView extends BaseItemView<Alarm> {
             convertView = getLayoutInflater().inflate(R.layout.list_item_alarm, parent, false);
             final View alarmView = convertView;
             final AlarmViewHolder viewHolder = new AlarmViewHolder();
+            viewHolder.is24HourFormat = DateFormat.is24HourFormat(getActivity());
+            viewHolder.timeFormat = viewHolder.is24HourFormat ? "%02d:%02d" : "%d:%02d";
+            String[] amPmStrings = new DateFormatSymbols().getAmPmStrings();
+            viewHolder.am = amPmStrings[0];
+            viewHolder.pm = amPmStrings[1];
             viewHolder.time = (TextView) convertView.findViewById(R.id.time);
+            viewHolder.amPm = (TextView) convertView.findViewById(R.id.am_pm);
+            viewHolder.amPm.setVisibility(viewHolder.is24HourFormat ? View.GONE : View.VISIBLE);
             viewHolder.enabled = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.enabled));
             viewHolder.enabled.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -200,15 +208,25 @@ public class AlarmView extends BaseItemView<Alarm> {
     }
 
     public void bindView(final AlarmViewHolder viewHolder, final int position, final Alarm item) {
+        long tod = item.getTod();
+        int hour = (int) (tod / 3600);
+        int minute = (int) ((tod / 60) % 60);
+        int displayHour = hour;
+        if (!viewHolder.is24HourFormat) {
+            displayHour = displayHour % 12;
+            if (displayHour == 0) displayHour = 12;
+        }
+
         viewHolder.position = position;
         viewHolder.alarm = item;
-        viewHolder.time.setText(item.getName());
+        viewHolder.time.setText(String.format(viewHolder.timeFormat, displayHour, minute));
         viewHolder.time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerFragment.show(getActivity().getSupportFragmentManager(), item, DateFormat.is24HourFormat(getActivity()), getActivity().getThemeId() == R.style.AppTheme);
+                TimePickerFragment.show(getActivity().getSupportFragmentManager(), item, viewHolder.is24HourFormat, getActivity().getThemeId() == R.style.AppTheme);
             }
         });
+        viewHolder.amPm.setText(hour < 12 ? viewHolder.am : viewHolder.pm);
         viewHolder.enabled.setChecked(item.isEnabled());
         viewHolder.repeat.setChecked(item.isRepeat());
         if (alarmPlaylists != null) {
@@ -267,8 +285,13 @@ public class AlarmView extends BaseItemView<Alarm> {
 
     private static class AlarmViewHolder {
         int position;
+        public boolean is24HourFormat;
+        String timeFormat;
+        String am;
+        String pm;
         Alarm alarm;
         TextView time;
+        TextView amPm;
         CompoundButtonWrapper enabled;
         CompoundButtonWrapper repeat;
         TextView repeatLabel;

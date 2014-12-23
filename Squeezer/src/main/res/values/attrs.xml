@@ -48,6 +48,7 @@
 
     <declare-styleable name="alarm">
         <attr name="alarm_dow_selected" format="reference"/>
+        <attr name="alarm_am_pm_color" format="reference"/>
     </declare-styleable>
     <attr name="transparent_themed" format="reference"/>
     <attr name="alarm_list_background" format="reference"/>

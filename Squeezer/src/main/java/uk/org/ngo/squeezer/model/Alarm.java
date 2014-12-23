@@ -30,7 +30,7 @@ public class Alarm extends Item {
 
     @Override
     public String getName() {
-        return Util.formatTimeOfDay(tod);
+        return String.valueOf(tod);
     }
 
     public Alarm(Map<String, String> record) {

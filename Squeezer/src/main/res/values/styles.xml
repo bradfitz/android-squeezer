@@ -39,6 +39,7 @@
         <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
 
         <item name="alarm_dow_selected">@android:color/white</item>
+        <item name="alarm_am_pm_color">@android:color/white</item>
         <item name="transparent_themed">@color/transparent_white</item>
         <item name="alarm_list_background">@color/alarm_list_background</item>
         <item name="item_background">@drawable/item_background</item>
@@ -68,6 +69,7 @@
         <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
 
         <item name="alarm_dow_selected">@android:color/black</item>
+        <item name="alarm_am_pm_color">@android:color/black</item>
         <item name="transparent_themed">@color/transparent_black</item>
         <item name="alarm_list_background">@color/alarm_list_background_light</item>
         <item name="item_background">@drawable/item_background_light</item>

@@ -45,12 +45,25 @@
             android:background="?item_background"
             android:textAppearance="@style/SqueezerTextItemXLarge"
             tools:text="07:45"/>
-
+        <TextView
+            android:id="@+id/am_pm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/ampm_left_padding"
+            android:paddingRight="@dimen/ampm_left_padding"
+            android:layout_toRightOf="@+id/time"
+            android:layout_toEndOf="@+id/time"
+            android:layout_alignBaseline="@+id/time"
+            android:textAppearance="@style/SqueezerTextItemSmall"
+            android:textColor="?alarm_am_pm_color"
+            tools:text="AM"/>
         <include
             layout="@layout/squeezer_switch"
             android:id="@+id/enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/am_pm"
+            android:layout_toRightOf="@+id/am_pm"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
