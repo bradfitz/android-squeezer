@@ -40,6 +40,7 @@
     <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because WiFi is not
         connected.
     </string>
+    <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_light_dark">Light, dark action bar</string>
     <string name="settings_username_hint">User name (optional)</string>
