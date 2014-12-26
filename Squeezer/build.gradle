@@ -61,6 +61,7 @@ android {
             // proguard-android-optimize.txt are automatically included.
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFile "proguard-crashlytics.cfg"
+            proguardFile "proguard-eventbus.cfg"
             proguardFile "proguard-guava.cfg"
             proguardFile "proguard-squeezer.cfg"
         }
