@@ -1,12 +1,15 @@
-1.2.6-beta-2
+1.2.6-beta-3
 ============
-
-*   Fixed bug where activities showing individual songs weren't showing
-    any songs.
 
 *   Add theme-specific icons for the view-option dialogs.
 
 *   Bring the Danish translation up to date.
+
+1.2.6-beta-2
+============
+
+*   Fixed bug in 1.2.6-beta-1 where activities showing individual songs
+    weren't showing any songs.
 
 1.2.6-beta-1
 ============
