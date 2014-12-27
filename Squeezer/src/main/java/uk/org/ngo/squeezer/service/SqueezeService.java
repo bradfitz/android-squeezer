@@ -94,6 +94,7 @@ import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
+import uk.org.ngo.squeezer.util.Logger;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
@@ -1139,13 +1140,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
 
-            Crashlytics.log("Registering new download");
-            Crashlytics.log("downloadId: " + downloadId);
-            Crashlytics.log("tempFile: " + tempFile);
-            Crashlytics.log("localPath: " + localPath);
+            Logger.log("Registering new download");
+            Logger.log("downloadId: " + downloadId);
+            Logger.log("tempFile: " + tempFile);
+            Logger.log("localPath: " + localPath);
 
             if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath)) {
-                Crashlytics.log(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
+                Logger.log(TAG, "Could not register download entry for: " + downloadId);
                 downloadManager.remove(downloadId);
             }
         }
