@@ -96,8 +96,10 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                 } else {
                     Logger.logError(TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
                 }
-            } else {
-                Logger.logError(TAG, "Download manager does not have an entry for " + id);
+            //} else {
+                // Download complete events may still come in, even after DownloadManager.remove is
+                // called, so don't log this
+                //Logger.logError(TAG, "Download manager does not have an entry for " + id);
             }
         } finally {
             cursor.close();
