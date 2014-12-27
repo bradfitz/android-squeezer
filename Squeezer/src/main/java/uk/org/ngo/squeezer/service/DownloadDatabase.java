@@ -169,7 +169,7 @@ public class DownloadDatabase {
         }
     }
 
-    public void removeDownloadEntries(List<Long> downloadIds) {
+    public void remove(long... downloadIds) {
         db.beginTransaction();
         try {
             for (long downloadId : downloadIds) {
