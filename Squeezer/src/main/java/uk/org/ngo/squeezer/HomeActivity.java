@@ -33,8 +33,6 @@ import android.widget.ListView;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +51,7 @@ import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.itemlist.YearListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.util.Logger;
 
 public class HomeActivity extends BaseActivity {
 
@@ -97,9 +96,7 @@ public class HomeActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!BuildConfig.DEBUG) {
-            Crashlytics.start(this);
-        }
+        Logger.setup(this);
 
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);

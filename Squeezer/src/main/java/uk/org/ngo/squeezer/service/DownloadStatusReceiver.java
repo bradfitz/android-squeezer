@@ -27,9 +27,9 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.io.File;
+
+import uk.org.ngo.squeezer.util.Logger;
 
 
 /**
@@ -86,27 +86,22 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                             if (tempFile.renameTo(localFile)) {
                                 context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(localFile)));
                             } else {
-                                logError("Could not rename [" + tempFile + "] to [" + localFile + "]");
+                                Logger.logError(TAG, "Could not rename [" + tempFile + "] to [" + localFile + "]");
                             }
                             break;
                         default:
-                            logError("Unsuccessful download " + format(status, reason, title, url, local_url));
+                            Logger.logError(TAG, "Unsuccessful download " + format(status, reason, title, url, local_url));
                             break;
                     }
                 } else {
-                    logError("Download database does not have an entry for " + format(status, reason, title, url, local_url));
+                    Logger.logError(TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
                 }
             } else {
-                logError("Download manager does not have an entry for " + id);
+                Logger.logError(TAG, "Download manager does not have an entry for " + id);
             }
         } finally {
             cursor.close();
         }
-    }
-
-    private void logError(String message) {
-        Log.w(TAG, message);
-        Crashlytics.logException(new RuntimeException(message));
     }
 
     private String format(int status, int reason, String title, String url, String local_url) {

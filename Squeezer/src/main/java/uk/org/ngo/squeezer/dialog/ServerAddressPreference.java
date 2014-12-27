@@ -39,8 +39,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -53,6 +51,7 @@ import java.util.TreeMap;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.util.Logger;
 import uk.org.ngo.squeezer.util.UIUtils;
 
 /**
@@ -430,13 +429,13 @@ public class ServerAddressPreference extends DialogPreference {
                 }
             } catch (SocketException e) {
                 // new DatagramSocket(3483)
-                Crashlytics.logException(e);
+                Logger.logException(e);
             } catch (UnknownHostException e) {
                 // InetAddress.getByName()
-                Crashlytics.logException(e);
+                Logger.logException(e);
             } catch (IOException e) {
                 // socket.send()
-                Crashlytics.logException(e);
+                Logger.logException(e);
             }
 
             if (socket != null) {
