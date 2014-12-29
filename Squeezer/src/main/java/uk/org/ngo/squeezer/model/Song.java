@@ -241,7 +241,7 @@ public class Song extends ArtworkItem {
 
     @Override
     public String toString() {
-        return "id=" + getId() + ", mName=" + mName + ", mArtist=" + mArtist + ", year=" + mYear;
+        return super.toStringOpen() + ", mArtist=" + mArtist + ", year=" + mYear + " }";
     }
 
     /**

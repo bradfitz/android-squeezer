@@ -171,7 +171,7 @@ public class Player extends Item {
 
     @Override
     public String toString() {
-        return "id=" + getId() + ", name=" + mName + ", model=" + mModel + ", canpoweroff="
-                + mCanPowerOff + ", ip=" + mIp + ", connected=" + mConnected;
+        return super.toStringOpen() + ", model=" + mModel + ", canpoweroff=" + mCanPowerOff
+                + ", ip=" + mIp + ", connected=" + mConnected + " }";
     }
 }
