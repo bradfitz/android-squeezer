@@ -325,6 +325,11 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     }
 
     @Override
+    public boolean isSelectable(T item) {
+        return true;
+    }
+
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ItemView.ContextMenuInfo menuInfo) {
         menu.setHeaderTitle(menuInfo.item.getName());

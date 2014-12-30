@@ -80,10 +80,13 @@ public class PluginItemView extends BaseItemView<PluginItem> {
     }
 
     @Override
+    public boolean isSelectable(PluginItem item) {
+        return item.isHasitems();
+    }
+
+    @Override
     public void onItemSelected(int index, PluginItem item) {
-        if (item.isHasitems()) {
-            mActivity.show(item);
-        }
+        mActivity.show(item);
     }
 
     // XXX: Make this a menu resource.
