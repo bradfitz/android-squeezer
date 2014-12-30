@@ -126,7 +126,7 @@ public class MusicFolderItem extends PlaylistItem {
     }
 
     @Override
-    public String toString() {
-        return super.toStringOpen() + ", type=" + type + " }";
+    public String toStringOpen() {
+        return super.toStringOpen() + ", type: " + type;
     }
 }

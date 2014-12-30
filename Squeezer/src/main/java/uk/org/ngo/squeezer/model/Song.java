@@ -240,8 +240,8 @@ public class Song extends ArtworkItem {
     }
 
     @Override
-    public String toString() {
-        return super.toStringOpen() + ", mArtist=" + mArtist + ", year=" + mYear + " }";
+    public String toStringOpen() {
+        return super.toStringOpen() + ", mArtist: " + mArtist + ", year: " + mYear;
     }
 
     /**
