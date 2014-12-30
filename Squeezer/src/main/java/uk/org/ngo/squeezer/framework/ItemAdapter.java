@@ -254,7 +254,8 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
 
     @Override
     public boolean isEnabled(int position) {
-        return mItemView.isSelectable(getItem(position));
+        T item = getItem(position);
+        return item != null && item.getId() != null && mItemView.isSelectable(item);
     }
 
     /**
