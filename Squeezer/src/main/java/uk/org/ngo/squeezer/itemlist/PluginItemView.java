@@ -46,10 +46,8 @@ public class PluginItemView extends BaseItemView<PluginItem> {
 
         viewHolder.text1.setText(item.getName());
 
-        // Disable the context menu if this item has sub-items.
-        if (!item.isAudio()) {
-            viewHolder.btnContextMenu.setVisibility(View.GONE);
-        }
+        // Show/hide the context menu if this item is playable.
+        viewHolder.btnContextMenu.setVisibility(item.isAudio() ? View.VISIBLE : View.GONE);
 
         // If the item has an image, then fetch and display it
         if (item.getImage() != null) {
