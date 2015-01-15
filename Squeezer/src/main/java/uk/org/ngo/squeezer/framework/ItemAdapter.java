@@ -35,7 +35,7 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
  * A generic class for an adapter to list items of a particular SqueezeServer data type. The data
  * type is defined by the generic type argument, and must be an extension of {@link Item}.
  * <p/>
- * Normally there is no need to extend this as we delegate all type dependent stuff to
+ * Normally there is no need to extend this, as we delegate all type dependent stuff to
  * {@link ItemView}.
  *
  * @param <T> Denotes the class of the items this class should list
@@ -100,14 +100,14 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     }
 
     /**
-     * Calls {@link ItemAdapter(ItemView, boolean, ImageFetcher)}, with emptyItem = false
+     * Calls {@link #ItemAdapter(ItemView, boolean, ImageFetcher)}, with emptyItem = false
      */
     public ItemAdapter(ItemView<T> itemView, ImageFetcher imageFetcher) {
         this(itemView, false, imageFetcher);
     }
 
     /**
-     * Calls {@link ItemAdapter(ItemView, boolean, ImageFetcher)}, with emptyItem = false
+     * Calls {@link #ItemAdapter(ItemView, boolean, ImageFetcher)}, with emptyItem = false
      * and a null ImageFetcher.
      */
     public ItemAdapter(ItemView<T> itemView) {
@@ -246,8 +246,14 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
         return position;
     }
 
+    @Override
+    public boolean isEnabled(int position) {
+        T item = getItem(position);
+        return item != null && item.getId() != null && mItemView.isSelectable(item);
+    }
+
     /**
-     * Generates a string suitable for use as an activity's title.
+     * Generates a string suitable for use as the list's title.
      *
      * @return the title.
      */

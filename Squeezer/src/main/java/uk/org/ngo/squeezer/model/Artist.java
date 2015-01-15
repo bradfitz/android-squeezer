@@ -78,10 +78,4 @@ public class Artist extends PlaylistItem {
         dest.writeString(name);
     }
 
-
-    @Override
-    public String toString() {
-        return "id=" + getId() + ", name=" + name;
-    }
-
 }
