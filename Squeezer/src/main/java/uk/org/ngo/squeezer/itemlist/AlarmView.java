@@ -262,6 +262,11 @@ public class AlarmView extends BaseItemView<Alarm> {
     }
 
     @Override
+    public boolean isSelectable(Alarm item) {
+        return false;
+    }
+
+    @Override
     public void onItemSelected(int index, Alarm item) {
     }
 

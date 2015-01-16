@@ -38,7 +38,6 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
-import uk.org.ngo.squeezer.framework.DisabledItemListAdapter;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -118,11 +117,6 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     public ItemView<Alarm> createItemView() {
         alarmView = new AlarmView(this);
         return alarmView;
-    }
-
-    @Override
-    protected ItemAdapter<Alarm> createItemListAdapter(ItemView<Alarm> itemView) {
-        return new DisabledItemListAdapter<Alarm>(itemView, getImageFetcher());
     }
 
     @Override
