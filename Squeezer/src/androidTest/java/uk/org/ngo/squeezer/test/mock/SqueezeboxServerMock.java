@@ -1,9 +1,9 @@
 
 package uk.org.ngo.squeezer.test.mock;
 
-import junit.framework.AssertionFailedError;
-
 import android.util.Log;
+
+import junit.framework.AssertionFailedError;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class SqueezeboxServerMock extends Thread {
 
     public static final int CLI_PORT = 9091;
 
-    private Object serverReadyMonitor = new Object();
+    private final Object serverReadyMonitor = new Object();
 
     private boolean accepting;
 
@@ -48,7 +48,7 @@ public class SqueezeboxServerMock extends Thread {
                             throw new AssertionFailedError("Expected the mock server to start");
                         }
                     } catch (InterruptedException e) {
-                        Log.w(TAG, "Interrupted while wating for the mock server to start");
+                        Log.w(TAG, "Interrupted while waiting for the mock server to start");
                     }
                 }
             }
@@ -122,6 +122,7 @@ public class SqueezeboxServerMock extends Thread {
         try {
             // Establish server socket
             serverSocket = new ServerSocket(CLI_PORT);
+            serverSocket.setReuseAddress(true);
 
             // Wait for incoming connection
             Log.d(TAG, "Mock server listening on port: " + serverSocket.getLocalPort());
@@ -140,7 +141,7 @@ public class SqueezeboxServerMock extends Thread {
 
         boolean loggedIn = (username == null || password == null);
 
-        while (true) {
+        while(! Thread.interrupted()) {
             // read data from Socket
             String line;
             try {
@@ -156,7 +157,7 @@ public class SqueezeboxServerMock extends Thread {
             String[] tokens = line.split(" ");
 
             if (tokens[0].equals("login")) {
-                out.println(tokens[0] + " " + tokens[1] + " ******");
+                out.println(tokens[0] + " " + tokens[1] + " " + tokens[2]);
                 if (username != null && password != null) {
                     if (tokens.length < 2 || !username.equals(tokens[1])) {
                         break;
@@ -194,13 +195,11 @@ public class SqueezeboxServerMock extends Thread {
                 }
             }
         }
-
         try {
+            Log.d(TAG, "Mock server closing socket");
             socket.close();
             serverSocket.close();
-        } catch (IOException e) {
-        }
-
+        } catch (IOException e) {}
     }
 
 }

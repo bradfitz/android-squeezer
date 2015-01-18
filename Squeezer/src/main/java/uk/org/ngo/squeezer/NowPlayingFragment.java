@@ -79,6 +79,7 @@ import uk.org.ngo.squeezer.model.PlayerState.PlayStatus;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
@@ -438,22 +439,29 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     // Should only be called the UI thread.
-    private void setConnected(boolean connected, boolean postConnect, boolean loginFailure) {
-        Log.v(TAG, "setConnected(" + connected + ", " + postConnect + ", " + loginFailure + ")");
+    private void setConnected(@ConnectionState.ConnectionStates int connectionState) {
+        Log.v(TAG, "setConnected(" + connectionState + ')');
 
         // The fragment may no longer be attached to the parent activity.  If so, do nothing.
         if (!isAdded()) {
             return;
         }
 
-        if (!connected && !postConnect && !loginFailure && !isManualDisconnect()) {
-            DisconnectedActivity.show(mActivity);
-            return;
-        }
+        boolean connected = false;
 
-        if (postConnect) {
-            clearConnectingDialog();
-            if (!connected) {
+        switch (connectionState) {
+            case ConnectionState.DISCONNECTED:
+                clearConnectingDialog();
+                if (!(mActivity instanceof DisconnectedActivity)) {
+                    DisconnectedActivity.show(mActivity);
+                }
+                return;
+
+            case ConnectionState.CONNECTION_STARTED:
+                break;
+
+            case ConnectionState.CONNECTION_FAILED:
+                clearConnectingDialog();
                 // TODO: Make this a dialog? Allow the user to correct the
                 // server settings here?
                 try {
@@ -465,13 +473,24 @@ public class NowPlayingFragment extends Fragment implements
                     // the Toast is not important so we ignore it.
                     Log.i(TAG, "Toast was not allowed: " + e);
                 }
-            }
-        }
-        if (loginFailure) {
-            Toast.makeText(mActivity, getText(R.string.login_failed_text), Toast.LENGTH_LONG)
-                    .show();
-            new AuthenticationDialog()
-                    .show(mActivity.getSupportFragmentManager(), "AuthenticationDialog");
+                break;
+
+            case ConnectionState.CONNECTION_COMPLETED:
+                connected = true;
+                break;
+
+            case ConnectionState.LOGIN_COMPLETED:
+                connected = true;
+                clearConnectingDialog();
+                break;
+
+            case ConnectionState.LOGIN_FAILED:
+                clearConnectingDialog();
+                Toast.makeText(mActivity, getText(R.string.login_failed_text), Toast.LENGTH_LONG)
+                        .show();
+                new AuthenticationDialog()
+                        .show(mActivity.getSupportFragmentManager(), "AuthenticationDialog");
+                return;
         }
 
         // Ensure that option menu item state is adjusted as appropriate.
@@ -517,6 +536,20 @@ public class NowPlayingFragment extends Fragment implements
             } else {
                 mProgressBar.setEnabled(true);
             }
+
+            PlayerState playerState = getPlayerState();
+
+            // May be no players connected.
+            // TODO: These views should be cleared if there's no player connected.
+            if (playerState == null)
+                return;
+
+            updateSongInfo(playerState.getCurrentSong());
+            updatePlayPauseIcon(playerState.getPlayStatus());
+            updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
+                    playerState.getCurrentSongDuration());
+            updateShuffleStatus(playerState.getShuffleStatus());
+            updateRepeatStatus(playerState.getRepeatStatus());
         }
     }
 
@@ -525,7 +558,6 @@ public class NowPlayingFragment extends Fragment implements
                 .setImageResource((playStatus == PlayStatus.play) ?
                         mActivity.getAttributeValue(R.attr.ic_action_av_pause)
                         : mActivity.getAttributeValue(R.attr.ic_action_av_play));
-
     }
 
     private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
@@ -707,20 +739,8 @@ public class NowPlayingFragment extends Fragment implements
         // doesn't seem to work in onCreate. (LayoutInflator still running?)
         Log.d(TAG, "updateUIFromServiceState");
         boolean connected = isConnected();
-        setConnected(connected, false, false);
-        if (connected) {
-            PlayerState playerState = getPlayerState();
-
-            // May be no players connected.
-            if (playerState == null)
-                return;
-
-            updateSongInfo(playerState.getCurrentSong());
-            updatePlayPauseIcon(playerState.getPlayStatus());
-            updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
-                    playerState.getCurrentSongDuration());
-            updateShuffleStatus(playerState.getShuffleStatus());
-            updateRepeatStatus(playerState.getRepeatStatus());
+        if (mService != null) {
+            setConnected(mService.getEventBus().getStickyEvent(ConnectionChanged.class).connectionState);
         }
     }
 
@@ -1084,9 +1104,13 @@ public class NowPlayingFragment extends Fragment implements
                         // broadcastReceiver
                     }
                 }
-
+                Log.v(TAG, "Most recent connection state: " + mService.getEventBus().getStickyEvent(ConnectionChanged.class).connectionState);
                 if (isConnectInProgress()) {
                     Log.v(TAG, "Connection is already in progress, connecting aborted");
+                    return;
+                }
+                if (isConnected()) {
+                    Log.v(TAG, "Already connected to server, aborting connection attempt");
                     return;
                 }
                 try {
@@ -1106,9 +1130,8 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     public void onEventMainThread(ConnectionChanged event) {
-        Log.v(TAG, "Connected == " + event.mIsConnected + " (postConnect==" + event.mPostConnect
-                + ")");
-        setConnected(event.mIsConnected, event.mPostConnect, event.mLoginFailed);
+        Log.d(TAG, "ConnectionChanged: " + event);
+        setConnected(event.connectionState);
     }
 
     public void onEventMainThread(HandshakeComplete event) {

@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.Button;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 /**
@@ -33,6 +34,7 @@ import uk.org.ngo.squeezer.service.event.ConnectionChanged;
  * connects.
  */
 public class DisconnectedActivity extends BaseActivity {
+    private static final String TAG = "DisconnectedActivity";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,7 +78,7 @@ public class DisconnectedActivity extends BaseActivity {
     }
 
     public void onEventMainThread(ConnectionChanged event) {
-        if (event.mIsConnected) {
+        if (event.connectionState == ConnectionState.LOGIN_COMPLETED) {
             // The user requested a connection to the server, which succeeded.  There's
             // no prior activity to go to, so launch HomeActivity, with flags to
             // clear other activities so hitting "back" won't show this activity again.
