@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.service.ConnectionState;
@@ -40,10 +41,25 @@ public class DisconnectedActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.disconnected);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
         Button btnConnect = (Button) findViewById(R.id.btn_connect);
+        TextView textView = (TextView) findViewById(R.id.textView);
         String serverName = new Preferences(this).getServerName();
-        btnConnect.setText(getString(R.string.connect_to_text, serverName));
+
+        // Adjust the text and the visibility of the connection button based on whether or
+        // not the user has configured a server to connect to.
+        if (serverName == null) {
+            btnConnect.setVisibility(View.GONE);
+            textView.setText(R.string.no_configured_server);
+        } else {
+            textView.setText(R.string.not_connected);
+            btnConnect.setText(getString(R.string.connect_to_text, serverName));
+            btnConnect.setVisibility(View.VISIBLE);
+        }
     }
 
     /**

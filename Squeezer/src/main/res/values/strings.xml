@@ -95,6 +95,7 @@
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
     <string name="connection_failed_text">Connection failed. Check settings.</string>
     <string name="not_connected">Squeezer is not connected to any Squeezeservers.</string>
+    <string name="no_configured_server">No Squeezeservers are configured in the settings.</string>
     <string name="login_failed_text">Login failed. Enter user name and password.</string>
     <string name="disconnected_text">Disconnected.</string>
     <string name="wifi_disabled_text">Wi-Fi is disabled</string>
