@@ -2,6 +2,17 @@
 
 <changelog>
     <release
+        version="1.2.6"
+        versioncode="41">
+        <change>Better handle the connection lifecycle with the server, which should
+            reduce opportunities for crashing.</change>
+
+        <change>Add theme-specific icons for the view-option dialogs.</change>
+
+        <change>Bring the Danish translation up to date.</change>
+    </release>
+
+    <release
         version="1.2.5"
         versioncode="37">
         <change>Fixed potential crash if the connected players change while a
