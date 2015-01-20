@@ -80,9 +80,9 @@ public class SqueezeboxServerMock extends Thread {
             return this;
         }
 
-        private String username = null;
+        private String username;
 
-        private String password = null;
+        private String password;
 
         private boolean canRandomplay = true;
 
