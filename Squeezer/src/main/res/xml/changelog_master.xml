@@ -2,25 +2,14 @@
 
 <changelog>
     <release
-        version="1.2.6-beta-3"
-        versioncode="40">
+        version="1.2.6"
+        versioncode="41">
+        <change>Better handle the connection lifecycle with the server, which should
+            reduce opportunities for crashing.</change>
+
         <change>Add theme-specific icons for the view-option dialogs.</change>
 
         <change>Bring the Danish translation up to date.</change>
-    </release>
-
-    <release
-        version="1.2.6-beta-2"
-        versioncode="39">
-        <change>Fixed bug in 1.2.6-beta-1 where activities showing individual songs weren't
-            showing any songs.</change>
-    </release>
-
-    <release
-        version="1.2.6-beta-1"
-        versioncode="38">
-        <change>Better handle the connection lifecycle with the server, which should
-            reduce opportunities for crashing.</change>
     </release>
 
     <release
