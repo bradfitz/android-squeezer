@@ -156,7 +156,7 @@ public class SqueezeboxServerMock extends Thread {
 
             String[] tokens = line.split(" ");
 
-            if (tokens[0].equals("login")) {
+            if ("login".equals(tokens[0])) {
                 out.println(tokens[0] + " " + tokens[1] + " ******");
                 if (username != null && password != null) {
                     if (tokens.length < 2 || !username.equals(tokens[1])) {
@@ -172,23 +172,23 @@ public class SqueezeboxServerMock extends Thread {
                     break;
                 }
 
-                if (line.equals("exit")) {
+                if ("exit".equals(line)) {
                     out.println(line);
                     break;
-                } else if (line.equals("listen 1")) {
+                } else if ("listen 1".equals(line)) {
                     //Just ignore, mock doesn't support server side events
                     out.println("listen 1");
-                } else if (line.equals("can musicfolder ?")) {
+                } else if ("can musicfolder ?".equals(line)) {
                     out.println("can musicfolder " + (canMusicFolder ? 1 : 0));
-                } else if (line.equals("can randomplay ?")) {
+                } else if ("can randomplay ?".equals(line)) {
                     out.println("can randomplay " + (canRamdomplay ? 1 : 0));
-                } else if (line.equals("pref httpport ?")) {
+                } else if ("pref httpport ?".equals(line)) {
                     out.println("pref httpport 9092");
-                } else if (line.equals("pref jivealbumsort ?")) {
+                } else if ("pref jivealbumsort ?".equals(line)) {
                     out.println("pref jivealbumsort " + albumsSortOrder);
-                } else if (line.equals("version ?")) {
+                } else if ("version ?".equals(line)) {
                     out.println("version 7.7.2");
-                } else if (tokens[0].equals("players")) {
+                } else if ("players".equals(tokens[0])) {
                     //TODO implement
                 } else {
                     out.println(line);
