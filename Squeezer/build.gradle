@@ -91,14 +91,14 @@ android {
 
     productFlavors {
         beta {
-            versionCode 31
-            versionName "1.2.0-beta-2"
+            versionCode 40
+            versionName "1.2.6-beta-3"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 37
-            versionName "1.2.5"
+            versionCode 41
+            versionName "1.2.6"
             signingConfig android.signingConfigs.release
         }
     }
