@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
 
-import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerState;
+import android.support.annotation.NonNull;
 
-public interface IServicePlayerStateCallback extends ServiceCallback {
-    void onPlayerStateReceived(Player player, PlayerState playerState);
+/** Event sent if renaming a playlist failed. */
+public class PlaylistRenameFailed {
+    @NonNull
+    final public String mFailureMessage;
+
+    public PlaylistRenameFailed(@NonNull String failureMessage) {
+        mFailureMessage = failureMessage;
+    }
 }

@@ -54,8 +54,8 @@ import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
-import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class SongListActivity extends BaseListActivity<Song>
@@ -200,12 +200,6 @@ public class SongListActivity extends BaseListActivity<Song>
                 : super.getContentView();
     }
 
-    @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-        service.registerHandshakeCallback(mHandshakeCallback);
-    }
-
     /**
      * Updates the artwork in the UI. Can only be called after the server handshake has
      * completed, as the IP port is required to construct the artwork URL.
@@ -229,22 +223,11 @@ public class SongListActivity extends BaseListActivity<Song>
     /**
      * Ensures that the artwork in the UI is updated after the server handshake completes.
      */
-    private final IServiceHandshakeCallback mHandshakeCallback = new IServiceHandshakeCallback() {
-        @Override
-        public void onHandshakeCompleted() {
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    updateArtwork();
-                }
-            });
-        }
-
-        @Override
-        public Object getClient() {
-            return SongListActivity.this;
-        }
-    };
+    @Override
+    public void onEventMainThread(HandshakeComplete event) {
+        super.onEventMainThread(event);
+        updateArtwork();
+    }
 
     public static void show(Context context, Item... items) {
         final Intent intent = new Intent(context, SongListActivity.class);

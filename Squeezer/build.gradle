@@ -31,6 +31,9 @@ dependencies {
     // findbugs is required for Proguard to work with Guava.
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 
+    // EventBus, https://github.com/greenrobot/EventBus.
+    compile 'de.greenrobot:eventbus:2.4.0'
+
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
     compile 'com.crashlytics.android:crashlytics:1.+'
@@ -58,6 +61,7 @@ android {
             // proguard-android-optimize.txt are automatically included.
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFile "proguard-crashlytics.cfg"
+            proguardFile "proguard-eventbus.cfg"
             proguardFile "proguard-guava.cfg"
             proguardFile "proguard-squeezer.cfg"
         }
@@ -86,14 +90,14 @@ android {
 
     productFlavors {
         beta {
-            versionCode 31
-            versionName "1.2.0-beta-2"
+            versionCode 40
+            versionName "1.2.6-beta-3"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 37
-            versionName "1.2.5"
+            versionCode 41
+            versionName "1.2.6"
             signingConfig android.signingConfigs.release
         }
     }
