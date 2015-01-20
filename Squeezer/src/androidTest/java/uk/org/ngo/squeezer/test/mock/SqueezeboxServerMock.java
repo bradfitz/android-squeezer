@@ -98,7 +98,7 @@ public class SqueezeboxServerMock extends Thread {
     private SqueezeboxServerMock(Starter starter) {
         username = starter.username;
         password = starter.password;
-        canRamdomplay = starter.canRandomplay;
+        canRandomplay = starter.canRandomplay;
         canMusicFolder = starter.canMusicFolder;
         albumsSortOrder = starter.albumsSortOrder;
     }
@@ -109,7 +109,7 @@ public class SqueezeboxServerMock extends Thread {
 
     private boolean canMusicFolder;
 
-    private boolean canRamdomplay;
+    private boolean canRandomplay;
 
     private AlbumsSortOrder albumsSortOrder;
 
@@ -181,7 +181,7 @@ public class SqueezeboxServerMock extends Thread {
                 } else if ("can musicfolder ?".equals(line)) {
                     out.println("can musicfolder " + (canMusicFolder ? 1 : 0));
                 } else if ("can randomplay ?".equals(line)) {
-                    out.println("can randomplay " + (canRamdomplay ? 1 : 0));
+                    out.println("can randomplay " + (canRandomplay ? 1 : 0));
                 } else if ("pref httpport ?".equals(line)) {
                     out.println("pref httpport 9092");
                 } else if ("pref jivealbumsort ?".equals(line)) {
