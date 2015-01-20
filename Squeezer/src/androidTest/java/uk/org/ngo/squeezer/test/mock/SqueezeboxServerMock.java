@@ -157,7 +157,7 @@ public class SqueezeboxServerMock extends Thread {
             String[] tokens = line.split(" ");
 
             if ("login".equals(tokens[0])) {
-                out.println(tokens[0] + " " + tokens[1] + " ******");
+                out.println(tokens[0] + ' ' + tokens[1] + " ******");
                 if (username != null && password != null) {
                     if (tokens.length < 2 || !username.equals(tokens[1])) {
                         break;
