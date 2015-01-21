@@ -76,7 +76,7 @@
 
         <ListPreference
             android:key="squeezer.theme"
-            android:title="Theme"/>
+            android:title="@string/settings_theme_title"/>
     </PreferenceCategory>
 
     <PreferenceCategory

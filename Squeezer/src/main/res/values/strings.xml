@@ -40,6 +40,7 @@
     <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because WiFi is not
         connected.
     </string>
+    <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_light_dark">Light, dark action bar</string>
     <string name="settings_username_hint">User name (optional)</string>
@@ -133,6 +134,9 @@
     <string name="player_group_header">Group: %s</string>
     <string name="menu_item_player_sync">Synchronize…</string>
     <string name="menu_item_player_unsync">No synchronization</string>
+
+    <string name="player_list_changed">Connected players changed while context menu was open,
+        ignoring request</string>
 
     <string name="albums_by_artist_header">Albums with songs by %s</string>
     <string name="albums_by_genre_header">Albums with songs in genre \"%s\"</string>
