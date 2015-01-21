@@ -182,10 +182,12 @@ class ConnectionState {
     }
 
     @Nullable public PlayerState getPlayerState(String playerId) {
-        if (!mPlayers.containsKey(playerId))
+        Player player = mPlayers.get(playerId);
+
+        if (player == null)
             return null;
 
-        return mPlayers.get(playerId).getPlayerState();
+        return player.getPlayerState();
     }
 
     List<Player> getPlayers() {
