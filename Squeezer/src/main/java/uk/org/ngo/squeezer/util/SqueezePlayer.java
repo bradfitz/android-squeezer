@@ -37,9 +37,9 @@ public class SqueezePlayer extends Handler {
 
         Preferences preferences = new Preferences(context);
         serverUrl = preferences.getServerAddress();
-        serverName = preferences.getServerName();
-        userName = preferences.getUserName();
-        password = preferences.getPassword();
+        serverName = preferences.getServerName(serverUrl);
+        userName = preferences.getUserName(serverUrl);
+        password = preferences.getPassword(serverUrl);
 
         Log.d(TAG, "startControllingSqueezePlayer");
         startControllingSqueezePlayer();

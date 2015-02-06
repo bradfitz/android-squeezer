@@ -40,7 +40,8 @@ public class DisconnectedActivity extends BaseActivity {
         setContentView(R.layout.disconnected);
 
         Button btnConnect = (Button) findViewById(R.id.btn_connect);
-        String serverName = new Preferences(this).getServerName();
+        Preferences preferences = new Preferences(this);
+        String serverName = preferences.getServerName(preferences.getServerAddress());
         btnConnect.setText(getString(R.string.connect_to_text, serverName));
     }
 

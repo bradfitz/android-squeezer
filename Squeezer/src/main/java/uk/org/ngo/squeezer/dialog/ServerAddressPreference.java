@@ -92,20 +92,19 @@ public class ServerAddressPreference extends DialogPreference {
         super.onBindDialogView(view);
 
         Preferences preferences = new Preferences(getContext());
+        String serveraddr = getPersistedString("");
 
         mServerAddressEditText = (EditText) view.findViewById(R.id.server_address);
         Button scanBtn = (Button) view.findViewById(R.id.scan_btn);
         mServersSpinner = (Spinner) view.findViewById(R.id.found_servers);
 
         userNameEditText = (EditText) view.findViewById(R.id.username);
-        userNameEditText.setText(preferences.getUserName());
+        userNameEditText.setText(preferences.getUserName(serveraddr));
         passwordEditText = (EditText) view.findViewById(R.id.password);
-        passwordEditText.setText(preferences.getPassword());
+        passwordEditText.setText(preferences.getPassword(serveraddr));
 
         // If there's no server address configured then set the default text
         // in the edit box to our IP address, trimmed of the last octet.
-        String serveraddr = getPersistedString("");
-
         if (serveraddr.length() == 0) {
             WifiManager mWifiManager =
                     (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
@@ -238,9 +237,10 @@ public class ServerAddressPreference extends DialogPreference {
             Preferences preferences = new Preferences(getContext());
             String serverName = getServerName(ipPort.toString());
             if (serverName != null) {
-                preferences.saveServerName(serverName);
+                preferences.saveServerName(ipPort.toString(), serverName);
             }
-            preferences.saveUserCredentials(userNameEditText.getText().toString(),
+            preferences.saveUserCredentials(ipPort.toString(),
+                    userNameEditText.getText().toString(),
                     passwordEditText.getText().toString());
 
             callChangeListener(ipPort.toString());

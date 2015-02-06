@@ -20,6 +20,7 @@ public class AuthenticationDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final FragmentActivity activity = getActivity();
         final Preferences preferences = new Preferences(activity);
+        final String serverAddress = preferences.getServerAddress();
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
@@ -27,14 +28,14 @@ public class AuthenticationDialog extends DialogFragment {
         builder.setView(form);
 
         final EditText userNameEditText = (EditText) form.findViewById(R.id.username);
-        userNameEditText.setText(preferences.getUserName());
+        userNameEditText.setText(preferences.getUserName(serverAddress));
 
         final EditText passwordEditText = (EditText) form.findViewById(R.id.password);
-        passwordEditText.setText(preferences.getPassword());
+        passwordEditText.setText(preferences.getPassword(serverAddress));
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                preferences.saveUserCredentials(userNameEditText.getText().toString(), passwordEditText.getText().toString());
+                preferences.saveUserCredentials(serverAddress, userNameEditText.getText().toString(), passwordEditText.getText().toString());
 
                 ((NowPlayingFragment) activity.getSupportFragmentManager()
                         .findFragmentById(R.id.now_playing_fragment)).startVisibleConnection();

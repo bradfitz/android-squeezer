@@ -1092,11 +1092,11 @@ public class NowPlayingFragment extends Fragment implements
                 try {
                     connectingDialog = ProgressDialog.show(mActivity,
                             getText(R.string.connecting_text),
-                            getString(R.string.connecting_to_text, preferences.getServerName()),
+                            getString(R.string.connecting_to_text, preferences.getServerName(ipPort)),
                             true, false);
                     Log.v(TAG, "startConnect, ipPort: " + ipPort);
-                    mService.startConnect(ipPort, preferences.getUserName("test"),
-                            preferences.getPassword("test1"));
+                    mService.startConnect(ipPort, preferences.getUserName(ipPort, "test"),
+                            preferences.getPassword(ipPort, "test1"));
                 } catch (IllegalStateException e) {
                     Log.i(TAG, "ProgressDialog.show() was not allowed, connecting aborted: " + e);
                     connectingDialog = null;

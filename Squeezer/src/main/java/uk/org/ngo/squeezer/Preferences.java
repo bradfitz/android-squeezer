@@ -18,6 +18,8 @@ package uk.org.ngo.squeezer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 
 public final class Preferences {
 
@@ -96,40 +98,48 @@ public final class Preferences {
     }
 
     public String getServerAddress() {
-        return getStringPreference(Preferences.KEY_SERVERADDR, null);
+        WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
+        String bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
+        String serverAddress = null;
+        if (bssId != null)
+            serverAddress = getStringPreference(Preferences.KEY_SERVERADDR + "_" + bssId, null);
+        if (serverAddress == null)
+            serverAddress = getStringPreference(Preferences.KEY_SERVERADDR, null);
+        return serverAddress;
     }
 
-    public String getServerName() {
-        String serverName = getStringPreference(KEY_SERVER_NAME, null);
-        return serverName != null ? serverName : getServerAddress();
+    public String getServerName(String serverAddress) {
+        String serverName = getStringPreference(serverAddress + "_" + KEY_SERVER_NAME, null);
+        return serverName != null ? serverName : serverAddress;
     }
 
-    public void saveServerName(String serverName) {
+    public void saveServerName(String serverAddress, String serverName) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_SERVER_NAME, serverName);
+        editor.putString(serverAddress + "_" + KEY_SERVER_NAME, serverName);
         editor.commit();
     }
 
-    public String getUserName() {
-        return getUserName(null);
+    public String getUserName(String serverAddress) {
+        return getUserName(serverAddress, null);
     }
 
-    public String getUserName(String defaultValue) {
-        return getStringPreference(Preferences.KEY_USERNAME, defaultValue);
+    public String getUserName(String serverAddress, String defaultValue) {
+        return getStringPreference(serverAddress + "_" + Preferences.KEY_USERNAME, defaultValue);
     }
 
-    public String getPassword() {
-        return getPassword(null);
+    public String getPassword(String serverAddress) {
+        return getPassword(serverAddress, null);
     }
 
-    public String getPassword(String defaultValue) {
-        return getStringPreference(Preferences.KEY_PASSWORD, defaultValue);
+    public String getPassword(String serverAddress, String defaultValue) {
+        return getStringPreference(serverAddress + "_" + Preferences.KEY_PASSWORD, defaultValue);
     }
 
-    public void saveUserCredentials(String userName, String password) {
+    public void saveUserCredentials(String serverAddress, String userName, String password) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_USERNAME, userName);
-        editor.putString(KEY_PASSWORD, password);
+        editor.putString(serverAddress + "_" + KEY_USERNAME, userName);
+        editor.putString(serverAddress + "_" + KEY_PASSWORD, password);
         editor.commit();
     }
 
