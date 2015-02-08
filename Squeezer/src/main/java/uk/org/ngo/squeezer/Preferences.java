@@ -26,7 +26,7 @@ public final class Preferences {
     public static final String NAME = "Squeezer";
 
     // e.g. "10.0.0.81:9090"
-    public static final String KEY_SERVERADDR = "squeezer.serveraddr";
+    public static final String KEY_SERVER_ADDRESS = "squeezer.serveraddr";
 
     // Optional Squeezebox Server name
     private static final String KEY_SERVER_NAME = "squeezer.server_name";
@@ -38,7 +38,7 @@ public final class Preferences {
     private static final String KEY_PASSWORD = "squeezer.password";
 
     // The playerId that we were last connected to. e.g. "00:04:20:17:04:7f"
-    public static final String KEY_LASTPLAYER = "squeezer.lastplayer";
+    public static final String KEY_LAST_PLAYER = "squeezer.lastplayer";
 
     // Do we automatically try and connect on WiFi availability?
     public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
@@ -103,10 +103,20 @@ public final class Preferences {
         String bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
         String serverAddress = null;
         if (bssId != null)
-            serverAddress = getStringPreference(Preferences.KEY_SERVERADDR + "_" + bssId, null);
+            serverAddress = getStringPreference(KEY_SERVER_ADDRESS + "_" + bssId, null);
         if (serverAddress == null)
-            serverAddress = getStringPreference(Preferences.KEY_SERVERADDR, null);
+            serverAddress = getStringPreference(KEY_SERVER_ADDRESS, null);
         return serverAddress;
+    }
+
+    public void saveServerAddress(String serverAddress) {
+        WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
+        String bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(bssId != null ? KEY_SERVER_ADDRESS + "_" + bssId : KEY_SERVER_ADDRESS, serverAddress);
+        editor.commit();
     }
 
     public String getServerName(String serverAddress) {
@@ -125,7 +135,7 @@ public final class Preferences {
     }
 
     public String getUserName(String serverAddress, String defaultValue) {
-        return getStringPreference(serverAddress + "_" + Preferences.KEY_USERNAME, defaultValue);
+        return getStringPreference(serverAddress + "_" + KEY_USERNAME, defaultValue);
     }
 
     public String getPassword(String serverAddress) {
@@ -133,7 +143,7 @@ public final class Preferences {
     }
 
     public String getPassword(String serverAddress, String defaultValue) {
-        return getStringPreference(serverAddress + "_" + Preferences.KEY_PASSWORD, defaultValue);
+        return getStringPreference(serverAddress + "_" + KEY_PASSWORD, defaultValue);
     }
 
     public void saveUserCredentials(String serverAddress, String userName, String password) {
@@ -144,15 +154,15 @@ public final class Preferences {
     }
 
     public String getTheme() {
-        return getStringPreference(Preferences.KEY_ON_THEME_SELECT_ACTION, null);
+        return getStringPreference(KEY_ON_THEME_SELECT_ACTION, null);
     }
 
     public boolean isAutoConnect() {
-        return sharedPreferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true);
+        return sharedPreferences.getBoolean(KEY_AUTO_CONNECT, true);
     }
 
     public boolean controlSqueezePlayer() {
-        return sharedPreferences.getBoolean(Preferences.KEY_SQUEEZEPLAYER_ENABLED, true);
+        return sharedPreferences.getBoolean(KEY_SQUEEZEPLAYER_ENABLED, true);
     }
 
 }

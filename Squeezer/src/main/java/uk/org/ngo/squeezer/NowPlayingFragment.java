@@ -66,6 +66,7 @@ import java.util.List;
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.AuthenticationDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
+import uk.org.ngo.squeezer.dialog.ServerAddressDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.HasUiThread;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
@@ -257,11 +258,6 @@ public class NowPlayingFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        // Set up a server connection, if it is not present
-        if (new Preferences(mActivity).getServerAddress() == null) {
-            SettingsActivity.show(mActivity);
-        }
 
         mActivity.bindService(new Intent(mActivity, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
@@ -1038,12 +1034,6 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private void onUserInitiatesConnect() {
-        // Set up a server connection, if it is not present
-        if (new Preferences(mActivity).getServerAddress() == null) {
-            SettingsActivity.show(mActivity);
-            return;
-        }
-
         if (mService == null) {
             Log.e(TAG, "serviceStub is null.");
             return;
@@ -1061,10 +1051,6 @@ public class NowPlayingFragment extends Fragment implements
             @Override
             public void run() {
                 Preferences preferences = new Preferences(mActivity);
-                String ipPort = preferences.getServerAddress();
-                if (ipPort == null) {
-                    return;
-                }
 
                 // If we are configured to automatically connect on Wi-Fi availability
                 // we will also give the user the opportunity to enable Wi-Fi
@@ -1083,6 +1069,14 @@ public class NowPlayingFragment extends Fragment implements
                         // When a Wi-Fi connection is made this method will be called again by the
                         // broadcastReceiver
                     }
+                }
+
+                String ipPort = preferences.getServerAddress();
+                if (ipPort == null) {
+                    // Set up a server connection, if it is not present
+                    new ServerAddressDialog()
+                            .show(mActivity.getSupportFragmentManager(), "ServerAddressDialog");
+                    return;
                 }
 
                 if (isConnectInProgress()) {

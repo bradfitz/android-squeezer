@@ -32,11 +32,6 @@
     </string>
     <string name="settings_serveraddr_hint">Naam of IP adres van server</string>
     <string name="settings_server_prompt">Kies een server</string>
-    <string name="settings_server_scan_start">Start scan</string>
-    <string name="settings_server_scan_stop">Stop scan</string>
-    <string name="settings_server_scan_msg">Of druk \'Start scan\' om het netwerk voor servers te
-        scannen.
-    </string>
     <string name="settings_server_scanning_disabled_msg">Scannen is uitgeschakeld, omdat WiFi
         niet is verbonden.
     </string>
