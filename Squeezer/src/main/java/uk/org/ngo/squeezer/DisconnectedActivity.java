@@ -38,7 +38,15 @@ public class DisconnectedActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.disconnected);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        showServerName();
+    }
+
+    private void showServerName() {
         Button btnConnect = (Button) findViewById(R.id.btn_connect);
         Preferences preferences = new Preferences(this);
         String serverName = preferences.getServerName(preferences.getServerAddress());
