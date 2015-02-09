@@ -1047,56 +1047,45 @@ public class NowPlayingFragment extends Fragment implements
             return;
         }
 
-        uiThreadHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                Preferences preferences = new Preferences(mActivity);
+        Preferences preferences = new Preferences(mActivity);
 
-                // If we are configured to automatically connect on Wi-Fi availability
-                // we will also give the user the opportunity to enable Wi-Fi
-                if (preferences.isAutoConnect()) {
-                    WifiManager wifiManager = (WifiManager) mActivity
-                            .getSystemService(Context.WIFI_SERVICE);
-                    if (!wifiManager.isWifiEnabled()) {
-                        FragmentManager fragmentManager = getFragmentManager();
-                        if (fragmentManager != null) {
-                            EnableWifiDialog.show(getFragmentManager());
-                        } else {
-                            Log.i(getTag(),
-                                    "fragment manager is null so we can't show EnableWifiDialog");
-                        }
-                        return;
-                        // When a Wi-Fi connection is made this method will be called again by the
-                        // broadcastReceiver
-                    }
+        // If we are configured to automatically connect on Wi-Fi availability
+        // we will also give the user the opportunity to enable Wi-Fi
+        if (preferences.isAutoConnect()) {
+            WifiManager wifiManager = (WifiManager) mActivity
+                    .getSystemService(Context.WIFI_SERVICE);
+            if (!wifiManager.isWifiEnabled()) {
+                FragmentManager fragmentManager = getFragmentManager();
+                if (fragmentManager != null) {
+                    EnableWifiDialog.show(getFragmentManager());
+                } else {
+                    Log.i(getTag(), "fragment manager is null so we can't show EnableWifiDialog");
                 }
-
-                String ipPort = preferences.getServerAddress();
-                if (ipPort == null) {
-                    // Set up a server connection, if it is not present
-                    new ServerAddressDialog()
-                            .show(mActivity.getSupportFragmentManager(), "ServerAddressDialog");
-                    return;
-                }
-
-                if (isConnectInProgress()) {
-                    Log.v(TAG, "Connection is already in progress, connecting aborted");
-                    return;
-                }
-                try {
-                    connectingDialog = ProgressDialog.show(mActivity,
-                            getText(R.string.connecting_text),
-                            getString(R.string.connecting_to_text, preferences.getServerName(ipPort)),
-                            true, false);
-                    Log.v(TAG, "startConnect, ipPort: " + ipPort);
-                    mService.startConnect(ipPort, preferences.getUserName(ipPort, "test"),
-                            preferences.getPassword(ipPort, "test1"));
-                } catch (IllegalStateException e) {
-                    Log.i(TAG, "ProgressDialog.show() was not allowed, connecting aborted: " + e);
-                    connectingDialog = null;
-                }
+                return;
+                // When a Wi-Fi connection is made this method will be called again by the
+                // broadcastReceiver
             }
-        });
+        }
+
+        String ipPort = preferences.getServerAddress();
+        if (ipPort == null) {
+            // Set up a server connection, if it is not present
+            new ServerAddressDialog()
+                    .show(mActivity.getSupportFragmentManager(), "ServerAddressDialog");
+            return;
+        }
+
+        if (isConnectInProgress()) {
+            Log.v(TAG, "Connection is already in progress, connecting aborted");
+            return;
+        }
+        connectingDialog = ProgressDialog.show(mActivity,
+                getText(R.string.connecting_text),
+                getString(R.string.connecting_to_text, preferences.getServerName(ipPort)),
+                true, false);
+        Log.v(TAG, "startConnect, ipPort: " + ipPort);
+        mService.startConnect(ipPort, preferences.getUserName(ipPort, "test"),
+                preferences.getPassword(ipPort, "test1"));
     }
 
     public void onEventMainThread(ConnectionChanged event) {
