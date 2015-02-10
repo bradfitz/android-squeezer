@@ -20,7 +20,7 @@ public class AuthenticationDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final FragmentActivity activity = getActivity();
         final Preferences preferences = new Preferences(activity);
-        final String serverAddress = preferences.getServerAddress();
+        final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()

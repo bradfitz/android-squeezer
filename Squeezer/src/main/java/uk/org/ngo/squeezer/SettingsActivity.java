@@ -224,8 +224,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private void updateAddressSummary() {
         Preferences preferences = new Preferences(this);
-        String serverAddress = preferences.getServerAddress();
-        String serverName = preferences.getServerName(serverAddress);
+        String serverName = preferences.getServerName();
         if (serverName != null && serverName.length() > 0) {
             addressPref.setSummary(serverName);
         } else {

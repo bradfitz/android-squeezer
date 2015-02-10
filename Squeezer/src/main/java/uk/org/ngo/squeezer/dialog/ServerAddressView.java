@@ -53,6 +53,7 @@ import uk.org.ngo.squeezer.util.Logger;
  */
 public class ServerAddressView extends ScrollView {
     private final Preferences mPreferences;
+    private final String mBssId;
 
     private final EditText mServerAddressEditText;
     private final Spinner mServersSpinner;
@@ -72,14 +73,15 @@ public class ServerAddressView extends ScrollView {
         super(context);
 
         mPreferences = new Preferences(context);
-        String serverAddress = mPreferences.getServerAddress();
+        Preferences.ServerAddress serverAddress = mPreferences.getServerAddress();
+        mBssId = serverAddress.bssId;
 
         inflate(context, R.layout.server_address_dialog, this);
 
         mServerAddressEditText = (EditText) findViewById(R.id.server_address);
         userNameEditText = (EditText) findViewById(R.id.username);
         passwordEditText = (EditText) findViewById(R.id.password);
-        setServerAddress(serverAddress);
+        setServerAddress(serverAddress.address);
 
         // Set up the servers spinner.
         mServersAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item);
@@ -111,17 +113,16 @@ public class ServerAddressView extends ScrollView {
     }
 
     public void savePreferences() {
-        Context context = getContext();
-        String serverAddress = mServerAddressEditText.getText().toString();
+        String address = mServerAddressEditText.getText().toString();
 
         // Append the default port if necessary.
-        if (!serverAddress.contains(":")) {
-            serverAddress += ":" + getResources().getInteger(R.integer.DefaultPort);
+        if (!address.contains(":")) {
+            address += ":" + getResources().getInteger(R.integer.DefaultPort);
         }
 
-        mPreferences.saveServerAddress(serverAddress);
+        Preferences.ServerAddress serverAddress = mPreferences.saveServerAddress(address);
 
-        final String serverName = getServerName(serverAddress);
+        final String serverName = getServerName(address);
         if (serverName != null) {
             mPreferences.saveServerName(serverAddress, serverName);
         }
@@ -184,8 +185,12 @@ public class ServerAddressView extends ScrollView {
         }
     }
 
-    private void setServerAddress(String serverAddress) {
-        mServerAddressEditText.setText(serverAddress);
+    private void setServerAddress(String address) {
+        Preferences.ServerAddress serverAddress = new Preferences.ServerAddress();
+        serverAddress.bssId = mBssId;
+        serverAddress.address = address;
+
+        mServerAddressEditText.setText(serverAddress.address);
         userNameEditText.setText(mPreferences.getUserName(serverAddress));
         passwordEditText.setText(mPreferences.getPassword(serverAddress));
     }
@@ -202,11 +207,8 @@ public class ServerAddressView extends ScrollView {
      * Inserts the selected address in to the edit text widget.
      */
     private class MyOnItemSelectedListener implements OnItemSelectedListener {
-
-        public void onItemSelected(AdapterView<?> parent,
-                View view, int pos, long id) {
-            String serverAddress = mDiscoveredServers.get(parent.getItemAtPosition(pos)
-                    .toString());
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            String serverAddress = mDiscoveredServers.get(parent.getItemAtPosition(pos).toString());
             setServerAddress(serverAddress);
         }
 

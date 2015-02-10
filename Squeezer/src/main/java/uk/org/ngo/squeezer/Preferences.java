@@ -97,59 +97,81 @@ public final class Preferences {
         return pref;
     }
 
-    public String getServerAddress() {
+    public ServerAddress getServerAddress() {
+        ServerAddress serverAddress = new ServerAddress();
+
         WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
-        String bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
-        String serverAddress = null;
-        if (bssId != null)
-            serverAddress = getStringPreference(KEY_SERVER_ADDRESS + "_" + bssId, null);
-        if (serverAddress == null)
-            serverAddress = getStringPreference(KEY_SERVER_ADDRESS, null);
+        serverAddress.bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
+        if (serverAddress.bssId != null)
+            serverAddress.address = getStringPreference(KEY_SERVER_ADDRESS + "_" + serverAddress.bssId, null);
+        if (serverAddress.address == null)
+            serverAddress.address = getStringPreference(KEY_SERVER_ADDRESS, null);
+
         return serverAddress;
     }
 
-    public void saveServerAddress(String serverAddress) {
+    public static class ServerAddress {
+        public String bssId;
+        public String address; // <host name or ip>:<port>
+
+        @Override
+        public String toString() {
+            return (bssId != null ? bssId + "_ " : "") + address + "_";
+        }
+    }
+
+    public ServerAddress saveServerAddress(String address) {
         WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
         String bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(bssId != null ? KEY_SERVER_ADDRESS + "_" + bssId : KEY_SERVER_ADDRESS, serverAddress);
+        editor.putString(bssId != null ? KEY_SERVER_ADDRESS + "_" + bssId : KEY_SERVER_ADDRESS, address);
         editor.commit();
+
+        ServerAddress serverAddress = new ServerAddress();
+        serverAddress.bssId = bssId;
+        serverAddress.address = address;
+
+        return serverAddress;
     }
 
-    public String getServerName(String serverAddress) {
-        String serverName = getStringPreference(serverAddress + "_" + KEY_SERVER_NAME, null);
-        return serverName != null ? serverName : serverAddress;
+    public String getServerName() {
+        return getServerName(getServerAddress());
     }
 
-    public void saveServerName(String serverAddress, String serverName) {
+    public String getServerName(ServerAddress serverAddress) {
+        String serverName = getStringPreference(serverAddress + KEY_SERVER_NAME, null);
+        return serverName != null ? serverName : serverAddress.address;
+    }
+
+    public void saveServerName(ServerAddress serverAddress, String serverName) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(serverAddress + "_" + KEY_SERVER_NAME, serverName);
+        editor.putString(serverAddress + KEY_SERVER_NAME, serverName);
         editor.commit();
     }
 
-    public String getUserName(String serverAddress) {
+    public String getUserName(ServerAddress serverAddress) {
         return getUserName(serverAddress, null);
     }
 
-    public String getUserName(String serverAddress, String defaultValue) {
-        return getStringPreference(serverAddress + "_" + KEY_USERNAME, defaultValue);
+    public String getUserName(ServerAddress serverAddress, String defaultValue) {
+        return getStringPreference(serverAddress + KEY_USERNAME, defaultValue);
     }
 
-    public String getPassword(String serverAddress) {
+    public String getPassword(ServerAddress serverAddress) {
         return getPassword(serverAddress, null);
     }
 
-    public String getPassword(String serverAddress, String defaultValue) {
-        return getStringPreference(serverAddress + "_" + KEY_PASSWORD, defaultValue);
+    public String getPassword(ServerAddress serverAddress, String defaultValue) {
+        return getStringPreference(serverAddress + KEY_PASSWORD, defaultValue);
     }
 
-    public void saveUserCredentials(String serverAddress, String userName, String password) {
+    public void saveUserCredentials(ServerAddress serverAddress, String userName, String password) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(serverAddress + "_" + KEY_USERNAME, userName);
-        editor.putString(serverAddress + "_" + KEY_PASSWORD, password);
+        editor.putString(serverAddress + KEY_USERNAME, userName);
+        editor.putString(serverAddress + KEY_PASSWORD, password);
         editor.commit();
     }
 

@@ -49,7 +49,7 @@ public class DisconnectedActivity extends BaseActivity {
     private void showServerName() {
         Button btnConnect = (Button) findViewById(R.id.btn_connect);
         Preferences preferences = new Preferences(this);
-        String serverName = preferences.getServerName(preferences.getServerAddress());
+        String serverName = preferences.getServerName();
         btnConnect.setText(getString(R.string.connect_to_text, serverName));
     }
 

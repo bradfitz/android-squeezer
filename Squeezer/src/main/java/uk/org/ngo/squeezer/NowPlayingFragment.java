@@ -1067,7 +1067,8 @@ public class NowPlayingFragment extends Fragment implements
             }
         }
 
-        String ipPort = preferences.getServerAddress();
+        Preferences.ServerAddress serverAddress = preferences.getServerAddress();
+        String ipPort = serverAddress.address;
         if (ipPort == null) {
             // Set up a server connection, if it is not present
             new ServerAddressDialog()
@@ -1081,11 +1082,11 @@ public class NowPlayingFragment extends Fragment implements
         }
         connectingDialog = ProgressDialog.show(mActivity,
                 getText(R.string.connecting_text),
-                getString(R.string.connecting_to_text, preferences.getServerName(ipPort)),
+                getString(R.string.connecting_to_text, preferences.getServerName(serverAddress)),
                 true, false);
         Log.v(TAG, "startConnect, ipPort: " + ipPort);
-        mService.startConnect(ipPort, preferences.getUserName(ipPort, "test"),
-                preferences.getPassword(ipPort, "test1"));
+        mService.startConnect(ipPort, preferences.getUserName(serverAddress, "test"),
+                preferences.getPassword(serverAddress, "test1"));
     }
 
     public void onEventMainThread(ConnectionChanged event) {
