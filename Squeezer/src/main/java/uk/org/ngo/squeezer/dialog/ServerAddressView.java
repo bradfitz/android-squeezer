@@ -52,6 +52,8 @@ import uk.org.ngo.squeezer.util.Logger;
  * A new network scan can be initiated manually if desired.
  */
 public class ServerAddressView extends ScrollView {
+    private final Preferences mPreferences;
+
     private final EditText mServerAddressEditText;
     private final Spinner mServersSpinner;
     private final EditText userNameEditText;
@@ -69,13 +71,15 @@ public class ServerAddressView extends ScrollView {
     public ServerAddressView(final Context context) {
         super(context);
 
-        final Preferences preferences = new Preferences(context);
-        String serverAddress = preferences.getServerAddress();
+        mPreferences = new Preferences(context);
+        String serverAddress = mPreferences.getServerAddress();
 
         inflate(context, R.layout.server_address_dialog, this);
 
         mServerAddressEditText = (EditText) findViewById(R.id.server_address);
-        mServerAddressEditText.setText(serverAddress);
+        userNameEditText = (EditText) findViewById(R.id.username);
+        passwordEditText = (EditText) findViewById(R.id.password);
+        setServerAddress(serverAddress);
 
         // Set up the servers spinner.
         mServersAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item);
@@ -104,17 +108,10 @@ public class ServerAddressView extends ScrollView {
             scan_msg.setText(context.getText(R.string.settings_server_scanning_disabled_msg));
             scanButton.setEnabled(false);
         }
-
-        userNameEditText = (EditText) findViewById(R.id.username);
-        userNameEditText.setText(preferences.getUserName(serverAddress));
-
-        passwordEditText = (EditText) findViewById(R.id.password);
-        passwordEditText.setText(preferences.getPassword(serverAddress));
     }
 
     public void savePreferences() {
         Context context = getContext();
-        final Preferences preferences = new Preferences(context);
         String serverAddress = mServerAddressEditText.getText().toString();
 
         // Append the default port if necessary.
@@ -122,16 +119,16 @@ public class ServerAddressView extends ScrollView {
             serverAddress += ":" + getResources().getInteger(R.integer.DefaultPort);
         }
 
-        preferences.saveServerAddress(serverAddress);
+        mPreferences.saveServerAddress(serverAddress);
 
         final String serverName = getServerName(serverAddress);
         if (serverName != null) {
-            preferences.saveServerName(serverAddress, serverName);
+            mPreferences.saveServerName(serverAddress, serverName);
         }
 
         final String userName = userNameEditText.getText().toString();
         final String password = passwordEditText.getText().toString();
-        preferences.saveUserCredentials(serverAddress, userName, password);
+        mPreferences.saveUserCredentials(serverAddress, userName, password);
     }
 
     public void onDismiss() {
@@ -173,8 +170,7 @@ public class ServerAddressView extends ScrollView {
 
             case 1:
                 // Populate the edit text widget with the address found.
-                mServerAddressEditText
-                        .setText(mDiscoveredServers.get(mDiscoveredServers.firstKey()));
+                setServerAddress(mDiscoveredServers.get(mDiscoveredServers.firstKey()));
                 break;
 
             default:
@@ -186,6 +182,12 @@ public class ServerAddressView extends ScrollView {
                 mServersSpinner.setVisibility(View.VISIBLE);
                 mServersSpinner.setAdapter(mServersAdapter);
         }
+    }
+
+    private void setServerAddress(String serverAddress) {
+        mServerAddressEditText.setText(serverAddress);
+        userNameEditText.setText(mPreferences.getUserName(serverAddress));
+        passwordEditText.setText(mPreferences.getPassword(serverAddress));
     }
 
     private String getServerName(String ipPort) {
@@ -203,8 +205,9 @@ public class ServerAddressView extends ScrollView {
 
         public void onItemSelected(AdapterView<?> parent,
                 View view, int pos, long id) {
-            mServerAddressEditText.setText(mDiscoveredServers.get(parent.getItemAtPosition(pos)
-                    .toString()));
+            String serverAddress = mDiscoveredServers.get(parent.getItemAtPosition(pos)
+                    .toString());
+            setServerAddress(serverAddress);
         }
 
         public void onNothingSelected(AdapterView<?> parent) {
