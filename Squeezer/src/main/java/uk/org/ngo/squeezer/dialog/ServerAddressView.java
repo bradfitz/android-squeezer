@@ -182,6 +182,8 @@ public class ServerAddressView extends ScrollView {
                 for (Entry<String, String> e : mDiscoveredServers.entrySet()) {
                     mServersAdapter.add(e.getKey());
                 }
+                int position = getServerPosition(mServerAddressEditText.getText().toString());
+                if (position >= 0) mServersSpinner.setSelection(position);
                 mServersSpinner.setVisibility(View.VISIBLE);
                 mServersAdapter.notifyDataSetChanged();
         }
@@ -203,6 +205,18 @@ public class ServerAddressView extends ScrollView {
                 if (ipPort.equals(entry.getValue()))
                     return entry.getKey();
         return null;
+    }
+
+    private int getServerPosition(String ipPort) {
+        if (mDiscoveredServers != null) {
+            int position = 0;
+            for (Entry<String, String> entry : mDiscoveredServers.entrySet()) {
+                if (ipPort.equals(entry.getValue()))
+                    return position;
+                position++;
+            }
+        }
+        return -1;
     }
 
     /**
