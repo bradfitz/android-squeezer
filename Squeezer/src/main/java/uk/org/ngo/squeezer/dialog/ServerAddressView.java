@@ -57,8 +57,8 @@ public class ServerAddressView extends ScrollView {
 
     private final EditText mServerAddressEditText;
     private final Spinner mServersSpinner;
-    private final EditText userNameEditText;
-    private final EditText passwordEditText;
+    private final EditText mUserNameEditText;
+    private final EditText mPasswordEditText;
     private View mScanResults;
     private View mScanProgress;
 
@@ -79,14 +79,15 @@ public class ServerAddressView extends ScrollView {
         inflate(context, R.layout.server_address_dialog, this);
 
         mServerAddressEditText = (EditText) findViewById(R.id.server_address);
-        userNameEditText = (EditText) findViewById(R.id.username);
-        passwordEditText = (EditText) findViewById(R.id.password);
+        mUserNameEditText = (EditText) findViewById(R.id.username);
+        mPasswordEditText = (EditText) findViewById(R.id.password);
         setServerAddress(serverAddress.address);
 
         // Set up the servers spinner.
         mServersAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item);
         mServersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mServersSpinner = (Spinner) findViewById(R.id.found_servers);
+        mServersSpinner.setAdapter(mServersAdapter);
         mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
 
         mScanResults = findViewById(R.id.scan_results);
@@ -127,8 +128,8 @@ public class ServerAddressView extends ScrollView {
             mPreferences.saveServerName(serverAddress, serverName);
         }
 
-        final String userName = userNameEditText.getText().toString();
-        final String password = passwordEditText.getText().toString();
+        final String userName = mUserNameEditText.getText().toString();
+        final String password = mPasswordEditText.getText().toString();
         mPreferences.saveUserCredentials(serverAddress, userName, password);
     }
 
@@ -155,6 +156,7 @@ public class ServerAddressView extends ScrollView {
      */
     void onScanFinished(TreeMap<String, String> mServerMap) {
         mScanResults.setVisibility(View.VISIBLE);
+        mServersSpinner.setVisibility(View.GONE);
         mScanProgress.setVisibility(View.GONE);
 
         if (mScanNetworkTask == null) {
@@ -181,7 +183,7 @@ public class ServerAddressView extends ScrollView {
                     mServersAdapter.add(e.getKey());
                 }
                 mServersSpinner.setVisibility(View.VISIBLE);
-                mServersSpinner.setAdapter(mServersAdapter);
+                mServersAdapter.notifyDataSetChanged();
         }
     }
 
@@ -191,8 +193,8 @@ public class ServerAddressView extends ScrollView {
         serverAddress.address = address;
 
         mServerAddressEditText.setText(serverAddress.address);
-        userNameEditText.setText(mPreferences.getUserName(serverAddress));
-        passwordEditText.setText(mPreferences.getPassword(serverAddress));
+        mUserNameEditText.setText(mPreferences.getUserName(serverAddress));
+        mPasswordEditText.setText(mPreferences.getPassword(serverAddress));
     }
 
     private String getServerName(String ipPort) {
