@@ -66,7 +66,6 @@ import java.util.List;
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.AuthenticationDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
-import uk.org.ngo.squeezer.dialog.ServerAddressDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.HasUiThread;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
@@ -1071,8 +1070,7 @@ public class NowPlayingFragment extends Fragment implements
         String ipPort = serverAddress.address;
         if (ipPort == null) {
             // Set up a server connection, if it is not present
-            new ServerAddressDialog()
-                    .show(mActivity.getSupportFragmentManager(), "ServerAddressDialog");
+            DisconnectedActivity.show(mActivity);
             return;
         }
 
