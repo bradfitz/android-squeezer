@@ -21,8 +21,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 
+import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
@@ -33,24 +33,13 @@ import uk.org.ngo.squeezer.service.event.ConnectionChanged;
  * connects.
  */
 public class DisconnectedActivity extends BaseActivity {
+    private ServerAddressView serverAddressView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.disconnected);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        showServerName();
-    }
-
-    private void showServerName() {
-        Button btnConnect = (Button) findViewById(R.id.btn_connect);
-        Preferences preferences = new Preferences(this);
-        String serverName = preferences.getServerName();
-        btnConnect.setText(getString(R.string.connect_to_text, serverName));
+        serverAddressView = (ServerAddressView) findViewById(R.id.server_address_view);
     }
 
     /**
@@ -61,8 +50,6 @@ public class DisconnectedActivity extends BaseActivity {
      * <p/>
      * The pending transition is overridden to animate the activity in place, rather than having it
      * appear to move in from off-screen.
-     *
-     * @param activity
      */
     public static void show(Activity activity) {
         final Intent intent = new Intent(activity, DisconnectedActivity.class)
@@ -78,9 +65,9 @@ public class DisconnectedActivity extends BaseActivity {
      * @param view The view the user pressed.
      */
     public void onUserInitiatesConnect(View view) {
+        serverAddressView.savePreferences();
         NowPlayingFragment fragment = (NowPlayingFragment) getSupportFragmentManager()
-                .findFragmentById(
-                        R.id.now_playing_fragment);
+                .findFragmentById(R.id.now_playing_fragment);
         fragment.startVisibleConnection();
     }
 
@@ -89,13 +76,11 @@ public class DisconnectedActivity extends BaseActivity {
             // The user requested a connection to the server, which succeeded.  There's
             // no prior activity to go to, so launch HomeActivity, with flags to
             // clear other activities so hitting "back" won't show this activity again.
-            final Intent intent = new Intent(DisconnectedActivity.this,
-                    HomeActivity.class)
+            final Intent intent = new Intent(this, HomeActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            DisconnectedActivity.this.startActivity(intent);
-            DisconnectedActivity.this.overridePendingTransition(android.R.anim.fade_in,
-                    android.R.anim.fade_out);
+            this.startActivity(intent);
+            this.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
     }
 }

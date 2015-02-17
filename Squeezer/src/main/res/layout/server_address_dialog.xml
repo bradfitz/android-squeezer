@@ -77,38 +77,45 @@
                 />
         </LinearLayout>
 
-        <RelativeLayout
+        <TextView
+            android:id="@+id/scan_disabled_msg"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:text="@string/settings_server_scanning_disabled_msg"
+            android:textAppearance="@style/SqueezerTextItem"/>
+
+        <LinearLayout
             android:id="@+id/scan_results"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:paddingTop="4dp"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/scan_msg"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="4dp"
-                android:paddingTop="4dp"
-                android:text="@string/settings_server_rescan_msg"
-                android:textAppearance="@style/SqueezerTextItem"/>
-
             <Button
                 android:id="@+id/scan_button"
-                android:layout_below="@id/scan_msg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:layout_gravity="center"
+                android:drawableLeft="@drawable/refresh"
                 android:text="@string/settings_server_rescan"/>
+
+            <TextView
+                android:id="@+id/server_name"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingLeft="8dp"
+                android:visibility="gone"
+                android:textAppearance="@style/SqueezerTextItem"/>
 
             <Spinner
                 android:id="@+id/found_servers"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/scan_msg"
-                android:layout_toRightOf="@id/scan_button"
-                android:minHeight="40dp"
+                android:layout_gravity="center"
                 android:prompt="@string/settings_server_prompt"/>
-        </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

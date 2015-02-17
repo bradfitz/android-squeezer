@@ -31,9 +31,8 @@
     </string>
     <string name="settings_serveraddr_hint">Navn eller IP addresse på server</string>
     <string name="settings_server_prompt">Vælg en server</string>
-    <string name="settings_server_rescan">Scan igen</string>
-    <string name="settings_server_rescan_msg">Tryk \'Scan igen\' for at opdatere server listen.</string>
-    <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke
+    <string name="settings_server_rescan">Opdatér</string>
+x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke
         er forbundet.
     </string>
     <string name="settings_theme_title">Tema</string>

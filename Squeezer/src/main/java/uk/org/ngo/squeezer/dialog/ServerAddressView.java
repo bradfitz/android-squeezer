@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.dialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -44,13 +45,14 @@ import uk.org.ngo.squeezer.util.ScanNetworkTask;
  * A new network scan can be initiated manually if desired.
  */
 public class ServerAddressView extends ScrollView implements ScanNetworkTask.ScanNetworkCallback {
-    private final Preferences mPreferences;
-    private final String mBssId;
+    private Preferences mPreferences;
+    private String mBssId;
 
-    private final EditText mServerAddressEditText;
-    private final Spinner mServersSpinner;
-    private final EditText mUserNameEditText;
-    private final EditText mPasswordEditText;
+    private EditText mServerAddressEditText;
+    private TextView mServerName;
+    private Spinner mServersSpinner;
+    private EditText mUserNameEditText;
+    private EditText mPasswordEditText;
     private View mScanResults;
     private View mScanProgress;
 
@@ -63,45 +65,56 @@ public class ServerAddressView extends ScrollView implements ScanNetworkTask.Sca
 
     public ServerAddressView(final Context context) {
         super(context);
+        initialize(context);
+    }
 
-        mPreferences = new Preferences(context);
-        Preferences.ServerAddress serverAddress = mPreferences.getServerAddress();
-        mBssId = serverAddress.bssId;
+    public ServerAddressView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        initialize(context);
+    }
 
+    private void initialize(final Context context) {
         inflate(context, R.layout.server_address_dialog, this);
+        if (!isInEditMode()) {
+            mPreferences = new Preferences(context);
+            Preferences.ServerAddress serverAddress = mPreferences.getServerAddress();
+            mBssId = serverAddress.bssId;
 
-        mServerAddressEditText = (EditText) findViewById(R.id.server_address);
-        mUserNameEditText = (EditText) findViewById(R.id.username);
-        mPasswordEditText = (EditText) findViewById(R.id.password);
-        setServerAddress(serverAddress.address);
 
-        // Set up the servers spinner.
-        mServersAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item);
-        mServersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mServersSpinner = (Spinner) findViewById(R.id.found_servers);
-        mServersSpinner.setAdapter(mServersAdapter);
-        mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
+            mServerAddressEditText = (EditText) findViewById(R.id.server_address);
+            mUserNameEditText = (EditText) findViewById(R.id.username);
+            mPasswordEditText = (EditText) findViewById(R.id.password);
+            setServerAddress(serverAddress.address);
 
-        mScanResults = findViewById(R.id.scan_results);
-        mScanProgress = findViewById(R.id.scan_progress);
-        mScanProgress.setVisibility(View.GONE);
-        Button scanButton = (Button) findViewById(R.id.scan_button);
+            // Set up the servers spinner.
+            mServersAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item);
+            mServersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mServerName = (TextView) findViewById(R.id.server_name);
+            mServersSpinner = (Spinner) findViewById(R.id.found_servers);
+            mServersSpinner.setAdapter(mServersAdapter);
+            mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
 
-        // Only support network scanning on WiFi.
-        ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-        boolean isWifi = ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI;
-        if (isWifi) {
-            startNetworkScan(context);
-            scanButton.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    startNetworkScan(context);
-                }
-            });
-        } else {
-            TextView scan_msg = (TextView) findViewById(R.id.scan_msg);
-            scan_msg.setText(context.getText(R.string.settings_server_scanning_disabled_msg));
-            scanButton.setEnabled(false);
+            mScanResults = findViewById(R.id.scan_results);
+            mScanProgress = findViewById(R.id.scan_progress);
+            mScanProgress.setVisibility(GONE);
+            TextView scanDisabledMessage = (TextView) findViewById(R.id.scan_disabled_msg);
+
+            // Only support network scanning on WiFi.
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+            boolean isWifi = ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI;
+            if (isWifi) {
+                scanDisabledMessage.setVisibility(GONE);
+                startNetworkScan(context);
+                Button scanButton = (Button) findViewById(R.id.scan_button);
+                scanButton.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        startNetworkScan(context);
+                    }
+                });
+            } else {
+                mScanResults.setVisibility(GONE);
+            }
         }
     }
 
@@ -136,26 +149,27 @@ public class ServerAddressView extends ScrollView implements ScanNetworkTask.Sca
      * Starts scanning for servers.
      */
     void startNetworkScan(Context context) {
-        mScanResults.setVisibility(View.GONE);
-        mScanProgress.setVisibility(View.VISIBLE);
+        mScanResults.setVisibility(GONE);
+        mScanProgress.setVisibility(VISIBLE);
         mScanNetworkTask = new ScanNetworkTask(context, this);
         mScanNetworkTask.execute();
     }
 
     /**
      * Called when server scanning has finished.
-     * @param mServerMap Discovered servers
+     * @param serverMap Discovered servers
      */
-    public void onScanFinished(TreeMap<String, String> mServerMap) {
-        mScanResults.setVisibility(View.VISIBLE);
-        mServersSpinner.setVisibility(View.GONE);
-        mScanProgress.setVisibility(View.GONE);
+    public void onScanFinished(TreeMap<String, String> serverMap) {
+        mScanResults.setVisibility(VISIBLE);
+        mServerName.setVisibility(GONE);
+        mServersSpinner.setVisibility(GONE);
+        mScanProgress.setVisibility(GONE);
 
         if (mScanNetworkTask == null) {
             return;
         }
 
-        mDiscoveredServers = mServerMap;
+        mDiscoveredServers = serverMap;
         mScanNetworkTask = null;
 
         switch (mDiscoveredServers.size()) {
@@ -166,6 +180,8 @@ public class ServerAddressView extends ScrollView implements ScanNetworkTask.Sca
             case 1:
                 // Populate the edit text widget with the address found.
                 setServerAddress(mDiscoveredServers.get(mDiscoveredServers.firstKey()));
+                mServerName.setVisibility(VISIBLE);
+                mServerName.setText(mDiscoveredServers.firstKey());
                 break;
 
             default:
@@ -176,7 +192,7 @@ public class ServerAddressView extends ScrollView implements ScanNetworkTask.Sca
                 }
                 int position = getServerPosition(mServerAddressEditText.getText().toString());
                 if (position >= 0) mServersSpinner.setSelection(position);
-                mServersSpinner.setVisibility(View.VISIBLE);
+                mServersSpinner.setVisibility(VISIBLE);
                 mServersAdapter.notifyDataSetChanged();
         }
     }
