@@ -1111,14 +1111,16 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     /**
-     * Tries to get the relative path to the server music library.
+     * Tries to get the path relative to the server music library.
      * <p/>
-     * If this is not possible resort to the last path segment of the server path
+     * If this is not possible resort to the last path segment of the server path.
+     * In both cases replace dangerous characters by safe ones.
      */
     private String getLocalFile(@NonNull String serverUrl) {
         Uri serverUri = Uri.parse(serverUrl);
         String serverPath = serverUri.getPath();
         String mediaDir = null;
+        String path = null;
         for (String dir : connectionState.getMediaDirs()) {
             if (serverPath.startsWith(dir)) {
                 mediaDir = dir;
@@ -1126,9 +1128,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
         }
         if (mediaDir != null)
-            return serverPath.substring(mediaDir.length(), serverPath.length());
+            path = serverPath.substring(mediaDir.length(), serverPath.length());
         else
-            return serverUri.getLastPathSegment();
+            path = serverUri.getLastPathSegment();
+        return path.replaceAll("[?<>\\\\:*|\"]", "_");
     }
 
     private final ISqueezeService squeezeService = new SqueezeServiceBinder();
