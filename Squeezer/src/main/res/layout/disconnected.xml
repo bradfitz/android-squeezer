@@ -6,6 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/header_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:padding="16dp"
+        style="@style/SqueezerTextItem"
+        android:drawableLeft="@android:drawable/ic_menu_info_details"
+        android:drawablePadding="4dp"
+        android:text="@string/login_failed_text"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

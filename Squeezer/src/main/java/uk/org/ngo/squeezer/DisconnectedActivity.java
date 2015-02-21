@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import uk.org.ngo.squeezer.dialog.InfoDialog;
 import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
@@ -33,13 +34,30 @@ import uk.org.ngo.squeezer.service.event.ConnectionChanged;
  * connects.
  */
 public class DisconnectedActivity extends BaseActivity {
+    private static final String EXTRA_IS_LOGIN_FAILURE = "login_failure";
+
     private ServerAddressView serverAddressView;
+    private boolean isLoginFailure;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            isLoginFailure = extras.getBoolean(EXTRA_IS_LOGIN_FAILURE, false);
+        }
+
         setContentView(R.layout.disconnected);
         serverAddressView = (ServerAddressView) findViewById(R.id.server_address_view);
+        View headerMessage = findViewById(R.id.header_message);
+        headerMessage.setVisibility(isLoginFailure ? View.VISIBLE : View.GONE);
+        headerMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InfoDialog.show(getSupportFragmentManager(), R.string.login_failed_info_text);
+            }
+        });
     }
 
     /**
@@ -50,13 +68,35 @@ public class DisconnectedActivity extends BaseActivity {
      * <p/>
      * The pending transition is overridden to animate the activity in place, rather than having it
      * appear to move in from off-screen.
+     *
+     * @param isLoginFailure If set also show the informational message on how to resolve connection problems
      */
-    public static void show(Activity activity) {
+    private static void show(Activity activity, boolean isLoginFailure) {
+        // Check if this activity is already running
+        if (activity instanceof DisconnectedActivity) return;
+
         final Intent intent = new Intent(activity, DisconnectedActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (isLoginFailure) intent.putExtra(EXTRA_IS_LOGIN_FAILURE, true);
         activity.startActivity(intent);
         activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
+
+    /**
+     * Show this activity.
+     * @see #show(android.app.Activity)
+     */
+    public static void show(Activity activity) {
+        show(activity, false);
+    }
+
+    /**
+     * Show this activity on login failure.
+     * @see #show(android.app.Activity)
+     */
+    public static void showLoginFailed(Activity activity) {
+        show(activity, true);
     }
 
     /**

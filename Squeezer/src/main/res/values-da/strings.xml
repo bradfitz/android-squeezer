@@ -91,7 +91,12 @@ x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktivere
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.
     </string>
     <string name="not_connected">Squeezer er ikke forbundet til nogen SqueezeBoxServer.</string>
-    <string name="login_failed_text">Login mislykkedes, indtast brugernavn og adgangskode.</string>
+    <string name="login_failed_text">Login mislykkedes, kontrollér at port, brugernavn og adgangskode er korrekte.</string>
+    <string name="login_failed_info_text">
+        &lt;p&gt;De korrekte værdier kan ses på serverens web-interface. Vælg instillinger og fanen Avanceret.&lt;/p&gt;
+        &lt;p&gt;For at kontrollere portnummeret, vælg Netværk i dropdown menuen.&lt;/p&gt;
+        &lt;p&gt;Brugernavn og adgangskode kan ses ved at vælge Sikkerhed i dropdown menuen.&lt;/p&gt;
+    </string>
     <string name="disconnected_text">Afbrudt.</string>
     <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
     <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed.\nNår der opnås

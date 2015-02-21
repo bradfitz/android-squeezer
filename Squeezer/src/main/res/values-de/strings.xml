@@ -73,9 +73,6 @@
     <string name="connecting_to_text">Verbinde mit SqueezeBox CLI %s</string>
     <string name="connection_failed_text">Verbindung fehlgeschlagen. Prüfen Sie die Einstellungen.
     </string>
-    <string name="login_failed_text">Anmeldung fehlgeschlagen. Bitte Benutzername und Passwort
-        eingeben.
-    </string>
     <string name="disconnected_text">Verbindung getrennt</string>
     <string name="wifi_disabled_text">WLAN ist deaktiviert</string>
     <string name="enable_wifi_text">Aktiviert WLAN auf dem Android-Gerät. Sobald eine

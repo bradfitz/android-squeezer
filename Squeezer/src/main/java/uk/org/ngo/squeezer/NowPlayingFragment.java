@@ -64,7 +64,6 @@ import java.util.Collections;
 import java.util.List;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
-import uk.org.ngo.squeezer.dialog.AuthenticationDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.HasUiThread;
@@ -441,7 +440,7 @@ public class NowPlayingFragment extends Fragment implements
             return;
         }
 
-        if (!connected && !postConnect && !loginFailure && !isManualDisconnect()) {
+        if (!connected && !postConnect && !loginFailure) {
             DisconnectedActivity.show(mActivity);
             return;
         }
@@ -463,10 +462,7 @@ public class NowPlayingFragment extends Fragment implements
             }
         }
         if (loginFailure) {
-            Toast.makeText(mActivity, getText(R.string.login_failed_text), Toast.LENGTH_LONG)
-                    .show();
-            new AuthenticationDialog()
-                    .show(mActivity.getSupportFragmentManager(), "AuthenticationDialog");
+            DisconnectedActivity.showLoginFailed(mActivity);
         }
 
         // Ensure that option menu item state is adjusted as appropriate.
