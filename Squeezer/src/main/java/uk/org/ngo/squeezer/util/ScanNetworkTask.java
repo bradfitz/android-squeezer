@@ -108,8 +108,7 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
                         // There's no mechanism for the server to return the port
                         // the CLI is listening on, so assume it's the default and
                         // append it to the address.
-                        String ipPort = responsePacket.getAddress().getHostAddress() + ":" +
-                                mContext.getResources().getInteger(R.integer.DefaultPort);
+                        String host = responsePacket.getAddress().getHostAddress();
 
                         // Blocks of data are TAG/LENGTH/VALUE, where TAG is
                         // a 4 byte string identifying the item, LENGTH is
@@ -132,7 +131,7 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
                         String name = new String(buf, i + 1, buf[i]);
 
                         publishProgress();
-                        mServerMap.put(name, ipPort);
+                        mServerMap.put(name, host);
                     }
                 } catch (IOException e) {
                     timedOut = true;

@@ -34,6 +34,7 @@ import java.util.TreeMap;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.util.ScanNetworkTask;
 
 /**
@@ -181,9 +182,20 @@ public class ServerAddressView extends ScrollView implements ScanNetworkTask.Sca
     }
 
     private void setServerAddress(String address) {
+        String currentHostPort = mServerAddressEditText.getText().toString();
+        String currentHost = Util.parseHost(currentHostPort);
+        int currentPort = Util.parsePort(currentHostPort);
+
+        String host = Util.parseHost(address);
+        int port = Util.parsePort(address);
+
+        if (host.equals(currentHost)) {
+            port = currentPort;
+        }
+
         Preferences.ServerAddress serverAddress = new Preferences.ServerAddress();
         serverAddress.bssId = mBssId;
-        serverAddress.address = address;
+        serverAddress.address = host + ":" + port;
 
         mServerAddressEditText.setText(serverAddress.address);
         mUserNameEditText.setText(mPreferences.getUserName(serverAddress));
@@ -200,9 +212,10 @@ public class ServerAddressView extends ScrollView implements ScanNetworkTask.Sca
 
     private int getServerPosition(String ipPort) {
         if (mDiscoveredServers != null) {
+            String host = Util.parseHost(ipPort);
             int position = 0;
             for (Entry<String, String> entry : mDiscoveredServers.entrySet()) {
-                if (ipPort.equals(entry.getValue()))
+                if (host.equals(entry.getValue()))
                     return position;
                 position++;
             }

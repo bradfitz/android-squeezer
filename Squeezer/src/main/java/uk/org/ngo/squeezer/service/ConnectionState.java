@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
@@ -353,8 +354,8 @@ class ConnectionState {
             hostPort = hostPort.substring(0, hostPort.length() - 1);
         }
 
-        final int port = parsePort(hostPort);
-        final String host = parseHost(hostPort);
+        final int port = Util.parsePort(hostPort);
+        final String host = Util.parseHost(hostPort);
         final String cleanHostPort = host + ":" + port;
 
         currentHost.set(host);
@@ -397,33 +398,6 @@ class ConnectionState {
             }
 
         });
-    }
-
-    private static String parseHost(String hostPort) {
-        if (hostPort == null) {
-            return "";
-        }
-        int colonPos = hostPort.indexOf(":");
-        if (colonPos == -1) {
-            return hostPort;
-        }
-        return hostPort.substring(0, colonPos);
-    }
-
-    private static int parsePort(String hostPort) {
-        if (hostPort == null) {
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
-        int colonPos = hostPort.indexOf(":");
-        if (colonPos == -1) {
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
-        try {
-            return Integer.parseInt(hostPort.substring(colonPos + 1));
-        } catch (NumberFormatException unused) {
-            Log.d(TAG, "Can't parse port out of " + hostPort);
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
     }
 
     Integer getHttpPort() {
