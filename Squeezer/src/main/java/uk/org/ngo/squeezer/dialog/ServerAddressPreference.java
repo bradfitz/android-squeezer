@@ -19,7 +19,10 @@ package uk.org.ngo.squeezer.dialog;
 import android.content.Context;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
+
+import uk.org.ngo.squeezer.R;
 
 public class ServerAddressPreference extends DialogPreference {
     private ServerAddressView form;
@@ -30,8 +33,10 @@ public class ServerAddressPreference extends DialogPreference {
 
     @Override
     protected View onCreateDialogView() {
-        form = new ServerAddressView(getContext());
-        return form;
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View view = inflater.inflate(R.layout.server_address_dialog, null);
+        form = (ServerAddressView) view.findViewById(R.id.server_address_view);
+        return view;
     }
 
     @Override

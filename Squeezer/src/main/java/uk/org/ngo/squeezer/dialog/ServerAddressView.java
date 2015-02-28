@@ -26,7 +26,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ScrollView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -44,7 +44,7 @@ import uk.org.ngo.squeezer.util.ScanNetworkTask;
  * <p/>
  * A new network scan can be initiated manually if desired.
  */
-public class ServerAddressView extends ScrollView implements ScanNetworkTask.ScanNetworkCallback {
+public class ServerAddressView extends LinearLayout implements ScanNetworkTask.ScanNetworkCallback {
     private Preferences mPreferences;
     private String mBssId;
 
@@ -74,7 +74,7 @@ public class ServerAddressView extends ScrollView implements ScanNetworkTask.Sca
     }
 
     private void initialize(final Context context) {
-        inflate(context, R.layout.server_address_dialog, this);
+        inflate(context, R.layout.server_address_view, this);
         if (!isInEditMode()) {
             mPreferences = new Preferences(context);
             Preferences.ServerAddress serverAddress = mPreferences.getServerAddress();
