@@ -51,7 +51,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.regex.Pattern;
 
-import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -476,7 +475,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     // calls to the callbacks below.
                     updatePlayStatus(tokenMap.get("mode"), player);
 
-                    updatePlayerSubscription(player, getPlayerSubscriptionType(player));
+                    updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
 
                     // Note to self: The problem here is that with second-to-second updates enabled
                     // the playerlistactivity callback will be called every second.  Thinking that
@@ -817,14 +816,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     private void updateAllPlayerSubscriptionStates() {
         for (Player player : connectionState.getPlayers()) {
-            updatePlayerSubscription(player, getPlayerSubscriptionType(player));
+            updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
         }
     }
 
     /**
-     * Determine the correct player status subscription.
+     * Determine the correct status subscription type for the given player, based on
+     * how frequently we need to know its status.
      */
-    private PlayerState.PlayerSubscriptionType getPlayerSubscriptionType(Player player) {
+    private PlayerState.PlayerSubscriptionType calculateSubscriptionTypeFor(Player player) {
         Player activePlayer = connectionState.getActivePlayer();
 
         if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class) ||
@@ -1838,4 +1838,43 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
+    /**
+     * Calculate and set player subscription states every time a client of the bus
+     * un/registers.
+     * <p/>
+     * For example, this ensures that if a new client subscribes and needs real
+     * time updates, the player subscription states will be updated accordingly.
+     */
+    class EventBus extends de.greenrobot.event.EventBus {
+
+        @Override
+        public void register(Object subscriber) {
+            super.register(subscriber);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public void register(Object subscriber, int priority) {
+            super.register(subscriber, priority);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public void registerSticky(Object subscriber) {
+            super.registerSticky(subscriber);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public void registerSticky(Object subscriber, int priority) {
+            super.registerSticky(subscriber, priority);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public synchronized void unregister(Object subscriber) {
+            super.unregister(subscriber);
+            updateAllPlayerSubscriptionStates();
+        }
+    }
 }
