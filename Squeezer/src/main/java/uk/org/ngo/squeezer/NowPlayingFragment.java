@@ -820,10 +820,7 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private boolean setSecondsElapsed(int seconds) {
-        if (mService == null) {
-            return false;
-        }
-        return mService.setSecondsElapsed(seconds);
+        return mService != null && mService.setSecondsElapsed(seconds);
     }
 
     private PlayerState getPlayerState() {
@@ -846,31 +843,19 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     private boolean isConnected() {
-        if (mService == null) {
-            return false;
-        }
-        return mService.isConnected();
+        return mService != null && mService.isConnected();
     }
 
     private boolean isConnectInProgress() {
-        if (mService == null) {
-            return false;
-        }
-        return mService.isConnectInProgress();
+        return mService != null && mService.isConnectInProgress();
     }
 
     private boolean canPowerOn() {
-        if (mService == null) {
-            return false;
-        }
-        return mService.canPowerOn();
+        return mService != null && mService.canPowerOn();
     }
 
     private boolean canPowerOff() {
-        if (mService == null) {
-            return false;
-        }
-        return mService.canPowerOff();
+        return mService != null && mService.canPowerOff();
     }
 
     @Override

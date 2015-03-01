@@ -308,7 +308,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:
@@ -345,10 +345,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     public boolean isConnected() {
-        if (mService == null) {
-            return false;
-        }
-        return mService.isConnected();
+        return mService != null && mService.isConnected();
     }
 
     public String getIconUrl(String icon) {
