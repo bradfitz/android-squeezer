@@ -72,9 +72,4 @@ public class Playlist extends PlaylistItem {
         dest.writeString(name);
     }
 
-    @Override
-    public String toString() {
-        return "id=" + getId() + ", name=" + name;
-    }
-
 }

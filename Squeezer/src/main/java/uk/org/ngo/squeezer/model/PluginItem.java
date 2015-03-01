@@ -86,6 +86,16 @@ public class PluginItem extends Item {
         this.type = type;
     }
 
+    private boolean audio;
+
+    public boolean isAudio() {
+        return audio;
+    }
+
+    public void setAudio(boolean audio) {
+        this.audio = audio;
+    }
+
     public PluginItem(Map<String, String> record) {
         setId(record.get("id"));
         name = record.containsKey("name") ? record.get("name") : record.get("title");
@@ -93,6 +103,7 @@ public class PluginItem extends Item {
         type = record.get("type");
         image = record.get("image");
         hasitems = (Util.parseDecimalIntOrZero(record.get("hasitems")) != 0);
+        audio = (Util.parseDecimalIntOrZero(record.get("isaudio")) != 0);
     }
 
     public static final Creator<PluginItem> CREATOR = new Creator<PluginItem>() {
@@ -112,6 +123,7 @@ public class PluginItem extends Item {
         type = source.readString();
         image = source.readString();
         hasitems = (source.readInt() != 0);
+        audio = (source.readInt() != 0);
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -121,11 +133,12 @@ public class PluginItem extends Item {
         dest.writeString(type);
         dest.writeString(image);
         dest.writeInt(hasitems ? 1 : 0);
+        dest.writeInt(audio ? 1 : 0);
     }
 
     @Override
-    public String toString() {
-        return "id=" + getId() + ", name=" + name;
+    public String toStringOpen() {
+        return super.toStringOpen() + ", type: " + getType() + ", hasItems: " + isHasitems() +
+                ", audio: " + isAudio() + ", description: " + getDescription();
     }
-
 }

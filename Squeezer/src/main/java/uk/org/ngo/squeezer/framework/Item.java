@@ -70,4 +70,13 @@ public abstract class Item implements Parcelable {
 
         return getId() != null && getId().equals(((Item) o).getId());
     }
+
+    protected String toStringOpen() {
+        return getClass().getSimpleName() + " { id: " + getId() + ", name: " + getName();
+    }
+
+    @Override
+    public String toString() {
+        return toStringOpen() + " }";
+    }
 }

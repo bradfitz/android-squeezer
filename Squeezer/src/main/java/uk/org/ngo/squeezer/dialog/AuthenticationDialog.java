@@ -15,13 +15,13 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 
 public class AuthenticationDialog extends DialogFragment {
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final FragmentActivity activity = getActivity();
         final Preferences preferences = new Preferences(activity);
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
+        builder.setTitle("Login failed");
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
         View form = activity.getLayoutInflater().inflate(R.layout.authentication_dialog, null);
         builder.setView(form);

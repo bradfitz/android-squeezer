@@ -135,8 +135,8 @@ public class Plugin extends Item {
     }
 
     @Override
-    public String toString() {
-        return "id=" + getId() + ", name=" + name;
+    public String toStringOpen() {
+        return super.toStringOpen() + "type: " + getType() + ", weight: " + getWeight();
     }
 
 }
