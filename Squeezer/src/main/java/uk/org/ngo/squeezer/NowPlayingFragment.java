@@ -210,6 +210,7 @@ public class NowPlayingFragment extends Fragment implements
         }
     };
 
+    /** Dialog displayed while connecting to the server. */
     private ProgressDialog connectingDialog = null;
 
     private void clearConnectingDialog() {
@@ -1083,6 +1084,12 @@ public class NowPlayingFragment extends Fragment implements
         uiThreadHandler.post(new Runnable() {
             @Override
             public void run() {
+                // The activity might have started to finish in the team between posting
+                // this and it starting to run. If so, do nothing.
+                if (getActivity().isFinishing()) {
+                    return;
+                }
+
                 Preferences preferences = new Preferences(mActivity);
                 String ipPort = preferences.getServerAddress();
                 if (ipPort == null) {
