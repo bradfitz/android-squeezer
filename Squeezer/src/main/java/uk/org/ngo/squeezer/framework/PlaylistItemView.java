@@ -52,6 +52,11 @@ public abstract class PlaylistItemView<T extends PlaylistItem> extends
     abstract protected PlayableItemAction getOnSelectAction();
 
     @Override
+    public boolean isSelectable(T item) {
+        return (onSelectAction != null);
+    }
+
+    @Override
     public void onItemSelected(int index, T item) {
         Log.d(getTag(), "Executing on select action");
         if (onSelectAction != null) {

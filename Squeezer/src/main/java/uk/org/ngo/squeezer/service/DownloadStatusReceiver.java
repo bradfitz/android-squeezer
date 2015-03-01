@@ -66,7 +66,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
         final DownloadManager.Query query = new DownloadManager.Query().setFilterById(id);
         final Cursor cursor = downloadManager.query(query);
         try {
-            while (cursor.moveToNext()) {
+            if (cursor.moveToNext()) {
                 int downloadId = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_ID));
                 int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
                 int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
@@ -75,41 +75,38 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                 String local_url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
 
                 DownloadDatabase.DownloadEntry downloadEntry = downloadDatabase.popDownloadEntry(downloadId);
-
-                if (downloadEntry == null)
-                    continue;
-
-                // Seen a crash where downloadEntry.tempName is null. Check for this, and if it
-                // happens skip the entry and log additional details.
-                if (downloadEntry.tempName == null) {
-                    Crashlytics.log("Bogus downloadEntry detected in handleDownloadComplete.");
-                    Crashlytics.log("tempName is null");
-                    Crashlytics.log("downloadId: " + downloadEntry.downloadId);
-                    Crashlytics.log("filename: " + downloadEntry.fileName);
-                    Crashlytics.logException(new NullPointerException());
-                    continue;
+                if (downloadEntry != null) {
+                    switch (status) {
+                        case DownloadManager.STATUS_SUCCESSFUL:
+                            File tempFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), downloadEntry.tempName);
+                            File localFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), downloadEntry.fileName);
+                            File localFolder = localFile.getParentFile();
+                            if (!localFolder.exists())
+                                localFolder.mkdirs();
+                            if (tempFile.renameTo(localFile)) {
+                                context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(localFile)));
+                            } else {
+                                Crashlytics.log(Log.ERROR, TAG, "Could not rename [" + tempFile + "] to [" + localFile + "]");
+                            }
+                            break;
+                        default:
+                            Crashlytics.log(Log.ERROR, TAG, "Unsuccessful download " + format(status, reason, title, url, local_url));
+                            break;
+                    }
+                } else {
+                    Crashlytics.log(Log.ERROR, TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
                 }
-
-                switch (status) {
-                    case DownloadManager.STATUS_SUCCESSFUL:
-                        File tempFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), downloadEntry.tempName);
-                        File localFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), downloadEntry.fileName);
-                        File localFolder = localFile.getParentFile();
-                        if (!localFolder.exists())
-                            localFolder.mkdirs();
-                        if (tempFile.renameTo(localFile)) {
-                            context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(localFile)));
-                        } else {
-                            Log.w(TAG, "Could not rename [" + tempFile + "] to [" + localFile + "]");
-                        }
-                        break;
-                    default:
-                        Log.w(TAG, "Unsuccessful download (status:" + status + ", reason:" + reason + ", title:'" + title + "', url:'" + url + "', local url:'" + local_url + "')");
-                        break;
-                }
+            //} else {
+                // Download complete events may still come in, even after DownloadManager.remove is
+                // called, so don't log this
+                //Logger.logError(TAG, "Download manager does not have an entry for " + id);
             }
         } finally {
             cursor.close();
         }
+    }
+
+    private String format(int status, int reason, String title, String url, String local_url) {
+        return "{status:" + status + ", reason:" + reason + ", title:'" + title + "', url:'" + url + "', local url:'" + local_url + "'}";
     }
 }

@@ -137,8 +137,8 @@ public class DownloadDatabase {
                 " where " + DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + "=?",
                 new String[]{String.valueOf(downloadId)});
         try {
-            entry = new DownloadEntry();
             if (cursor.moveToNext()) {
+                entry = new DownloadEntry();
                 entry.downloadId = cursor.getLong(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID));
                 entry.tempName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME));
                 entry.fileName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME));
@@ -146,8 +146,10 @@ public class DownloadDatabase {
         } finally {
             cursor.close();
         }
-        db.delete(DOWNLOAD_DATABASE.SONG.TABLE, DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + "=?",
-                new String[]{String.valueOf(downloadId)});
+        if (entry != null) {
+            db.delete(DOWNLOAD_DATABASE.SONG.TABLE, DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + "=?",
+                    new String[]{String.valueOf(downloadId)});
+        }
 
         return entry;
     }
@@ -167,7 +169,7 @@ public class DownloadDatabase {
         }
     }
 
-    public void removeDownloadEntries(List<Long> downloadIds) {
+    public void remove(long... downloadIds) {
         db.beginTransaction();
         try {
             for (long downloadId : downloadIds) {
