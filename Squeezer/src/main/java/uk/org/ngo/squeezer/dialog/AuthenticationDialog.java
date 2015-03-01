@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -15,6 +16,7 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 
 public class AuthenticationDialog extends DialogFragment {
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final FragmentActivity activity = getActivity();
