@@ -1,3 +1,9 @@
+Upcoming
+========
+
+*   Filter out non-VFAT compatible characters from filenames when
+    saving tracks.
+
 1.2.6
 =====
 
