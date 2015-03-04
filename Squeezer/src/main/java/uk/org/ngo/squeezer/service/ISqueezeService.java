@@ -27,16 +27,12 @@ import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.model.MusicFolderItem;
-import uk.org.ngo.squeezer.model.PlayerPref;
-import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerPref;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -67,8 +63,16 @@ public interface ISqueezeService {
     @Nullable
     Player getActivePlayer();
 
-    // Returns all the players we know about.
+    /**
+     * @return players that the server knows about (irrespective of power, connection, or
+     * other status).
+     */
     List<Player> getPlayers();
+
+    /**
+     * @return players that are connected to the server.
+     */
+    java.util.Collection<Player> getConnectedPlayers();
 
     // XXX: Delete, now that PlayerState is tracked in the player?
     PlayerState getActivePlayerState();
@@ -99,7 +103,14 @@ public interface ISqueezeService {
     ////////////////////
     // Depends on active player:
 
+    /**
+     * @return true if the active player is connected and can be powered on.
+     */
     boolean canPowerOn();
+
+    /**
+     * @return true if the active player is connected and can be powered off.
+     */
     boolean canPowerOff();
     void powerOn();
     void powerOff();

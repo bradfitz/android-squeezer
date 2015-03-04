@@ -256,10 +256,11 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean connected = isConnected();
+        boolean haveConnectedPlayers = isConnected() && mService != null
+                && !mService.getConnectedPlayers().isEmpty();
 
         if (mMenuItemVolume != null) {
-            mMenuItemVolume.setEnabled(connected);
+            mMenuItemVolume.setVisible(haveConnectedPlayers);
         }
 
         return true;

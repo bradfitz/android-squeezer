@@ -20,6 +20,8 @@ import android.net.wifi.WifiManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.common.base.Predicate;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -43,6 +45,8 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+
+import static com.google.common.collect.Collections2.filter;
 
 class ConnectionState {
 
@@ -188,8 +192,20 @@ class ConnectionState {
         return mPlayers.get(playerId).getPlayerState();
     }
 
+    /** Filter predicate that matches connected players. */
+    private static final Predicate<Player> sPlayerConnectedPredicate = new Predicate<Player>() {
+        @Override
+        public boolean apply(@javax.annotation.Nullable Player input) {
+            return input != null && input.getConnected();
+        }
+    };
+
     List<Player> getPlayers() {
         return new ArrayList<Player>(mPlayers.values());  // XXX: Immutable list? Return the map?
+    }
+
+    java.util.Collection<Player> getConnectedPlayers() {
+        return filter(getPlayers(), sPlayerConnectedPredicate);
     }
 
     void clearPlayers() {

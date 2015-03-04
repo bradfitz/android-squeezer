@@ -37,9 +37,9 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.base.Enums;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.base.Enums;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1260,6 +1260,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
+        @Nullable
         public PlayerState getActivePlayerState() {
             return connectionState.getActivePlayerState();
         }
@@ -1282,14 +1283,28 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public boolean canPowerOn() {
-            PlayerState playerState = getActivePlayerState();
-            return canPower() && playerState != null && !playerState.isPoweredOn();
+            Player activePlayer = getActivePlayer();
+
+            if (activePlayer == null) {
+                return false;
+            } else {
+                PlayerState playerState = activePlayer.getPlayerState();
+                return canPower() && activePlayer.getConnected() && playerState != null
+                        && !playerState.isPoweredOn();
+            }
         }
 
         @Override
         public boolean canPowerOff() {
-            PlayerState playerState = getActivePlayerState();
-            return canPower() && playerState != null && playerState.isPoweredOn();
+            Player activePlayer = getActivePlayer();
+
+            if (activePlayer == null) {
+                return false;
+            } else {
+                PlayerState playerState = activePlayer.getPlayerState();
+                return canPower() && activePlayer.getConnected() && playerState != null
+                        && playerState.isPoweredOn();
+            }
         }
 
         private boolean canPower() {
@@ -1514,6 +1529,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public List<Player> getPlayers() {
             return connectionState.getPlayers();
+        }
+
+        @Override
+        public java.util.Collection<Player> getConnectedPlayers() {
+            return connectionState.getConnectedPlayers();
         }
 
         @Override

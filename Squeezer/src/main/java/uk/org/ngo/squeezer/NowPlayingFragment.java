@@ -975,7 +975,7 @@ public class NowPlayingFragment extends Fragment implements
 
     /**
      * Sets the state of assorted option menu items based on whether or not there is a connection to
-     * the server.
+     * the server, and if so, whether any players are connected.
      */
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -983,11 +983,18 @@ public class NowPlayingFragment extends Fragment implements
 
         // These are all set at the same time, so one check is sufficient
         if (menu_item_connect != null) {
+            // Set visibility and enabled state of menu items that are not player-specific.
             menu_item_connect.setVisible(!connected);
             menu_item_disconnect.setVisible(connected);
-            menu_item_players.setEnabled(connected);
-            menu_item_playlist.setEnabled(connected);
-            menu_item_alarm.setEnabled(connected);
+
+            // Set visibility and enabled state of menu items that are player-specific and
+            // require a connection to the server.
+            boolean haveConnectedPlayers = connected && mService != null
+                    && !mService.getConnectedPlayers().isEmpty();
+
+            menu_item_players.setVisible(haveConnectedPlayers);
+            menu_item_playlist.setVisible(haveConnectedPlayers);
+            menu_item_alarm.setVisible(haveConnectedPlayers);
             if (connected)
                 menu_item_alarm.setTitle(ServerString.ALARM.getLocalizedString());
             menu_item_search.setEnabled(connected);
