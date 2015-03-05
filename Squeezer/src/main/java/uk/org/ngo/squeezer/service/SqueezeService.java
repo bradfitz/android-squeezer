@@ -1511,7 +1511,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public String getIconUrl(String icon) throws HandshakeNotCompleteException {
-            return getAbsoluteUrl('/' + icon);
+            if (isRelative(icon))
+                return getAbsoluteUrl(icon.startsWith("/") ? icon : '/' + icon);
+            else
+                return icon;
         }
 
         private String getAbsoluteUrl(String relativeUrl) throws HandshakeNotCompleteException {
@@ -1523,6 +1526,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return "";
             }
             return "http://" + connectionState.getCurrentHost() + ":" + port + relativeUrl;
+        }
+
+        private boolean isRelative(String url) {
+            return Uri.parse(url).isRelative();
         }
 
         @Override
