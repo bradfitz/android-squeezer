@@ -57,7 +57,7 @@ public interface ISqueezeService {
     void preferenceChanged(String key);
 
     // Call this to change the player we are controlling
-    void setActivePlayer(Player player);
+    void setActivePlayer(@NonNull Player player);
 
     // Returns the player we are currently controlling
     @Nullable

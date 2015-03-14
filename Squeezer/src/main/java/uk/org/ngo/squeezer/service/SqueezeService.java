@@ -43,6 +43,7 @@ import com.google.common.base.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -808,7 +809,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Change the player that is controlled by Squeezer (the "active" player).
      *
-     * @param newActivePlayer May be null, in which case no players are controlled.
+     * @param newActivePlayer The new active player. May be null, in which case no players
+     *     are controlled.
      */
     void changeActivePlayer(@Nullable final Player newActivePlayer) {
         Player prevActivePlayer = connectionState.getActivePlayer();
@@ -822,9 +824,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         Log.i(TAG, "Active player now: " + newActivePlayer);
 
         // If this is a new player then start an async fetch of its status.
-        if (newActivePlayer != null) {
-            cli.sendActivePlayerCommand("status - 1 tags:" + SONGTAGS);
-        }
+        cli.sendActivePlayerCommand("status - 1 tags:" + SONGTAGS);
 
         updateAllPlayerSubscriptionStates();
 
@@ -1042,18 +1042,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
                 // If all players have been received then determine the new active player.
                 if (start + items.size() >= count) {
-                    Player initialPlayer = getInitialPlayer();
-                    if (initialPlayer != null) {
-                        // Note: changeActivePlayer() posts a PlayersChanged event.
-                        changeActivePlayer(initialPlayer);
-                    }
+                    changeActivePlayer(getInitialPlayer());
                 }
             }
 
             /**
              * @return The player that should be chosen as the active player. This is either the
-             *     last active player (if known), the first player the server knows about if
-             *     there are connected players, or null if there are no connected players.
+             *     last connected active player (if known), the first player the server knows
+             *     about (if there are connected players), or null if there are no connected
+             *     players.
              */
             @Nullable
             private Player getInitialPlayer() {
@@ -1063,7 +1060,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         null);
                 Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
-                List<Player> players = connectionState.getPlayers();
+                List<Player> players = new ArrayList<Player>(connectionState.getConnectedPlayers());
+
                 for (Player player : players) {
                     if (player.getId().equals(lastConnectedPlayer)) {
                         return player;
@@ -1511,7 +1509,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public void setActivePlayer(final Player player) {
+        public void setActivePlayer(@NonNull final Player player) {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {

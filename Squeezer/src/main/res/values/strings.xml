@@ -136,6 +136,7 @@
     <string name="menu_item_player_sync">Synchronize…</string>
     <string name="menu_item_player_unsync">No synchronization</string>
 
+    <string name="no_players_connected">No players are connected.</string>
     <string name="player_list_changed">Connected players changed while context menu was open,
         ignoring request</string>
 
