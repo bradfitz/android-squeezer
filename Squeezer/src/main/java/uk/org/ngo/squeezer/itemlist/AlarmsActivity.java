@@ -137,6 +137,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         service.alarms(start, this);
         if (start == 0) {
             mActivePlayer = service.getActivePlayer();
+            alarmPlaylists.clear();
             service.alarmPlaylists(alarmPlaylistsCallback);
 
             alarmsEnabledButton.setEnabled(false);
