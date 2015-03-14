@@ -72,7 +72,8 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:background="?alarm_list_background"
-            android:fastScrollEnabled="true" />
+            android:fastScrollEnabled="true"
+            tools:listitem="@layout/list_item_alarm" />
 
         <ProgressBar
             android:id="@+id/loading_progress"
