@@ -32,11 +32,6 @@
     </string>
     <string name="settings_serveraddr_hint">Name oder IP-Adresse des Servers</string>
     <string name="settings_server_prompt">Wählen Sie einen Server</string>
-    <string name="settings_server_scan_start">Serversuche starten</string>
-    <string name="settings_server_scan_stop">Serversuche stoppen</string>
-    <string name="settings_server_scan_msg">Oder drücken Sie \'Serversuche starten\' um im lokalen
-        Netz nach Servern zu suchen.
-    </string>
     <string name="settings_server_scanning_disabled_msg">Serversuche ist nur bei aktiviertem WLAN
         möglich.
     </string>
@@ -77,9 +72,6 @@
     <string name="connecting_text">Verbinde</string>
     <string name="connecting_to_text">Verbinde mit SqueezeBox CLI %s</string>
     <string name="connection_failed_text">Verbindung fehlgeschlagen. Prüfen Sie die Einstellungen.
-    </string>
-    <string name="login_failed_text">Anmeldung fehlgeschlagen. Bitte Benutzername und Passwort
-        eingeben.
     </string>
     <string name="disconnected_text">Verbindung getrennt</string>
     <string name="wifi_disabled_text">WLAN ist deaktiviert</string>
