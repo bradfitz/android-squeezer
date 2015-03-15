@@ -4,10 +4,11 @@ buildscript {
         maven { url 'http://download.crashlytics.com/maven' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.2'
+        classpath 'com.android.tools.build:gradle:1.0.0'
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
 }
+
 apply plugin: 'com.android.application'
 apply plugin: 'crashlytics'
 
@@ -29,6 +30,9 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     // findbugs is required for Proguard to work with Guava.
     compile 'com.google.code.findbugs:jsr305:2.0.2'
+
+    // EventBus, https://github.com/greenrobot/EventBus.
+    compile 'de.greenrobot:eventbus:2.4.0'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
@@ -57,6 +61,7 @@ android {
             // proguard-android-optimize.txt are automatically included.
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFile "proguard-crashlytics.cfg"
+            proguardFile "proguard-eventbus.cfg"
             proguardFile "proguard-guava.cfg"
             proguardFile "proguard-squeezer.cfg"
         }
@@ -85,14 +90,14 @@ android {
 
     productFlavors {
         beta {
-            versionCode 31
-            versionName "1.2.0-beta-2"
+            versionCode 40
+            versionName "1.2.6-beta-3"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 35
-            versionName "1.2.3"
+            versionCode 41
+            versionName "1.2.6"
             signingConfig android.signingConfigs.release
         }
     }

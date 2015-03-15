@@ -29,15 +29,15 @@
     <string name="settings_serveraddr_title">Server adresse</string>
     <string name="settings_serveraddr_summary">IP addresse på SqueezeBox Server, f.eks. 10.0.0.5.
     </string>
+    <string name="settings_serveraddr_hint">Navn eller IP addresse på server</string>
     <string name="settings_server_prompt">Vælg en server</string>
-    <string name="settings_server_scan_start">Start scanning</string>
-    <string name="settings_server_scan_stop">Afbryd scanning</string>
-    <string name="settings_server_scan_msg">Eller tryk \'Start scanning\' for at scanne netværket
-        for servere.
-    </string>
-    <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke
+    <string name="settings_server_rescan">Opdatér</string>
+x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke
         er forbundet.
     </string>
+    <string name="settings_theme_title">Tema</string>
+    <string name="settings_theme_dark">Mørk</string>
+    <string name="settings_theme_light_dark">Lys, mørk handlingslinie</string>
     <string name="settings_username_hint">Eventuelt SqueezeBox Server brugernavn.</string>
     <string name="settings_password_hint">Eventuel SqueezeBox Server adgangskode.</string>
     <string name="settings_server_scan_progress">Scanner efter servere&#8230;</string>
@@ -62,10 +62,11 @@
     <string name="settings_scrobble_title">Scrobble til Last.fm</string>
     <string name="settings_scrobble_on">Sang information sendes til Last.fm</string>
     <string name="settings_scrobble_off">Sang information sendes ikke til Last.fm</string>
-    <string name="settings_scrobble_noapp">Der er ikke installeret noget program, der kan scrobble
-    </string>
-    <string name="settings_market_not_found">Kunne ikke starte Google Play, er det installeret?
-    </string>
+    <string name="settings_scrobble_noapp">Der er ikke installeret noget program, der kan scrobble</string>
+    <string name="settings_market_not_found">Kunne ikke starte Google Play, er det installeret?</string>
+
+    <string name="settings_squeezeplayer_title">Start SqueezePlayer</string>
+    <string name="settings_squeezeplayer_summary">Markér dette for at sikre, at SqueezePlayer kører, når du bruger Squeezer</string>
 
     <string name="menu_item_disconnect">Afbryd</string>
     <string name="menu_item_connect">Forbind</string>
@@ -79,6 +80,7 @@
     <string name="menu_item_view">Visning</string>
     <string name="menu_item_delete">Slet</string>
     <string name="menu_item_rename">Omdøb</string>
+    <string name="menu_item_playlist">Afspilningsliste</string>
     <string name="menu_item_playlists_new">Ny</string>
     <string name="menu_item_playlist_clear">Ryd afspilningsliste</string>
     <string name="menu_item_playlist_save">Gem afspilningsliste</string>
@@ -89,7 +91,12 @@
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.
     </string>
     <string name="not_connected">Squeezer er ikke forbundet til nogen SqueezeBoxServer.</string>
-    <string name="login_failed_text">Login mislykkedes, indtast brugernavn og adgangskode.</string>
+    <string name="login_failed_text">Login mislykkedes, kontrollér at port, brugernavn og adgangskode er korrekte.</string>
+    <string name="login_failed_info_text">
+        &lt;p&gt;De korrekte værdier kan ses på serverens web-interface. Vælg instillinger og fanen Avanceret.&lt;/p&gt;
+        &lt;p&gt;For at kontrollere portnummeret, vælg Netværk i dropdown menuen.&lt;/p&gt;
+        &lt;p&gt;Brugernavn og adgangskode kan ses ved at vælge Sikkerhed i dropdown menuen.&lt;/p&gt;
+    </string>
     <string name="disconnected_text">Afbrudt.</string>
     <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
     <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed.\nNår der opnås
@@ -112,6 +119,7 @@
     <string name="new_playlist_title">Ny afspilningsliste</string>
     <string name="new_playlist_hint">Angiv navn på afspilningsliste</string>
     <string name="rename_title">Omdøb %s</string>
+    <string name="sync_title">Synkronisér %s med…</string>
     <string name="delete_title">Slet %s</string>
     <string name="delete__message">Er du sikker på at slette?</string>
     <string name="loading_text">Henter&#8230;</string>
@@ -125,6 +133,15 @@
     <string name="genre_label">Genre</string>
     <string name="year_label">År</string>
     <string name="filter_label">Søgetekst</string>
+
+    <string name="player_group_header">Gruppe: %s</string>
+    <string name="menu_item_player_sync">Synkronisér…</string>
+    <string name="menu_item_player_unsync">Ingen synkronisering</string>
+    <string name="menu_item_power_off">Sluk</string>
+    <string name="menu_item_power_on">Tænd</string>
+
+    <string name="player_list_changed">Tilsluttede spillere ændret, mens genvejsmenuen var åben,
+        ignorerer anmodning</string>
 
     <string name="albums_by_artist_header">Album med sange af %s</string>
     <string name="albums_by_genre_header">Album med sange i genren \"%s\"</string>
@@ -141,6 +158,9 @@
     <string name="tip_volume">Brug enhedens hardware lydstyrkeknapper for at ændre spille
         lydstyrken.\n\nPrøv det nu.
     </string>
+
+    <!-- Reporting errors that from the server. -->
+    <string name="server_error">%1$s rapporterede en fejl: \"%2$s\".</string>
 
     <!-- Dialog buttons -->
     <string name="dialog_license">Licens</string>
@@ -161,6 +181,7 @@
     <string name="ADD_TO_END">Tilføj til afspilningsliste</string>
     <string name="PLAY_NEXT">Afspil efter den sang der spilles nu</string>
     <string name="DOWNLOAD_ITEM">Hent</string>
+    <string name="DOWNLOAD_MANAGER_NEEDED">Hent kræver Android 2.3 eller nyere</string>
 
     <string name="PLAYLIST_REMOVE_ITEM">Fjern fra afspilningsliste</string>
     <string name="PLAYLIST_MOVE_UP">Flyt op</string>

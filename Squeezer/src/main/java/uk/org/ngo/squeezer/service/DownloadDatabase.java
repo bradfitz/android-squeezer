@@ -21,6 +21,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.File;
 import java.util.List;
@@ -112,7 +114,7 @@ public class DownloadDatabase {
      * @param fileName Filename to use when the file is downloaded
      * @return False if we could not register the download
      */
-    public boolean registerDownload(long downloadId, String tempName, String fileName) {
+    public boolean registerDownload(long downloadId, @NonNull String tempName, @NonNull String fileName) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID, downloadId);
         contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME, tempName);
@@ -127,6 +129,7 @@ public class DownloadDatabase {
      * @param downloadId Download id
      * @return The registered download entry or null if not found
      */
+    @Nullable
     public DownloadEntry popDownloadEntry(long downloadId) {
         DownloadEntry entry = null;
 
@@ -134,8 +137,8 @@ public class DownloadDatabase {
                 " where " + DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + "=?",
                 new String[]{String.valueOf(downloadId)});
         try {
-            entry = new DownloadEntry();
             if (cursor.moveToNext()) {
+                entry = new DownloadEntry();
                 entry.downloadId = cursor.getLong(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID));
                 entry.tempName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME));
                 entry.fileName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME));
@@ -143,8 +146,10 @@ public class DownloadDatabase {
         } finally {
             cursor.close();
         }
-        db.delete(DOWNLOAD_DATABASE.SONG.TABLE, DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + "=?",
-                new String[]{String.valueOf(downloadId)});
+        if (entry != null) {
+            db.delete(DOWNLOAD_DATABASE.SONG.TABLE, DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + "=?",
+                    new String[]{String.valueOf(downloadId)});
+        }
 
         return entry;
     }
@@ -164,7 +169,7 @@ public class DownloadDatabase {
         }
     }
 
-    public void removeDownloadEntries(List<Long> downloadIds) {
+    public void remove(long... downloadIds) {
         db.beginTransaction();
         try {
             for (long downloadId : downloadIds) {

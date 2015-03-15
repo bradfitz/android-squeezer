@@ -41,6 +41,7 @@
             android:minHeight="@dimen/album_art_large_icon_height"
             android:minWidth="@dimen/album_art_large_icon_width"
             android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"/>
 
         <TextView

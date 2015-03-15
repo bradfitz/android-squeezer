@@ -20,6 +20,7 @@ public abstract class BaseFilterDialog extends DialogFragment {
 
     protected abstract void filter();
 
+    @NonNull
     @SuppressLint("InflateParams") // OK, as view is passed to AlertDialog.Builder.setView()
     @Override
     @NonNull

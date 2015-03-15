@@ -40,8 +40,10 @@ import java.util.regex.Pattern;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 class ConnectionState {
 
@@ -146,7 +148,6 @@ class ConnectionState {
         }
         socketRef.set(null);
         socketWriter.set(null);
-        isConnected.set(false);
 
         setConnectionState(service, false, false, loginFailed);
 
@@ -162,14 +163,7 @@ class ConnectionState {
             isConnectInProgress.set(false);
         }
 
-        service.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                for (IServiceConnectionCallback callback : service.mConnectionCallbacks) {
-                    callback.onConnectionChanged(currentState, postConnect, loginFailed);
-                }
-            }
-        });
+        service.mEventBus.postSticky(new ConnectionChanged(currentState, postConnect, loginFailed));
     }
 
     @Nullable Player getActivePlayer() {
@@ -189,10 +183,12 @@ class ConnectionState {
     }
 
     @Nullable public PlayerState getPlayerState(String playerId) {
-        if (!mPlayers.containsKey(playerId))
+        Player player = mPlayers.get(playerId);
+
+        if (player == null)
             return null;
 
-        return mPlayers.get(playerId).getPlayerState();
+        return player.getPlayerState();
     }
 
     List<Player> getPlayers() {
@@ -360,8 +356,8 @@ class ConnectionState {
             hostPort = hostPort.substring(0, hostPort.length() - 1);
         }
 
-        final int port = parsePort(hostPort);
-        final String host = parseHost(hostPort);
+        final int port = Util.parsePort(hostPort);
+        final String host = Util.parseHost(hostPort);
         final String cleanHostPort = host + ":" + port;
 
         currentHost.set(host);
@@ -404,33 +400,6 @@ class ConnectionState {
             }
 
         });
-    }
-
-    private static String parseHost(String hostPort) {
-        if (hostPort == null) {
-            return "";
-        }
-        int colonPos = hostPort.indexOf(":");
-        if (colonPos == -1) {
-            return hostPort;
-        }
-        return hostPort.substring(0, colonPos);
-    }
-
-    private static int parsePort(String hostPort) {
-        if (hostPort == null) {
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
-        int colonPos = hostPort.indexOf(":");
-        if (colonPos == -1) {
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
-        try {
-            return Integer.parseInt(hostPort.substring(colonPos + 1));
-        } catch (NumberFormatException unused) {
-            Log.d(TAG, "Can't parse port out of " + hostPort);
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
     }
 
     Integer getHttpPort() {

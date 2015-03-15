@@ -41,7 +41,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import uk.org.ngo.squeezer.dialog.ServerAddressPreference;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -57,7 +56,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private ISqueezeService service = null;
 
-    private ServerAddressPreference addrPref;
+    private Preference addressPref;
 
     private IntEditTextPreference fadeInPref;
 
@@ -96,9 +95,9 @@ public class SettingsActivity extends PreferenceActivity implements
         SharedPreferences preferences = getPreferenceManager().getSharedPreferences();
         preferences.registerOnSharedPreferenceChangeListener(this);
 
-        addrPref = (ServerAddressPreference) findPreference(Preferences.KEY_SERVERADDR);
-        addrPref.setOnPreferenceChangeListener(this);
-        updateAddressSummary(preferences.getString(Preferences.KEY_SERVERADDR, ""));
+
+        addressPref = findPreference(Preferences.KEY_SERVER_ADDRESS);
+        updateAddressSummary();
 
         fadeInPref = (IntEditTextPreference) findPreference(Preferences.KEY_FADE_IN_SECS);
         fadeInPref.setOnPreferenceChangeListener(this);
@@ -225,11 +224,13 @@ public class SettingsActivity extends PreferenceActivity implements
         unbindService(serviceConnection);
     }
 
-    private void updateAddressSummary(String addr) {
-        if (addr.length() > 0) {
-            addrPref.setSummary(addr);
+    private void updateAddressSummary() {
+        Preferences preferences = new Preferences(this);
+        String serverName = preferences.getServerName();
+        if (serverName != null && serverName.length() > 0) {
+            addressPref.setSummary(serverName);
         } else {
-            addrPref.setSummary(R.string.settings_serveraddr_summary);
+            addressPref.setSummary(R.string.settings_serveraddr_summary);
         }
     }
 
@@ -275,13 +276,6 @@ public class SettingsActivity extends PreferenceActivity implements
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         final String key = preference.getKey();
         Log.v(TAG, "preference change for: " + key);
-
-        if (Preferences.KEY_SERVERADDR.equals(key)) {
-            final String ipPort = newValue.toString();
-            // TODO: check that it looks valid?
-            updateAddressSummary(ipPort);
-            return true;
-        }
 
         if (Preferences.KEY_FADE_IN_SECS.equals(key)) {
             updateFadeInSecondsSummary(Util.parseDecimalIntOrZero(newValue.toString()));
@@ -330,6 +324,11 @@ public class SettingsActivity extends PreferenceActivity implements
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.v(TAG, "Preference changed: " + key);
+
+        if (key.startsWith(Preferences.KEY_SERVER_ADDRESS)) {
+            updateAddressSummary();
+        }
+
         if (service != null) {
             service.preferenceChanged(key);
         } else {

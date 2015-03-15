@@ -111,8 +111,8 @@ public class Album extends ArtworkItem {
     }
 
     @Override
-    public String toString() {
-        return "id=" + getId() + ", name=" + name + ", artist=" + artist + ", year=" + year;
+    public String toStringOpen() {
+        return super.toStringOpen() + ", artist: " + artist + ", year: " + year;
     }
 
 }

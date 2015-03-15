@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -73,7 +74,7 @@ public abstract class BaseViewDialog<
                                                        parent, false);
                                        ListLayout listLayout = listLayoutClass.getEnumConstants()[position];
                                        textView.setCompoundDrawablesWithIntrinsicBounds(
-                                               listLayout.getIcon(), 0, 0, 0);
+                                               getIcon(listLayout), 0, 0, 0);
                                        textView.setText(listLayout.getText(getActivity()));
                                        textView.setChecked(listLayout == activity.getListLayout());
                                        return textView;
@@ -112,6 +113,12 @@ public abstract class BaseViewDialog<
         return builder.create();
     }
 
+    protected int getIcon(ListLayout listLayout) {
+        TypedValue v = new TypedValue();
+        getActivity().getTheme().resolveAttribute(listLayout.getIconAttribute(), v, true);
+        return v.resourceId;
+    }
+
     protected abstract String getTitle();
 
     public interface EnumWithText {
@@ -119,7 +126,7 @@ public abstract class BaseViewDialog<
     }
 
     public interface EnumWithTextAndIcon extends EnumWithText {
-        public int getIcon();
+        public int getIconAttribute();
     }
 
 }
