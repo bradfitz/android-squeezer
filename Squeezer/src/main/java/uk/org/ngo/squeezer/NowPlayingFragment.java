@@ -981,6 +981,7 @@ public class NowPlayingFragment extends Fragment implements
 
         // These are all set at the same time, so one check is sufficient
         if (menu_item_connect != null) {
+            menu_item_connect.setVisible(!connected);
             menu_item_disconnect.setVisible(connected);
             menu_item_players.setEnabled(connected);
             menu_item_playlists.setEnabled(connected);
