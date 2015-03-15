@@ -1125,41 +1125,41 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     public void onEventMainThread(MusicChanged event) {
-        updateSongInfo(event.mPlayerState.getCurrentSong());
+        updateSongInfo(event.playerState.getCurrentSong());
     }
 
     public void onEventMainThread(PlayersChanged event) {
-        updatePlayerDropDown(event.mPlayers, event.mActivePlayer);
+        updatePlayerDropDown(event.players, event.activePlayer);
     }
 
     public void onEventMainThread(PlayStatusChanged event) {
-        updatePlayPauseIcon(event.mPlayStatus);
+        updatePlayPauseIcon(event.playStatus);
     }
 
     public void onEventMainThread(PowerStatusChanged event) {
-        updatePowerMenuItems(event.mCanPowerOn, event.mCanPowerOff);
+        updatePowerMenuItems(event.canPowerOn, event.canPowerOff);
     }
 
     public void onEventMainThread(RepeatStatusChanged event) {
-        updateRepeatStatus(event.mRepeatStatus);
-        if (!event.mInitial) {
-            Toast.makeText(mActivity, mActivity.getServerString(event.mRepeatStatus.getText()),
+        updateRepeatStatus(event.repeatStatus);
+        if (!event.initial) {
+            Toast.makeText(mActivity, mActivity.getServerString(event.repeatStatus.getText()),
                     Toast.LENGTH_SHORT).show();
         }
     }
 
     public void onEventMainThread(ShuffleStatusChanged event) {
-        updateShuffleStatus(event.mShuffleStatus);
-        if (!event.mInitial) {
+        updateShuffleStatus(event.shuffleStatus);
+        if (!event.initial) {
             Toast.makeText(mActivity,
-                    mActivity.getServerString(event.mShuffleStatus.getText()),
+                    mActivity.getServerString(event.shuffleStatus.getText()),
                     Toast.LENGTH_SHORT).show();
         }
     }
 
     public void onEvent(SongTimeChanged event) {
-        NowPlayingFragment.this.secondsIn = event.mCurrentPosition;
-        NowPlayingFragment.this.secondsTotal = event.mDuration;
+        NowPlayingFragment.this.secondsIn = event.currentPosition;
+        NowPlayingFragment.this.secondsTotal = event.duration;
         uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
     }
 }

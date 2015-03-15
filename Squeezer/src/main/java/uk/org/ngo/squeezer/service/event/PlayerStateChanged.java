@@ -25,13 +25,13 @@ import uk.org.ngo.squeezer.model.PlayerState;
 /** Event sent when a player's state has changed. */
 public class PlayerStateChanged {
     /** The player with changed state. */
-    @NonNull public final Player mPlayer;
+    @NonNull public final Player player;
 
     /** The player's new state. */
-    @NonNull public final PlayerState mPlayerState;
+    @NonNull public final PlayerState playerState;
 
     public PlayerStateChanged(@NonNull Player player, @NonNull PlayerState playerState) {
-        mPlayer = player;
-        mPlayerState = playerState;
+        this.player = player;
+        this.playerState = playerState;
     }
 }

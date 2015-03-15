@@ -139,10 +139,10 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
-            mCanFavorites = event.mCanFavourites;
-            mCanMusicfolder = event.mCanMusicFolders;
-            mCanMyApps = event.mCanMyApps;
-            mCanRandomplay = event.mCanRandomPlay;
+            mCanFavorites = event.canFavourites;
+            mCanMusicfolder = event.canMusicFolders;
+            mCanMyApps = event.canMyApps;
+            mCanRandomplay = event.canRandomPlay;
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>(MY_APPS + 1);

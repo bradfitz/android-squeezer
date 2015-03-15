@@ -21,22 +21,22 @@ package uk.org.ngo.squeezer.service.event;
  */
 public class HandshakeComplete {
     /** Does the server support the {@code favorites items} command? */
-    public final boolean mCanFavourites;
+    public final boolean canFavourites;
 
     /** Does the server support the {@code musicfolders} command? */
-    public final boolean mCanMusicFolders;
+    public final boolean canMusicFolders;
 
     /** Does the server support the {@code myapps items} command? */
-    public final boolean mCanMyApps;
+    public final boolean canMyApps;
 
     /** Does the server support the {@code randomplay} command? */
-    public final boolean mCanRandomPlay;
+    public final boolean canRandomPlay;
 
     public HandshakeComplete(boolean canFavourites, boolean canMusicFolders,
                              boolean canMyApps, boolean canRandomPlay) {
-        mCanFavourites = canFavourites;
-        mCanMusicFolders = canMusicFolders;
-        mCanMyApps = canMyApps;
-        mCanRandomPlay = canRandomPlay;
+        this.canFavourites = canFavourites;
+        this.canMusicFolders = canMusicFolders;
+        this.canMyApps = canMyApps;
+        this.canRandomPlay = canRandomPlay;
     }
 }

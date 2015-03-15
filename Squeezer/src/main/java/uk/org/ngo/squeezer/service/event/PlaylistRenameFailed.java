@@ -21,9 +21,9 @@ import android.support.annotation.NonNull;
 /** Event sent if renaming a playlist failed. */
 public class PlaylistRenameFailed {
     @NonNull
-    final public String mFailureMessage;
+    final public String failureMessage;
 
     public PlaylistRenameFailed(@NonNull String failureMessage) {
-        mFailureMessage = failureMessage;
+        this.failureMessage = failureMessage;
     }
 }

@@ -117,8 +117,8 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
                 ConnectionState.LOGIN_STARTED,
                 ConnectionState.LOGIN_COMPLETED), mActualConnectionStates);
 
-        assertTrue(mLastHandshakeCompleteEvent.mCanMusicFolders);
-        assertTrue(mLastHandshakeCompleteEvent.mCanRandomPlay);
+        assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
+        assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
         assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
                 mService.preferredAlbumSort());
 
@@ -157,8 +157,8 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
                 ConnectionState.LOGIN_STARTED,
                 ConnectionState.LOGIN_COMPLETED), mActualConnectionStates);
 
-        assertTrue(mLastHandshakeCompleteEvent.mCanMusicFolders);
-        assertTrue(mLastHandshakeCompleteEvent.mCanRandomPlay);
+        assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
+        assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
         assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
                 mService.preferredAlbumSort());
 

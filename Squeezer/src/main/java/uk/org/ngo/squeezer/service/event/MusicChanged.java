@@ -24,9 +24,9 @@ import uk.org.ngo.squeezer.model.PlayerState;
 public class MusicChanged {
     /** The active player's new state. */
     @NonNull
-    public final PlayerState mPlayerState;
+    public final PlayerState playerState;
 
     public MusicChanged(@NonNull PlayerState playerState) {
-        mPlayerState = playerState;
+        this.playerState = playerState;
     }
 }
