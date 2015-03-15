@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Google Inc.  All Rights Reserved.
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.itemlist;
+package uk.org.ngo.squeezer.service.event;
 
-import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.service.ServiceCallback;
+import android.support.annotation.NonNull;
 
-public interface IServiceCurrentPlaylistCallback extends ServiceCallback {
-    void onAddTracks(PlayerState playerState);
-    void onDelete(PlayerState playerState, int index);
+/** Event sent if creating a playlist failed. */
+public class PlaylistCreateFailed {
+    @NonNull
+    final public String failureMessage;
+
+    public PlaylistCreateFailed(@NonNull String failureMessage) {
+        this.failureMessage = failureMessage;
+    }
 }

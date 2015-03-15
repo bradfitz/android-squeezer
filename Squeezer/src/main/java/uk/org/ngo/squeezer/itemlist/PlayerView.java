@@ -62,6 +62,7 @@ public class PlayerView extends BaseItemView<Player> {
         return new PlayerViewHolder();
     }
 
+    @Override
     public void bindView(View view, Player item, ImageFetcher imageFetcher) {
         final PlayerListActivity activity = (PlayerListActivity) getActivity();
         PlayerState playerState = activity.getPlayerState(item.getId());
@@ -92,6 +93,7 @@ public class PlayerView extends BaseItemView<Player> {
         }
     }
 
+    @Override
     public void onItemSelected(int index, Player item) {
     }
 
@@ -204,6 +206,7 @@ public class PlayerView extends BaseItemView<Player> {
         return super.doItemContext(menuItem);
     }
 
+    @Override
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.player, quantity);
     }

@@ -41,15 +41,14 @@ public class PluginItemView extends BaseItemView<PluginItem> {
         setLoadingViewParams(EnumSet.of(ViewParams.ICON));
     }
 
+    @Override
     public void bindView(View view, PluginItem item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
 
-        // Disable the context menu if this item has sub-items.
-        if (item.isHasitems()) {
-            viewHolder.btnContextMenu.setVisibility(View.GONE);
-        }
+        // Show/hide the context menu if this item is playable.
+        viewHolder.btnContextMenu.setVisibility(item.isAudio() ? View.VISIBLE : View.GONE);
 
         // If the item has an image, then fetch and display it
         if (item.getImage() != null) {
@@ -57,7 +56,7 @@ public class PluginItemView extends BaseItemView<PluginItem> {
         } else {
             // Otherwise we will revert to some other icon. This is not an exact approach, more
             // like a best effort.
-            if (item.isHasitems()) {
+            if (!item.isAudio()) {
                 // If this item has sub-items we use the icon of the parent and if that fails,
                 // the current plugin.
                 if (mActivity.getPlugin().getIconResource() != 0) {
@@ -80,16 +79,19 @@ public class PluginItemView extends BaseItemView<PluginItem> {
     }
 
     @Override
+    public boolean isSelectable(PluginItem item) {
+        return item.isHasitems();
+    }
+
+    @Override
     public void onItemSelected(int index, PluginItem item) {
-        if (item.isHasitems()) {
-            mActivity.show(item);
-        }
+        mActivity.show(item);
     }
 
     // XXX: Make this a menu resource.
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        if (!((PluginItem) menuInfo.item).isHasitems()) {
+        if (((PluginItem) menuInfo.item).isAudio()) {
             super.onCreateContextMenu(menu, v, menuInfo);
 
             menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);

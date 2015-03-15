@@ -26,7 +26,7 @@ public class Intents {
         List<ResolveInfo> list =
                 packageManager.queryIntentActivities(intent,
                         PackageManager.MATCH_DEFAULT_ONLY);
-        return list.size() > 0;
+        return !list.isEmpty();
     }
 
     /**
@@ -45,6 +45,6 @@ public class Intents {
         final Intent intent = new Intent(action);
         List<ResolveInfo> list =
                 packageManager.queryBroadcastReceivers(intent, 0);
-        return list.size() > 0;
+        return !list.isEmpty();
     }
 }

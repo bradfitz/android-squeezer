@@ -35,6 +35,8 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlaylistRenameDialog;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.PlaylistCreateFailed;
+import uk.org.ngo.squeezer.service.event.PlaylistRenameFailed;
 
 public class PlaylistSongsActivity extends BaseListActivity<Song> {
 
@@ -156,12 +158,6 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-        service.registerPlaylistMaintenanceCallback(playlistMaintenanceCallback);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.playlistmenu, menu);
         getMenuInflater().inflate(R.menu.playmenu, menu);
@@ -226,25 +222,13 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
         setResult(RESULT_OK, intent);
     }
 
-    private final IServicePlaylistMaintenanceCallback playlistMaintenanceCallback
-            = new IServicePlaylistMaintenanceCallback() {
+    public void onEvent(PlaylistCreateFailed event) {
+        showServiceMessage(event.failureMessage);
+    }
 
-        @Override
-        public void onRenameFailed(String msg) {
-            playlist.setName(oldName);
-            getIntent().putExtra("playlist", playlist);
-            showServiceMessage(msg);
-        }
-
-        @Override
-        public void onCreateFailed(String msg) {
-            showServiceMessage(msg);
-        }
-
-        @Override
-        public Object getClient() {
-            return PlaylistSongsActivity.this;
-        }
-    };
-
+    public void onEvent(PlaylistRenameFailed event) {
+        playlist.setName(oldName);
+        getIntent().putExtra("playlist", playlist);
+        showServiceMessage(event.failureMessage);
+    }
 }

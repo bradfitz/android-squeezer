@@ -50,7 +50,7 @@ public abstract class PlayableItemAction {
 
     public static PlayableItemAction createAction(
             ItemListActivity activity, String actionType) {
-        if (actionType == null || actionType.equals("")) {
+        if (actionType == null || "".equals(actionType)) {
             return new PlayAction(activity);
         }
 

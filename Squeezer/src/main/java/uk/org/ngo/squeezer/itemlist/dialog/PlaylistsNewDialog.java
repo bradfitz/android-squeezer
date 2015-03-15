@@ -2,6 +2,7 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.InputType;
 
 import uk.org.ngo.squeezer.R;
@@ -12,6 +13,7 @@ public class PlaylistsNewDialog extends BaseEditTextDialog {
 
     private PlaylistsActivity activity;
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);

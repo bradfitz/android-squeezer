@@ -17,14 +17,12 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
-
-import com.google.common.primitives.Longs;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -34,6 +32,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Util {
+    private static final String TAG = Util.class.getSimpleName();
 
     private Util() {
     }
@@ -41,9 +40,6 @@ public class Util {
 
     /**
      * Update target, if it's different from newValue.
-     *
-     * @param target
-     * @param newValue
      *
      * @return true if target is updated. Otherwise return false.
      */
@@ -123,6 +119,33 @@ public class Util {
         }
     }
 
+    public static String parseHost(String hostPort) {
+        if (hostPort == null) {
+            return "";
+        }
+        int colonPos = hostPort.indexOf(":");
+        if (colonPos == -1) {
+            return hostPort;
+        }
+        return hostPort.substring(0, colonPos);
+    }
+
+    public static int parsePort(String hostPort) {
+        if (hostPort == null) {
+            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
+        }
+        int colonPos = hostPort.indexOf(":");
+        if (colonPos == -1) {
+            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
+        }
+        try {
+            return Integer.parseInt(hostPort.substring(colonPos + 1));
+        } catch (NumberFormatException unused) {
+            Log.d(TAG, "Can't parse port out of " + hostPort);
+            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
+        }
+    }
+
     public static View getSpinnerItemView(Context context, View convertView, ViewGroup parent,
             String label) {
         return getSpinnerItemView(context, convertView, parent, label,
@@ -162,28 +185,6 @@ public class Util {
             }
         }
         return count;
-    }
-
-    /**
-     * Converts a MAC address (48bit) to a long.
-     *
-     * @param mac The MAC address.
-     * @return The MAC address in the form of a long.
-     */
-    public static long MacToLong(@NonNull String mac) {
-        String[] octets = mac.split(":");
-        byte[] bytes = new byte[] {
-                0,
-                0,
-                (byte)Integer.parseInt(octets[0], 16),
-                (byte)Integer.parseInt(octets[1], 16),
-                (byte)Integer.parseInt(octets[2], 16),
-                (byte)Integer.parseInt(octets[3], 16),
-                (byte)Integer.parseInt(octets[4], 16),
-                (byte)Integer.parseInt(octets[5], 16),
-        };
-
-        return Longs.fromByteArray(bytes);
     }
 
     /** Helper to set alpha value for a view, since View.setAlpha is API level 11 */

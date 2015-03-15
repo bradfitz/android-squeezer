@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,23 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.Nullable;
-
-import java.util.List;
+import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 
-public interface IServicePlayersCallback extends ServiceCallback {
-    void onPlayersChanged(List<Player> players, final @Nullable Player activePlayer);
-}
+/** Event sent when a player's volume has changed. */
+public class PlayerVolume {
+    /** The player's new volume. */
+    public final int volume;
 
+    /** The player that was affected. */
+    @NonNull
+    public final Player player;
+
+    public PlayerVolume(int volume, @NonNull Player player) {
+        this.volume = volume;
+        this.player = player;
+    }
+}

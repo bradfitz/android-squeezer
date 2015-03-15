@@ -33,7 +33,7 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class GenreSpinner {
 
-    final GenreSpinnerCallback callback;
+    private final GenreSpinnerCallback callback;
 
     private final ItemListActivity activity;
 
@@ -59,6 +59,7 @@ public class GenreSpinner {
         @Override
         public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<Genre> list, Class<Genre> dataType) {
             callback.getUIThreadHandler().post(new Runnable() {
+                @Override
                 public void run() {
                     if (adapter == null) {
                         GenreView itemView = new GenreView(activity) {

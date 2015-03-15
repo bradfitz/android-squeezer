@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Google Inc.  All Rights Reserved.
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
+
+import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.PlayerState;
 
-public interface IServiceMusicChangedCallback extends ServiceCallback {
-    void onMusicChanged(PlayerState playerState);
+/** Event sent when the active player's play status changes. */
+public class PlayStatusChanged {
+    /** The new play status. */
+    @NonNull
+    public final PlayerState.PlayStatus playStatus;
+
+    public PlayStatusChanged(@NonNull PlayerState.PlayStatus playStatus) {
+        this.playStatus = playStatus;
+    }
 }

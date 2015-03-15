@@ -51,10 +51,10 @@ public class PlayerSyncDialog extends DialogFragment {
         public void unsyncPlayer(@NonNull Player player);
     }
 
-    PlayerSyncDialogHost mHost;
+    private PlayerSyncDialogHost mHost;
 
     /** The sync group the user selected. */
-    int mSelectedGroup = 0;
+    private int mSelectedGroup = 0;
 
     // Override the Fragment.onAttach() method to instantiate the PlayerSyncDialogHost.
     @Override
@@ -125,11 +125,13 @@ public class PlayerSyncDialog extends DialogFragment {
         builder.setTitle(getString(R.string.sync_title, currentPlayer.getName()))
                 .setSingleChoiceItems(playerSyncGroupAdapter, mSelectedGroup,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 mSelectedGroup = which;
                             }
                         })
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // The "No synchronisation" option is always last.
                         if (mSelectedGroup == playerSyncGroupMasterIds.size()) {
@@ -141,6 +143,7 @@ public class PlayerSyncDialog extends DialogFragment {
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialog, int id) {
                         // User cancelled the dialog, nothing to do.
                     }
