@@ -25,6 +25,7 @@ import android.view.View;
 import uk.org.ngo.squeezer.dialog.InfoDialog;
 import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 /**
@@ -112,7 +113,7 @@ public class DisconnectedActivity extends BaseActivity {
     }
 
     public void onEventMainThread(ConnectionChanged event) {
-        if (event.mIsConnected) {
+        if (event.connectionState == ConnectionState.LOGIN_COMPLETED) {
             // The user requested a connection to the server, which succeeded.  There's
             // no prior activity to go to, so launch HomeActivity, with flags to
             // clear other activities so hitting "back" won't show this activity again.

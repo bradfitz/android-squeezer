@@ -191,6 +191,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 .setWifiLock(((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(
                         WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
 
+        mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
         getPreferences();
 
         cli.initialize();
@@ -222,7 +223,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     void disconnect(boolean isServerDisconnect) {
         mEventBus.removeAllStickyEvents();
         connectionState.disconnect(this, isServerDisconnect && !mHandshakeComplete);
-        mEventBus.post(new ConnectionChanged(false, false, false));
         mHandshakeComplete = false;
         clearOngoingNotification();
     }
@@ -943,7 +943,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * <pre>
      * login user wrongpassword
      * login user ******
-     * (Connection terminted)
+     * (Connection terminated)
      * </pre>
      * instead of as documented
      * <pre>
@@ -954,12 +954,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * is considered an authentication failure.
      */
     void onCliPortConnectionEstablished(final String userName, final String password) {
+        connectionState.setConnectionState(this, ConnectionState.LOGIN_STARTED);
         cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
     }
 
     /**
      * Handshake with the SqueezeServer, learn some of its supported features, and start listening
      * for asynchronous updates of server state.
+     *
+     * Note: Authentication may not actually have completed at this point. The server has
+     * responded to the "login" request, but if the username/password pair was incorrect it
+     * has (probably) not yet disconnected the socket. See
+     * {@link uk.org.ngo.squeezer.service.ConnectionState.ListeningThread#run()} for the code
+     * that determines whether authentication succeeded.
      */
     private void onAuthenticated() {
         fetchPlayers();
@@ -968,7 +975,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 "can musicfolder ?", // learn music folder browsing support
                 "can randomplay ?", // learn random play function functionality
                 "can favorites items ?", // learn support for "Favorites" plugin
-                "can myapps items ?", // lean support for "MyApps" plugin
+                "can myapps items ?", // learn support for "MyApps" plugin
                 "pref httpport ?", // learn the HTTP port (needed for images)
                 "pref jivealbumsort ?", // learn the preferred album sort order
                 "pref mediadirs ?", // learn the base path(s) of the server music library
