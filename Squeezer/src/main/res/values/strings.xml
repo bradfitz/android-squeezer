@@ -32,11 +32,7 @@
     </string>
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
     <string name="settings_server_prompt">Choose a server</string>
-    <string name="settings_server_scan_start">Start scan</string>
-    <string name="settings_server_scan_stop">Stop scanning</string>
-    <string name="settings_server_scan_msg">Or press \'Start scan\' to scan the network for
-        servers.
-    </string>
+    <string name="settings_server_rescan">Rescan</string>
     <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because WiFi is not
         connected.
     </string>
@@ -95,8 +91,13 @@
     <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
     <string name="connection_failed_text">Connection failed. Check settings.</string>
     <string name="not_connected">Squeezer is not connected to any Squeezeservers.</string>
-    <string name="no_configured_server">No Squeezeservers are configured in the settings.</string>
-    <string name="login_failed_text">Login failed. Enter user name and password.</string>
+    <string name="select_server">Or select one the servers below.</string>
+    <string name="login_failed_text">Login failed. Make sure the correct port, user name and password is entered.</string>
+    <string name="login_failed_info_text">
+        &lt;p&gt;You find the correct values in the servers web-interface. Select settings and the Advanced tab.&lt;/p&gt;
+        &lt;p&gt;To check the port number select network in the dropdown.&lt;/p&gt;
+        &lt;p&gt;User name and password is found by selecting security in the dropdown.&lt;/p&gt;
+    </string>
     <string name="disconnected_text">Disconnected.</string>
     <string name="wifi_disabled_text">Wi-Fi is disabled</string>
     <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. When an active

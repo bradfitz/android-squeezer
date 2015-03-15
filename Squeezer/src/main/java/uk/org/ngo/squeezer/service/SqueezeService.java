@@ -802,11 +802,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 SharedPreferences.Editor editor = preferences.edit();
 
                 if (newActivePlayer == null) {
-                    Log.v(TAG, "Clearing " + Preferences.KEY_LASTPLAYER);
-                    editor.remove(Preferences.KEY_LASTPLAYER);
+                    Log.v(TAG, "Clearing " + Preferences.KEY_LAST_PLAYER);
+                    editor.remove(Preferences.KEY_LAST_PLAYER);
                 } else {
-                    Log.v(TAG, "Saving " + Preferences.KEY_LASTPLAYER + "=" + newActivePlayer.getId());
-                    editor.putString(Preferences.KEY_LASTPLAYER, newActivePlayer.getId());
+                    Log.v(TAG, "Saving " + Preferences.KEY_LAST_PLAYER + "=" + newActivePlayer.getId());
+                    editor.putString(Preferences.KEY_LAST_PLAYER, newActivePlayer.getId());
                 }
 
                 editor.commit();
@@ -1030,7 +1030,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             private Player getInitialPlayer() {
                 final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
                         Context.MODE_PRIVATE);
-                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER,
+                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LAST_PLAYER,
                         null);
                 Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
@@ -1124,14 +1124,16 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     /**
-     * Tries to get the relative path to the server music library.
+     * Tries to get the path relative to the server music library.
      * <p/>
-     * If this is not possible resort to the last path segment of the server path
+     * If this is not possible resort to the last path segment of the server path.
+     * In both cases replace dangerous characters by safe ones.
      */
     private String getLocalFile(@NonNull String serverUrl) {
         Uri serverUri = Uri.parse(serverUrl);
         String serverPath = serverUri.getPath();
         String mediaDir = null;
+        String path = null;
         for (String dir : connectionState.getMediaDirs()) {
             if (serverPath.startsWith(dir)) {
                 mediaDir = dir;
@@ -1139,9 +1141,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
         }
         if (mediaDir != null)
-            return serverPath.substring(mediaDir.length(), serverPath.length());
+            path = serverPath.substring(mediaDir.length(), serverPath.length());
         else
-            return serverUri.getLastPathSegment();
+            path = serverUri.getLastPathSegment();
+
+        // Convert VFAT-unfriendly characters to "_".
+        return path.replaceAll("[?<>\\\\:*|\"]", "_");
     }
 
     private final ISqueezeService squeezeService = new SqueezeServiceBinder();
@@ -1524,7 +1529,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public String getIconUrl(String icon) throws HandshakeNotCompleteException {
-            return getAbsoluteUrl('/' + icon);
+            if (isRelative(icon))
+                return getAbsoluteUrl(icon.startsWith("/") ? icon : '/' + icon);
+            else
+                return icon;
         }
 
         private String getAbsoluteUrl(String relativeUrl) throws HandshakeNotCompleteException {
@@ -1536,6 +1544,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return "";
             }
             return "http://" + connectionState.getCurrentHost() + ":" + port + relativeUrl;
+        }
+
+        private boolean isRelative(String url) {
+            return Uri.parse(url).isRelative();
         }
 
         @Override
@@ -1561,7 +1573,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
 
             // If the server address changed then disconnect.
-            if (Preferences.KEY_SERVERADDR.equals(key)) {
+            if (key.startsWith(Preferences.KEY_SERVER_ADDRESS)) {
                 disconnect();
                 return;
             }

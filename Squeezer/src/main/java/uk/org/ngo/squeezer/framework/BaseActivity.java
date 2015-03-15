@@ -144,6 +144,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         mVolumePanel = new VolumePanel(this);
 
         // If SqueezePlayer is installed, start it
+        // TODO Only when connected (or at least serveraddress is saved)
         if (SqueezePlayer.hasSqueezePlayer(this) && new Preferences(this).controlSqueezePlayer()) {
             squeezePlayer = new SqueezePlayer(this);
         }
