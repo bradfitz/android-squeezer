@@ -23,7 +23,6 @@ public abstract class BaseFilterDialog extends DialogFragment {
     @NonNull
     @SuppressLint("InflateParams") // OK, as view is passed to AlertDialog.Builder.setView()
     @Override
-    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         filterForm = getActivity().getLayoutInflater().inflate(R.layout.filter_dialog, null);
