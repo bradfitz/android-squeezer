@@ -177,7 +177,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     public void onEventMainThread(PlayersChanged event) {
         // Only include players that are connected to the server.
         ArrayList<Player> connectedPlayers = new ArrayList<Player>();
-        for (Player player : event.mPlayers) {
+        for (Player player : event.players) {
             if (player.getConnected()) {
                 connectedPlayers.add(player);
             }
@@ -190,12 +190,12 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
             return;
         }
 
-        if (event.mActivePlayer.equals(mActivePlayer) &&
-                event.mActivePlayer.getConnected() == mActivePlayer.getConnected()) {
+        if (event.activePlayer.equals(mActivePlayer) &&
+                event.activePlayer.getConnected() == mActivePlayer.getConnected()) {
             return;
         }
 
-        mActivePlayer = event.mActivePlayer;
+        mActivePlayer = event.activePlayer;
         mEmptyView.setVisibility(View.GONE);
         mNonEmptyView.setVisibility(View.VISIBLE);
         clearAndReOrderItems();

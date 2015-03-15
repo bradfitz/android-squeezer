@@ -1,9 +1,9 @@
 
 package uk.org.ngo.squeezer.test.mock;
 
-import junit.framework.AssertionFailedError;
-
 import android.util.Log;
+
+import junit.framework.AssertionFailedError;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class SqueezeboxServerMock extends Thread {
 
     public static final int CLI_PORT = 9091;
 
-    private Object serverReadyMonitor = new Object();
+    private final Object serverReadyMonitor = new Object();
 
     private boolean accepting;
 
@@ -48,7 +48,7 @@ public class SqueezeboxServerMock extends Thread {
                             throw new AssertionFailedError("Expected the mock server to start");
                         }
                     } catch (InterruptedException e) {
-                        Log.w(TAG, "Interrupted while wating for the mock server to start");
+                        Log.w(TAG, "Interrupted while waiting for the mock server to start");
                     }
                 }
             }
@@ -80,9 +80,9 @@ public class SqueezeboxServerMock extends Thread {
             return this;
         }
 
-        private String username = null;
+        private String username;
 
-        private String password = null;
+        private String password;
 
         private boolean canRandomplay = true;
 
@@ -98,7 +98,7 @@ public class SqueezeboxServerMock extends Thread {
     private SqueezeboxServerMock(Starter starter) {
         username = starter.username;
         password = starter.password;
-        canRamdomplay = starter.canRandomplay;
+        canRandomplay = starter.canRandomplay;
         canMusicFolder = starter.canMusicFolder;
         albumsSortOrder = starter.albumsSortOrder;
     }
@@ -109,7 +109,7 @@ public class SqueezeboxServerMock extends Thread {
 
     private boolean canMusicFolder;
 
-    private boolean canRamdomplay;
+    private boolean canRandomplay;
 
     private AlbumsSortOrder albumsSortOrder;
 
@@ -122,6 +122,7 @@ public class SqueezeboxServerMock extends Thread {
         try {
             // Establish server socket
             serverSocket = new ServerSocket(CLI_PORT);
+            serverSocket.setReuseAddress(true);
 
             // Wait for incoming connection
             Log.d(TAG, "Mock server listening on port: " + serverSocket.getLocalPort());
@@ -140,7 +141,7 @@ public class SqueezeboxServerMock extends Thread {
 
         boolean loggedIn = (username == null || password == null);
 
-        while (true) {
+        while(! Thread.interrupted()) {
             // read data from Socket
             String line;
             try {
@@ -155,8 +156,8 @@ public class SqueezeboxServerMock extends Thread {
 
             String[] tokens = line.split(" ");
 
-            if (tokens[0].equals("login")) {
-                out.println(tokens[0] + " " + tokens[1] + " ******");
+            if ("login".equals(tokens[0])) {
+                out.println(tokens[0] + ' ' + tokens[1] + " ******");
                 if (username != null && password != null) {
                     if (tokens.length < 2 || !username.equals(tokens[1])) {
                         break;
@@ -171,36 +172,34 @@ public class SqueezeboxServerMock extends Thread {
                     break;
                 }
 
-                if (line.equals("exit")) {
+                if ("exit".equals(line)) {
                     out.println(line);
                     break;
-                } else if (line.equals("listen 1")) {
+                } else if ("listen 1".equals(line)) {
                     //Just ignore, mock doesn't support server side events
                     out.println("listen 1");
-                } else if (line.equals("can musicfolder ?")) {
+                } else if ("can musicfolder ?".equals(line)) {
                     out.println("can musicfolder " + (canMusicFolder ? 1 : 0));
-                } else if (line.equals("can randomplay ?")) {
-                    out.println("can randomplay " + (canRamdomplay ? 1 : 0));
-                } else if (line.equals("pref httpport ?")) {
+                } else if ("can randomplay ?".equals(line)) {
+                    out.println("can randomplay " + (canRandomplay ? 1 : 0));
+                } else if ("pref httpport ?".equals(line)) {
                     out.println("pref httpport 9092");
-                } else if (line.equals("pref jivealbumsort ?")) {
+                } else if ("pref jivealbumsort ?".equals(line)) {
                     out.println("pref jivealbumsort " + albumsSortOrder);
-                } else if (line.equals("version ?")) {
+                } else if ("version ?".equals(line)) {
                     out.println("version 7.7.2");
-                } else if (tokens[0].equals("players")) {
+                } else if ("players".equals(tokens[0])) {
                     //TODO implement
                 } else {
                     out.println(line);
                 }
             }
         }
-
         try {
+            Log.d(TAG, "Mock server closing socket");
             socket.close();
             serverSocket.close();
-        } catch (IOException e) {
-        }
-
+        } catch (IOException e) {}
     }
 
 }

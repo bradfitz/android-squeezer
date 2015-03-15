@@ -154,6 +154,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         mVolumePanel = new VolumePanel(this);
 
         // If SqueezePlayer is installed, start it
+        // TODO Only when connected (or at least serveraddress is saved)
         if (SqueezePlayer.hasSqueezePlayer(this) && new Preferences(this).controlSqueezePlayer()) {
             squeezePlayer = new SqueezePlayer(this);
         }
@@ -335,7 +336,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_DOWN:
@@ -356,8 +357,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     public void onEvent(PlayerVolume event) {
-        if (!mIgnoreVolumeChange && mVolumePanel != null && event.mPlayer == mService.getActivePlayer()) {
-            mVolumePanel.postVolumeChanged(event.mVolume, event.mPlayer.getName());
+        if (!mIgnoreVolumeChange && mVolumePanel != null && event.player == mService.getActivePlayer()) {
+            mVolumePanel.postVolumeChanged(event.volume, event.player.getName());
         }
     }
 
@@ -372,10 +373,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     public boolean isConnected() {
-        if (mService == null) {
-            return false;
-        }
-        return mService.isConnected();
+        return mService != null && mService.isConnected();
     }
 
     public String getIconUrl(String icon) {

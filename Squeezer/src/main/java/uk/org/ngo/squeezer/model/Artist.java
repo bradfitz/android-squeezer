@@ -59,10 +59,12 @@ public class Artist extends PlaylistItem {
     }
 
     public static final Creator<Artist> CREATOR = new Creator<Artist>() {
+        @Override
         public Artist[] newArray(int size) {
             return new Artist[size];
         }
 
+        @Override
         public Artist createFromParcel(Parcel source) {
             return new Artist(source);
         }
@@ -73,6 +75,7 @@ public class Artist extends PlaylistItem {
         name = source.readString();
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(name);

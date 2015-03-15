@@ -16,28 +16,18 @@
 
 package uk.org.ngo.squeezer.service.event;
 
+import uk.org.ngo.squeezer.service.ConnectionState;
+
 public class ConnectionChanged {
-    /** Has the network connection to the media server been made? */
-    public final boolean mIsConnected;
+    @ConnectionState.ConnectionStates
+    public int connectionState;
 
-    /** True if this is the very first callback after a new initial connect attempt. */
-    public final boolean mPostConnect;
-
-    /** The server disconnected before handshake completed, indicating that login failed. */
-    public final boolean mLoginFailed;
-
-    public ConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed) {
-        mIsConnected = isConnected;
-        mPostConnect = postConnect;
-        mLoginFailed = loginFailed;
+    public ConnectionChanged(@ConnectionState.ConnectionStates int connectionState) {
+        this.connectionState = connectionState;
     }
 
     @Override
     public String toString() {
-        return "ConnectionChanged{" +
-                "mIsConnected=" + mIsConnected +
-                ", mPostConnect=" + mPostConnect +
-                ", mLoginFailed=" + mLoginFailed +
-                '}';
+        return "ConnectionChanged{" + connectionState + '}';
     }
 }

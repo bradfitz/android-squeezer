@@ -2,11 +2,14 @@
 package uk.org.ngo.squeezer.test.server;
 
 import android.content.Intent;
-import android.os.IBinder;
 import android.test.ServiceTestCase;
-import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
@@ -14,31 +17,61 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.test.mock.SqueezeboxServerMock;
 
 /**
- * @author Kurt Aaholst <kaaholst@gmail.com>
+ * To test interactions with the server:
+ * <ol>
+ *     <li>Create a mock server configured appropriately for the test.</li>
+ *     <li>Set a desired
+ *     {@link uk.org.ngo.squeezer.service.ConnectionState.ConnectionStates} in
+ *     {@link #mWantedState}.</li>
+ *     <li>Connect to the mock server.</li>
+ *     <li>Wait on {@link #mLockWantedState}. Execution will continue when the server
+ *     reaches the same state as is in {@link #mWantedState}.</li>
+ *     <li>At this point {@link #mActualConnectionStates} contains an ordered list of the
+ *     connection state transitions the service has been through.</li>
+ * </ol>
  */
 public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
+    private static final String TAG = "SqueezeServiceTest";
 
     public SqueezeServiceTest() {
         super(SqueezeService.class);
     }
 
-    final Object mLockConnectionComplete = new Object();
-    ConnectionChanged mLastConnectionChangedEvent;
-    int mConnectionChangeCount;
+    /** Wait until the server has reached this state. */
+    @ConnectionState.ConnectionStates
+    private int mWantedState;
 
-    final Object mLockHandshakeComplete = new Object();
-    HandshakeComplete mLastHandshakeCompleteEvent;
-    boolean mHandshakeComplete;
+    /**
+     * Lock object, will be notified when the server reaches the same state as
+     * {@link #mWantedState}.
+     */
+    private final Object mLockWantedState = new Object();
 
-    ISqueezeService mService;
+    /** List of the states the server has transition through. */
+    private final List<Integer> mActualConnectionStates = new ArrayList<Integer>();
+
+    /**
+     * Lock object, will be notified when the service completes the handshake with the
+     * server.
+     */
+    private final Object mLockHandshakeComplete = new Object();
+
+    /** The last successful handshake-complete event. */
+    private HandshakeComplete mLastHandshakeCompleteEvent;
+
+    private ISqueezeService mService;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mConnectionChangeCount = 0;
-        IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
-        mService = (ISqueezeService) binder;
+        mService = (ISqueezeService) bindService(new Intent(getSystemContext(), SqueezeService.class));
         mService.getEventBus().register(this);
+    }
+
+    protected void tearDown() throws Exception {
+        mService.getEventBus().unregister(this);
+        shutdownService();
+        super.tearDown();
     }
 
     /**
@@ -47,14 +80,19 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
      * @throws InterruptedException
      */
     public void testConnectionFailure() throws InterruptedException {
+        SqueezeboxServerMock.starter().start();
+        mWantedState = ConnectionState.CONNECTION_FAILED;
+
         mService.startConnect("localhost", "test", "test");
 
-        synchronized(mLockConnectionComplete) {
-            mLockConnectionComplete.wait();
+        synchronized(mLockWantedState) {
+            mLockWantedState.wait();
         }
 
-        assertEquals(2, mConnectionChangeCount);
-        assertFalse(mLastConnectionChangedEvent.mIsConnected);
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_FAILED), mActualConnectionStates);
     }
 
     /**
@@ -72,12 +110,28 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
             mLockHandshakeComplete.wait();
         }
 
-        assertEquals(2, mConnectionChangeCount);
-        assertTrue(mLastConnectionChangedEvent.mIsConnected);
-        assertTrue(mService.canMusicfolder());
-        assertTrue(mService.canRandomplay());
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_COMPLETED), mActualConnectionStates);
+
+        assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
+        assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
         assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
                 mService.preferredAlbumSort());
+
+        // Check that disconnecting only generates one additional DISCONNECTED event.
+        mService.disconnect();
+
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_COMPLETED,
+                ConnectionState.DISCONNECTED), mActualConnectionStates);
     }
 
     /**
@@ -96,12 +150,28 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
             mLockHandshakeComplete.wait();
         }
 
-        assertEquals(2, mConnectionChangeCount);
-        assertTrue(mLastConnectionChangedEvent.mIsConnected);
-        assertTrue(mService.canMusicfolder());
-        assertTrue(mService.canRandomplay());
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_COMPLETED), mActualConnectionStates);
+
+        assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
+        assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
         assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
                 mService.preferredAlbumSort());
+
+        // Check that disconnecting only generates one additional DISCONNECTED event.
+        mService.disconnect();
+
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_COMPLETED,
+                ConnectionState.DISCONNECTED), mActualConnectionStates);
     }
 
     /**
@@ -112,42 +182,40 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
      */
     public void testAuthenticationFailure() throws InterruptedException {
         SqueezeboxServerMock.starter().username("user").password("1234").start();
+        mWantedState = ConnectionState.DISCONNECTED;
 
         mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "test", "test");
 
-        synchronized (mLockConnectionComplete) {
-            mLockConnectionComplete.wait();
+        synchronized (mLockWantedState) {
+            mLockWantedState.wait();
         }
 
-        assertEquals(2, mConnectionChangeCount);
-
-        // XXX: Note: Doesn't work, as this way of tracking connection changes fires
-        // too early. Fix is to move to a series of events for the nodes in the
-        // state machine for the connection process.
-        //assertFalse(mLastConnectionChangedEvent.mIsConnected);
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_FAILED,
+                ConnectionState.DISCONNECTED), mActualConnectionStates);
     }
 
-    /*
-     * Event handlers follow the general pattern of:
-     * 1. Tracking whether the event completed (either counting, or maintain a boolean).
-     * 2. Saving the most recently received event of that type.
-     * 3. Notifying any waiters that the event has happened.
-     */
     public void onEvent(ConnectionChanged event) {
-        mConnectionChangeCount++;
-        mLastConnectionChangedEvent = event;
+        mActualConnectionStates.add(event.connectionState);
 
-        Log.d("ConnectionChanged", "Count: " + mConnectionChangeCount);
-        Log.d("ConnectionChanged", "Event: " + event.toString());
-        if (event.mIsConnected || event.mPostConnect || event.mLoginFailed) {
-            synchronized (mLockConnectionComplete) {
-                mLockConnectionComplete.notify();
+        // If the desired state is DISCONNECTED then ignore it the very first time it
+        // appears, as it's the initial state.
+        if (mWantedState == ConnectionState.DISCONNECTED && mActualConnectionStates.size() == 1) {
+            return;
+        }
+
+        if (event.connectionState == mWantedState) {
+            synchronized (mLockWantedState) {
+                mLockWantedState.notify();
             }
         }
     }
 
     public void onEvent(HandshakeComplete event) {
-        mHandshakeComplete = true;
         mLastHandshakeCompleteEvent = event;
         synchronized (mLockHandshakeComplete) {
             mLockHandshakeComplete.notify();

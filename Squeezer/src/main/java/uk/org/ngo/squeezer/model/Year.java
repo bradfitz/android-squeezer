@@ -40,10 +40,12 @@ public class Year extends PlaylistItem {
     }
 
     public static final Creator<Year> CREATOR = new Creator<Year>() {
+        @Override
         public Year[] newArray(int size) {
             return new Year[size];
         }
 
+        @Override
         public Year createFromParcel(Parcel source) {
             return new Year(source);
         }
@@ -53,6 +55,7 @@ public class Year extends PlaylistItem {
         setId(source.readString());
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
     }

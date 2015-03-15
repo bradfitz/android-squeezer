@@ -53,7 +53,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.regex.Pattern;
 
-import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -95,7 +94,6 @@ import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
-import uk.org.ngo.squeezer.util.Logger;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
@@ -199,6 +197,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 .setWifiLock(((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(
                         WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
 
+        mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
         getPreferences();
 
         cli.initialize();
@@ -230,7 +229,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     void disconnect(boolean isServerDisconnect) {
         mEventBus.removeAllStickyEvents();
         connectionState.disconnect(this, isServerDisconnect && !mHandshakeComplete);
-        mEventBus.post(new ConnectionChanged(false, false, false));
         mHandshakeComplete = false;
         clearOngoingNotification();
     }
@@ -512,7 +510,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     // calls to the callbacks below.
                     updatePlayStatus(tokenMap.get("mode"), player);
 
-                    updatePlayerSubscription(player, getPlayerSubscriptionType(player));
+                    updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
 
                     // Note to self: The problem here is that with second-to-second updates enabled
                     // the playerlistactivity callback will be called every second.  Thinking that
@@ -839,11 +837,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 SharedPreferences.Editor editor = preferences.edit();
 
                 if (newActivePlayer == null) {
-                    Log.v(TAG, "Clearing " + Preferences.KEY_LASTPLAYER);
-                    editor.remove(Preferences.KEY_LASTPLAYER);
+                    Log.v(TAG, "Clearing " + Preferences.KEY_LAST_PLAYER);
+                    editor.remove(Preferences.KEY_LAST_PLAYER);
                 } else {
-                    Log.v(TAG, "Saving " + Preferences.KEY_LASTPLAYER + "=" + newActivePlayer.getId());
-                    editor.putString(Preferences.KEY_LASTPLAYER, newActivePlayer.getId());
+                    Log.v(TAG, "Saving " + Preferences.KEY_LAST_PLAYER + "=" + newActivePlayer.getId());
+                    editor.putString(Preferences.KEY_LAST_PLAYER, newActivePlayer.getId());
                 }
 
                 editor.commit();
@@ -859,14 +857,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     private void updateAllPlayerSubscriptionStates() {
         for (Player player : connectionState.getPlayers()) {
-            updatePlayerSubscription(player, getPlayerSubscriptionType(player));
+            updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
         }
     }
 
     /**
-     * Determine the correct player status subscription.
+     * Determine the correct status subscription type for the given player, based on
+     * how frequently we need to know its status.
      */
-    private PlayerState.PlayerSubscriptionType getPlayerSubscriptionType(Player player) {
+    private PlayerState.PlayerSubscriptionType calculateSubscriptionTypeFor(Player player) {
         Player activePlayer = connectionState.getActivePlayer();
 
         if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class) ||
@@ -985,7 +984,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * <pre>
      * login user wrongpassword
      * login user ******
-     * (Connection terminted)
+     * (Connection terminated)
      * </pre>
      * instead of as documented
      * <pre>
@@ -996,12 +995,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * is considered an authentication failure.
      */
     void onCliPortConnectionEstablished(final String userName, final String password) {
+        connectionState.setConnectionState(this, ConnectionState.LOGIN_STARTED);
         cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
     }
 
     /**
      * Handshake with the SqueezeServer, learn some of its supported features, and start listening
      * for asynchronous updates of server state.
+     *
+     * Note: Authentication may not actually have completed at this point. The server has
+     * responded to the "login" request, but if the username/password pair was incorrect it
+     * has (probably) not yet disconnected the socket. See
+     * {@link uk.org.ngo.squeezer.service.ConnectionState.ListeningThread#run()} for the code
+     * that determines whether authentication succeeded.
      */
     private void onAuthenticated() {
         fetchPlayers();
@@ -1010,7 +1016,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 "can musicfolder ?", // learn music folder browsing support
                 "can randomplay ?", // learn random play function functionality
                 "can favorites items ?", // learn support for "Favorites" plugin
-                "can myapps items ?", // lean support for "MyApps" plugin
+                "can myapps items ?", // learn support for "MyApps" plugin
                 "pref httpport ?", // learn the HTTP port (needed for images)
                 "pref jivealbumsort ?", // learn the preferred album sort order
                 "pref mediadirs ?", // learn the base path(s) of the server music library
@@ -1056,7 +1062,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             private Player getInitialPlayer() {
                 final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
                         Context.MODE_PRIVATE);
-                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER,
+                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LAST_PLAYER,
                         null);
                 Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
@@ -1067,7 +1073,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         return player;
                     }
                 }
-                return players.size() > 0 ? players.get(0) : null;
+                return !players.isEmpty() ? players.get(0) : null;
             }
 
             @Override
@@ -1138,27 +1144,29 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
 
-            Logger.log("Registering new download");
-            Logger.log("downloadId: " + downloadId);
-            Logger.log("tempFile: " + tempFile);
-            Logger.log("localPath: " + localPath);
+            Crashlytics.log("Registering new download");
+            Crashlytics.log("downloadId: " + downloadId);
+            Crashlytics.log("tempFile: " + tempFile);
+            Crashlytics.log("localPath: " + localPath);
 
             if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath)) {
-                Logger.log(TAG, "Could not register download entry for: " + downloadId);
+                Crashlytics.log(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
                 downloadManager.remove(downloadId);
             }
         }
     }
 
     /**
-     * Tries to get the relative path to the server music library.
+     * Tries to get the path relative to the server music library.
      * <p/>
-     * If this is not possible resort to the last path segment of the server path
+     * If this is not possible resort to the last path segment of the server path.
+     * In both cases replace dangerous characters by safe ones.
      */
     private String getLocalFile(@NonNull String serverUrl) {
         Uri serverUri = Uri.parse(serverUrl);
         String serverPath = serverUri.getPath();
         String mediaDir = null;
+        String path = null;
         for (String dir : connectionState.getMediaDirs()) {
             if (serverPath.startsWith(dir)) {
                 mediaDir = dir;
@@ -1166,13 +1174,17 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
         }
         if (mediaDir != null)
-            return serverPath.substring(mediaDir.length(), serverPath.length());
+            path = serverPath.substring(mediaDir.length(), serverPath.length());
         else
-            return serverUri.getLastPathSegment();
+            path = serverUri.getLastPathSegment();
+
+        // Convert VFAT-unfriendly characters to "_".
+        return path.replaceAll("[?<>\\\\:*|\"]", "_");
     }
 
     private final ISqueezeService squeezeService = new SqueezeServiceBinder();
     private class SqueezeServiceBinder extends Binder implements ISqueezeService {
+
         @Override
         @NonNull
         public EventBus getEventBus() {
@@ -1580,7 +1592,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public String getIconUrl(String icon) throws HandshakeNotCompleteException {
-            return getAbsoluteUrl('/' + icon);
+            if (isRelative(icon))
+                return getAbsoluteUrl(icon.startsWith("/") ? icon : '/' + icon);
+            else
+                return icon;
         }
 
         private String getAbsoluteUrl(String relativeUrl) throws HandshakeNotCompleteException {
@@ -1592,6 +1607,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return "";
             }
             return "http://" + connectionState.getCurrentHost() + ":" + port + relativeUrl;
+        }
+
+        private boolean isRelative(String url) {
+            return Uri.parse(url).isRelative();
         }
 
         @Override
@@ -1617,7 +1636,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
 
             // If the server address changed then disconnect.
-            if (Preferences.KEY_SERVERADDR.equals(key)) {
+            if (key.startsWith(Preferences.KEY_SERVER_ADDRESS)) {
                 disconnect();
                 return;
             }
@@ -1984,4 +2003,43 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
+    /**
+     * Calculate and set player subscription states every time a client of the bus
+     * un/registers.
+     * <p/>
+     * For example, this ensures that if a new client subscribes and needs real
+     * time updates, the player subscription states will be updated accordingly.
+     */
+    class EventBus extends de.greenrobot.event.EventBus {
+
+        @Override
+        public void register(Object subscriber) {
+            super.register(subscriber);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public void register(Object subscriber, int priority) {
+            super.register(subscriber, priority);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public void registerSticky(Object subscriber) {
+            super.registerSticky(subscriber);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public void registerSticky(Object subscriber, int priority) {
+            super.registerSticky(subscriber, priority);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public synchronized void unregister(Object subscriber) {
+            super.unregister(subscriber);
+            updateAllPlayerSubscriptionStates();
+        }
+    }
 }

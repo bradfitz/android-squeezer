@@ -60,10 +60,12 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
 
     private Genre genre;
 
+    @Override
     public Genre getGenre() {
         return genre;
     }
 
+    @Override
     public void setGenre(Genre genre) {
         this.genre = genre;
     }
@@ -105,6 +107,7 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
         return false;
     }
 
+    @Override
     public void showFilterDialog() {
         new ArtistFilterDialog().show(getSupportFragmentManager(), "ArtistFilterDialog");
     }

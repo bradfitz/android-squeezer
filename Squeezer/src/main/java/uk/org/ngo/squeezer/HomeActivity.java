@@ -33,6 +33,8 @@ import android.widget.ListView;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +53,6 @@ import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.itemlist.YearListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
-import uk.org.ngo.squeezer.util.Logger;
 
 public class HomeActivity extends BaseActivity {
 
@@ -96,7 +97,9 @@ public class HomeActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logger.setup(this);
+        if (!BuildConfig.DEBUG) {
+            Crashlytics.start(this);
+        }
 
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
@@ -136,10 +139,10 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
-            mCanFavorites = event.mCanFavourites;
-            mCanMusicfolder = event.mCanMusicFolders;
-            mCanMyApps = event.mCanMyApps;
-            mCanRandomplay = event.mCanRandomPlay;
+            mCanFavorites = event.canFavourites;
+            mCanMusicfolder = event.canMusicFolders;
+            mCanMyApps = event.canMyApps;
+            mCanRandomplay = event.canRandomPlay;
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>(MY_APPS + 1);

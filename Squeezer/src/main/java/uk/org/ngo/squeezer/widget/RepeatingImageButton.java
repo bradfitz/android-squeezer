@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.widget;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -72,7 +73,7 @@ public class RepeatingImageButton extends ImageButton {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             // remove the repeater, but call the hook one more time
             removeCallbacks(mRepeater);
@@ -100,6 +101,7 @@ public class RepeatingImageButton extends ImageButton {
     }
 
     private final Runnable mRepeater = new Runnable() {
+        @Override
         public void run() {
             doRepeat(false);
             if (isPressed()) {

@@ -1,3 +1,19 @@
+Upcoming
+========
+
+*   Filter out non-VFAT compatible characters from filenames when
+    saving tracks.
+
+1.2.6
+=====
+
+*   Better handle the connection lifecycle with the server, which should
+    reduce opportunities for crashing.
+
+*   Add theme-specific icons for the view-option dialogs.
+
+*   Bring the Danish translation up to date.
+
 1.2.5
 =====
 
