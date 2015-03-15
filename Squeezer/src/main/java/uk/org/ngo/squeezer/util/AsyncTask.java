@@ -158,6 +158,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
+        @Override
         public Thread newThread(@NonNull Runnable r) {
             return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
         }
@@ -209,8 +210,10 @@ public abstract class AsyncTask<Params, Progress, Result> {
 
         Runnable mActive;
 
+        @Override
         public synchronized void execute(@NonNull final Runnable r) {
             mTasks.offer(new Runnable() {
+                @Override
                 public void run() {
                     try {
                         r.run();
@@ -269,6 +272,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      */
     public AsyncTask() {
         mWorker = new WorkerRunnable<Params, Result>() {
+            @Override
             public Result call() throws Exception {
                 mTaskInvoked.set(true);
 

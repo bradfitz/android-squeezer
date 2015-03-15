@@ -97,6 +97,7 @@ public abstract class BaseViewDialog<
                                    return textView;
                                }
                            }, new DialogInterface.OnClickListener() {
+                               @Override
                                public void onClick(DialogInterface dialog, int position) {
                                    if (position < positionSortLabel) {
                                        activity.setListLayout(listLayoutClass.getEnumConstants()[position]);

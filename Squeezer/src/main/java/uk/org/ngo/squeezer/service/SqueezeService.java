@@ -1027,7 +1027,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         return player;
                     }
                 }
-                return players.size() > 0 ? players.get(0) : null;
+                return !players.isEmpty() ? players.get(0) : null;
             }
 
             @Override
@@ -1138,6 +1138,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     private final ISqueezeService squeezeService = new SqueezeServiceBinder();
     private class SqueezeServiceBinder extends Binder implements ISqueezeService {
+
         @Override
         @NonNull
         public EventBus getEventBus() {

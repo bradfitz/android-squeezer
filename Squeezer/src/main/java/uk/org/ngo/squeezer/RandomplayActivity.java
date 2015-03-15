@@ -42,6 +42,7 @@ public class RandomplayActivity extends BaseActivity {
         listView = (ListView) findViewById(R.id.item_list);
     }
 
+    @Override
     protected void onServiceConnected(@NonNull ISqueezeService service) {
         super.onServiceConnected(service);
 
@@ -71,6 +72,7 @@ public class RandomplayActivity extends BaseActivity {
             mService = service;
         }
 
+        @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (position < RandomPlayType.values().length) {
                 mService.randomPlay(RandomPlayType.values()[position].toString());

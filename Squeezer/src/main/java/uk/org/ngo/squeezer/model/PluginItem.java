@@ -107,10 +107,12 @@ public class PluginItem extends Item {
     }
 
     public static final Creator<PluginItem> CREATOR = new Creator<PluginItem>() {
+        @Override
         public PluginItem[] newArray(int size) {
             return new PluginItem[size];
         }
 
+        @Override
         public PluginItem createFromParcel(Parcel source) {
             return new PluginItem(source);
         }
@@ -126,6 +128,7 @@ public class PluginItem extends Item {
         audio = (source.readInt() != 0);
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(name);

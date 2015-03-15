@@ -207,10 +207,12 @@ public class AlbumListActivity extends BaseListActivity<Album>
                 artist, getYear(), getGenre(), song);
     }
 
+    @Override
     public AlbumViewDialog.AlbumsSortOrder getSortOrder() {
         return sortOrder;
     }
 
+    @Override
     public void setSortOrder(AlbumViewDialog.AlbumsSortOrder sortOrder) {
         ISqueezeService service = getService();
         if (service == null) {
@@ -223,6 +225,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
         clearAndReOrderItems();
     }
 
+    @Override
     public AlbumViewDialog.AlbumListLayout getListLayout() {
         return listLayout;
     }
@@ -246,6 +249,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
         }
     }
 
+    @Override
     public void setListLayout(AlbumViewDialog.AlbumListLayout listLayout) {
         SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
         SharedPreferences.Editor editor = preferences.edit();
