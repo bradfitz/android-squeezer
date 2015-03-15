@@ -31,7 +31,7 @@ public class SqueezeboxServerMock extends Thread {
 
     public static final int CLI_PORT = 9091;
 
-    private Object serverReadyMonitor = new Object();
+    private final Object serverReadyMonitor = new Object();
 
     private boolean accepting;
 
