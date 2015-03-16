@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         app:floatLabelTextAppearance="@style/TextAppearance.Squeezer.FloatLabel"
-        app:floatLabelTrigger="focus">
+        app:floatLabelTrigger="text">
 
         <EditText
             android:id="@+id/server_address"
@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         app:floatLabelTextAppearance="@style/TextAppearance.Squeezer.FloatLabel"
-        app:floatLabelTrigger="focus">
+        app:floatLabelTrigger="text">
 
         <EditText
             android:id="@+id/username"
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         app:floatLabelTextAppearance="@style/TextAppearance.Squeezer.FloatLabel"
-        app:floatLabelTrigger="focus">
+        app:floatLabelTrigger="text">
 
         <EditText
             android:id="@+id/password"
