@@ -18,12 +18,14 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 
+import com.bluelinelabs.logansquare.annotation.JsonObject;
+
 import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ArtworkItem;
 
-
+@JsonObject
 public class Album extends ArtworkItem {
 
     @Override
@@ -92,6 +94,10 @@ public class Album extends ArtworkItem {
             return new Album(source);
         }
     };
+
+    public Album() {
+
+    }
 
     private Album(Parcel source) {
         setId(source.readString());

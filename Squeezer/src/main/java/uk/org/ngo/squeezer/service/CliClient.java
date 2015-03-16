@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
@@ -48,7 +49,7 @@ import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 
-class CliClient {
+class CliClient implements IClient {
 
     private static final String TAG = "CliClient";
 
@@ -273,9 +274,8 @@ class CliClient {
     }
 
     void initialize() {
-        pageSize = service.getResources().getInteger(R.integer.PageSize);
+        pageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
     }
-
 
     // All requests are tagged with a correlation id, which can be used when
     // asynchronous responses are received.
@@ -342,16 +342,11 @@ class CliClient {
      *
      * @param command The command to send
      */
-    void sendPlayerCommand(final Player player, final String command) {
+    public void sendPlayerCommand(final Player player, final String command) {
         sendCommand(Util.encode(player.getId()) + " " + command);
     }
 
-    /**
-     * Send the specified command for the active player to the SqueezeboxServer
-     *
-     * @param command The command to send
-     */
-    void sendActivePlayerCommand(final String command) {
+    public void sendActivePlayerCommand(final String command) {
         if (service.connectionState.getActivePlayer() == null) {
             return;
         }
