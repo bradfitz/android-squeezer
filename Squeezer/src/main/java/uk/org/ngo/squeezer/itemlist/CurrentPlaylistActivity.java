@@ -248,22 +248,22 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     public void onEventMainThread(MusicChanged event) {
-        Log.d(getTag(), "onMusicChanged " + event.mPlayerState.getCurrentSong());
-        currentPlaylistIndex = event.mPlayerState.getCurrentPlaylistIndex();
+        Log.d(getTag(), "onMusicChanged " + event.playerState.getCurrentSong());
+        currentPlaylistIndex = event.playerState.getCurrentPlaylistIndex();
         getItemAdapter().notifyDataSetChanged();
     }
 
     public void onEventMainThread(PlayersChanged event) {
         supportInvalidateOptionsMenu();
 
-        if (event.mActivePlayer == null) {
+        if (event.activePlayer == null) {
             player = null;
             clearItems();
             return;
         }
 
-        if (!event.mActivePlayer.equals(player)) {
-            player = event.mActivePlayer;
+        if (!event.activePlayer.equals(player)) {
+            player = event.activePlayer;
             clearAndReOrderItems();
         }
     }

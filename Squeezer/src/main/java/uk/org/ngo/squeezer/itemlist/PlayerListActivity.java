@@ -201,8 +201,8 @@ public class PlayerListActivity extends ItemListActivity implements
 
     @Override
     public void onEvent(PlayerVolume event) {
-        uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, event.mVolume,
-                0, event.mPlayer).sendToTarget();
+        uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, event.volume,
+                0, event.player).sendToTarget();
     }
 
     /**

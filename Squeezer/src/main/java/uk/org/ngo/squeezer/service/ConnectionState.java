@@ -17,6 +17,8 @@
 package uk.org.ngo.squeezer.service;
 
 import android.net.wifi.WifiManager;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -45,7 +47,7 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
-class ConnectionState {
+public class ConnectionState {
 
     private static final String TAG = "ConnectionState";
 
@@ -58,10 +60,20 @@ class ConnectionState {
     // the server of the disconnection.
     private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
 
-    // Connection state:
-    private final AtomicBoolean isConnectInProgress = new AtomicBoolean(false);
+    // Connection state machine
+    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED,
+            LOGIN_STARTED, LOGIN_FAILED, LOGIN_COMPLETED})
+    public @interface ConnectionStates {}
+    public static final int DISCONNECTED = 0;
+    public static final int CONNECTION_STARTED = 1;
+    public static final int CONNECTION_FAILED = 2;
+    public static final int CONNECTION_COMPLETED = 3;
+    public static final int LOGIN_STARTED = 4;
+    public static final int LOGIN_FAILED = 5;
+    public static final int LOGIN_COMPLETED = 6;
 
-    private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    @ConnectionStates
+    private volatile int mConnectionState = DISCONNECTED;
 
     /** Does the server support "favorites items" queries? */
     private final AtomicBoolean mCanFavorites = new AtomicBoolean(false);
@@ -149,21 +161,29 @@ class ConnectionState {
         socketRef.set(null);
         socketWriter.set(null);
 
-        setConnectionState(service, false, false, loginFailed);
+        if (loginFailed) {
+            setConnectionState(service, LOGIN_FAILED);
+        }
+
+        setConnectionState(service, DISCONNECTED);
 
         httpPort.set(null);
         activePlayer.set(null);
         mediaDirs.set(null);
     }
 
-    private void setConnectionState(final SqueezeService service, final boolean currentState,
-            final boolean postConnect, final boolean loginFailed) {
-        isConnected.set(currentState);
-        if (postConnect) {
-            isConnectInProgress.set(false);
-        }
-
-        service.mEventBus.postSticky(new ConnectionChanged(currentState, postConnect, loginFailed));
+    /**
+     * Sets a new connection state, and posts a sticky
+     * {@link uk.org.ngo.squeezer.service.event.ConnectionChanged} event with the new state.
+     *
+     * @param service The service that contains the eventbus to post the event to.
+     * @param connectionState The new connection state.
+     */
+    void setConnectionState(@NonNull SqueezeService service,
+            @ConnectionStates int connectionState) {
+        Log.d(TAG, "Setting connection state to: " + connectionState);
+        mConnectionState = connectionState;
+        service.mEventBus.postSticky(new ConnectionChanged(mConnectionState));
     }
 
     @Nullable Player getActivePlayer() {
@@ -173,7 +193,6 @@ class ConnectionState {
     void setActivePlayer(@Nullable Player player) {
         activePlayer.set(player);
     }
-
 
     @Nullable public PlayerState getActivePlayerState() {
         if (activePlayer.get() == null)
@@ -272,12 +291,27 @@ class ConnectionState {
         return preferredAlbumSort.get();
     }
 
+    /**
+     * @return True if the socket connection to the server has completed.
+     */
     boolean isConnected() {
-        return isConnected.get();
+        switch (mConnectionState) {
+            case CONNECTION_COMPLETED:
+            case LOGIN_STARTED:
+            case LOGIN_COMPLETED:
+                return true;
+
+            default:
+                return false;
+        }
     }
 
+    /**
+     * @return True if the socket connection to the server has started, but not yet
+     *     completed (successfully or unsuccessfully).
+     */
     boolean isConnectInProgress() {
-        return isConnectInProgress.get();
+        return mConnectionState == CONNECTION_STARTED;
     }
 
     void startListeningThread(SqueezeService service) {
@@ -302,6 +336,7 @@ class ConnectionState {
 
         @Override
         public void run() {
+            Log.d(TAG, "Listening thread started");
             BufferedReader in;
             try {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()), 128);
@@ -333,6 +368,13 @@ class ConnectionState {
                     return;
                 }
                 final String inputLine = line;
+
+                // If a login attempt was in progress and this is a line that does not start
+                // with "login " then the login must have been successful (otherwise the
+                // server would have disconnected), so update the connection state accordingly.
+                if (mConnectionState == LOGIN_STARTED && !inputLine.startsWith("login ")) {
+                    setConnectionState(service, LOGIN_COMPLETED);
+                }
                 service.executor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -370,18 +412,18 @@ class ConnectionState {
         service.executor.execute(new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "Ensuring service is disconnected");
                 service.disconnect();
                 Socket socket = new Socket();
                 try {
                     Log.d(TAG, "Connecting to: " + cleanHostPort);
-                    isConnectInProgress.set(true);
+                    setConnectionState(service, CONNECTION_STARTED);
                     socket.connect(new InetSocketAddress(host, port),
                             4000 /* ms timeout */);
                     socketRef.set(socket);
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
-                    setConnectionState(service, true, true, false);
-                    Log.d(TAG, "connection state broadcasted true.");
+                    setConnectionState(service, CONNECTION_COMPLETED);
                     startListeningThread(service);
                     service.onCliPortConnectionEstablished(userName, password);
                     Authenticator.setDefault(new Authenticator() {
@@ -392,10 +434,10 @@ class ConnectionState {
                     });
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
-                    setConnectionState(service, false, true, false);
+                    setConnectionState(service, CONNECTION_FAILED);
                 } catch (IOException e) {
                     Log.e(TAG, "IOException connecting to: " + cleanHostPort);
-                    setConnectionState(service, false, true, false);
+                    setConnectionState(service, CONNECTION_FAILED);
                 }
             }
 

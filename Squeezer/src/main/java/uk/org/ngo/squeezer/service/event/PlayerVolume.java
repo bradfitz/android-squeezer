@@ -23,14 +23,14 @@ import uk.org.ngo.squeezer.model.Player;
 /** Event sent when a player's volume has changed. */
 public class PlayerVolume {
     /** The player's new volume. */
-    public final int mVolume;
+    public final int volume;
 
     /** The player that was affected. */
     @NonNull
-    public final Player mPlayer;
+    public final Player player;
 
     public PlayerVolume(int volume, @NonNull Player player) {
-        mVolume = volume;
-        mPlayer = player;
+        this.volume = volume;
+        this.player = player;
     }
 }

@@ -98,7 +98,6 @@
         &lt;p&gt;To check the port number select network in the dropdown.&lt;/p&gt;
         &lt;p&gt;User name and password is found by selecting security in the dropdown.&lt;/p&gt;
     </string>
-
     <string name="disconnected_text">Disconnected.</string>
     <string name="wifi_disabled_text">Wi-Fi is disabled</string>
     <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. When an active
