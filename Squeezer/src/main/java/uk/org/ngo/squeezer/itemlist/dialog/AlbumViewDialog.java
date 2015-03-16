@@ -55,7 +55,7 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
             return serverString.getLocalizedString();
         }
 
-        private AlbumListLayout(int iconAttribute, ServerString serverString) {
+        AlbumListLayout(int iconAttribute, ServerString serverString) {
             this.serverString = serverString;
             this.iconAttribute = iconAttribute;
         }
@@ -82,7 +82,7 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
             return serverString.getLocalizedString();
         }
 
-        private AlbumsSortOrder(ServerString serverString) {
+        AlbumsSortOrder(ServerString serverString) {
             this.serverString = serverString;
         }
     }

@@ -228,7 +228,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     private interface CmdHandler {
-        public void handle(List<String> tokens);
+        void handle(List<String> tokens);
     }
 
     private Map<String, CmdHandler> initializeGlobalHandlers() {

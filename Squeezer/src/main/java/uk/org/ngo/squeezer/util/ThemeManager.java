@@ -37,7 +37,7 @@ public class ThemeManager {
     private int mCurrentTheme;
 
     /** Available themes. */
-    public static enum Theme {
+    public enum Theme {
         LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar),
         DARK(R.string.settings_theme_dark, R.style.AppTheme);
 

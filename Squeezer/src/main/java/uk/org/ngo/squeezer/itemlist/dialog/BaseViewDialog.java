@@ -122,11 +122,11 @@ public abstract class BaseViewDialog<
     protected abstract String getTitle();
 
     public interface EnumWithText {
-        public String getText(Context context);
+        String getText(Context context);
     }
 
     public interface EnumWithTextAndIcon extends EnumWithText {
-        public int getIconAttribute();
+        int getIconAttribute();
     }
 
 }

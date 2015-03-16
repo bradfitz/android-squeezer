@@ -50,7 +50,7 @@ public class PlayerState implements Parcelable {
 
         private final char mToken;
 
-        private PlayerSubscriptionType(char token) {
+        PlayerSubscriptionType(char token) {
             mToken = token;
         }
 
@@ -421,13 +421,13 @@ public class PlayerState implements Parcelable {
         return true;
     }
 
-    public static enum PlayStatus {
+    public enum PlayStatus {
         play,
         pause,
         stop
     }
 
-    public static enum ShuffleStatus implements EnumWithId {
+    public enum ShuffleStatus implements EnumWithId {
         SHUFFLE_OFF(0, R.attr.ic_action_av_shuffle_off, ServerString.SHUFFLE_OFF),
         SHUFFLE_SONG(1, R.attr.ic_action_av_shuffle_song, ServerString.SHUFFLE_ON_SONGS),
         SHUFFLE_ALBUM(2, R.attr.ic_action_av_shuffle_album, ServerString.SHUFFLE_ON_ALBUMS);
@@ -441,7 +441,7 @@ public class PlayerState implements Parcelable {
         private static final EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<ShuffleStatus>(
                 ShuffleStatus.class);
 
-        private ShuffleStatus(int id, int icon, ServerString text) {
+        ShuffleStatus(int id, int icon, ServerString text) {
             this.id = id;
             this.icon = icon;
             this.text = text;
@@ -465,7 +465,7 @@ public class PlayerState implements Parcelable {
         }
     }
 
-    public static enum RepeatStatus implements EnumWithId {
+    public enum RepeatStatus implements EnumWithId {
         REPEAT_OFF(0, R.attr.ic_action_av_repeat_off, ServerString.REPEAT_OFF),
         REPEAT_ONE(1, R.attr.ic_action_av_repeat_one, ServerString.REPEAT_ONE),
         REPEAT_ALL(2, R.attr.ic_action_av_repeat_all, ServerString.REPEAT_ALL);
@@ -479,7 +479,7 @@ public class PlayerState implements Parcelable {
         private static final EnumIdLookup<RepeatStatus> lookup = new EnumIdLookup<RepeatStatus>(
                 RepeatStatus.class);
 
-        private RepeatStatus(int id, int icon, ServerString text) {
+        RepeatStatus(int id, int icon, ServerString text) {
             this.id = id;
             this.icon = icon;
             this.text = text;
