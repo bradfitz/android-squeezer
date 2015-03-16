@@ -159,12 +159,6 @@ public class FloatLabelLayout extends FrameLayout {
     protected void setEditText(EditText editText) {
         mEditText = editText;
 
-        mLabel.setText(mEditText.getHint());
-
-        if (mHint == null) {
-            mHint = mEditText.getHint();
-        }
-
         // Add a TextWatcher so that we know when the text input has changed
         mEditText.addTextChangedListener(mTextWatcher);
 
@@ -198,6 +192,10 @@ public class FloatLabelLayout extends FrameLayout {
      */
     protected void showLabel() {
         if (mLabel.getVisibility() != View.VISIBLE) {
+            mHint = mEditText.getHint();
+            mLabel.setText(mHint);
+            mEditText.setHint("");
+
             mLabel.setVisibility(View.VISIBLE);
             AnimationSet animationSet = new AnimationSet(true);
 
@@ -231,7 +229,6 @@ public class FloatLabelLayout extends FrameLayout {
         alphaAnimation.setDuration(300);
         animationSet.addAnimation(alphaAnimation);
 
-
         animationSet.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -250,6 +247,9 @@ public class FloatLabelLayout extends FrameLayout {
         });
 
         mLabel.startAnimation(animationSet);
+        if (mHint != null) {
+            mEditText.setHint(mHint);
+        }
     }
 
     /**
@@ -270,11 +270,9 @@ public class FloatLabelLayout extends FrameLayout {
 
             if (mTrigger == Trigger.FOCUS) {
                 if (focused) {
-                    mEditText.setHint("");
                     showLabel();
                 } else {
                     if (TextUtils.isEmpty(mEditText.getText())) {
-                        mEditText.setHint(mHint);
                         hideLabel();
                     }
                 }
