@@ -16,11 +16,13 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.support.annotation.IntDef;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.EnumSet;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
@@ -35,33 +37,31 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
  */
 public class AlbumView extends AlbumArtView<Album> {
 
-    /**
-     * The details to show in the second line of text.
-     */
-    public enum Details {
-        /**
-         * Show the artist name.
-         */
-        ARTIST,
+    @IntDef(flag=true, value={
+            DETAILS_NONE, DETAILS_ARTIST, DETAILS_YEAR, DETAILS_GENRE, DETAILS_ALL
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    /** Parameters that control which additional information is shown on the second line. */
+    public @interface SecondLineDetails {}
+    /** Show nothing. */
+    public static final int DETAILS_NONE = 0;
+    /** Show the artist name. */
+    public static final int DETAILS_ARTIST = 1;
+    /** Show the year (if known). */
+    public static final int DETAILS_YEAR = 1 << 1;
+    /** Show the genre (if known). */
+    public static final int DETAILS_GENRE = 1 << 2;
+    /** Show all details. */
+    public static final int DETAILS_ALL = DETAILS_ARTIST | DETAILS_YEAR | DETAILS_GENRE;
 
-        /**
-         * Show the year (if known).
-         */
-        YEAR,
 
-        /**
-         * Show the genre (if known).
-         */
-        GENRE
-    }
-
-    private EnumSet<Details> mDetails = EnumSet.noneOf(Details.class);
+    private @SecondLineDetails int mDetails = 0;
 
     public AlbumView(ItemListActivity activity) {
         super(activity);
     }
 
-    public void setDetails(EnumSet<Details> details) {
+    public void setDetails(@SecondLineDetails int details) {
         mDetails = details;
     }
 
@@ -80,8 +80,8 @@ public class AlbumView extends AlbumArtView<Album> {
         String text2 = "";
         if (item.getId() != null) {
             text2 = mJoiner.join(
-                    mDetails.contains(Details.ARTIST) ? item.getArtist() : null,
-                    mDetails.contains(Details.YEAR) && item.getYear() != 0 ? item.getYear() : null
+                    (mDetails & DETAILS_ARTIST) != 0 ? item.getArtist() : null,
+                    (mDetails & DETAILS_YEAR) != 0 && item.getYear() != 0 ? item.getYear() : null
             );
         }
         viewHolder.text2.setText(text2);
