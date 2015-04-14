@@ -60,6 +60,7 @@ import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -616,7 +617,7 @@ public class NowPlayingFragment extends Fragment implements
      * Collections.&lt;Player>emptyList()}) but not null.
      * @param activePlayer The currently active player. May be null.
      */
-    private void updatePlayerDropDown(@NonNull List<Player> players,
+    private void updatePlayerDropDown(@NonNull Collection<Player> players,
             @Nullable Player activePlayer) {
         if (!isAdded()) {
             return;
@@ -1129,7 +1130,8 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     public void onEventMainThread(PlayersChanged event) {
-        updatePlayerDropDown(event.players, event.activePlayer);
+        updatePlayerDropDown(event.players.values(), event.activePlayer);
+        updateSongInfo(event.activePlayer.getPlayerState().getCurrentSong());
     }
 
     public void onEventMainThread(PlayStatusChanged event) {

@@ -18,7 +18,9 @@ package uk.org.ngo.squeezer.service.event;
 
 import android.support.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.model.Player;
 
@@ -27,8 +29,8 @@ import uk.org.ngo.squeezer.model.Player;
  * of players connected to the server has changed.
  */
 public class PlayersChanged {
-    /** The players connected to the Squeezeserver. May be the empty list. */
-    public final List<Player> players;
+    /** The players connected to the Squeezeserver. May be empty. */
+    public final Map<String, Player> players;
 
     /**
      * The player currently controlled by Squeezer. May be null, if no players
@@ -37,8 +39,13 @@ public class PlayersChanged {
     @Nullable
     public final Player activePlayer;
 
-    public PlayersChanged(List<Player> players, @Nullable Player activePlayer) {
+    public PlayersChanged(Map<String, Player> players, @Nullable Player activePlayer) {
         this.players = players;
         this.activePlayer = activePlayer;
+    }
+
+    @Override
+    public String toString() {
+        return "{active: " + activePlayer + ", players: " + players + "}";
     }
 }

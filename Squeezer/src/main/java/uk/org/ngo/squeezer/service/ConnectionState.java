@@ -91,11 +91,6 @@ public class ConnectionState {
 
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
 
-    private final AtomicReference<Player> activePlayer = new AtomicReference<Player>();
-
-    /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
-    private final Map<String, Player> mPlayers = new HashMap<String, Player>();
-
     // Where we connected (or are connecting) to:
     private final AtomicReference<String> currentHost = new AtomicReference<String>();
 
@@ -108,45 +103,6 @@ public class ConnectionState {
     private final AtomicReference<String> password = new AtomicReference<String>();
 
     private final AtomicReference<String[]> mediaDirs = new AtomicReference<String[]>();
-
-    private WifiManager.WifiLock wifiLock;
-
-    void setWifiLock(WifiManager.WifiLock wifiLock) {
-        this.wifiLock = wifiLock;
-    }
-
-    void updateWifiLock(boolean state) {
-        // TODO: this might be running in the wrong thread.  Is wifiLock thread-safe?
-        if (state && !wifiLock.isHeld()) {
-            Log.v(TAG, "Locking wifi while playing.");
-            wifiLock.acquire();
-        }
-        if (!state && wifiLock.isHeld()) {
-            Log.v(TAG, "Unlocking wifi.");
-            try {
-                wifiLock.release();
-                // Seen a crash here with:
-                //
-                // Permission Denial: broadcastIntent() requesting a sticky
-                // broadcast
-                // from pid=29506, uid=10061 requires
-                // android.permission.BROADCAST_STICKY
-                //
-                // Catching the exception (which seems harmless) seems better
-                // than requesting an additional permission.
-
-                // Seen a crash here with
-                //
-                // java.lang.RuntimeException: WifiLock under-locked
-                // Squeezer_WifiLock
-                //
-                // Both crashes occurred when the wifi was disabled, on HTC Hero
-                // devices running 2.1-update1.
-            } catch (SecurityException e) {
-                Log.v(TAG, "Caught odd SecurityException releasing wifilock");
-            }
-        }
-    }
 
     void disconnect(SqueezeService service, boolean loginFailed) {
         Log.v(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
@@ -168,7 +124,6 @@ public class ConnectionState {
         setConnectionState(service, DISCONNECTED);
 
         httpPort.set(null);
-        activePlayer.set(null);
         mediaDirs.set(null);
     }
 
@@ -184,53 +139,6 @@ public class ConnectionState {
         Log.d(TAG, "Setting connection state to: " + connectionState);
         mConnectionState = connectionState;
         service.mEventBus.postSticky(new ConnectionChanged(mConnectionState));
-    }
-
-    @Nullable Player getActivePlayer() {
-        return activePlayer.get();
-    }
-
-    void setActivePlayer(@Nullable Player player) {
-        activePlayer.set(player);
-    }
-
-    @Nullable public PlayerState getActivePlayerState() {
-        if (activePlayer.get() == null)
-            return null;
-
-        return activePlayer.get().getPlayerState();
-    }
-
-    @Nullable public PlayerState getPlayerState(String playerId) {
-        Player player = mPlayers.get(playerId);
-
-        if (player == null)
-            return null;
-
-        return player.getPlayerState();
-    }
-
-    List<Player> getPlayers() {
-        return new ArrayList<Player>(mPlayers.values());  // XXX: Immutable list? Return the map?
-    }
-
-    void clearPlayers() {
-        mPlayers.clear();
-    }
-
-    public void addPlayer(Player player) {
-        mPlayers.put(player.getId(), player);
-    }
-
-    void addPlayers(List<Player> players) {
-        for (Player player : players) {
-            mPlayers.put(player.getId(), player);
-        }
-    }
-
-    @Nullable
-    Player getPlayer(String playerId) {
-        return mPlayers.get(playerId);
     }
 
     PrintWriter getSocketWriter() {
@@ -314,8 +222,8 @@ public class ConnectionState {
         return mConnectionState == CONNECTION_STARTED;
     }
 
-    void startListeningThread(SqueezeService service) {
-        Thread listeningThread = new ListeningThread(service, socketRef.get(),
+    void startListeningThread(SqueezeService service, CliClient cli) {
+        Thread listeningThread = new ListeningThread(service, cli, socketRef.get(),
                 currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
     }
@@ -326,10 +234,13 @@ public class ConnectionState {
 
         private final Socket socket;
 
+        private final CliClient cli;
+
         private final int generationNumber;
 
-        private ListeningThread(SqueezeService service, Socket socket, int generationNumber) {
+        private ListeningThread(SqueezeService service, CliClient cli, Socket socket, int generationNumber) {
             this.service = service;
+            this.cli = cli;
             this.socket = socket;
             this.generationNumber = generationNumber;
         }
@@ -378,14 +289,14 @@ public class ConnectionState {
                 service.executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        service.onLineReceived(inputLine);
+                        cli.onLineReceived(inputLine);
                     }
                 });
             }
         }
     }
 
-    void startConnect(final SqueezeService service, String hostPort, final String userName,
+    void startConnect(final SqueezeService service, final CliClient cli, String hostPort, final String userName,
                       final String password) {
         Log.v(TAG, "startConnect");
         // Common mistakes, based on crash reports...
@@ -424,8 +335,8 @@ public class ConnectionState {
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                     setConnectionState(service, CONNECTION_COMPLETED);
-                    startListeningThread(service);
-                    service.onCliPortConnectionEstablished(userName, password);
+                    startListeningThread(service, cli);
+                    onCliPortConnectionEstablished(service, cli, userName, password);
                     Authenticator.setDefault(new Authenticator() {
                         @Override
                         public PasswordAuthentication getPasswordAuthentication() {
@@ -443,6 +354,29 @@ public class ConnectionState {
 
         });
     }
+
+    /**
+     * Authenticate on the SqueezeServer.
+     * <p/>
+     * The server does
+     * <pre>
+     * login user wrongpassword
+     * login user ******
+     * (Connection terminated)
+     * </pre>
+     * instead of as documented
+     * <pre>
+     * login user wrongpassword
+     * (Connection terminated)
+     * </pre>
+     * therefore a disconnect when handshake (the next step after authentication) is not completed,
+     * is considered an authentication failure.
+     */
+    void onCliPortConnectionEstablished(final SqueezeService service, final CliClient cli, final String userName, final String password) {
+        setConnectionState(service, ConnectionState.LOGIN_STARTED);
+        cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
+    }
+
 
     Integer getHttpPort() {
         return httpPort.get();

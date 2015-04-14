@@ -29,11 +29,4 @@ interface IClient {
      * @param command The command to send
      */
     void sendPlayerCommand(final Player player, final String command);
-
-    /**
-     * Send the specified command for the active player to the SqueezeboxServer
-     *
-     * @param command The command to send
-     */
-    void sendActivePlayerCommand(final String command);
 }
