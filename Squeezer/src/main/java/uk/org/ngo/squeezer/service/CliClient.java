@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.service;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.wifi.WifiManager;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -32,16 +32,17 @@ import com.google.common.base.Strings;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
@@ -93,6 +94,12 @@ class CliClient implements IClient {
     private final Map<String, Player> mPlayers = new HashMap<String, Player>();
 
     private final AtomicReference<Player> mActivePlayer = new AtomicReference<Player>();
+
+    /** Shared event bus for status changes. */
+    @NonNull private final EventBus mEventBus;
+
+    /** Executor for off-main-thread work. */
+    @NonNull private final Executor mExecutor;
 
     /** The types of command handler. */
     enum HandlerList {
@@ -333,21 +340,20 @@ class CliClient implements IClient {
         return map;
     }
 
-    private final SqueezeService service;
-
     private final int pageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
 
-    CliClient(SqueezeService service) {
-        this.service = service;
+    CliClient(@NonNull EventBus eventBus, @NonNull Executor executor) {
+        mEventBus = eventBus;
+        mExecutor = executor;
     }
 
     void initialize() {
-        service.mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
+        mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
     }
 
     // Call through to connectionState implementation for the moment.
-    void disconnect(SqueezeService service, boolean loginFailed) {
-        connectionState.disconnect(service, loginFailed);
+    void disconnect(boolean loginFailed) {
+        connectionState.disconnect(mEventBus, loginFailed);
         mPlayers.clear();
         mActivePlayer.set(null);
     }
@@ -400,10 +406,10 @@ class CliClient implements IClient {
      * @param commands List of commands to send
      */
     void sendCommand(final String... commands) {
-        if (service.mainThread != Thread.currentThread()) {
+        if (Looper.getMainLooper() != Looper.myLooper()) {
             sendCommandImmediately(commands);
         } else {
-            service.executor.execute(new Runnable() {
+            mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     sendCommandImmediately(commands);
@@ -698,7 +704,7 @@ class CliClient implements IClient {
 
     void startConnect(final SqueezeService service, String hostPort, final String userName,
                       final String password) {
-        connectionState.startConnect(service, this, hostPort, userName, password);
+        connectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
 
     }
 
@@ -746,14 +752,14 @@ class CliClient implements IClient {
                 } else if ("new".equals(tokens.get(1))) {
                     HashMap<String, String> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("overwritten_playlist_id") != null) {
-                        service.mEventBus.post(new PlaylistCreateFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
+                        mEventBus.post(new PlaylistCreateFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
                                 tokenMap.get("name"))));
                     }
                 } else if ("rename".equals(tokens.get(1))) {
                     HashMap<String, String> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("dry_run") != null) {
                         if (tokenMap.get("overwritten_playlist_id") != null) {
-                            service.mEventBus.post(new PlaylistRenameFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
+                            mEventBus.post(new PlaylistRenameFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
                                     tokenMap.get("newname"))));
                         } else {
                             sendCommandImmediately(
@@ -844,7 +850,7 @@ class CliClient implements IClient {
                 Log.i(TAG, "Version received: " + tokens);
                 Crashlytics.setString("server_version", tokens.get(1));
 
-                service.mEventBus.postSticky(new HandshakeComplete(
+                mEventBus.postSticky(new HandshakeComplete(
                         connectionState.canFavorites(), connectionState.canMusicfolder(),
                         connectionState.canMusicfolder(), connectionState.canRandomplay()));
             }
@@ -1002,37 +1008,37 @@ class CliClient implements IClient {
 
                     if (changedPower || changedSleep || changedSleepDuration || changedVolume
                             || changedSong || changedSyncMaster || changedSyncSlaves) {
-                        service.mEventBus.post(new PlayerStateChanged(player, playerState));
+                        mEventBus.post(new PlayerStateChanged(player, playerState));
                     }
 
                     if (player.getId().equals(getActivePlayerId())) {
                         // Power status
                         if (changedPower) {
-                            service.mEventBus.post(new PowerStatusChanged(
+                            mEventBus.post(new PowerStatusChanged(
                                     !player.getPlayerState().isPoweredOn(),
                                     !player.getPlayerState().isPoweredOn()));
                         }
 
                         // Current song
                         if (changedSong) {
-                            service.mEventBus.post(new MusicChanged(playerState));
+                            mEventBus.post(new MusicChanged(playerState));
                         }
 
                         // Shuffle status.
                         if (changedShuffleStatus) {
-                            service.mEventBus.post(new ShuffleStatusChanged(
+                            mEventBus.post(new ShuffleStatusChanged(
                                     unknownShuffleStatus, playerState.getShuffleStatus()));
                         }
 
                         // Repeat status.
                         if (changedRepeatStatus) {
-                            service.mEventBus.post(new RepeatStatusChanged(
+                            mEventBus.post(new RepeatStatusChanged(
                                     unknownRepeatStatus, playerState.getRepeatStatus()));
                         }
 
                         // Position in song
                         if (changedSongDuration || changedSongTime) {
-                            service.mEventBus.post(new SongTimeChanged(
+                            mEventBus.post(new SongTimeChanged(
                                     playerState.getCurrentTimeSecond(),
                                     playerState.getCurrentSongDuration()));
                         }
@@ -1051,7 +1057,7 @@ class CliClient implements IClient {
                     Player player = mPlayers.get(Util.decode(tokens.get(0)));
                     int newVolume = Util.parseDecimalIntOrZero(tokens.get(4));
                     player.getPlayerState().setCurrentVolume(newVolume);
-                    service.mEventBus.post(new PlayerVolume(newVolume, player));
+                    mEventBus.post(new PlayerVolume(newVolume, player));
                 }
             }
         });
@@ -1189,9 +1195,9 @@ class CliClient implements IClient {
         } else if ("pause".equals(notification)) {
             updatePlayStatus(Util.decode(tokens.get(0)), parsePause(tokens.size() >= 4 ? tokens.get(3) : null));
         } else if ("addtracks".equals(notification)) {
-            service.mEventBus.post(new PlaylistTracksAdded());
+            mEventBus.post(new PlaylistTracksAdded());
         } else if ("delete".equals(notification)) {
-            service.mEventBus.post(new PlaylistTracksDeleted());
+            mEventBus.post(new PlaylistTracksDeleted());
         }
     }
 
@@ -1221,7 +1227,7 @@ class CliClient implements IClient {
         PlayerState playerState = player.getPlayerState();
 
         if (playerState.setPlayStatus(playStatus)) {
-            service.mEventBus.post(new PlayStatusChanged(playStatus, player));
+            mEventBus.post(new PlayStatusChanged(playStatus, player));
         }
 
     }
@@ -1237,7 +1243,7 @@ class CliClient implements IClient {
      * that determines whether authentication succeeded.
      */
     private void onAuthenticated() {
-        service.mEventBus.post(new ConnectionChanged(ConnectionState.LOGIN_COMPLETED));
+        mEventBus.post(new ConnectionChanged(ConnectionState.LOGIN_COMPLETED));
         fetchPlayers();
         sendCommandImmediately(
                 "listen 1", // subscribe to all server notifications
@@ -1285,7 +1291,7 @@ class CliClient implements IClient {
                     mActivePlayer.set(getPreferredPlayer());
 
                     // XXX: postSticky?
-                    service.mEventBus.postSticky(new PlayersChanged(mPlayers, mActivePlayer.get()));
+                    mEventBus.postSticky(new PlayersChanged(mPlayers, mActivePlayer.get()));
                 }
             }
 
@@ -1342,7 +1348,7 @@ class CliClient implements IClient {
         // NOTE: this involves a write and can block (sqlite lookup via binder call), so
         // should be done off-thread, so we can process service requests & send our callback
         // as quickly as possible.
-        service.executor.execute(new Runnable() {
+        mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 final SharedPreferences preferences = Squeezer.getContext().getSharedPreferences(Preferences.NAME,
@@ -1361,7 +1367,7 @@ class CliClient implements IClient {
             }
         });
 
-        service.mEventBus.postSticky(new PlayersChanged(mPlayers, newActivePlayer));
+        mEventBus.postSticky(new PlayersChanged(mPlayers, newActivePlayer));
     }
 
     @Nullable Player getActivePlayer() {

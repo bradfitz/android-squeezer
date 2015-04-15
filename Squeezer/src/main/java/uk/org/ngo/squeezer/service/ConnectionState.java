@@ -16,10 +16,8 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.net.wifi.WifiManager;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -31,20 +29,14 @@ import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Squeezer;
+import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 public class ConnectionState {
@@ -104,7 +96,7 @@ public class ConnectionState {
 
     private final AtomicReference<String[]> mediaDirs = new AtomicReference<String[]>();
 
-    void disconnect(SqueezeService service, boolean loginFailed) {
+    void disconnect(EventBus eventBus, boolean loginFailed) {
         Log.v(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
         currentConnectionGeneration.incrementAndGet();
         Socket socket = socketRef.get();
@@ -118,10 +110,10 @@ public class ConnectionState {
         socketWriter.set(null);
 
         if (loginFailed) {
-            setConnectionState(service, LOGIN_FAILED);
+            setConnectionState(eventBus, LOGIN_FAILED);
         }
 
-        setConnectionState(service, DISCONNECTED);
+        setConnectionState(eventBus, DISCONNECTED);
 
         httpPort.set(null);
         mediaDirs.set(null);
@@ -131,14 +123,14 @@ public class ConnectionState {
      * Sets a new connection state, and posts a sticky
      * {@link uk.org.ngo.squeezer.service.event.ConnectionChanged} event with the new state.
      *
-     * @param service The service that contains the eventbus to post the event to.
+     * @param eventBus The eventbus to post the event to.
      * @param connectionState The new connection state.
      */
-    void setConnectionState(@NonNull SqueezeService service,
+    void setConnectionState(@NonNull EventBus eventBus,
             @ConnectionStates int connectionState) {
         Log.d(TAG, "Setting connection state to: " + connectionState);
         mConnectionState = connectionState;
-        service.mEventBus.postSticky(new ConnectionChanged(mConnectionState));
+        eventBus.postSticky(new ConnectionChanged(mConnectionState));
     }
 
     PrintWriter getSocketWriter() {
@@ -222,15 +214,17 @@ public class ConnectionState {
         return mConnectionState == CONNECTION_STARTED;
     }
 
-    void startListeningThread(SqueezeService service, CliClient cli) {
-        Thread listeningThread = new ListeningThread(service, cli, socketRef.get(),
+    void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, CliClient cli) {
+        Thread listeningThread = new ListeningThread(eventBus, executor, cli, socketRef.get(),
                 currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
     }
 
     private class ListeningThread extends Thread {
 
-        private final SqueezeService service;
+        @NonNull private final EventBus mEventBus;
+
+        @NonNull private final Executor mExecutor;
 
         private final Socket socket;
 
@@ -238,8 +232,9 @@ public class ConnectionState {
 
         private final int generationNumber;
 
-        private ListeningThread(SqueezeService service, CliClient cli, Socket socket, int generationNumber) {
-            this.service = service;
+        private ListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, CliClient cli, Socket socket, int generationNumber) {
+            mEventBus = eventBus;
+            mExecutor = executor;
             this.cli = cli;
             this.socket = socket;
             this.generationNumber = generationNumber;
@@ -253,7 +248,7 @@ public class ConnectionState {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()), 128);
             } catch (IOException e) {
                 Log.v(TAG, "IOException while creating BufferedReader: " + e);
-                service.disconnect();
+                cli.disconnect(false);
                 return;
             }
             IOException exception = null;
@@ -271,7 +266,7 @@ public class ConnectionState {
                     // else we should notify about it.
                     if (currentConnectionGeneration.get() == generationNumber) {
                         Log.v(TAG, "Server disconnected; exception=" + exception);
-                        service.disconnect(exception == null);
+                        cli.disconnect(false);
                     } else {
                         // Who cares.
                         Log.v(TAG, "Old generation connection disconnected, as expected.");
@@ -284,9 +279,9 @@ public class ConnectionState {
                 // with "login " then the login must have been successful (otherwise the
                 // server would have disconnected), so update the connection state accordingly.
                 if (mConnectionState == LOGIN_STARTED && !inputLine.startsWith("login ")) {
-                    setConnectionState(service, LOGIN_COMPLETED);
+                    setConnectionState(mEventBus, LOGIN_COMPLETED);
                 }
-                service.executor.execute(new Runnable() {
+                mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         cli.onLineReceived(inputLine);
@@ -296,7 +291,9 @@ public class ConnectionState {
         }
     }
 
-    void startConnect(final SqueezeService service, final CliClient cli, String hostPort, final String userName,
+    void startConnect(final SqueezeService service, @NonNull final EventBus eventBus,
+                      @NonNull final Executor executor,
+                      final CliClient cli, String hostPort, final String userName,
                       final String password) {
         Log.v(TAG, "startConnect");
         // Common mistakes, based on crash reports...
@@ -320,7 +317,7 @@ public class ConnectionState {
         this.password.set(password);
 
         // Start the off-thread connect.
-        service.executor.execute(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 Log.d(TAG, "Ensuring service is disconnected");
@@ -328,15 +325,15 @@ public class ConnectionState {
                 Socket socket = new Socket();
                 try {
                     Log.d(TAG, "Connecting to: " + cleanHostPort);
-                    setConnectionState(service, CONNECTION_STARTED);
+                    setConnectionState(eventBus, CONNECTION_STARTED);
                     socket.connect(new InetSocketAddress(host, port),
                             4000 /* ms timeout */);
                     socketRef.set(socket);
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
-                    setConnectionState(service, CONNECTION_COMPLETED);
-                    startListeningThread(service, cli);
-                    onCliPortConnectionEstablished(service, cli, userName, password);
+                    setConnectionState(eventBus, CONNECTION_COMPLETED);
+                    startListeningThread(eventBus, executor, cli);
+                    onCliPortConnectionEstablished(eventBus, cli, userName, password);
                     Authenticator.setDefault(new Authenticator() {
                         @Override
                         public PasswordAuthentication getPasswordAuthentication() {
@@ -345,10 +342,10 @@ public class ConnectionState {
                     });
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
-                    setConnectionState(service, CONNECTION_FAILED);
+                    setConnectionState(eventBus, CONNECTION_FAILED);
                 } catch (IOException e) {
                     Log.e(TAG, "IOException connecting to: " + cleanHostPort);
-                    setConnectionState(service, CONNECTION_FAILED);
+                    setConnectionState(eventBus, CONNECTION_FAILED);
                 }
             }
 
@@ -372,8 +369,8 @@ public class ConnectionState {
      * therefore a disconnect when handshake (the next step after authentication) is not completed,
      * is considered an authentication failure.
      */
-    void onCliPortConnectionEstablished(final SqueezeService service, final CliClient cli, final String userName, final String password) {
-        setConnectionState(service, ConnectionState.LOGIN_STARTED);
+    void onCliPortConnectionEstablished(final EventBus eventBus, final CliClient cli, final String userName, final String password) {
+        setConnectionState(eventBus, ConnectionState.LOGIN_STARTED);
         cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
     }
 
