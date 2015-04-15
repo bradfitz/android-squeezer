@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
@@ -99,7 +100,7 @@ class CliClient implements IClient {
     @NonNull private final EventBus mEventBus;
 
     /** Executor for off-main-thread work. */
-    @NonNull private final Executor mExecutor;
+    @NonNull private final ScheduledThreadPoolExecutor mExecutor = new ScheduledThreadPoolExecutor(1);
 
     /** The types of command handler. */
     enum HandlerList {
@@ -342,9 +343,8 @@ class CliClient implements IClient {
 
     private final int pageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
 
-    CliClient(@NonNull EventBus eventBus, @NonNull Executor executor) {
+    CliClient(@NonNull EventBus eventBus) {
         mEventBus = eventBus;
-        mExecutor = executor;
     }
 
     void initialize() {
