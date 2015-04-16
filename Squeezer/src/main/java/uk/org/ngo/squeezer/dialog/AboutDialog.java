@@ -31,6 +31,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import de.cketti.library.changelog.ChangeLog;
+import uk.org.ngo.squeezer.BuildConfig;
 import uk.org.ngo.squeezer.R;
 
 public class AboutDialog extends DialogFragment {
@@ -47,7 +48,11 @@ public class AboutDialog extends DialogFragment {
         PackageInfo info;
         try {
             info = pm.getPackageInfo(getActivity().getPackageName(), 0);
-            versionText.setText(info.versionName);
+            if (BuildConfig.DEBUG) {
+                versionText.setText(info.versionName + ' ' + BuildConfig.GIT_DESCRIPTION);
+            } else {
+                versionText.setText(info.versionName);
+            }
         } catch (NameNotFoundException e) {
             titleText.setText(getString(R.string.app_name));
         }
