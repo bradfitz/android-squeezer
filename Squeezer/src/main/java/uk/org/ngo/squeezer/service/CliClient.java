@@ -16,12 +16,16 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.support.annotation.IntDef;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -50,23 +55,35 @@ class CliClient {
 
     private static final String TAG = "CliClient";
 
+    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
+    private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
+
     /**
      * Join multiple strings (skipping nulls) together with newlines.
      */
     private static final Joiner mNewlineJoiner = Joiner.on("\n").skipNulls();
 
-    enum HandlerList {
-        GLOBAL, PREFIXED, PLAYER_SPECIFIC, GLOBAL_PLAYER_SPECIFIC, PREFIXED_PLAYER_SPECIFIC
-    }
+    @IntDef(flag=true, value={
+            HANDLER_LIST_GLOBAL, HANDLER_LIST_PREFIXED, HANDLER_LIST_PLAYER_SPECIFIC,
+            HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC, HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface HandlerListType {}
+    public static final int HANDLER_LIST_GLOBAL = 1;
+    public static final int HANDLER_LIST_PREFIXED = 1 << 1;
+    public static final int HANDLER_LIST_PLAYER_SPECIFIC = 1 << 2;
+    public static final int HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC = 1 << 3;
+    public static final int HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC = 1 << 4;
 
     static class ExtendedQueryFormatCmd {
-        private static final HashSet<HandlerList> PLAYER_SPECIFIC_HANDLER_LISTS =
-                new HashSet<HandlerList>(Arrays.asList(HandlerList.PLAYER_SPECIFIC,
-                        HandlerList.GLOBAL_PLAYER_SPECIFIC, HandlerList.PREFIXED_PLAYER_SPECIFIC));
-        private static final HashSet<HandlerList> PREFIXED_HANDLER_LISTS = new HashSet<HandlerList>(
-                Arrays.asList(HandlerList.PREFIXED, HandlerList.PREFIXED_PLAYER_SPECIFIC));
+        private static final int PLAYER_SPECIFIC_HANDLER_LISTS =
+                HANDLER_LIST_PLAYER_SPECIFIC | HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC | HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC;
 
-        final HandlerList handlerList;
+        private static final int PREFIXED_HANDLER_LISTS =
+                HANDLER_LIST_PREFIXED | HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC;
+
+        @HandlerListType
+        final int handlerList;
         final private boolean playerSpecific;
         final private boolean prefixed;
 
@@ -76,24 +93,45 @@ class CliClient {
 
         final private SqueezeParserInfo[] parserInfos;
 
-        public ExtendedQueryFormatCmd(HandlerList handlerList, String cmd,
-                Set<String> taggedParameters, SqueezeParserInfo... parserInfos) {
+        public ExtendedQueryFormatCmd(@HandlerListType int handlerList, String cmd,
+                                      Set<String> taggedParameters, SqueezeParserInfo... parserInfos) {
             this.handlerList = handlerList;
-            playerSpecific = PLAYER_SPECIFIC_HANDLER_LISTS.contains(handlerList);
-            prefixed = PREFIXED_HANDLER_LISTS.contains(handlerList);
+            playerSpecific = (PLAYER_SPECIFIC_HANDLER_LISTS & handlerList) != 0;
+            prefixed = (PREFIXED_HANDLER_LISTS & handlerList) != 0;
             this.cmd = cmd;
             this.taggedParameters = taggedParameters;
             this.parserInfos = parserInfos;
         }
 
+        /**
+         * A command to the server where items in the response have a delimiter other than "id:".
+         *
+         * @param cmd The command to send to the server.
+         * @param taggedParameters The keys for any tagged parameters to send.
+         * @param itemDelimiter The identifier of the tagged parameter that marks the start of
+         *    a new block of information.
+         * @param handler The handler used to construct new model objects from the response.
+         */
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
-                String itemDelimiter, ListHandler<? extends Item> handler) {
-            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
+                                      ListHandler<? extends Item> handler, String... columns) {
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler, columns));
         }
 
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
+                                      String itemDelimiter, ListHandler<? extends Item> handler) {
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
+        }
+
+        /**
+         * A command to the server where items in the response are delimited by id: tags.
+         *
+         * @param cmd The command to send to the server.
+         * @param taggedParameters The keys for any tagged parameters to send.
+         * @param handler The handler used to construct new model objects from the response.
+         */
+        public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
                 ListHandler<? extends Item> handler) {
-            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler));
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler));
         }
 
         public String toString() {
@@ -114,7 +152,7 @@ class CliClient {
                 new ExtendedQueryFormatCmd(
                         "players",
                         new HashSet<String>(Arrays.asList("playerprefs", "charset")),
-                        "playerid",
+                        "playerindex",
                         new BaseListHandler<Player>() {}
                 )
         );
@@ -183,31 +221,33 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.GLOBAL,
+                        HANDLER_LIST_GLOBAL,
                         "search",
                         new HashSet<String>(Arrays.asList("term", "charset")),
-                        new SqueezeParserInfo("genres_count", "genre_id", new GenreListHandler()),
-                        new SqueezeParserInfo("albums_count", "album_id", new AlbumListHandler()),
-                        new SqueezeParserInfo("contributors_count", "contributor_id",
-                                new ArtistListHandler()),
-                        new SqueezeParserInfo("tracks_count", "track_id", new SongListHandler())
+                        new SqueezeParserInfo("genres_count", new GenreListHandler(), "genre_id"),
+                        new SqueezeParserInfo("albums_count", new AlbumListHandler(), "album_id"),
+                        new SqueezeParserInfo("contributors_count", new ArtistListHandler()
+                                , "contributor_id"),
+                        new SqueezeParserInfo("tracks_count", new SongListHandler(), "track_id")
                 )
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.PLAYER_SPECIFIC,
+                        HANDLER_LIST_PLAYER_SPECIFIC,
                         "status",
                         new HashSet<String>(Arrays.asList("tags", "charset", "subscribe")),
-                        new SqueezeParserInfo("playlist_tracks", "playlist index",
-                                new SongListHandler())
+                        new SqueezeParserInfo("playlist_tracks", new SongListHandler(),
+                                "playlist index")
                 )
         );
         list.add(
                 new ExtendedQueryFormatCmd(
                         "radios",
                         new HashSet<String>(Arrays.asList("sort", "charset")),
-                        "icon",
-                        new PluginListHandler())
+                        new PluginListHandler(),
+                        "cmd", "name", "type", "icon", "weight"
+                )
+
         );
         list.add(
                 new ExtendedQueryFormatCmd(
@@ -218,7 +258,7 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.PREFIXED_PLAYER_SPECIFIC,
+                        HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC,
                         "items",
                         new HashSet<String>(
                                 Arrays.asList("item_id", "search", "want_url", "charset")),
@@ -275,7 +315,14 @@ class CliClient {
 
         String formattedCommands = mNewlineJoiner.join(commands);
         Log.v(TAG, "SEND: " + formattedCommands);
-        Crashlytics.setString("lastCommands", formattedCommands);
+
+        // Make sure that username/password do not make it to Crashlytics.
+        if (commands[0].startsWith("login ")) {
+            Crashlytics.setString("lastCommands", "login [username] [password]");
+        } else {
+            Crashlytics.setString("lastCommands", formattedCommands);
+        }
+
         writer.println(formattedCommands);
         writer.flush();
     }
@@ -420,7 +467,7 @@ class CliClient {
      */
     private static class SqueezeParserInfo {
 
-        private final String item_delimiter;
+        private final Set<String> columns;
 
         private final String count_id;
 
@@ -429,24 +476,35 @@ class CliClient {
         /**
          * @param countId The label for the tag which contains the total number of results, normally
          * "count".
-         * @param itemDelimiter As defined for each extended query format command in the
-         * squeezeserver CLI documentation.
          * @param handler Callback to receive the parsed data.
+         * @param columns If one column is specified, it is the item delimiter as defined for each
+         *                extended query format command in the SqueezeServer CLI documentation.
+         *                Multiple columns is supported to workaround of a bug in recent server
+         *                versions.
          */
-        public SqueezeParserInfo(String countId, String itemDelimiter,
-                ListHandler<? extends Item> handler) {
+        public SqueezeParserInfo(String countId, ListHandler<? extends Item> handler, String... columns) {
             count_id = countId;
-            item_delimiter = itemDelimiter;
+            this.columns = new HashSet<String>(Arrays.asList(columns));
             this.handler = handler;
         }
 
-        public SqueezeParserInfo(String itemDelimiter,
-                ListHandler<? extends Item> handler) {
-            this("count", itemDelimiter, handler);
+        public SqueezeParserInfo(String itemDelimiter, ListHandler<? extends Item> handler) {
+            this("count", handler, itemDelimiter);
+        }
+
+        public SqueezeParserInfo(ListHandler<? extends Item> handler, String... columns) {
+            this("count", handler, columns);
         }
 
         public SqueezeParserInfo(ListHandler<? extends Item> handler) {
             this("id", handler);
+        }
+
+        public boolean isComplete(Map<String, String> record) {
+            for (String column : columns) {
+                if (!record.containsKey(column)) return false;
+            }
+            return true;
         }
     }
 
@@ -468,27 +526,27 @@ class CliClient {
     void parseSqueezerList(ExtendedQueryFormatCmd cmd, List<String> tokens) {
         Log.v(TAG, "Parsing list, cmd: " +cmd + ", tokens: " + tokens);
 
-        int ofs = cmd.cmd.split(" ").length + (cmd.playerSpecific ? 1 : 0) + (cmd.prefixed ? 1 : 0);
+        final int ofs = mSpaceSplitPattern.split(cmd.cmd).length + (cmd.playerSpecific ? 1 : 0) + (cmd.prefixed ? 1 : 0);
         int actionsCount = 0;
-        String playerid = (cmd.playerSpecific ? tokens.get(0) + " " : "");
-        String prefix = (cmd.prefixed ? tokens.get(cmd.playerSpecific ? 1 : 0) + " " : "");
-        int start = Util.parseDecimalIntOrZero(tokens.get(ofs));
-        int itemsPerResponse = Util.parseDecimalIntOrZero(tokens.get(ofs + 1));
+        final String playerid = (cmd.playerSpecific ? tokens.get(0) + " " : "");
+        final String prefix = (cmd.prefixed ? tokens.get(cmd.playerSpecific ? 1 : 0) + " " : "");
+        final int start = Util.parseDecimalIntOrZero(tokens.get(ofs));
+        final int itemsPerResponse = Util.parseDecimalIntOrZero(tokens.get(ofs + 1));
 
         int correlationId = 0;
         boolean rescan = false;
         boolean full_list = false;
-        Map<String, String> taggedParameters = new HashMap<String, String>();
-        Map<String, String> parameters = new HashMap<String, String>();
-        Set<String> countIdSet = new HashSet<String>();
-        Map<String, SqueezeParserInfo> itemDelimeterMap = new HashMap<String, SqueezeParserInfo>();
-        Map<String, Integer> counts = new HashMap<String, Integer>();
-        Map<String, String> record = null;
+        final Map<String, String> taggedParameters = new HashMap<String, String>();
+        final Map<String, String> parameters = new HashMap<String, String>();
+        final Set<String> countIdSet = new HashSet<String>();
+        final Map<String, SqueezeParserInfo> itemDelimeterMap = new HashMap<String, SqueezeParserInfo>();
+        final Map<String, Integer> counts = new HashMap<String, Integer>();
+        final Map<String, String> record = new HashMap<String, String>();
 
         for (SqueezeParserInfo parserInfo : cmd.parserInfos) {
             parserInfo.handler.clear();
             countIdSet.add(parserInfo.count_id);
-            itemDelimeterMap.put(parserInfo.item_delimiter, parserInfo);
+            for (String column : parserInfo.columns) itemDelimeterMap.put(column, parserInfo);
         }
 
         SqueezeParserInfo parserInfo = null;
@@ -503,15 +561,15 @@ class CliClient {
             String value = Util.decode(token.substring(colonPos + 3));
             Log.v(TAG, "key=" + key + ", value: " + value);
 
-            if (key.equals("rescan")) {
+            if ("rescan".equals(key)) {
                 rescan = (Util.parseDecimalIntOrZero(value) == 1);
-            } else if (key.equals("full_list")) {
+            } else if ("full_list".equals(key)) {
                 full_list = (Util.parseDecimalIntOrZero(value) == 1);
                 taggedParameters.put(key, token);
-            } else if (key.equals("correlationid")) {
+            } else if ("correlationid".equals(key)) {
                 correlationId = Util.parseDecimalIntOrZero(value);
                 taggedParameters.put(key, token);
-            } else if (key.equals("actions")) {
+            } else if ("actions".equals(key)) {
                 // Apparently squeezer returns some commands which are
                 // included in the count of the current request
                 actionsCount++;
@@ -519,15 +577,14 @@ class CliClient {
             if (countIdSet.contains(key)) {
                 counts.put(key, Util.parseDecimalIntOrZero(value));
             } else {
-                if (itemDelimeterMap.get(key) != null) {
-                    if (record != null) {
-                        parserInfo.handler.add(record);
-                        Log.v(TAG, "record=" + record);
-                    }
-                    parserInfo = itemDelimeterMap.get(key);
-                    record = new HashMap<String, String>();
+                SqueezeParserInfo newParserInfo = itemDelimeterMap.get(key);
+                if (newParserInfo != null && parserInfo != null && parserInfo.isComplete(record)) {
+                    parserInfo.handler.add(record);
+                    Log.v(TAG, "record=" + record);
+                    record.clear();
                 }
-                if (record != null) {
+                if (newParserInfo != null) parserInfo = newParserInfo;
+                if (parserInfo != null) {
                     record.put(key, value);
                 } else if (cmd.taggedParameters.contains(key)) {
                     taggedParameters.put(key, token);
@@ -537,7 +594,7 @@ class CliClient {
             }
         }
 
-        if (record != null) {
+        if (parserInfo != null && !record.isEmpty()) {
             parserInfo.handler.add(record);
             Log.v(TAG, "record=" + record);
         }

@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnKeyListener;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,6 +32,7 @@ import uk.org.ngo.squeezer.R;
 
 public class TipsDialog extends DialogFragment implements OnKeyListener {
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
@@ -51,6 +53,7 @@ public class TipsDialog extends DialogFragment implements OnKeyListener {
      * 
      * TODO: Do this for all the dialog.
      */
+    @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:

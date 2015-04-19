@@ -2,6 +2,8 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.InputType;
 
 import uk.org.ngo.squeezer.R;
@@ -12,6 +14,7 @@ public class PlaylistSaveDialog extends BaseEditTextDialog {
 
     private BaseActivity activity;
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
@@ -41,7 +44,7 @@ public class PlaylistSaveDialog extends BaseEditTextDialog {
         return true;
     }
 
-    public static void addTo(BaseActivity activity, String name) {
+    public static void addTo(BaseActivity activity, @Nullable String name) {
         PlaylistSaveDialog dialog = new PlaylistSaveDialog();
         Bundle args = new Bundle();
         args.putString("name", name);

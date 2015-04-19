@@ -33,7 +33,7 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class YearSpinner {
 
-    final YearSpinnerCallback callback;
+    private final YearSpinnerCallback callback;
 
     private final ItemListActivity activity;
 
@@ -55,8 +55,10 @@ public class YearSpinner {
     private final IServiceItemListCallback<Year> yearListCallback = new IServiceItemListCallback<Year>() {
         private ItemAdapter<Year> adapter;
 
+        @Override
         public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<Year> list, Class<Year> dataType) {
             callback.getUIThreadHandler().post(new Runnable() {
+                @Override
                 public void run() {
                     if (adapter == null) {
                         YearView itemView = new YearView(activity) {

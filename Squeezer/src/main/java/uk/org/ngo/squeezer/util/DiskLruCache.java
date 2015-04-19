@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.util;
 
+import android.support.annotation.NonNull;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -270,6 +272,7 @@ public final class DiskLruCache implements Closeable {
     private final ExecutorService executorService = new ThreadPoolExecutor(0, 1,
             60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     private final Callable<Void> cleanupCallable = new Callable<Void>() {
+        @Override
         public Void call() throws Exception {
             synchronized (DiskLruCache.this) {
                 if (journalWriter == null) {
@@ -682,6 +685,7 @@ public final class DiskLruCache implements Closeable {
     /**
      * Closes this cache. Stored values will remain on the filesystem.
      */
+    @Override
     public synchronized void close() throws IOException {
         if (journalWriter == null) {
             return; // already closed
@@ -762,6 +766,7 @@ public final class DiskLruCache implements Closeable {
             return inputStreamToString(getInputStream(index));
         }
 
+        @Override
         public void close() {
             for (InputStream in : ins) {
                 closeQuietly(in);
@@ -868,7 +873,7 @@ public final class DiskLruCache implements Closeable {
                 }
             }
 
-            @Override public void write(byte[] buffer, int offset, int length) {
+            @Override public void write(@NonNull byte[] buffer, int offset, int length) {
                 try {
                     out.write(buffer, offset, length);
                 } catch (IOException e) {

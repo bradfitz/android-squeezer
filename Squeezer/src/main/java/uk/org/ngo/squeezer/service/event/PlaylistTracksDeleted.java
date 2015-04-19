@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.Nullable;
-
-import java.util.List;
-
-import uk.org.ngo.squeezer.model.Player;
-
-public interface IServicePlayersCallback extends ServiceCallback {
-    void onPlayersChanged(List<Player> players, final @Nullable Player activePlayer);
+/** Event sent when a track is deleted from a playlist. */
+public class PlaylistTracksDeleted {
+    public PlaylistTracksDeleted() {
+    }
 }
-

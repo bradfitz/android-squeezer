@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Google Inc.  All Rights Reserved.
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,20 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
 
-public interface IServiceHandshakeCallback extends ServiceCallback {
-    // Handshaking with the server has completed.
-    void onHandshakeCompleted();
+import uk.org.ngo.squeezer.service.ConnectionState;
+
+public class ConnectionChanged {
+    @ConnectionState.ConnectionStates
+    public int connectionState;
+
+    public ConnectionChanged(@ConnectionState.ConnectionStates int connectionState) {
+        this.connectionState = connectionState;
+    }
+
+    @Override
+    public String toString() {
+        return "ConnectionChanged{" + connectionState + '}';
+    }
 }
-

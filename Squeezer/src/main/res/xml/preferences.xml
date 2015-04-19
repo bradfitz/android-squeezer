@@ -21,14 +21,12 @@
     <PreferenceCategory
         android:title="@string/pref_cat_server">
 
-        <!-- TODO: Something that only allowed IP:port here would be nice,
-             instead of using the normal keyboard. -->
         <uk.org.ngo.squeezer.dialog.ServerAddressPreference
             android:key="squeezer.serveraddr"
             android:title="@string/settings_serveraddr_title"
             android:summary="@string/settings_serveraddr_summary"
             android:dialogMessage="@string/settings_serveraddr_summary"
-            android:persistent="true"/>
+            android:persistent="false"/>
     </PreferenceCategory>
 
     <uk.org.ngo.squeezer.IntEditTextPreference
@@ -76,7 +74,7 @@
 
         <ListPreference
             android:key="squeezer.theme"
-            android:title="Theme"/>
+            android:title="@string/settings_theme_title"/>
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -19,13 +19,17 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.util.SparseArray;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
@@ -35,30 +39,12 @@ import uk.org.ngo.squeezer.service.ServerString;
 
 public class PlayerState implements Parcelable {
 
-    /**
-     * Types of player status subscription.
-     */
-    public enum PlayerSubscriptionType {
-        /** Do not subscribe to updates. */
-        none('-'),
-
-        /** Subscribe to updates when the status changes. */
-        on_change('0'),
-
-        /** Receive real-time (second to second) updates. */
-        real_time('1');
-
-        private char mToken;
-
-        private PlayerSubscriptionType(char token) {
-            mToken = token;
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(mToken);
-        }
-    }
+    @StringDef({NOTIFY_NONE, NOTIFY_ON_CHANGE, NOTIFY_REAL_TIME})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PlayerSubscriptionType {}
+    public static final String NOTIFY_NONE = "-";
+    public static final String NOTIFY_ON_CHANGE = "0";
+    public static final String NOTIFY_REAL_TIME = "1";
 
     public PlayerState() {
     }
@@ -77,7 +63,7 @@ public class PlayerState implements Parcelable {
 
     private PlayerState(Parcel source) {
         playerId = source.readString();
-        playStatus = PlayStatus.valueOf(source.readString());
+        playStatus = source.readString();
         poweredOn = (source.readByte() == 1);
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
         repeatStatus = RepeatStatus.valueOf(source.readInt());
@@ -91,13 +77,13 @@ public class PlayerState implements Parcelable {
         sleep = source.readInt();
         mSyncMaster = source.readString();
         source.readStringList(mSyncSlaves);
-        mPlayerSubscriptionType = PlayerSubscriptionType.valueOf(source.readString());
+        mPlayerSubscriptionType = source.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(playerId);
-        dest.writeString(playStatus.name());
+        dest.writeString(playStatus);
         dest.writeByte(poweredOn ? (byte) 1 : (byte) 0);
         dest.writeInt(shuffleStatus.getId());
         dest.writeInt(repeatStatus.getId());
@@ -111,7 +97,7 @@ public class PlayerState implements Parcelable {
         dest.writeInt(sleep);
         dest.writeString(mSyncMaster);
         dest.writeStringList(mSyncSlaves);
-        dest.writeString(mPlayerSubscriptionType.toString());
+        dest.writeString(mPlayerSubscriptionType);
     }
 
     @Override
@@ -123,7 +109,7 @@ public class PlayerState implements Parcelable {
 
     private boolean poweredOn;
 
-    private PlayStatus playStatus;
+    private @PlayState String playStatus;
 
     private ShuffleStatus shuffleStatus;
 
@@ -131,7 +117,8 @@ public class PlayerState implements Parcelable {
 
     private Song currentSong;
 
-    /** The name of the current playlist, if it has one. */
+    /** The name of the current playlist, which may be the empty string. */
+    @NonNull
     private String currentPlaylist;
 
     private int currentPlaylistIndex;
@@ -155,32 +142,29 @@ public class PlayerState implements Parcelable {
 
     /** How the server is subscribed to the player's status changes. */
     @NonNull
-    private PlayerSubscriptionType mPlayerSubscriptionType = PlayerSubscriptionType.none;
+    @PlayerSubscriptionType private String mPlayerSubscriptionType = NOTIFY_NONE;
 
     public boolean isPlaying() {
-        return playStatus == PlayStatus.play;
+        return PLAY_STATE_PLAY.equals(playStatus);
     }
 
-    public PlayStatus getPlayStatus() {
+    /**
+     * @return the player's state. May be null, which indicates that Squeezer has received
+     *     a "players" response for this player, but has not yet received a status message
+     *     for it.
+     */
+    @Nullable
+    @PlayState
+    public String getPlayStatus() {
         return playStatus;
     }
 
-    public boolean setPlayStatus(PlayStatus state) {
-        if (state == playStatus)
+    public boolean setPlayStatus(@NonNull @PlayState String s) {
+        if (s.equals(playStatus)) {
             return false;
+        }
 
-        playStatus = state;
-        return true;
-    }
-
-    public boolean setPlayStatus(String s) {
-        playStatus = null;
-        if (s != null)
-            try {
-                return setPlayStatus(PlayStatus.valueOf(s));
-            } catch (IllegalArgumentException e) {
-                // Server sent us an unknown status, nulls are handled outside this function
-            }
+        playStatus = s;
 
         return true;
     }
@@ -245,6 +229,7 @@ public class PlayerState implements Parcelable {
         return currentSong;
     }
 
+    @NonNull
     public String getCurrentSongName() {
         return (currentSong != null) ? currentSong.getName() : "";
     }
@@ -257,6 +242,8 @@ public class PlayerState implements Parcelable {
         return true;
     }
 
+    /** @return the name of the current playlist, may be the empty string. */
+    @NonNull
     public String getCurrentPlaylist() {
         return currentPlaylist;
     }
@@ -265,7 +252,7 @@ public class PlayerState implements Parcelable {
         return currentPlaylistIndex;
     }
 
-    public boolean setCurrentPlaylist(String playlist) {
+    public boolean setCurrentPlaylist(@Nullable String playlist) {
         if (playlist == null)
             playlist = "";
 
@@ -380,44 +367,26 @@ public class PlayerState implements Parcelable {
         return mSyncSlaves;
     }
 
-    public PlayerSubscriptionType getSubscriptionType() {
+    @PlayerSubscriptionType public String getSubscriptionType() {
         return mPlayerSubscriptionType;
     }
 
-    public boolean setSubscriptionType(@Nullable String type) {
+    public boolean setSubscriptionType(@Nullable @PlayerSubscriptionType String type) {
         if (Strings.isNullOrEmpty(type))
-            return setSubscriptionType(PlayerSubscriptionType.none);
-
-        switch (type.charAt(0)) {
-            case '-':
-                return setSubscriptionType(PlayerSubscriptionType.none);
-
-            case '0':
-                return setSubscriptionType(PlayerSubscriptionType.on_change);
-
-            case '1':
-                return setSubscriptionType(PlayerSubscriptionType.real_time);
-
-            default:
-                throw new IllegalArgumentException("Unknown subscription type: " + type);
-        }
-    }
-
-    public boolean setSubscriptionType(@NonNull PlayerSubscriptionType type) {
-        if (type == mPlayerSubscriptionType)
-            return false;
+            return setSubscriptionType(NOTIFY_NONE);
 
         mPlayerSubscriptionType = type;
         return true;
     }
 
-    public static enum PlayStatus {
-        play,
-        pause,
-        stop
-    }
+    @StringDef({PLAY_STATE_PLAY, PLAY_STATE_PAUSE, PLAY_STATE_STOP})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PlayState {}
+    public static final String PLAY_STATE_PLAY = "play";
+    public static final String PLAY_STATE_PAUSE = "pause";
+    public static final String PLAY_STATE_STOP = "stop";
 
-    public static enum ShuffleStatus implements EnumWithId {
+    public enum ShuffleStatus implements EnumWithId {
         SHUFFLE_OFF(0, R.attr.ic_action_av_shuffle_off, ServerString.SHUFFLE_OFF),
         SHUFFLE_SONG(1, R.attr.ic_action_av_shuffle_song, ServerString.SHUFFLE_ON_SONGS),
         SHUFFLE_ALBUM(2, R.attr.ic_action_av_shuffle_album, ServerString.SHUFFLE_ON_ALBUMS);
@@ -431,7 +400,7 @@ public class PlayerState implements Parcelable {
         private static final EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<ShuffleStatus>(
                 ShuffleStatus.class);
 
-        private ShuffleStatus(int id, int icon, ServerString text) {
+        ShuffleStatus(int id, int icon, ServerString text) {
             this.id = id;
             this.icon = icon;
             this.text = text;
@@ -455,7 +424,7 @@ public class PlayerState implements Parcelable {
         }
     }
 
-    public static enum RepeatStatus implements EnumWithId {
+    public enum RepeatStatus implements EnumWithId {
         REPEAT_OFF(0, R.attr.ic_action_av_repeat_off, ServerString.REPEAT_OFF),
         REPEAT_ONE(1, R.attr.ic_action_av_repeat_one, ServerString.REPEAT_ONE),
         REPEAT_ALL(2, R.attr.ic_action_av_repeat_all, ServerString.REPEAT_ALL);
@@ -469,7 +438,7 @@ public class PlayerState implements Parcelable {
         private static final EnumIdLookup<RepeatStatus> lookup = new EnumIdLookup<RepeatStatus>(
                 RepeatStatus.class);
 
-        private RepeatStatus(int id, int icon, ServerString text) {
+        RepeatStatus(int id, int icon, ServerString text) {
             this.id = id;
             this.icon = icon;
             this.text = text;

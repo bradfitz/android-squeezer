@@ -18,13 +18,15 @@ package uk.org.ngo.squeezer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 
 public final class Preferences {
 
     public static final String NAME = "Squeezer";
 
     // e.g. "10.0.0.81:9090"
-    public static final String KEY_SERVERADDR = "squeezer.serveraddr";
+    public static final String KEY_SERVER_ADDRESS = "squeezer.serveraddr";
 
     // Optional Squeezebox Server name
     private static final String KEY_SERVER_NAME = "squeezer.server_name";
@@ -36,7 +38,7 @@ public final class Preferences {
     private static final String KEY_PASSWORD = "squeezer.password";
 
     // The playerId that we were last connected to. e.g. "00:04:20:17:04:7f"
-    public static final String KEY_LASTPLAYER = "squeezer.lastplayer";
+    public static final String KEY_LAST_PLAYER = "squeezer.lastplayer";
 
     // Do we automatically try and connect on WiFi availability?
     public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
@@ -95,54 +97,94 @@ public final class Preferences {
         return pref;
     }
 
-    public String getServerAddress() {
-        return getStringPreference(Preferences.KEY_SERVERADDR, null);
+    public ServerAddress getServerAddress() {
+        ServerAddress serverAddress = new ServerAddress();
+
+        WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
+        serverAddress.bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
+        if (serverAddress.bssId != null)
+            serverAddress.address = getStringPreference(KEY_SERVER_ADDRESS + "_" + serverAddress.bssId, null);
+        if (serverAddress.address == null)
+            serverAddress.address = getStringPreference(KEY_SERVER_ADDRESS, null);
+
+        return serverAddress;
+    }
+
+    public static class ServerAddress {
+        public String bssId;
+        public String address; // <host name or ip>:<port>
+
+        @Override
+        public String toString() {
+            return (bssId != null ? bssId + "_ " : "") + address + "_";
+        }
+    }
+
+    public ServerAddress saveServerAddress(String address) {
+        WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
+        String bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(bssId != null ? KEY_SERVER_ADDRESS + "_" + bssId : KEY_SERVER_ADDRESS, address);
+        editor.commit();
+
+        ServerAddress serverAddress = new ServerAddress();
+        serverAddress.bssId = bssId;
+        serverAddress.address = address;
+
+        return serverAddress;
     }
 
     public String getServerName() {
-        String serverName = getStringPreference(KEY_SERVER_NAME, null);
-        return serverName != null ? serverName : getServerAddress();
+        return getServerName(getServerAddress());
     }
 
-    public void saveServerName(String serverName) {
+    public String getServerName(ServerAddress serverAddress) {
+        String serverName = getStringPreference(serverAddress + KEY_SERVER_NAME, null);
+        return serverName != null ? serverName : serverAddress.address;
+    }
+
+    public void saveServerName(ServerAddress serverAddress, String serverName) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_SERVER_NAME, serverName);
+        editor.putString(serverAddress + KEY_SERVER_NAME, serverName);
         editor.commit();
     }
 
-    public String getUserName() {
-        return getUserName(null);
+    public String getUserName(ServerAddress serverAddress) {
+        return getUserName(serverAddress, null);
     }
 
-    public String getUserName(String defaultValue) {
-        return getStringPreference(Preferences.KEY_USERNAME, defaultValue);
+    public String getUserName(ServerAddress serverAddress, String defaultValue) {
+        return getStringPreference(serverAddress + KEY_USERNAME, defaultValue);
     }
 
-    public String getPassword() {
-        return getPassword(null);
+    public String getPassword(ServerAddress serverAddress) {
+        return getPassword(serverAddress, null);
     }
 
-    public String getPassword(String defaultValue) {
-        return getStringPreference(Preferences.KEY_PASSWORD, defaultValue);
+    public String getPassword(ServerAddress serverAddress, String defaultValue) {
+        return getStringPreference(serverAddress + KEY_PASSWORD, defaultValue);
     }
 
-    public void saveUserCredentials(String userName, String password) {
+    public void saveUserCredentials(ServerAddress serverAddress, String userName, String password) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_USERNAME, userName);
-        editor.putString(KEY_PASSWORD, password);
+        editor.putString(serverAddress + KEY_USERNAME, userName);
+        editor.putString(serverAddress + KEY_PASSWORD, password);
         editor.commit();
     }
 
     public String getTheme() {
-        return getStringPreference(Preferences.KEY_ON_THEME_SELECT_ACTION, null);
+        return getStringPreference(KEY_ON_THEME_SELECT_ACTION, null);
     }
 
     public boolean isAutoConnect() {
-        return sharedPreferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true);
+        return sharedPreferences.getBoolean(KEY_AUTO_CONNECT, true);
     }
 
     public boolean controlSqueezePlayer() {
-        return sharedPreferences.getBoolean(Preferences.KEY_SQUEEZEPLAYER_ENABLED, true);
+        return sharedPreferences.getBoolean(KEY_SQUEEZEPLAYER_ENABLED, true);
     }
 
 }

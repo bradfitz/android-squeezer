@@ -29,7 +29,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.BaseViewDialog;
  */
 public class ViewMenuItemFragment extends BaseMenuFragment {
 
-    ListActivityWithViewMenu activity;
+    private ListActivityWithViewMenu activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,7 +82,7 @@ public class ViewMenuItemFragment extends BaseMenuFragment {
         /**
          * Ensure that the activity that hosts this fragment derives from BaseListActivity.
          */
-        public ItemAdapter<T> getItemAdapter();
+        ItemAdapter<T> getItemAdapter();
 
     }
 }

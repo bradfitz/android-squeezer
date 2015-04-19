@@ -36,10 +36,11 @@ public class SqueezePlayer extends Handler {
         this.context = context;
 
         Preferences preferences = new Preferences(context);
-        serverUrl = preferences.getServerAddress();
-        serverName = preferences.getServerName();
-        userName = preferences.getUserName();
-        password = preferences.getPassword();
+        Preferences.ServerAddress serverAddress = preferences.getServerAddress();
+        serverUrl = serverAddress.address;
+        serverName = preferences.getServerName(serverAddress);
+        userName = preferences.getUserName(serverAddress);
+        password = preferences.getPassword(serverAddress);
 
         Log.d(TAG, "startControllingSqueezePlayer");
         startControllingSqueezePlayer();

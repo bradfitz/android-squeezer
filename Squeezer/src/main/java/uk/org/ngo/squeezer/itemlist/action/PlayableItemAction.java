@@ -6,7 +6,7 @@ import uk.org.ngo.squeezer.framework.PlaylistItem;
 
 public abstract class PlayableItemAction {
 
-    public static enum Type {
+    public enum Type {
         /**
          * Do nothing
          */
@@ -30,7 +30,7 @@ public abstract class PlayableItemAction {
 
         public final int labelId;
 
-        private Type(int label) {
+        Type(int label) {
             this.labelId = label;
         }
     }
@@ -50,7 +50,7 @@ public abstract class PlayableItemAction {
 
     public static PlayableItemAction createAction(
             ItemListActivity activity, String actionType) {
-        if (actionType == null || actionType.equals("")) {
+        if (actionType == null || "".equals(actionType)) {
             return new PlayAction(activity);
         }
 

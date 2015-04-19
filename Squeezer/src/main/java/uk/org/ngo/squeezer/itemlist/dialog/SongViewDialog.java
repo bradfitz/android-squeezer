@@ -17,17 +17,17 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
      * Supported song list layouts.
      */
     public enum SongListLayout implements BaseViewDialog.EnumWithTextAndIcon {
-        grid(R.drawable.ic_action_view_as_grid, ServerString.SWITCH_TO_GALLERY),
-        list(R.drawable.ic_action_view_as_list, ServerString.SWITCH_TO_EXTENDED_LIST);
+        grid(R.attr.ic_action_view_as_grid, ServerString.SWITCH_TO_GALLERY),
+        list(R.attr.ic_action_view_as_list, ServerString.SWITCH_TO_EXTENDED_LIST);
 
         /**
          * The icon to use for this layout
          */
-        private final int icon;
+        private final int iconAttribute;
 
         @Override
-        public int getIcon() {
-            return icon;
+        public int getIconAttribute() {
+            return iconAttribute;
         }
 
         /**
@@ -40,9 +40,9 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
             return serverString.getLocalizedString();
         }
 
-        SongListLayout(int icon, ServerString serverString) {
+        SongListLayout(int iconAttribute, ServerString serverString) {
             this.serverString = serverString;
-            this.icon = icon;
+            this.iconAttribute = iconAttribute;
         }
 
     }
@@ -69,7 +69,7 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
             return context.getText(stringResource).toString();
         }
 
-        private SongsSortOrder(int stringResource) {
+        SongsSortOrder(int stringResource) {
             this.stringResource = stringResource;
         }
     }

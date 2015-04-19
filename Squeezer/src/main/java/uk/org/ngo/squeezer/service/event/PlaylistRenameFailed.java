@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.service.event;
 
-public interface IServiceConnectionCallback extends ServiceCallback {
-    // postConnect is only true for the very first callback after a new initial connect.
-    // loginFailed is true if the server disconnects before handshaking is completed
-    void onConnectionChanged(boolean isConnected, boolean postConnect, boolean loginFailed);
+import android.support.annotation.NonNull;
+
+/** Event sent if renaming a playlist failed. */
+public class PlaylistRenameFailed {
+    @NonNull
+    final public String failureMessage;
+
+    public PlaylistRenameFailed(@NonNull String failureMessage) {
+        this.failureMessage = failureMessage;
+    }
 }
-

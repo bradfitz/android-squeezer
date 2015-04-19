@@ -33,6 +33,9 @@
         <item name="ic_action_av_shuffle_song">@drawable/btn_shuffle_song</item>
         <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
 
+        <item name="ic_action_view_as_grid">@drawable/ic_action_view_as_grid</item>
+        <item name="ic_action_view_as_list">@drawable/ic_action_view_as_list</item>
+
         <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
     </style>
 
@@ -50,6 +53,9 @@
         <item name="ic_action_av_shuffle_off">@drawable/ic_action_av_shuffle_holo_light</item>
         <item name="ic_action_av_shuffle_song">@drawable/btn_shuffle_song</item>
         <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
+
+        <item name="ic_action_view_as_grid">@drawable/ic_action_view_as_grid_light</item>
+        <item name="ic_action_view_as_list">@drawable/ic_action_view_as_list_light</item>
 
         <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
     </style>
@@ -94,5 +100,11 @@
 
     <style name="VolumeDialogAnimation">
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <style name="TextAppearance.Squeezer.FloatLabel" parent="android:TextAppearance.Small">
+        <item name="android:textColor">@drawable/float_label</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 </resources>

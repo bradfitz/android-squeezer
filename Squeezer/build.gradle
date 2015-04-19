@@ -8,6 +8,7 @@ buildscript {
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
 }
+
 apply plugin: 'com.android.application'
 apply plugin: 'crashlytics'
 
@@ -24,11 +25,15 @@ dependencies {
     //       Support Repository" to be installed via the SDK manager.
     compile 'com.android.support:support-v4:21.0.2'
     compile 'com.android.support:appcompat-v7:20.0.0'
+    compile 'com.android.support:support-annotations:20.0.0'
 
     // Third party libraries
     compile 'com.google.guava:guava:18.0'
     // findbugs is required for Proguard to work with Guava.
     compile 'com.google.code.findbugs:jsr305:2.0.2'
+
+    // EventBus, https://github.com/greenrobot/EventBus.
+    compile 'de.greenrobot:eventbus:2.4.0'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
@@ -39,9 +44,17 @@ android {
     compileSdkVersion 19
     buildToolsVersion "21.1.1"
 
+    def gitHash = "git rev-parse --short HEAD".execute().text.trim()
+    def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
+    def hasStagedFiles = !"git diff-index --no-ext-diff --name-only --cached HEAD".execute().text.trim().isEmpty()
+    def dirtyWorkingCopy = hasModifiedDeletedOrOtherFiles || hasStagedFiles
+    def gitDescription = dirtyWorkingCopy ? "${gitHash}-dirty" : gitHash
+
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 19
+
+        buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
     }
 
     lintOptions {
@@ -57,6 +70,7 @@ android {
             // proguard-android-optimize.txt are automatically included.
             proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFile "proguard-crashlytics.cfg"
+            proguardFile "proguard-eventbus.cfg"
             proguardFile "proguard-guava.cfg"
             proguardFile "proguard-squeezer.cfg"
         }
@@ -85,15 +99,40 @@ android {
 
     productFlavors {
         beta {
-            versionCode 31
-            versionName "1.2.0-beta-2"
+            versionCode 40
+            versionName "1.2.6-beta-3"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 29
-            versionName "1.1.1"
+            versionCode 41
+            versionName "1.2.6"
             signingConfig android.signingConfigs.release
+        }
+    }
+
+    applicationVariants.all { variant ->
+        def apkSuffix = "-${variant.mergedFlavor.versionName}-${gitDescription}"
+        variant.outputs.each { output ->
+            def originalApkFile = output.outputFile
+            output.outputFile = new File(
+                    // Override this to change output directory
+                    (String) originalApkFile.parent,
+                    (String) originalApkFile.name.replace(".apk", "${apkSuffix}.apk")
+            )
+        }
+        // Print the APK path after assemble is done
+        variant.assemble.doLast {
+            variant.outputs.each { output ->
+                println output.outputFile
+            }
+        }
+
+        // Print the APK path as the last step before install, at which point the apk is complete
+        variant.install?.doFirst { // the install task can be null
+            variant.outputs.each { output ->
+                println output.outputFile
+            }
         }
     }
 }
