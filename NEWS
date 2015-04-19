@@ -1,6 +1,10 @@
 Upcoming
 ========
 
+*   Support skipping tracks in remote streams that have that feature,
+    such as Slacker Radio. Code from Sean Wilson
+    (https://github.com/swilson).
+
 *   Simplified the configuration process for new users. Squeezer now
     automatically searches for servers on the local network, saves
     connection information per-server, and numerous other fixes.
