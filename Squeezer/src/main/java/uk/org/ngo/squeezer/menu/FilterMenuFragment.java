@@ -58,7 +58,7 @@ public class FilterMenuFragment extends BaseMenuFragment {
         /**
          * Show a dialog allowing the user to specify how to filter the results.
          */
-        public void showFilterDialog();
+        void showFilterDialog();
 
         /**
          * Ensure that the activity that hosts this fragment derives from FragmentActivity.

@@ -21,8 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.EnumSet;
-
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
@@ -47,8 +45,8 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
     public MusicFolderView(ItemListActivity activity) {
         super(activity);
 
-        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.CONTEXT_BUTTON));
-        setLoadingViewParams(EnumSet.of(ViewParams.ICON));
+        setViewParams(VIEW_PARAM_ICON | VIEW_PARAM_CONTEXT_BUTTON);
+        setLoadingViewParams(VIEW_PARAM_ICON);
     }
 
     @Override

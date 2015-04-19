@@ -22,8 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import java.util.EnumSet;
-
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.model.PluginItem;
@@ -37,8 +35,8 @@ public class PluginItemView extends BaseItemView<PluginItem> {
         super(activity);
         mActivity = activity;
 
-        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.CONTEXT_BUTTON));
-        setLoadingViewParams(EnumSet.of(ViewParams.ICON));
+        setViewParams(VIEW_PARAM_ICON | VIEW_PARAM_CONTEXT_BUTTON);
+        setLoadingViewParams(VIEW_PARAM_ICON);
     }
 
     @Override

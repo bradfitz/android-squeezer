@@ -27,8 +27,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.EnumSet;
-
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
@@ -166,20 +164,20 @@ public class AlbumListActivity extends BaseListActivity<Album>
         }
 
         TextView header = (TextView) findViewById(R.id.header);
-        EnumSet<AlbumView.Details> details = EnumSet.allOf(AlbumView.Details.class);
+        @AlbumView.SecondLineDetails int details = AlbumView.DETAILS_ALL;
         if (artist != null) {
-            details.remove(AlbumView.Details.ARTIST);
+            details &= ~AlbumView.DETAILS_ARTIST;
             header.setText(getString(R.string.albums_by_artist_header, artist.getName()));
             header.setVisibility(View.VISIBLE);
             ((AlbumView) getItemView()).setArtist(artist);
         }
         if (genre != null) {
-            details.remove(AlbumView.Details.GENRE);
+            details &= ~AlbumView.DETAILS_GENRE;
             header.setText(getString(R.string.albums_by_genre_header, genre.getName()));
             header.setVisibility(View.VISIBLE);
         }
         if (year != null) {
-            details.remove(AlbumView.Details.YEAR);
+            details &= ~AlbumView.DETAILS_YEAR;
             header.setText(getString(R.string.albums_by_year_header, year.getName()));
             header.setVisibility(View.VISIBLE);
         }

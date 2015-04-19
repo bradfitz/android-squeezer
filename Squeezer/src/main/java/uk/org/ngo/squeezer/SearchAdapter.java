@@ -29,7 +29,6 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.TextView;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,14 +71,11 @@ public class SearchAdapter extends BaseExpandableListAdapter implements
                 new ItemAdapter<Genre>(new GenreView(activity)),
         };
 
-        ((SongViewWithArt) adapters[0].getItemView()).setDetails(EnumSet.of(
-                SongView.Details.DURATION,
-                SongView.Details.ALBUM,
-                SongView.Details.ARTIST));
+        ((SongViewWithArt) adapters[0].getItemView()).setDetails(
+                SongView.DETAILS_DURATION | SongView.DETAILS_ALBUM | SongView.DETAILS_ARTIST);
 
-        ((AlbumView) adapters[1].getItemView()).setDetails(EnumSet.of(
-                AlbumView.Details.ARTIST,
-                AlbumView.Details.YEAR));
+        ((AlbumView) adapters[1].getItemView()).setDetails(
+                AlbumView.DETAILS_ARTIST | AlbumView.DETAILS_YEAR);
 
         childAdapters = adapters;
         for (ItemAdapter<? extends Item> itemAdapter : childAdapters) {

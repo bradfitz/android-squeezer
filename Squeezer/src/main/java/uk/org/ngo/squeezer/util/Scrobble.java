@@ -39,19 +39,19 @@ public class Scrobble {
         if (playerState == null || !Scrobble.canScrobble())
             return;
 
-        PlayerState.PlayStatus playStatus = playerState.getPlayStatus();
+        @PlayerState.PlayState String playStatus = playerState.getPlayStatus();
         Song currentSong = playerState.getCurrentSong();
 
         if (playStatus == null || currentSong == null)
             return;
 
-        Log.d("Scrobble", "Scrobbling, playing is: " + (playStatus == PlayerState.PlayStatus.play));
+        Log.d("Scrobble", "Scrobbling, playing is: " + (PlayerState.PLAY_STATE_PLAY.equals(playStatus)));
         Intent i = new Intent();
 
         if (Scrobble.haveScrobbleDroid()) {
             // http://code.google.com/p/scrobbledroid/wiki/DeveloperAPI
             i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
-            i.putExtra("playing", playStatus == PlayerState.PlayStatus.play);
+            i.putExtra("playing", PlayerState.PLAY_STATE_PLAY.equals(playStatus));
             i.putExtra("track", currentSong.getName());
             i.putExtra("album", currentSong.getAlbum());
             i.putExtra("artist", currentSong.getArtist());
@@ -60,7 +60,7 @@ public class Scrobble {
         } else if (Scrobble.haveSls()) {
             // http://code.google.com/p/a-simple-lastfm-scrobbler/wiki/Developers
             i.setAction("com.adam.aslfms.notify.playstatechanged");
-            i.putExtra("state", playStatus == PlayerState.PlayStatus.play ? 0 : 2);
+            i.putExtra("state", PlayerState.PLAY_STATE_PLAY.equals(playStatus) ? 0 : 2);
             i.putExtra("app-name", context.getText(R.string.app_name));
             i.putExtra("app-package", "uk.org.ngo.squeezer");
             i.putExtra("track", currentSong.getName());
