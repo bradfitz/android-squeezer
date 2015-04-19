@@ -54,7 +54,7 @@ public class ThemeManager {
      * Call this from each activity's onCreate() method before setContentView() or similar
      * is called.
      * <p>
-     * Generally, this means immediately afer calling {@code super.onCreate()}.
+     * Generally, this means immediately after calling {@code super.onCreate()}.
      *
      * @param activity The activity to be themed.
      */
