@@ -46,9 +46,17 @@ android {
     compileSdkVersion 19
     buildToolsVersion "21.1.1"
 
+    def gitHash = "git rev-parse --short HEAD".execute().text.trim()
+    def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
+    def hasStagedFiles = !"git diff-index --no-ext-diff --name-only --cached HEAD".execute().text.trim().isEmpty()
+    def dirtyWorkingCopy = hasModifiedDeletedOrOtherFiles || hasStagedFiles
+    def gitDescription = dirtyWorkingCopy ? "${gitHash}-dirty" : gitHash
+
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 19
+
+        buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
     }
 
     lintOptions {
@@ -102,6 +110,31 @@ android {
             versionCode 41
             versionName "1.2.6"
             signingConfig android.signingConfigs.release
+        }
+    }
+
+    applicationVariants.all { variant ->
+        def apkSuffix = "-${variant.mergedFlavor.versionName}-${gitDescription}"
+        variant.outputs.each { output ->
+            def originalApkFile = output.outputFile
+            output.outputFile = new File(
+                    // Override this to change output directory
+                    (String) originalApkFile.parent,
+                    (String) originalApkFile.name.replace(".apk", "${apkSuffix}.apk")
+            )
+        }
+        // Print the APK path after assemble is done
+        variant.assemble.doLast {
+            variant.outputs.each { output ->
+                println output.outputFile
+            }
+        }
+
+        // Print the APK path as the last step before install, at which point the apk is complete
+        variant.install?.doFirst { // the install task can be null
+            variant.outputs.each { output ->
+                println output.outputFile
+            }
         }
     }
 }

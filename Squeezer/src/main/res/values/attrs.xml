@@ -56,4 +56,13 @@
     <attr name="main_button_background" format="reference"/>
     <attr name="ic_alarm_settings" format="reference"/>
     <attr name="ic_delete" format="reference"/>
+
+    <declare-styleable name="FloatLabelLayout">
+        <attr name="floatLabelTextAppearance" format="reference" />
+        <attr name="floatLabelTrigger" format="enum">
+            <enum name="text" value="0" />
+            <enum name="focus" value="1" />
+        </attr>
+        <attr name="floatLabelSidePadding" format="reference|dimension" />
+    </declare-styleable>
 </resources>

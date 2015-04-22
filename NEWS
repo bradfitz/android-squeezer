@@ -1,8 +1,20 @@
 Upcoming
 ========
 
-*   Filter out non-VFAT compatible characters from filenames when
-    saving tracks.
+*   Simplified the configuration process for new users. Squeezer now
+    automatically searches for servers on the local network, saves
+    connection information per-server, and numerous other fixes.
+
+*   Changed saving files to remove non-VFAT compatible characters from
+    filenames to make it easier to export them to Windows and similar
+    systems.
+
+*   Fixed issue where some plugin icons were not showing.
+
+*   Fixed issue where Internet radio stations were not working when
+    connected to servers running version 7.8 or above.
+
+*   Fixed issue where the UI could stop showing player progress.
 
 1.2.6
 =====

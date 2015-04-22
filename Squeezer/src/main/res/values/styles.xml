@@ -124,7 +124,6 @@
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
-
     <!-- UndoBar -->
     <style name="UndoBar">
         <item name="android:layout_width">match_parent</item>
@@ -151,7 +150,6 @@
         <item name="android:layout_marginRight">12dp</item>
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
         <item name="android:textColor">#fff</item>
-
     </style>
 
     <style name="UndoBarButton">
@@ -168,4 +166,9 @@
         <item name="android:text">@string/undo</item>
     </style>
 
+    <style name="TextAppearance.Squeezer.FloatLabel" parent="android:TextAppearance.Small">
+        <item name="android:textColor">@drawable/float_label</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>
