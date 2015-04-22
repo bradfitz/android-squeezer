@@ -46,8 +46,6 @@ import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -174,7 +172,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     private boolean scrobblingPreviouslyEnabled;
 
-    boolean mUpdateOngoingNotification;
+    /** Whether to show an on-going notification when a track is not playing. */
+    boolean mShowNotificationWhenNotPlaying;
 
     int mFadeInSecs;
 
@@ -211,7 +210,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
 
         mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
-        getPreferences();
+        cachePreferences();
 
         cli.initialize();
     }
@@ -238,11 +237,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         return START_STICKY;
     }
 
-    private void getPreferences() {
+    /**
+     * Cache the value of various preferences.
+     */
+    private void cachePreferences() {
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
         scrobblingEnabled = preferences.getBoolean(Preferences.KEY_SCROBBLE_ENABLED, false);
         mFadeInSecs = preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0);
-        mUpdateOngoingNotification = preferences
+        mShowNotificationWhenNotPlaying = preferences
                 .getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false);
     }
 
@@ -912,14 +914,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Manages the state of any ongoing notification based on the player and connection state.
      */
     private void updateOngoingNotification() {
+        Player activePlayer = connectionState.getActivePlayer();
         PlayerState activePlayerState = connectionState.getActivePlayerState();
-        boolean playing = (activePlayerState != null && activePlayerState.isPlaying());
-        String songName = activePlayerState.getCurrentSongName();
-        String artistName = activePlayerState.getCurrentSong().getArtist();
-        String albumName = activePlayerState.getCurrentSong().getAlbumName();
-        String url = activePlayerState.getCurrentSong().getArtworkUrl(squeezeService);
-        String playerName = activePlayerState != null ? connectionState
-                .getActivePlayer().getName() : "squeezer";
 
         // Update scrobble state, if either we're currently scrobbling, or we
         // were (to catch the case where we started scrobbling a song, and the
@@ -929,14 +925,26 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             Scrobble.scrobbleFromPlayerState(this, activePlayerState);
         }
 
-        Song currentSong = (activePlayerState != null ? activePlayerState.getCurrentSong() : null);
-
-        if (!playing) {
-            if (!mUpdateOngoingNotification) {
-                clearOngoingNotification();
-                return;
-            }
+        // If there's no active player then kill the notification and get out.
+        if (activePlayer == null || activePlayerState == null) {
+            clearOngoingNotification();
+            return;
         }
+
+        boolean playing = activePlayerState.isPlaying();
+
+        // If the song is not playing and the user wants notifications only when playing then
+        // kill the notification and get out.
+        if (!playing && !mShowNotificationWhenNotPlaying) {
+            clearOngoingNotification();
+            return;
+        }
+
+        Song currentSong = activePlayerState.getCurrentSong();
+        String songName = currentSong.getName();
+        String albumName = currentSong.getAlbumName();
+        String url = currentSong.getArtworkUrl(squeezeService);
+        String playerName = activePlayer.getName();
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
 
@@ -948,6 +956,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setOngoing(true);
+        builder.setCategory(NotificationCompat.CATEGORY_SERVICE);
+        builder.setSmallIcon(R.drawable.squeezer_notification);
+
+        RemoteViews normalView = new RemoteViews(this.getPackageName(), R.layout.notification_player_normal);
+        RemoteViews expandedView = new RemoteViews(this.getPackageName(), R.layout.notification_player_expanded);
 
         Bitmap x = null;
         try {
@@ -958,62 +971,70 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             InputStream input = connection.getInputStream();
 
             x = BitmapFactory.decodeStream(input);
-        } catch (Exception e){}
 
-        RemoteViews smallView = new RemoteViews(this.getPackageName(), R.layout.notification_player_small);
-        smallView.setImageViewBitmap(R.id.logo, x);
-        smallView.setOnClickPendingIntent(R.id.previous, prevPendingIntent);
-        smallView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
-        smallView.setOnClickPendingIntent(R.id.play, playPendingIntent);
-        smallView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
+            normalView.setImageViewBitmap(R.id.album, x);
+            expandedView.setImageViewBitmap(R.id.album, x);
+        } catch (Exception e) {
+            normalView.setImageViewResource(R.id.album, R.drawable.icon_album_noart);
+            expandedView.setImageViewResource(R.id.album, R.drawable.icon_album_noart);
+        }
 
-        RemoteViews largeView = new RemoteViews(this.getPackageName(), R.layout.notification_player_large);
-        largeView.setImageViewBitmap(R.id.logo, x);
-        largeView.setOnClickPendingIntent(R.id.previous, prevPendingIntent);
-        largeView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
-        largeView.setOnClickPendingIntent(R.id.play, playPendingIntent);
-        largeView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
+        normalView.setOnClickPendingIntent(R.id.previous, prevPendingIntent);
+        normalView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
 
-        builder.setContent(smallView);
+        expandedView.setOnClickPendingIntent(R.id.previous, prevPendingIntent);
+        expandedView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
+
+        builder.setContent(normalView);
 
         Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
 
-        if (playing && currentSong != null) {
-            largeView.setViewVisibility(R.id.play, View.GONE);
-            largeView.setViewVisibility(R.id.pause, View.VISIBLE);
-            smallView.setViewVisibility(R.id.play, View.GONE);
-            smallView.setViewVisibility(R.id.pause, View.VISIBLE);
-            smallView.setTextViewText(R.id.notification_song_name, songName);
-            smallView.setTextViewText(R.id.notification_artist_name, artistName);
-            smallView.setTextViewText(R.id.notification_player_name, playerName);
-            largeView.setTextViewText(R.id.notification_song_name, songName);
-            largeView.setTextViewText(R.id.notification_artist_name, artistName);
-            largeView.setTextViewText(R.id.notification_album_name, albumName);
-            largeView.setTextViewText(R.id.notification_player_name, playerName);
+        normalView.setTextViewText(R.id.trackname, songName);
+        normalView.setTextViewText(R.id.albumname, albumName);
+
+        expandedView.setTextViewText(R.id.trackname, songName);
+        expandedView.setTextViewText(R.id.albumname, albumName);
+        expandedView.setTextViewText(R.id.player_name, playerName);
+
+        if (playing) {
+            normalView.setImageViewResource(R.id.pause, R.drawable.ic_action_pause);
+            normalView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
+
+            expandedView.setImageViewResource(R.id.pause, R.drawable.ic_action_pause);
+            expandedView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
+
             builder.setContentTitle(getString(R.string.notification_playing_text, playerName));
             builder.setContentText(songName);
             builder.setContentIntent(pIntent);
-            builder.setSmallIcon(R.drawable.squeezer_notification);
         } else {
-            largeView.setViewVisibility(R.id.play, View.VISIBLE);
-            largeView.setViewVisibility(R.id.pause, View.GONE);
-            smallView.setViewVisibility(R.id.play, View.VISIBLE);
-            smallView.setViewVisibility(R.id.pause, View.GONE);
+            normalView.setImageViewResource(R.id.pause, R.drawable.ic_action_play);
+            normalView.setOnClickPendingIntent(R.id.pause, playPendingIntent);
+
+            expandedView.setImageViewResource(R.id.pause, R.drawable.ic_action_play);
+            expandedView.setOnClickPendingIntent(R.id.pause, playPendingIntent);
+
             builder.setContentTitle(getString(R.string.notification_playing_text, playerName));
             builder.setContentText("-");
             builder.setContentIntent(pIntent);
-            builder.setSmallIcon(R.drawable.squeezer_notification);
         }
 
         Notification notification = builder.build();
-        notification.bigContentView = largeView;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            notification.bigContentView = expandedView;
+        }
 
         nm.notify(PLAYBACKSERVICE_STATUS, notification);
     }
 
-    private PendingIntent getPendingIntent(String action){
+    /**
+     * @param action The action to be performed.
+     * @return A new {@link PendingIntent} for {@literal action} that will update any existing
+     *     intents that use the same action.
+     */
+    @NonNull
+    private PendingIntent getPendingIntent(@NonNull String action){
         Intent intent = new Intent(this, SqueezeService.class);
         intent.setAction(action);
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1664,6 +1685,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void preferenceChanged(String key) {
             Log.i(TAG, "Preference changed: " + key);
+            cachePreferences();
+
             if (Preferences.KEY_NOTIFY_OF_CONNECTION.equals(key)) {
                 updateOngoingNotification();
                 return;
@@ -1674,8 +1697,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 disconnect();
                 return;
             }
-
-            getPreferences();
         }
 
 

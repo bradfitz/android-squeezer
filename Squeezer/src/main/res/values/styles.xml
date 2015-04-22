@@ -66,6 +66,15 @@
     <style name="SqueezerTextItemSmall" parent="@android:style/TextAppearance.Small" />
     <style name="SqueezerCurrentTextItemSmall" parent="style/SqueezerTextItemSmall" />
 
+    <style name="SqueezerNotificationTitle">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SqueezerNotificationText">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
+    </style>
+
     <!-- Media controller styles -->
     <style name="MediaButton">
         <item name="android:background">@drawable/list_selector_holo_dark</item>
