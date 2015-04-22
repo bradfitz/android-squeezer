@@ -907,7 +907,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
         }
 
-        cli.sendPlayerCommand(player, "status - 1 subscribe:" + playerSubscriptionType + "tags:" + SONGTAGS);
+        cli.sendPlayerCommand(player, "status - 1 subscribe:" + playerSubscriptionType + " tags:" + SONGTAGS);
     }
 
     /**
