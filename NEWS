@@ -1,6 +1,10 @@
 Upcoming
 ========
 
+*   Support richer notifications with playback controls from the
+    notification and lock screen. Based on work from Matthew Schmidt
+    (https://github.com/maxpower47).
+
 *   Support skipping tracks in remote streams that have that feature,
     such as Slacker Radio. Code from Sean Wilson
     (https://github.com/swilson).
