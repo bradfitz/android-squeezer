@@ -47,8 +47,8 @@ public class PlayerSyncDialog extends DialogFragment {
     public interface PlayerSyncDialogHost {
         Multimap<String, Player> getPlayerSyncGroups();
         Player getCurrentPlayer();
-        public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId);
-        public void unsyncPlayer(@NonNull Player player);
+        void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId);
+        void unsyncPlayer(@NonNull Player player);
     }
 
     private PlayerSyncDialogHost mHost;

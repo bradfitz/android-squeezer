@@ -19,8 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.view.View;
 
-import java.util.EnumSet;
-
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.model.Song;
@@ -37,8 +35,8 @@ public class SongViewWithArt extends SongView {
     public SongViewWithArt(ItemListActivity activity) {
         super(activity);
 
-        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.TWO_LINE, ViewParams.CONTEXT_BUTTON));
-        setLoadingViewParams(EnumSet.of(ViewParams.ICON, ViewParams.TWO_LINE));
+        setViewParams(VIEW_PARAM_ICON | VIEW_PARAM_TWO_LINE | VIEW_PARAM_CONTEXT_BUTTON);
+        setLoadingViewParams(VIEW_PARAM_ICON | VIEW_PARAM_TWO_LINE);
     }
 
     @Override

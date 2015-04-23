@@ -18,8 +18,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.EnumSet;
-
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 
@@ -33,7 +31,7 @@ public class AlbumGridView extends AlbumView {
     }
 
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, EnumSet<ViewParams> viewParams) {
+    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
         return getAdapterView(convertView, parent, viewParams, R.layout.grid_item);
     }
 }
