@@ -2,6 +2,14 @@
 
 <changelog>
     <release
+        version="1.2.7-beta-2"
+        versioncode="43">
+        <change>Support skipping tracks in remote streams that have that feature,
+            such as Slacker Radio. Code from Sean Wilson
+            (https://github.com/swilson).</change>
+    </release>
+
+    <release
         version="1.2.7-beta-1"
         versioncode="42">
         <change>Simplified the configuration process for new users. Squeezer now
