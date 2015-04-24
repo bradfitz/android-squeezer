@@ -21,7 +21,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/album_art_icon_normal_notification_height">
+    android:layout_height="64dp">
 
     <ImageView
         android:id="@+id/album"
@@ -35,7 +35,7 @@
         android:id="@+id/trackname"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/previous"
+        android:layout_toLeftOf="@id/pause"
         android:layout_toRightOf="@id/album"
         android:ellipsize="marquee"
         android:hint="@string/unknown_track"
@@ -49,24 +49,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/trackname"
-        android:layout_toLeftOf="@id/previous"
+        android:layout_toLeftOf="@id/pause"
         android:layout_toRightOf="@id/album"
         android:hint="@string/unknown_album"
         android:singleLine="true"
         android:textAppearance="@style/SqueezerNotificationText"/>
-
-    <ImageButton
-        android:id="@+id/previous"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/pause"
-        android:background="@drawable/notification_button"
-        android:maxHeight="48dp"
-        android:maxWidth="48dp"
-        android:minHeight="48dp"
-        android:minWidth="48dp"
-        android:src="@drawable/ic_action_previous"/>
 
     <ImageButton
         android:id="@+id/pause"

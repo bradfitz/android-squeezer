@@ -41,7 +41,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 21
     buildToolsVersion "21.1.1"
 
     def gitHash = "git rev-parse --short HEAD".execute().text.trim()
@@ -52,7 +52,7 @@ android {
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 19
+        targetSdkVersion 21
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
     }
