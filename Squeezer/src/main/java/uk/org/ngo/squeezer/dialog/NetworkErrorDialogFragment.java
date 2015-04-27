@@ -53,7 +53,7 @@ public class NetworkErrorDialogFragment extends DialogFragment {
          *
          * @param dialog The dialog that has been dismissed.
          */
-        public void onDialogDismissed(DialogInterface dialog);
+        void onDialogDismissed(DialogInterface dialog);
     }
 
     /**

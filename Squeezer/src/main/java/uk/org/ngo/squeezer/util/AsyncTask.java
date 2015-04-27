@@ -20,7 +20,11 @@ import android.annotation.TargetApi;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -157,7 +161,8 @@ public abstract class AsyncTask<Params, Progress, Result> {
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
-        public Thread newThread(Runnable r) {
+        @Override
+        public Thread newThread(@NonNull Runnable r) {
             return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
         }
     };
@@ -195,7 +200,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 
     private final FutureTask<Result> mFuture;
 
-    private volatile Status mStatus = Status.PENDING;
+    @AsyncTaskStatus private volatile int mStatus = PENDING;
 
     private final AtomicBoolean mCancelled = new AtomicBoolean();
 
@@ -208,8 +213,10 @@ public abstract class AsyncTask<Params, Progress, Result> {
 
         Runnable mActive;
 
-        public synchronized void execute(final Runnable r) {
+        @Override
+        public synchronized void execute(@NonNull final Runnable r) {
             mTasks.offer(new Runnable() {
+                @Override
                 public void run() {
                     try {
                         r.run();
@@ -234,20 +241,15 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * Indicates the current status of the task. Each status will be set only once during the
      * lifetime of a task.
      */
-    public enum Status {
-        /**
-         * Indicates that the task has not been executed yet.
-         */
-        PENDING,
-        /**
-         * Indicates that the task is running.
-         */
-        RUNNING,
-        /**
-         * Indicates that {@link AsyncTask#onPostExecute} has finished.
-         */
-        FINISHED,
-    }
+    @IntDef({PENDING, RUNNING, FINISHED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AsyncTaskStatus {}
+    /** The task has not been executed yet. */
+    public static final int PENDING = 0;
+    /** The task is running. */
+    public static final int RUNNING = 1;
+    /** The {@link AsyncTask#onPostExecute(Object)} has finished. */
+    public static final int FINISHED = 2;
 
     /**
      * @hide Used to force static handler to be created.
@@ -268,6 +270,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      */
     public AsyncTask() {
         mWorker = new WorkerRunnable<Params, Result>() {
+            @Override
             public Result call() throws Exception {
                 mTaskInvoked.set(true);
 
@@ -314,7 +317,8 @@ public abstract class AsyncTask<Params, Progress, Result> {
      *
      * @return The current status.
      */
-    public final Status getStatus() {
+    @AsyncTaskStatus
+    public final int getStatus() {
         return mStatus;
     }
 
@@ -500,7 +504,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * @return This instance of AsyncTask.
      *
      * @throws IllegalStateException If {@link #getStatus()} returns either {@link
-     *                               AsyncTask.Status#RUNNING} or {@link AsyncTask.Status#FINISHED}.
+     *     AsyncTask.AsyncTaskStatus#RUNNING} or {@link AsyncTask.AsyncTaskStatus#FINISHED}.
      * @see #executeOnExecutor(java.util.concurrent.Executor, Object[])
      * @see #execute(Runnable)
      */
@@ -534,12 +538,13 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * @return This instance of AsyncTask.
      *
      * @throws IllegalStateException If {@link #getStatus()} returns either {@link
-     *                               AsyncTask.Status#RUNNING} or {@link AsyncTask.Status#FINISHED}.
+     *                               AsyncTask.AsyncTaskStatus#RUNNING} or
+     *                               {@link AsyncTask.AsyncTaskStatus#FINISHED}.
      * @see #execute(Object[])
      */
     public final AsyncTask<Params, Progress, Result> executeOnExecutor(Executor exec,
             Params... params) {
-        if (mStatus != Status.PENDING) {
+        if (mStatus != PENDING) {
             switch (mStatus) {
                 case RUNNING:
                     throw new IllegalStateException("Cannot execute task:"
@@ -551,7 +556,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
             }
         }
 
-        mStatus = Status.RUNNING;
+        mStatus = RUNNING;
 
         onPreExecute();
 
@@ -597,7 +602,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
         } else {
             onPostExecute(result);
         }
-        mStatus = Status.FINISHED;
+        mStatus = FINISHED;
     }
 
     private static class InternalHandler extends Handler {

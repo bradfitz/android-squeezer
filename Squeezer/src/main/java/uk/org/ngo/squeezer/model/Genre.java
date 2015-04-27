@@ -53,10 +53,12 @@ public class Genre extends PlaylistItem {
     }
 
     public static final Creator<Genre> CREATOR = new Creator<Genre>() {
+        @Override
         public Genre[] newArray(int size) {
             return new Genre[size];
         }
 
+        @Override
         public Genre createFromParcel(Parcel source) {
             return new Genre(source);
         }
@@ -67,14 +69,10 @@ public class Genre extends PlaylistItem {
         name = source.readString();
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(name);
-    }
-
-    @Override
-    public String toString() {
-        return "id=" + getId() + ", name=" + name;
     }
 
 }

@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.util.TypedValue;
 import android.view.View;
@@ -23,6 +24,7 @@ public abstract class BaseViewDialog<
         ListLayout extends Enum<ListLayout> & BaseViewDialog.EnumWithTextAndIcon,
         SortOrder extends Enum<SortOrder> & BaseViewDialog.EnumWithText> extends DialogFragment {
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         @SuppressWarnings("unchecked") final Class<ListLayout> listLayoutClass = (Class<ListLayout>) Reflection.getGenericClass(getClass(), BaseViewDialog.class, 1);
@@ -95,6 +97,7 @@ public abstract class BaseViewDialog<
                                    return textView;
                                }
                            }, new DialogInterface.OnClickListener() {
+                               @Override
                                public void onClick(DialogInterface dialog, int position) {
                                    if (position < positionSortLabel) {
                                        activity.setListLayout(listLayoutClass.getEnumConstants()[position]);
@@ -119,11 +122,11 @@ public abstract class BaseViewDialog<
     protected abstract String getTitle();
 
     public interface EnumWithText {
-        public String getText(Context context);
+        String getText(Context context);
     }
 
     public interface EnumWithTextAndIcon extends EnumWithText {
-        public int getIconAttribute();
+        int getIconAttribute();
     }
 
 }

@@ -28,17 +28,17 @@ import uk.org.ngo.squeezer.model.Player;
  */
 public class PlayersChanged {
     /** The players connected to the Squeezeserver. May be the empty list. */
-    public final List<Player> mPlayers;
+    public final List<Player> players;
 
     /**
      * The player currently controlled by Squeezer. May be null, if no players
      * are currently being controlled.
      */
     @Nullable
-    public final Player mActivePlayer;
+    public final Player activePlayer;
 
     public PlayersChanged(List<Player> players, @Nullable Player activePlayer) {
-        mPlayers = players;
-        mActivePlayer = activePlayer;
+        this.players = players;
+        this.activePlayer = activePlayer;
     }
 }

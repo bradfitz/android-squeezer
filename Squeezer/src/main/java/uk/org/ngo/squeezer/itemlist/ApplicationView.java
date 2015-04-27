@@ -24,6 +24,7 @@ public class ApplicationView extends PluginItemView {
         super(activity);
     }
 
+    @Override
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.application, quantity);
     }

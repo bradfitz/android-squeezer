@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringDef;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,6 +31,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +77,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
             final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
 
             searchCriteriaText.setOnKeyListener(new OnKeyListener() {
+                @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if ((event.getAction() == KeyEvent.ACTION_DOWN)
                             && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -85,6 +89,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
             });
 
             searchButton.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     if (getService() != null) {
                         clearAndReOrderItems(searchCriteriaText.getText().toString());
@@ -148,6 +153,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
     public void onItemsReceived(int count, int start, final Map<String, String> parameters, List<PluginItem> items, Class<PluginItem> dataType) {
         if (parameters.containsKey("title")) {
             runOnUiThread(new Runnable() {
+                @Override
                 public void run() {
                     updateHeader(parameters.get("title"));
                 }
@@ -180,9 +186,10 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
         // Automatically fetch subitems, if this is the only item.
         // TODO: Seen an NPE here (before adding size() > 0) check. Find out
         // why count == 1 might be true, but items.size might be 0.
-        if (count == 1 && items.size() > 0 && items.get(0).isHasitems()) {
+        if (count == 1 && !items.isEmpty() && items.get(0).isHasitems()) {
             parent = items.get(0);
             getUIThreadHandler().post(new Runnable() {
+                @Override
                 public void run() {
                     clearAndReOrderItems();
                 }
@@ -196,8 +203,10 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
      * The user dismissed the network error dialog box. There's nothing more to do, so finish
      * the activity.
      */
+    @Override
     public void onDialogDismissed(DialogInterface dialog) {
         runOnUiThread(new Runnable() {
+            @Override
             public void run() {
                 finish();
             }
@@ -207,34 +216,36 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
     // Shortcuts for operations for plugin items
 
     public boolean play(PluginItem item) {
-        return pluginPlaylistControl(PluginPlaylistControlCmd.play, item);
+        return pluginPlaylistControl(PLUGIN_PLAYLIST_PLAY, item);
     }
 
     public boolean load(PluginItem item) {
-        return pluginPlaylistControl(PluginPlaylistControlCmd.load, item);
+        return pluginPlaylistControl(PLUGIN_PLAYLIST_PLAY_NOW, item);
     }
 
     public boolean insert(PluginItem item) {
-        return pluginPlaylistControl(PluginPlaylistControlCmd.insert, item);
+        return pluginPlaylistControl(PLUGIN_PLAYLIST_PLAY_AFTER_CURRENT, item);
     }
 
     public boolean add(PluginItem item) {
-        return pluginPlaylistControl(PluginPlaylistControlCmd.add, item);
+        return pluginPlaylistControl(PLUGIN_PLAYLIST_ADD_TO_END, item);
     }
 
-    private boolean pluginPlaylistControl(PluginPlaylistControlCmd cmd, PluginItem item) {
+    private boolean pluginPlaylistControl(@PluginPlaylistControlCmd String cmd, PluginItem item) {
         if (getService() == null) {
             return false;
         }
-        getService().pluginPlaylistControl(plugin, cmd.name(), item.getId());
+        getService().pluginPlaylistControl(plugin, cmd, item.getId());
         return true;
     }
 
-    private enum PluginPlaylistControlCmd {
-        play,
-        load,
-        add,
-        insert
-    }
+    @StringDef({PLUGIN_PLAYLIST_PLAY, PLUGIN_PLAYLIST_PLAY_NOW, PLUGIN_PLAYLIST_ADD_TO_END,
+            PLUGIN_PLAYLIST_PLAY_AFTER_CURRENT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PluginPlaylistControlCmd {}
+    public static final String PLUGIN_PLAYLIST_PLAY = "play";
+    public static final String PLUGIN_PLAYLIST_PLAY_NOW = "load";
+    public static final String PLUGIN_PLAYLIST_ADD_TO_END = "add";
+    public static final String PLUGIN_PLAYLIST_PLAY_AFTER_CURRENT = "insert";
 
 }

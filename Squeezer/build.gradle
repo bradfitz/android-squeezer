@@ -4,7 +4,7 @@ buildscript {
         maven { url 'http://download.crashlytics.com/maven' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:1.1.0'
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
 }
@@ -25,6 +25,7 @@ dependencies {
     //       Support Repository" to be installed via the SDK manager.
     compile 'com.android.support:support-v4:21.0.2'
     compile 'com.android.support:appcompat-v7:20.0.0'
+    compile 'com.android.support:support-annotations:20.0.0'
 
     // Third party libraries
     compile 'com.google.guava:guava:18.0'
@@ -43,9 +44,17 @@ android {
     compileSdkVersion 19
     buildToolsVersion "21.1.1"
 
+    def gitHash = "git rev-parse --short HEAD".execute().text.trim()
+    def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
+    def hasStagedFiles = !"git diff-index --no-ext-diff --name-only --cached HEAD".execute().text.trim().isEmpty()
+    def dirtyWorkingCopy = hasModifiedDeletedOrOtherFiles || hasStagedFiles
+    def gitDescription = dirtyWorkingCopy ? "${gitHash}-dirty" : gitHash
+
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 19
+
+        buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
     }
 
     lintOptions {
@@ -90,15 +99,40 @@ android {
 
     productFlavors {
         beta {
-            versionCode 40
-            versionName "1.2.6-beta-3"
+            versionCode 43
+            versionName "1.2.7-beta-2"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 41
-            versionName "1.2.6"
+            versionCode 44
+            versionName "1.2.7"
             signingConfig android.signingConfigs.release
+        }
+    }
+
+    applicationVariants.all { variant ->
+        def apkSuffix = "-${variant.mergedFlavor.versionName}-${gitDescription}"
+        variant.outputs.each { output ->
+            def originalApkFile = output.outputFile
+            output.outputFile = new File(
+                    // Override this to change output directory
+                    (String) originalApkFile.parent,
+                    (String) originalApkFile.name.replace(".apk", "${apkSuffix}.apk")
+            )
+        }
+        // Print the APK path after assemble is done
+        variant.assemble.doLast {
+            variant.outputs.each { output ->
+                println output.outputFile
+            }
+        }
+
+        // Print the APK path as the last step before install, at which point the apk is complete
+        variant.install?.doFirst { // the install task can be null
+            variant.outputs.each { output ->
+                println output.outputFile
+            }
         }
     }
 }

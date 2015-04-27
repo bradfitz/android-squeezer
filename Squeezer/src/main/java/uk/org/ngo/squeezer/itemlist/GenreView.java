@@ -31,15 +31,18 @@ public class GenreView extends BaseItemView<Genre> {
         super(activity);
     }
 
+    @Override
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.genre, quantity);
     }
 
+    @Override
     public void onItemSelected(int index, Genre item) {
         AlbumListActivity.show(getActivity(), item);
     }
 
     // XXX: Make this a menu resource.
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 

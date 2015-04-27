@@ -25,15 +25,18 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.TextView;
 
 import de.cketti.library.changelog.ChangeLog;
+import uk.org.ngo.squeezer.BuildConfig;
 import uk.org.ngo.squeezer.R;
 
 public class AboutDialog extends DialogFragment {
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
@@ -45,7 +48,11 @@ public class AboutDialog extends DialogFragment {
         PackageInfo info;
         try {
             info = pm.getPackageInfo(getActivity().getPackageName(), 0);
-            versionText.setText(info.versionName);
+            if (BuildConfig.DEBUG) {
+                versionText.setText(info.versionName + ' ' + BuildConfig.GIT_DESCRIPTION);
+            } else {
+                versionText.setText(info.versionName);
+            }
         } catch (NameNotFoundException e) {
             titleText.setText(getString(R.string.app_name));
         }
@@ -61,6 +68,7 @@ public class AboutDialog extends DialogFragment {
             }
         });
         builder.setNegativeButton(R.string.dialog_license, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int which) {
                 new LicenseDialog()
                         .show(getActivity().getSupportFragmentManager(), "LicenseDialog");

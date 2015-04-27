@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,11 +30,9 @@ import java.net.URLEncoder;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 public class Util {
-    /** {@link Pattern} that splits strings on colons. */
-    private static final Pattern mColonSplitPattern = Pattern.compile(":");
+    private static final String TAG = Util.class.getSimpleName();
 
     private Util() {
     }
@@ -41,9 +40,6 @@ public class Util {
 
     /**
      * Update target, if it's different from newValue.
-     *
-     * @param target
-     * @param newValue
      *
      * @return true if target is updated. Otherwise return false.
      */
@@ -120,6 +116,33 @@ public class Util {
             return URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             return "";
+        }
+    }
+
+    public static String parseHost(String hostPort) {
+        if (hostPort == null) {
+            return "";
+        }
+        int colonPos = hostPort.indexOf(":");
+        if (colonPos == -1) {
+            return hostPort;
+        }
+        return hostPort.substring(0, colonPos);
+    }
+
+    public static int parsePort(String hostPort) {
+        if (hostPort == null) {
+            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
+        }
+        int colonPos = hostPort.indexOf(":");
+        if (colonPos == -1) {
+            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
+        }
+        try {
+            return Integer.parseInt(hostPort.substring(colonPos + 1));
+        } catch (NumberFormatException unused) {
+            Log.d(TAG, "Can't parse port out of " + hostPort);
+            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
         }
     }
 

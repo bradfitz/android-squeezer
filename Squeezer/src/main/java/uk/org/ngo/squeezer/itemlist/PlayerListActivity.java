@@ -201,8 +201,8 @@ public class PlayerListActivity extends ItemListActivity implements
 
     @Override
     public void onEvent(PlayerVolume event) {
-        uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, event.mVolume,
-                0, event.mPlayer).sendToTarget();
+        uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, event.volume,
+                0, event.player).sendToTarget();
     }
 
     /**
@@ -249,6 +249,7 @@ public class PlayerListActivity extends ItemListActivity implements
         }
     }
 
+    @Override
     @NonNull
     public Multimap<String, Player> getPlayerSyncGroups() {
         return mPlayerSyncGroups;
@@ -258,6 +259,7 @@ public class PlayerListActivity extends ItemListActivity implements
         return getService().getPlayerState(id);
     }
 
+    @Override
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
@@ -297,6 +299,7 @@ public class PlayerListActivity extends ItemListActivity implements
      * @param slave the player to sync.
      * @param masterId ID of the player to sync to.
      */
+    @Override
     public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
         getService().syncPlayerToPlayer(slave, masterId);
     }
@@ -306,6 +309,7 @@ public class PlayerListActivity extends ItemListActivity implements
      *
      * @param player the player to be removed from sync groups.
      */
+    @Override
     public void unsyncPlayer(@NonNull Player player) {
         getService().unsyncPlayer(player);
     }

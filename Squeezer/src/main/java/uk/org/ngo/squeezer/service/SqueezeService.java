@@ -51,14 +51,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.regex.Pattern;
 
-import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.RandomplayActivity;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.itemlist.PluginItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
 import uk.org.ngo.squeezer.model.Album;
@@ -67,7 +69,6 @@ import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.PlayerState.PlayStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -192,6 +193,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 .setWifiLock(((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(
                         WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
 
+        mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
         getPreferences();
 
         cli.initialize();
@@ -223,20 +225,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     void disconnect(boolean isServerDisconnect) {
         mEventBus.removeAllStickyEvents();
         connectionState.disconnect(this, isServerDisconnect && !mHandshakeComplete);
-        mEventBus.post(new ConnectionChanged(false, false, false));
         mHandshakeComplete = false;
         clearOngoingNotification();
     }
 
     private interface CmdHandler {
-        public void handle(List<String> tokens);
+        void handle(List<String> tokens);
     }
 
     private Map<String, CmdHandler> initializeGlobalHandlers() {
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : cli.extQueryFormatCmds) {
-            if (cmd.handlerList == CliClient.HandlerList.GLOBAL) {
+            if (cmd.handlerList == CliClient.HANDLER_LIST_GLOBAL) {
                 handlers.put(cmd.cmd, new CmdHandler() {
                     @Override
                     public void handle(List<String> tokens) {
@@ -368,7 +369,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : cli.extQueryFormatCmds) {
-            if (cmd.handlerList == CliClient.HandlerList.PREFIXED) {
+            if (cmd.handlerList == CliClient.HANDLER_LIST_PREFIXED) {
                 handlers.put(cmd.cmd, new CmdHandler() {
                     @Override
                     public void handle(List<String> tokens) {
@@ -385,7 +386,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : cli.extQueryFormatCmds) {
-            if (cmd.handlerList == CliClient.HandlerList.PLAYER_SPECIFIC) {
+            if (cmd.handlerList == CliClient.HANDLER_LIST_PLAYER_SPECIFIC) {
                 handlers.put(cmd.cmd, new CmdHandler() {
                     @Override
                     public void handle(List<String> tokens) {
@@ -398,14 +399,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "play registered");
-                updatePlayStatus(PlayerState.PlayStatus.play);
+                updatePlayStatus(PlayerState.PLAY_STATE_PLAY);
             }
         });
         handlers.put("stop", new CmdHandler() {
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "stop registered");
-                updatePlayStatus(PlayerState.PlayStatus.stop);
+                updatePlayStatus(PlayerState.PLAY_STATE_STOP);
             }
         });
         handlers.put("pause", new CmdHandler() {
@@ -476,7 +477,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     // calls to the callbacks below.
                     updatePlayStatus(tokenMap.get("mode"), player);
 
-                    updatePlayerSubscription(player, getPlayerSubscriptionType(player));
+                    updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
 
                     // Note to self: The problem here is that with second-to-second updates enabled
                     // the playerlistactivity callback will be called every second.  Thinking that
@@ -554,7 +555,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : cli.extQueryFormatCmds) {
-            if (cmd.handlerList == CliClient.HandlerList.PREFIXED_PLAYER_SPECIFIC) {
+            if (cmd.handlerList == CliClient.HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC) {
                 handlers.put(cmd.cmd, new CmdHandler() {
                     @Override
                     public void handle(List<String> tokens) {
@@ -644,9 +645,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             // TODO keep track of subscribe status
             cli.sendActivePlayerCommand("status - 1 tags:" + SONGTAGS);
         } else if ("play".equals(notification)) {
-            updatePlayStatus(PlayerState.PlayStatus.play);
+            updatePlayStatus(PlayerState.PLAY_STATE_PLAY);
         } else if ("stop".equals(notification)) {
-            updatePlayStatus(PlayerState.PlayStatus.stop);
+            updatePlayStatus(PlayerState.PLAY_STATE_STOP);
         } else if ("pause".equals(notification)) {
             parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
         } else if ("addtracks".equals(notification)) {
@@ -658,9 +659,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     private void parsePause(String explicitPause) {
         if ("0".equals(explicitPause)) {
-            updatePlayStatus(PlayerState.PlayStatus.play);
+            updatePlayStatus(PlayerState.PLAY_STATE_PLAY);
         } else if ("1".equals(explicitPause)) {
-            updatePlayStatus(PlayerState.PlayStatus.pause);
+            updatePlayStatus(PlayerState.PLAY_STATE_PAUSE);
         }
         updateAllPlayerSubscriptionStates();
     }
@@ -716,25 +717,20 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      *
      * @param playStatus The new playing status.
      */
-    private void updatePlayStatus(PlayStatus playStatus) {
+    private void updatePlayStatus(@PlayerState.PlayState String playStatus) {
         updatePlayStatus(playStatus, connectionState.getActivePlayer());
     }
 
-    private void updatePlayStatus(String playStatus) {
-        updatePlayStatus(playStatus, connectionState.getActivePlayer());
-    }
-
-    private void updatePlayStatus(String playStatusString, Player player) {
-        try {
-            updatePlayStatus(PlayStatus.valueOf(playStatusString), player);
-        } catch (IllegalArgumentException e) {
-            // Received an invalid status string, nothing to do.
-        }
-    }
-
-    private void updatePlayStatus(PlayStatus playStatus, Player player) {
+    private void updatePlayStatus(String playStatus, Player player) {
         if (playStatus == null)
             return;
+
+        // Handle unknown states.
+        if (!playStatus.equals(PlayerState.PLAY_STATE_PLAY) &&
+                !playStatus.equals(PlayerState.PLAY_STATE_PAUSE) &&
+                !playStatus.equals(PlayerState.PLAY_STATE_STOP)) {
+            return;
+        }
 
         PlayerState playerState = player.getPlayerState();
 
@@ -797,11 +793,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 SharedPreferences.Editor editor = preferences.edit();
 
                 if (newActivePlayer == null) {
-                    Log.v(TAG, "Clearing " + Preferences.KEY_LASTPLAYER);
-                    editor.remove(Preferences.KEY_LASTPLAYER);
+                    Log.v(TAG, "Clearing " + Preferences.KEY_LAST_PLAYER);
+                    editor.remove(Preferences.KEY_LAST_PLAYER);
                 } else {
-                    Log.v(TAG, "Saving " + Preferences.KEY_LASTPLAYER + "=" + newActivePlayer.getId());
-                    editor.putString(Preferences.KEY_LASTPLAYER, newActivePlayer.getId());
+                    Log.v(TAG, "Saving " + Preferences.KEY_LAST_PLAYER + "=" + newActivePlayer.getId());
+                    editor.putString(Preferences.KEY_LAST_PLAYER, newActivePlayer.getId());
                 }
 
                 editor.commit();
@@ -817,35 +813,36 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     private void updateAllPlayerSubscriptionStates() {
         for (Player player : connectionState.getPlayers()) {
-            updatePlayerSubscription(player, getPlayerSubscriptionType(player));
+            updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
         }
     }
 
     /**
-     * Determine the correct player status subscription.
+     * Determine the correct status subscription type for the given player, based on
+     * how frequently we need to know its status.
      */
-    private PlayerState.PlayerSubscriptionType getPlayerSubscriptionType(Player player) {
+    private @PlayerState.PlayerSubscriptionType String calculateSubscriptionTypeFor(Player player) {
         Player activePlayer = connectionState.getActivePlayer();
 
         if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class) ||
                 (mEventBus.hasSubscriberForEvent(SongTimeChanged.class) && player.equals(activePlayer))) {
             if (player.equals(activePlayer)) {
                 // If it's the active player then get second-to-second updates.
-                return PlayerState.PlayerSubscriptionType.real_time;
+                return PlayerState.NOTIFY_REAL_TIME;
             } else {
                 // For other players get updates only when the player status changes...
                 // ... unless the player has a sleep duration set. In that case we need
                 // real_time updates, as on_change events are not fired as the will_sleep_in
                 // timer counts down.
                 if (player.getPlayerState().getSleep() > 0) {
-                    return PlayerState.PlayerSubscriptionType.real_time;
+                    return PlayerState.NOTIFY_REAL_TIME;
                 } else {
-                    return PlayerState.PlayerSubscriptionType.on_change;
+                    return PlayerState.NOTIFY_ON_CHANGE;
                 }
             }
         } else {
             // Disable subscription for this player's status updates.
-            return PlayerState.PlayerSubscriptionType.none;
+            return PlayerState.NOTIFY_NONE;
         }
     }
 
@@ -855,32 +852,21 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * @param player player to manage.
      * @param playerSubscriptionType the new subscription type
      */
-    private void updatePlayerSubscription(Player player, PlayerState.PlayerSubscriptionType playerSubscriptionType) {
+    private void updatePlayerSubscription(
+            Player player,
+            @NonNull @PlayerState.PlayerSubscriptionType String playerSubscriptionType) {
         PlayerState playerState = player.getPlayerState();
 
         // Do nothing if the player subscription type hasn't changed. This prevents sending a
         // subscription update "status" message which will be echoed back by the server and
         // trigger processing of the status message by the service.
         if (playerState != null) {
-            if (playerState.getSubscriptionType() == playerSubscriptionType) {
+            if (playerState.getSubscriptionType().equals(playerSubscriptionType)) {
                 return;
             }
         }
 
-        switch (playerSubscriptionType) {
-            case none:
-                cli.sendPlayerCommand(player, "status - 1 subscribe:- tags:" + SONGTAGS);
-                break;
-
-            case on_change:
-                cli.sendPlayerCommand(player, "status - 1 subscribe:0 tags:" + SONGTAGS);
-                break;
-
-            case real_time:
-                cli.sendPlayerCommand(player, "status - 1 subscribe:1 tags:" + SONGTAGS);
-                break;
-
-        }
+        cli.sendPlayerCommand(player, "status - 1 subscribe:" + playerSubscriptionType + " tags:" + SONGTAGS);
     }
 
     /**
@@ -943,7 +929,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * <pre>
      * login user wrongpassword
      * login user ******
-     * (Connection terminted)
+     * (Connection terminated)
      * </pre>
      * instead of as documented
      * <pre>
@@ -954,12 +940,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * is considered an authentication failure.
      */
     void onCliPortConnectionEstablished(final String userName, final String password) {
+        connectionState.setConnectionState(this, ConnectionState.LOGIN_STARTED);
         cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
     }
 
     /**
      * Handshake with the SqueezeServer, learn some of its supported features, and start listening
      * for asynchronous updates of server state.
+     *
+     * Note: Authentication may not actually have completed at this point. The server has
+     * responded to the "login" request, but if the username/password pair was incorrect it
+     * has (probably) not yet disconnected the socket. See
+     * {@link uk.org.ngo.squeezer.service.ConnectionState.ListeningThread#run()} for the code
+     * that determines whether authentication succeeded.
      */
     private void onAuthenticated() {
         fetchPlayers();
@@ -968,7 +961,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 "can musicfolder ?", // learn music folder browsing support
                 "can randomplay ?", // learn random play function functionality
                 "can favorites items ?", // learn support for "Favorites" plugin
-                "can myapps items ?", // lean support for "MyApps" plugin
+                "can myapps items ?", // learn support for "MyApps" plugin
                 "pref httpport ?", // learn the HTTP port (needed for images)
                 "pref jivealbumsort ?", // learn the preferred album sort order
                 "pref mediadirs ?", // learn the base path(s) of the server music library
@@ -986,7 +979,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private void fetchPlayers() {
         // Unsubscribe to any existing player states, and clear the list of
         for (Player player : connectionState.getPlayers()) {
-            updatePlayerSubscription(player, PlayerState.PlayerSubscriptionType.none);
+            updatePlayerSubscription(player, PlayerState.NOTIFY_NONE);
         }
 
         connectionState.clearPlayers();
@@ -1017,7 +1010,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             private Player getInitialPlayer() {
                 final SharedPreferences preferences = getSharedPreferences(Preferences.NAME,
                         Context.MODE_PRIVATE);
-                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LASTPLAYER,
+                final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LAST_PLAYER,
                         null);
                 Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
@@ -1027,7 +1020,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         return player;
                     }
                 }
-                return players.size() > 0 ? players.get(0) : null;
+                return !players.isEmpty() ? players.get(0) : null;
             }
 
             @Override
@@ -1111,14 +1104,16 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     /**
-     * Tries to get the relative path to the server music library.
+     * Tries to get the path relative to the server music library.
      * <p/>
-     * If this is not possible resort to the last path segment of the server path
+     * If this is not possible resort to the last path segment of the server path.
+     * In both cases replace dangerous characters by safe ones.
      */
     private String getLocalFile(@NonNull String serverUrl) {
         Uri serverUri = Uri.parse(serverUrl);
         String serverPath = serverUri.getPath();
         String mediaDir = null;
+        String path = null;
         for (String dir : connectionState.getMediaDirs()) {
             if (serverPath.startsWith(dir)) {
                 mediaDir = dir;
@@ -1126,13 +1121,17 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
         }
         if (mediaDir != null)
-            return serverPath.substring(mediaDir.length(), serverPath.length());
+            path = serverPath.substring(mediaDir.length(), serverPath.length());
         else
-            return serverUri.getLastPathSegment();
+            path = serverUri.getLastPathSegment();
+
+        // Convert VFAT-unfriendly characters to "_".
+        return path.replaceAll("[?<>\\\\:*|\"]", "_");
     }
 
     private final ISqueezeService squeezeService = new SqueezeServiceBinder();
     private class SqueezeServiceBinder extends Binder implements ISqueezeService {
+
         @Override
         @NonNull
         public EventBus getEventBus() {
@@ -1278,7 +1277,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (activePlayerState == null)
                 return false;
 
-            PlayerState.PlayStatus playStatus = activePlayerState.getPlayStatus();
+            @PlayerState.PlayState String playStatus = activePlayerState.getPlayStatus();
 
             // May be null -- race condition when connecting to a server that
             // has a player. Squeezer knows the player exists, but has not yet
@@ -1286,21 +1285,25 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (playStatus == null)
                 return false;
 
-            switch (playStatus) {
-                case play:
-                    // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
-                    // because then we'd get confused when they came back in to us, not being
-                    // able to differentiate ours coming back on the listen channel vs. those
-                    // of those idiots at the dinner party messing around.
-                    cli.sendActivePlayerCommand("pause 1");
-                    break;
-                case stop:
-                    cli.sendActivePlayerCommand("play" + fadeInSecs());
-                    break;
-                case pause:
-                    cli.sendActivePlayerCommand("pause 0" + fadeInSecs());
-                    break;
+            if (playStatus.equals(PlayerState.PLAY_STATE_PLAY)) {
+                // NOTE: we never send ambiguous "pause" toggle commands (without the '1')
+                // because then we'd get confused when they came back in to us, not being
+                // able to differentiate ours coming back on the listen channel vs. those
+                // of those idiots at the dinner party messing around.
+                cli.sendActivePlayerCommand("pause 1");
+                return true;
             }
+
+            if (playStatus.equals(PlayerState.PLAY_STATE_STOP)) {
+                cli.sendActivePlayerCommand("play" + fadeInSecs());
+                return true;
+            }
+
+            if (playStatus.equals(PlayerState.PLAY_STATE_PAUSE)) {
+                cli.sendActivePlayerCommand("pause 0" + fadeInSecs());
+                return true;
+            }
+
             return true;
         }
 
@@ -1359,7 +1362,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public boolean playlistControl(String cmd, PlaylistItem playlistItem) {
+        public boolean playlistControl(@BaseActivity.PlaylistControlCmd String cmd, PlaylistItem playlistItem) {
             if (!isConnected()) {
                 return false;
             }
@@ -1370,7 +1373,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public boolean randomPlay(String type) throws HandshakeNotCompleteException {
+        public boolean randomPlay(@RandomplayActivity.RandomplayType String type) throws HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
@@ -1429,7 +1432,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public boolean pluginPlaylistControl(Plugin plugin, String cmd, String itemId) {
+        public boolean pluginPlaylistControl(
+                Plugin plugin, @PluginItemListActivity.PluginPlaylistControlCmd String cmd,
+                String itemId) {
             if (!isConnected()) {
                 return false;
             }
@@ -1510,7 +1515,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public String getIconUrl(String icon) throws HandshakeNotCompleteException {
-            return getAbsoluteUrl('/' + icon);
+            if (isRelative(icon))
+                return getAbsoluteUrl(icon.startsWith("/") ? icon : '/' + icon);
+            else
+                return icon;
         }
 
         private String getAbsoluteUrl(String relativeUrl) throws HandshakeNotCompleteException {
@@ -1522,6 +1530,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return "";
             }
             return "http://" + connectionState.getCurrentHost() + ":" + port + relativeUrl;
+        }
+
+        private boolean isRelative(String url) {
+            return Uri.parse(url).isRelative();
         }
 
         @Override
@@ -1547,7 +1559,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
 
             // If the server address changed then disconnect.
-            if (Preferences.KEY_SERVERADDR.equals(key)) {
+            if (key.startsWith(Preferences.KEY_SERVER_ADDRESS)) {
                 disconnect();
                 return;
             }
@@ -1838,4 +1850,43 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
+    /**
+     * Calculate and set player subscription states every time a client of the bus
+     * un/registers.
+     * <p/>
+     * For example, this ensures that if a new client subscribes and needs real
+     * time updates, the player subscription states will be updated accordingly.
+     */
+    class EventBus extends de.greenrobot.event.EventBus {
+
+        @Override
+        public void register(Object subscriber) {
+            super.register(subscriber);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public void register(Object subscriber, int priority) {
+            super.register(subscriber, priority);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public void registerSticky(Object subscriber) {
+            super.registerSticky(subscriber);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public void registerSticky(Object subscriber, int priority) {
+            super.registerSticky(subscriber, priority);
+            updateAllPlayerSubscriptionStates();
+        }
+
+        @Override
+        public synchronized void unregister(Object subscriber) {
+            super.unregister(subscriber);
+            updateAllPlayerSubscriptionStates();
+        }
+    }
 }

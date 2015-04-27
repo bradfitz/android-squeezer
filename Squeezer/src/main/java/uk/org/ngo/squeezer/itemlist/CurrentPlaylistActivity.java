@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -183,10 +182,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             }
         };
 
-        view.setDetails(EnumSet.of(
-                SongView.Details.DURATION,
-                SongView.Details.ALBUM,
-                SongView.Details.ARTIST));
+        view.setDetails(SongView.DETAILS_DURATION | SongView.DETAILS_ALBUM | SongView.DETAILS_ARTIST);
 
         return view;
     }
@@ -248,22 +244,22 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     public void onEventMainThread(MusicChanged event) {
-        Log.d(getTag(), "onMusicChanged " + event.mPlayerState.getCurrentSong());
-        currentPlaylistIndex = event.mPlayerState.getCurrentPlaylistIndex();
+        Log.d(getTag(), "onMusicChanged " + event.playerState.getCurrentSong());
+        currentPlaylistIndex = event.playerState.getCurrentPlaylistIndex();
         getItemAdapter().notifyDataSetChanged();
     }
 
     public void onEventMainThread(PlayersChanged event) {
         supportInvalidateOptionsMenu();
 
-        if (event.mActivePlayer == null) {
+        if (event.activePlayer == null) {
             player = null;
             clearItems();
             return;
         }
 
-        if (!event.mActivePlayer.equals(player)) {
-            player = event.mActivePlayer;
+        if (!event.activePlayer.equals(player)) {
+            player = event.activePlayer;
             clearAndReOrderItems();
         }
     }

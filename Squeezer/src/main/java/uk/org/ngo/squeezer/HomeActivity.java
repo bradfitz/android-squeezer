@@ -122,7 +122,11 @@ public class HomeActivity extends BaseActivity {
         // Show the change log if necessary.
         ChangeLog changeLog = new ChangeLog(this);
         if (changeLog.isFirstRun()) {
-            changeLog.getLogDialog().show();
+            if (changeLog.isFirstRunEver()) {
+                changeLog.skipLogDialog();
+            } else {
+                changeLog.getLogDialog().show();
+            }
         }
     }
 
@@ -139,10 +143,10 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
-            mCanFavorites = event.mCanFavourites;
-            mCanMusicfolder = event.mCanMusicFolders;
-            mCanMyApps = event.mCanMyApps;
-            mCanRandomplay = event.mCanRandomPlay;
+            mCanFavorites = event.canFavourites;
+            mCanMusicfolder = event.canMusicFolders;
+            mCanMyApps = event.canMyApps;
+            mCanRandomplay = event.canRandomPlay;
         }
 
         List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>(MY_APPS + 1);

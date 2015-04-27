@@ -16,89 +16,13 @@
  limitations under the License.
 -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp">
-
-        <!-- This is filled by the 'dialogMessage' attribute on DialogPreference: -->
-
-        <TextView
-            android:id="@android:id/message"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="4dp"
-            android:textAppearance="@style/SqueezerTextItem"/>
-
-        <EditText
-            android:id="@+id/server_address"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="40dp"
-            android:hint="@string/settings_serveraddr_hint"
-            android:inputType="textNoSuggestions"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"/>
-
-        <EditText
-            android:id="@+id/username"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/settings_username_hint"
-            android:inputType="textNoSuggestions"
-            android:minHeight="40dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"/>
-
-        <EditText
-            android:id="@+id/password"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/settings_password_hint"
-            android:inputType="textPassword"
-            android:minHeight="40dp"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"/>
-
-        <TextView
-            android:id="@+id/scan_msg"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"
-            android:text="@string/settings_server_scan_msg"
-            android:textAppearance="@style/SqueezerTextItem"/>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/scan_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minHeight="40dp"
-                android:paddingTop="4dp"
-                android:text="@string/settings_server_scan_start"/>
-
-            <!-- Spinner has visibility controlled in code. -->
-            <Spinner
-                android:id="@+id/found_servers"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="40dp"
-                android:paddingTop="4dp"
-                android:prompt="@string/settings_server_prompt"
-                android:visibility="gone"/>
-        </LinearLayout>
-    </LinearLayout>
+    <uk.org.ngo.squeezer.dialog.ServerAddressView
+        android:id="@+id/server_address_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </ScrollView>
