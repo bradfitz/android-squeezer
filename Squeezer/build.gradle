@@ -105,8 +105,8 @@ android {
         }
 
         live {
-            versionCode 41
-            versionName "1.2.6"
+            versionCode 44
+            versionName "1.2.7"
             signingConfig android.signingConfigs.release
         }
     }

@@ -1,6 +1,9 @@
 Upcoming
 ========
 
+1.2.7
+=====
+
 *   Support skipping tracks in remote streams that have that feature,
     such as Slacker Radio. Code from Sean Wilson
     (https://github.com/swilson).
