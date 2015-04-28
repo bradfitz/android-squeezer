@@ -42,7 +42,7 @@ dependencies {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "22.0.1"
 
     def gitHash = "git rev-parse --short HEAD".execute().text.trim()
     def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
