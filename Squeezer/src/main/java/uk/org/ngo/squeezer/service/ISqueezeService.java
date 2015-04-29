@@ -98,6 +98,7 @@ public interface ISqueezeService {
     void setPreferredAlbumSort(String preferredAlbumSort);
     boolean togglePausePlay();
     boolean play();
+    boolean pause();
     boolean stop();
     boolean nextTrack();
     boolean previousTrack();
