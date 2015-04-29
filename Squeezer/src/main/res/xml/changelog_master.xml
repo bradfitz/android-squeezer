@@ -2,6 +2,20 @@
 
 <changelog>
     <release
+        version="1.2.8-beta-1"
+        versioncode="45">
+        <change>Support richer notifications with playback controls from the
+            notification and lock screen. Based on work from Matthew Schmidt
+            (https://github.com/maxpower47).</change>
+
+        <change>Fixed crash that could occur when scanning for servers.</change>
+
+        <change>Fixed issue where opening a playlist and leaving Squeezer while
+            music is playing would result in the playlist being at the wrong
+            point when returning to Squeezer.</change>
+    </release>
+
+    <release
         version="1.2.7"
         versioncode="44">
         <change>Support skipping tracks in remote streams that have that feature,

@@ -5,6 +5,12 @@ Upcoming
     notification and lock screen. Based on work from Matthew Schmidt
     (https://github.com/maxpower47).
 
+*   Fixed crash that could occur when scanning for servers.
+
+*   Fixed issue where opening a playlist and leaving Squeezer while
+    music is playing would result in the playlist being at the wrong
+    point when returning to Squeezer.
+
 1.2.7
 =====
 
