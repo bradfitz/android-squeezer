@@ -508,7 +508,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         // Current song
                         if (changedSong) {
                             updateOngoingNotification();
-                            mEventBus.post(new MusicChanged(playerState));
+                            mEventBus.postSticky(new MusicChanged(playerState));
                         }
 
                         // Shuffle status.
@@ -651,9 +651,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         } else if ("pause".equals(notification)) {
             parsePause(tokens.size() >= 4 ? tokens.get(3) : null);
         } else if ("addtracks".equals(notification)) {
-            mEventBus.post(new PlaylistTracksAdded());
+            mEventBus.postSticky(new PlaylistTracksAdded());
         } else if ("delete".equals(notification)) {
-            mEventBus.post(new PlaylistTracksDeleted());
+            mEventBus.postSticky(new PlaylistTracksDeleted());
         }
     }
 
