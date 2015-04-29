@@ -113,29 +113,4 @@ android {
             signingConfig android.signingConfigs.release
         }
     }
-
-    applicationVariants.all { variant ->
-        def apkSuffix = "-${variant.mergedFlavor.versionName}-${gitDescription}"
-        variant.outputs.each { output ->
-            def originalApkFile = output.outputFile
-            output.outputFile = new File(
-                    // Override this to change output directory
-                    (String) originalApkFile.parent,
-                    (String) originalApkFile.name.replace(".apk", "${apkSuffix}.apk")
-            )
-        }
-        // Print the APK path after assemble is done
-        variant.assemble.doLast {
-            variant.outputs.each { output ->
-                println output.outputFile
-            }
-        }
-
-        // Print the APK path as the last step before install, at which point the apk is complete
-        variant.install?.doFirst { // the install task can be null
-            variant.outputs.each { output ->
-                println output.outputFile
-            }
-        }
-    }
 }
