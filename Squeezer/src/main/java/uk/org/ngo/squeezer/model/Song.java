@@ -122,6 +122,13 @@ public class Song extends ArtworkItem {
         return mUrl;
     }
 
+    @NonNull private final String mButtons;
+
+    @NonNull
+    public String getButtons() {
+        return mButtons;
+    }
+
     @NonNull private String mArtworkUrl;
 
     /**
@@ -173,6 +180,7 @@ public class Song extends ArtworkItem {
         mTrackNum = Util.parseDecimalInt(record.get("tracknum"), 1);
         mArtworkUrl = Strings.nullToEmpty(record.get("artwork_url"));
         mUrl = Strings.nullToEmpty(record.get("url"));
+        mButtons = Strings.nullToEmpty(record.get("buttons"));
 
         // Work around a (possible) bug in the Squeezeserver.
         //
@@ -224,6 +232,7 @@ public class Song extends ArtworkItem {
         setArtwork_track_id(source.readString());
         mTrackNum = source.readInt();
         mUrl = source.readString();
+        mButtons = source.readString();
     }
 
     @Override
@@ -240,6 +249,7 @@ public class Song extends ArtworkItem {
         dest.writeString(getArtwork_track_id());
         dest.writeInt(mTrackNum);
         dest.writeString(mUrl);
+        dest.writeString(mButtons);
     }
 
     @Override

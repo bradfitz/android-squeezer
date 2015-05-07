@@ -24,9 +24,10 @@ import uk.org.ngo.squeezer.model.PlayerState;
 public class PlayStatusChanged {
     /** The new play status. */
     @NonNull
-    public final PlayerState.PlayStatus playStatus;
+    @PlayerState.PlayState
+    public final String playStatus;
 
-    public PlayStatusChanged(@NonNull PlayerState.PlayStatus playStatus) {
+    public PlayStatusChanged(@NonNull @PlayerState.PlayState String playStatus) {
         this.playStatus = playStatus;
     }
 }

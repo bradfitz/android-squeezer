@@ -17,6 +17,7 @@
 -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
@@ -90,69 +91,84 @@
                 android:paddingBottom="4dp"
                 android:paddingTop="4dp"/>
 
-            <EditText android:id="@+id/album"
-                android:layout_width="fill_parent"
+            <uk.org.ngo.squeezer.widget.FloatLabelLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="false"
-                android:focusable="false"
-                android:inputType="none"
-                android:paddingBottom="4dp"
-                android:paddingTop="4dp"/>
+                android:layout_marginTop="16dp"
+                app:floatLabelTextAppearance="@style/TextAppearance.Squeezer.FloatLabel"
+                app:floatLabelTrigger="text">
+
+                <EditText
+                    android:id="@+id/album"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:focusable="false"
+                    android:inputType="none"
+                    android:paddingBottom="4dp"
+                    android:paddingTop="4dp" />
+            </uk.org.ngo.squeezer.widget.FloatLabelLayout>
         </LinearLayout>
 
-        <TextView
-            android:text="@string/filter_label"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"/>
-
-        <EditText android:id="@+id/search_string"
-            android:hint="@string/filter_text_hint"
-            android:inputType="textNoSuggestions"
-            android:layout_width="fill_parent"
+        <uk.org.ngo.squeezer.widget.FloatLabelLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp"/>
+            android:layout_marginTop="16dp"
+            app:floatLabelTextAppearance="@style/TextAppearance.Squeezer.FloatLabel"
+            app:floatLabelTrigger="text">
 
-        <LinearLayout android:id="@+id/genre_view"
-            android:orientation="vertical"
+            <EditText
+                android:id="@+id/search_string"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/filter_text_hint"
+                android:inputType="textNoSuggestions"
+                android:paddingBottom="4dp"
+                android:paddingTop="4dp" />
+        </uk.org.ngo.squeezer.widget.FloatLabelLayout>
+
+        <RelativeLayout
+            android:id="@+id/genre_view"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:paddingLeft="12dp"
+                android:paddingTop="4dp"
                 android:text="@string/genre_label"
-                android:paddingBottom="4dp"
-                android:paddingTop="4dp"/>
+                android:textAppearance="@style/TextAppearance.Squeezer.FloatLabel"
+                android:textColor="#333" />
 
-            <Spinner android:id="@+id/genre_spinner"
+            <Spinner
+                android:id="@+id/genre_spinner"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:prompt="@string/genre_prompt"
                 android:paddingBottom="4dp"
-                android:paddingTop="4dp"/>
-        </LinearLayout>
+                android:prompt="@string/genre_prompt" />
+        </RelativeLayout>
 
-        <LinearLayout android:id="@+id/year_view"
-            android:orientation="vertical"
+        <RelativeLayout
+            android:id="@+id/year_view"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:paddingLeft="12dp"
+                android:paddingTop="4dp"
                 android:text="@string/year_label"
-                android:paddingBottom="4dp"
-                android:paddingTop="4dp"/>
+                android:textAppearance="@style/TextAppearance.Squeezer.FloatLabel"
+                android:textColor="#333" />
 
-            <Spinner android:id="@+id/year_spinner"
+            <Spinner
+                android:id="@+id/year_spinner"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:prompt="@string/year_prompt"
                 android:paddingBottom="4dp"
-                android:paddingTop="4dp"/>
-        </LinearLayout>
+                android:prompt="@string/year_prompt" />
+        </RelativeLayout>
     </LinearLayout>
 </ScrollView>

@@ -33,8 +33,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.EnumSet;
-
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -241,23 +239,19 @@ public class SongListActivity extends BaseListActivity<Song>
     public ItemView<Song> createItemView() {
         if (album != null) {
             songViewLogic = new SongView(this);
-            songViewLogic.setDetails(EnumSet.of(
-                    SongView.Details.TRACK_NO,
-                    SongView.Details.DURATION,
-                    SongView.Details.ARTIST_IF_COMPILATION));
+            songViewLogic.setDetails(SongView.DETAILS_TRACK_NO |
+                    SongView.DETAILS_DURATION |
+                    SongView.DETAILS_ARTIST_IF_COMPILATION);
         } else if (artist != null) {
             songViewLogic = songViewLogicFromListLayout();
-            songViewLogic.setDetails(EnumSet.of(
-                    SongView.Details.DURATION,
-                    SongView.Details.ALBUM,
-                    SongView.Details.YEAR
-            ));
+            songViewLogic.setDetails(SongView.DETAILS_DURATION |
+                    SongView.DETAILS_ALBUM |
+                    SongView.DETAILS_YEAR);
         } else {
             songViewLogic = songViewLogicFromListLayout();
-            songViewLogic.setDetails(EnumSet.of(
-                    SongView.Details.ARTIST,
-                    SongView.Details.ALBUM,
-                    SongView.Details.YEAR));
+            songViewLogic.setDetails(SongView.DETAILS_ARTIST |
+                    SongView.DETAILS_ALBUM |
+                    SongView.DETAILS_YEAR);
         }
 
         return songViewLogic;

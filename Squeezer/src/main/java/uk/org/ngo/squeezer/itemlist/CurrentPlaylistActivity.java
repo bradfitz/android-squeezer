@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -183,10 +182,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             }
         };
 
-        view.setDetails(EnumSet.of(
-                SongView.Details.DURATION,
-                SongView.Details.ALBUM,
-                SongView.Details.ARTIST));
+        view.setDetails(SongView.DETAILS_DURATION | SongView.DETAILS_ALBUM | SongView.DETAILS_ARTIST);
 
         return view;
     }

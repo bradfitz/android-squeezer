@@ -122,7 +122,11 @@ public class HomeActivity extends BaseActivity {
         // Show the change log if necessary.
         ChangeLog changeLog = new ChangeLog(this);
         if (changeLog.isFirstRun()) {
-            changeLog.getLogDialog().show();
+            if (changeLog.isFirstRunEver()) {
+                changeLog.skipLogDialog();
+            } else {
+                changeLog.getLogDialog().show();
+            }
         }
     }
 

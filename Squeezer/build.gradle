@@ -4,7 +4,7 @@ buildscript {
         maven { url 'http://download.crashlytics.com/maven' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:1.1.0'
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
 }
@@ -38,15 +38,26 @@ dependencies {
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
     compile 'com.crashlytics.android:crashlytics:1.+'
+
+    // JVM tests
+    testCompile 'junit:junit:4.12'
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 21
+    buildToolsVersion "22.0.1"
+
+    def gitHash = "git rev-parse --short HEAD".execute().text.trim()
+    def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
+    def hasStagedFiles = !"git diff-index --no-ext-diff --name-only --cached HEAD".execute().text.trim().isEmpty()
+    def dirtyWorkingCopy = hasModifiedDeletedOrOtherFiles || hasStagedFiles
+    def gitDescription = dirtyWorkingCopy ? "${gitHash}-dirty" : gitHash
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 19
+        targetSdkVersion 21
+
+        buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
     }
 
     lintOptions {
@@ -91,14 +102,14 @@ android {
 
     productFlavors {
         beta {
-            versionCode 40
-            versionName "1.2.6-beta-3"
+            versionCode 43
+            versionName "1.2.7-beta-2"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 41
-            versionName "1.2.6"
+            versionCode 44
+            versionName "1.2.7"
             signingConfig android.signingConfigs.release
         }
     }
