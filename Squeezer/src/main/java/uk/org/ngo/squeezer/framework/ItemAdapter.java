@@ -119,14 +119,6 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     public View getView(int position, View convertView, ViewGroup parent) {
         T item = getItem(position);
         if (item != null) {
-            // XXX: This is ugly -- not all adapters need an ImageFetcher.
-            // We should really have subclasses of types in the model classes,
-            // with the hierarchy probably being:
-            //
-            // [basic item] -> [item with artwork] -> [artwork is downloaded]
-            //
-            // instead of special-casing whether or not mImageFetcher is null
-            // in getAdapterView().
             return mItemView.getAdapterView(convertView, parent, item);
         }
 
