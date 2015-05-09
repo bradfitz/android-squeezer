@@ -28,6 +28,7 @@ import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -36,6 +37,8 @@ import android.widget.ImageView;
 
 import com.google.common.base.Joiner;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 
 import javax.annotation.Nullable;
@@ -67,13 +70,15 @@ public abstract class ImageWorker {
 
     protected final Resources mResources;
 
+    @IntDef({MESSAGE_CLEAR, MESSAGE_INIT_DISK_CACHE, MESSAGE_FLUSH, MESSAGE_CLOSE,
+            MESSAGE_CLEAR_MEMORY_CACHE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CacheMessages {}
     private static final int MESSAGE_CLEAR = 0;
-
     private static final int MESSAGE_INIT_DISK_CACHE = 1;
-
     private static final int MESSAGE_FLUSH = 2;
-
     private static final int MESSAGE_CLOSE = 3;
+    private static final int MESSAGE_CLEAR_MEMORY_CACHE = 4;
 
     /** Joiner for the components that make up a key in the memory cache. */
     protected static final Joiner mMemCacheKeyJoiner = Joiner.on(':');
@@ -550,7 +555,8 @@ public abstract class ImageWorker {
 
         @Override
         protected Void doInBackground(Object... params) {
-            switch ((Integer) params[0]) {
+            @CacheMessages int message = (Integer) params[0];
+            switch (message) {
                 case MESSAGE_CLEAR:
                     clearCacheInternal();
                     break;
@@ -562,6 +568,9 @@ public abstract class ImageWorker {
                     break;
                 case MESSAGE_CLOSE:
                     closeCacheInternal();
+                    break;
+                case MESSAGE_CLEAR_MEMORY_CACHE:
+                    clearMemoryCacheInternal();
                     break;
             }
             return null;
@@ -577,6 +586,12 @@ public abstract class ImageWorker {
     protected void clearCacheInternal() {
         if (mImageCache != null) {
             mImageCache.clearCache();
+        }
+    }
+
+    protected void clearMemoryCacheInternal() {
+        if (mImageCache != null) {
+            mImageCache.clearMemoryCache();
         }
     }
 
@@ -596,6 +611,8 @@ public abstract class ImageWorker {
     public void clearCache() {
         new CacheAsyncTask().execute(MESSAGE_CLEAR);
     }
+
+    public void clearMemoryCache() { new CacheAsyncTask().execute(MESSAGE_CLEAR_MEMORY_CACHE); }
 
     public void flushCache() {
         new CacheAsyncTask().execute(MESSAGE_FLUSH);

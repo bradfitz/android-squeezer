@@ -46,5 +46,15 @@ public class Squeezer extends Application {
         }
         return sImageFetcher;
     }
+
+    /**
+     * Clear the image memory cache if memory gets low.
+     */
+    @Override
+    public void onLowMemory() {
+        if (sImageFetcher != null) {
+            sImageFetcher.clearMemoryCache();
+        }
+    }
 }
 
