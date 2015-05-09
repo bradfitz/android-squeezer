@@ -20,9 +20,9 @@ package uk.org.ngo.squeezer.itemlist;
 import android.view.View;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 
 /**
  * A view that shows a single song with its artwork, and a context menu.
@@ -40,8 +40,8 @@ public class SongViewWithArt extends SongView {
     }
 
     @Override
-    public void bindView(View view, Song item, ImageFetcher imageFetcher) {
-        super.bindView(view, item, imageFetcher);
+    public void bindView(View view, Song item) {
+        super.bindView(view, item);
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
         String artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
@@ -49,7 +49,7 @@ public class SongViewWithArt extends SongView {
             viewHolder.icon.setImageResource(
                     item.isRemote() ? R.drawable.icon_iradio_noart : R.drawable.icon_album_noart);
         } else {
-            imageFetcher.loadImage(artworkUrl, viewHolder.icon);
+            Squeezer.getImageFetcher().loadImage(artworkUrl, viewHolder.icon);
         }
     }
 

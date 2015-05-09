@@ -18,10 +18,10 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.view.View;
 
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public abstract class PluginView extends BaseItemView<Plugin> {
 
@@ -32,10 +32,10 @@ public abstract class PluginView extends BaseItemView<Plugin> {
     }
 
     @Override
-    public void bindView(View view, Plugin item, ImageFetcher imageFetcher) {
+    public void bindView(View view, Plugin item) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
-        imageFetcher.loadImage(getActivity().getIconUrl(item.getIcon()), viewHolder.icon);
+        Squeezer.getImageFetcher().loadImage(getActivity().getIconUrl(item.getIcon()), viewHolder.icon);
     }
 }

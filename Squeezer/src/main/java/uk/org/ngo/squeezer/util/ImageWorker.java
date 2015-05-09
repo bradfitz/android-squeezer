@@ -55,8 +55,6 @@ public abstract class ImageWorker {
 
     private ImageCache mImageCache;
 
-    private ImageCache.ImageCacheParams mImageCacheParams;
-
     private Bitmap mLoadingBitmap;
 
     private boolean mFadeInBitmap = true;
@@ -229,16 +227,13 @@ public abstract class ImageWorker {
     }
 
     /**
-     * Adds an {@link ImageCache} to this worker in the background (to prevent disk access on UI
-     * thread).
+     * Adds an {@link ImageCache} to this worker in the background, to prevent disk access on
+     * the UI thread.
      *
-     * @param fragmentManager
-     * @param cacheParams
+     * @param imageCacheParams A description of the cache.
      */
-    public void addImageCache(FragmentManager fragmentManager,
-            ImageCache.ImageCacheParams cacheParams) {
-        mImageCacheParams = cacheParams;
-        setImageCache(ImageCache.findOrCreateCache(fragmentManager, mImageCacheParams));
+    public void addImageCache(ImageCache.ImageCacheParams imageCacheParams) {
+        setImageCache(new ImageCache(imageCacheParams));
         new CacheAsyncTask().execute(MESSAGE_INIT_DISK_CACHE);
     }
 

@@ -32,24 +32,14 @@ import javax.annotation.Nullable;
 /**
  * A subclass of {@link ImageWorker} that fetches images from a URL.
  */
-public class ImageFetcher extends ImageResizer {
+public class ImageFetcher extends ImageWorker {
 
     private static final String TAG = "ImageFetcher";
 
     private static final int IO_BUFFER_SIZE = 8 * 1024;
 
-    /**
-     * Create an ImageFetcher specifying custom parameters.
-     */
-    public ImageFetcher(Context context, int imageWidth, int imageHeight) {
-        super(context, imageWidth, imageHeight);
-    }
-
-    /**
-     * Create an ImageFetcher using default parameters.
-     */
-    public ImageFetcher(Context context, int imageSize) {
-        super(context, imageSize);
+    public ImageFetcher(Context context) {
+        super(context);
     }
 
     /**

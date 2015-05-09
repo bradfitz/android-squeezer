@@ -43,6 +43,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
@@ -52,6 +53,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
@@ -152,6 +154,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         if (SqueezePlayer.hasSqueezePlayer(this) && new Preferences(this).controlSqueezePlayer()) {
             squeezePlayer = new SqueezePlayer(this);
         }
+
+        // Ensure that any image fetching tasks started by this activity do not finish prematurely.
+        Squeezer.getImageFetcher().setExitTasksEarly(false);
     }
 
     @Override
@@ -173,6 +178,11 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
             }
             mRegisteredOnEventBus = false;
         }
+
+        // Ensure that any pending image fetching tasks are unpaused, and finish quickly.
+        ImageFetcher imageFetcher = Squeezer.getImageFetcher();
+        imageFetcher.setExitTasksEarly(true);
+        imageFetcher.setPauseWork(false);
 
         super.onPause();
     }

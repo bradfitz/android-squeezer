@@ -29,7 +29,6 @@ import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class GenreSpinner {
 
@@ -65,8 +64,7 @@ public class GenreSpinner {
                         GenreView itemView = new GenreView(activity) {
                             @Override
                             public View getAdapterView(View convertView, ViewGroup parent,
-                                    Genre item,
-                                    ImageFetcher unused) {
+                                    Genre item) {
                                 return Util.getSpinnerItemView(getActivity(), convertView, parent,
                                         item.getName());
                             }
@@ -79,7 +77,7 @@ public class GenreSpinner {
                             }
 
                         };
-                        adapter = new ItemAdapter<Genre>(itemView, true, null);
+                        adapter = new ItemAdapter<Genre>(itemView, true);
                         spinner.setAdapter(adapter);
                     }
                     adapter.update(count, start, list);

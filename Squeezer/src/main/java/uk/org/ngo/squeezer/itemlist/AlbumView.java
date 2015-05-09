@@ -26,11 +26,11 @@ import java.lang.annotation.RetentionPolicy;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 
 /**
  * Shows a single album with its artwork, and a context menu.
@@ -72,7 +72,7 @@ public class AlbumView extends AlbumArtView<Album> {
     }
 
     @Override
-    public void bindView(View view, Album item, ImageFetcher imageFetcher) {
+    public void bindView(View view, Album item) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
@@ -90,7 +90,7 @@ public class AlbumView extends AlbumArtView<Album> {
         if (artworkUrl == null) {
             viewHolder.icon.setImageResource(R.drawable.icon_album_noart);
         } else {
-            imageFetcher.loadImage(artworkUrl, viewHolder.icon);
+            Squeezer.getImageFetcher().loadImage(artworkUrl, viewHolder.icon);
         }
     }
 

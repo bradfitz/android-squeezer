@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
@@ -38,10 +37,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -89,8 +86,6 @@ import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
-import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class NowPlayingFragment extends Fragment implements
         HasUiThread, View.OnCreateContextMenuListener {
@@ -154,16 +149,6 @@ public class NowPlayingFragment extends Fragment implements
     private int secondsTotal;
 
     private final static int UPDATE_TIME = 1;
-
-    /**
-     * ImageFetcher for album cover art
-     */
-    private ImageFetcher mImageFetcher;
-
-    /**
-     * ImageCache parameters for the album art.
-     */
-    private ImageCacheParams mImageCacheParams;
 
     private final Handler uiThreadHandler = new UiThreadHandler(this);
 
@@ -288,33 +273,11 @@ public class NowPlayingFragment extends Fragment implements
                     v.showContextMenu();
                 }
             });
-
-            // Calculate the size of the album art to display, which will be the shorter
-            // of the device's two dimensions.
-            Display display = mActivity.getWindowManager().getDefaultDisplay();
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            display.getMetrics(displayMetrics);
-            mImageFetcher = new ImageFetcher(mActivity,
-                    Math.min(displayMetrics.heightPixels, displayMetrics.widthPixels));
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
 
             mProgressBar = (ProgressBar) v.findViewById(R.id.progressbar);
-
-            // Get an ImageFetcher to scale artwork to the size of the icon view.
-            Resources resources = getResources();
-            int iconSize = (Math.max(
-                    resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
-                    resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
-            mImageFetcher = new ImageFetcher(mActivity, iconSize);
         }
-
-        // TODO: Clean this up.  I think a better approach is to create the cache
-        // in the activity that hosts the fragment, and make the cache available to
-        // the fragment (or, make the cache a singleton across the whole app).
-        mImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
-        mImageCacheParams = new ImageCacheParams(mActivity, "artwork");
-        mImageCacheParams.setMemCacheSizePercent(mActivity, 0.12f);
 
         albumArt = (ImageView) v.findViewById(R.id.album);
         trackText = (TextView) v.findViewById(R.id.trackname);
@@ -700,8 +663,6 @@ public class NowPlayingFragment extends Fragment implements
         super.onResume();
         Log.d(TAG, "onResume...");
 
-        mImageFetcher.addImageCache(mActivity.getSupportFragmentManager(), mImageCacheParams);
-
         // Start it and have it run forever (until it shuts itself down).
         // This is required so swapping out the activity (and unbinding the
         // service connection in onDestroy) doesn't cause the service to be
@@ -820,12 +781,7 @@ public class NowPlayingFragment extends Fragment implements
             return;
         }
 
-        // The image fetcher might not be ready yet.
-        if (mImageFetcher == null) {
-            return;
-        }
-
-        mImageFetcher.loadImage(song.getArtworkUrl(mService), albumArt);
+        Squeezer.getImageFetcher().loadImage(song.getArtworkUrl(mService), albumArt);
     }
 
     private boolean setSecondsElapsed(int seconds) {
@@ -872,7 +828,6 @@ public class NowPlayingFragment extends Fragment implements
         Log.d(TAG, "onPause...");
 
         clearConnectingDialog();
-        mImageFetcher.closeCache();
 
         if (new Preferences(mActivity).isAutoConnect()) {
             mActivity.unregisterReceiver(broadcastReceiver);
