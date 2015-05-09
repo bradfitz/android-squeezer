@@ -16,16 +16,25 @@
 
 package uk.org.ngo.squeezer.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+
+import com.google.common.base.Joiner;
 
 import java.lang.ref.WeakReference;
 
@@ -68,13 +77,28 @@ public abstract class ImageWorker {
 
     private static final int MESSAGE_CLOSE = 3;
 
+    /** Joiner for the components that make up a key in the memory cache. */
+    protected static final Joiner mMemCacheKeyJoiner = Joiner.on(':');
+
+    /** Paint to use when colouring debug swatches on images. */
+    private static final Paint mCacheDebugPaint = new Paint();
+
+    /** Colour of debug swatch for images loaded from memory cache. */
+    private static final int mCacheDebugColorMemory = Color.GREEN;
+
+    /** Colour of debug swatch for images loaded from disk cache. */
+    private static final int mCacheDebugColorDisk = Color.BLUE;
+
+    /** Colour of debug swatch for images loaded from network (no caching). */
+    private static final int mCacheDebugColorNetwork = Color.RED;
+
     protected ImageWorker(Context context) {
         mResources = context.getResources();
     }
 
     /**
      * Load an image specified by the data parameter into an ImageView (override {@link
-     * ImageWorker#processBitmap(Object)} to define the processing logic). A memory and disk cache
+     * ImageWorker#processBitmap(BitmapWorkerTaskParams)} to define the processing logic). A memory and disk cache
      * will be used if an {@link ImageCache} has been set using {@link
      * ImageWorker#setImageCache(ImageCache)}. If the image is found in the memory cache, it is set
      * immediately, otherwise an {@link AsyncTask} will be created to asynchronously load the
@@ -83,19 +107,52 @@ public abstract class ImageWorker {
      * @param data The URL of the image to download.
      * @param imageView The ImageView to bind the downloaded image to.
      */
-    public void loadImage(Object data, ImageView imageView) {
+    public void loadImage(final Object data, final ImageView imageView) {
         if (data == null) {
             return;
         }
 
         Bitmap bitmap = null;
 
+        int width = imageView.getWidth();
+        int height = imageView.getHeight();
+
+        // If the dimensions aren't known yet then the view hasn't been measured. Get a
+        // ViewTreeObserver and listen for the PreDraw message. Using a GlobalLayoutListener
+        // does not work for views that are in the list but drawn off-screen, possibly due
+        // to the convertview. See http://stackoverflow.com/a/14325365 for some discussion.
+        // The solution there, of posting a runnable, does not appear to reliably work on
+        // devices running (at least) API 7. An OnPreDrawListener appears to work, and will
+        // be called after measurement is complete.
+        if (width == 0 || height == 0) {
+            // Store the URL in the imageView's tag, in case the URL assigned to is changed.
+            imageView.setTag(data);
+
+            imageView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    imageView.getViewTreeObserver().removeOnPreDrawListener(this);
+                    // If the imageView is still assigned to the URL then we can load in to it.
+                    if (data.equals(imageView.getTag())) {
+                        loadImage(data, imageView);
+                    }
+                    return true;
+                }
+            });
+            return;
+        }
+
+        String memCacheKey = hashKeyForMemory(String.valueOf(data), width, height);
+
         if (mImageCache != null) {
-            bitmap = mImageCache.getBitmapFromMemCache(String.valueOf(data));
+            bitmap = mImageCache.getBitmapFromMemCache(memCacheKey);
         }
 
         if (bitmap != null) {
             // Bitmap found in memory cache
+            if (BuildConfig.DEBUG) {
+                addDebugSwatch(new Canvas(bitmap), mCacheDebugColorMemory);
+            }
             imageView.setImageBitmap(bitmap);
         } else if (cancelPotentialWork(data, imageView)) {
             final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
@@ -106,8 +163,23 @@ public abstract class ImageWorker {
             // NOTE: This uses a custom version of AsyncTask that has been pulled from the
             // framework and slightly modified. Refer to the docs at the top of the class
             // for more info on what was changed.
-            task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR, data);
+            task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR,
+                    new BitmapWorkerTaskParams(width, height, data, memCacheKey));
         }
+    }
+
+    /**
+     * Generates a hash key for the memory cache. The key includes the target width and height,
+     * so that multiple copies of the image may exist in the cache at different sizes.
+     *
+     * @param data The identifier for the image (e.g., URL).
+     * @param width Target width for the bitmap.
+     * @param height Target height for the bitmap.
+     * @return Cache key to use.
+     */
+    @NonNull
+    private static String hashKeyForMemory(@NonNull String data, int width, int height) {
+        return mMemCacheKeyJoiner.join(width, height, data);
     }
 
     /**
@@ -126,6 +198,34 @@ public abstract class ImageWorker {
      */
     public void setLoadingImage(int resId) {
         mLoadingBitmap = BitmapFactory.decodeResource(mResources, resId);
+    }
+
+    /**
+     * Adds a debug swatch to a canvas. The marker is a triangle pointing north-west
+     * on the top left corner, the edges are 25% of the canvas' width and height.
+     *
+     * @param canvas The canvas to draw on.
+     * @param color The colour to use for the swatch.
+     */
+    public static void addDebugSwatch(Canvas canvas, int color) {
+        float width = canvas.getWidth();
+        float height = canvas.getHeight();
+
+        Path path = new Path();
+        path.lineTo(width / 4, 0);
+        path.lineTo(0, height / 4);
+        path.lineTo(0, 0);
+
+        // Draw the swatch.
+        mCacheDebugPaint.setColor(color);
+        mCacheDebugPaint.setStyle(Paint.Style.FILL);
+        canvas.drawPath(path, mCacheDebugPaint);
+
+        // Stroke the swatch with a white hairline.
+        mCacheDebugPaint.setColor(Color.WHITE);
+        mCacheDebugPaint.setStyle(Paint.Style.STROKE);
+        mCacheDebugPaint.setStrokeWidth(0);
+        canvas.drawPath(path, mCacheDebugPaint);
     }
 
     /**
@@ -161,6 +261,12 @@ public abstract class ImageWorker {
         mFadeInBitmap = fadeIn;
     }
 
+    /**
+     * Set the flag that determines whether tasks should exit early. Set to true if any pending
+     * work should be abandoned (e.g., in {@link Activity#onPause}).
+     *
+     * @param exitTasksEarly
+     */
     public void setExitTasksEarly(boolean exitTasksEarly) {
         mExitTasksEarly = exitTasksEarly;
     }
@@ -170,13 +276,13 @@ public abstract class ImageWorker {
      * the final bitmap. This will be executed in a background thread and be long running. For
      * example, you could resize a large bitmap here, or pull down an image from the network.
      *
-     * @param data The data to identify which image to process, as provided by {@link
+     * @param params The parameters to identify which image to process, as provided by {@link
      * ImageWorker#loadImage(Object, ImageView)}
      *
      * @return The processed bitmap, or null if processing failed.
      */
     @Nullable
-    protected abstract Bitmap processBitmap(Object data);
+    protected abstract Bitmap processBitmap(BitmapWorkerTaskParams params);
 
     /**
      * Cancels any pending work attached to the provided ImageView.
@@ -234,10 +340,34 @@ public abstract class ImageWorker {
         return null;
     }
 
+    protected class BitmapWorkerTaskParams {
+        /** Desired bitmap width. */
+        public final int width;
+
+        /** Desired bitmap height. */
+        public final int height;
+
+        /** Identifier for the bitmap to fetch (e.g., a URL). */
+        @NonNull
+        public final Object data;
+
+        /** Cache key to use when saving the bitmap in the memory cache. */
+        @NonNull
+        public final String memCacheKey;
+
+        public BitmapWorkerTaskParams(int width, int height,
+                                      @NonNull Object data, @NonNull String memCacheKey) {
+            this.width = width;
+            this.height = height;
+            this.data = data;
+            this.memCacheKey = memCacheKey;
+        }
+    }
+
     /**
      * The actual AsyncTask that will asynchronously process the image.
      */
-    private class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
+    private class BitmapWorkerTask extends AsyncTask<BitmapWorkerTaskParams, Void, Bitmap> {
 
         private Object data;
 
@@ -251,14 +381,17 @@ public abstract class ImageWorker {
          * Background processing.
          */
         @Override
-        protected Bitmap doInBackground(Object... params) {
+        protected Bitmap doInBackground(BitmapWorkerTaskParams... params) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "doInBackground - starting work");
             }
 
-            data = params[0];
+            boolean loadedFromNetwork = false;
+
+            data = params[0].data;
             final String dataString = String.valueOf(data);
             Bitmap bitmap = null;
+            Bitmap scaledBitmap = null;
 
             // Wait here if work is paused and the task is not cancelled
             synchronized (mPauseWorkLock) {
@@ -286,21 +419,41 @@ public abstract class ImageWorker {
             if (bitmap == null && !isCancelled() && getAttachedImageView() != null
                     && !mExitTasksEarly) {
                 bitmap = processBitmap(params[0]);
+                loadedFromNetwork = true;
+            }
+
+            // If the bitmap was loaded then add it to the disk cache at the original size.
+            if (bitmap != null && mImageCache != null) {
+                mImageCache.addBitmapToDiskCache(dataString, bitmap);
+            }
+
+            // Scale the bitmap to the requested size.
+            if (bitmap != null && params[0].width > 0 && params[0].height > 0) {
+                scaledBitmap = Bitmap.createScaledBitmap(bitmap, params[0].width, params[0].height,
+                        false);
             }
 
             // If the bitmap was processed and the image cache is available, then add the processed
             // bitmap to the memory cache for future use. Note we don't check if the task was
             // cancelled here, if it was, and the thread is still running, we may as well add the
             // processed bitmap to our cache as it might be used again in the future.
-            if (bitmap != null && mImageCache != null) {
-                mImageCache.addBitmapToMemoryCache(dataString, bitmap);
+            if (scaledBitmap != null && mImageCache != null) {
+                mImageCache.addBitmapToMemoryCache(params[0].memCacheKey, scaledBitmap);
             }
 
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "doInBackground - finished work");
             }
 
-            return bitmap;
+            if (BuildConfig.DEBUG && scaledBitmap != null) {
+                if (loadedFromNetwork) {
+                    addDebugSwatch(new Canvas(scaledBitmap), mCacheDebugColorNetwork);
+                } else {
+                    addDebugSwatch(new Canvas(scaledBitmap), mCacheDebugColorDisk);
+                }
+
+            }
+            return scaledBitmap;
         }
 
         /**

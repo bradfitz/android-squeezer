@@ -174,7 +174,7 @@ public class ImageCache {
                             mDiskLruCache = DiskLruCache.open(
                                     diskCacheDir, 1, 1, mCacheParams.diskCacheSize);
                             if (BuildConfig.DEBUG) {
-                                Log.d(TAG, "Disk cache initialized");
+                                Log.d(TAG, "Disk cache initialized in " + diskCacheDir);
                             }
                         } catch (final IOException e) {
                             mCacheParams.diskCacheDir = null;
@@ -280,7 +280,7 @@ public class ImageCache {
             bitmap = mMemoryCache.get(data);
 
             /*
-            Log.v(TAG, String.format(
+            Log.d(TAG, String.format(
                     "Cache stats: h: %d m: %d (%.2f%%) p: %d e: %d, size: %d of %d (%.2f%%)",
                     mMemoryCache.hitCount(),
                     mMemoryCache.missCount(),
@@ -291,6 +291,7 @@ public class ImageCache {
                     ((float) mMemoryCache.size() / mMemoryCache.maxSize()) * 100));
             */
         }
+
         return bitmap;
     }
 
@@ -496,7 +497,7 @@ public class ImageCache {
     /**
      * Get the size in bytes of a bitmap.
      *
-     * @param bitmap
+     * @param bitmap Bitmap to examine.
      *
      * @return size in bytes
      */
