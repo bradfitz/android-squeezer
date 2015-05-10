@@ -507,6 +507,7 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         if (!connected) {
+            // XXX: I think this can safely be removed, the call from MusicChangedEvent suffices.
             updateSongInfo(null);
 
             playPauseButton.setImageResource(
@@ -547,6 +548,7 @@ public class NowPlayingFragment extends Fragment implements
             if (playerState == null)
                 return;
 
+            // XXX: I think this can safely be removed, the call from MusicChangedEvent suffices.
             updateSongInfo(playerState.getCurrentSong());
             updatePlayPauseIcon(playerState.getPlayStatus());
             updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
