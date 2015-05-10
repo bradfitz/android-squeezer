@@ -5,6 +5,8 @@ Upcoming
     notification and lock screen. Based on work from Matthew Schmidt
     (https://github.com/maxpower47).
 
+*   Fixed bug where song artwork could stop loading.
+
 *   Fixed crash that could occur when scanning for servers.
 
 *   Fixed issue where opening a playlist and leaving Squeezer while
