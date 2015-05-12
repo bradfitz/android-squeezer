@@ -2,6 +2,12 @@
 
 <changelog>
     <release
+        version="1.3.0-beta-2"
+        versioncode="47">
+        <change>Initial support for notifications on wearables.</change>
+    </release>
+
+    <release
         version="1.3.0-beta-1"
         versioncode="46">
         <change>Support richer notifications with playback controls from the

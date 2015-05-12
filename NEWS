@@ -3,7 +3,8 @@ Upcoming
 
 *   Support richer notifications with playback controls from the
     notification and lock screen. Based on work from Matthew Schmidt
-    (https://github.com/maxpower47).
+    (https://github.com/maxpower47). Includes support for
+    notifications on wearables.
 
 *   Fixed bug where song artwork could stop loading.
 
