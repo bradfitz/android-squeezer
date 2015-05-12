@@ -34,7 +34,6 @@ import android.widget.TextView;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.Item;
@@ -54,6 +53,7 @@ import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class SongListActivity extends BaseListActivity<Song>
         implements GenreSpinnerCallback, YearSpinnerCallback,
@@ -212,7 +212,7 @@ public class SongListActivity extends BaseListActivity<Song>
             if (artworkUrl == null) {
                 artwork.setImageResource(R.drawable.icon_album_noart);
             } else {
-                Squeezer.getImageFetcher().loadImage(artworkUrl, artwork);
+                ImageFetcher.getInstance(this).loadImage(artworkUrl, artwork);
             }
         }
     }

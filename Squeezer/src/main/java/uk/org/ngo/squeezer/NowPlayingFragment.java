@@ -86,6 +86,7 @@ import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class NowPlayingFragment extends Fragment implements
         HasUiThread, View.OnCreateContextMenuListener {
@@ -781,7 +782,7 @@ public class NowPlayingFragment extends Fragment implements
             return;
         }
 
-        Squeezer.getImageFetcher().loadImage(song.getArtworkUrl(mService), albumArt);
+        ImageFetcher.getInstance(mActivity).loadImage(song.getArtworkUrl(mService), albumArt);
     }
 
     private boolean setSecondsElapsed(int seconds) {

@@ -43,7 +43,6 @@ import java.lang.annotation.RetentionPolicy;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.MenuFragment;
@@ -156,7 +155,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         }
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
-        Squeezer.getImageFetcher().setExitTasksEarly(false);
+        ImageFetcher.getInstance(this).setExitTasksEarly(false);
     }
 
     @Override
@@ -180,11 +179,19 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         }
 
         // Ensure that any pending image fetching tasks are unpaused, and finish quickly.
-        ImageFetcher imageFetcher = Squeezer.getImageFetcher();
+        ImageFetcher imageFetcher = ImageFetcher.getInstance(this);
         imageFetcher.setExitTasksEarly(true);
         imageFetcher.setPauseWork(false);
 
         super.onPause();
+    }
+
+    /**
+     * Clear the image memory cache if memory gets low.
+     */
+    @Override
+    public void onLowMemory() {
+        ImageFetcher.onLowMemory();
     }
 
     @Override

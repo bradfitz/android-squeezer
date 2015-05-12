@@ -23,9 +23,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.model.PluginItem;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class PluginItemView extends BaseItemView<PluginItem> {
 
@@ -50,7 +50,7 @@ public class PluginItemView extends BaseItemView<PluginItem> {
 
         // If the item has an image, then fetch and display it
         if (item.getImage() != null) {
-            Squeezer.getImageFetcher().loadImage(item.getImage(), viewHolder.icon);
+            ImageFetcher.getInstance(getActivity()).loadImage(item.getImage(), viewHolder.icon);
         } else {
             // Otherwise we will revert to some other icon. This is not an exact approach, more
             // like a best effort.
@@ -60,7 +60,7 @@ public class PluginItemView extends BaseItemView<PluginItem> {
                 if (mActivity.getPlugin().getIconResource() != 0) {
                     viewHolder.icon.setImageResource(mActivity.getPlugin().getIconResource());
                 } else {
-                    Squeezer.getImageFetcher().loadImage(mActivity.getIconUrl(mActivity.getPlugin().getIcon()),
+                    ImageFetcher.getInstance(getActivity()).loadImage(mActivity.getIconUrl(mActivity.getPlugin().getIcon()),
                             viewHolder.icon);
                 }
             } else {

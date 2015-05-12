@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -28,6 +29,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.annotation.Nullable;
+
+import uk.org.ngo.squeezer.R;
 
 /**
  * A subclass of {@link ImageWorker} that fetches images from a URL.
@@ -38,8 +41,45 @@ public class ImageFetcher extends ImageWorker {
 
     private static final int IO_BUFFER_SIZE = 8 * 1024;
 
-    public ImageFetcher(Context context) {
+    private volatile static ImageFetcher sImageFetcher;
+
+    private ImageFetcher(Context context) {
         super(context);
+    }
+
+    /**
+     * @return an imagefetcher globally useful for the application, with a cache that
+     *     is maintained across activities.
+     *
+     * @param context Anything that provides a context.
+     */
+    @NonNull
+    public static ImageFetcher getInstance(Context context) {
+        ImageFetcher result = sImageFetcher;
+        if (result == null) {
+            synchronized (ImageFetcher.class) {
+                result = sImageFetcher;
+                if (result == null) {
+                    sImageFetcher = new ImageFetcher(context);
+                    sImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
+                    ImageCache.ImageCacheParams imageCacheParams = new ImageCache.ImageCacheParams(context, "artwork");
+                    imageCacheParams.setMemCacheSizePercent(context, 0.12f);
+                    sImageFetcher.addImageCache(imageCacheParams);
+                }
+            }
+        }
+        return sImageFetcher;
+    }
+
+    /**
+     * Call this in low memory situations. Clears the memory cache.
+     */
+    public static void onLowMemory() {
+        if (sImageFetcher == null) {
+            return;
+        }
+
+        sImageFetcher.clearMemoryCache();
     }
 
     /**
