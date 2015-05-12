@@ -136,12 +136,19 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                 menu.findItem(R.id.add_to_playlist).setVisible(false);
                 menu.findItem(R.id.play_next).setVisible(false);
 
+                // First item? Disable "move up" menu entry.
                 if (menuInfo.position == 0) {
                     menu.findItem(R.id.playlist_move_up).setVisible(false);
                 }
 
+                // Last item? Disable "move down" menu entry.
                 if (menuInfo.position == menuInfo.adapter.getCount() - 1) {
                     menu.findItem(R.id.playlist_move_down).setVisible(false);
+                }
+
+                // Only item? Disable "move" menu entry.
+                if (menuInfo.adapter.getCount() == 1) {
+                    menu.findItem(R.id.playlist_move).setVisible(false);
                 }
             }
 
