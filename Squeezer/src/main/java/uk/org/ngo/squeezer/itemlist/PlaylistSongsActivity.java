@@ -95,7 +95,7 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
     public ItemView<Song> createItemView() {
         // XXX: Note, very similar to code in CurrentPlaylistActivity#createItemView,
         // investigate opportunities to refactor.
-        return new SongView(this) {
+        SongViewWithArt view = new SongViewWithArt(this) {
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
                 super.onCreateContextMenu(menu, v, menuInfo);
@@ -159,6 +159,10 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
                 return super.doItemContext(menuItem, index, selectedItem);
             }
         };
+
+        view.setDetails(SongView.DETAILS_DURATION | SongView.DETAILS_ALBUM | SongView.DETAILS_ARTIST);
+
+        return view;
     }
 
     @Override
