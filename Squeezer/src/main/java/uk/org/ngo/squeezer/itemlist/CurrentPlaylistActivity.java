@@ -83,7 +83,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                 ViewHolder viewHolder = (ViewHolder) viewTag;
                 if (position == currentPlaylistIndex) {
                     viewHolder.text1
-                            .setTextAppearance(getActivity(), R.style.SqueezerCurrentTextItem);
+                            .setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Primary);
 
                     // Changing the background resource to a 9-patch drawable causes the padding
                     // to be reset. See http://www.mail-archive.com/android-developers@googlegroups.com/msg09595.html
@@ -98,7 +98,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
 
                     view.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
                 } else {
-                    viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerTextItem);
+                    viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Primary);
                     view.setBackgroundColor(getAttributeValue(R.attr.background));
                 }
             }
