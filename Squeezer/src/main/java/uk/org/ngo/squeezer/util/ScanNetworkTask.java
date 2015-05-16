@@ -3,9 +3,11 @@ package uk.org.ngo.squeezer.util;
 import android.app.ApplicationErrorReport;
 import android.content.Context;
 import android.net.wifi.WifiManager;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -112,29 +114,12 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
                         // the CLI is listening on, so assume it's the default and
                         // append it to the address.
                         String host = responsePacket.getAddress().getHostAddress();
-
-                        // Blocks of data are TAG/LENGTH/VALUE, where TAG is
-                        // a 4 byte string identifying the item, LENGTH is
-                        // the length of the VALUE (e.g., reading \t means
-                        // the value is 9 bytes, and VALUE is the actual
-                        // value.
-
-                        // Find the 'NAME' block
-                        int i = 1;
-                        while (i < buf.length && buf[i] != 'N') {
-                            i += 4;
-                            i += buf[i] + 2;
-                        }
-
-                        // Now at first block that starts 'N', should be
-                        // NAME.
-                        i += 4;
-
-                        // i now pointing at the length of the NAME value.
-                        String name = new String(buf, i + 1, buf[i]);
+                        String name = extractNameFromBuffer(buf);
 
                         publishProgress();
-                        mServerMap.put(name, host);
+                        if (name != null) {
+                            mServerMap.put(name, host);
+                        }
                     }
                 } catch (IOException e) {
                     timedOut = true;
@@ -161,6 +146,56 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
         // For testing that multiple servers are handled correctly.
         // mServerMap.put("Dummy", "127.0.0.1");
         return null;
+    }
+
+    /**
+     * Extracts the server name from a Squeezeserver broadcast response.
+     * <p>
+     * The response buffer consists of a literal 'E' followed by 1 or more packed tuples that
+     * follow the format {4-byte-type}{1-byte-length}{[length]-bytes-values}.
+     * <p>
+     * The server name is the section with the type "NAME".
+     * <p>
+     * See the code in the server's Slim/Networking/Discovery::gotTLVRequest() method for more
+     * details on how the response is constructed.
+     *
+     *
+     * @param buffer The buffer to scan
+     * @return The detected server name. May be null if the NAME section was not present or if
+     *     the buffer was malformed.
+     */
+    @VisibleForTesting
+    @Nullable
+    public static String extractNameFromBuffer(byte[] buffer) {
+        int i = 1;  // Skip over the initial 'E'.
+
+        // Find the 'NAME' tuple. It's the only one that starts with an 'N'.
+        while (i < buffer.length - 6) {
+            if (buffer[i] == 'N' && buffer[i+1] == 'A' && buffer[i+2] == 'M' && buffer[i+3] == 'E') {
+                break;
+            }
+
+            i += 4;  // Skip over the type identifier
+            i += buffer[i] + 1; // Skip the length indicator and the value
+        }
+
+        // There must be at least 6 characters left in the buffer (4 for "NAME", 1 for the
+        // length byte, and at least 1 for the value. If not, this is a corrupt buffer.
+        if (i > (buffer.length - 6)) {
+            return null;
+        }
+
+        i += 4;        // Skip over the 'NAME' tag.
+        int length = buffer[i++];  // Read the length, and skip over it.
+
+        // There must be at least "length" bytes left in the buffer.
+        if ((i + length) > buffer.length) {
+            return null;
+        }
+
+        // i now pointing at the start of the value for the NAME tuple.  Extract "length" bytes.
+        return new String(buffer, i, length);
+
     }
 
     @Override

@@ -38,11 +38,14 @@ dependencies {
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
     compile 'com.crashlytics.android:crashlytics:1.+'
+
+    // JVM tests
+    testCompile 'junit:junit:4.12'
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 21
+    buildToolsVersion "22.0.1"
 
     def gitHash = "git rev-parse --short HEAD".execute().text.trim()
     def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
@@ -52,7 +55,7 @@ android {
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 19
+        targetSdkVersion 21
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
     }
@@ -99,40 +102,15 @@ android {
 
     productFlavors {
         beta {
-            versionCode 43
-            versionName "1.2.7-beta-2"
+            versionCode 47
+            versionName "1.3.0-beta-2"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 44
-            versionName "1.2.7"
+            versionCode 48
+            versionName "1.3.0"
             signingConfig android.signingConfigs.release
-        }
-    }
-
-    applicationVariants.all { variant ->
-        def apkSuffix = "-${variant.mergedFlavor.versionName}-${gitDescription}"
-        variant.outputs.each { output ->
-            def originalApkFile = output.outputFile
-            output.outputFile = new File(
-                    // Override this to change output directory
-                    (String) originalApkFile.parent,
-                    (String) originalApkFile.name.replace(".apk", "${apkSuffix}.apk")
-            )
-        }
-        // Print the APK path after assemble is done
-        variant.assemble.doLast {
-            variant.outputs.each { output ->
-                println output.outputFile
-            }
-        }
-
-        // Print the APK path as the last step before install, at which point the apk is complete
-        variant.install?.doFirst { // the install task can be null
-            variant.outputs.each { output ->
-                println output.outputFile
-            }
         }
     }
 }
