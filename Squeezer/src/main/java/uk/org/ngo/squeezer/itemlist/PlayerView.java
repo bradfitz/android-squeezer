@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,12 +47,12 @@ public class PlayerView extends BaseItemView<Player> {
         super(activity);
         this.activity = activity;
 
-        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.TWO_LINE, ViewParams.CONTEXT_BUTTON));
-        setLoadingViewParams(EnumSet.of(ViewParams.ICON, ViewParams.TWO_LINE));
+        setViewParams(VIEW_PARAM_ICON | VIEW_PARAM_TWO_LINE | VIEW_PARAM_CONTEXT_BUTTON);
+        setLoadingViewParams(VIEW_PARAM_ICON | VIEW_PARAM_TWO_LINE);
     }
 
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, EnumSet<ViewParams> viewParams) {
+    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
         return getAdapterView(convertView, parent, viewParams, R.layout.list_item_player);
     }
 
@@ -62,6 +61,7 @@ public class PlayerView extends BaseItemView<Player> {
         return new PlayerViewHolder();
     }
 
+    @Override
     public void bindView(View view, Player item, ImageFetcher imageFetcher) {
         final PlayerListActivity activity = (PlayerListActivity) getActivity();
         PlayerState playerState = activity.getPlayerState(item.getId());
@@ -92,6 +92,7 @@ public class PlayerView extends BaseItemView<Player> {
         }
     }
 
+    @Override
     public void onItemSelected(int index, Player item) {
     }
 
@@ -204,6 +205,7 @@ public class PlayerView extends BaseItemView<Player> {
         return super.doItemContext(menuItem);
     }
 
+    @Override
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.player, quantity);
     }

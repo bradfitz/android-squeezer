@@ -107,10 +107,12 @@ public class Plugin extends Item {
     }
 
     public static final Creator<Plugin> CREATOR = new Creator<Plugin>() {
+        @Override
         public Plugin[] newArray(int size) {
             return new Plugin[size];
         }
 
+        @Override
         public Plugin createFromParcel(Parcel source) {
             return new Plugin(source);
         }
@@ -125,6 +127,7 @@ public class Plugin extends Item {
         weight = source.readInt();
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(name);
@@ -135,8 +138,8 @@ public class Plugin extends Item {
     }
 
     @Override
-    public String toString() {
-        return "id=" + getId() + ", name=" + name;
+    public String toStringOpen() {
+        return super.toStringOpen() + "type: " + getType() + ", weight: " + getWeight();
     }
 
 }

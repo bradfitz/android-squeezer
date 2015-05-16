@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -45,6 +46,9 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     private final PlayerListActivity mActivity;
 
     private final List<ItemAdapter<Player>> mChildAdapters = new ArrayList<ItemAdapter<Player>>();
+
+    /** Indicates if the list of players has changed. */
+    private boolean mPlayersChanged;
 
     /** The group position of the item that was most recently selected. */
     private int mLastGroupPosition;
@@ -71,6 +75,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     }
 
     public void clear() {
+        mPlayersChanged = true;
         mChildAdapters.clear();
         mPlayerCount = 0;
         notifyDataSetChanged();
@@ -106,6 +111,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        mPlayersChanged = false;
         ExpandableListView.ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
         long packedPosition = contextMenuInfo.packedPosition;
         if (ExpandableListView.getPackedPositionType(packedPosition)
@@ -127,9 +133,11 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     }
 
     public boolean doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
-        // May be empty if all players disconnected after the context menu was opened.
-        if (mChildAdapters.isEmpty())
-            return false;
+        if (mPlayersChanged) {
+            Toast.makeText(mActivity, mActivity.getText(R.string.player_list_changed),
+                    Toast.LENGTH_LONG).show();
+            return true;
+        }
 
         mLastGroupPosition = groupPosition;
         return mChildAdapters.get(groupPosition).doItemContext(menuItem, childPosition);
@@ -142,9 +150,11 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      * @return
      */
     public boolean doItemContext(MenuItem menuItem) {
-        // May be empty if all players disconnected after the context menu was opened.
-        if (mChildAdapters.isEmpty())
-            return false;
+        if (mPlayersChanged) {
+            Toast.makeText(mActivity, mActivity.getText(R.string.player_list_changed),
+                    Toast.LENGTH_LONG).show();
+            return true;
+        }
 
         return mChildAdapters.get(mLastGroupPosition).doItemContext(menuItem);
     }

@@ -32,4 +32,8 @@ public abstract class ArtworkItem extends PlaylistItem {
         this.artwork_track_id = artwork_track_id;
     }
 
+    @Override
+    protected String toStringOpen() {
+        return super.toStringOpen() + ", artwork_track_id: " + artwork_track_id;
+    }
 }

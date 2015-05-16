@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2014 Google Inc.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,20 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.itemlist;
+package uk.org.ngo.squeezer.service.event;
 
-import uk.org.ngo.squeezer.service.ServiceCallback;
+import android.support.annotation.NonNull;
 
-public interface IServicePlaylistMaintenanceCallback extends ServiceCallback {
-    void onRenameFailed(String msg);
-    void onCreateFailed(String msg);
+import uk.org.ngo.squeezer.model.PlayerState;
+
+/** Event sent when the active player's play status changes. */
+public class PlayStatusChanged {
+    /** The new play status. */
+    @NonNull
+    @PlayerState.PlayState
+    public final String playStatus;
+
+    public PlayStatusChanged(@NonNull @PlayerState.PlayState String playStatus) {
+        this.playStatus = playStatus;
+    }
 }

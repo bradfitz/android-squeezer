@@ -47,8 +47,8 @@ public class PlayerSyncDialog extends DialogFragment {
     public interface PlayerSyncDialogHost {
         Multimap<String, Player> getPlayerSyncGroups();
         Player getCurrentPlayer();
-        public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId);
-        public void unsyncPlayer(@NonNull Player player);
+        void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId);
+        void unsyncPlayer(@NonNull Player player);
     }
 
     private PlayerSyncDialogHost mHost;
@@ -125,11 +125,13 @@ public class PlayerSyncDialog extends DialogFragment {
         builder.setTitle(getString(R.string.sync_title, currentPlayer.getName()))
                 .setSingleChoiceItems(playerSyncGroupAdapter, mSelectedGroup,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 mSelectedGroup = which;
                             }
                         })
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // The "No synchronisation" option is always last.
                         if (mSelectedGroup == playerSyncGroupMasterIds.size()) {
@@ -141,6 +143,7 @@ public class PlayerSyncDialog extends DialogFragment {
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialog, int id) {
                         // User cancelled the dialog, nothing to do.
                     }

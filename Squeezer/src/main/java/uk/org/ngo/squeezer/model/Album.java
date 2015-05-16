@@ -82,10 +82,12 @@ public class Album extends ArtworkItem {
     }
 
     public static final Creator<Album> CREATOR = new Creator<Album>() {
+        @Override
         public Album[] newArray(int size) {
             return new Album[size];
         }
 
+        @Override
         public Album createFromParcel(Parcel source) {
             return new Album(source);
         }
@@ -99,6 +101,7 @@ public class Album extends ArtworkItem {
         setArtwork_track_id(source.readString());
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(name);
@@ -108,8 +111,8 @@ public class Album extends ArtworkItem {
     }
 
     @Override
-    public String toString() {
-        return "id=" + getId() + ", name=" + name + ", artist=" + artist + ", year=" + year;
+    public String toStringOpen() {
+        return super.toStringOpen() + ", artist: " + artist + ", year: " + year;
     }
 
 }

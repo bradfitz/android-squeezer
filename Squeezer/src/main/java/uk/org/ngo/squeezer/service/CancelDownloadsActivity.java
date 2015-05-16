@@ -25,10 +25,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.util.AsyncTask;
 
 /**
  * An activity which gives the option, using a dialog theme, to cancel pending
@@ -56,20 +54,32 @@ public class CancelDownloadsActivity extends Activity {
         });
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private void cancelDownloads() {
         Log.i(TAG, "cancelDownloads");
-        final DownloadDatabase downloadDatabase = new DownloadDatabase(this);
-        final DownloadManager downloadManager =(DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
-        final List<Long> downloadIds = new ArrayList<Long>();
-        downloadDatabase.iterateDownloadEntries(new DownloadDatabase.DownloadHandler() {
-            @Override
-            public void handle(DownloadDatabase.DownloadEntry entry) {
-                downloadIds.add(entry.downloadId);
-                downloadManager.remove(entry.downloadId);
-            }
-        });
-        downloadDatabase.removeDownloadEntries(downloadIds);
+        new CancelDownloadsTask(this).execute();
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    static class CancelDownloadsTask extends AsyncTask<Void, Void, Void> {
+        final DownloadDatabase downloadDatabase;
+        final DownloadManager downloadManager;
+
+        public CancelDownloadsTask(Context context) {
+            downloadDatabase = new DownloadDatabase(context);
+            downloadManager =(DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            downloadDatabase.iterateDownloadEntries(new DownloadDatabase.DownloadHandler() {
+                @Override
+                public void handle(DownloadDatabase.DownloadEntry entry) {
+                    downloadManager.remove(entry.downloadId);
+                    downloadDatabase.remove(entry.downloadId);
+                }
+            });
+            return null;
+        }
     }
 
 }

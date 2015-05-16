@@ -40,10 +40,10 @@ import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
-import uk.org.ngo.squeezer.service.IServicePlayerStateCallback;
-import uk.org.ngo.squeezer.service.IServiceVolumeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 
 
 public class PlayerListActivity extends ItemListActivity implements
@@ -189,63 +189,21 @@ public class PlayerListActivity extends ItemListActivity implements
         // initially connected to the server.
     }
 
-    @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-
-        service.registerHandshakeCallback(mHandshakeCallback);
-        service.registerVolumeCallback(volumeCallback);
-        service.registerPlayerStateCallback(playerStateCallback);
+    public void onEventMainThread(HandshakeComplete event) {
+        if (mResultsExpandableListView.getExpandableListAdapter() == null)
+            mResultsExpandableListView.setAdapter(mResultsAdapter);
+        updateAndExpandPlayerList();
     }
 
-    /**
-     * Setting the list adapter will trigger a layout pass, which requires data from the
-     * server. Only do this after the handshake has completed.  When done, display the
-     * player list.
-     */
-    private final IServiceHandshakeCallback mHandshakeCallback = new IServiceHandshakeCallback() {
-        @Override
-        public void onHandshakeCompleted() {
-            if (mResultsExpandableListView.getExpandableListAdapter() == null)
-                mResultsExpandableListView.setAdapter(mResultsAdapter);
-            updateAndExpandPlayerList();
-        }
+    public void onEvent(PlayerStateChanged event) {
+        uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0).sendToTarget();
+    }
 
-        @Override
-        public Object getClient() {
-            return PlayerListActivity.this;
-        }
-    };
-
-    private final IServicePlayerStateCallback playerStateCallback
-            = new IServicePlayerStateCallback() {
-        @Override
-        public void onPlayerStateReceived(final Player player, final PlayerState playerState) {
-            uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0).sendToTarget();
-        }
-
-        @Override
-        public Object getClient() {
-            return PlayerListActivity.this;
-        }
-    };
-
-    private final IServiceVolumeCallback volumeCallback = new IServiceVolumeCallback() {
-        @Override
-        public void onVolumeChanged(final int newVolume, final Player player) {
-            uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, newVolume, 0, player).sendToTarget();
-        }
-
-        @Override
-        public Object getClient() {
-            return PlayerListActivity.this;
-        }
-
-        @Override
-        public boolean wantAllPlayers() {
-            return true;
-        }
-    };
+    @Override
+    public void onEvent(PlayerVolume event) {
+        uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, event.volume,
+                0, event.player).sendToTarget();
+    }
 
     /**
      * Builds the list of lists that is a sync group.
@@ -291,6 +249,7 @@ public class PlayerListActivity extends ItemListActivity implements
         }
     }
 
+    @Override
     @NonNull
     public Multimap<String, Player> getPlayerSyncGroups() {
         return mPlayerSyncGroups;
@@ -300,6 +259,7 @@ public class PlayerListActivity extends ItemListActivity implements
         return getService().getPlayerState(id);
     }
 
+    @Override
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
@@ -339,6 +299,7 @@ public class PlayerListActivity extends ItemListActivity implements
      * @param slave the player to sync.
      * @param masterId ID of the player to sync to.
      */
+    @Override
     public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
         getService().syncPlayerToPlayer(slave, masterId);
     }
@@ -348,6 +309,7 @@ public class PlayerListActivity extends ItemListActivity implements
      *
      * @param player the player to be removed from sync groups.
      */
+    @Override
     public void unsyncPlayer(@NonNull Player player) {
         getService().unsyncPlayer(player);
     }

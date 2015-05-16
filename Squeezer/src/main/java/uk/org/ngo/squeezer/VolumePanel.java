@@ -78,6 +78,7 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mView = inflater.inflate(R.layout.volume_adjust, null);
         mView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
             public boolean onTouch(View v, MotionEvent event) {
                 resetTimeout();
                 return false;
@@ -92,6 +93,7 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
         mSeekbar.setOnSeekBarChangeListener(this);
 
         mDialog = new Dialog(mActivity, R.style.VolumePanel) { //android.R.style.Theme_Panel) {
+            @Override
             public boolean onTouchEvent(MotionEvent event) {
                 if (isShowing() && event.getAction() == MotionEvent.ACTION_OUTSIDE) {
                     forceTimeout();
@@ -133,6 +135,7 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
         sendMessage(obtainMessage(MSG_TIMEOUT));
     }
 
+    @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser) {
             ISqueezeService service = mActivity.getService();
@@ -142,9 +145,11 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
         }
     }
 
+    @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
     }
 
+    @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
     }
 

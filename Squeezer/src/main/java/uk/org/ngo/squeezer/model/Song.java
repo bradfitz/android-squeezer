@@ -122,6 +122,13 @@ public class Song extends ArtworkItem {
         return mUrl;
     }
 
+    @NonNull private final String mButtons;
+
+    @NonNull
+    public String getButtons() {
+        return mButtons;
+    }
+
     @NonNull private String mArtworkUrl;
 
     /**
@@ -173,6 +180,7 @@ public class Song extends ArtworkItem {
         mTrackNum = Util.parseDecimalInt(record.get("tracknum"), 1);
         mArtworkUrl = Strings.nullToEmpty(record.get("artwork_url"));
         mUrl = Strings.nullToEmpty(record.get("url"));
+        mButtons = Strings.nullToEmpty(record.get("buttons"));
 
         // Work around a (possible) bug in the Squeezeserver.
         //
@@ -200,10 +208,12 @@ public class Song extends ArtworkItem {
     }
 
     public static final Creator<Song> CREATOR = new Creator<Song>() {
+        @Override
         public Song[] newArray(int size) {
             return new Song[size];
         }
 
+        @Override
         public Song createFromParcel(Parcel source) {
             return new Song(source);
         }
@@ -222,8 +232,10 @@ public class Song extends ArtworkItem {
         setArtwork_track_id(source.readString());
         mTrackNum = source.readInt();
         mUrl = source.readString();
+        mButtons = source.readString();
     }
 
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(mName);
@@ -237,11 +249,12 @@ public class Song extends ArtworkItem {
         dest.writeString(getArtwork_track_id());
         dest.writeInt(mTrackNum);
         dest.writeString(mUrl);
+        dest.writeString(mButtons);
     }
 
     @Override
-    public String toString() {
-        return "id=" + getId() + ", mName=" + mName + ", mArtist=" + mArtist + ", year=" + mYear;
+    public String toStringOpen() {
+        return super.toStringOpen() + ", mArtist: " + mArtist + ", year: " + mYear;
     }
 
     /**

@@ -1,42 +1,86 @@
+Upcoming
+========
+
+1.2.7
+=====
+
+*   Support skipping tracks in remote streams that have that feature,
+    such as Slacker Radio. Code from Sean Wilson
+    (https://github.com/swilson).
+
+*   Simplified the configuration process for new users. Squeezer now
+    automatically searches for servers on the local network, saves
+    connection information per-server, and numerous other fixes.
+
+*   Changed saving files to remove non-VFAT compatible characters from
+    filenames to make it easier to export them to Windows and similar
+    systems.
+
+*   Fixed issue where some plugin icons were not showing.
+
+*   Fixed issue where Internet radio stations were not working when
+    connected to servers running version 7.8 or above.
+
+*   Fixed issue where the UI could stop showing player progress.
+
+1.2.6
+=====
+
+*   Better handle the connection lifecycle with the server, which should
+    reduce opportunities for crashing.
+
+*   Add theme-specific icons for the view-option dialogs.
+
+*   Bring the Danish translation up to date.
+
+1.2.5
+=====
+
+*   Fixed potential crash if the connected players change while a
+    player's context menu is open.
+
+*   Fixed potential crash when setAdapter() is called from the
+    wrong thread.
+
 1.2.4
 =====
 
-*   Fix potential crash when resuming Squeezer.
+*   Fixed potential crash when resuming Squeezer.
 
-*   Fix bug with players not showing on devices running Android 2.1 and
+*   Fixed bug with players not showing on devices running Android 2.1 and
     2.2.x.
 
 1.2.3
 =====
 
-*   Fix bug that hid playlist management options.
+*   Fixed bug that hid playlist management options.
 
-*   Fix crash when all players disconnect and a player context menu
+*   Fixed crash when all players disconnect and a player context menu
     is open.
 
-*   Fix tracknames not scrolling properly on the "Now playing" screen.
+*   Fixed tracknames not scrolling properly on the "Now playing" screen.
 
-*   Fix crash if a player's identifier is not its MAC address.
+*   Fixed crash if a player's identifier is not its MAC address.
 
-*   Fix crashes caused be initialising the UI before the connection
+*   Fixed crashes caused by initialising the UI before the connection
     to the server completes.
 
 1.2.2
 =====
 
-*   Fix potential crash after connecting to the server.
+*   Fixed potential crash after connecting to the server.
 
-*   Fix potential crash downloading music folder items from servers
+*   Fixed potential crash downloading music folder items from servers
     older than version 7.6.
 
-*   Fix potential crash when viewing the current playlist.
+*   Fixed potential crash when viewing the current playlist.
 
 1.2.1
 =====
 
-*   Fix potential crash when the notification message is updated.
+*   Fixed potential crash when the notification message is updated.
 
-*   Fix potential crash when disconnecting and reconnecting to the
+*   Fixed potential crash when disconnecting and reconnecting to the
     server.
 
 1.2.0
@@ -59,7 +103,7 @@
 1.1.1
 =====
 
-*   Fix potential crash opening the music folder list.
+*   Fixed potential crash opening the music folder list.
 
 1.1.0
 =====
@@ -267,7 +311,7 @@
 0.6.2
 =====
 
-*   Fix crashes on orientation change, and assorted Honeycomb crashes after incorrect
+*   Fixed crashes on orientation change, and assorted Honeycomb crashes after incorrect
     API selection.
 
 

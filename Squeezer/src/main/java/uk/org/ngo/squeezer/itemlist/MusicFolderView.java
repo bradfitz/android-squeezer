@@ -21,8 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.EnumSet;
-
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
@@ -47,10 +45,11 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
     public MusicFolderView(ItemListActivity activity) {
         super(activity);
 
-        setViewParams(EnumSet.of(ViewParams.ICON, ViewParams.CONTEXT_BUTTON));
-        setLoadingViewParams(EnumSet.of(ViewParams.ICON));
+        setViewParams(VIEW_PARAM_ICON | VIEW_PARAM_CONTEXT_BUTTON);
+        setLoadingViewParams(VIEW_PARAM_ICON);
     }
 
+    @Override
     public void bindView(View view, MusicFolderItem item, ImageFetcher imageFetcher) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
@@ -77,6 +76,17 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
         String actionType = preferences.getString(Preferences.KEY_ON_SELECT_SONG_ACTION,
                 PlayableItemAction.Type.NONE.name());
         return PlayableItemAction.createAction(getActivity(), actionType);
+    }
+
+    @Override
+    public boolean isSelectable(MusicFolderItem item) {
+        if ("track".equals(item.getType())) {
+            return super.isSelectable(item);
+        } else
+        if ("folder".equals(item.getType())) {
+            return true;
+        }
+        return false;
     }
 
     @Override

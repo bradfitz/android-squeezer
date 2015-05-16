@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.framework;
 import com.google.common.base.Joiner;
 
 import android.os.Parcelable.Creator;
+import android.support.annotation.IntDef;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -29,8 +30,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
-import java.util.EnumSet;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.util.Reflection;
@@ -54,8 +56,8 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  * the view is known, and represented by a complete {@link Item} subclass. The loading state is when
  * the data type is known, but has not been fetched from the server yet.
  * <p/>
- * To customise the view's display create an {@link EnumSet} of {@link ViewParams} and pass it to
- * {@link #setViewParams(EnumSet)} or {@link #setLoadingViewParams(EnumSet)} depending on whether
+ * To customise the view's display create an int of {@link ViewParam} and pass it to
+ * {@link #setViewParams(int)} or {@link #setLoadingViewParams(int)} depending on whether
  * you want to change the layout of the view in its primary state or the loading state. For example,
  * if the primary state should show a context button you may not want to show that button while
  * waiting for data to arrive.
@@ -64,7 +66,7 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  * control how data from the item is inserted in to the view.
  * <p/>
  * If you need a completely custom view hierarchy then override {@link #getAdapterView(View,
- * ViewGroup, EnumSet)} and {@link #getAdapterView(View, ViewGroup, String)}.
+ * ViewGroup, int)} and {@link #getAdapterView(View, ViewGroup, String)}.
  *
  * @param <T> the Item subclass this view represents.
  */
@@ -80,35 +82,29 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
     private Creator<T> mCreator;
 
-    /**
-     * Parameters that control which additional views will be enabeld in the item view.
-     */
-    public enum ViewParams {
-        /**
-         * Adds a {@link SquareImageView} for displaying album artwork or other iconography.
-         */
-        ICON,
+    @IntDef(flag=true, value={
+            VIEW_PARAM_ICON, VIEW_PARAM_TWO_LINE, VIEW_PARAM_CONTEXT_BUTTON
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    /** Parameters that control which additional views will be enabled in the item view. */
+    public @interface ViewParam {}
+    /** Adds a {@link SquareImageView} for displaying artwork or other iconography. */
+    public static final int VIEW_PARAM_ICON = 1;
+    /** Adds a second line for detail information ({@code R.id.text2}). */
+    public static final int VIEW_PARAM_TWO_LINE = 1 << 1;
+    /** Adds a button, with click handler, to display the context menu. */
+    public static final int VIEW_PARAM_CONTEXT_BUTTON = 1 << 2;
 
-        /**
-         * Adds a second line for detail information ({@code R.id.text2}).
-         */
-        TWO_LINE,
-
-        /**
-         * Adds a button (with click handler) to display the context menu.
-         */
-        CONTEXT_BUTTON
-    }
 
     /**
      * View parameters for a filled-in view.  One primary line with context button.
      */
-    private EnumSet<ViewParams> mViewParams = EnumSet.of(ViewParams.CONTEXT_BUTTON);
+    @ViewParam private int mViewParams = VIEW_PARAM_CONTEXT_BUTTON;
 
     /**
      * View parameters for a view that is loading data.  Primary line only.
      */
-    private EnumSet<ViewParams> mLoadingViewParams = EnumSet.noneOf(ViewParams.class);
+    @ViewParam private int mLoadingViewParams = 0;;
 
     /**
      * A ViewHolder for the views that make up a complete list item.
@@ -123,7 +119,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
         public ImageButton btnContextMenu;
 
-        public EnumSet<ViewParams> viewParams;
+        public @ViewParam int viewParams;
     }
 
     /**
@@ -148,14 +144,14 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Set the view parameters to use for the view when data is loaded.
      */
-    protected void setViewParams(EnumSet<ViewParams> viewParams) {
+    protected void setViewParams(@ViewParam int viewParams) {
         mViewParams = viewParams;
     }
 
     /**
      * Set the view parameters to use for the view while data is being loaded.
      */
-    protected void setLoadingViewParams(EnumSet<ViewParams> viewParams) {
+    protected void setLoadingViewParams(@ViewParam int viewParams) {
         mLoadingViewParams = viewParams;
     }
 
@@ -259,11 +255,11 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      *
      * @param convertView View to reuse if possible.
      * @param parent The {@link ViewGroup} to inherit properties from.
-     * @param viewParams A set of 0 or more {@link ViewParams} to customise the view.
+     * @param viewParams A set of 0 or more {@link ViewParam} to customise the view.
      *
      * @return convertView if it can be reused, or a new view
      */
-    public View getAdapterView(View convertView, ViewGroup parent, EnumSet<ViewParams> viewParams) {
+    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
         return getAdapterView(convertView, parent, viewParams, R.layout.list_item);
     }
 
@@ -272,12 +268,12 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      *
      * @param convertView View to reuse if possible.
      * @param parent The {@link ViewGroup} to inherit properties from.
-     * @param viewParams A set of 0 or more {@link ViewParams} to customise the view.
+     * @param viewParams A set of 0 or more {@link ViewParam} to customise the view.
      * @param layoutResource The layout resource defining the item view
      *
      * @return convertView if it can be reused, or a new view
      */
-    public View getAdapterView(View convertView, ViewGroup parent, EnumSet<ViewParams> viewParams,
+    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams,
             int layoutResource) {
         ViewHolder viewHolder =
                 (convertView != null && convertView.getTag() instanceof ViewHolder)
@@ -296,13 +292,13 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
         // If the view parameters are different then reset the visibility of child views and hook
         // up any standard behaviours.
-        if (!viewParams.equals(viewHolder.viewParams)) {
-            viewHolder.icon
-                    .setVisibility(viewParams.contains(ViewParams.ICON) ? View.VISIBLE : View.GONE);
+        if (viewParams != viewHolder.viewParams) {
+            viewHolder.icon.setVisibility(
+                    (viewParams & VIEW_PARAM_ICON) != 0 ? View.VISIBLE : View.GONE);
             viewHolder.text2.setVisibility(
-                    viewParams.contains(ViewParams.TWO_LINE) ? View.VISIBLE : View.GONE);
+                    (viewParams & VIEW_PARAM_TWO_LINE) != 0 ? View.VISIBLE : View.GONE);
 
-            if (viewParams.contains(ViewParams.CONTEXT_BUTTON)) {
+            if ((viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0) {
                 viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
                 viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
                     @Override
@@ -322,6 +318,11 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
     public ViewHolder createViewHolder() {
         return new ViewHolder();
+    }
+
+    @Override
+    public boolean isSelectable(T item) {
+        return true;
     }
 
     @Override

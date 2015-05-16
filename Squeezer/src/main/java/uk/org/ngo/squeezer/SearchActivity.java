@@ -31,8 +31,8 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.service.IServiceHandshakeCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class SearchActivity extends ItemListActivity {
 
@@ -107,31 +107,15 @@ public class SearchActivity extends ItemListActivity {
         doSearch();
     }
 
-    @Override
-    protected void registerCallback(@NonNull ISqueezeService service) {
-        super.registerCallback(service);
-        service.registerHandshakeCallback(mHandshakeCallback);
-    }
-
     /**
      * Setting the list adapter will trigger a layout pass, which requires information from
      * the server.  Only do this after the handshake has completed.  When done, perform the
      * search.
      */
-    private final IServiceHandshakeCallback mHandshakeCallback
-            = new IServiceHandshakeCallback() {
-        @Override
-        public void onHandshakeCompleted() {
-            if (resultsExpandableListView.getExpandableListAdapter() == null)
-                resultsExpandableListView.setAdapter(searchResultsAdapter);
-            doSearch();
-        }
-
-        @Override
-        public Object getClient() {
-            return SearchActivity.this;
-        }
-    };
+    public void onEventMainThread(HandshakeComplete event) {
+        resultsExpandableListView.setAdapter(searchResultsAdapter);
+        doSearch();
+    }
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
@@ -140,8 +124,8 @@ public class SearchActivity extends ItemListActivity {
 
     /**
      * Saves the search query, and attempts to query the service for <code>searchString</code>. If
-     * the service handshake has not completed yet then {@link #mHandshakeCallback} will re-query
-     * for the saved search query.
+     * the service binding has not completed yet then {@link #onEventMainThread(HandshakeComplete)}
+     * will re-query for the saved search query.
      *
      * @param searchString The string to search fo.
      */

@@ -2,86 +2,223 @@
 package uk.org.ngo.squeezer.test.server;
 
 import android.content.Intent;
-import android.os.IBinder;
 import android.test.ServiceTestCase;
 
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog.AlbumsSortOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.test.mock.SqueezeboxServerMock;
 
 /**
- * @author Kurt Aaholst <kaaholst@gmail.com>
+ * To test interactions with the server:
+ * <ol>
+ *     <li>Create a mock server configured appropriately for the test.</li>
+ *     <li>Set a desired
+ *     {@link uk.org.ngo.squeezer.service.ConnectionState.ConnectionStates} in
+ *     {@link #mWantedState}.</li>
+ *     <li>Connect to the mock server.</li>
+ *     <li>Wait on {@link #mLockWantedState}. Execution will continue when the server
+ *     reaches the same state as is in {@link #mWantedState}.</li>
+ *     <li>At this point {@link #mActualConnectionStates} contains an ordered list of the
+ *     connection state transitions the service has been through.</li>
+ * </ol>
  */
 public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
+    private static final String TAG = "SqueezeServiceTest";
 
     public SqueezeServiceTest() {
         super(SqueezeService.class);
     }
 
+    /** Wait until the server has reached this state. */
+    @ConnectionState.ConnectionStates
+    private int mWantedState;
+
+    /**
+     * Lock object, will be notified when the server reaches the same state as
+     * {@link #mWantedState}.
+     */
+    private final Object mLockWantedState = new Object();
+
+    /** List of the states the server has transition through. */
+    private final List<Integer> mActualConnectionStates = new ArrayList<Integer>();
+
+    /**
+     * Lock object, will be notified when the service completes the handshake with the
+     * server.
+     */
+    private final Object mLockHandshakeComplete = new Object();
+
+    /** The last successful handshake-complete event. */
+    private HandshakeComplete mLastHandshakeCompleteEvent;
+
+    private ISqueezeService mService;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        mService = (ISqueezeService) bindService(new Intent(getSystemContext(), SqueezeService.class));
+        mService.getEventBus().register(this);
+    }
+
+    protected void tearDown() throws Exception {
+        mService.getEventBus().unregister(this);
+        shutdownService();
+        super.tearDown();
+    }
+
+    /**
+     * Verify that connecting to a non-existent server fails.
+     *
+     * @throws InterruptedException
+     */
     public void testConnectionFailure() throws InterruptedException {
-        IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
-        ISqueezeService service = (ISqueezeService) binder;
-        ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
-
-        service.registerConnectionCallback(serviceCallback);
-        service.startConnect("localhost", "test", "test");
-        Thread.sleep(1000); //TODO proper synchronization
-
-        assertEquals(2, serviceCallback.onConnectionChanged);
-        assertFalse(serviceCallback.isConnected);
-    }
-
-    public void testConnect() throws InterruptedException {
-        IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
-        ISqueezeService service = (ISqueezeService) binder;
-        ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
-        WaitForHandshake waitForHandshake = new WaitForHandshake(service);
-
         SqueezeboxServerMock.starter().start();
-        service.registerConnectionCallback(serviceCallback);
-        service.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "test", "test");
-        waitForHandshake.waitForHandshakeCompleted();
+        mWantedState = ConnectionState.CONNECTION_FAILED;
 
-        assertEquals(2, serviceCallback.onConnectionChanged);
-        assertTrue(serviceCallback.isConnected);
-        assertTrue(service.canMusicfolder());
-        assertTrue(service.canRandomplay());
-        assertEquals(AlbumsSortOrder.album.name(), service.preferredAlbumSort());
+        mService.startConnect("localhost", "test", "test");
+
+        synchronized(mLockWantedState) {
+            mLockWantedState.wait();
+        }
+
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_FAILED), mActualConnectionStates);
     }
 
+    /**
+     * Verify that connecting to an existing server succeeds.
+     *
+     * @throws InterruptedException
+     */
+    public void testConnect() throws InterruptedException {
+        SqueezeboxServerMock.starter().start();
+
+        mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT,
+                "test", "test");
+
+        synchronized (mLockHandshakeComplete) {
+            mLockHandshakeComplete.wait();
+        }
+
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_COMPLETED), mActualConnectionStates);
+
+        assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
+        assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
+        assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
+                mService.preferredAlbumSort());
+
+        // Check that disconnecting only generates one additional DISCONNECTED event.
+        mService.disconnect();
+
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_COMPLETED,
+                ConnectionState.DISCONNECTED), mActualConnectionStates);
+    }
+
+    /**
+     * Verify that connecting to an existing server that uses password authentication,
+     * using the correct password, succeeds.
+     *
+     * @throws InterruptedException
+     */
     public void testConnectProtectedServer() throws InterruptedException {
-        IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
-        ISqueezeService service =(ISqueezeService) binder;
-        ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
-
         SqueezeboxServerMock.starter().username("user").password("1234").start();
 
-        service.registerConnectionCallback(serviceCallback);
-        WaitForHandshake waitForHandshake = new WaitForHandshake(service);
-        service.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "user", "1234");
-        waitForHandshake.waitForHandshakeCompleted();
+        mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT,
+                "user", "1234");
 
-        assertEquals(2, serviceCallback.onConnectionChanged);
-        assertTrue(serviceCallback.isConnected);
-        assertTrue(service.canMusicfolder());
-        assertTrue(service.canRandomplay());
-        assertEquals(AlbumsSortOrder.album.name(), service.preferredAlbumSort());
+        synchronized (mLockHandshakeComplete) {
+            mLockHandshakeComplete.wait();
+        }
+
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_COMPLETED), mActualConnectionStates);
+
+        assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
+        assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
+        assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
+                mService.preferredAlbumSort());
+
+        // Check that disconnecting only generates one additional DISCONNECTED event.
+        mService.disconnect();
+
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_COMPLETED,
+                ConnectionState.DISCONNECTED), mActualConnectionStates);
     }
 
+    /**
+     * Verify that connecting to an existing server that uses password authentication,
+     * using an incorrect username / password fails.
+     *
+     * @throws InterruptedException
+     */
     public void testAuthenticationFailure() throws InterruptedException {
-        IBinder binder = bindService(new Intent(getContext(), SqueezeService.class));
-        ISqueezeService service = (ISqueezeService) binder;
-        ServiceCallbackTest serviceCallback = new ServiceCallbackTest();
-
         SqueezeboxServerMock.starter().username("user").password("1234").start();
+        mWantedState = ConnectionState.DISCONNECTED;
 
-        service.registerConnectionCallback(serviceCallback);
-        service.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "test", "test");
-        Thread.sleep(1000); //TODO proper synchronization
+        mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "test", "test");
 
-        assertEquals(3, serviceCallback.onConnectionChanged);
-        assertFalse(serviceCallback.isConnected);
+        synchronized (mLockWantedState) {
+            mLockWantedState.wait();
+        }
+
+        assertEquals(Arrays.asList(
+                ConnectionState.DISCONNECTED,
+                ConnectionState.CONNECTION_STARTED,
+                ConnectionState.CONNECTION_COMPLETED,
+                ConnectionState.LOGIN_STARTED,
+                ConnectionState.LOGIN_FAILED,
+                ConnectionState.DISCONNECTED), mActualConnectionStates);
     }
 
+    public void onEvent(ConnectionChanged event) {
+        mActualConnectionStates.add(event.connectionState);
+
+        // If the desired state is DISCONNECTED then ignore it the very first time it
+        // appears, as it's the initial state.
+        if (mWantedState == ConnectionState.DISCONNECTED && mActualConnectionStates.size() == 1) {
+            return;
+        }
+
+        if (event.connectionState == mWantedState) {
+            synchronized (mLockWantedState) {
+                mLockWantedState.notify();
+            }
+        }
+    }
+
+    public void onEvent(HandshakeComplete event) {
+        mLastHandshakeCompleteEvent = event;
+        synchronized (mLockHandshakeComplete) {
+            mLockHandshakeComplete.notify();
+        }
+    }
 }

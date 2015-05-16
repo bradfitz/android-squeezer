@@ -32,17 +32,17 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
      * Supported album list layouts.
      */
     public enum AlbumListLayout implements BaseViewDialog.EnumWithTextAndIcon {
-        grid(R.drawable.ic_action_view_as_grid, ServerString.SWITCH_TO_GALLERY),
-        list(R.drawable.ic_action_view_as_list, ServerString.SWITCH_TO_EXTENDED_LIST);
+        grid(R.attr.ic_action_view_as_grid, ServerString.SWITCH_TO_GALLERY),
+        list(R.attr.ic_action_view_as_list, ServerString.SWITCH_TO_EXTENDED_LIST);
 
         /**
          * The icon to use for this layout
          */
-        private final int icon;
+        private final int iconAttribute;
 
         @Override
-        public int getIcon() {
-            return icon;
+        public int getIconAttribute() {
+            return iconAttribute;
         }
 
         /**
@@ -55,9 +55,9 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
             return serverString.getLocalizedString();
         }
 
-        private AlbumListLayout(int icon, ServerString serverString) {
+        AlbumListLayout(int iconAttribute, ServerString serverString) {
             this.serverString = serverString;
-            this.icon = icon;
+            this.iconAttribute = iconAttribute;
         }
     }
 
@@ -82,7 +82,7 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
             return serverString.getLocalizedString();
         }
 
-        private AlbumsSortOrder(ServerString serverString) {
+        AlbumsSortOrder(ServerString serverString) {
             this.serverString = serverString;
         }
     }

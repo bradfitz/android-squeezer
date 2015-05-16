@@ -82,7 +82,7 @@ public class ViewMenuItemFragment extends BaseMenuFragment {
         /**
          * Ensure that the activity that hosts this fragment derives from BaseListActivity.
          */
-        public ItemAdapter<T> getItemAdapter();
+        ItemAdapter<T> getItemAdapter();
 
     }
 }
