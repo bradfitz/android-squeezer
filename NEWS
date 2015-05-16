@@ -1,9 +1,22 @@
 Upcoming
 ========
 
+
+1.3.0
+=====
+
 *   Support richer notifications with playback controls from the
     notification and lock screen. Based on work from Matthew Schmidt
-    (https://github.com/maxpower47).
+    (https://github.com/maxpower47). Includes support for
+    notifications on wearables.
+
+*   Fixed bug where song artwork could stop loading.
+
+*   Fixed crash that could occur when scanning for servers.
+
+*   Fixed issue where opening a playlist and leaving Squeezer while
+    music is playing would result in the playlist being at the wrong
+    point when returning to Squeezer.
 
 1.2.7
 =====
