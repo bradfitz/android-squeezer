@@ -972,6 +972,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         Bitmap albumArt = null;
         try {
+            // XXX: Note that url may be relative and not absolute, which causes this to fail.
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestProperty("User-agent", "Mozilla/4.0");
 
