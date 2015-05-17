@@ -82,19 +82,12 @@
         <item name="floatLabelColor">@drawable/float_label_light</item>
     </style>
 
-    <!-- Text Styles -->
-    <style name="SqueezerTextItem" parent="@android:style/TextAppearance.Medium" />
-    <style name="SqueezerCurrentTextItem" parent="style/SqueezerTextItem" />
-    <style name="SqueezerTextItemSmall" parent="@android:style/TextAppearance.Small" />
-    <style name="SqueezerTextItemLarge" parent="@android:style/TextAppearance.Large"/>
-    <style name="SqueezerTextItemXLarge" parent="@android:style/TextAppearance.Large">
-        <item name="android:textSize">45sp</item>
-    </style>
-    <style name="SqueezerCurrentTextItemSmall" parent="style/SqueezerTextItemSmall" />
-
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
 
     <!-- Base styles that the rest of the app inherits from. -->
+    <style name="SqueezerTextAppearance.XLarge" parent="@android:style/TextAppearance.Large">
+        <item name="android:textSize">44sp</item>
+    </style>
     <style name="SqueezerTextAppearance.Large" parent="@android:style/TextAppearance.Large"/>
     <style name="SqueezerTextAppearance.Medium" parent="@android:style/TextAppearance.Medium"/>
     <style name="SqueezerTextAppearance.Small" parent="@android:style/TextAppearance.Small"/>

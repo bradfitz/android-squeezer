@@ -27,7 +27,7 @@
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
             tools:text="Alarms fade"
-            style="@style/SqueezerTextItemSmall"/>
+            style="@style/SqueezerTextAppearance.Small"/>
         <include
             layout="@layout/squeezer_switch"
             android:id="@+id/alarms_fade"
