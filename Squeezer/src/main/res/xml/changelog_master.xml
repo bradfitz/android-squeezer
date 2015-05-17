@@ -2,6 +2,49 @@
 
 <changelog>
     <release
+        version="1.3.0"
+        versioncode="48">
+        <change>Support richer notifications with playback controls from the
+            notification and lock screen. Based on work from Matthew Schmidt
+            (https://github.com/maxpower47). Includes support for notifications
+            on Android Wear devices.</change>
+
+        <change>Fixed bug where song artwork could stop loading.</change>
+
+        <change>Fixed crash that could occur when scanning for servers.</change>
+
+        <change>Fixed issue where opening a playlist and leaving Squeezer while
+            music is playing would result in the playlist being at the wrong
+            point when returning to Squeezer.</change>
+    </release>
+
+    <release
+        version="1.2.7"
+        versioncode="44">
+        <change>Support skipping tracks in remote streams that have that feature,
+            such as Slacker Radio. Code from Sean Wilson
+            (https://github.com/swilson).</change>
+
+        <change>Simplified the configuration process for new users. Squeezer now
+            automatically searches for servers on the local network, saves
+            connection information per-server, and numerous other fixes.
+        </change>
+
+        <change>Changed saving files to remove non-VFAT compatible characters from
+            filenames to make it easier to export them to Windows and similar
+            systems.
+        </change>
+
+        <change>Fixed issue where some plugin icons were not showing.</change>
+
+        <change>Fixed issue where Internet radio stations were not working when
+            connected to servers running version 7.8 or above.
+        </change>
+
+        <change>Fixed issue where the UI could stop showing player progress.</change>
+    </release>
+
+    <release
         version="1.2.6"
         versioncode="41">
         <change>Better handle the connection lifecycle with the server, which should

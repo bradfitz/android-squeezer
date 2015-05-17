@@ -148,7 +148,7 @@ public interface ItemView<T extends Item> {
      * Extra menu information provided to the {@link android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu,
      * View, ContextMenu.ContextMenuInfo) } callback when a context menu is brought up for this ItemView.
      */
-    public static class ContextMenuInfo implements ContextMenu.ContextMenuInfo {
+    class ContextMenuInfo implements ContextMenu.ContextMenuInfo {
 
         /**
          * The position in the adapter for which the context menu is being displayed.

@@ -36,7 +36,7 @@ interface ListHandler<T extends Item> {
     /**
      * @return The list of items received so far
      */
-    public List<T> getItems();
+    List<T> getItems();
 
     /**
      * Prepare for parsing an extended query format response

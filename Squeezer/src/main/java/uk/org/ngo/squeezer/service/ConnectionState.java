@@ -28,6 +28,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
@@ -67,6 +69,7 @@ public class ConnectionState {
     // Connection state machine
     @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED,
             LOGIN_STARTED, LOGIN_FAILED, LOGIN_COMPLETED})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionStates {}
     public static final int DISCONNECTED = 0;
     public static final int CONNECTION_STARTED = 1;

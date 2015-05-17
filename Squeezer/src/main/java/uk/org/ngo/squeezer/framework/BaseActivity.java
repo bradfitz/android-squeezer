@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
@@ -39,12 +40,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import uk.org.ngo.squeezer.HomeActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.HomeActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -390,24 +394,24 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     // This section is just an easier way to call squeeze service
 
     public void play(PlaylistItem item) {
-        playlistControl(PlaylistControlCmd.load, item, R.string.ITEM_PLAYING);
+        playlistControl(PLAYLIST_PLAY_NOW, item, R.string.ITEM_PLAYING);
     }
 
     public void add(PlaylistItem item) {
-        playlistControl(PlaylistControlCmd.add, item, R.string.ITEM_ADDED);
+        playlistControl(PLAYLIST_ADD_TO_END, item, R.string.ITEM_ADDED);
     }
 
     public void insert(PlaylistItem item) {
-        playlistControl(PlaylistControlCmd.insert, item, R.string.ITEM_INSERTED);
+        playlistControl(PLAYLIST_PLAY_AFTER_CURRENT, item, R.string.ITEM_INSERTED);
     }
 
-    private void playlistControl(PlaylistControlCmd cmd, PlaylistItem item, int resId)
+    private void playlistControl(@PlaylistControlCmd String cmd, PlaylistItem item, int resId)
             {
         if (mService == null) {
             return;
         }
 
-        mService.playlistControl(cmd.name(), item);
+        mService.playlistControl(cmd, item);
         Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
     }
 
@@ -424,11 +428,12 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
             Toast.makeText(this, R.string.DOWNLOAD_MANAGER_NEEDED, Toast.LENGTH_LONG).show();
     }
 
-    private enum PlaylistControlCmd {
-        load,
-        add,
-        insert
-    }
+    @StringDef({PLAYLIST_PLAY_NOW, PLAYLIST_ADD_TO_END, PLAYLIST_PLAY_AFTER_CURRENT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PlaylistControlCmd {}
+    public static final String PLAYLIST_PLAY_NOW = "load";
+    public static final String PLAYLIST_ADD_TO_END = "add";
+    public static final String PLAYLIST_PLAY_AFTER_CURRENT = "insert";
 
     /**
      * Look up an attribute resource styled for the current theme.

@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.support.annotation.IntDef;
 import android.util.Log;
 
 import com.google.common.base.Joiner;
@@ -23,6 +24,8 @@ import com.google.common.base.Joiner;
 import com.crashlytics.android.Crashlytics;
 
 import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,18 +65,27 @@ class CliClient {
      */
     private static final Joiner mNewlineJoiner = Joiner.on("\n").skipNulls();
 
-    enum HandlerList {
-        GLOBAL, PREFIXED, PLAYER_SPECIFIC, GLOBAL_PLAYER_SPECIFIC, PREFIXED_PLAYER_SPECIFIC
-    }
+    @IntDef(flag=true, value={
+            HANDLER_LIST_GLOBAL, HANDLER_LIST_PREFIXED, HANDLER_LIST_PLAYER_SPECIFIC,
+            HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC, HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface HandlerListType {}
+    public static final int HANDLER_LIST_GLOBAL = 1;
+    public static final int HANDLER_LIST_PREFIXED = 1 << 1;
+    public static final int HANDLER_LIST_PLAYER_SPECIFIC = 1 << 2;
+    public static final int HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC = 1 << 3;
+    public static final int HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC = 1 << 4;
 
     static class ExtendedQueryFormatCmd {
-        private static final HashSet<HandlerList> PLAYER_SPECIFIC_HANDLER_LISTS =
-                new HashSet<HandlerList>(Arrays.asList(HandlerList.PLAYER_SPECIFIC,
-                        HandlerList.GLOBAL_PLAYER_SPECIFIC, HandlerList.PREFIXED_PLAYER_SPECIFIC));
-        private static final HashSet<HandlerList> PREFIXED_HANDLER_LISTS = new HashSet<HandlerList>(
-                Arrays.asList(HandlerList.PREFIXED, HandlerList.PREFIXED_PLAYER_SPECIFIC));
+        private static final int PLAYER_SPECIFIC_HANDLER_LISTS =
+                HANDLER_LIST_PLAYER_SPECIFIC | HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC | HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC;
 
-        final HandlerList handlerList;
+        private static final int PREFIXED_HANDLER_LISTS =
+                HANDLER_LIST_PREFIXED | HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC;
+
+        @HandlerListType
+        final int handlerList;
         final private boolean playerSpecific;
         final private boolean prefixed;
 
@@ -83,11 +95,11 @@ class CliClient {
 
         final private SqueezeParserInfo[] parserInfos;
 
-        public ExtendedQueryFormatCmd(HandlerList handlerList, String cmd,
+        public ExtendedQueryFormatCmd(@HandlerListType int handlerList, String cmd,
                                       Set<String> taggedParameters, SqueezeParserInfo... parserInfos) {
             this.handlerList = handlerList;
-            playerSpecific = PLAYER_SPECIFIC_HANDLER_LISTS.contains(handlerList);
-            prefixed = PREFIXED_HANDLER_LISTS.contains(handlerList);
+            playerSpecific = (PLAYER_SPECIFIC_HANDLER_LISTS & handlerList) != 0;
+            prefixed = (PREFIXED_HANDLER_LISTS & handlerList) != 0;
             this.cmd = cmd;
             this.taggedParameters = taggedParameters;
             this.parserInfos = parserInfos;
@@ -104,12 +116,12 @@ class CliClient {
          */
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
                                       ListHandler<? extends Item> handler, String... columns) {
-            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler, columns));
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler, columns));
         }
 
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
                                       String itemDelimiter, ListHandler<? extends Item> handler) {
-            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
         }
 
         /**
@@ -121,7 +133,7 @@ class CliClient {
          */
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
                 ListHandler<? extends Item> handler) {
-            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler));
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler));
         }
 
         public String toString() {
@@ -148,7 +160,7 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.GLOBAL_PLAYER_SPECIFIC,
+                        HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC,
                         "alarms",
                         new HashSet<String>(Arrays.asList("filter", "dow")),
                         new SqueezeParserInfo(new BaseListHandler<Alarm>(){})
@@ -226,7 +238,7 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.GLOBAL,
+                        HANDLER_LIST_GLOBAL,
                         "search",
                         new HashSet<String>(Arrays.asList("term", "charset")),
                         new SqueezeParserInfo("genres_count", new GenreListHandler(), "genre_id"),
@@ -238,7 +250,7 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.PLAYER_SPECIFIC,
+                        HANDLER_LIST_PLAYER_SPECIFIC,
                         "status",
                         new HashSet<String>(Arrays.asList("tags", "charset", "subscribe")),
                         new SqueezeParserInfo("playlist_tracks", new SongListHandler(),
@@ -263,7 +275,7 @@ class CliClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.PREFIXED_PLAYER_SPECIFIC,
+                        HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC,
                         "items",
                         new HashSet<String>(
                                 Arrays.asList("item_id", "search", "want_url", "charset")),

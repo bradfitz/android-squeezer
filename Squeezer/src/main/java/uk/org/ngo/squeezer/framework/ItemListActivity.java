@@ -120,6 +120,7 @@ public abstract class ItemListActivity extends BaseActivity {
         super.onResume();
 
         getImageFetcher().addImageCache(getSupportFragmentManager(), mImageCacheParams);
+        mImageFetcher.setExitTasksEarly(false);
     }
 
     @Override
@@ -127,6 +128,8 @@ public abstract class ItemListActivity extends BaseActivity {
         super.onPause();
 
         if (mImageFetcher != null) {
+            mImageFetcher.setExitTasksEarly(true);
+            mImageFetcher.setPauseWork(false);
             mImageFetcher.closeCache();
         }
 

@@ -4,7 +4,7 @@ buildscript {
         maven { url 'http://download.crashlytics.com/maven' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:1.1.0'
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
     }
 }
@@ -37,14 +37,18 @@ dependencies {
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
     compile 'com.crashlytics.android:crashlytics:1.+'
+
     // KitKat time picker
     compile 'com.nineoldandroids:library:2.4.0'
     compile project(':libraries:datetimepicker')
+
+    // JVM tests
+    testCompile 'junit:junit:4.12'
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 21
+    buildToolsVersion "22.0.1"
 
     def gitHash = "git rev-parse --short HEAD".execute().text.trim()
     def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
@@ -54,7 +58,7 @@ android {
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 19
+        targetSdkVersion 21
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
     }
@@ -101,40 +105,15 @@ android {
 
     productFlavors {
         beta {
-            versionCode 40
-            versionName "1.2.6-beta-3"
+            versionCode 47
+            versionName "1.3.0-beta-2"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 41
-            versionName "1.2.6"
+            versionCode 48
+            versionName "1.3.0"
             signingConfig android.signingConfigs.release
-        }
-    }
-
-    applicationVariants.all { variant ->
-        def apkSuffix = "-${variant.mergedFlavor.versionName}-${gitDescription}"
-        variant.outputs.each { output ->
-            def originalApkFile = output.outputFile
-            output.outputFile = new File(
-                    // Override this to change output directory
-                    (String) originalApkFile.parent,
-                    (String) originalApkFile.name.replace(".apk", "${apkSuffix}.apk")
-            )
-        }
-        // Print the APK path after assemble is done
-        variant.assemble.doLast {
-            variant.outputs.each { output ->
-                println output.outputFile
-            }
-        }
-
-        // Print the APK path as the last step before install, at which point the apk is complete
-        variant.install?.doFirst { // the install task can be null
-            variant.outputs.each { output ->
-                println output.outputFile
-            }
         }
     }
 }
