@@ -19,17 +19,19 @@ package uk.org.ngo.squeezer.service;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Looper;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.common.base.Joiner;
-
 import com.crashlytics.android.Crashlytics;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
 import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -100,20 +101,21 @@ class CliClient implements IClient {
     @NonNull private final EventBus mEventBus;
 
     /** Executor for off-main-thread work. */
-    @NonNull private final ScheduledThreadPoolExecutor mExecutor = new ScheduledThreadPoolExecutor(1);
+    @NonNull
+    private final ScheduledThreadPoolExecutor mExecutor = new ScheduledThreadPoolExecutor(1);
 
     /** The types of command handler. */
-    enum HandlerList {
-        GLOBAL,
-
-        PREFIXED,
-
-        PLAYER_SPECIFIC,
-
-        GLOBAL_PLAYER_SPECIFIC,
-
-        PREFIXED_PLAYER_SPECIFIC
-    }
+    @IntDef(flag=true, value={
+            HANDLER_LIST_GLOBAL, HANDLER_LIST_PREFIXED, HANDLER_LIST_PLAYER_SPECIFIC,
+            HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC, HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface HandlerListType {}
+    public static final int HANDLER_LIST_GLOBAL = 1;
+    public static final int HANDLER_LIST_PREFIXED = 1 << 1;
+    public static final int HANDLER_LIST_PLAYER_SPECIFIC = 1 << 2;
+    public static final int HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC = 1 << 3;
+    public static final int HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC = 1 << 4;
 
     /**
      * Represents a command that can be sent to the server using the extended query format.
@@ -130,13 +132,14 @@ class CliClient implements IClient {
      * </ul>
      */
     static class ExtendedQueryFormatCmd {
-        private static final HashSet<HandlerList> PLAYER_SPECIFIC_HANDLER_LISTS =
-                new HashSet<HandlerList>(Arrays.asList(HandlerList.PLAYER_SPECIFIC,
-                        HandlerList.GLOBAL_PLAYER_SPECIFIC, HandlerList.PREFIXED_PLAYER_SPECIFIC));
-        private static final HashSet<HandlerList> PREFIXED_HANDLER_LISTS = new HashSet<HandlerList>(
-                Arrays.asList(HandlerList.PREFIXED, HandlerList.PREFIXED_PLAYER_SPECIFIC));
+        private static final int PLAYER_SPECIFIC_HANDLER_LISTS =
+                HANDLER_LIST_PLAYER_SPECIFIC | HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC | HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC;
 
-        final HandlerList handlerList;
+        private static final int PREFIXED_HANDLER_LISTS =
+                HANDLER_LIST_PREFIXED | HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC;
+
+        @HandlerListType
+        final int handlerList;
 
         /** True if this is a player-specific command (i.e., the command should send a player ID). */
         final private boolean playerSpecific;
@@ -158,19 +161,14 @@ class CliClient implements IClient {
          * @param taggedParameters Tagged parameters to send
          * @param parserInfos ?
          */
-        public ExtendedQueryFormatCmd(HandlerList handlerList, String cmd,
+        public ExtendedQueryFormatCmd(@HandlerListType int handlerList, String cmd,
                                       Set<String> taggedParameters, SqueezeParserInfo... parserInfos) {
             this.handlerList = handlerList;
-            playerSpecific = PLAYER_SPECIFIC_HANDLER_LISTS.contains(handlerList);
-            prefixed = PREFIXED_HANDLER_LISTS.contains(handlerList);
+            playerSpecific = (PLAYER_SPECIFIC_HANDLER_LISTS & handlerList) != 0;
+            prefixed = (PREFIXED_HANDLER_LISTS & handlerList) != 0;
             this.cmd = cmd;
             this.taggedParameters = taggedParameters;
             this.parserInfos = parserInfos;
-        }
-
-        public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
-                                      ListHandler<? extends Item> handler, String... columns) {
-            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler, columns));
         }
 
         /**
@@ -183,8 +181,13 @@ class CliClient implements IClient {
          * @param handler The handler used to construct new model objects from the response.
          */
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
+                                      ListHandler<? extends Item> handler, String... columns) {
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler, columns));
+        }
+
+        public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
                                       String itemDelimiter, ListHandler<? extends Item> handler) {
-            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
         }
 
         /**
@@ -196,7 +199,7 @@ class CliClient implements IClient {
          */
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
                 ListHandler<? extends Item> handler) {
-            this(HandlerList.GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler));
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler));
         }
 
         public String toString() {
@@ -286,7 +289,7 @@ class CliClient implements IClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.GLOBAL,
+                        HANDLER_LIST_GLOBAL,
                         "search",
                         new HashSet<String>(Arrays.asList("term", "charset")),
                         new SqueezeParserInfo("genres_count", new GenreListHandler(), "genre_id"),
@@ -298,7 +301,7 @@ class CliClient implements IClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.PLAYER_SPECIFIC,
+                        HANDLER_LIST_PLAYER_SPECIFIC,
                         "status",
                         new HashSet<String>(Arrays.asList("tags", "charset", "subscribe")),
                         new SqueezeParserInfo("playlist_tracks", new SongListHandler(),
@@ -323,7 +326,7 @@ class CliClient implements IClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
-                        HandlerList.PREFIXED_PLAYER_SPECIFIC,
+                        HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC,
                         "items",
                         new HashSet<String>(
                                 Arrays.asList("item_id", "search", "want_url", "charset")),
@@ -733,7 +736,7 @@ class CliClient implements IClient {
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
-            if (cmd.handlerList == CliClient.HandlerList.GLOBAL) {
+            if (cmd.handlerList == CliClient.HANDLER_LIST_GLOBAL) {
                 handlers.put(cmd.cmd, new CmdHandler() {
                     @Override
                     public void handle(List<String> tokens) {
@@ -863,7 +866,7 @@ class CliClient implements IClient {
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
-            if (cmd.handlerList == CliClient.HandlerList.PREFIXED) {
+            if (cmd.handlerList == CliClient.HANDLER_LIST_PREFIXED) {
                 handlers.put(cmd.cmd, new CmdHandler() {
                     @Override
                     public void handle(List<String> tokens) {
@@ -887,7 +890,7 @@ class CliClient implements IClient {
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
-            if (cmd.handlerList == CliClient.HandlerList.PLAYER_SPECIFIC) {
+            if (cmd.handlerList == CliClient.HANDLER_LIST_PLAYER_SPECIFIC) {
                 handlers.put(cmd.cmd, new CmdHandler() {
                     @Override
                     public void handle(List<String> tokens) {
@@ -900,14 +903,14 @@ class CliClient implements IClient {
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "play registered");
-                updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PlayStatus.play);
+                updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PLAY_STATE_PLAY);
             }
         });
         handlers.put("stop", new CmdHandler() {
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "stop registered");
-                updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PlayStatus.stop);
+                updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PLAY_STATE_STOP);
             }
         });
         handlers.put("pause", new CmdHandler() {
@@ -1069,7 +1072,7 @@ class CliClient implements IClient {
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
-            if (cmd.handlerList == CliClient.HandlerList.PREFIXED_PLAYER_SPECIFIC) {
+            if (cmd.handlerList == CliClient.HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC) {
                 handlers.put(cmd.cmd, new CmdHandler() {
                     @Override
                     public void handle(List<String> tokens) {
@@ -1166,18 +1169,18 @@ class CliClient implements IClient {
         return new String[]{key, value};
     }
 
-    private PlayerState.PlayStatus parsePause(String explicitPause) {
+    private @PlayerState.PlayState String parsePause(String explicitPause) {
         if ("0".equals(explicitPause)) {
-            return PlayerState.PlayStatus.play;
+            return PlayerState.PLAY_STATE_PLAY;
             //updatePlayStatus(PlayerState.PlayStatus.play);
         } else if ("1".equals(explicitPause)) {
-            return PlayerState.PlayStatus.pause;
+            return PlayerState.PLAY_STATE_PAUSE;
             //updatePlayStatus(PlayerState.PlayStatus.pause);
         }
         //updateAllPlayerSubscriptionStates();
 
         // XXX: This is probably not correct. Log and return something else?
-        return PlayerState.PlayStatus.pause;
+        return PlayerState.PLAY_STATE_PAUSE;
     }
 
     private void parsePlaylistNotification(List<String> tokens) {
@@ -1189,9 +1192,9 @@ class CliClient implements IClient {
             // TODO keep track of subscribe status
             sendPlayerCommand(mActivePlayer.get(), "status - 1 tags:" + SqueezeService.SONGTAGS);
         } else if ("play".equals(notification)) {
-            updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PlayStatus.play);
+            updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PLAY_STATE_PLAY);
         } else if ("stop".equals(notification)) {
-            updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PlayStatus.stop);
+            updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PLAY_STATE_STOP);
         } else if ("pause".equals(notification)) {
             updatePlayStatus(Util.decode(tokens.get(0)), parsePause(tokens.size() >= 4 ? tokens.get(3) : null));
         } else if ("addtracks".equals(notification)) {
@@ -1201,26 +1204,17 @@ class CliClient implements IClient {
         }
     }
 
-    private void updatePlayStatus(@NonNull String playerId, @NonNull String mode) {
-        if ("play".equals(mode)) {
-            updatePlayStatus(playerId, PlayerState.PlayStatus.play);
-            return;
-        }
-
-        if ("stop".equals(mode)) {
-            updatePlayStatus(playerId, PlayerState.PlayStatus.stop);
-            return;
-        }
-
-        if ("pause".equals(mode)) {
-            updatePlayStatus(playerId, PlayerState.PlayStatus.pause);
-            return;
-        }
-    }
-    private void updatePlayStatus(@NonNull String playerId, PlayerState.PlayStatus playStatus) {
+    private void updatePlayStatus(@NonNull String playerId, String playStatus) {
         Player player = mPlayers.get(playerId);
 
         if (player == null) {
+            return;
+        }
+
+        // Handle unknown states.
+        if (!playStatus.equals(PlayerState.PLAY_STATE_PLAY) &&
+                !playStatus.equals(PlayerState.PLAY_STATE_PAUSE) &&
+                !playStatus.equals(PlayerState.PLAY_STATE_STOP)) {
             return;
         }
 
@@ -1229,7 +1223,6 @@ class CliClient implements IClient {
         if (playerState.setPlayStatus(playStatus)) {
             mEventBus.post(new PlayStatusChanged(playStatus, player));
         }
-
     }
 
     /**

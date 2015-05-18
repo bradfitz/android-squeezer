@@ -69,7 +69,7 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
             return context.getText(stringResource).toString();
         }
 
-        private SongsSortOrder(int stringResource) {
+        SongsSortOrder(int stringResource) {
             this.stringResource = stringResource;
         }
     }

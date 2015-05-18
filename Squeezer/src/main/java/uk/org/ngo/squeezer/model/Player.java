@@ -166,7 +166,7 @@ public class Player extends Item {
     /**
      * Comparator to compare two players by ID.
      */
-    public static Comparator<Player> compareById = new Comparator<Player>() {
+    public static final Comparator<Player> compareById = new Comparator<Player>() {
         @Override
         public int compare(Player lhs, Player rhs) {
             return lhs.getId().compareTo(rhs.getId());
