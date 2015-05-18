@@ -47,11 +47,14 @@ dependencies {
 
     // Crashlytics.
     compile 'com.crashlytics.android:crashlytics:1.+'
+
+    // JVM tests
+    testCompile 'junit:junit:4.12'
 }
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "22.0.1"
 
     def gitHash = "git rev-parse --short HEAD".execute().text.trim()
     def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
@@ -108,40 +111,15 @@ android {
 
     productFlavors {
         beta {
-            versionCode 40
-            versionName "1.2.6-beta-3"
+            versionCode 43
+            versionName "1.2.7-beta-2"
             signingConfig android.signingConfigs.release
         }
 
         live {
-            versionCode 41
-            versionName "1.2.6"
+            versionCode 44
+            versionName "1.2.7"
             signingConfig android.signingConfigs.release
-        }
-    }
-
-    applicationVariants.all { variant ->
-        def apkSuffix = "-${variant.mergedFlavor.versionName}-${gitDescription}"
-        variant.outputs.each { output ->
-            def originalApkFile = output.outputFile
-            output.outputFile = new File(
-                    // Override this to change output directory
-                    (String) originalApkFile.parent,
-                    (String) originalApkFile.name.replace(".apk", "${apkSuffix}.apk")
-            )
-        }
-        // Print the APK path after assemble is done
-        variant.assemble.doLast {
-            variant.outputs.each { output ->
-                println output.outputFile
-            }
-        }
-
-        // Print the APK path as the last step before install, at which point the apk is complete
-        variant.install?.doFirst { // the install task can be null
-            variant.outputs.each { output ->
-                println output.outputFile
-            }
         }
     }
 }

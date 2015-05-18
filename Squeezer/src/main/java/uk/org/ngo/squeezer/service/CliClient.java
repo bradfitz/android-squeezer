@@ -1024,7 +1024,7 @@ class CliClient implements IClient {
 
                         // Current song
                         if (changedSong) {
-                            mEventBus.post(new MusicChanged(playerState));
+                            mEventBus.postSticky(new MusicChanged(playerState));
                         }
 
                         // Shuffle status.
@@ -1198,9 +1198,9 @@ class CliClient implements IClient {
         } else if ("pause".equals(notification)) {
             updatePlayStatus(Util.decode(tokens.get(0)), parsePause(tokens.size() >= 4 ? tokens.get(3) : null));
         } else if ("addtracks".equals(notification)) {
-            mEventBus.post(new PlaylistTracksAdded());
+            mEventBus.postSticky(new PlaylistTracksAdded());
         } else if ("delete".equals(notification)) {
-            mEventBus.post(new PlaylistTracksDeleted());
+            mEventBus.postSticky(new PlaylistTracksDeleted());
         }
     }
 
