@@ -182,7 +182,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
      */
     public void testAuthenticationFailure() throws InterruptedException {
         SqueezeboxServerMock.starter().username("user").password("1234").start();
-        mWantedState = ConnectionState.DISCONNECTED;
+        mWantedState = ConnectionState.LOGIN_FAILED;
 
         mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "test", "test");
 
@@ -195,8 +195,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
                 ConnectionState.CONNECTION_STARTED,
                 ConnectionState.CONNECTION_COMPLETED,
                 ConnectionState.LOGIN_STARTED,
-                ConnectionState.LOGIN_FAILED,
-                ConnectionState.DISCONNECTED), mActualConnectionStates);
+                ConnectionState.LOGIN_FAILED), mActualConnectionStates);
     }
 
     public void onEvent(ConnectionChanged event) {
