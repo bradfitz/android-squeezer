@@ -62,7 +62,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
@@ -664,6 +663,7 @@ public class NowPlayingFragment extends Fragment implements
                                         "onNavigationItemSelected.setActivePlayer(" + playerAdapter
                                                 .getItem(position) + ")");
                                 mService.setActivePlayer(playerAdapter.getItem(position));
+                                updateSongInfo(mService.getActivePlayerState().getCurrentSong());
                             }
                             return true;
                         }
@@ -1134,12 +1134,14 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     public void onEventMainThread(MusicChanged event) {
-        updateSongInfo(event.playerState.getCurrentSong());
+        if (event.player.equals(mService.getActivePlayer())) {
+            updateSongInfo(event.playerState.getCurrentSong());
+        }
     }
 
     public void onEventMainThread(PlayersChanged event) {
-        updatePlayerDropDown(event.players.values(), event.activePlayer);
-        updateSongInfo(event.activePlayer.getPlayerState().getCurrentSong());
+        updatePlayerDropDown(event.players.values(), mService.getActivePlayer());
+        updateSongInfo(mService.getActivePlayerState().getCurrentSong());
     }
 
     public void onEventMainThread(PlayStatusChanged event) {
@@ -1147,29 +1149,37 @@ public class NowPlayingFragment extends Fragment implements
     }
 
     public void onEventMainThread(PowerStatusChanged event) {
-        updatePowerMenuItems(event.canPowerOn, event.canPowerOff);
+        if (event.player.equals(mService.getActivePlayer())) {
+            updatePowerMenuItems(event.canPowerOn, event.canPowerOff);
+        }
     }
 
     public void onEventMainThread(RepeatStatusChanged event) {
-        updateRepeatStatus(event.repeatStatus);
-        if (!event.initial) {
-            Toast.makeText(mActivity, mActivity.getServerString(event.repeatStatus.getText()),
-                    Toast.LENGTH_SHORT).show();
+        if (event.player.equals(mService.getActivePlayer())) {
+            updateRepeatStatus(event.repeatStatus);
+            if (!event.initial) {
+                Toast.makeText(mActivity, mActivity.getServerString(event.repeatStatus.getText()),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     public void onEventMainThread(ShuffleStatusChanged event) {
-        updateShuffleStatus(event.shuffleStatus);
-        if (!event.initial) {
-            Toast.makeText(mActivity,
-                    mActivity.getServerString(event.shuffleStatus.getText()),
-                    Toast.LENGTH_SHORT).show();
+        if (event.player.equals(mService.getActivePlayer())) {
+            updateShuffleStatus(event.shuffleStatus);
+            if (!event.initial) {
+                Toast.makeText(mActivity,
+                        mActivity.getServerString(event.shuffleStatus.getText()),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     public void onEvent(SongTimeChanged event) {
-        NowPlayingFragment.this.secondsIn = event.currentPosition;
-        NowPlayingFragment.this.secondsTotal = event.duration;
-        uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
+        if (event.player.equals(mService.getActivePlayer())) {
+            NowPlayingFragment.this.secondsIn = event.currentPosition;
+            NowPlayingFragment.this.secondsTotal = event.duration;
+            uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
+        }
     }
 }

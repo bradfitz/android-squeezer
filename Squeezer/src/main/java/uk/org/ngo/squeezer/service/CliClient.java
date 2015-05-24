@@ -95,7 +95,6 @@ class CliClient implements IClient {
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
     private final Map<String, Player> mPlayers = new HashMap<String, Player>();
 
-    private final AtomicReference<Player> mActivePlayer = new AtomicReference<Player>();
 
     /** Shared event bus for status changes. */
     @NonNull private final EventBus mEventBus;
@@ -358,7 +357,6 @@ class CliClient implements IClient {
     void disconnect(boolean loginFailed) {
         connectionState.disconnect(mEventBus, loginFailed);
         mPlayers.clear();
-        mActivePlayer.set(null);
     }
 
     // All requests are tagged with a correlation id, which can be used when
@@ -964,7 +962,7 @@ class CliClient implements IClient {
                     if (player == null)
                         return;
 
-                    Log.d(TAG, "Status handler: current: " + player.getId() + ": active: " + getActivePlayerId());
+                    Log.d(TAG, "Status handler: current: " + player.getId());
                     PlayerState playerState = player.getPlayerState();
 
                     HashMap<String, String> tokenMap = parseTokens(tokens);
@@ -1014,37 +1012,36 @@ class CliClient implements IClient {
                         mEventBus.post(new PlayerStateChanged(player, playerState));
                     }
 
-                    if (player.getId().equals(getActivePlayerId())) {
-                        // Power status
-                        if (changedPower) {
-                            mEventBus.post(new PowerStatusChanged(
-                                    !player.getPlayerState().isPoweredOn(),
-                                    !player.getPlayerState().isPoweredOn()));
-                        }
+                    // Power status
+                    if (changedPower) {
+                        mEventBus.post(new PowerStatusChanged(
+                                player,
+                                !player.getPlayerState().isPoweredOn(),
+                                !player.getPlayerState().isPoweredOn()));
+                    }
 
-                        // Current song
-                        if (changedSong) {
-                            mEventBus.postSticky(new MusicChanged(playerState));
-                        }
+                    // Current song
+                    if (changedSong) {
+                        mEventBus.postSticky(new MusicChanged(player, playerState));
+                    }
 
-                        // Shuffle status.
-                        if (changedShuffleStatus) {
-                            mEventBus.post(new ShuffleStatusChanged(
-                                    unknownShuffleStatus, playerState.getShuffleStatus()));
-                        }
+                    // Shuffle status.
+                    if (changedShuffleStatus) {
+                        mEventBus.post(new ShuffleStatusChanged(player,
+                                unknownShuffleStatus, playerState.getShuffleStatus()));
+                    }
 
-                        // Repeat status.
-                        if (changedRepeatStatus) {
-                            mEventBus.post(new RepeatStatusChanged(
-                                    unknownRepeatStatus, playerState.getRepeatStatus()));
-                        }
+                    // Repeat status.
+                    if (changedRepeatStatus) {
+                        mEventBus.post(new RepeatStatusChanged(player,
+                                unknownRepeatStatus, playerState.getRepeatStatus()));
+                    }
 
-                        // Position in song
-                        if (changedSongDuration || changedSongTime) {
-                            mEventBus.post(new SongTimeChanged(
-                                    playerState.getCurrentTimeSecond(),
-                                    playerState.getCurrentSongDuration()));
-                        }
+                    // Position in song
+                    if (changedSongDuration || changedSongTime) {
+                        mEventBus.post(new SongTimeChanged(player,
+                                playerState.getCurrentTimeSecond(),
+                                playerState.getCurrentSongDuration()));
                     }
                 } else {
                     parseSqueezerList(extQueryFormatCmdMap.get("status"), tokens);
@@ -1114,16 +1111,14 @@ class CliClient implements IClient {
             return;
         }
 
-        // Player-specific commands for our active player.
-        if (Util.decode(tokens.get(0)).equals(getActivePlayerId())) {
-            if ((handler = playerSpecificHandlers.get(tokens.get(1))) != null) {
-                handler.handle(tokens);
-                return;
-            }
-            if (tokens.size() > 2
-                    && (handler = prefixedPlayerSpecificHandlers.get(tokens.get(2))) != null) {
-                handler.handle(tokens);
-            }
+        // Player-specific commands
+        if ((handler = playerSpecificHandlers.get(tokens.get(1))) != null) {
+            handler.handle(tokens);
+            return;
+        }
+        if (tokens.size() > 2
+                && (handler = prefixedPlayerSpecificHandlers.get(tokens.get(2))) != null) {
+            handler.handle(tokens);
         }
     }
 
@@ -1187,10 +1182,9 @@ class CliClient implements IClient {
         Log.v(TAG, "Playlist notification received: " + tokens);
         String notification = tokens.get(2);
         if ("newsong".equals(notification)) {
-            // When we don't subscribe to the current players status, we rely
-            // on playlist notifications and order song details here.
-            // TODO keep track of subscribe status
-            sendPlayerCommand(mActivePlayer.get(), "status - 1 tags:" + SqueezeService.SONGTAGS);
+            // Suspect that this is no longer necessary, as the active player always has
+            // real time subscriptions enabled. Might be worth re-enabling this
+            //sendPlayerCommand(mActivePlayer.get(), "status - 1 tags:" + SqueezeService.SONGTAGS);
         } else if ("play".equals(notification)) {
             updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PLAY_STATE_PLAY);
         } else if ("stop".equals(notification)) {
@@ -1278,13 +1272,10 @@ class CliClient implements IClient {
                     }
 
                     mPlayers.clear();
-                    mActivePlayer.set(null);
-
                     mPlayers.putAll(players);
-                    mActivePlayer.set(getPreferredPlayer());
 
                     // XXX: postSticky?
-                    mEventBus.postSticky(new PlayersChanged(mPlayers, mActivePlayer.get()));
+                    mEventBus.postSticky(new PlayersChanged(mPlayers));
                 }
             }
 
@@ -1293,87 +1284,6 @@ class CliClient implements IClient {
                 return CliClient.this;
             }
         });
-    }
-
-    /**
-     * @return The player that should be chosen as the (new) active player. This is either the
-     *     last active player (if known), the first player the server knows about if there are
-     *     connected players, or null if there are no connected players.
-     */
-    private @Nullable Player getPreferredPlayer() {
-        final SharedPreferences preferences = Squeezer.getContext().getSharedPreferences(Preferences.NAME,
-                Context.MODE_PRIVATE);
-        final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LAST_PLAYER,
-                null);
-        Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
-
-        ArrayList<Player> players = new ArrayList<Player>(mPlayers.values());
-        Log.i(TAG, "mPlayers empty?: " + mPlayers.isEmpty());
-        for (Player player : players) {
-            if (player.getId().equals(lastConnectedPlayer)) {
-                return player;
-            }
-        }
-        return !players.isEmpty() ? players.get(0) : null;
-    }
-
-    /**
-     * Change the player that is controlled by Squeezer (the "active" player).
-     *
-     * @param newActivePlayer May be null, in which case no players are controlled.
-     */
-    void changeActivePlayer(@Nullable final Player newActivePlayer) {
-        Player prevActivePlayer = mActivePlayer.get();
-
-        // Do nothing if they player hasn't actually changed.
-        if (prevActivePlayer == newActivePlayer) {
-            return;
-        }
-
-        mActivePlayer.set(newActivePlayer);
-        Log.i(TAG, "Active player now: " + newActivePlayer);
-
-        // If this is a new player then start an async fetch of its status.
-        if (newActivePlayer != null) {
-            sendPlayerCommand(newActivePlayer, "status - 1 tags:" + SqueezeService.SONGTAGS);
-        }
-
-        // NOTE: this involves a write and can block (sqlite lookup via binder call), so
-        // should be done off-thread, so we can process service requests & send our callback
-        // as quickly as possible.
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final SharedPreferences preferences = Squeezer.getContext().getSharedPreferences(Preferences.NAME,
-                        Squeezer.MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-
-                if (newActivePlayer == null) {
-                    Log.v(TAG, "Clearing " + Preferences.KEY_LAST_PLAYER);
-                    editor.remove(Preferences.KEY_LAST_PLAYER);
-                } else {
-                    Log.v(TAG, "Saving " + Preferences.KEY_LAST_PLAYER + "=" + newActivePlayer.getId());
-                    editor.putString(Preferences.KEY_LAST_PLAYER, newActivePlayer.getId());
-                }
-
-                editor.commit();
-            }
-        });
-
-        mEventBus.postSticky(new PlayersChanged(mPlayers, newActivePlayer));
-    }
-
-    @Nullable Player getActivePlayer() {
-        return mActivePlayer.get();
-    }
-
-    @Nullable String getActivePlayerId() {
-        Player player = mActivePlayer.get();
-        if (player == null) {
-            return null;
-        }
-
-        return player.getId();
     }
 
     boolean isConnected() {
