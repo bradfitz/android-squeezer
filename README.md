@@ -20,4 +20,4 @@ Features include:
 
 Squeezer is free, and open source.  For more information, to file a feature request,
 or to contribute, see the
-[project home page](http://code.google.com/p/android-squeezer/).
+[project home page](https://nikclayton.github.io/android-squeezer/).
