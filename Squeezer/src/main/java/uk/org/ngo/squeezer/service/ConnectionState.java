@@ -59,12 +59,19 @@ public class ConnectionState {
             LOGIN_STARTED, LOGIN_FAILED, LOGIN_COMPLETED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionStates {}
+    /** Ordinarily disconnected from the server. */
     public static final int DISCONNECTED = 0;
+    /** A connection has been started. */
     public static final int CONNECTION_STARTED = 1;
+    /** The connection to the server did not complete. */
     public static final int CONNECTION_FAILED = 2;
+    /** The connection to the server completed. */
     public static final int CONNECTION_COMPLETED = 3;
+    /** The login process has started. */
     public static final int LOGIN_STARTED = 4;
+    /** The login process has failed, the server is disconnected. */
     public static final int LOGIN_FAILED = 5;
+    /** The login process completed, the handshake can start. */
     public static final int LOGIN_COMPLETED = 6;
 
     @ConnectionStates
@@ -114,10 +121,9 @@ public class ConnectionState {
 
         if (loginFailed) {
             setConnectionState(eventBus, LOGIN_FAILED);
+        } else {
+            setConnectionState(eventBus, DISCONNECTED);
         }
-
-        setConnectionState(eventBus, DISCONNECTED);
-
         httpPort.set(null);
         mediaDirs.set(null);
     }
