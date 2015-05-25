@@ -97,6 +97,6 @@ limitations under the License.
             android:autoLink="web"
             android:paddingBottom="8dp"
             android:paddingLeft="8dp"
-            android:text="http://groups.google.com/group/android-squeezer\n\nhttp://code.google.com/p/android-squeezer/"/>
+            android:text="http://groups.google.com/group/android-squeezer\n\nhttps://nikclayton.github.io/android-squeezer/"/>
     </RelativeLayout>
 </ScrollView>
