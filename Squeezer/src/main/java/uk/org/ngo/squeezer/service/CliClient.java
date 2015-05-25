@@ -1230,7 +1230,6 @@ class CliClient implements IClient {
      * that determines whether authentication succeeded.
      */
     private void onAuthenticated() {
-        mEventBus.post(new ConnectionChanged(ConnectionState.LOGIN_COMPLETED));
         fetchPlayers();
         sendCommandImmediately(
                 "listen 1", // subscribe to all server notifications

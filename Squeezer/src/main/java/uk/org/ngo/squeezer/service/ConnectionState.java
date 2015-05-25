@@ -269,7 +269,7 @@ public class ConnectionState {
                     // else we should notify about it.
                     if (currentConnectionGeneration.get() == generationNumber) {
                         Log.v(TAG, "Server disconnected; exception=" + exception);
-                        cli.disconnect(false);
+                        cli.disconnect(exception == null);
                     } else {
                         // Who cares.
                         Log.v(TAG, "Old generation connection disconnected, as expected.");
