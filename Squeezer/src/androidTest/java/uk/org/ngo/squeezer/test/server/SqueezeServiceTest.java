@@ -33,6 +33,9 @@ import uk.org.ngo.squeezer.test.mock.SqueezeboxServerMock;
 public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
     private static final String TAG = "SqueezeServiceTest";
 
+    /** Number of milliseconds to wait for a particular event to occur before aborting. */
+    private static final int TIMEOUT_IN_MS = 5000;
+
     public SqueezeServiceTest() {
         super(SqueezeService.class);
     }
@@ -86,7 +89,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         mService.startConnect("localhost", "test", "test");
 
         synchronized(mLockWantedState) {
-            mLockWantedState.wait();
+            mLockWantedState.wait(TIMEOUT_IN_MS);
         }
 
         assertEquals(Arrays.asList(
@@ -107,7 +110,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
                 "test", "test");
 
         synchronized (mLockHandshakeComplete) {
-            mLockHandshakeComplete.wait();
+            mLockHandshakeComplete.wait(TIMEOUT_IN_MS);
         }
 
         assertEquals(Arrays.asList(
@@ -147,7 +150,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
                 "user", "1234");
 
         synchronized (mLockHandshakeComplete) {
-            mLockHandshakeComplete.wait();
+            mLockHandshakeComplete.wait(TIMEOUT_IN_MS);
         }
 
         assertEquals(Arrays.asList(
@@ -187,7 +190,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "test", "test");
 
         synchronized (mLockWantedState) {
-            mLockWantedState.wait();
+            mLockWantedState.wait(TIMEOUT_IN_MS);
         }
 
         assertEquals(Arrays.asList(
