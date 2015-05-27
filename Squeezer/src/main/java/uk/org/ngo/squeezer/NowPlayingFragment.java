@@ -719,7 +719,7 @@ public class NowPlayingFragment extends Fragment implements
             return;
         }
 
-        mImageFetcher.loadImage(song.getArtworkUrl(mService), albumArt);
+        mImageFetcher.loadImage(song.getArtworkUrl(), albumArt);
     }
 
     private boolean setSecondsElapsed(int seconds) {

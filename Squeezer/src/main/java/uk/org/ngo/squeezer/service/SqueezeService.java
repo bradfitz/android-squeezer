@@ -468,7 +468,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         String songName = currentSong.getName();
         String albumName = currentSong.getAlbumName();
         String artistName = currentSong.getArtist();
-        String url = currentSong.getArtworkUrl(squeezeService);
+        String url = currentSong.getArtworkUrl();
         String playerName = activePlayer.getName();
 
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
@@ -671,7 +671,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
             for (Song item : items) {
-                downloadSong(item.getId(), item.getName(), item.getUrl());
+                downloadSong(item.getDownloadUrl(), item.getName(), item.getUrl());
             }
         }
 
@@ -701,15 +701,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     };
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void downloadSong(String songId, String title, @NonNull String serverUrl) {
-        if (songId == null) {
+    private void downloadSong(@NonNull String url, String title, @NonNull String serverUrl) {
+        if ("".equals(url)) {
             return;
         }
 
         // If running on Gingerbread or greater use the Download Manager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            Uri uri = Uri.parse(squeezeService.getSongDownloadUrl(songId));
+            Uri uri = Uri.parse(url);
             DownloadDatabase downloadDatabase = new DownloadDatabase(this);
             String localPath = getLocalFile(serverUrl);
             String tempFile = UUID.randomUUID().toString();
@@ -1181,53 +1181,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public String getAlbumArtUrl(String artworkTrackId) throws HandshakeNotCompleteException {
-            return getAbsoluteUrl(artworkTrackIdUrl(artworkTrackId));
-        }
-
-        private String artworkTrackIdUrl(String artworkTrackId) {
-            return "/music/" + artworkTrackId + "/cover.jpg";
-        }
-
-        /**
-         * Returns a URL to download a song.
-         *
-         * @param songId the song ID
-         * @return The URL (as a string)
-         */
-        @Override
-        public String getSongDownloadUrl(String songId) throws HandshakeNotCompleteException {
-            return getAbsoluteUrl(songDownloadUrl(songId));
-        }
-
-        private String songDownloadUrl(String songId) {
-            return "/music/" + songId + "/download";
-        }
-
-        @Override
-        public String getIconUrl(String icon) throws HandshakeNotCompleteException {
-            if (isRelative(icon))
-                return getAbsoluteUrl(icon.startsWith("/") ? icon : '/' + icon);
-            else
-                return icon;
-        }
-
-        private String getAbsoluteUrl(String relativeUrl) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            Integer port = cli.getHttpPort();
-            if (port == null || port == 0) {
-                return "";
-            }
-            return "http://" + cli.getCurrentHost() + ":" + port + relativeUrl;
-        }
-
-        private boolean isRelative(String url) {
-            return Uri.parse(url).isRelative();
-        }
-
-        @Override
         public boolean setSecondsElapsed(int seconds) {
             if (!isConnected()) {
                 return false;
@@ -1521,7 +1474,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (item instanceof Song) {
                 Song song = (Song) item;
                 if (!song.isRemote()) {
-                    downloadSong(song.getId(), song.getName(), song.getUrl());
+                    downloadSong(song.getDownloadUrl(), song.getName(), song.getUrl());
                 }
             } else if (item instanceof Playlist) {
                 playlistSongs(-1, (Playlist) item, songDownloadCallback);
@@ -1530,7 +1483,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 if ("track".equals(musicFolderItem.getType())) {
                     String url = musicFolderItem.getUrl();
                     if (url != null) {
-                        downloadSong(item.getId(), musicFolderItem.getName(), url);
+                        downloadSong(((MusicFolderItem) item).getDownloadUrl(), musicFolderItem.getName(), url);
                     }
                 } else if ("folder".equals(musicFolderItem.getType())) {
                     musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);

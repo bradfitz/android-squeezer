@@ -353,13 +353,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         return mService != null && mService.isConnected();
     }
 
-    public String getIconUrl(String icon) {
-        if (mService == null || icon == null) {
-            return null;
-        }
-        return mService.getIconUrl(icon);
-    }
-
     public String getServerString(ServerString stringToken) {
         return ServerString.values()[stringToken.ordinal()].getLocalizedString();
     }

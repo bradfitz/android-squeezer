@@ -44,8 +44,8 @@ public class SongViewWithArt extends SongView {
         super.bindView(view, item, imageFetcher);
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-        String artworkUrl = getAlbumArtUrl(item.getArtwork_track_id());
-        if (artworkUrl == null) {
+        String artworkUrl = item.getArtworkUrl();
+        if ("".equals(artworkUrl)) {
             viewHolder.icon.setImageResource(
                     item.isRemote() ? R.drawable.icon_iradio_noart : R.drawable.icon_album_noart);
         } else {

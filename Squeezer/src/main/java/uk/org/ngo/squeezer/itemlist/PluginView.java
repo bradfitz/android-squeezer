@@ -36,6 +36,6 @@ public abstract class PluginView extends BaseItemView<Plugin> {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
-        imageFetcher.loadImage(getActivity().getIconUrl(item.getIcon()), viewHolder.icon);
+        imageFetcher.loadImage(item.getIcon(), viewHolder.icon);
     }
 }

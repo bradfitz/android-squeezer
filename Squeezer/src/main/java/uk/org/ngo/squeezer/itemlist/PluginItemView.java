@@ -60,8 +60,7 @@ public class PluginItemView extends BaseItemView<PluginItem> {
                 if (mActivity.getPlugin().getIconResource() != 0) {
                     viewHolder.icon.setImageResource(mActivity.getPlugin().getIconResource());
                 } else {
-                    imageFetcher.loadImage(mActivity.getIconUrl(mActivity.getPlugin().getIcon()),
-                            viewHolder.icon);
+                    imageFetcher.loadImage(mActivity.getPlugin().getIcon(), viewHolder.icon);
                 }
             } else {
                 // Finally we assume it is an item that can be played. This is consistent with

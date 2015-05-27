@@ -16,8 +16,7 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
@@ -41,11 +40,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
@@ -95,6 +92,8 @@ class CliClient implements IClient {
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
     private final Map<String, Player> mPlayers = new HashMap<String, Player>();
 
+    /** The prefix for URLs for downloads and cover art. */
+    private String mUrlPrefix;
 
     /** Shared event bus for status changes. */
     @NonNull private final EventBus mEventBus;
@@ -261,7 +260,7 @@ class CliClient implements IClient {
                 new ExtendedQueryFormatCmd(
                         "musicfolder",
                         new HashSet<String>(Arrays.asList("folder_id", "url", "tags", "charset")),
-                        new BaseListHandler<MusicFolderItem>(){}
+                        new MusicFolderListHandler()
                 )
         );
         list.add(
@@ -695,11 +694,106 @@ class CliClient implements IClient {
 
     private class ArtistListHandler extends BaseListHandler<Artist> {}
 
-    private class AlbumListHandler extends BaseListHandler<Album> {}
+    /**
+     * Handler that adds <code>artwork_url</code> tags to items.
+     */
+    private class AlbumListHandler extends BaseListHandler<Album> {
+        @Override
+        public void add(Map<String, String> record) {
+            addArtworkUrlTag(record);
+            super.add(record);
+        }
+    }
 
-    private class SongListHandler extends BaseListHandler<Song> {}
+    /**
+     * Handler that adds <code>download_url</code> tags to items.
+     */
+    private class MusicFolderListHandler extends BaseListHandler<MusicFolderItem> {
+        @Override
+        public void add(Map<String, String> record) {
+            addDownloadUrlTag(record);
+            super.add(record);
+        }
+    }
 
-    private class PluginListHandler extends BaseListHandler<Plugin> {}
+    /**
+     * Handler that adds <code>artwork_url</code> and <code>download_url</code> tags to items.
+     */
+    private class SongListHandler extends BaseListHandler<Song> {
+        @Override
+        public void add(Map<String, String> record) {
+            addArtworkUrlTag(record);
+            addDownloadUrlTag(record);
+            super.add(record);
+        }
+    }
+
+    private class PluginListHandler extends BaseListHandler<Plugin> {
+        @Override
+        public void add(Map<String, String> record) {
+            fixIconTag(record);
+            super.add(record);
+        }
+    }
+
+    /**
+     * Adds a <code>artwork_url</code> entry for the item passed in.
+     *
+     * If an <code>artwork_url</code> entry already exists it is preserved. Otherwise it is
+     * synthesised from the <code>artwork_track_id</code> tag (if it exists) otherwise the
+     * item's <code>id</code>.
+     *
+     * @param record The record to modify.
+     */
+    private void addArtworkUrlTag(Map<String, String> record) {
+        String artworkUrl = record.get("artwork_url");
+
+        // Nothing to do if the artwork_url tag already exists.
+        if (artworkUrl != null) {
+            return;
+        }
+
+        // Prefer using the artwork_track_id entry to generate the URL
+        String artworkTrackId = record.get("artwork_track_id");
+
+        if (artworkTrackId != null) {
+            record.put("artwork_url", mUrlPrefix + "/music/" + artworkTrackId + "/cover.jpg");
+            return;
+        }
+
+        // If coverart exists but artwork_track_id is missing then use the item's ID.
+        if ("1".equals(record.get("coverart"))) {
+            record.put("artwork_url", mUrlPrefix + "/music/" + record.get("id") + "/cover.jpg");
+            return;
+        }
+    }
+
+    /**
+     * Adds a <code>download_url</code> entry for the item passed in.
+     *
+     * @param record The record to modify.
+     */
+    private void addDownloadUrlTag(Map<String, String> record) {
+        record.put("download_url", mUrlPrefix + "/music/" + record.get("id") + "/download");
+    }
+
+    /**
+     * Make sure the icon tag is an absolute URL.
+     *
+     * @param record The record to modify.
+     */
+    private void fixIconTag(Map<String, String> record) {
+        String icon = record.get("icon");
+        if (icon == null) {
+            return;
+        }
+
+        if (Uri.parse(icon).isAbsolute()) {
+            return;
+        }
+
+        record.put("icon", mUrlPrefix + (icon.startsWith("/") ? icon : "/" + icon));
+    }
 
     // Shims around ConnectionState methods.
 
@@ -849,6 +943,7 @@ class CliClient implements IClient {
             @Override
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Version received: " + tokens);
+                mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
                 Crashlytics.setString("server_version", tokens.get(1));
 
                 mEventBus.postSticky(new HandshakeComplete(
@@ -962,10 +1057,11 @@ class CliClient implements IClient {
                     if (player == null)
                         return;
 
-                    Log.d(TAG, "Status handler: current: " + player.getId());
                     PlayerState playerState = player.getPlayerState();
 
                     HashMap<String, String> tokenMap = parseTokens(tokens);
+                    addArtworkUrlTag(tokenMap);
+                    addDownloadUrlTag(tokenMap);
 
                     boolean unknownRepeatStatus = playerState.getRepeatStatus() == null;
                     boolean unknownShuffleStatus = playerState.getShuffleStatus() == null;
