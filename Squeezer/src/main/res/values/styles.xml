@@ -47,7 +47,7 @@
         <item name="ic_alarm_settings">@drawable/ic_alarm_settings</item>
         <item name="ic_delete">@drawable/ic_delete</item>
 
-        <item name="floatLabelColor">@drawable/float_label_dark</item>
+        <item name="floatLabelColor">@color/float_label_dark</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -79,7 +79,7 @@
         <item name="ic_alarm_settings">@drawable/ic_alarm_settings_light</item>
         <item name="ic_delete">@drawable/ic_delete_light</item>
 
-        <item name="floatLabelColor">@drawable/float_label_light</item>
+        <item name="floatLabelColor">@color/float_label_light</item>
     </style>
 
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->

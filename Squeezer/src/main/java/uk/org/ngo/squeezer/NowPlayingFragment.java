@@ -215,12 +215,31 @@ public class NowPlayingFragment extends Fragment implements
     /** Dialog displayed while connecting to the server. */
     private ProgressDialog connectingDialog = null;
 
-    private void clearConnectingDialog() {
+    /**
+     * Shows the "connecting" dialog if it's not already showing.
+     */
+    private void showConnectingDialog() {
+        if (connectingDialog == null || !connectingDialog.isShowing()) {
+            Preferences preferences = new Preferences(mActivity);
+            Preferences.ServerAddress serverAddress = preferences.getServerAddress();
+
+            connectingDialog = ProgressDialog.show(mActivity,
+                    getText(R.string.connecting_text),
+                    getString(R.string.connecting_to_text, preferences.getServerName(serverAddress)),
+                    true, false);
+        }
+    }
+
+    /**
+     * Dismisses the "connecting" dialog if it's showing.
+     */
+    private void dismissConnectingDialog() {
         if (connectingDialog != null && connectingDialog.isShowing()) {
             connectingDialog.dismiss();
         }
         connectingDialog = null;
     }
+
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -446,122 +465,6 @@ public class NowPlayingFragment extends Fragment implements
         return uiThreadHandler;
     }
 
-    // Should only be called the UI thread.
-    private void setConnected(@ConnectionState.ConnectionStates int connectionState) {
-        Log.v(TAG, "setConnected(" + connectionState + ')');
-
-        // The fragment may no longer be attached to the parent activity.  If so, do nothing.
-        if (!isAdded()) {
-            return;
-        }
-
-        boolean connected = false;
-
-        switch (connectionState) {
-            case ConnectionState.DISCONNECTED:
-                clearConnectingDialog();
-                if (!(mActivity instanceof DisconnectedActivity)) {
-                    DisconnectedActivity.show(mActivity);
-                }
-                return;
-
-            case ConnectionState.CONNECTION_STARTED:
-                break;
-
-            case ConnectionState.CONNECTION_FAILED:
-                clearConnectingDialog();
-                // TODO: Make this a dialog? Allow the user to correct the
-                // server settings here?
-                try {
-                    Toast.makeText(mActivity, getText(R.string.connection_failed_text),
-                            Toast.LENGTH_LONG)
-                            .show();
-                } catch (IllegalStateException e) {
-                    // We are not allowed to show a toast at this point, but
-                    // the Toast is not important so we ignore it.
-                    Log.i(TAG, "Toast was not allowed: " + e);
-                }
-                break;
-
-            case ConnectionState.CONNECTION_COMPLETED:
-                connected = true;
-                break;
-
-            case ConnectionState.LOGIN_COMPLETED:
-                connected = true;
-                clearConnectingDialog();
-                break;
-
-            case ConnectionState.LOGIN_FAILED:
-                clearConnectingDialog();
-                Toast.makeText(mActivity, getText(R.string.login_failed_text), Toast.LENGTH_LONG)
-                        .show();
-                DisconnectedActivity.showLoginFailed(mActivity);
-                return;
-        }
-
-        // Ensure that option menu item state is adjusted as appropriate.
-        getActivity().supportInvalidateOptionsMenu();
-
-        if (mFullHeightLayout) {
-            nextButton.setEnabled(connected);
-            prevButton.setEnabled(connected);
-            shuffleButton.setEnabled(connected);
-            repeatButton.setEnabled(connected);
-        }
-
-        if (!connected) {
-            // XXX: I think this can safely be removed, the call from MusicChangedEvent suffices.
-            updateSongInfo(null);
-
-            playPauseButton.setImageResource(
-                    mActivity.getAttributeValue(R.attr.ic_action_av_connect));
-
-            if (mFullHeightLayout) {
-                albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
-                nextButton.setImageResource(0);
-                prevButton.setImageResource(0);
-                shuffleButton.setImageResource(0);
-                repeatButton.setImageResource(0);
-                updatePlayerDropDown(Collections.<Player>emptyList(), null);
-                artistText.setText(getText(R.string.disconnected_text));
-                currentTime.setText("--:--");
-                totalTime.setText("--:--");
-                seekBar.setEnabled(false);
-                seekBar.setProgress(0);
-            } else {
-                albumArt.setImageResource(R.drawable.icon_album_noart);
-                mProgressBar.setEnabled(false);
-                mProgressBar.setProgress(0);
-            }
-        } else {
-            if (mFullHeightLayout) {
-                nextButton.setImageResource(
-                        mActivity.getAttributeValue(R.attr.ic_action_av_next));
-                prevButton.setImageResource(
-                        mActivity.getAttributeValue(R.attr.ic_action_av_previous));
-                seekBar.setEnabled(true);
-            } else {
-                mProgressBar.setEnabled(true);
-            }
-
-            PlayerState playerState = getPlayerState();
-
-            // May be no players connected.
-            // TODO: These views should be cleared if there's no player connected.
-            if (playerState == null)
-                return;
-
-            // XXX: I think this can safely be removed, the call from MusicChangedEvent suffices.
-            updateSongInfo(playerState.getCurrentSong());
-            updatePlayPauseIcon(playerState.getPlayStatus());
-            updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
-                    playerState.getCurrentSongDuration());
-            updateShuffleStatus(playerState.getShuffleStatus());
-            updateRepeatStatus(playerState.getRepeatStatus());
-        }
-    }
-
     private void updatePlayPauseIcon(@PlayerState.PlayState String playStatus) {
         playPauseButton
                 .setImageResource((PlayerState.PLAY_STATE_PLAY.equals(playStatus)) ?
@@ -741,18 +644,6 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    // Should only be called from the UI thread.
-    private void updateUIFromServiceState() {
-        // Update the UI to reflect connection state. Basically just for
-        // the initial display, as changing the prev/next buttons to empty
-        // doesn't seem to work in onCreate. (LayoutInflator still running?)
-        Log.d(TAG, "updateUIFromServiceState");
-        boolean connected = isConnected();
-        if (mService != null) {
-            setConnected(mService.getEventBus().getStickyEvent(ConnectionChanged.class).connectionState);
-        }
-    }
-
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
         if (mFullHeightLayout) {
             if (updateSeekBar) {
@@ -877,7 +768,7 @@ public class NowPlayingFragment extends Fragment implements
     public void onPause() {
         Log.d(TAG, "onPause...");
 
-        clearConnectingDialog();
+        dismissConnectingDialog();
         mImageFetcher.closeCache();
 
         if (new Preferences(mActivity).isAutoConnect()) {
@@ -1128,10 +1019,6 @@ public class NowPlayingFragment extends Fragment implements
             Log.v(TAG, "Connection is already in progress, connecting aborted");
             return;
         }
-        connectingDialog = ProgressDialog.show(mActivity,
-                getText(R.string.connecting_text),
-                getString(R.string.connecting_to_text, preferences.getServerName(serverAddress)),
-                true, false);
         Log.v(TAG, "startConnect, ipPort: " + ipPort);
         mService.startConnect(ipPort, preferences.getUserName(serverAddress, "test"),
                 preferences.getPassword(serverAddress, "test1"));
@@ -1139,19 +1026,105 @@ public class NowPlayingFragment extends Fragment implements
 
     public void onEventMainThread(ConnectionChanged event) {
         Log.d(TAG, "ConnectionChanged: " + event);
-        setConnected(event.connectionState);
-    }
+
+        // The fragment may no longer be attached to the parent activity.  If so, do nothing.
+        if (!isAdded()) {
+            return;
+        }
+
+        // Handle any of the reasons for disconnection, clear the dialog and show the
+        // DisconnectedActivity.
+        if (event.connectionState == ConnectionState.DISCONNECTED) {
+            dismissConnectingDialog();
+            DisconnectedActivity.show(mActivity);
+            return;
+        }
+
+        if (event.connectionState == ConnectionState.CONNECTION_FAILED) {
+            dismissConnectingDialog();
+            DisconnectedActivity.showConnectionFailed(mActivity);
+            return;
+        }
+
+        if (event.connectionState == ConnectionState.LOGIN_FAILED) {
+            dismissConnectingDialog();
+            DisconnectedActivity.showLoginFailed(mActivity);
+            return;
+        }
+
+        // Any other event means that a connection is in progress, make sure the dialog is showing.
+        showConnectingDialog();
+
+        // Ensure that option menu item state is adjusted as appropriate.
+        getActivity().supportInvalidateOptionsMenu();
+
+        playPauseButton.setImageResource(
+                mActivity.getAttributeValue(R.attr.ic_action_av_connect));
+
+        if (mFullHeightLayout) {
+            nextButton.setEnabled(false);
+            prevButton.setEnabled(false);
+            shuffleButton.setEnabled(false);
+            repeatButton.setEnabled(false);
+
+            albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
+            nextButton.setImageResource(0);
+            prevButton.setImageResource(0);
+            shuffleButton.setImageResource(0);
+            repeatButton.setImageResource(0);
+            updatePlayerDropDown(Collections.<Player>emptyList(), null);
+            artistText.setText(getText(R.string.disconnected_text));
+            currentTime.setText("--:--");
+            totalTime.setText("--:--");
+            seekBar.setEnabled(false);
+            seekBar.setProgress(0);
+        } else {
+            albumArt.setImageResource(R.drawable.icon_album_noart);
+            mProgressBar.setEnabled(false);
+            mProgressBar.setProgress(0);
+        }
+     }
 
     public void onEventMainThread(HandshakeComplete event) {
         // Event might arrive before this fragment has connected to the service (e.g.,
         // the activity connected before this fragment did).
+        // XXX: Verify that this is possible, since the fragment can't register for events
+        // until it's connected to the service.
         if (mService == null) {
             return;
         }
 
         Log.d(TAG, "Handshake complete");
+
+        dismissConnectingDialog();
+
+        if (mFullHeightLayout) {
+            nextButton.setEnabled(true);
+            prevButton.setEnabled(true);
+            shuffleButton.setEnabled(true);
+            repeatButton.setEnabled(true);
+
+            nextButton.setImageResource(mActivity.getAttributeValue(R.attr.ic_action_av_next));
+            prevButton.setImageResource(mActivity.getAttributeValue(R.attr.ic_action_av_previous));
+            seekBar.setEnabled(true);
+        } else {
+            mProgressBar.setEnabled(true);
+        }
+
+        PlayerState playerState = getPlayerState();
+
+        // May be no players connected.
+        // TODO: These views should be cleared if there's no player connected.
+        if (playerState == null)
+            return;
+
+        updatePlayPauseIcon(playerState.getPlayStatus());
+        updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
+                playerState.getCurrentSongDuration());
+        updateShuffleStatus(playerState.getShuffleStatus());
+        updateRepeatStatus(playerState.getRepeatStatus());
+
         updatePowerMenuItems(canPowerOn(), canPowerOff());
-        updateUIFromServiceState();
     }
 
     public void onEventMainThread(MusicChanged event) {
