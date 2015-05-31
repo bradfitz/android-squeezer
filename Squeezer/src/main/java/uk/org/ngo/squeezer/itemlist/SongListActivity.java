@@ -132,6 +132,7 @@ public class SongListActivity extends BaseListActivity<Song>
 
         // Set the album header.
         if (album != null) {
+            ImageView artwork = (ImageView) findViewById(R.id.album);
             TextView albumView = (TextView) findViewById(R.id.albumname);
             TextView artistView = (TextView) findViewById(R.id.artistname);
             TextView yearView = (TextView) findViewById(R.id.yearname);
@@ -141,6 +142,14 @@ public class SongListActivity extends BaseListActivity<Song>
             artistView.setText(album.getArtist());
             if (album.getYear() != 0) {
                 yearView.setText(Integer.toString(album.getYear()));
+            }
+
+            String artworkUrl = album.getArtworkUrl();
+
+            if ("".equals(artworkUrl)) {
+                artwork.setImageResource(R.drawable.icon_album_noart);
+            } else {
+                getImageFetcher().loadImage(artworkUrl, artwork);
             }
 
             btnContextMenu.setOnCreateContextMenuListener(this);
@@ -196,35 +205,6 @@ public class SongListActivity extends BaseListActivity<Song>
 
         return (listLayout == SongViewDialog.SongListLayout.grid) ? R.layout.item_grid
                 : super.getContentView();
-    }
-
-    /**
-     * Updates the artwork in the UI. Can only be called after the server handshake has
-     * completed, as the IP port is required to construct the artwork URL.
-     */
-    private void updateArtwork() {
-        // Set artwork that requires a service connection.
-        if (album != null) {
-            ImageView artwork = (ImageView) findViewById(R.id.album);
-
-            String artworkUrl = ((SongView) getItemView())
-                    .getAlbumArtUrl(album.getArtwork_track_id());
-
-            if (artworkUrl == null) {
-                artwork.setImageResource(R.drawable.icon_album_noart);
-            } else {
-                getImageFetcher().loadImage(artworkUrl, artwork);
-            }
-        }
-    }
-
-    /**
-     * Ensures that the artwork in the UI is updated after the server handshake completes.
-     */
-    @Override
-    public void onEventMainThread(HandshakeComplete event) {
-        super.onEventMainThread(event);
-        updateArtwork();
     }
 
     public static void show(Context context, Item... items) {

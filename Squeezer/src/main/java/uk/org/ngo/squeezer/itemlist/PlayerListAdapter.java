@@ -53,10 +53,6 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     /** The group position of the item that was most recently selected. */
     private int mLastGroupPosition;
 
-    private Player mActivePlayer;
-
-    private final List<Player> mPlayers = new ImmutableList.Builder<Player>().build();
-
     private final ImageFetcher mImageFetcher;
 
     /** Joins elements together with ' - ', skipping nulls. */
