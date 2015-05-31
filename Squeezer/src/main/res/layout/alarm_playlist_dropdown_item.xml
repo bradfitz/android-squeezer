@@ -2,14 +2,14 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="?attr/dropdownListPreferredItemHeight">
+
     <include
         android:id="@+id/text"
         layout="@android:layout/simple_spinner_dropdown_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="20dp">
-    </include>
+        android:layout_gravity="center"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp" />
 </FrameLayout>

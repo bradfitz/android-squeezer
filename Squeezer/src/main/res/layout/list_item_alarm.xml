@@ -130,8 +130,10 @@
 
     <Spinner
         android:id="@+id/playlist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="?attr/dropdownListPreferredItemHeight"
         android:layout_below="@id/dow"
-        />
+        android:prompt="@string/alarm_music_prompt"
+        android:spinnerMode="dialog"
+        tools:layout_height="?android:attr/dropdownListPreferredItemHeight" />
 </RelativeLayout>
