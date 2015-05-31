@@ -27,6 +27,7 @@ import java.util.Map;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.framework.SpinnerItemAdapter;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -79,7 +80,7 @@ public class GenreSpinner {
                             }
 
                         };
-                        adapter = new ItemAdapter<Genre>(itemView, true, null);
+                        adapter = new SpinnerItemAdapter<Genre>(itemView, true, null);
                         spinner.setAdapter(adapter);
                     }
                     adapter.update(count, start, list);

@@ -65,12 +65,12 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     /**
      * This is set if the list shall start with an empty item.
      */
-    private final boolean mEmptyItem;
+    protected final boolean mEmptyItem;
 
     /**
      * Text to display before the items are received from SqueezeServer
      */
-    private final String loadingText;
+    protected final String loadingText;
 
     /**
      * Number of elements to by fetched at a time
@@ -80,7 +80,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     /**
      * ImageFetcher for thumbnails
      */
-    private final ImageFetcher mImageFetcher;
+    protected final ImageFetcher mImageFetcher;
 
     public int getPageSize() {
         return pageSize;
