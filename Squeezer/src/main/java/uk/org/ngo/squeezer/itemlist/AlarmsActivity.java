@@ -23,12 +23,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.datetimepicker.time.RadialPickerLayout;
 import com.android.datetimepicker.time.TimePickerDialog;
@@ -66,6 +63,9 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     /** View to display when at least one player is connected. */
     private View mNonEmptyView;
 
+    /** View that contains all_alarms_{on,off}_hint text. */
+    private TextView mAllAlarmsHintView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,13 +74,9 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         mEmptyView = findViewById(android.R.id.empty);
 
         ((TextView)findViewById(R.id.all_alarms_text)).setText(ServerString.ALARM_ALL_ALARMS.getLocalizedString());
+        mAllAlarmsHintView = (TextView) findViewById(R.id.all_alarms_hint);
+
         alarmsEnabledButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_enabled));
-        findViewById(R.id.all_alarms_desc).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(AlarmsActivity.this, ServerString.ALARM_ALARMS_ENABLED_DESC.getLocalizedString(), Toast.LENGTH_LONG).show();
-            }
-        });
         findViewById(R.id.add_alarm).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,6 +98,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         alarmsEnabledButton.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mAllAlarmsHintView.setText(isChecked ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
                 if (getService() != null) {
                     getService().playerPref(PlayerPref.alarmsEnabled, isChecked ? "1" : "0");
                 }
@@ -169,8 +166,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
 
     public void onEventMainThread(PlayerPrefReceived event) {
         if (event.mPlayerPref == PlayerPref.alarmsEnabled) {
+            boolean checked = Integer.valueOf(event.mValue) > 0;
             alarmsEnabledButton.setEnabled(true);
-            alarmsEnabledButton.setChecked(Integer.valueOf(event.mValue) > 0);
+            alarmsEnabledButton.setChecked(checked);
+            mAllAlarmsHintView.setText(checked ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
         }
     }
 

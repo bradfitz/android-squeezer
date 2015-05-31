@@ -43,18 +43,21 @@
                 android:textAppearance="@style/SqueezerTextAppearance.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/alarms_enabled"
+                android:singleLine="true"
                 tools:text="All Alarms" />
 
-            <ImageButton
-                android:id="@+id/all_alarms_desc"
+            <TextView
+                android:id="@+id/all_alarms_hint"
+                android:textAppearance="@style/SqueezerTextAppearance.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/all_alarms_text"
-                android:layout_toRightOf="@id/all_alarms_text"
-                android:background="?item_background"
-                android:src="@android:drawable/ic_menu_info_details" />
+                android:layout_below="@id/all_alarms_text"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/alarms_enabled"
+                android:singleLine="true"
+                android:text="@string/all_alarms_off_hint"/>
 
             <include
                 android:id="@+id/alarms_enabled"
