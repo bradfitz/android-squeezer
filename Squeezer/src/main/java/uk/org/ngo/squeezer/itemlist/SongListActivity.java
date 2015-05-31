@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -149,7 +148,7 @@ public class SongListActivity extends BaseListActivity<Song>
             if ("".equals(artworkUrl)) {
                 artwork.setImageResource(R.drawable.icon_album_noart);
             } else {
-                getImageFetcher().loadImage(artworkUrl, artwork);
+                ImageFetcher.getInstance(this).loadImage(artworkUrl, artwork);
             }
 
             btnContextMenu.setOnCreateContextMenuListener(this);
@@ -207,6 +206,33 @@ public class SongListActivity extends BaseListActivity<Song>
                 : super.getContentView();
     }
 
+    /**
+     * Updates the artwork in the UI. Can only be called after the server handshake has
+     * completed, as the IP port is required to construct the artwork URL.
+     */
+    private void updateArtwork() {
+        // Set artwork that requires a service connection.
+        if (album != null) {
+            ImageView artwork = (ImageView) findViewById(R.id.album);
+            String artworkUrl = album.getArtworkUrl();
+
+            if ("".equals(artworkUrl)) {
+                artwork.setImageResource(R.drawable.icon_album_noart);
+            } else {
+                ImageFetcher.getInstance(this).loadImage(artworkUrl, artwork);
+            }
+        }
+    }
+
+    /**
+     * Ensures that the artwork in the UI is updated after the server handshake completes.
+     */
+    @Override
+    public void onEventMainThread(HandshakeComplete event) {
+        super.onEventMainThread(event);
+        updateArtwork();
+    }
+
     public static void show(Context context, Item... items) {
         final Intent intent = new Intent(context, SongListActivity.class);
         for (Item item : items) {
@@ -239,21 +265,6 @@ public class SongListActivity extends BaseListActivity<Song>
 
     private SongViewWithArt songViewLogicFromListLayout() {
         return (listLayout == SongViewDialog.SongListLayout.grid) ? new SongGridView(this) : new SongViewWithArt(this);
-    }
-
-    @Override
-    protected ImageFetcher createImageFetcher() {
-        // Get an ImageFetcher to scale artwork to the size of the icon view.
-        Resources resources = getResources();
-        int height, width;
-        if (listLayout == SongViewDialog.SongListLayout.grid) {
-            height = resources.getDimensionPixelSize(R.dimen.album_art_icon_grid_height);
-            width = resources.getDimensionPixelSize(R.dimen.album_art_icon_grid_width);
-        } else {
-            height = resources.getDimensionPixelSize(R.dimen.album_art_icon_height);
-            width = resources.getDimensionPixelSize(R.dimen.album_art_icon_width);
-        }
-        return super.createImageFetcher(height, width);
     }
 
     @Override

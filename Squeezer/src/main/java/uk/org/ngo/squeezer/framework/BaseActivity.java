@@ -52,6 +52,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
@@ -152,6 +153,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         if (SqueezePlayer.hasSqueezePlayer(this) && new Preferences(this).controlSqueezePlayer()) {
             squeezePlayer = new SqueezePlayer(this);
         }
+
+        // Ensure that any image fetching tasks started by this activity do not finish prematurely.
+        ImageFetcher.getInstance(this).setExitTasksEarly(false);
     }
 
     @Override
@@ -174,7 +178,20 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
             mRegisteredOnEventBus = false;
         }
 
+        // Ensure that any pending image fetching tasks are unpaused, and finish quickly.
+        ImageFetcher imageFetcher = ImageFetcher.getInstance(this);
+        imageFetcher.setExitTasksEarly(true);
+        imageFetcher.setPauseWork(false);
+
         super.onPause();
+    }
+
+    /**
+     * Clear the image memory cache if memory gets low.
+     */
+    @Override
+    public void onLowMemory() {
+        ImageFetcher.onLowMemory();
     }
 
     @Override
