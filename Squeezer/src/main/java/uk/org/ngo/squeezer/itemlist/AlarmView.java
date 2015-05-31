@@ -18,8 +18,10 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Dialog;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,6 +39,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -370,9 +373,11 @@ public class AlarmView extends BaseItemView<Alarm> {
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             if (!isEnabled(position)) {
                 FrameLayout view = (FrameLayout) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_category_dropdown_item, parent, false);
-                TextView spinnerItemView = (TextView) view.findViewById(R.id.text);
+                CheckedTextView spinnerItemView = (CheckedTextView) view.findViewById(R.id.text);
                 spinnerItemView.setText(getItem(position).getCategory());
                 spinnerItemView.setTypeface(spinnerItemView.getTypeface(), Typeface.BOLD);
+                // Hide the checkmark for headings.
+                spinnerItemView.setCheckMarkDrawable(new ColorDrawable(Color.TRANSPARENT));
                 return view;
             } else {
                 FrameLayout view = (FrameLayout) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_dropdown_item, parent, false);
