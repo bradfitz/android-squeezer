@@ -492,7 +492,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                                         "onNavigationItemSelected.setActivePlayer(" + playerAdapter
                                                 .getItem(position) + ")");
                                 mService.setActivePlayer(playerAdapter.getItem(position));
-                                updateSongInfo(mService.getActivePlayerState().getCurrentSong());
                                 updateUiFromPlayerState(mService.getActivePlayerState());
                             }
                             return true;
@@ -585,24 +584,32 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     }
 
     /**
-     * Update parts of the UI based on the player state. Call this when the active player
+     * Update the UI based on the player state. Call this when the active player
      * changes.
      *
      * @param playerState the player state to reflect in the UI.
      */
     private void updateUiFromPlayerState(@NonNull PlayerState playerState) {
+        updateSongInfo(playerState);
+
         updatePlayPauseIcon(playerState.getPlayStatus());
-        updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
-                playerState.getCurrentSongDuration());
         updateShuffleStatus(playerState.getShuffleStatus());
         updateRepeatStatus(playerState.getRepeatStatus());
-
         updatePowerMenuItems(canPowerOn(), canPowerOff());
     }
 
-    // Should only be called from the UI thread.
-    private void updateSongInfo(Song song) {
-        Log.v(TAG, "updateSongInfo " + song);
+    /**
+     * Update the UI when the song changes, either because the track has changed, or the
+     * active player has changed.
+     *
+     * @param playerState the player state for the song.
+     */
+    private void updateSongInfo(@NonNull PlayerState playerState) {
+        updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
+                playerState.getCurrentSongDuration());
+
+        Song song = playerState.getCurrentSong();
+
         if (song != null) {
             albumText.setText(song.getAlbumName());
             trackText.setText(song.getName());
@@ -637,11 +644,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                 btnContextMenu.setVisibility(View.GONE);
             }
         }
-        updateAlbumArt(song);
-    }
 
-    // Should only be called from the UI thread.
-    private void updateAlbumArt(Song song) {
         if (song == null || !song.hasArtwork()) {
             if (mFullHeightLayout) {
                 albumArt.setImageResource(song != null && song.isRemote()
@@ -1037,13 +1040,12 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     public void onEventMainThread(MusicChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
-            updateSongInfo(event.playerState.getCurrentSong());
+            updateSongInfo(event.playerState);
         }
     }
 
     public void onEventMainThread(PlayersChanged event) {
         updatePlayerDropDown(event.players.values(), mService.getActivePlayer());
-        updateSongInfo(mService.getActivePlayerState().getCurrentSong());
         updateUiFromPlayerState(mService.getActivePlayerState());
     }
 
