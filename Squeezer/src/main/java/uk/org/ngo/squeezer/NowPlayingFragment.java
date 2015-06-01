@@ -531,6 +531,7 @@ public class NowPlayingFragment extends Fragment implements
                                                 .getItem(position) + ")");
                                 mService.setActivePlayer(playerAdapter.getItem(position));
                                 updateSongInfo(mService.getActivePlayerState().getCurrentSong());
+                                updateUiFromPlayerState(mService.getActivePlayerState());
                             }
                             return true;
                         }
@@ -619,6 +620,22 @@ public class NowPlayingFragment extends Fragment implements
             }
             mProgressBar.setProgress(secondsIn);
         }
+    }
+
+    /**
+     * Update parts of the UI based on the player state. Call this when the active player
+     * changes.
+     *
+     * @param playerState the player state to reflect in the UI.
+     */
+    private void updateUiFromPlayerState(@NonNull PlayerState playerState) {
+        updatePlayPauseIcon(playerState.getPlayStatus());
+        updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
+                playerState.getCurrentSongDuration());
+        updateShuffleStatus(playerState.getShuffleStatus());
+        updateRepeatStatus(playerState.getRepeatStatus());
+
+        updatePowerMenuItems(canPowerOn(), canPowerOff());
     }
 
     // Should only be called from the UI thread.
@@ -1053,13 +1070,7 @@ public class NowPlayingFragment extends Fragment implements
         if (playerState == null)
             return;
 
-        updatePlayPauseIcon(playerState.getPlayStatus());
-        updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
-                playerState.getCurrentSongDuration());
-        updateShuffleStatus(playerState.getShuffleStatus());
-        updateRepeatStatus(playerState.getRepeatStatus());
-
-        updatePowerMenuItems(canPowerOn(), canPowerOff());
+        updateUiFromPlayerState(playerState);
     }
 
     public void onEventMainThread(MusicChanged event) {
@@ -1071,6 +1082,7 @@ public class NowPlayingFragment extends Fragment implements
     public void onEventMainThread(PlayersChanged event) {
         updatePlayerDropDown(event.players.values(), mService.getActivePlayer());
         updateSongInfo(mService.getActivePlayerState().getCurrentSong());
+        updateUiFromPlayerState(mService.getActivePlayerState());
     }
 
     public void onEventMainThread(PlayStatusChanged event) {
