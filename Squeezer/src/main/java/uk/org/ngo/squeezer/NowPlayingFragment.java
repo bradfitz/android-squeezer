@@ -88,8 +88,7 @@ import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-public class NowPlayingFragment extends Fragment implements
-        HasUiThread, View.OnCreateContextMenuListener {
+public class NowPlayingFragment extends Fragment implements View.OnCreateContextMenuListener {
 
     private final String TAG = "NowPlayingFragment";
 
@@ -144,35 +143,6 @@ public class NowPlayingFragment extends Fragment implements
 
     // Updating the seekbar
     private boolean updateSeekBar = true;
-
-    private int secondsIn;
-
-    private int secondsTotal;
-
-    private final static int UPDATE_TIME = 1;
-
-    private final Handler uiThreadHandler = new UiThreadHandler(this);
-
-    private final static class UiThreadHandler extends Handler {
-
-        final WeakReference<NowPlayingFragment> mFragment;
-
-        public UiThreadHandler(NowPlayingFragment fragment) {
-            mFragment = new WeakReference<NowPlayingFragment>(fragment);
-        }
-
-        // Normally I'm lazy and just post Runnables to the uiThreadHandler
-        // but time updating is special enough (it happens every second) to
-        // take care not to allocate so much memory which forces Dalvik to GC
-        // all the time.
-        @Override
-        public void handleMessage(Message message) {
-            if (message.what == UPDATE_TIME) {
-                mFragment.get().updateTimeDisplayTo(mFragment.get().secondsIn,
-                        mFragment.get().secondsTotal);
-            }
-        }
-    }
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -415,14 +385,6 @@ public class NowPlayingFragment extends Fragment implements
         }
 
         return v;
-    }
-
-    /**
-     * Use this to post Runnables to work off thread
-     */
-    @Override
-    public Handler getUIThreadHandler() {
-        return uiThreadHandler;
     }
 
     private void updatePlayPauseIcon(@PlayerState.PlayState String playStatus) {
@@ -1116,11 +1078,9 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    public void onEvent(SongTimeChanged event) {
+    public void onEventMainThread(SongTimeChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
-            NowPlayingFragment.this.secondsIn = event.currentPosition;
-            NowPlayingFragment.this.secondsTotal = event.duration;
-            uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
+            updateTimeDisplayTo(event.currentPosition, event.duration);
         }
     }
 }
