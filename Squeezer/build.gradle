@@ -32,11 +32,12 @@ dependencies {
 
     // Third party libraries
     compile 'com.google.guava:guava:18.0'
+
     // findbugs is required for Proguard to work with Guava.
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 
     // EventBus, https://github.com/greenrobot/EventBus.
-    compile 'de.greenrobot:eventbus:2.4.0'
+    compile project(':libs:eventbus:EventBus')
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'

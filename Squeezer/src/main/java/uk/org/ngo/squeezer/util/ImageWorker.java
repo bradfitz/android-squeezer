@@ -17,6 +17,8 @@
 package uk.org.ngo.squeezer.util;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -28,12 +30,15 @@ import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.RemoteViews;
 
 import com.google.common.base.Joiner;
 
@@ -107,15 +112,13 @@ public abstract class ImageWorker {
      * immediately, otherwise an {@link AsyncTask} will be created to asynchronously load the
      * bitmap.
      *
-     * @param data The URL of the image to download.
-     * @param imageView The ImageView to bind the downloaded image to.
+     * @param data The URL of the image to download
+     * @param imageView The ImageView to bind the downloaded image to
      */
     public void loadImage(final Object data, final ImageView imageView) {
         if (data == null) {
             return;
         }
-
-        Bitmap bitmap = null;
 
         int width = imageView.getWidth();
         int height = imageView.getHeight();
@@ -145,6 +148,19 @@ public abstract class ImageWorker {
             return;
         }
 
+        loadImage(data, imageView, width, height);
+    }
+
+    /**
+     * Like {@link #loadImage(Object, ImageView)} but with explicit width and height parameters.
+     *
+     * @param data The URL of the image to download
+     * @param imageView The ImageView to bind the downloaded image to
+     * @param width Resize the image to this width (and save it in the memory cache as such)
+     * @param height Resize the image to this height (and save it in the memory cache as such)
+     */
+    public void loadImage(final Object data, final ImageView imageView, int width, int height) {
+        Bitmap bitmap = null;
         String memCacheKey = hashKeyForMemory(String.valueOf(data), width, height);
 
         if (mImageCache != null) {
@@ -158,10 +174,98 @@ public abstract class ImageWorker {
             }
             imageView.setImageBitmap(bitmap);
         } else if (cancelPotentialWork(data, imageView)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+            final ImageViewBitmapWorkerTask task = new ImageViewBitmapWorkerTask(imageView);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(mResources, mLoadingBitmap, task);
             imageView.setImageDrawable(asyncDrawable);
+
+            // NOTE: This uses a custom version of AsyncTask that has been pulled from the
+            // framework and slightly modified. Refer to the docs at the top of the class
+            // for more info on what was changed.
+            task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR,
+                    new BitmapWorkerTaskParams(width, height, data, memCacheKey));
+        }
+    }
+
+    /**
+     * Interface for callbacks passed to {@link #loadImage(Object, int, int, ImageWorkerCallback)}
+     */
+    public interface ImageWorkerCallback {
+        /**
+         * Called after the bitmap has been loaded.
+         *
+         * @param data The same value passed as the data parameter to
+         *     {@link #loadImage(Object, int, int, ImageWorkerCallback)}
+         * @param bitmap The bitmap, may be null if loading if it failed to load
+         */
+        void process(Object data, @Nullable Bitmap bitmap);
+    }
+
+    /**
+     * Like {@link #loadImage(Object, ImageView, int, int)} but calls the provided callback after
+     * the image has been loaded instead of saving it in to an imageview.
+     *
+     * @param data The URL of the image to download
+     * @param width Resize the image to this width (and save it in the memory cache as such)
+     * @param height Resize the image to this height (and save it in the memory cache as such)
+     * @param callback The callback
+     */
+    public void loadImage(final Object data, int width, int height, ImageWorkerCallback callback) {
+        Bitmap bitmap = null;
+        String memCacheKey = hashKeyForMemory(String.valueOf(data), width, height);
+        if (mImageCache != null) {
+            bitmap = mImageCache.getBitmapFromMemCache(memCacheKey);
+        }
+
+        if (bitmap != null) {
+            // Bitmap found in memory cache
+            if (BuildConfig.DEBUG) {
+                addDebugSwatch(new Canvas(bitmap), mCacheDebugColorMemory);
+            }
+            callback.process(data, bitmap);
+        } else {
+            final CallbackBitmapWorkerTask task = new CallbackBitmapWorkerTask(callback);
+
+            task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR,
+                    new BitmapWorkerTaskParams(width, height, data, memCacheKey));
+        }
+    }
+
+    /**
+     * Loads the requested image in to an {@link ImageView} in the given {@link RemoteViews}
+     * and updates the notification when done.
+     *
+     * @param context system context
+     * @param data The URL of the image to download
+     * @param remoteViews The {@link RemoteViews} that contains the {@link ImageView}
+     * @param viewId The identifier for the {@link ImageView}
+     * @param width Resize the image to this width (and save it in the memory cache as such)
+     * @param height Resize the image to this height (and save it in the memory cache as such)
+     * @param nm The notification manager
+     * @param notificationId Identifier of the notification to update
+     * @param notification The notification to post
+     */
+    public void loadImage(Context context, final Object data, final RemoteViews remoteViews,
+                          @IdRes int viewId, int width, int height,
+                          NotificationManagerCompat nm, int notificationId, Notification notification) {
+        Bitmap bitmap = null;
+        String memCacheKey = hashKeyForMemory(String.valueOf(data), width, height);
+        if (mImageCache != null) {
+            bitmap = mImageCache.getBitmapFromMemCache(memCacheKey);
+        }
+
+        if (bitmap != null) {
+            // Bitmap found in memory cache
+            if (BuildConfig.DEBUG) {
+                addDebugSwatch(new Canvas(bitmap), mCacheDebugColorMemory);
+            }
+            remoteViews.setImageViewBitmap(viewId, bitmap);
+            nm.notify(notificationId, notification);
+        } else {
+            final RemoteViewBitmapWorkerTask task = new RemoteViewBitmapWorkerTask(
+                    remoteViews, viewId, nm, notificationId, notification);
+            final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources, mLoadingBitmap, task);
+            remoteViews.setImageViewBitmap(viewId, asyncDrawable.getBitmap());
 
             // NOTE: This uses a custom version of AsyncTask that has been pulled from the
             // framework and slightly modified. Refer to the docs at the top of the class
@@ -364,18 +468,29 @@ public abstract class ImageWorker {
         }
     }
 
+    protected class RemoteViewBitmapWorkerTaskParams extends BitmapWorkerTaskParams {
+        NotificationManagerCompat mNotificationManagerCompat;
+        int mNotificationId;
+        Notification mNotification;
+
+        public RemoteViewBitmapWorkerTaskParams(int width, int height,
+                                                @NonNull Object data, @NonNull String memCacheKey,
+                                                @NonNull NotificationManagerCompat notificationManagerCompat,
+                                                int notificationId,
+                                                @NonNull Notification notification) {
+            super(width, height, data, memCacheKey);
+            mNotificationManagerCompat = notificationManagerCompat;
+            mNotificationId = notificationId;
+            mNotification = notification;
+        }
+    }
+
     /**
      * The actual AsyncTask that will asynchronously process the image.
      */
     private class BitmapWorkerTask extends AsyncTask<BitmapWorkerTaskParams, Void, Bitmap> {
-
-        private Object data;
-
-        private final WeakReference<ImageView> imageViewReference;
-
-        public BitmapWorkerTask(ImageView imageView) {
-            imageViewReference = new WeakReference<ImageView>(imageView);
-        }
+        protected static final String TAG = "BitmapWorkerTask";
+        protected Object data;
 
         /**
          * Background processing.
@@ -404,20 +519,16 @@ public abstract class ImageWorker {
             }
 
             // If the image cache is available and this task has not been cancelled by another
-            // thread and the ImageView that was originally bound to this task is still bound back
-            // to this task and our "exit early" flag is not set then try and fetch the bitmap from
-            // the cache
-            if (mImageCache != null && !isCancelled() && getAttachedImageView() != null
-                    && !mExitTasksEarly) {
+            // thread and there's nothing to indicate this task should cancel then try and fetch
+            // the bitmap from the cache.
+            if (mImageCache != null && !isCancelled() && !shouldCancel()) {
                 bitmap = mImageCache.getBitmapFromDiskCache(dataString);
             }
 
             // If the bitmap was not found in the cache and this task has not been cancelled by
-            // another thread and the ImageView that was originally bound to this task is still
-            // bound back to this task and our "exit early" flag is not set, then call the main
-            // process method (as implemented by a subclass)
-            if (bitmap == null && !isCancelled() && getAttachedImageView() != null
-                    && !mExitTasksEarly) {
+            // another thread and there's nothing to indicate that this task should cancel, then
+            // call the main process method (as implemented by a subclass)
+            if (bitmap == null && !isCancelled() && !shouldCancel()) {
                 bitmap = processBitmap(params[0]);
                 loadedFromNetwork = true;
             }
@@ -456,6 +567,36 @@ public abstract class ImageWorker {
             return scaledBitmap;
         }
 
+        @Override
+        protected void onCancelled(Bitmap bitmap) {
+            super.onCancelled(bitmap);
+            synchronized (mPauseWorkLock) {
+                mPauseWorkLock.notifyAll();
+            }
+        }
+
+        /**
+         * Determines whether bitmap processing should abort early.
+         *
+         * @return The value of {@code mExitTasksEarly}.
+         */
+        protected boolean shouldCancel() {
+            return mExitTasksEarly;
+        }
+    }
+
+    /**
+     * A specialisation of {@link BitmapWorkerTask} that sets the loaded bitmap in to an
+     * {@link ImageView}.
+     */
+    private class ImageViewBitmapWorkerTask extends BitmapWorkerTask {
+        protected final WeakReference<ImageView> imageViewReference;
+
+        public ImageViewBitmapWorkerTask(ImageView imageView) {
+            super();
+            imageViewReference = new WeakReference<ImageView>(imageView);
+        }
+
         /**
          * Once the image is processed, associates it to the imageView
          */
@@ -475,19 +616,15 @@ public abstract class ImageWorker {
             }
         }
 
-        @Override
-        protected void onCancelled(Bitmap bitmap) {
-            super.onCancelled(bitmap);
-            synchronized (mPauseWorkLock) {
-                mPauseWorkLock.notifyAll();
-            }
+        protected boolean shouldCancel() {
+            return super.shouldCancel() && getAttachedImageView() == null;
         }
 
         /**
          * Returns the ImageView associated with this task as long as the ImageView's task still
          * points to this task as well. Returns null otherwise.
          */
-        private ImageView getAttachedImageView() {
+        protected ImageView getAttachedImageView() {
             final ImageView imageView = imageViewReference.get();
             final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
 
@@ -496,6 +633,85 @@ public abstract class ImageWorker {
             }
 
             return null;
+        }
+
+    }
+
+    /**
+     * A specialisation of {@link BitmapWorkerTask} that passed the loaded bitmap to a callback
+     * for further processing.
+     */
+    private class CallbackBitmapWorkerTask extends BitmapWorkerTask {
+        protected static final String TAG = "CallbackBitmapWorkerTas";
+
+        private ImageWorkerCallback mCallback;
+
+        public CallbackBitmapWorkerTask(ImageWorkerCallback callback) {
+            mCallback = callback;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            Log.d(TAG, "callback: onPostExecute()");
+            if (isCancelled() || shouldCancel()) {
+                bitmap = null;
+            }
+
+            Log.d(TAG, "onPostExecute - setting bitmap");
+            mCallback.process(data, bitmap);
+        }
+
+        /**
+         * @return Always returns false, the processing is not aborted before the callback is called.
+         */
+        @Override
+        protected boolean shouldCancel() {
+            return false;
+        }
+    }
+
+    /**
+     * A specialisation of {@link BitmapWorkerTask} that sets the loaded bitmap in to an
+     * {@link ImageView} in a {@link RemoteViews} and posts a {@link Notification}.
+     */
+    private class RemoteViewBitmapWorkerTask extends BitmapWorkerTask {
+        private RemoteViews mRemoteViews;
+        private int mViewId;
+        NotificationManagerCompat mNotificationManagerCompat;
+        int mNotificationId;
+        Notification mNotification;
+
+        public RemoteViewBitmapWorkerTask(RemoteViews remoteViews, int viewId,
+                                          NotificationManagerCompat notificationManagerCompat,
+                                          int notificationId, Notification notification) {
+            super();
+            mRemoteViews = remoteViews;
+            mViewId = viewId;
+            mNotificationManagerCompat = notificationManagerCompat;
+            mNotificationId = notificationId;
+            mNotification = notification;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (bitmap != null) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "onPostExecute - setting bitmap");
+                }
+                Log.d(TAG, "Setting notification bitmap");
+                mRemoteViews.setImageViewBitmap(mViewId, bitmap);
+            }
+
+            // Always post the notification.
+            mNotificationManagerCompat.notify(mNotificationId, mNotification);
+        }
+
+        /**
+         * @return Always returns false, the processing is not to ensure the notification is posted.
+         */
+        @Override
+        protected boolean shouldCancel() {
+            return false;
         }
     }
 

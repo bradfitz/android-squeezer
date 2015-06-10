@@ -91,6 +91,8 @@ import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
+import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.util.ImageWorker;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
@@ -506,31 +508,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         PendingIntent pausePendingIntent = getPendingIntent(ACTION_PAUSE);
         PendingIntent closePendingIntent = getPendingIntent(ACTION_CLOSE);
 
-        Bitmap albumArt = null;
-        try {
-            // XXX: Note that url may be relative and not absolute, which causes this to fail.
-            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setRequestProperty("User-agent", "Mozilla/4.0");
-
-            connection.connect();
-            InputStream input = connection.getInputStream();
-
-            albumArt = BitmapFactory.decodeStream(input);
-
-        } catch (Exception e) {
-            Log.w(TAG, "Exception when fetching notification icon: " + e);
-            Crashlytics.logException(e);
-            albumArt = BitmapFactory.decodeResource(getResources(), R.drawable.icon_album_noart);
-        }
-
         Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
-
         Notification notification;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Notification.Builder builder = new Notification.Builder(this);
+            final Notification.Builder builder = new Notification.Builder(this);
             builder.setContentIntent(pIntent);
             builder.setSmallIcon(R.drawable.squeezer_notification);
             builder.setVisibility(Notification.VISIBILITY_PUBLIC);
@@ -538,17 +522,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             builder.setContentTitle(songName);
             builder.setContentText(albumName);
             builder.setSubText(playerName);
-            builder.setLargeIcon(albumArt);
             builder.setStyle(new Notification.MediaStyle()
                     .setShowActionsInCompactView(1, 2)
                     .setMediaSession(mMediaSession.getSessionToken()));
 
-            MediaMetadata.Builder metaBuilder = new MediaMetadata.Builder();
+            final MediaMetadata.Builder metaBuilder = new MediaMetadata.Builder();
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, artistName);
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, albumName);
             metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, songName);
-            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt);
-            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, albumArt);
             mMediaSession.setMetadata(metaBuilder.build());
 
             // Don't set an ongoing notification, otherwise wearable's won't show it.
@@ -565,7 +546,24 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         .addAction(new Notification.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
             }
 
-            notification = builder.build();
+            ImageFetcher.getInstance(this).loadImage(url,
+                    getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
+                    getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
+                    new ImageWorker.ImageWorkerCallback() {
+                        @Override
+                        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                        public void process(Object data, @Nullable Bitmap bitmap) {
+                            if (bitmap == null) {
+                                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_album_noart);
+                            }
+
+                            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
+                            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
+                            mMediaSession.setMetadata(metaBuilder.build());
+                            builder.setLargeIcon(bitmap);
+                            nm.notify(PLAYBACKSERVICE_STATUS, builder.build());
+                        }
+                    });
         } else {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
@@ -582,9 +580,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             expandedView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
 
             builder.setContent(normalView);
-
-            normalView.setImageViewBitmap(R.id.album, albumArt);
-            expandedView.setImageViewBitmap(R.id.album, albumArt);
 
             normalView.setTextViewText(R.id.trackname, songName);
             normalView.setTextViewText(R.id.albumname, albumName);
@@ -615,9 +610,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 notification.bigContentView = expandedView;
             }
-        }
 
-        nm.notify(PLAYBACKSERVICE_STATUS, notification);
+            nm.notify(PLAYBACKSERVICE_STATUS, notification);
+
+            ImageFetcher.getInstance(this).loadImage(this, url, normalView, R.id.album,
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_width),
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_height),
+                    nm, PLAYBACKSERVICE_STATUS, notification);
+            ImageFetcher.getInstance(this).loadImage(this, url, expandedView, R.id.album,
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_width),
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_height),
+                    nm, PLAYBACKSERVICE_STATUS, notification);
+        }
     }
 
     /**
