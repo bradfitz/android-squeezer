@@ -138,6 +138,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /** Media session to associate with ongoing notifications. */
     private MediaSession mMediaSession;
 
+    /** The player state that the most recent notifcation was for. */
+    private PlayerState mNotifiedPlayerState;
+
     /**
      * Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once
      */
@@ -450,6 +453,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         // If there's no active player then kill the notification and get out.
+        // TODO: Have a "There are no connected players" notification text.
         if (activePlayer == null || activePlayerState == null) {
             clearOngoingNotification();
             return;
@@ -464,14 +468,37 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return;
         }
 
-        Song currentSong = activePlayerState.getCurrentSong();
+        // If there's no current song then kill the notification and get out.
+        // TODO: Have a "There's nothing playing" notification text.
+        final Song currentSong = activePlayerState.getCurrentSong();
+        if (currentSong == null) {
+            clearOngoingNotification();
+            return;
+        }
+
+        // Compare the current state with the state when the notification was last updated.
+        // If there are no changes (same song, same playing state) then there's nothing to do.
         String songName = currentSong.getName();
         String albumName = currentSong.getAlbumName();
         String artistName = currentSong.getArtist();
         String url = currentSong.getArtworkUrl();
         String playerName = activePlayer.getName();
 
-        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
+        if (mNotifiedPlayerState == null) {
+            mNotifiedPlayerState = new PlayerState();
+        } else {
+            boolean lastPlaying = mNotifiedPlayerState.isPlaying();
+            Song lastNotifiedSong = mNotifiedPlayerState.getCurrentSong();
+
+            // No change in state
+            if (playing == lastPlaying && currentSong.equals(lastNotifiedSong)) {
+                return;
+            }
+        }
+
+        mNotifiedPlayerState.setCurrentSong(currentSong);
+        mNotifiedPlayerState.setPlayStatus(activePlayerState.getPlayStatus());
+        final NotificationManagerCompat nm = NotificationManagerCompat.from(this);
 
         PendingIntent nextPendingIntent = getPendingIntent(ACTION_NEXT_TRACK);
         PendingIntent prevPendingIntent = getPendingIntent(ACTION_PREV_TRACK);
@@ -608,6 +635,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private void clearOngoingNotification() {
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         nm.cancel(PLAYBACKSERVICE_STATUS);
+        mNotifiedPlayerState = null;
     }
 
     public void onEvent(ConnectionChanged event) {
