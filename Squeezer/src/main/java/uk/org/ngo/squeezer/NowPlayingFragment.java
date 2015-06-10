@@ -29,8 +29,10 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -166,6 +168,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     /**
      * Shows the "connecting" dialog if it's not already showing.
      */
+    @UiThread
     private void showConnectingDialog() {
         if (connectingDialog == null || !connectingDialog.isShowing()) {
             Preferences preferences = new Preferences(mActivity);
@@ -181,6 +184,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     /**
      * Dismisses the "connecting" dialog if it's showing.
      */
+    @UiThread
     private void dismissConnectingDialog() {
         if (connectingDialog != null && connectingDialog.isShowing()) {
             connectingDialog.dismiss();
@@ -383,6 +387,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         return v;
     }
 
+    @UiThread
     private void updatePlayPauseIcon(@PlayerState.PlayState String playStatus) {
         playPauseButton
                 .setImageResource((PlayerState.PLAY_STATE_PLAY.equals(playStatus)) ?
@@ -390,6 +395,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                         : mActivity.getAttributeValue(R.attr.ic_action_av_play));
     }
 
+    @UiThread
     private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
         if (mFullHeightLayout && shuffleStatus != null) {
             shuffleButton.setImageResource(
@@ -397,6 +403,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
     }
 
+    @UiThread
     private void updateRepeatStatus(RepeatStatus repeatStatus) {
         if (mFullHeightLayout && repeatStatus != null) {
             repeatButton.setImageResource(
@@ -404,6 +411,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
     }
 
+    @UiThread
     private void updatePowerMenuItems(boolean canPowerOn, boolean canPowerOff) {
         boolean connected = isConnected();
 
@@ -442,6 +450,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
      * Collections.&lt;Player>emptyList()}) but not null.
      * @param activePlayer The currently active player. May be null.
      */
+    @UiThread
     private void updatePlayerDropDown(@NonNull Collection<Player> players,
             @Nullable Player activePlayer) {
         if (!isAdded()) {
@@ -561,6 +570,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
     }
 
+    @UiThread
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
         if (mFullHeightLayout) {
             if (updateSeekBar) {
@@ -585,6 +595,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
      *
      * @param playerState the player state to reflect in the UI.
      */
+    @UiThread
     private void updateUiFromPlayerState(@NonNull PlayerState playerState) {
         updateSongInfo(playerState);
 
@@ -600,6 +611,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
      *
      * @param playerState the player state for the song.
      */
+    @UiThread
     private void updateSongInfo(@NonNull PlayerState playerState) {
         updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
                 playerState.getCurrentSongDuration());
@@ -937,6 +949,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                 preferences.getPassword(serverAddress, "test1"));
     }
 
+    @MainThread
     public void onEventMainThread(ConnectionChanged event) {
         Log.d(TAG, "ConnectionChanged: " + event);
 
@@ -998,6 +1011,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
      }
 
+    @MainThread
     public void onEventMainThread(HandshakeComplete event) {
         // Event might arrive before this fragment has connected to the service (e.g.,
         // the activity connected before this fragment did).
@@ -1034,27 +1048,32 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         updateUiFromPlayerState(playerState);
     }
 
+    @MainThread
     public void onEventMainThread(MusicChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updateSongInfo(event.playerState);
         }
     }
 
+    @MainThread
     public void onEventMainThread(PlayersChanged event) {
         updatePlayerDropDown(event.players.values(), mService.getActivePlayer());
         updateUiFromPlayerState(mService.getActivePlayerState());
     }
 
+    @MainThread
     public void onEventMainThread(PlayStatusChanged event) {
         updatePlayPauseIcon(event.playStatus);
     }
 
+    @MainThread
     public void onEventMainThread(PowerStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updatePowerMenuItems(event.canPowerOn, event.canPowerOff);
         }
     }
 
+    @MainThread
     public void onEventMainThread(RepeatStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updateRepeatStatus(event.repeatStatus);
@@ -1065,6 +1084,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
     }
 
+    @MainThread
     public void onEventMainThread(ShuffleStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updateShuffleStatus(event.shuffleStatus);
@@ -1076,6 +1096,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
     }
 
+    @MainThread
     public void onEventMainThread(SongTimeChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updateTimeDisplayTo(event.currentPosition, event.duration);
