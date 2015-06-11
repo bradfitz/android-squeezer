@@ -165,6 +165,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     };
 
     public void onEventMainThread(PlayerPrefReceived event) {
+        if (!event.player.equals(getService().getActivePlayer())) {
+            return;
+        }
+
         if (event.mPlayerPref == PlayerPref.alarmsEnabled) {
             boolean checked = Integer.valueOf(event.mValue) > 0;
             alarmsEnabledButton.setEnabled(true);
@@ -176,7 +180,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
     public void onEventMainThread(PlayersChanged event) {
         // Only include players that are connected to the server.
         ArrayList<Player> connectedPlayers = new ArrayList<Player>();
-        for (Player player : event.players) {
+        for (Player player : event.players.values()) {
             if (player.getConnected()) {
                 connectedPlayers.add(player);
             }
@@ -189,12 +193,13 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
             return;
         }
 
-        if (event.activePlayer.equals(mActivePlayer) &&
-                event.activePlayer.getConnected() == mActivePlayer.getConnected()) {
+        Player newActivePlayer = getService().getActivePlayer();
+        if (newActivePlayer != null && newActivePlayer.equals(mActivePlayer)
+                && mActivePlayer.getConnected() == newActivePlayer.getConnected()) {
             return;
         }
 
-        mActivePlayer = event.activePlayer;
+        mActivePlayer = newActivePlayer;
         mEmptyView.setVisibility(View.GONE);
         mNonEmptyView.setVisibility(View.VISIBLE);
         clearAndReOrderItems();

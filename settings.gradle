@@ -1,1 +1,1 @@
-include ':Squeezer', ':libraries:datetimepicker'
+include ':Squeezer', ':libraries:datetimepicker', ':libs:eventbus:EventBus'

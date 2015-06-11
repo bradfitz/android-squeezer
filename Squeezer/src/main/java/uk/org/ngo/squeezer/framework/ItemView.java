@@ -23,8 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import uk.org.ngo.squeezer.util.ImageFetcher;
-
 
 /**
  * Defines view logic for a {@link Item}
@@ -60,11 +58,10 @@ public interface ItemView<T extends Item> {
      * android.view.ViewGroup)}
      * @param position Position of item in adapter
      * @param item the item to display.
-     * @param imageFetcher an {@link ImageFetcher} configured to load image thumbnails.
      *
      * @return the view to display.
      */
-    View getAdapterView(View convertView, ViewGroup parent, int position, T item, ImageFetcher imageFetcher);
+    View getAdapterView(View convertView, ViewGroup parent, int position, T item);
 
     /**
      * Gets a {@link android.view.View} suitable for displaying the supplied (static) text. See

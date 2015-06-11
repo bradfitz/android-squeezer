@@ -89,7 +89,7 @@ public class AlarmView extends BaseItemView<Alarm> {
     }
 
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, int position, Alarm item, ImageFetcher imageFetcher) {
+    public View getAdapterView(View convertView, ViewGroup parent, int position, Alarm item) {
         View view = getAdapterView(convertView, parent);
         bindView((AlarmViewHolder) view.getTag(), position, item);
         return view;

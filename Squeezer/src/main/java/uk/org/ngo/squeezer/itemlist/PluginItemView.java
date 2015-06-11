@@ -40,7 +40,7 @@ public class PluginItemView extends BaseItemView<PluginItem> {
     }
 
     @Override
-    public void bindView(View view, PluginItem item, ImageFetcher imageFetcher) {
+    public void bindView(View view, PluginItem item) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
@@ -50,7 +50,7 @@ public class PluginItemView extends BaseItemView<PluginItem> {
 
         // If the item has an image, then fetch and display it
         if (item.getImage() != null) {
-            imageFetcher.loadImage(item.getImage(), viewHolder.icon);
+            ImageFetcher.getInstance(getActivity()).loadImage(item.getImage(), viewHolder.icon);
         } else {
             // Otherwise we will revert to some other icon. This is not an exact approach, more
             // like a best effort.
@@ -60,7 +60,7 @@ public class PluginItemView extends BaseItemView<PluginItem> {
                 if (mActivity.getPlugin().getIconResource() != 0) {
                     viewHolder.icon.setImageResource(mActivity.getPlugin().getIconResource());
                 } else {
-                    imageFetcher.loadImage(mActivity.getIconUrl(mActivity.getPlugin().getIcon()),
+                    ImageFetcher.getInstance(getActivity()).loadImage(mActivity.getPlugin().getIcon(),
                             viewHolder.icon);
                 }
             } else {

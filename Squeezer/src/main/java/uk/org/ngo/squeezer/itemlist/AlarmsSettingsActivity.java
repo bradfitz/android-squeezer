@@ -149,6 +149,10 @@ public class AlarmsSettingsActivity extends BaseActivity {
     }
 
     public void onEventMainThread(PlayerPrefReceived event) {
+        if (!event.player.equals(getService().getActivePlayer())) {
+            return;
+        }
+
         PlayerPrefCallbacks callbacks = playerPrefs.get(event.mPlayerPref);
         callbacks.setEnabled(true);
         callbacks.updateView(Integer.valueOf(event.mValue));
