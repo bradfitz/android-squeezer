@@ -866,7 +866,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             menu_item_playlist.setVisible(false);
         }
         // Don't show the item to go to alarms if in AlarmsActivity.
-        if (mActivity instanceof AlarmsActivity && menu_item_playlist != null) {
+        if (mActivity instanceof AlarmsActivity && menu_item_alarm != null) {
             menu_item_alarm.setVisible(false);
         }
 
