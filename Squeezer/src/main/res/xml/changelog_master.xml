@@ -2,6 +2,20 @@
 
 <changelog>
     <release
+        version="1.3.1-beta-1"
+        versioncode="49">
+        <change>Fixed bug where the UI would not update after selecting a different
+            player (https://github.com/nikclayton/android-squeezer/issues/121).</change>
+
+        <change>Fixed crash caused by race condition when connecting to a server.</change>
+
+        <change>Remote song artwork is now supported in notification messages.</change>
+
+        <change>A partial translation in to Turkish, submitted by
+            https://www.transifex.com/accounts/profile/echelon/.</change>
+    </release>
+
+    <release
         version="1.3.0"
         versioncode="48">
         <change>Support richer notifications with playback controls from the
