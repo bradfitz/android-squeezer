@@ -90,7 +90,8 @@ public class AlbumView extends AlbumArtView<Album> {
         if ("".equals(artworkUrl)) {
             viewHolder.icon.setImageResource(R.drawable.icon_album_noart);
         } else {
-            ImageFetcher.getInstance(getActivity()).loadImage(artworkUrl, viewHolder.icon);
+            ImageFetcher.getInstance(getActivity()).loadImage(artworkUrl, viewHolder.icon,
+                    mIconWidth, mIconHeight);
         }
     }
 

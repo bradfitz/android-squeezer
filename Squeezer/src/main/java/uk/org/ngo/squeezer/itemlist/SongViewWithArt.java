@@ -49,7 +49,8 @@ public class SongViewWithArt extends SongView {
             viewHolder.icon.setImageResource(
                     item.isRemote() ? R.drawable.icon_iradio_noart : R.drawable.icon_album_noart);
         } else {
-            ImageFetcher.getInstance(getActivity()).loadImage(artworkUrl, viewHolder.icon);
+            ImageFetcher.getInstance(getActivity()).loadImage(artworkUrl, viewHolder.icon,
+                    mIconWidth, mIconHeight);
         }
     }
 
