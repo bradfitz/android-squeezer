@@ -14,8 +14,6 @@
     </string>
   <string name="settings_serveraddr_hint">Sunucu adı veya IP adresi</string>
   <string name="settings_server_prompt">Bir sunucu seçin</string>
-  <string name="settings_server_scan_start">Aramayı başlat</string>
-  <string name="settings_server_scan_stop">Aramayı durdur</string>
   <string name="settings_username_hint">Kullanıcı adı (isteğe bağlı)</string>
   <string name="settings_password_hint">Şifre (isteğe bağlı)</string>
   <string name="settings_server_scan_progress">Sunucular aranıyor...</string>
