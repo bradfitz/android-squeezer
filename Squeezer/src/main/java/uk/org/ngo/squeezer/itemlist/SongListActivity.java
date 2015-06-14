@@ -397,7 +397,8 @@ public class SongListActivity extends BaseListActivity<Song>
     public boolean onPrepareOptionsMenu(Menu menu) {
         final boolean boundToService = getService() != null;
 
-        if (album == null) {
+        // Note: Seen a crash reported here where playButton is null (on a rooted device).
+        if (album == null && playButton != null && addButton != null) {
             playButton.setEnabled(boundToService);
             addButton.setEnabled(boundToService);
         }
