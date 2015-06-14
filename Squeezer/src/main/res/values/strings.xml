@@ -33,7 +33,7 @@
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
     <string name="settings_server_prompt">Choose a server</string>
     <string name="settings_server_rescan">Rescan</string>
-    <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because WiFi is not
+    <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because Wi-Fi is not
         connected.
     </string>
     <string name="settings_theme_title">Theme</string>
