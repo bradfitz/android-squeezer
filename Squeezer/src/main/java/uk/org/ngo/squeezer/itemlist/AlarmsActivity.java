@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.text.format.DateFormat;
 import android.view.View;
@@ -32,10 +33,12 @@ import com.android.datetimepicker.time.TimePickerDialog;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.dialog.AlarmSettingsDialog;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -49,9 +52,7 @@ import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class AlarmsActivity extends BaseListActivity<Alarm> {
+public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSettingsDialog.HostActivity {
     /** The most recent active player. */
     private Player mActivePlayer;
     private AlarmView alarmView;
@@ -65,6 +66,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
 
     /** View that contains all_alarms_{on,off}_hint text. */
     private TextView mAllAlarmsHintView;
+
+    private boolean mPrefsOrdered = false;
+
+    private Map<PlayerPref, String> mPlayerPrefs = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,7 +91,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlarmsSettingsActivity.show(AlarmsActivity.this);
+                new AlarmSettingsDialog().show(getSupportFragmentManager(), "AlarmSettingsDialog");
             }
         });
 
@@ -104,6 +109,32 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onServiceConnected(@NonNull ISqueezeService service) {
+        super.onServiceConnected(service);
+        maybeOrderPrefs(service);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ISqueezeService service = getService();
+        if (service != null) {
+            maybeOrderPrefs(service);
+        }
+    }
+
+    private void maybeOrderPrefs(ISqueezeService service) {
+        if (!mPrefsOrdered) {
+            mPrefsOrdered = true;
+
+            service.playerPref(PlayerPref.alarmfadeseconds);
+            service.playerPref(PlayerPref.alarmDefaultVolume);
+            service.playerPref(PlayerPref.alarmSnoozeSeconds);
+            service.playerPref(PlayerPref.alarmTimeoutSeconds);
+        }
     }
 
     @Override
@@ -169,6 +200,8 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
             return;
         }
 
+        mPlayerPrefs.put(event.mPlayerPref, event.mValue);
+
         if (event.mPlayerPref == PlayerPref.alarmsEnabled) {
             boolean checked = Integer.valueOf(event.mValue) > 0;
             alarmsEnabledButton.setEnabled(true);
@@ -203,6 +236,29 @@ public class AlarmsActivity extends BaseListActivity<Alarm> {
         mEmptyView.setVisibility(View.GONE);
         mNonEmptyView.setVisibility(View.VISIBLE);
         clearAndReOrderItems();
+    }
+
+    @Override
+    @NonNull
+    public Player getPlayer() {
+        return mActivePlayer;
+    }
+
+    @Override
+    @Nullable
+    public String getPlayerPref(PlayerPref playerPref) {
+        return mPlayerPrefs.get(playerPref);
+    }
+
+    @Override
+    public void onPositiveClick(int volume, int snooze, int timeout, boolean fade) {
+        ISqueezeService service = getService();
+        if (service != null) {
+            service.playerPref(PlayerPref.alarmDefaultVolume, String.valueOf(volume));
+            service.playerPref(PlayerPref.alarmSnoozeSeconds, String.valueOf(snooze));
+            service.playerPref(PlayerPref.alarmTimeoutSeconds, String.valueOf(timeout));
+            service.playerPref(PlayerPref.alarmfadeseconds, fade ? "1" : "0");
+        }
     }
 
     public static class TimePickerFragment extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {

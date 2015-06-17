@@ -159,6 +159,26 @@
 
     <string name="alarm_music_prompt">Music for alarm</string>
 
+    <string name="alarms_settings_dialog_title">%s alarm settings</string>
+    <string name="alarm_volume_text">Alarm volume</string>
+
+    <string name="alarm_snooze_duration_text">Snooze duration</string>
+    <plurals name="alarm_snooze_hint_text">
+        <item quantity="one">Alarms snooze for %d minute</item>
+        <item quantity="other">Alarms snooze for %d minutes</item>
+    </plurals>
+
+    <string name="alarm_timeout_text">Alarm timeout</string>
+    <string name="alarm_timeout_hint_text_zero">Alarms play indefinitely</string>
+    <plurals name="alarm_timeout_hint_text">
+        <item quantity="one">Alarms stop after %d minute</item>
+        <item quantity="other">Alarms stop after %d minutes</item>
+    </plurals>
+
+    <string name="alarm_fade_text">Fade alarms up</string>
+    <string name="alarm_fade_on_text">Alarms will fade in</string>
+    <string name="alarm_fade_off_text">Alarms will not fade in</string>
+
     <string name="tips_title">Tips</string>
     <string name="tip_volume">Use your device\'s hardware volume controls to change the playing
         volume.\n\nTry it now.
