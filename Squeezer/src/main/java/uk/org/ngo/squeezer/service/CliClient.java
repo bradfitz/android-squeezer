@@ -750,6 +750,9 @@ class CliClient implements IClient {
 
         // Nothing to do if the artwork_url tag already exists.
         if (artworkUrl != null) {
+            if (!artworkUrl.startsWith(mUrlPrefix)) {
+                record.put("artwork_url", mUrlPrefix + "/" + artworkUrl);
+            }
             return;
         }
 
