@@ -68,18 +68,18 @@ import uk.org.ngo.squeezer.widget.UndoBarController;
 public class AlarmView extends BaseItemView<Alarm> {
     private static final int ANIMATION_DURATION = 300;
 
-    private final AlarmsActivity activity;
-    private final Resources resources;
-    private final int colorSelected;
-    private final float density;
-    private List<AlarmPlaylist> alarmPlaylists;
+    private final AlarmsActivity mActivity;
+    private final Resources mResources;
+    private final int mColorSelected;
+    private final float mDensity;
+    private final List<AlarmPlaylist> mAlarmPlaylists = new ArrayList<>();
 
     public AlarmView(AlarmsActivity activity) {
         super(activity);
-        this.activity = activity;
-        resources = activity.getResources();
-        colorSelected = resources.getColor(getActivity().getAttributeValue(R.attr.alarm_dow_selected));
-        density = resources.getDisplayMetrics().density;
+        mActivity = activity;
+        mResources = activity.getResources();
+        mColorSelected = mResources.getColor(getActivity().getAttributeValue(R.attr.alarm_dow_selected));
+        mDensity = mResources.getDisplayMetrics().density;
     }
 
     public String getQuantityString(int quantity) {
@@ -168,7 +168,7 @@ public class AlarmView extends BaseItemView<Alarm> {
                     animationSet.setAnimationListener(new AnimationEndListener() {
                         @Override
                         public void onAnimationEnd(Animation animation) {
-                            activity.getItemAdapter().removeItem(viewHolder.position);
+                            mActivity.getItemAdapter().removeItem(viewHolder.position);
                             UndoBarController.show(getActivity(), ServerString.ALARM_DELETING.getLocalizedString(), new UndoListener(viewHolder.position, viewHolder.alarm));
                         }
                     });
@@ -179,7 +179,7 @@ public class AlarmView extends BaseItemView<Alarm> {
             viewHolder.playlist.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    final AlarmPlaylist selectedAlarmPlaylist = alarmPlaylists.get(position);
+                    final AlarmPlaylist selectedAlarmPlaylist = mAlarmPlaylists.get(position);
                     final Alarm alarm = viewHolder.alarm;
                     if (getActivity().getService() != null &&
                             selectedAlarmPlaylist.getId() != null &&
@@ -200,7 +200,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         return convertView;
     }
 
-    public void bindView(final AlarmViewHolder viewHolder, final int position, final Alarm item) {
+    private void bindView(final AlarmViewHolder viewHolder, final int position, final Alarm item) {
         long tod = item.getTod();
         int hour = (int) (tod / 3600);
         int minute = (int) ((tod / 60) % 60);
@@ -222,10 +222,10 @@ public class AlarmView extends BaseItemView<Alarm> {
         viewHolder.amPm.setText(hour < 12 ? viewHolder.am : viewHolder.pm);
         viewHolder.enabled.setChecked(item.isEnabled());
         viewHolder.repeat.setChecked(item.isRepeat());
-        if (alarmPlaylists != null) {
+        if (!mAlarmPlaylists.isEmpty()) {
             viewHolder.playlist.setAdapter(new AlarmPlaylistSpinnerAdapter());
-            for (int i = 0; i < alarmPlaylists.size(); i++) {
-                AlarmPlaylist alarmPlaylist = alarmPlaylists.get(i);
+            for (int i = 0; i < mAlarmPlaylists.size(); i++) {
+                AlarmPlaylist alarmPlaylist = mAlarmPlaylists.get(i);
                 if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(item.getUrl())) {
                     viewHolder.playlist.setSelection(i);
                     break;
@@ -244,10 +244,10 @@ public class AlarmView extends BaseItemView<Alarm> {
         SpannableString text = new SpannableString(ServerString.getAlarmShortDayText(day));
         if (viewHolder.alarm.isDayActive(day)) {
             text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
-            text.setSpan(new ForegroundColorSpan(colorSelected), 0, text.length(), 0);
-            Drawable underline = resources.getDrawable(R.drawable.underline);
+            text.setSpan(new ForegroundColorSpan(mColorSelected), 0, text.length(), 0);
+            Drawable underline = mResources.getDrawable(R.drawable.underline);
             float textSize = (new Paint()).measureText(text.toString());
-            underline.setBounds(0, 0, (int) (textSize * density), (int) (1 * density));
+            underline.setBounds(0, 0, (int) (textSize * mDensity), (int) (1 * mDensity));
             viewHolder.dowTexts[day].setCompoundDrawables(null, null, null, underline);
         } else
             viewHolder.dowTexts[day].setCompoundDrawables(null, null, null, null);
@@ -269,14 +269,14 @@ public class AlarmView extends BaseItemView<Alarm> {
 
     public void setAlarmPlaylists(List<AlarmPlaylist> alarmPlaylists) {
         String currentCategory = null;
-        this.alarmPlaylists = new ArrayList<>();
+        mAlarmPlaylists.clear();
         for (AlarmPlaylist alarmPlaylist : alarmPlaylists) {
             if (!alarmPlaylist.getCategory().equals(currentCategory)) {
                 AlarmPlaylist categoryAlarmPlaylist = new AlarmPlaylist();
                 categoryAlarmPlaylist.setCategory(alarmPlaylist.getCategory());
-                this.alarmPlaylists.add(categoryAlarmPlaylist);
+                mAlarmPlaylists.add(categoryAlarmPlaylist);
             }
-            this.alarmPlaylists.add(alarmPlaylist);
+            mAlarmPlaylists.add(alarmPlaylist);
             currentCategory = alarmPlaylist.getCategory();
         }
     }
@@ -339,7 +339,7 @@ public class AlarmView extends BaseItemView<Alarm> {
     private class AlarmPlaylistSpinnerAdapter extends ArrayAdapter<AlarmPlaylist> {
 
         public AlarmPlaylistSpinnerAdapter() {
-            super(getActivity(), android.R.layout.simple_spinner_dropdown_item, alarmPlaylists);
+            super(getActivity(), android.R.layout.simple_spinner_dropdown_item, mAlarmPlaylists);
         }
 
         @Override
@@ -349,7 +349,7 @@ public class AlarmView extends BaseItemView<Alarm> {
 
         @Override
         public boolean isEnabled(int position) {
-            return (alarmPlaylists.get(position).getId() != null);
+            return (mAlarmPlaylists.get(position).getId() != null);
         }
 
         @Override
@@ -387,13 +387,13 @@ public class AlarmView extends BaseItemView<Alarm> {
 
         @Override
         public void onUndo() {
-            activity.getItemAdapter().insertItem(position, alarm);
+            mActivity.getItemAdapter().insertItem(position, alarm);
         }
 
         @Override
         public void onDone() {
-            if (activity.getService() != null) {
-                activity.getService().alarmDelete(alarm.getId());
+            if (mActivity.getService() != null) {
+                mActivity.getService().alarmDelete(alarm.getId());
             }
         }
     }

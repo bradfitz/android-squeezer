@@ -54,8 +54,11 @@ import uk.org.ngo.squeezer.widget.UndoBarController;
 public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSettingsDialog.HostActivity {
     /** The most recent active player. */
     private Player mActivePlayer;
-    private AlarmView alarmView;
-    private CompoundButtonWrapper alarmsEnabledButton;
+
+    private AlarmView mAlarmView;
+
+    /** Toggle/Switch that controls whether all alarms are enabled or disabled. */
+    private CompoundButtonWrapper mAlarmsEnabledButton;
 
     /** View to display when no players are connected. */
     private View mEmptyView;
@@ -66,8 +69,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
     /** View that contains all_alarms_{on,off}_hint text. */
     private TextView mAllAlarmsHintView;
 
+    /** Have player preference values been requested from the server? */
     private boolean mPrefsOrdered = false;
 
+    /** Maps from a @Player.Pref.Name to its value. */
     private final Map<String, String> mPlayerPrefs = new HashMap<>();
 
     @Override
@@ -80,7 +85,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         ((TextView)findViewById(R.id.all_alarms_text)).setText(ServerString.ALARM_ALL_ALARMS.getLocalizedString());
         mAllAlarmsHintView = (TextView) findViewById(R.id.all_alarms_hint);
 
-        alarmsEnabledButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_enabled));
+        mAlarmsEnabledButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_enabled));
         findViewById(R.id.add_alarm).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,7 +104,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        alarmsEnabledButton.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mAlarmsEnabledButton.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mAllAlarmsHintView.setText(isChecked ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
@@ -155,8 +160,8 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
 
     @Override
     public ItemView<Alarm> createItemView() {
-        alarmView = new AlarmView(this);
-        return alarmView;
+        mAlarmView = new AlarmView(this);
+        return mAlarmView;
     }
 
     @Override
@@ -164,24 +169,28 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         service.alarms(start, this);
         if (start == 0) {
             mActivePlayer = service.getActivePlayer();
-            alarmPlaylists.clear();
-            service.alarmPlaylists(alarmPlaylistsCallback);
+            service.alarmPlaylists(mAlarmPlaylistsCallback);
 
-            alarmsEnabledButton.setEnabled(false);
+            mAlarmsEnabledButton.setEnabled(false);
             service.playerPref(Player.Pref.ALARMS_ENABLED);
         }
     }
 
-    private final List<AlarmPlaylist> alarmPlaylists = new ArrayList<>();
-    private final IServiceItemListCallback<AlarmPlaylist> alarmPlaylistsCallback = new IServiceItemListCallback<AlarmPlaylist>() {
+    private final IServiceItemListCallback<AlarmPlaylist> mAlarmPlaylistsCallback = new IServiceItemListCallback<AlarmPlaylist>() {
+        private final List<AlarmPlaylist> mAlarmPlaylists = new ArrayList<>();
+
         @Override
         public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<AlarmPlaylist> items, Class<AlarmPlaylist> dataType) {
-            alarmPlaylists.addAll(items);
+            if (start == 0) {
+                mAlarmPlaylists.clear();
+            }
+
+            mAlarmPlaylists.addAll(items);
             if (start + items.size() >= count) {
                 getUIThreadHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        alarmView.setAlarmPlaylists(alarmPlaylists);
+                        mAlarmView.setAlarmPlaylists(mAlarmPlaylists);
                         getItemAdapter().notifyDataSetChanged();
                     }
                 });
@@ -203,8 +212,8 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
 
         if (Player.Pref.ALARMS_ENABLED.equals(event.pref)) {
             boolean checked = Integer.valueOf(event.value) > 0;
-            alarmsEnabledButton.setEnabled(true);
-            alarmsEnabledButton.setChecked(checked);
+            mAlarmsEnabledButton.setEnabled(true);
+            mAlarmsEnabledButton.setChecked(checked);
             mAllAlarmsHintView.setText(checked ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
         }
     }
