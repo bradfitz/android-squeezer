@@ -20,19 +20,20 @@ import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 
-/** Event sent when the shuffle status of the active player has changed. */
+/** Event sent when a player preference value is received. */
 public class PlayerPrefReceived {
+    /** The player that owns the preference. */
     @NonNull public final Player player;
 
-    /** True if the previous shuffle status was unknown. */
-    @NonNull public final @Player.Pref.Name String mPlayerPref;
+    /** The name of the preference that was received. */
+    @NonNull public final @Player.Pref.Name String pref;
 
     /** The value of the preference. */
-    @NonNull public final String mValue;
+    @NonNull public final String value;
 
-    public PlayerPrefReceived(@NonNull Player player, @NonNull @Player.Pref.Name String playerPref, @NonNull String value) {
+    public PlayerPrefReceived(@NonNull Player player, @NonNull @Player.Pref.Name String pref, @NonNull String value) {
         this.player = player;
-        mPlayerPref = playerPref;
-        mValue = value;
+        this.pref = pref;
+        this.value = value;
     }
 }

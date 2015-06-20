@@ -199,10 +199,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
             return;
         }
 
-        mPlayerPrefs.put(event.mPlayerPref, event.mValue);
+        mPlayerPrefs.put(event.pref, event.value);
 
-        if (Player.Pref.ALARMS_ENABLED.equals(event.mPlayerPref)) {
-            boolean checked = Integer.valueOf(event.mValue) > 0;
+        if (Player.Pref.ALARMS_ENABLED.equals(event.pref)) {
+            boolean checked = Integer.valueOf(event.value) > 0;
             alarmsEnabledButton.setEnabled(true);
             alarmsEnabledButton.setChecked(checked);
             mAllAlarmsHintView.setText(checked ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
