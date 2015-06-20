@@ -1286,9 +1286,7 @@ class CliClient implements IClient {
         Log.v(TAG, "Playlist notification received: " + tokens);
         String notification = tokens.get(2);
         if ("newsong".equals(notification)) {
-            // Suspect that this is no longer necessary, as the active player always has
-            // real time subscriptions enabled. Might be worth re-enabling this
-            //sendPlayerCommand(mActivePlayer.get(), "status - 1 tags:" + SqueezeService.SONGTAGS);
+            sendCommand(tokens.get(0), "status - 1 tags:" + SqueezeService.SONGTAGS);
         } else if ("play".equals(notification)) {
             updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PLAY_STATE_PLAY);
         } else if ("stop".equals(notification)) {
