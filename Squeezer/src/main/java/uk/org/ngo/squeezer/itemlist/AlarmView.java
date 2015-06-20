@@ -46,7 +46,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.datetimepicker.time.RadialPickerLayout;
 import com.android.datetimepicker.time.TimePickerDialog;
@@ -63,7 +62,6 @@ import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.widget.AnimationEndListener;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
@@ -271,7 +269,7 @@ public class AlarmView extends BaseItemView<Alarm> {
 
     public void setAlarmPlaylists(List<AlarmPlaylist> alarmPlaylists) {
         String currentCategory = null;
-        this.alarmPlaylists = new ArrayList<AlarmPlaylist>();
+        this.alarmPlaylists = new ArrayList<>();
         for (AlarmPlaylist alarmPlaylist : alarmPlaylists) {
             if (!alarmPlaylist.getCategory().equals(currentCategory)) {
                 AlarmPlaylist categoryAlarmPlaylist = new AlarmPlaylist();
@@ -297,7 +295,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         ImageView delete;
         Spinner playlist;
         LinearLayout dowHolder;
-        TextView[] dowTexts = new TextView[7];
+        final TextView[] dowTexts = new TextView[7];
     }
 
     public static class TimePickerFragment extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {

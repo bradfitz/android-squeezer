@@ -68,7 +68,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
 
     private boolean mPrefsOrdered = false;
 
-    private Map<String, String> mPlayerPrefs = new HashMap<>();
+    private final Map<String, String> mPlayerPrefs = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,7 +172,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         }
     }
 
-    private List<AlarmPlaylist> alarmPlaylists = new ArrayList<AlarmPlaylist>();
+    private final List<AlarmPlaylist> alarmPlaylists = new ArrayList<>();
     private final IServiceItemListCallback<AlarmPlaylist> alarmPlaylistsCallback = new IServiceItemListCallback<AlarmPlaylist>() {
         @Override
         public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<AlarmPlaylist> items, Class<AlarmPlaylist> dataType) {
@@ -211,7 +211,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
 
     public void onEventMainThread(PlayersChanged event) {
         // Only include players that are connected to the server.
-        ArrayList<Player> connectedPlayers = new ArrayList<Player>();
+        ArrayList<Player> connectedPlayers = new ArrayList<>();
         for (Player player : event.players.values()) {
             if (player.getConnected()) {
                 connectedPlayers.add(player);
