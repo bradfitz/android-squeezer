@@ -738,20 +738,28 @@ class CliClient implements IClient {
 
     /**
      * Adds a <code>artwork_url</code> entry for the item passed in.
-     *
-     * If an <code>artwork_url</code> entry already exists it is preserved. Otherwise it is
-     * synthesised from the <code>artwork_track_id</code> tag (if it exists) otherwise the
-     * item's <code>id</code>.
+     * <p>
+     * If an <code>artwork_url</code> entry already exists and is absolute it is preserved.
+     * If it exists but is relative it is canonicalised.  Otherwise it is synthesised from
+     * the <code>artwork_track_id</code> tag (if it exists) otherwise the item's <code>id</code>.
      *
      * @param record The record to modify.
      */
     private void addArtworkUrlTag(Map<String, String> record) {
         String artworkUrl = record.get("artwork_url");
 
-        // Nothing to do if the artwork_url tag already exists.
-        if (artworkUrl != null) {
+        // Nothing to do if the artwork_url tag already exists and is absolute.
+        if (artworkUrl != null && artworkUrl.startsWith("http")) {
             return;
         }
+
+        // If artworkUrl is non-null it must be relative. Canonicalise it and return.
+        if (artworkUrl != null) {
+            record.put("artwork_url", mUrlPrefix + "/" + artworkUrl);
+            return;
+        }
+
+        // Need to generate an artwork_url value.
 
         // Prefer using the artwork_track_id entry to generate the URL
         String artworkTrackId = record.get("artwork_track_id");
