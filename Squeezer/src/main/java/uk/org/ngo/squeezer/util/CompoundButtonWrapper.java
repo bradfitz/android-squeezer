@@ -30,6 +30,10 @@ public class CompoundButtonWrapper {
         this.button = button;
     }
 
+    public CompoundButton getButton() {
+        return button;
+    }
+
     public void setChecked(boolean checked) {
         button.setOnCheckedChangeListener(null);
         button.setChecked(checked);

@@ -78,27 +78,9 @@
         android:layout_marginTop="12dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        />
-    <TextView
-        android:id="@+id/repeat_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/repeat"
-        android:layout_toRightOf="@id/repeat"
-        android:layout_toEndOf="@id/repeat"
         android:textAppearance="@style/SqueezerTextAppearance.Medium"
-        tools:text="Repeat"
-        />
-    <ImageButton
-        android:id="@+id/repeat_desc"
-        android:src="@android:drawable/ic_menu_info_details"
-        android:background="?item_background"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/repeat"
-        android:layout_toRightOf="@id/repeat_label"
-        android:layout_toEndOf="@id/repeat_label"
-        />
+        tools:text="Repeat"/>
+
     <ImageButton
         android:id="@+id/delete"
         android:src="?ic_delete"

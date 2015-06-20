@@ -134,9 +134,7 @@ public class AlarmView extends BaseItemView<Alarm> {
                     }
                 }
             });
-            viewHolder.repeatLabel = (TextView) convertView.findViewById(R.id.repeat_label);
-            viewHolder.repeatLabel.setText(ServerString.ALARM_ALARM_REPEAT.getLocalizedString());
-            viewHolder.repeatDesc = convertView.findViewById(R.id.repeat_desc);
+            viewHolder.repeat.getButton().setText(ServerString.ALARM_ALARM_REPEAT.getLocalizedString());
             viewHolder.delete = (ImageView) convertView.findViewById(R.id.delete);
             viewHolder.playlist = (Spinner) convertView.findViewById(R.id.playlist);
             viewHolder.dowHolder = (LinearLayout) convertView.findViewById(R.id.dow);
@@ -162,12 +160,6 @@ public class AlarmView extends BaseItemView<Alarm> {
                 });
                 viewHolder.dowTexts[day] = (TextView) dowButton.getChildAt(0);
             }
-            viewHolder.repeatDesc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(getActivity(), ServerString.ALARM_ALARM_REPEAT_DESC.getLocalizedString(), Toast.LENGTH_LONG).show();
-                }
-            });
             viewHolder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View view) {
@@ -302,12 +294,10 @@ public class AlarmView extends BaseItemView<Alarm> {
         TextView amPm;
         CompoundButtonWrapper enabled;
         CompoundButtonWrapper repeat;
-        TextView repeatLabel;
-        View repeatDesc;
         ImageView delete;
         Spinner playlist;
         LinearLayout dowHolder;
-        TextView[] dowTexts = new TextView[7];
+        TextView[] dowText s = new TextView[7];
     }
 
     public static class TimePickerFragment extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {
