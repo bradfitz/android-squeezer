@@ -297,7 +297,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         ImageView delete;
         Spinner playlist;
         LinearLayout dowHolder;
-        TextView[] dowText s = new TextView[7];
+        TextView[] dowTexts = new TextView[7];
     }
 
     public static class TimePickerFragment extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {
