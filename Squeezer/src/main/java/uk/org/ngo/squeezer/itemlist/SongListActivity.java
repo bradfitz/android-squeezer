@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -143,9 +144,9 @@ public class SongListActivity extends BaseListActivity<Song>
                 yearView.setText(Integer.toString(album.getYear()));
             }
 
-            String artworkUrl = album.getArtworkUrl();
+            Uri artworkUrl = album.getArtworkUrl();
 
-            if ("".equals(artworkUrl)) {
+            if (artworkUrl.equals(Uri.EMPTY)) {
                 artwork.setImageResource(R.drawable.icon_album_noart);
             } else {
                 ImageFetcher.getInstance(this).loadImage(artworkUrl, artwork);
@@ -214,9 +215,9 @@ public class SongListActivity extends BaseListActivity<Song>
         // Set artwork that requires a service connection.
         if (album != null) {
             ImageView artwork = (ImageView) findViewById(R.id.album);
-            String artworkUrl = album.getArtworkUrl();
+            Uri artworkUrl = album.getArtworkUrl();
 
-            if ("".equals(artworkUrl)) {
+            if (artworkUrl.equals(Uri.EMPTY)) {
                 artwork.setImageResource(R.drawable.icon_album_noart);
             } else {
                 ImageFetcher.getInstance(this).loadImage(artworkUrl, artwork);
