@@ -40,24 +40,24 @@
 
             <TextView
                 android:id="@+id/all_alarms_text"
-                android:textAppearance="@style/SqueezerTextAppearance.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/alarms_enabled"
                 android:singleLine="true"
+                android:textAppearance="@style/SqueezerTextAppearance.Medium"
                 tools:text="All Alarms" />
 
             <TextView
                 android:id="@+id/all_alarms_hint"
-                android:textAppearance="@style/SqueezerTextAppearance.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/all_alarms_text"
                 android:layout_alignParentLeft="true"
+                android:layout_below="@id/all_alarms_text"
                 android:layout_toLeftOf="@+id/alarms_enabled"
                 android:singleLine="true"
-                android:text="@string/all_alarms_off_hint"/>
+                android:text="@string/all_alarms_off_hint"
+                android:textAppearance="@style/SqueezerTextAppearance.Small" />
 
             <include
                 android:id="@+id/alarms_enabled"

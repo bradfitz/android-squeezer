@@ -31,10 +31,9 @@
         android:id="@+id/line1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        >
+        android:layout_alignParentTop="true">
 
         <TextView
             android:id="@+id/time"
@@ -44,54 +43,54 @@
             android:layout_alignParentStart="true"
             android:background="?item_background"
             android:textAppearance="@style/SqueezerTextAppearance.XLarge"
-            tools:text="07:45"/>
+            tools:text="07:45" />
+
         <TextView
             android:id="@+id/am_pm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/ampm_left_padding"
-            android:paddingRight="@dimen/ampm_left_padding"
-            android:layout_toRightOf="@+id/time"
+            android:layout_alignBaseline="@+id/time"
             android:layout_toEndOf="@+id/time"
             android:layout_toLeftOf="@+id/enabled"
+            android:layout_toRightOf="@+id/time"
             android:layout_toStartOf="@+id/enabled"
-            android:layout_alignBaseline="@+id/time"
+            android:paddingLeft="@dimen/ampm_left_padding"
+            android:paddingRight="@dimen/ampm_left_padding"
             android:textAppearance="@style/SqueezerTextAppearance.Small"
             android:textColor="?alarm_am_pm_color"
-            tools:text="AM"/>
+            tools:text="AM" />
+
         <include
-            layout="@layout/squeezer_switch"
             android:id="@+id/enabled"
+            layout="@layout/squeezer_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            />
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" />
     </RelativeLayout>
 
     <CheckBox
         android:id="@+id/repeat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/line1"
-        android:layout_marginTop="12dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_below="@id/line1"
+        android:layout_marginTop="12dp"
         android:textAppearance="@style/SqueezerTextAppearance.Medium"
-        tools:text="Repeat"/>
+        tools:text="Repeat" />
 
     <ImageButton
         android:id="@+id/delete"
-        android:src="?ic_delete"
-        android:background="?item_background"
-        android:padding="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/repeat"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        />
+        android:layout_alignParentRight="true"
+        android:background="?item_background"
+        android:padding="8dp"
+        android:src="?ic_delete" />
 
     <LinearLayout
         android:id="@+id/dow"
@@ -101,13 +100,19 @@
         android:layout_marginTop="12dp"
         android:orientation="horizontal">
 
-        <include layout="@layout/day_of_week_button"/>
-        <include layout="@layout/day_of_week_button"/>
-        <include layout="@layout/day_of_week_button"/>
-        <include layout="@layout/day_of_week_button"/>
-        <include layout="@layout/day_of_week_button"/>
-        <include layout="@layout/day_of_week_button"/>
-        <include layout="@layout/day_of_week_button"/>
+        <include layout="@layout/day_of_week_button" />
+
+        <include layout="@layout/day_of_week_button" />
+
+        <include layout="@layout/day_of_week_button" />
+
+        <include layout="@layout/day_of_week_button" />
+
+        <include layout="@layout/day_of_week_button" />
+
+        <include layout="@layout/day_of_week_button" />
+
+        <include layout="@layout/day_of_week_button" />
     </LinearLayout>
 
     <Spinner
