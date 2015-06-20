@@ -45,12 +45,8 @@ import android.widget.RemoteViews;
 
 import com.crashlytics.android.Crashlytics;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +77,6 @@ import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerPref;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -92,7 +87,6 @@ import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
-import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
@@ -946,14 +940,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return mPlayers.get(playerId).getPlayerState();
         }
 
+        /**
+         * Issues a query for given player preference.
+         *
+         * @param playerPref
+         */
         @Override
-        public void playerPref(PlayerPref playerPref) {
+        public void playerPref(@Player.Pref.Name String playerPref) {
             playerPref(playerPref, "?");
         }
 
         @Override
-        public void playerPref(PlayerPref playerPref, String value) {
-            sendActivePlayerCommand("playerpref " + playerPref.name() + " " + value);
+        public void playerPref(@Player.Pref.Name String playerPref, String value) {
+            sendActivePlayerCommand("playerpref " + playerPref + " " + value);
         }
 
         @Override

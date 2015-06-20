@@ -24,7 +24,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.common.base.Enums;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -56,7 +55,6 @@ import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerPref;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -1094,9 +1092,11 @@ class CliClient implements IClient {
                         return;
                     }
 
-                    PlayerPref playerPref = PlayerPref.valueOf(Util.decode(tokens.get(2)));
-                    String value = Util.decode(tokens.get(3));
-                    mEventBus.post(new PlayerPrefReceived(player, playerPref, value));
+                    String pref = Util.decode(tokens.get(2));
+                    if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
+                        mEventBus.post(new PlayerPrefReceived(player, pref,
+                                Util.decode(tokens.get(3))));
+                    }
                 }
             }
         });
@@ -1246,10 +1246,11 @@ class CliClient implements IClient {
                     if (tokens.get(3).equals("volume")) {
                         updatePlayerVolume(playerId, Util.parseDecimalIntOrZero(tokens.get(4)));
                     }
-                    PlayerPref playerPref = Enums.getIfPresent(PlayerPref.class, tokens.get(3)).orNull();
-                    if (playerPref != null) {
+
+                    @Player.Pref.Name String pref = tokens.get(3);
+                    if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
                         String value = Util.decode(tokens.get(4));
-                        mEventBus.post(new PlayerPrefReceived(player, playerPref, value));
+                        mEventBus.post(new PlayerPrefReceived(player, pref, Util.decode(tokens.get(4))));
                     }
                 }
             }

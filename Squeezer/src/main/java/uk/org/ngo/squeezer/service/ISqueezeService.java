@@ -32,7 +32,6 @@ import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerPref;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -82,8 +81,8 @@ public interface ISqueezeService {
     void togglePower(Player player);
     void playerRename(Player player, String newName);
     void sleep(Player player, int duration);
-    void playerPref(PlayerPref playerPref);
-    void playerPref(PlayerPref playerPref, String value);
+    void playerPref(@Player.Pref.Name String playerPref);
+    void playerPref(@Player.Pref.Name String playerPref, String value);
 
     /**
      * Synchronises the slave player to the player with masterId.

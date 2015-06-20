@@ -32,7 +32,6 @@ import android.widget.TextView;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerPref;
 
 /**
  * A dialog with controls to manage a player's default alarm preferences (volume, snooze duration,
@@ -57,7 +56,7 @@ public class AlarmSettingsDialog extends DialogFragment {
          * @return The value of the PlayerPref identified by <code>playerPref</code>
          */
         @Nullable
-        String getPlayerPref(PlayerPref playerPref);
+        String getPlayerPref(@Player.Pref.Name String playerPref);
 
         /**
          * Called when the user selects the dialog's positive button.
@@ -154,10 +153,10 @@ public class AlarmSettingsDialog extends DialogFragment {
             }
         });
 
-        alarmVolume.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(PlayerPref.alarmDefaultVolume)));
-        alarmSnooze.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(PlayerPref.alarmSnoozeSeconds)) / 60);
-        alarmTimeout.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(PlayerPref.alarmTimeoutSeconds)) / 60);
-        alarmFadeToggle.setChecked("1".equals(mHostActivity.getPlayerPref(PlayerPref.alarmfadeseconds)));
+        alarmVolume.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_DEFAULT_VOLUME)));
+        alarmSnooze.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_SNOOZE_SECONDS)) / 60);
+        alarmTimeout.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_TIMEOUT_SECONDS)) / 60);
+        alarmFadeToggle.setChecked("1".equals(mHostActivity.getPlayerPref(Player.Pref.ALARM_FADE_SECONDS)));
 
         Builder builder = new Builder(getActivity());
         builder.setView(view);

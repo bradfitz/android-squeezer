@@ -44,7 +44,6 @@ import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerPref;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
@@ -69,7 +68,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
 
     private boolean mPrefsOrdered = false;
 
-    private Map<PlayerPref, String> mPlayerPrefs = new HashMap<>();
+    private Map<String, String> mPlayerPrefs = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,7 +104,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mAllAlarmsHintView.setText(isChecked ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
                 if (getService() != null) {
-                    getService().playerPref(PlayerPref.alarmsEnabled, isChecked ? "1" : "0");
+                    getService().playerPref(Player.Pref.ALARMS_ENABLED, isChecked ? "1" : "0");
                 }
             }
         });
@@ -130,10 +129,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         if (!mPrefsOrdered) {
             mPrefsOrdered = true;
 
-            service.playerPref(PlayerPref.alarmfadeseconds);
-            service.playerPref(PlayerPref.alarmDefaultVolume);
-            service.playerPref(PlayerPref.alarmSnoozeSeconds);
-            service.playerPref(PlayerPref.alarmTimeoutSeconds);
+            service.playerPref(Player.Pref.ALARM_FADE_SECONDS);
+            service.playerPref(Player.Pref.ALARM_DEFAULT_VOLUME);
+            service.playerPref(Player.Pref.ALARM_SNOOZE_SECONDS);
+            service.playerPref(Player.Pref.ALARM_TIMEOUT_SECONDS);
         }
     }
 
@@ -169,7 +168,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
             service.alarmPlaylists(alarmPlaylistsCallback);
 
             alarmsEnabledButton.setEnabled(false);
-            service.playerPref(PlayerPref.alarmsEnabled);
+            service.playerPref(Player.Pref.ALARMS_ENABLED);
         }
     }
 
@@ -202,7 +201,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
 
         mPlayerPrefs.put(event.mPlayerPref, event.mValue);
 
-        if (event.mPlayerPref == PlayerPref.alarmsEnabled) {
+        if (Player.Pref.ALARMS_ENABLED.equals(event.mPlayerPref)) {
             boolean checked = Integer.valueOf(event.mValue) > 0;
             alarmsEnabledButton.setEnabled(true);
             alarmsEnabledButton.setChecked(checked);
@@ -246,7 +245,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
 
     @Override
     @Nullable
-    public String getPlayerPref(PlayerPref playerPref) {
+    public String getPlayerPref(@Player.Pref.Name String playerPref) {
         return mPlayerPrefs.get(playerPref);
     }
 
@@ -254,10 +253,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
     public void onPositiveClick(int volume, int snooze, int timeout, boolean fade) {
         ISqueezeService service = getService();
         if (service != null) {
-            service.playerPref(PlayerPref.alarmDefaultVolume, String.valueOf(volume));
-            service.playerPref(PlayerPref.alarmSnoozeSeconds, String.valueOf(snooze));
-            service.playerPref(PlayerPref.alarmTimeoutSeconds, String.valueOf(timeout));
-            service.playerPref(PlayerPref.alarmfadeseconds, fade ? "1" : "0");
+            service.playerPref(Player.Pref.ALARM_DEFAULT_VOLUME, String.valueOf(volume));
+            service.playerPref(Player.Pref.ALARM_SNOOZE_SECONDS, String.valueOf(snooze));
+            service.playerPref(Player.Pref.ALARM_TIMEOUT_SECONDS, String.valueOf(timeout));
+            service.playerPref(Player.Pref.ALARM_FADE_SECONDS, fade ? "1" : "0");
         }
     }
 
