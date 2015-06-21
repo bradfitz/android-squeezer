@@ -187,7 +187,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     /**
      * Use the ID of the first player in the group as the identifier for the group.
-     * <p/>
+     * <p>
      * {@inheritDoc}
      * @param groupPosition
      * @return

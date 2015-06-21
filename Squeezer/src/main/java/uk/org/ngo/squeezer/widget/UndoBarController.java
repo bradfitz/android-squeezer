@@ -36,7 +36,7 @@ import uk.org.ngo.squeezer.R;
 /**
  *
  * Controls a view which is a toast with an undo button.
- * <p/>
+ * <p>
  * Use this for actions which which shall be undoable. The undo bar is hosted by an activity. When
  * the undo bar is first requested (by calling
  * {@link #show(Activity, CharSequence, UndoBarController.UndoListener)}) it inflates its view, and
@@ -45,7 +45,7 @@ import uk.org.ngo.squeezer.R;
  * when the undo button is pressed, or the undo bar goes away. The undo bar instance is shared
  * between requests, when using the same activity. When a new request comes in, any existing
  * listener is called, and the listener is replaced with the one in the new request.
- * <p/>
+ * <p>
  * Activities which uses the undo bar, should call {@link #hide(Activity)} in their
  * {@link Activity#onPause()} method.
  */

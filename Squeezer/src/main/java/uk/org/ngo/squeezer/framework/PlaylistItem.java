@@ -20,7 +20,7 @@ package uk.org.ngo.squeezer.framework;
  * Items that can be added to Squeezeserver playlists (anything that can be passed to the
  * <code>playlistcontrol</code> command) should derive from this class and implement {@link
  * #getPlaylistTag()} to provide the correct playlist tag.
- * <p/>
+ * <p>
  * See {@link BaseActivity#playlistControl}.
  *
  * @author nik

@@ -367,7 +367,7 @@ public class ConnectionState {
 
     /**
      * Authenticate on the SqueezeServer.
-     * <p/>
+     * <p>
      * The server does
      * <pre>
      * login user wrongpassword

@@ -33,7 +33,7 @@ import uk.org.ngo.squeezer.R;
 /**
  * A generic class for an adapter to list items of a particular SqueezeServer data type. The data
  * type is defined by the generic type argument, and must be an extension of {@link Item}.
- * <p/>
+ * <p>
  * Normally there is no need to extend this, as we delegate all type dependent stuff to
  * {@link ItemView}.
  *
@@ -52,7 +52,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
 
     /**
      * List of items, possibly headed with an empty item.
-     * <p/>
+     * <p>
      * As the items are received from SqueezeServer they will be inserted in the list.
      */
     private int count;
@@ -142,7 +142,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     /**
      * Creates the context menu for the selected item by calling {@link
      * ItemView#onCreateContextMenu} which the subclass should have specialised.
-     * <p/>
+     * <p>
      * Unpacks the {@link ContextMenu.ContextMenuInfo} passed to this method, and creates a {@link
      * ItemView.ContextMenuInfo} suitable for passing to subclasses of {@link BaseItemView}.
      */
@@ -249,7 +249,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
 
     /**
      * Update the contents of the items in this list.
-     * <p/>
+     * <p>
      * The size of the list of items is automatically adjusted if necessary, to obey the given
      * parameters.
      *

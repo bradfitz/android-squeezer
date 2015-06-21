@@ -446,7 +446,7 @@ public class ImageCache {
          * Sets the memory cache size based on a percentage of the device memory class. Eg. setting
          * percent to 0.2 would set the memory cache to one fifth of the device memory class. Throws
          * {@link IllegalArgumentException} if percent is < 0.05 or > .8.
-         * <p/>
+         * <p>
          * This value should be chosen carefully based on a number of factors Refer to the
          * corresponding Android Training class for more discussion: http://developer.android.com/training/displaying-bitmaps/
          *

@@ -108,7 +108,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     /**
      * Information that will be requested about songs.
-     * <p/>
+     * <p>
      * a: artist name<br/>
      * C: compilation (1 if true, missing otherwise)<br/>
      * d: duration, in seconds<br/>
@@ -319,7 +319,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     /**
      * Updates the playing status of the current player.
-     * <p/>
+     * <p>
      * Updates the Wi-Fi lock and ongoing status notification as necessary.
      */
     public void onEvent(PlayStatusChanged event) {
@@ -768,7 +768,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     /**
      * Tries to get the path relative to the server music library.
-     * <p/>
+     * <p>
      * If this is not possible resort to the last path segment of the server path.
      * In both cases replace dangerous characters by safe ones.
      */
@@ -1639,7 +1639,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Calculate and set player subscription states every time a client of the bus
      * un/registers.
-     * <p/>
+     * <p>
      * For example, this ensures that if a new client subscribes and needs real
      * time updates, the player subscription states will be updated accordingly.
      */

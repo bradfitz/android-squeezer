@@ -85,7 +85,7 @@ public class Util {
 
     /**
      * Formats an elapsed time in the form "M:SS" or "H:MM:SS" for display.
-     * <p/>
+     * <p>
      * Like {@link android.text.format.DateUtils#formatElapsedTime(long)} but without the leading
      * zeroes if the number of minutes is < 10.
      *

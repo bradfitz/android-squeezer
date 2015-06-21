@@ -30,7 +30,7 @@ import uk.org.ngo.squeezer.model.MusicFolderItem;
 
 /**
  * View for one entry in a {@link MusicFolderListActivity}.
- * <p/>
+ * <p>
  * Shows an entry with an icon indicating the type of the music folder item, and the name of the
  * item.
  *

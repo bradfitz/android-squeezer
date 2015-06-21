@@ -10,7 +10,7 @@ import uk.org.ngo.squeezer.R;
 
 /**
  * A fragment that implements a "Filter" menu.
- * <p/>
+ * <p>
  * Activities that host this fragment must implement {@link #FilterableListActivity}.
  *
  * <pre>

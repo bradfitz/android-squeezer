@@ -26,12 +26,12 @@ import android.view.ViewGroup;
 
 /**
  * Defines view logic for a {@link Item}
- * <p/>
+ * <p>
  * We keep this here because we don't want to pollute the model with view related stuff.
- * <p/>
+ * <p>
  * Currently this is the only logic class you have to implement for each SqueezeServer data type, so
  * it contains a few methods, which are not strictly view related.
- * <p/>
+ * <p>
  * {@link BaseItemView} implements all the common functionality, an some sensible defaults.
  *
  * @param <T> Denotes the class of the item this class implements view logic for
@@ -105,9 +105,9 @@ public interface ItemView<T extends Item> {
     /**
      * Creates the context menu, and sets the menu's title to the name of the item that it is the
      * context menu.
-     * <p/>
+     * <p>
      * Subclasses with no context menu should override this method and do nothing.
-     * <p/>
+     * <p>
      * Subclasses with a context menu should call this method, then inflate their context menu and
      * perform any adjustments to it before returning.
      *

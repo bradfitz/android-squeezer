@@ -213,7 +213,7 @@ public class AlbumListActivity extends BaseListActivity<Album>
 
     /**
      * Set the preferred album list layout.
-     * <p/>
+     * <p>
      * If the list layout is not selected, a default one is chosen, based on the current screen
      * size, on the assumption that the artwork grid is preferred on larger screens.
      */

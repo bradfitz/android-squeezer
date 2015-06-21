@@ -741,10 +741,10 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     /**
      * Builds a context menu suitable for the currently playing song.
-     * <p/>
+     * <p>
      * Takes the general song context menu, and disables items that make no sense for the song that
      * is currently playing.
-     * <p/>
+     * <p>
      * {@inheritDoc}
      *
      * @param menu
@@ -769,7 +769,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     /**
      * Handles clicks on the context menu.
-     * <p/>
+     * <p>
      * {@inheritDoc}
      *
      * @param item

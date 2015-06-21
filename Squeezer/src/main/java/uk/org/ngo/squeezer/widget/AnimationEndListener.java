@@ -6,7 +6,7 @@ import android.view.animation.Animation;
  * {@link Animation.AnimationListener} with default empty implementations of
  * {@link Animation.AnimationListener#onAnimationRepeat(Animation)} and
  * {@link Animation.AnimationListener#onAnimationStart(Animation)}.
- * <p/>
+ * <p>
  * This is just for a more convenient syntax if you only need to override the end action.
  */
 public abstract class AnimationEndListener implements Animation.AnimationListener {

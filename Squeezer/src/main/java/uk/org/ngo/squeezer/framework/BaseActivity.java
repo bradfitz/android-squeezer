@@ -255,7 +255,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     /**
      * Conditionally registers with the service's EventBus.
-     * <p/>
+     * <p>
      * Registration can happen in {@link #onResume()} and {@link
      * #onServiceConnected(uk.org.ngo.squeezer.service.ISqueezeService)}, this ensures that it only
      * happens once.

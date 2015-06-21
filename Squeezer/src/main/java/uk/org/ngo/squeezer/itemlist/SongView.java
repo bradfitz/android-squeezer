@@ -138,7 +138,7 @@ public class SongView extends PlaylistItemView<Song> {
 
     /**
      * Creates the context menu for a song by inflating R.menu.songcontextmenu.
-     * <p/>
+     * <p>
      * Subclasses that show songs in playlists should call through to this first, then adjust the
      * visibility of R.id.group_playlist.
      */

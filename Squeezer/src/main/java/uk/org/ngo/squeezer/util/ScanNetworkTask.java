@@ -51,14 +51,14 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
 
     /**
      * Discover Squeeze servers on the local network.
-     * <p/>
+     * <p>
      * Do this by sending MAX_DISCOVERY_ATTEMPT UDP broadcasts to port 3483 at approximately
      * DISCOVERY_ATTEMPT_TIMEOUT intervals. Squeeze servers are supposed to listen for this, and
      * respond with a packet that starts 'E' and some information about the server, including
      * its name.
-     * <p/>
+     * <p>
      * Map the name to an IP address and store in mDiscoveredServers for later use.
-     * <p/>
+     * <p>
      * See the Slim::Networking::Discovery module in Squeeze server for more details.
      */
     @Override

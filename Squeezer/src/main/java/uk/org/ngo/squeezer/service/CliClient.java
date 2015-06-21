@@ -383,9 +383,9 @@ class CliClient implements IClient {
 
     /**
      * Send the supplied commands to the SqueezeboxServer.
-     * <p/>
+     * <p>
      * <b>All</b> data to the server goes through this method
-     * <p/>
+     * <p>
      * <b>Note</b> don't call this from the main (UI) thread. If you are unsure if you are on the
      * main thread, then use {@link #sendCommand(String...)} instead.
      *
@@ -416,7 +416,7 @@ class CliClient implements IClient {
 
     /**
      * Send the supplied commands to the SqueezeboxServer.
-     * <p/>
+     * <p>
      * This method takes care to avoid performing network operations on the main thread. Use {@link
      * #sendCommandImmediately(String...)} if you are sure you are not on the main thread (eg if
      * called from the listening thread).
@@ -472,9 +472,9 @@ class CliClient implements IClient {
 
     /**
      * Send an asynchronous request to the SqueezeboxServer for the specified items.
-     * <p/>
+     * <p>
      * Items are returned to the caller via the specified callback.
-     * <p/>
+     * <p>
      * See {@link #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for details.
      *
      * @param playerId Id of the current player or null
@@ -502,20 +502,20 @@ class CliClient implements IClient {
 
     /**
      * Send an asynchronous request to the SqueezeboxServer for the specified items.
-     * <p/>
+     * <p>
      * Items are requested in chunks of <code>R.integer.PageSize</code>, and returned
      * to the caller via the specified callback.
-     * <p/>
+     * <p>
      * If start is zero, this will order one item, to quickly learn the number of items
      * from the server. When the server response with this item it is transferred to the
      * caller. The remaining items in the first page are then ordered, and transferred
      * to the caller when they arrive.
-     * <p/>
+     * <p>
      * If start is < 0, it means the caller wants the entire list. They are ordered in
      * pages, and transferred to the caller as they arrive.
-     * <p/>
+     * <p>
      * Otherwise request a page of items starting from start.
-     * <p/>
+     * <p>
      * See {@link #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for details.
      *
      * @param playerId Id of the current player or null
@@ -613,13 +613,13 @@ class CliClient implements IClient {
 
     /**
      * Generic method to parse replies for queries in extended query format
-     * <p/>
+     * <p>
      * This is the control center for asynchronous and paging receiving of data from SqueezeServer.
-     * <p/>
+     * <p>
      * Transfer of each data type are started by an asynchronous request by one of the public method
      * in this module. This method will forward the data using the supplied {@link ListHandler}, and
      * and order the next page if necessary, repeating the current query parameters.
-     * <p/>
+     * <p>
      * Activities should just initiate the request, and supply a callback to receive a page of
      * data.
      *
@@ -1033,7 +1033,7 @@ class CliClient implements IClient {
 
     /**
      * Initialise handlers for player-specific commands.
-     * <p/>
+     * <p>
      * All commands processed by these handlers start with the player ID.
      *
      * @return
@@ -1331,7 +1331,7 @@ class CliClient implements IClient {
 
     /**
      * Parse a token in to a key-value pair.  The value is optional.
-     * <p/>
+     * <p>
      * The token is assumed to be URL encoded, with the key and value separated by ':' (encoded
      * as '%3A').
      *
