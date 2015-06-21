@@ -91,6 +91,8 @@ import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
+import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.util.ImageWorker;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
@@ -137,6 +139,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     /** Media session to associate with ongoing notifications. */
     private MediaSession mMediaSession;
+
+    /** The player state that the most recent notifcation was for. */
+    private PlayerState mNotifiedPlayerState;
 
     /**
      * Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once
@@ -450,6 +455,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         // If there's no active player then kill the notification and get out.
+        // TODO: Have a "There are no connected players" notification text.
         if (activePlayer == null || activePlayerState == null) {
             clearOngoingNotification();
             return;
@@ -464,14 +470,37 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return;
         }
 
-        Song currentSong = activePlayerState.getCurrentSong();
+        // If there's no current song then kill the notification and get out.
+        // TODO: Have a "There's nothing playing" notification text.
+        final Song currentSong = activePlayerState.getCurrentSong();
+        if (currentSong == null) {
+            clearOngoingNotification();
+            return;
+        }
+
+        // Compare the current state with the state when the notification was last updated.
+        // If there are no changes (same song, same playing state) then there's nothing to do.
         String songName = currentSong.getName();
         String albumName = currentSong.getAlbumName();
         String artistName = currentSong.getArtist();
-        String url = currentSong.getArtworkUrl();
+        Uri url = currentSong.getArtworkUrl();
         String playerName = activePlayer.getName();
 
-        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
+        if (mNotifiedPlayerState == null) {
+            mNotifiedPlayerState = new PlayerState();
+        } else {
+            boolean lastPlaying = mNotifiedPlayerState.isPlaying();
+            Song lastNotifiedSong = mNotifiedPlayerState.getCurrentSong();
+
+            // No change in state
+            if (playing == lastPlaying && currentSong.equals(lastNotifiedSong)) {
+                return;
+            }
+        }
+
+        mNotifiedPlayerState.setCurrentSong(currentSong);
+        mNotifiedPlayerState.setPlayStatus(activePlayerState.getPlayStatus());
+        final NotificationManagerCompat nm = NotificationManagerCompat.from(this);
 
         PendingIntent nextPendingIntent = getPendingIntent(ACTION_NEXT_TRACK);
         PendingIntent prevPendingIntent = getPendingIntent(ACTION_PREV_TRACK);
@@ -479,31 +508,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         PendingIntent pausePendingIntent = getPendingIntent(ACTION_PAUSE);
         PendingIntent closePendingIntent = getPendingIntent(ACTION_CLOSE);
 
-        Bitmap albumArt = null;
-        try {
-            // XXX: Note that url may be relative and not absolute, which causes this to fail.
-            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setRequestProperty("User-agent", "Mozilla/4.0");
-
-            connection.connect();
-            InputStream input = connection.getInputStream();
-
-            albumArt = BitmapFactory.decodeStream(input);
-
-        } catch (Exception e) {
-            Log.w(TAG, "Exception when fetching notification icon: " + e);
-            Crashlytics.logException(e);
-            albumArt = BitmapFactory.decodeResource(getResources(), R.drawable.icon_album_noart);
-        }
-
         Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
-
         Notification notification;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Notification.Builder builder = new Notification.Builder(this);
+            final Notification.Builder builder = new Notification.Builder(this);
             builder.setContentIntent(pIntent);
             builder.setSmallIcon(R.drawable.squeezer_notification);
             builder.setVisibility(Notification.VISIBILITY_PUBLIC);
@@ -511,17 +522,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             builder.setContentTitle(songName);
             builder.setContentText(albumName);
             builder.setSubText(playerName);
-            builder.setLargeIcon(albumArt);
             builder.setStyle(new Notification.MediaStyle()
                     .setShowActionsInCompactView(1, 2)
                     .setMediaSession(mMediaSession.getSessionToken()));
 
-            MediaMetadata.Builder metaBuilder = new MediaMetadata.Builder();
+            final MediaMetadata.Builder metaBuilder = new MediaMetadata.Builder();
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, artistName);
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, albumName);
             metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, songName);
-            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt);
-            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, albumArt);
             mMediaSession.setMetadata(metaBuilder.build());
 
             // Don't set an ongoing notification, otherwise wearable's won't show it.
@@ -538,7 +546,24 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         .addAction(new Notification.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
             }
 
-            notification = builder.build();
+            ImageFetcher.getInstance(this).loadImage(url,
+                    getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
+                    getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
+                    new ImageWorker.ImageWorkerCallback() {
+                        @Override
+                        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                        public void process(Object data, @Nullable Bitmap bitmap) {
+                            if (bitmap == null) {
+                                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_album_noart);
+                            }
+
+                            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
+                            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
+                            mMediaSession.setMetadata(metaBuilder.build());
+                            builder.setLargeIcon(bitmap);
+                            nm.notify(PLAYBACKSERVICE_STATUS, builder.build());
+                        }
+                    });
         } else {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
@@ -555,9 +580,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             expandedView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
 
             builder.setContent(normalView);
-
-            normalView.setImageViewBitmap(R.id.album, albumArt);
-            expandedView.setImageViewBitmap(R.id.album, albumArt);
 
             normalView.setTextViewText(R.id.trackname, songName);
             normalView.setTextViewText(R.id.albumname, albumName);
@@ -588,9 +610,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 notification.bigContentView = expandedView;
             }
-        }
 
-        nm.notify(PLAYBACKSERVICE_STATUS, notification);
+            nm.notify(PLAYBACKSERVICE_STATUS, notification);
+
+            ImageFetcher.getInstance(this).loadImage(this, url, normalView, R.id.album,
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_width),
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_height),
+                    nm, PLAYBACKSERVICE_STATUS, notification);
+            ImageFetcher.getInstance(this).loadImage(this, url, expandedView, R.id.album,
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_width),
+                    getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_height),
+                    nm, PLAYBACKSERVICE_STATUS, notification);
+        }
     }
 
     /**
@@ -608,6 +639,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private void clearOngoingNotification() {
         NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         nm.cancel(PLAYBACKSERVICE_STATUS);
+        mNotifiedPlayerState = null;
     }
 
     public void onEvent(ConnectionChanged event) {
@@ -701,21 +733,20 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     };
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void downloadSong(@NonNull String url, String title, @NonNull String serverUrl) {
-        if ("".equals(url)) {
+    private void downloadSong(@NonNull Uri url, String title, @NonNull Uri serverUrl) {
+        if (url.equals(Uri.EMPTY)) {
             return;
         }
 
         // If running on Gingerbread or greater use the Download Manager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            Uri uri = Uri.parse(url);
             DownloadDatabase downloadDatabase = new DownloadDatabase(this);
             String localPath = getLocalFile(serverUrl);
             String tempFile = UUID.randomUUID().toString();
             String credentials = mUsername + ":" + mPassword;
             String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-            DownloadManager.Request request = new DownloadManager.Request(uri)
+            DownloadManager.Request request = new DownloadManager.Request(url)
                     .setTitle(title)
                     .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_MUSIC, tempFile)
                     .setVisibleInDownloadsUi(false)
@@ -740,9 +771,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * If this is not possible resort to the last path segment of the server path.
      * In both cases replace dangerous characters by safe ones.
      */
-    private String getLocalFile(@NonNull String serverUrl) {
-        Uri serverUri = Uri.parse(serverUrl);
-        String serverPath = serverUri.getPath();
+    private String getLocalFile(@NonNull Uri serverUrl) {
+        String serverPath = serverUrl.getPath();
         String mediaDir = null;
         String path = null;
         for (String dir : cli.getMediaDirs()) {
@@ -754,7 +784,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         if (mediaDir != null)
             path = serverPath.substring(mediaDir.length(), serverPath.length());
         else
-            path = serverUri.getLastPathSegment();
+            path = serverUrl.getLastPathSegment();
 
         // Convert VFAT-unfriendly characters to "_".
         return path.replaceAll("[?<>\\\\:*|\"]", "_");
@@ -1481,8 +1511,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             } else if (item instanceof MusicFolderItem) {
                 MusicFolderItem musicFolderItem = (MusicFolderItem) item;
                 if ("track".equals(musicFolderItem.getType())) {
-                    String url = musicFolderItem.getUrl();
-                    if (url != null) {
+                    Uri url = musicFolderItem.getUrl();
+                    if (! url.equals(Uri.EMPTY)) {
                         downloadSong(((MusicFolderItem) item).getDownloadUrl(), musicFolderItem.getName(), url);
                     }
                 } else if ("folder".equals(musicFolderItem.getType())) {

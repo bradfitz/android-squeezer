@@ -33,8 +33,8 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 public class SpinnerItemAdapter<T extends Item> extends ItemAdapter<T> implements SpinnerAdapter {
     private SpinnerItemView<T> mItemView;
 
-    public SpinnerItemAdapter(SpinnerItemView itemView, boolean emptyItem, ImageFetcher imageFetcher) {
-        super(itemView, emptyItem, imageFetcher);
+    public SpinnerItemAdapter(SpinnerItemView itemView, boolean emptyItem) {
+        super(itemView, emptyItem);
         mItemView = itemView;
     }
 
@@ -49,7 +49,7 @@ public class SpinnerItemAdapter<T extends Item> extends ItemAdapter<T> implement
             //
             // instead of special-casing whether or not mImageFetcher is null
             // in getAdapterView().
-            return mItemView.getDropDownAdapterView(convertView, parent, position, item, mImageFetcher);
+            return mItemView.getDropDownAdapterView(convertView, parent, position, item);
         }
 
         return mItemView.getDropDownAdapterView(convertView, parent,

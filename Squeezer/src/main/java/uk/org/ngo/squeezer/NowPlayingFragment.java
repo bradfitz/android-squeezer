@@ -24,24 +24,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -58,7 +55,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +62,6 @@ import java.util.Collections;
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.framework.HasUiThread;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
@@ -89,11 +84,9 @@ import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
-import uk.org.ngo.squeezer.util.ImageCache.ImageCacheParams;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-public class NowPlayingFragment extends Fragment implements
-        HasUiThread, View.OnCreateContextMenuListener {
+public class NowPlayingFragment extends Fragment implements View.OnCreateContextMenuListener {
 
     private final String TAG = "NowPlayingFragment";
 
@@ -149,45 +142,6 @@ public class NowPlayingFragment extends Fragment implements
     // Updating the seekbar
     private boolean updateSeekBar = true;
 
-    private int secondsIn;
-
-    private int secondsTotal;
-
-    private final static int UPDATE_TIME = 1;
-
-    /**
-     * ImageFetcher for album cover art
-     */
-    private ImageFetcher mImageFetcher;
-
-    /**
-     * ImageCache parameters for the album art.
-     */
-    private ImageCacheParams mImageCacheParams;
-
-    private final Handler uiThreadHandler = new UiThreadHandler(this);
-
-    private final static class UiThreadHandler extends Handler {
-
-        final WeakReference<NowPlayingFragment> mFragment;
-
-        public UiThreadHandler(NowPlayingFragment fragment) {
-            mFragment = new WeakReference<NowPlayingFragment>(fragment);
-        }
-
-        // Normally I'm lazy and just post Runnables to the uiThreadHandler
-        // but time updating is special enough (it happens every second) to
-        // take care not to allocate so much memory which forces Dalvik to GC
-        // all the time.
-        @Override
-        public void handleMessage(Message message) {
-            if (message.what == UPDATE_TIME) {
-                mFragment.get().updateTimeDisplayTo(mFragment.get().secondsIn,
-                        mFragment.get().secondsTotal);
-            }
-        }
-    }
-
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -214,6 +168,7 @@ public class NowPlayingFragment extends Fragment implements
     /**
      * Shows the "connecting" dialog if it's not already showing.
      */
+    @UiThread
     private void showConnectingDialog() {
         if (connectingDialog == null || !connectingDialog.isShowing()) {
             Preferences preferences = new Preferences(mActivity);
@@ -229,6 +184,7 @@ public class NowPlayingFragment extends Fragment implements
     /**
      * Dismisses the "connecting" dialog if it's showing.
      */
+    @UiThread
     private void dismissConnectingDialog() {
         if (connectingDialog != null && connectingDialog.isShowing()) {
             connectingDialog.dismiss();
@@ -307,33 +263,11 @@ public class NowPlayingFragment extends Fragment implements
                     v.showContextMenu();
                 }
             });
-
-            // Calculate the size of the album art to display, which will be the shorter
-            // of the device's two dimensions.
-            Display display = mActivity.getWindowManager().getDefaultDisplay();
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            display.getMetrics(displayMetrics);
-            mImageFetcher = new ImageFetcher(mActivity,
-                    Math.min(displayMetrics.heightPixels, displayMetrics.widthPixels));
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
 
             mProgressBar = (ProgressBar) v.findViewById(R.id.progressbar);
-
-            // Get an ImageFetcher to scale artwork to the size of the icon view.
-            Resources resources = getResources();
-            int iconSize = (Math.max(
-                    resources.getDimensionPixelSize(R.dimen.album_art_icon_height),
-                    resources.getDimensionPixelSize(R.dimen.album_art_icon_width)));
-            mImageFetcher = new ImageFetcher(mActivity, iconSize);
         }
-
-        // TODO: Clean this up.  I think a better approach is to create the cache
-        // in the activity that hosts the fragment, and make the cache available to
-        // the fragment (or, make the cache a singleton across the whole app).
-        mImageFetcher.setLoadingImage(R.drawable.icon_pending_artwork);
-        mImageCacheParams = new ImageCacheParams(mActivity, "artwork");
-        mImageCacheParams.setMemCacheSizePercent(mActivity, 0.12f);
 
         albumArt = (ImageView) v.findViewById(R.id.album);
         trackText = (TextView) v.findViewById(R.id.trackname);
@@ -453,14 +387,7 @@ public class NowPlayingFragment extends Fragment implements
         return v;
     }
 
-    /**
-     * Use this to post Runnables to work off thread
-     */
-    @Override
-    public Handler getUIThreadHandler() {
-        return uiThreadHandler;
-    }
-
+    @UiThread
     private void updatePlayPauseIcon(@PlayerState.PlayState String playStatus) {
         playPauseButton
                 .setImageResource((PlayerState.PLAY_STATE_PLAY.equals(playStatus)) ?
@@ -468,6 +395,7 @@ public class NowPlayingFragment extends Fragment implements
                         : mActivity.getAttributeValue(R.attr.ic_action_av_play));
     }
 
+    @UiThread
     private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
         if (mFullHeightLayout && shuffleStatus != null) {
             shuffleButton.setImageResource(
@@ -475,6 +403,7 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
+    @UiThread
     private void updateRepeatStatus(RepeatStatus repeatStatus) {
         if (mFullHeightLayout && repeatStatus != null) {
             repeatButton.setImageResource(
@@ -482,6 +411,7 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
+    @UiThread
     private void updatePowerMenuItems(boolean canPowerOn, boolean canPowerOff) {
         boolean connected = isConnected();
 
@@ -520,6 +450,7 @@ public class NowPlayingFragment extends Fragment implements
      * Collections.&lt;Player>emptyList()}) but not null.
      * @param activePlayer The currently active player. May be null.
      */
+    @UiThread
     private void updatePlayerDropDown(@NonNull Collection<Player> players,
             @Nullable Player activePlayer) {
         if (!isAdded()) {
@@ -566,7 +497,7 @@ public class NowPlayingFragment extends Fragment implements
                                         "onNavigationItemSelected.setActivePlayer(" + playerAdapter
                                                 .getItem(position) + ")");
                                 mService.setActivePlayer(playerAdapter.getItem(position));
-                                updateSongInfo(mService.getActivePlayerState().getCurrentSong());
+                                updateUiFromPlayerState(mService.getActivePlayerState());
                             }
                             return true;
                         }
@@ -606,8 +537,6 @@ public class NowPlayingFragment extends Fragment implements
         super.onResume();
         Log.d(TAG, "onResume...");
 
-        mImageFetcher.addImageCache(mActivity.getSupportFragmentManager(), mImageCacheParams);
-
         // Start it and have it run forever (until it shuts itself down).
         // This is required so swapping out the activity (and unbinding the
         // service connection in onDestroy) doesn't cause the service to be
@@ -641,6 +570,7 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
+    @UiThread
     private void updateTimeDisplayTo(int secondsIn, int secondsTotal) {
         if (mFullHeightLayout) {
             if (updateSeekBar) {
@@ -659,14 +589,41 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    // Should only be called from the UI thread.
-    private void updateSongInfo(Song song) {
-        Log.v(TAG, "updateSongInfo " + song);
+    /**
+     * Update the UI based on the player state. Call this when the active player
+     * changes.
+     *
+     * @param playerState the player state to reflect in the UI.
+     */
+    @UiThread
+    private void updateUiFromPlayerState(@NonNull PlayerState playerState) {
+        updateSongInfo(playerState);
+
+        updatePlayPauseIcon(playerState.getPlayStatus());
+        updateShuffleStatus(playerState.getShuffleStatus());
+        updateRepeatStatus(playerState.getRepeatStatus());
+        updatePowerMenuItems(canPowerOn(), canPowerOff());
+    }
+
+    /**
+     * Update the UI when the song changes, either because the track has changed, or the
+     * active player has changed.
+     *
+     * @param playerState the player state for the song.
+     */
+    @UiThread
+    private void updateSongInfo(@NonNull PlayerState playerState) {
+        updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
+                playerState.getCurrentSongDuration());
+
+        Song song = playerState.getCurrentSong();
+
         if (song != null) {
             albumText.setText(song.getAlbumName());
             trackText.setText(song.getName());
             if (mFullHeightLayout) {
                 artistText.setText(song.getArtist());
+                totalTime.setText(Util.formatElapsedTime(song.getDuration()));
                 if (song.isRemote()) {
                     if (song.getButtons().length() == 0) {
                         nextButton.setEnabled(false);
@@ -696,11 +653,7 @@ public class NowPlayingFragment extends Fragment implements
                 btnContextMenu.setVisibility(View.GONE);
             }
         }
-        updateAlbumArt(song);
-    }
 
-    // Should only be called from the UI thread.
-    private void updateAlbumArt(Song song) {
         if (song == null || !song.hasArtwork()) {
             if (mFullHeightLayout) {
                 albumArt.setImageResource(song != null && song.isRemote()
@@ -714,12 +667,7 @@ public class NowPlayingFragment extends Fragment implements
             return;
         }
 
-        // The image fetcher might not be ready yet.
-        if (mImageFetcher == null) {
-            return;
-        }
-
-        mImageFetcher.loadImage(song.getArtworkUrl(), albumArt);
+        ImageFetcher.getInstance(mActivity).loadImage(song.getArtworkUrl(), albumArt);
     }
 
     private boolean setSecondsElapsed(int seconds) {
@@ -766,7 +714,6 @@ public class NowPlayingFragment extends Fragment implements
         Log.d(TAG, "onPause...");
 
         dismissConnectingDialog();
-        mImageFetcher.closeCache();
 
         if (new Preferences(mActivity).isAutoConnect()) {
             mActivity.unregisterReceiver(broadcastReceiver);
@@ -1003,6 +950,7 @@ public class NowPlayingFragment extends Fragment implements
                 preferences.getPassword(serverAddress, "test1"));
     }
 
+    @MainThread
     public void onEventMainThread(ConnectionChanged event) {
         Log.d(TAG, "ConnectionChanged: " + event);
 
@@ -1064,6 +1012,7 @@ public class NowPlayingFragment extends Fragment implements
         }
      }
 
+    @MainThread
     public void onEventMainThread(HandshakeComplete event) {
         // Event might arrive before this fragment has connected to the service (e.g.,
         // the activity connected before this fragment did).
@@ -1097,36 +1046,35 @@ public class NowPlayingFragment extends Fragment implements
         if (playerState == null)
             return;
 
-        updatePlayPauseIcon(playerState.getPlayStatus());
-        updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
-                playerState.getCurrentSongDuration());
-        updateShuffleStatus(playerState.getShuffleStatus());
-        updateRepeatStatus(playerState.getRepeatStatus());
-
-        updatePowerMenuItems(canPowerOn(), canPowerOff());
+        updateUiFromPlayerState(playerState);
     }
 
+    @MainThread
     public void onEventMainThread(MusicChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
-            updateSongInfo(event.playerState.getCurrentSong());
+            updateSongInfo(event.playerState);
         }
     }
 
+    @MainThread
     public void onEventMainThread(PlayersChanged event) {
         updatePlayerDropDown(event.players.values(), mService.getActivePlayer());
-        updateSongInfo(mService.getActivePlayerState().getCurrentSong());
+        updateUiFromPlayerState(mService.getActivePlayerState());
     }
 
+    @MainThread
     public void onEventMainThread(PlayStatusChanged event) {
         updatePlayPauseIcon(event.playStatus);
     }
 
+    @MainThread
     public void onEventMainThread(PowerStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updatePowerMenuItems(event.canPowerOn, event.canPowerOff);
         }
     }
 
+    @MainThread
     public void onEventMainThread(RepeatStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updateRepeatStatus(event.repeatStatus);
@@ -1137,6 +1085,7 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
+    @MainThread
     public void onEventMainThread(ShuffleStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updateShuffleStatus(event.shuffleStatus);
@@ -1148,11 +1097,10 @@ public class NowPlayingFragment extends Fragment implements
         }
     }
 
-    public void onEvent(SongTimeChanged event) {
+    @MainThread
+    public void onEventMainThread(SongTimeChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
-            NowPlayingFragment.this.secondsIn = event.currentPosition;
-            NowPlayingFragment.this.secondsTotal = event.duration;
-            uiThreadHandler.sendEmptyMessage(UPDATE_TIME);
+            updateTimeDisplayTo(event.currentPosition, event.duration);
         }
     }
 }
