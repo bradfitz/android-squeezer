@@ -738,20 +738,28 @@ class CliClient implements IClient {
 
     /**
      * Adds a <code>artwork_url</code> entry for the item passed in.
-     *
-     * If an <code>artwork_url</code> entry already exists it is preserved. Otherwise it is
-     * synthesised from the <code>artwork_track_id</code> tag (if it exists) otherwise the
-     * item's <code>id</code>.
+     * <p>
+     * If an <code>artwork_url</code> entry already exists and is absolute it is preserved.
+     * If it exists but is relative it is canonicalised.  Otherwise it is synthesised from
+     * the <code>artwork_track_id</code> tag (if it exists) otherwise the item's <code>id</code>.
      *
      * @param record The record to modify.
      */
     private void addArtworkUrlTag(Map<String, String> record) {
         String artworkUrl = record.get("artwork_url");
 
-        // Nothing to do if the artwork_url tag already exists.
-        if (artworkUrl != null) {
+        // Nothing to do if the artwork_url tag already exists and is absolute.
+        if (artworkUrl != null && artworkUrl.startsWith("http")) {
             return;
         }
+
+        // If artworkUrl is non-null it must be relative. Canonicalise it and return.
+        if (artworkUrl != null) {
+            record.put("artwork_url", mUrlPrefix + "/" + artworkUrl);
+            return;
+        }
+
+        // Need to generate an artwork_url value.
 
         // Prefer using the artwork_track_id entry to generate the URL
         String artworkTrackId = record.get("artwork_track_id");
@@ -1278,9 +1286,7 @@ class CliClient implements IClient {
         Log.v(TAG, "Playlist notification received: " + tokens);
         String notification = tokens.get(2);
         if ("newsong".equals(notification)) {
-            // Suspect that this is no longer necessary, as the active player always has
-            // real time subscriptions enabled. Might be worth re-enabling this
-            //sendPlayerCommand(mActivePlayer.get(), "status - 1 tags:" + SqueezeService.SONGTAGS);
+            sendCommand(tokens.get(0), "status - 1 tags:" + SqueezeService.SONGTAGS);
         } else if ("play".equals(notification)) {
             updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PLAY_STATE_PLAY);
         } else if ("stop".equals(notification)) {
