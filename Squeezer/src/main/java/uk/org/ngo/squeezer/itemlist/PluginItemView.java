@@ -50,7 +50,8 @@ public class PluginItemView extends BaseItemView<PluginItem> {
 
         // If the item has an image, then fetch and display it
         if (item.getImage() != null) {
-            ImageFetcher.getInstance(getActivity()).loadImage(item.getImage(), viewHolder.icon);
+            ImageFetcher.getInstance(getActivity()).loadImage(item.getImage(), viewHolder.icon,
+                    mIconWidth, mIconHeight);
         } else {
             // Otherwise we will revert to some other icon. This is not an exact approach, more
             // like a best effort.
@@ -61,7 +62,7 @@ public class PluginItemView extends BaseItemView<PluginItem> {
                     viewHolder.icon.setImageResource(mActivity.getPlugin().getIconResource());
                 } else {
                     ImageFetcher.getInstance(getActivity()).loadImage(mActivity.getPlugin().getIcon(),
-                            viewHolder.icon);
+                            viewHolder.icon, mIconWidth, mIconHeight);
                 }
             } else {
                 // Finally we assume it is an item that can be played. This is consistent with

@@ -16,8 +16,10 @@
 
 package uk.org.ngo.squeezer.model;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.bluelinelabs.logansquare.annotation.JsonObject;
 import com.google.common.base.Strings;
@@ -48,14 +50,14 @@ public class Album extends ArtworkItem {
     }
 
     @NonNull
-    private String mArtworkUrl = "";
+    private Uri mArtworkUrl = Uri.EMPTY;
 
     @NonNull
-    public String getArtworkUrl() {
+    public Uri getArtworkUrl() {
         return mArtworkUrl;
     }
 
-    public void setArtworkUrl(@NonNull String artworkUrl) {
+    public void setArtworkUrl(@NonNull Uri artworkUrl) {
         mArtworkUrl = artworkUrl;
     }
 
@@ -95,7 +97,7 @@ public class Album extends ArtworkItem {
         setArtist(record.get("artist"));
         setYear(Util.parseDecimalIntOrZero(record.get("year")));
         setArtwork_track_id(record.get("artwork_track_id"));
-        mArtworkUrl = Strings.nullToEmpty(record.get("artwork_url"));
+        mArtworkUrl = Uri.parse(Strings.nullToEmpty(record.get("artwork_url")));
     }
 
     public static final Creator<Album> CREATOR = new Creator<Album>() {
@@ -120,7 +122,7 @@ public class Album extends ArtworkItem {
         artist = source.readString();
         year = source.readInt();
         setArtwork_track_id(source.readString());
-        mArtworkUrl = source.readString();
+        mArtworkUrl = Uri.parse(Strings.nullToEmpty(source.readString()));
     }
 
     @Override
@@ -130,7 +132,7 @@ public class Album extends ArtworkItem {
         dest.writeString(artist);
         dest.writeInt(year);
         dest.writeString(getArtwork_track_id());
-        dest.writeString(mArtworkUrl);
+        dest.writeString(mArtworkUrl.toString());
     }
 
     @Override

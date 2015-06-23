@@ -34,7 +34,7 @@
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
     <string name="settings_server_prompt">Choose a server</string>
     <string name="settings_server_rescan">Rescan</string>
-    <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because WiFi is not
+    <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because Wi-Fi is not
         connected.
     </string>
     <string name="settings_theme_title">Theme</string>
@@ -382,7 +382,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="BROWSE_ARTIST_SONGS">Browse songs by artist</string>
     <string name="PLAY_NOW">Play</string>
     <string name="ADD_TO_END">Add to playlist</string>
-    <string name="PLAY_NEXT">Play after the currently playing song</string>
+    <string name="PLAY_NEXT">Play after the current song</string>
     <string name="DOWNLOAD_ITEM">Download</string>
     <string name="DOWNLOAD_MANAGER_NEEDED">Download requires Android 2.3 or later</string>
 

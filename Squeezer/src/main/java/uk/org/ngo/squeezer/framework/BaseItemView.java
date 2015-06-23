@@ -38,7 +38,6 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
 import uk.org.ngo.squeezer.itemlist.ArtistListActivity;
 import uk.org.ngo.squeezer.itemlist.SongListActivity;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.widget.ListItemImageButton;
 import uk.org.ngo.squeezer.widget.SquareImageView;
@@ -95,7 +94,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /** Adds a button, with click handler, to display the context menu. */
     public static final int VIEW_PARAM_CONTEXT_BUTTON = 1 << 2;
 
-
     /**
      * View parameters for a filled-in view.  One primary line with context button.
      */
@@ -105,6 +103,12 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * View parameters for a view that is loading data.  Primary line only.
      */
     @ViewParam private int mLoadingViewParams = 0;
+
+    /** Width of the icon, if VIEW_PARAM_ICON is used. */
+    protected int mIconWidth;
+
+    /** Height of the icon, if VIEW_PARAM_ICON is used. */
+    protected int mIconHeight;
 
     /**
      * A ViewHolder for the views that make up a complete list item.
@@ -128,8 +132,10 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     protected static final Joiner mJoiner = Joiner.on(" - ").skipNulls();
 
     public BaseItemView(ItemListActivity activity) {
-        this.mActivity = activity;
+        mActivity = activity;
         mLayoutInflater = activity.getLayoutInflater();
+        mIconWidth = mActivity.getResources().getDimensionPixelSize(R.dimen.album_art_icon_width);
+        mIconHeight = mActivity.getResources().getDimensionPixelSize(R.dimen.album_art_icon_height);
     }
 
     @Override

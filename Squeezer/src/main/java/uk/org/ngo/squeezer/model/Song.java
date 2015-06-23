@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.model;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -118,18 +119,18 @@ public class Song extends ArtworkItem {
     }
 
     /** The URL of the track on the server. This is the file:/// URL, not the URL to download it. */
-    @NonNull private final String mUrl;
+    @NonNull private final Uri mUrl;
 
     @NonNull
-    public String getUrl() {
+    public Uri getUrl() {
         return mUrl;
     }
 
     /** The URL to use to download the song. */
-    @NonNull private String mDownloadUrl = "";
+    @NonNull private Uri mDownloadUrl;
 
     @NonNull
-    public String getDownloadUrl() {
+    public Uri getDownloadUrl() {
         return mDownloadUrl;
     }
 
@@ -140,17 +141,17 @@ public class Song extends ArtworkItem {
         return mButtons;
     }
 
-    @NonNull private String mArtworkUrl;
+    @NonNull private Uri mArtworkUrl = Uri.EMPTY;
 
     /**
      * @return Whether the song has artwork associated with it.
      */
     public boolean hasArtwork() {
-        return ! "".equals(mArtworkUrl);
+        return ! (mArtworkUrl == Uri.EMPTY);
     }
 
     @NonNull
-    public String getArtworkUrl() {
+    public Uri getArtworkUrl() {
         return mArtworkUrl;
     }
 
@@ -174,9 +175,10 @@ public class Song extends ArtworkItem {
         mAlbumId = Strings.nullToEmpty(record.get("album_id"));
         mRemote = Util.parseDecimalIntOrZero(record.get("remote")) != 0;
         mTrackNum = Util.parseDecimalInt(record.get("tracknum"), 1);
-        mArtworkUrl = Strings.nullToEmpty(record.get("artwork_url"));
-        mUrl = Strings.nullToEmpty(record.get("url"));
-        mDownloadUrl = Strings.nullToEmpty(record.get("download_url"));
+
+        mArtworkUrl = Uri.parse(Strings.nullToEmpty(record.get("artwork_url")));
+        mUrl = Uri.parse(Strings.nullToEmpty(record.get("url")));
+        mDownloadUrl = Uri.parse(Strings.nullToEmpty(record.get("download_url")));
         mButtons = Strings.nullToEmpty(record.get("buttons"));
 
         String artworkTrackId = record.get("artwork_track_id");
@@ -213,9 +215,9 @@ public class Song extends ArtworkItem {
         mAlbumId = source.readString();
         setArtwork_track_id(source.readString());
         mTrackNum = source.readInt();
-        mUrl = source.readString();
+        mUrl = Uri.parse(source.readString());
         mButtons = source.readString();
-        mDownloadUrl = source.readString();
+        mDownloadUrl = Uri.parse(source.readString());
     }
 
     @Override
@@ -231,9 +233,9 @@ public class Song extends ArtworkItem {
         dest.writeString(mAlbumId);
         dest.writeString(getArtwork_track_id());
         dest.writeInt(mTrackNum);
-        dest.writeString(mUrl);
+        dest.writeString(mUrl.toString());
         dest.writeString(mButtons);
-        dest.writeString(mDownloadUrl);
+        dest.writeString(mDownloadUrl.toString());
     }
 
     @Override

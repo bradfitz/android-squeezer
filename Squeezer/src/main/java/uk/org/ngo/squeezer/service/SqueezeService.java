@@ -483,7 +483,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         String songName = currentSong.getName();
         String albumName = currentSong.getAlbumName();
         String artistName = currentSong.getArtist();
-        String url = currentSong.getArtworkUrl();
+        Uri url = currentSong.getArtworkUrl();
         String playerName = activePlayer.getName();
 
         if (mNotifiedPlayerState == null) {
@@ -733,21 +733,20 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     };
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void downloadSong(@NonNull String url, String title, @NonNull String serverUrl) {
-        if ("".equals(url)) {
+    private void downloadSong(@NonNull Uri url, String title, @NonNull Uri serverUrl) {
+        if (url.equals(Uri.EMPTY)) {
             return;
         }
 
         // If running on Gingerbread or greater use the Download Manager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            Uri uri = Uri.parse(url);
             DownloadDatabase downloadDatabase = new DownloadDatabase(this);
             String localPath = getLocalFile(serverUrl);
             String tempFile = UUID.randomUUID().toString();
             String credentials = mUsername + ":" + mPassword;
             String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-            DownloadManager.Request request = new DownloadManager.Request(uri)
+            DownloadManager.Request request = new DownloadManager.Request(url)
                     .setTitle(title)
                     .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_MUSIC, tempFile)
                     .setVisibleInDownloadsUi(false)
@@ -772,9 +771,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * If this is not possible resort to the last path segment of the server path.
      * In both cases replace dangerous characters by safe ones.
      */
-    private String getLocalFile(@NonNull String serverUrl) {
-        Uri serverUri = Uri.parse(serverUrl);
-        String serverPath = serverUri.getPath();
+    private String getLocalFile(@NonNull Uri serverUrl) {
+        String serverPath = serverUrl.getPath();
         String mediaDir = null;
         String path = null;
         for (String dir : cli.getMediaDirs()) {
@@ -786,7 +784,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         if (mediaDir != null)
             path = serverPath.substring(mediaDir.length(), serverPath.length());
         else
-            path = serverUri.getLastPathSegment();
+            path = serverUrl.getLastPathSegment();
 
         // Convert VFAT-unfriendly characters to "_".
         return path.replaceAll("[?<>\\\\:*|\"]", "_");
@@ -1623,8 +1621,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             } else if (item instanceof MusicFolderItem) {
                 MusicFolderItem musicFolderItem = (MusicFolderItem) item;
                 if ("track".equals(musicFolderItem.getType())) {
-                    String url = musicFolderItem.getUrl();
-                    if (url != null) {
+                    Uri url = musicFolderItem.getUrl();
+                    if (! url.equals(Uri.EMPTY)) {
                         downloadSong(((MusicFolderItem) item).getDownloadUrl(), musicFolderItem.getName(), url);
                     }
                 } else if ("folder".equals(musicFolderItem.getType())) {

@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.net.Uri;
 import android.support.annotation.IntDef;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -86,11 +87,12 @@ public class AlbumView extends AlbumArtView<Album> {
         }
         viewHolder.text2.setText(text2);
 
-        String artworkUrl = item.getArtworkUrl();
-        if ("".equals(artworkUrl)) {
+        Uri artworkUrl = item.getArtworkUrl();
+        if (artworkUrl.equals(Uri.EMPTY)) {
             viewHolder.icon.setImageResource(R.drawable.icon_album_noart);
         } else {
-            ImageFetcher.getInstance(getActivity()).loadImage(artworkUrl, viewHolder.icon);
+            ImageFetcher.getInstance(getActivity()).loadImage(artworkUrl, viewHolder.icon,
+                    mIconWidth, mIconHeight);
         }
     }
 

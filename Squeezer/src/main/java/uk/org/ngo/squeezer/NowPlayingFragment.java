@@ -627,6 +627,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             trackText.setText(song.getName());
             if (mFullHeightLayout) {
                 artistText.setText(song.getArtist());
+                totalTime.setText(Util.formatElapsedTime(song.getDuration()));
                 if (song.isRemote()) {
                     if (song.getButtons().length() == 0) {
                         nextButton.setEnabled(false);
