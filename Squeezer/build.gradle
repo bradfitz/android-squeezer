@@ -118,8 +118,8 @@ android {
         }
 
         live {
-            versionCode 48
-            versionName "1.3.0"
+            versionCode 52
+            versionName "1.3.1"
             signingConfig android.signingConfigs.release
         }
     }
