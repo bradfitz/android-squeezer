@@ -32,7 +32,7 @@
     </string>
     <string name="settings_serveraddr_hint">Naam of IP adres van server</string>
     <string name="settings_server_prompt">Kies een server</string>
-    <string name="settings_server_scanning_disabled_msg">Scannen is uitgeschakeld, omdat WiFi
+    <string name="settings_server_scanning_disabled_msg">Scannen is uitgeschakeld, omdat Wi-Fi
         niet is verbonden.
     </string>
     <string name="settings_username_hint">Gebruikersnaam (optioneel)</string>
