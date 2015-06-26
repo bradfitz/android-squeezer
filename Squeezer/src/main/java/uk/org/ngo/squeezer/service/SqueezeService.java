@@ -50,6 +50,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -382,7 +383,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Adjusts the subscription to players' status updates.
      */
     private void updateAllPlayerSubscriptionStates() {
-        for (Player player : mPlayers.values()) {
+        // mPlayers might be modified by another thread, so copy the values.
+        Collection<Player> players = mPlayers.values();
+        for (Player player : players) {
             updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
         }
     }
@@ -683,14 +686,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 null);
         Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
-        ArrayList<Player> players = new ArrayList<Player>(mPlayers.values());
+        Collection<Player> players = mPlayers.values();
         Log.i(TAG, "mPlayers empty?: " + mPlayers.isEmpty());
         for (Player player : players) {
             if (player.getId().equals(lastConnectedPlayer)) {
                 return player;
             }
         }
-        return !players.isEmpty() ? players.get(0) : null;
+        return !players.isEmpty() ? players.iterator().next() : null;
     }
 
     /* Start an asynchronous fetch of the squeezeservers localized strings */
