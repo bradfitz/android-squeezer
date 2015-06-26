@@ -925,17 +925,23 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (mActivePlayer == null) {
                 return null;
             }
-            Player p = mActivePlayer.get();
-            if (p == null) {
+            Player activePlayer = mActivePlayer.get();
+            if (activePlayer == null) {
                 return null;
             }
-            return getPlayerState(p.getId());
+
+            return activePlayer.getPlayerState();
         }
 
         @Override
         @Nullable
         public PlayerState getPlayerState(String playerId) {
-            return mPlayers.get(playerId).getPlayerState();
+            Player player = mPlayers.get(playerId);
+            if (player == null) {
+                return null;
+            }
+
+            return player.getPlayerState();
         }
 
         @Override
