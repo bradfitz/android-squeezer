@@ -1556,13 +1556,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void post(Object event) {
-            Log.i("EventBus", "post() " + event.getClass().getSimpleName() + ": " + event);
+            Log.v("EventBus", "post() " + event.getClass().getSimpleName() + ": " + event);
             super.post(event);
         }
 
         @Override
         public void postSticky(Object event) {
-            Log.i("EventBus", "postSticky() " + event.getClass().getSimpleName() + ": " + event);
+            Log.v("EventBus", "postSticky() " + event.getClass().getSimpleName() + ": " + event);
             super.postSticky(event);
         }
 
