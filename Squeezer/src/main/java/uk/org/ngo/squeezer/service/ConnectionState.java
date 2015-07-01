@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.service;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.v4.util.Pools;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -252,9 +253,10 @@ public class ConnectionState {
         @Override
         public void run() {
             Log.d(TAG, "Listening thread started");
+
             BufferedReader in;
             try {
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()), 128);
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             } catch (IOException e) {
                 Log.v(TAG, "IOException while creating BufferedReader: " + e);
                 cli.disconnect(false);
