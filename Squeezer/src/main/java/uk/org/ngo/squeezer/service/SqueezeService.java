@@ -322,6 +322,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     /**
+     * The player state change might warrant a new subscription type (e.g., if the
+     * player didn't have a sleep duration set, and now does).
+     * @param event
+     */
+    public void onEvent(PlayerStateChanged event) {
+        updatePlayerSubscription(event.player, calculateSubscriptionTypeFor(event.player));
+    }
+
+    /**
      * Updates the playing status of the current player.
      * <p/>
      * Updates the Wi-Fi lock and ongoing status notification as necessary.
