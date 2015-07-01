@@ -265,7 +265,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     @Override
     public boolean onUnbind(Intent intent) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mMediaSession.release();
+            if (mMediaSession != null) {
+                mMediaSession.release();
+            }
         }
         return super.onUnbind(intent);
     }
