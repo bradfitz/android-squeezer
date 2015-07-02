@@ -69,6 +69,11 @@ public class PlayerListActivity extends ItemListActivity implements
      * expanded.
      */
     private void updateAndExpandPlayerList() {
+        // Can't do anything if the adapter hasn't been set (pre-handshake).
+        if (mResultsExpandableListView.getAdapter() == null) {
+            return;
+        }
+
         updateSyncGroups(getService().getPlayers(), getService().getActivePlayer());
         mResultsAdapter.setSyncGroups(mPlayerSyncGroups);
 
