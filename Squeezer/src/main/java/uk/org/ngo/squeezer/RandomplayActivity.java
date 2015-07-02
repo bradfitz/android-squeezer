@@ -35,6 +35,7 @@ import java.util.Arrays;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class RandomplayActivity extends BaseActivity {
 
@@ -59,11 +60,8 @@ public class RandomplayActivity extends BaseActivity {
         listView = (ListView) findViewById(R.id.item_list);
     }
 
-    @Override
-    protected void onServiceConnected(@NonNull ISqueezeService service) {
-        super.onServiceConnected(service);
-
-        setRandomPlayList(service);
+    public void onEventMainThread(HandshakeComplete event) {
+        setRandomPlayList(getService());
     }
 
     private void setRandomPlayList(@NonNull ISqueezeService service) {
