@@ -161,8 +161,13 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     @Override
     public void onPause() {
-        mVolumePanel.dismiss();
-        mVolumePanel = null;
+        // At least some Samsung devices call onPause without ensuring that onResume is called
+        // first, per https://code.google.com/p/android/issues/detail?id=74464, so mVolumePanel
+        // may be null on those devices.
+        if (mVolumePanel != null) {
+            mVolumePanel.dismiss();
+            mVolumePanel = null;
+        }
 
         if (squeezePlayer != null) {
             squeezePlayer.stopControllingSqueezePlayer();
