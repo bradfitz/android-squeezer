@@ -16,13 +16,11 @@
 
 package uk.org.ngo.squeezer.widget;
 
-import android.support.annotation.NonNull;
-import android.widget.FrameLayout;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;

@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +28,6 @@ import android.widget.Toast;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 
 import java.util.ArrayList;

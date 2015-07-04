@@ -1,6 +1,5 @@
 package uk.org.ngo.squeezer.util;
 
-import android.app.ApplicationErrorReport;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.support.annotation.Nullable;
@@ -16,8 +15,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.TreeMap;
-
-import uk.org.ngo.squeezer.R;
 
 /**
  * Scans the local network for servers.

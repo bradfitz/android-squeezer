@@ -31,7 +31,6 @@ import uk.org.ngo.squeezer.framework.PlaylistItemView;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 import static android.text.format.DateUtils.formatElapsedTime;
 

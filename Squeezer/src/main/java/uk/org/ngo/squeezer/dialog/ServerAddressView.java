@@ -30,7 +30,6 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 

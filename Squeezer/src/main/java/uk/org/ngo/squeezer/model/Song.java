@@ -19,8 +19,6 @@ package uk.org.ngo.squeezer.model;
 import android.net.Uri;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -29,7 +27,6 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.ArtworkItem;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 public class Song extends ArtworkItem {
     private static final String TAG = "Song";
