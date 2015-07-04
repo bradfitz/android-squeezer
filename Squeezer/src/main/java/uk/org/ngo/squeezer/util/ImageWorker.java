@@ -16,9 +16,9 @@
 
 package uk.org.ngo.squeezer.util;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -33,7 +33,6 @@ import android.graphics.drawable.TransitionDrawable;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.ViewTreeObserver;
@@ -385,8 +384,7 @@ public abstract class ImageWorker {
      *
      * @return The processed bitmap, or null if processing failed.
      */
-    @Nullable
-    protected abstract Bitmap processBitmap(BitmapWorkerTaskParams params);
+    protected abstract byte[] processBitmap(BitmapWorkerTaskParams params);
 
     /**
      * Cancels any pending work attached to the provided ImageView.
@@ -495,6 +493,7 @@ public abstract class ImageWorker {
         /**
          * Background processing.
          */
+        @TargetApi(11)
         @Override
         protected Bitmap doInBackground(BitmapWorkerTaskParams... params) {
             if (BuildConfig.DEBUG) {
@@ -505,7 +504,7 @@ public abstract class ImageWorker {
 
             data = params[0].data;
             final String dataString = String.valueOf(data);
-            Bitmap bitmap = null;
+            byte[] bytes = null;
             Bitmap scaledBitmap = null;
 
             // Wait here if work is paused and the task is not cancelled
@@ -520,28 +519,51 @@ public abstract class ImageWorker {
 
             // If the image cache is available and this task has not been cancelled by another
             // thread and there's nothing to indicate this task should cancel then try and fetch
-            // the bitmap from the cache.
+            // the bitmap bytes from the cache.
             if (mImageCache != null && !isCancelled() && !shouldCancel()) {
-                bitmap = mImageCache.getBitmapFromDiskCache(dataString);
+                bytes = mImageCache.getBytesFromDiskCache(dataString);
             }
 
             // If the bitmap was not found in the cache and this task has not been cancelled by
             // another thread and there's nothing to indicate that this task should cancel, then
             // call the main process method (as implemented by a subclass)
-            if (bitmap == null && !isCancelled() && !shouldCancel()) {
-                bitmap = processBitmap(params[0]);
+            if ((bytes == null || bytes.length == 0) && !isCancelled() && !shouldCancel()) {
+                bytes = processBitmap(params[0]);
                 loadedFromNetwork = true;
+
+                // If the bitmap bytes were loaded then add them to the disk cache.
+                if (bytes != null && bytes.length != 0 && mImageCache != null) {
+                    mImageCache.addBytesToDiskCache(dataString, bytes);
+                }
             }
 
-            // If the bitmap was loaded then add it to the disk cache at the original size.
-            if (bitmap != null && mImageCache != null) {
-                mImageCache.addBitmapToDiskCache(dataString, bitmap);
-            }
+            // Create a bitmap from the bytes, scaled to the appropriate size.
+            if (bytes != null && bytes.length != 0 && params[0].width > 0 && params[0].height > 0) {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
 
-            // Scale the bitmap to the requested size.
-            if (bitmap != null && params[0].width > 0 && params[0].height > 0) {
-                scaledBitmap = Bitmap.createScaledBitmap(bitmap, params[0].width, params[0].height,
-                        false);
+                options.inSampleSize = calculateInSampleSize(
+                        options, params[0].width, params[0].height);
+
+                options.inJustDecodeBounds = false;
+
+                if (! BuildConfig.DEBUG) {
+                    // Not a debug build, just need the scaled bitmap.
+                    scaledBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+                } else {
+                    // Debug build, need a mutable bitmap to add the debug swatch later. API 11
+                    // and above can set an option, earlier APIs need to make a copy of the bitmap.
+                    if (UIUtils.hasHoneycomb()) {
+                        options.inMutable = true;
+                        scaledBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+                    } else {
+                        Bitmap immutableBitmap = BitmapFactory.decodeByteArray(
+                                bytes, 0, bytes.length, options);
+                        scaledBitmap = immutableBitmap.copy(Bitmap.Config.ARGB_8888, true);
+                        immutableBitmap.recycle();
+                    }
+                }
             }
 
             // If the bitmap was processed and the image cache is available, then add the processed
@@ -565,6 +587,55 @@ public abstract class ImageWorker {
 
             }
             return scaledBitmap;
+        }
+
+        /**
+         * Calculate an inSampleSize for use in a {@link BitmapFactory.Options} object when decoding
+         * bitmaps using the decode* methods from {@link BitmapFactory}. This implementation calculates
+         * the closest inSampleSize that will result in the final decoded bitmap having a width and
+         * height equal to or larger than the requested width and height. This implementation does not
+         * ensure a power of 2 is returned for inSampleSize which can be faster when decoding but
+         * results in a larger bitmap which isn't as useful for caching purposes.
+         *
+         * @param options An options object with out* params already populated (run through a decode*
+         * method with inJustDecodeBounds==true
+         * @param reqWidth The requested width of the resulting bitmap
+         * @param reqHeight The requested height of the resulting bitmap
+         *
+         * @return The value to be used for inSampleSize
+         */
+        public int calculateInSampleSize(BitmapFactory.Options options,
+                                                int reqWidth, int reqHeight) {
+            // Raw height and width of image
+            final int height = options.outHeight;
+            final int width = options.outWidth;
+            int inSampleSize = 1;
+
+            if (height > reqHeight || width > reqWidth) {
+                if (width > height) {
+                    inSampleSize = Math.round((float) height / (float) reqHeight);
+                } else {
+                    inSampleSize = Math.round((float) width / (float) reqWidth);
+                }
+
+                // This offers some additional logic in case the image has a strange
+                // aspect ratio. For example, a panorama may have a much larger
+                // width than height. In these cases the total pixels might still
+                // end up being too large to fit comfortably in memory, so we should
+                // be more aggressive with sample down the image (=larger
+                // inSampleSize).
+
+                final float totalPixels = width * height;
+
+                // Anything more than 2x the requested pixels we'll sample down
+                // further.
+                final float totalReqPixelsCap = reqWidth * reqHeight * 2;
+
+                while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+                    inSampleSize++;
+                }
+            }
+            return inSampleSize;
         }
 
         @Override
