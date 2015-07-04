@@ -50,7 +50,7 @@ dependencies {
 
     // KitKat time picker
     compile 'com.nineoldandroids:library:2.4.0'
-    compile project(':libraries:datetimepicker')
+    compile project(':libs:datetimepicker')
 
     // JVM tests
     testCompile 'junit:junit:4.12'
