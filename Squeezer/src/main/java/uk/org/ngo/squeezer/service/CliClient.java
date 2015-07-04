@@ -319,8 +319,9 @@ class CliClient implements IClient {
                 new ExtendedQueryFormatCmd(
                         "apps",
                         new HashSet<String>(Arrays.asList("sort", "charset")),
-                        "icon",
-                        new PluginListHandler())
+                        new PluginListHandler(),
+                        "cmd", "name", "type", "icon", "weight"
+                )
         );
         list.add(
                 new ExtendedQueryFormatCmd(
@@ -328,7 +329,7 @@ class CliClient implements IClient {
                         "items",
                         new HashSet<String>(
                                 Arrays.asList("item_id", "search", "want_url", "charset")),
-                        new SqueezeParserInfo(new BaseListHandler<PluginItem>(){}))
+                        new SqueezeParserInfo(new PluginItemListHandler()))
         );
 
         return list.toArray(new ExtendedQueryFormatCmd[list.size()]);
@@ -731,7 +732,15 @@ class CliClient implements IClient {
     private class PluginListHandler extends BaseListHandler<Plugin> {
         @Override
         public void add(Map<String, String> record) {
-            fixIconTag(record);
+            fixImageTag("icon", record);
+            super.add(record);
+        }
+    }
+
+    private class PluginItemListHandler extends BaseListHandler<PluginItem> {
+        @Override
+        public void add(Map<String, String> record) {
+            fixImageTag("image", record);
             super.add(record);
         }
     }
@@ -786,21 +795,21 @@ class CliClient implements IClient {
     }
 
     /**
-     * Make sure the icon tag is an absolute URL.
+     * Make sure the icon/image tag is an absolute URL.
      *
      * @param record The record to modify.
      */
-    private void fixIconTag(Map<String, String> record) {
-        String icon = record.get("icon");
-        if (icon == null) {
+    private void fixImageTag(String imageTag, Map<String, String> record) {
+        String image = record.get(imageTag);
+        if (image == null) {
             return;
         }
 
-        if (Uri.parse(icon).isAbsolute()) {
+        if (Uri.parse(image).isAbsolute()) {
             return;
         }
 
-        record.put("icon", mUrlPrefix + (icon.startsWith("/") ? icon : "/" + icon));
+        record.put(imageTag, mUrlPrefix + (image.startsWith("/") ? image : "/" + image));
     }
 
     // Shims around ConnectionState methods.
