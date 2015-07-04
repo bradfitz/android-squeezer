@@ -21,6 +21,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.util.Pools;
 import android.util.Log;
 
+import com.google.common.base.Predicate;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -41,6 +43,8 @@ import java.util.regex.Pattern;
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+
+import static com.google.common.collect.Collections2.filter;
 
 public class ConnectionState {
 
@@ -365,7 +369,7 @@ public class ConnectionState {
 
     /**
      * Authenticate on the SqueezeServer.
-     * <p/>
+     * <p>
      * The server does
      * <pre>
      * login user wrongpassword

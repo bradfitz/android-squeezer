@@ -22,7 +22,6 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-
     // Android support libraries
     // Note: these libraries require the "Google Repository" and "Android
     //       Support Repository" to be installed via the SDK manager.
@@ -48,6 +47,10 @@ dependencies {
 
     // Crashlytics.
     compile 'com.crashlytics.android:crashlytics:1.+'
+
+    // KitKat time picker
+    compile 'com.nineoldandroids:library:2.4.0'
+    compile project(':libs:datetimepicker')
 
     // JVM tests
     testCompile 'junit:junit:4.12'

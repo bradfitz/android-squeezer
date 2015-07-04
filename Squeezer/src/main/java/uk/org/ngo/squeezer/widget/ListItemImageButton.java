@@ -24,19 +24,19 @@ import android.widget.ImageButton;
 /**
  * Display an {@link android.widget.ImageButton} with customised behaviour suitable for use in a
  * {@link android.view.ViewGroup}, such as a list item.
- * <p/>
+ * <p>
  * The custom behaviour is invoked in {@link #setPressed(boolean)}. Default behaviour is that if any
  * parent views in the ViewGroup are pressed then the button also appears pressed.
- * <p/>
+ * <p>
  * This has the side effect of making the button's pressed state drawable be overlaid over the
  * parent view's pressed state drawable, appearing to be too bright.
- * <p/>
+ * <p>
  * This is especially apparent if the user long-presses on the ViewGroup that makes up a row in a
  * list.
- * <p/>
+ * <p>
  * This class checks to see if any parent views are pressed, and if they are, ignores the press on
  * this view.
- * <p/>
+ * <p>
  * See Cyril Mottier's discussion of this, and code, in http://android.cyrilmottier.com/?p=525.
  */
 public class ListItemImageButton extends ImageButton {

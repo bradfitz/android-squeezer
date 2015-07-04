@@ -42,7 +42,7 @@ import uk.org.ngo.squeezer.util.ScanNetworkTask;
 /**
  * Scans the local network for servers, allow the user to choose one, set it as the preferred server
  * for this network, and optionally enter authentication information.
- * <p/>
+ * <p>
  * A new network scan can be initiated manually if desired.
  */
 public class ServerAddressView extends LinearLayout implements ScanNetworkTask.ScanNetworkCallback {

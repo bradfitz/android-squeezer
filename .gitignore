@@ -15,4 +15,5 @@ squeezer.properties
 *.patch
 .idea
 .gradle
+com_crashlytics_export_strings.xml
 .directory

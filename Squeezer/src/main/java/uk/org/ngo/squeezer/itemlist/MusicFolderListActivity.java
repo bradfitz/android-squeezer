@@ -34,12 +34,12 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /**
  * Display a list of Squeezebox music folders.
- * <p/>
+ * <p>
  * If the <code>extras</code> bundle contains a key that matches <code>MusicFolder.class.getName()</code>
  * the value is assumed to be an instance of that class, and that folder will be displayed.
- * <p/>
+ * <p>
  * Otherwise the root music folder is shown.
- * <p/>
+ * <p>
  * The activity's content views scrolls in from the right, and disappear to the left, to provide a
  * spatial component to navigation.
  *

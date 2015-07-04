@@ -38,6 +38,15 @@
 
         <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
 
+        <item name="alarm_dow_selected">@android:color/white</item>
+        <item name="alarm_am_pm_color">@android:color/white</item>
+        <item name="transparent_themed">@color/transparent_white</item>
+        <item name="alarm_list_background">@color/alarm_list_background</item>
+        <item name="item_background">@drawable/item_background</item>
+        <item name="main_button_background">@drawable/main_button_normal</item>
+        <item name="ic_alarm_settings">@drawable/ic_alarm_settings</item>
+        <item name="ic_delete">@drawable/ic_delete</item>
+
         <item name="floatLabelColor">@color/float_label_dark</item>
     </style>
 
@@ -61,12 +70,24 @@
 
         <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
 
+        <item name="alarm_dow_selected">@android:color/black</item>
+        <item name="alarm_am_pm_color">@android:color/black</item>
+        <item name="transparent_themed">@color/transparent_black</item>
+        <item name="alarm_list_background">@color/alarm_list_background_light</item>
+        <item name="item_background">@drawable/item_background_light</item>
+        <item name="main_button_background">@drawable/main_button_light</item>
+        <item name="ic_alarm_settings">@drawable/ic_alarm_settings_light</item>
+        <item name="ic_delete">@drawable/ic_delete_light</item>
+
         <item name="floatLabelColor">@color/float_label_light</item>
     </style>
 
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
 
     <!-- Base styles that the rest of the app inherits from. -->
+    <style name="SqueezerTextAppearance.XLarge" parent="@android:style/TextAppearance.Large">
+        <item name="android:textSize">44sp</item>
+    </style>
     <style name="SqueezerTextAppearance.Large" parent="@android:style/TextAppearance.Large"/>
     <style name="SqueezerTextAppearance.Medium" parent="@android:style/TextAppearance.Medium"/>
     <style name="SqueezerTextAppearance.Small" parent="@android:style/TextAppearance.Small"/>
@@ -213,5 +234,47 @@
 
     <style name="VolumeDialogAnimation">
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <!-- UndoBar -->
+    <style name="UndoBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">@android:drawable/toast_frame</item>
+        <item name="android:clickable">true</item>
+        <item name="android:divider">@drawable/undobar_divider</item>
+    </style>
+
+    <style name="UndoBarMessage">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">12dp</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="UndoBarButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">12dp</item>
+        <item name="android:background">@drawable/undobar_button</item>
+        <item name="android:drawableLeft">@drawable/ic_undobar_undo</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:text">@string/undo</item>
     </style>
 </resources>

@@ -245,7 +245,7 @@ public class Song extends ArtworkItem {
 
     /**
      * Extend the equality test by looking at additional track information.
-     * <p/>
+     * <p>
      * This is to deal with songs from remote streams where the stream might provide a single
      * song ID for multiple consecutive songs in the stream.
      *

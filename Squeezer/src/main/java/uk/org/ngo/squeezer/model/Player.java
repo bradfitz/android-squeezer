@@ -19,15 +19,20 @@ package uk.org.ngo.squeezer.model;
 import android.os.Build;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringDef;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Sets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Set;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
@@ -53,6 +58,22 @@ public class Player extends Item {
 
     /** Is the player connected? */
     private boolean mConnected;
+
+    public static class Pref {
+        /** The types of player preferences. */
+        @StringDef({ALARM_DEFAULT_VOLUME, ALARM_FADE_SECONDS, ALARM_SNOOZE_SECONDS, ALARM_TIMEOUT_SECONDS,
+                Pref.ALARMS_ENABLED})
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface Name {}
+        public static final String ALARM_DEFAULT_VOLUME = "alarmDefaultVolume";
+        public static final String ALARM_FADE_SECONDS = "alarmfadeseconds";
+        public static final String ALARM_SNOOZE_SECONDS = "alarmSnoozeSeconds";
+        public static final String ALARM_TIMEOUT_SECONDS = "alarmTimeoutSeconds";
+        public static final String ALARMS_ENABLED = "alarmsEnabled";
+        public static final Set<String> VALID_PLAYER_PREFS = Sets.newHashSet(
+                ALARM_DEFAULT_VOLUME, ALARM_FADE_SECONDS, ALARM_SNOOZE_SECONDS, ALARM_TIMEOUT_SECONDS,
+                ALARMS_ENABLED);
+    }
 
     public Player(Map<String, String> record) {
         setId(record.get("playerid"));

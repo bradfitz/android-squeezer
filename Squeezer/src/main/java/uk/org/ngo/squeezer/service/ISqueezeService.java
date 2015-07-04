@@ -25,6 +25,8 @@ import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.model.Alarm;
+import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
@@ -54,14 +56,22 @@ public interface ISqueezeService {
     void preferenceChanged(String key);
 
     // Call this to change the player we are controlling
-    void setActivePlayer(Player player);
+    void setActivePlayer(@NonNull Player player);
 
     // Returns the player we are currently controlling
     @Nullable
     Player getActivePlayer();
 
-    // Returns all the players we know about.
+    /**
+     * @return players that the server knows about (irrespective of power, connection, or
+     * other status).
+     */
     List<Player> getPlayers();
+
+    /**
+     * @return players that are connected to the server.
+     */
+    java.util.Collection<Player> getConnectedPlayers();
 
     // XXX: Delete, now that PlayerState is tracked in the player?
     PlayerState getActivePlayerState();
@@ -71,6 +81,8 @@ public interface ISqueezeService {
     void togglePower(Player player);
     void playerRename(Player player, String newName);
     void sleep(Player player, int duration);
+    void playerPref(@Player.Pref.Name String playerPref);
+    void playerPref(@Player.Pref.Name String playerPref, String value);
 
     /**
      * Synchronises the slave player to the player with masterId.
@@ -90,7 +102,14 @@ public interface ISqueezeService {
     ////////////////////
     // Depends on active player:
 
+    /**
+     * @return true if the active player is connected and can be powered on.
+     */
     boolean canPowerOn();
+
+    /**
+     * @return true if the active player is connected and can be powered off.
+     */
     boolean canPowerOff();
     void powerOn();
     void powerOff();
@@ -136,6 +155,23 @@ public interface ISqueezeService {
 
     /** Start an async fetch of the SqueezeboxServer's players */
     void players() throws SqueezeService.HandshakeNotCompleteException;
+
+    /** Alarm list */
+    void alarms(int start, IServiceItemListCallback<Alarm> callback);
+
+    /** Alarm playlists */
+    void alarmPlaylists(IServiceItemListCallback<AlarmPlaylist> callback);
+
+    /** Alarm maintenance */
+    void alarmAdd(int time);
+    void alarmDelete(String id);
+    void alarmSetTime(String id, int time);
+    void alarmAddDay(String id, int day);
+    void alarmRemoveDay(String id, int day);
+    void alarmEnable(String id, boolean enabled);
+    void alarmRepeat(String id, boolean repeat);
+    void alarmSetPlaylist(String id, AlarmPlaylist playlist);
+
 
     // Album list
     /**
