@@ -2,6 +2,22 @@
 
 <changelog>
     <release
+        version="1.4.0-beta-1"
+        versioncode="53">
+        <change>New support for managing alarms on players. Most of the code by Kurt.</change>
+
+        <change>Improved the support for apps, contributed by Christer Wendel.</change>
+
+        <change>Reduced risk of out-of-memory crashes when loading large album artwork.</change>
+
+        <change>Fixed a bug that prevented changing a player's sleep time.</change>
+
+        <change>Fixed a crash on Samsung devices.</change>
+
+        <change>Fixed potential crash when viewing the list of players.</change>
+    </release>
+
+    <release
         version="1.3.1"
         versioncode="52">
         <change>Remote and plugin song artwork is now supported in notification messages, based
