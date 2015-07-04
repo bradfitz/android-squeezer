@@ -307,13 +307,13 @@ public class FloatLabelLayout extends FrameLayout {
 
     };
 
-    public static enum Trigger {
+    public enum Trigger {
         TYPE(0),
         FOCUS(1);
 
         private final int mValue;
 
-        private Trigger(int i) {
+        Trigger(int i) {
             mValue = i;
         }
 

@@ -872,7 +872,7 @@ class CliClient implements IClient {
     }
 
     private interface CmdHandler {
-        public void handle(List<String> tokens);
+        void handle(List<String> tokens);
     }
 
     private final Map<String, CmdHandler> globalHandlers = initializeGlobalHandlers();
