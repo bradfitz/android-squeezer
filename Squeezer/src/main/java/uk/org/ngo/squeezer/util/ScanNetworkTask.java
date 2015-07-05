@@ -1,6 +1,5 @@
 package uk.org.ngo.squeezer.util;
 
-import android.app.ApplicationErrorReport;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.support.annotation.Nullable;
@@ -16,8 +15,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.TreeMap;
-
-import uk.org.ngo.squeezer.R;
 
 /**
  * Scans the local network for servers.
@@ -51,14 +48,14 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
 
     /**
      * Discover Squeeze servers on the local network.
-     * <p/>
+     * <p>
      * Do this by sending MAX_DISCOVERY_ATTEMPT UDP broadcasts to port 3483 at approximately
      * DISCOVERY_ATTEMPT_TIMEOUT intervals. Squeeze servers are supposed to listen for this, and
      * respond with a packet that starts 'E' and some information about the server, including
      * its name.
-     * <p/>
+     * <p>
      * Map the name to an IP address and store in mDiscoveredServers for later use.
-     * <p/>
+     * <p>
      * See the Slim::Networking::Discovery module in Squeeze server for more details.
      */
     @Override

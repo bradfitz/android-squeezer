@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import java.util.ArrayList;
@@ -41,20 +40,18 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Song;
 
 class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCreateContextMenuListener {
-
     private final PlayerListActivity mActivity;
 
     private final List<ItemAdapter<Player>> mChildAdapters = new ArrayList<ItemAdapter<Player>>();
+
+    /** The last set of player sync groups that were provided. */
+    private Multimap<String, Player> prevPlayerSyncGroups;
 
     /** Indicates if the list of players has changed. */
     private boolean mPlayersChanged;
 
     /** The group position of the item that was most recently selected. */
     private int mLastGroupPosition;
-
-    private Player mActivePlayer;
-
-    private final List<Player> mPlayers = new ImmutableList.Builder<Player>().build();
 
     /** Joins elements together with ' - ', skipping nulls. */
     private static final Joiner mJoiner = Joiner.on(" - ").skipNulls();
@@ -86,10 +83,17 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      *     generated.
      */
     public void setSyncGroups(Multimap<String, Player> playerSyncGroups) {
+        // The players might not have changed (so there's no need to reset the contents of the
+        // adapter) but information about an individual player might have done.
+        if (prevPlayerSyncGroups != null && prevPlayerSyncGroups.equals(playerSyncGroups)) {
+            notifyDataSetChanged();
+            return;
+        }
+
+        prevPlayerSyncGroups = HashMultimap.create(playerSyncGroups);
         clear();
 
         List<String> masters = new ArrayList<String>(playerSyncGroups.keySet());
-        Log.v("PlayerListAdapter", masters.toString());
         Collections.sort(masters);
 
         for (String masterId : masters) {
@@ -187,7 +191,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     /**
      * Use the ID of the first player in the group as the identifier for the group.
-     * <p/>
+     * <p>
      * {@inheritDoc}
      * @param groupPosition
      * @return

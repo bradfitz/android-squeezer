@@ -48,7 +48,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * data type is defined by the generic type argument, and must be an extension of {@link Item}. You
  * must provide an {@link ItemView} to provide the view logic used by this activity. This is done by
  * implementing {@link #createItemView()}.
- * <p/>
+ * <p>
  * When the activity is first created ({@link #onCreate(Bundle)}), an empty {@link ItemAdapter}
  * is created using the provided {@link ItemView}. See {@link ItemListActivity} for see details of
  * ordering and receiving of list items from SqueezeServer, and handling of item selection.
@@ -130,7 +130,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
 
     /**
      * Returns the ID of a content view to be used by this list activity.
-     * <p/>
+     * <p>
      * The content view must contain a {@link AbsListView} with the id {@literal item_list} and a
      * {@link ProgressBar} with the id {@literal loading_progress} in order to be valid.
      *
@@ -158,13 +158,13 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
 
     /**
      * Set our adapter on the list view.
-     * <p/>
+     * <p>
      * This can't be done in {@link #onCreate(android.os.Bundle)} because getView might be called
      * before the handshake is complete, so we need to delay it.
-     * <p/>
+     * <p>
      * However when we set the adapter after onCreate the list is scrolled to top, so we retain the
      * visible position.
-     * <p/>
+     * <p>
      * Call this method after the handshake is complete.
      */
     private void setAdapter() {

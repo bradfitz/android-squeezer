@@ -19,10 +19,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -30,7 +27,6 @@ import android.widget.ExpandableListView;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,57 +56,19 @@ public class PlayerListActivity extends ItemListActivity implements
     /** An update arrived while tracking touches. UI should be re-synced. */
     private boolean mUpdateWhileTracking = false;
 
-    private final Handler uiThreadHandler = new UiThreadHandler(this);
-
     /** Map from player IDs to Players synced to that player ID. */
     private final Multimap<String, Player> mPlayerSyncGroups = HashMultimap.create();
-
-    private final static class UiThreadHandler extends Handler {
-        private static final int VOLUME_CHANGE = 1;
-        private static final int PLAYER_STATE = 2;
-
-        final WeakReference<PlayerListActivity> activity;
-
-        public UiThreadHandler(PlayerListActivity activity) {
-            this.activity = new WeakReference<PlayerListActivity>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message message) {
-            switch (message.what) {
-                case VOLUME_CHANGE:
-                    activity.get().onVolumeChanged(message.arg1, (Player)message.obj);
-                    break;
-                case PLAYER_STATE:
-                    activity.get().onPlayerStateReceived();
-                    break;
-            }
-        }
-    }
-
-    private void onVolumeChanged(int newVolume, Player player) {
-        PlayerState playerState = getService().getPlayerState(player.getId());
-        if (playerState != null) {
-            playerState.setCurrentVolume(newVolume);
-            Log.d("PlayerListActivity", "Received new volume for + " + player.getName() + " vol: " + newVolume);
-            if (!mTrackingTouch)
-                mResultsAdapter.notifyDataSetChanged();
-        }
-    }
-
-    private void onPlayerStateReceived() {
-        if (!mTrackingTouch) {
-            updateAndExpandPlayerList();
-        } else {
-            mUpdateWhileTracking = true;
-        }
-    }
 
     /**
      * Updates the adapter with the current players, and ensures that the list view is
      * expanded.
      */
     private void updateAndExpandPlayerList() {
+        // Can't do anything if the adapter hasn't been set (pre-handshake).
+        if (mResultsExpandableListView.getAdapter() == null) {
+            return;
+        }
+
         updateSyncGroups(getService().getPlayers(), getService().getActivePlayer());
         mResultsAdapter.setSyncGroups(mPlayerSyncGroups);
 
@@ -195,14 +153,18 @@ public class PlayerListActivity extends ItemListActivity implements
         updateAndExpandPlayerList();
     }
 
-    public void onEvent(PlayerStateChanged event) {
-        uiThreadHandler.obtainMessage(UiThreadHandler.PLAYER_STATE, 0, 0).sendToTarget();
+    public void onEventMainThread(PlayerStateChanged event) {
+        if (!mTrackingTouch) {
+            updateAndExpandPlayerList();
+        } else {
+            mUpdateWhileTracking = true;
+        }
     }
 
-    @Override
-    public void onEvent(PlayerVolume event) {
-        uiThreadHandler.obtainMessage(UiThreadHandler.VOLUME_CHANGE, event.volume,
-                0, event.player).sendToTarget();
+    public void onEventMainThread(PlayerVolume event) {
+        if (!mTrackingTouch) {
+            mResultsAdapter.notifyDataSetChanged();
+        }
     }
 
     /**

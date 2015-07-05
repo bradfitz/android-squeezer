@@ -17,14 +17,14 @@
 package uk.org.ngo.squeezer.util;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import java.io.BufferedInputStream;
+import com.google.common.io.ByteStreams;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -36,10 +36,7 @@ import uk.org.ngo.squeezer.R;
  * A subclass of {@link ImageWorker} that fetches images from a URL.
  */
 public class ImageFetcher extends ImageWorker {
-
     private static final String TAG = "ImageFetcher";
-
-    private static final int IO_BUFFER_SIZE = 8 * 1024;
 
     private volatile static ImageFetcher sImageFetcher;
 
@@ -88,24 +85,24 @@ public class ImageFetcher extends ImageWorker {
      *
      * @param params The parameters for this request.
      *
-     * @return The downloaded bitmap, null if downloading failed.
+     * @return Undecoded bytes for the requested bitmap, null if downloading failed.
      */
     @Nullable
-    protected Bitmap processBitmap(BitmapWorkerTaskParams params) {
+    protected byte[] processBitmap(BitmapWorkerTaskParams params) {
         String data = params.data.toString();
         Log.d(TAG, "processBitmap: " + data);
 
         disableConnectionReuseIfNecessary();
 
         HttpURLConnection urlConnection = null;
-        BufferedInputStream in = null;
-        Bitmap bitmap = null;
+        InputStream in = null;
+        byte[] bytes = null;
 
         try {
             final URL url = new URL(data);
             urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE);
-            bitmap = BitmapFactory.decodeStream(in);
+            in = urlConnection.getInputStream();
+            bytes = ByteStreams.toByteArray(in);
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadUrlToStream - " + data + e);
         } finally {
@@ -117,10 +114,11 @@ public class ImageFetcher extends ImageWorker {
                     in.close();
                 }
             } catch (final IOException e) {
+                Log.e(TAG, "Closing input stream failed");
             }
         }
 
-        return bitmap;
+        return bytes;
     }
 
     /**

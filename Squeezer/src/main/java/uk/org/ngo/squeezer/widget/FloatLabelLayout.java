@@ -16,13 +16,11 @@
 
 package uk.org.ngo.squeezer.widget;
 
-import android.support.annotation.NonNull;
-import android.widget.FrameLayout;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -307,13 +305,13 @@ public class FloatLabelLayout extends FrameLayout {
 
     };
 
-    public static enum Trigger {
+    public enum Trigger {
         TYPE(0),
         FOCUS(1);
 
         private final int mValue;
 
-        private Trigger(int i) {
+        Trigger(int i) {
             mValue = i;
         }
 

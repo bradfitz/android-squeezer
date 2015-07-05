@@ -29,7 +29,7 @@ import uk.org.ngo.squeezer.framework.PlaylistItem;
 
 /**
  * Encapsulate a music folder item on the Squeezeserver.
- * <p/>
+ * <p>
  * An item has a name and a type. The name is free text, the type may be one of "track", "folder",
  * "playlist", or "unknown".
  *

@@ -25,7 +25,7 @@ import uk.org.ngo.squeezer.model.PluginItem;
 
 /**
  * List server favourites.
- * <p/>
+ * <p>
  * A specialisation of {@link PluginItemListActivity} that uses a {@link
  * uk.org.ngo.squeezer.itemlist.FavoritesView} for each item.
  */

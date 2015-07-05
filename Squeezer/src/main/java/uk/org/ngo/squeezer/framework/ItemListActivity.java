@@ -31,8 +31,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.menu.BaseMenuFragment;
-import uk.org.ngo.squeezer.menu.MenuFragment;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -88,8 +86,6 @@ public abstract class ItemListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         mPageSize = getResources().getInteger(R.integer.PageSize);
-
-        BaseMenuFragment.add(this, MenuFragment.class);
 
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
 
@@ -170,7 +166,7 @@ public abstract class ItemListActivity extends BaseActivity {
 
     /**
      * Orders pages that correspond to visible rows in the listview.
-     * <p/>
+     * <p>
      * Computes the pages that correspond to the rows that are currently being displayed by the
      * listview, and calls {@link #maybeOrderPage(int)} to fetch the page if necessary.
      *
@@ -188,7 +184,7 @@ public abstract class ItemListActivity extends BaseActivity {
 
     /**
      * Tracks items that have been received from the server.
-     * <p/>
+     * <p>
      * Subclasses <b>must</b> call this method when receiving data from the server to ensure that
      * internal bookkeeping about pages that have/have not been ordered is kept consistent.
      *
@@ -234,9 +230,9 @@ public abstract class ItemListActivity extends BaseActivity {
 
     /**
      * Tracks scrolling activity.
-     * <p/>
+     * <p>
      * When the list is idle, new pages of data are fetched from the server.
-     * <p/>
+     * <p>
      * Use a TouchListener to work around an Android bug where SCROLL_STATE_IDLE messages are not
      * delivered after SCROLL_STATE_TOUCH_SCROLL messages.
      */
@@ -250,7 +246,7 @@ public abstract class ItemListActivity extends BaseActivity {
 
         /**
          * Sets up the TouchListener.
-         * <p/>
+         * <p>
          * Subclasses must call this.
          */
         public ScrollListener() {
@@ -297,16 +293,16 @@ public abstract class ItemListActivity extends BaseActivity {
 
         /**
          * Work around a bug in (at least) API levels 7 and 8.
-         * <p/>
+         * <p>
          * The bug manifests itself like so: after completing a TOUCH_SCROLL the system does not
          * deliver a SCROLL_STATE_IDLE message to any attached listeners.
-         * <p/>
+         * <p>
          * In addition, if the user does TOUCH_SCROLL, IDLE, TOUCH_SCROLL you would expect to
          * receive three messages. You don't -- you get the first TOUCH_SCROLL, no IDLE message, and
          * then the second touch doesn't generate a second TOUCH_SCROLL message.
-         * <p/>
+         * <p>
          * This state clears when the user flings the list.
-         * <p/>
+         * <p>
          * The simplest work around for this app is to track the user's finger, and if the previous
          * state was TOUCH_SCROLL then pretend that they finished with a FLING and an IDLE event was
          * triggered. This serves to unstick the message pipeline.

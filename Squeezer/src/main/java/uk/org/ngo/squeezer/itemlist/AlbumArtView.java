@@ -23,7 +23,6 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ArtworkItem;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.PlaylistItemView;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /**
  * Represents the view hierarchy for a single {@link uk.org.ngo.squeezer.framework.Item} subclass.

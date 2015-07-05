@@ -34,7 +34,7 @@ import java.io.File;
 
 /**
  * Handle events from the download manager
- * <p/>
+ * <p>
  * This class is registered in the manifest.
  */
 public class DownloadStatusReceiver extends BroadcastReceiver {

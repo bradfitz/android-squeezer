@@ -45,11 +45,9 @@ import android.widget.RemoteViews;
 
 import com.crashlytics.android.Crashlytics;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +71,8 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.itemlist.PluginItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
+import uk.org.ngo.squeezer.model.Alarm;
+import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
@@ -109,7 +109,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     /**
      * Information that will be requested about songs.
-     * <p/>
+     * <p>
      * a: artist name<br/>
      * C: compilation (1 if true, missing otherwise)<br/>
      * d: duration, in seconds<br/>
@@ -264,7 +264,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     @Override
     public boolean onUnbind(Intent intent) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mMediaSession.release();
+            if (mMediaSession != null) {
+                mMediaSession.release();
+            }
         }
         return super.onUnbind(intent);
     }
@@ -319,8 +321,17 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     /**
+     * The player state change might warrant a new subscription type (e.g., if the
+     * player didn't have a sleep duration set, and now does).
+     * @param event
+     */
+    public void onEvent(PlayerStateChanged event) {
+        updatePlayerSubscription(event.player, calculateSubscriptionTypeFor(event.player));
+    }
+
+    /**
      * Updates the playing status of the current player.
-     * <p/>
+     * <p>
      * Updates the Wi-Fi lock and ongoing status notification as necessary.
      */
     public void onEvent(PlayStatusChanged event) {
@@ -335,7 +346,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Change the player that is controlled by Squeezer (the "active" player).
      *
-     * @param newActivePlayer May be null, in which case no players are controlled.
+     * @param newActivePlayer The new active player. May be null, in which case no players
+     *     are controlled.
      */
     void changeActivePlayer(@Nullable final Player newActivePlayer) {
         Player prevActivePlayer = mActivePlayer.get();
@@ -382,7 +394,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Adjusts the subscription to players' status updates.
      */
     private void updateAllPlayerSubscriptionStates() {
-        for (Player player : mPlayers.values()) {
+        // mPlayers might be modified by another thread, so copy the values.
+        Collection<Player> players = mPlayers.values();
+        for (Player player : players) {
             updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
         }
     }
@@ -683,14 +697,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 null);
         Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
-        ArrayList<Player> players = new ArrayList<Player>(mPlayers.values());
+        Collection<Player> players = mPlayers.values();
         Log.i(TAG, "mPlayers empty?: " + mPlayers.isEmpty());
         for (Player player : players) {
             if (player.getId().equals(lastConnectedPlayer)) {
                 return player;
             }
         }
-        return !players.isEmpty() ? players.get(0) : null;
+        return !players.isEmpty() ? players.iterator().next() : null;
     }
 
     /* Start an asynchronous fetch of the squeezeservers localized strings */
@@ -767,7 +781,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     /**
      * Tries to get the path relative to the server music library.
-     * <p/>
+     * <p>
      * If this is not possible resort to the last path segment of the server path.
      * In both cases replace dangerous characters by safe ones.
      */
@@ -925,29 +939,64 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (mActivePlayer == null) {
                 return null;
             }
-            Player p = mActivePlayer.get();
-            if (p == null) {
+            Player activePlayer = mActivePlayer.get();
+            if (activePlayer == null) {
                 return null;
             }
-            return getPlayerState(p.getId());
+
+            return activePlayer.getPlayerState();
         }
 
         @Override
         @Nullable
         public PlayerState getPlayerState(String playerId) {
-            return mPlayers.get(playerId).getPlayerState();
+            Player player = mPlayers.get(playerId);
+            if (player == null) {
+                return null;
+            }
+
+            return player.getPlayerState();
+        }
+
+        /**
+         * Issues a query for given player preference.
+         *
+         * @param playerPref
+         */
+        @Override
+        public void playerPref(@Player.Pref.Name String playerPref) {
+            playerPref(playerPref, "?");
+        }
+
+        @Override
+        public void playerPref(@Player.Pref.Name String playerPref, String value) {
+            sendActivePlayerCommand("playerpref " + playerPref + " " + value);
         }
 
         @Override
         public boolean canPowerOn() {
-            PlayerState playerState = getActivePlayerState();
-            return canPower() && playerState != null && !playerState.isPoweredOn();
+            Player activePlayer = getActivePlayer();
+
+            if (activePlayer == null) {
+                return false;
+            } else {
+                PlayerState playerState = activePlayer.getPlayerState();
+                return canPower() && activePlayer.getConnected() && playerState != null
+                        && !playerState.isPoweredOn();
+            }
         }
 
         @Override
         public boolean canPowerOff() {
-            PlayerState playerState = getActivePlayerState();
-            return canPower() && playerState != null && playerState.isPoweredOn();
+            Player activePlayer = getActivePlayer();
+
+            if (activePlayer == null) {
+                return false;
+            } else {
+                PlayerState playerState = activePlayer.getPlayerState();
+                return canPower() && activePlayer.getConnected() && playerState != null
+                        && playerState.isPoweredOn();
+            }
         }
 
         private boolean canPower() {
@@ -1191,6 +1240,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
+        public java.util.Collection<Player> getConnectedPlayers() {
+            return mPlayers.values();
+        }
+
+        @Override
         public PlayerState getPlayerState() {
             return getActivePlayerState();
         }
@@ -1264,6 +1318,82 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             //fetchPlayers();
+        }
+
+        @Override
+        public void alarms(int start, IServiceItemListCallback<Alarm> callback) {
+            if (!isConnected()) {
+                return;
+            }
+            List<String> parameters = new ArrayList<String>();
+            parameters.add("filter:all");
+            cli.requestPlayerItems(mActivePlayer.get(), "alarms", start, parameters, callback);
+        }
+
+        @Override
+        public void alarmPlaylists(IServiceItemListCallback<AlarmPlaylist> callback) {
+            if (!isConnected()) {
+                return;
+            }
+            // The LMS documentation states that
+            // The "alarm playlists" returns all the playlists, sounds, favorites etc. available to alarms.
+            // This will however return only one playlist: the current playlist.
+            // Inspection of the LMS code reveals that the "alarm playlists" command takes the
+            // customary <start> and <itemsPerResponse> parameters, but these are interpreted as
+            // categories (eg. Favorites, Natural Sounds etc.), but the returned list is flattened,
+            // i.e. contains all items of the requested categories.
+            // So we order all playlists like below, hoping there are no more than 99 categories.
+            cli.requestItems("alarm playlists", 0, 99, callback);
+        }
+
+        @Override
+        public void alarmAdd(int time) {
+            if (!isConnected()) {
+                return;
+            }
+            sendActivePlayerCommand("alarm add time:" + time);
+        }
+
+        @Override
+        public void alarmDelete(String id) {
+            if (!isConnected()) {
+                return;
+            }
+            sendActivePlayerCommand("alarm delete id:" + Util.encode(id));
+        }
+
+        @Override
+        public void alarmSetTime(String id, int time) {
+            if (!isConnected()) {
+                return;
+            }
+            sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " time:" + time);
+        }
+
+        @Override
+        public void alarmAddDay(String id, int day) {
+            sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " dowAdd:" + day);
+        }
+
+        @Override
+        public void alarmRemoveDay(String id, int day) {
+            sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " dowDel:" + day);
+        }
+
+        @Override
+        public void alarmEnable(String id, boolean enabled) {
+            sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " enabled:" + (enabled ? "1" : "0"));
+        }
+
+        @Override
+        public void alarmRepeat(String id, boolean repeat) {
+            sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " repeat:" + (repeat ? "1" : "0"));
+        }
+
+        @Override
+        public void alarmSetPlaylist(String id, AlarmPlaylist playlist) {
+            String url = "".equals(playlist.getId()) ? "0" : playlist.getId();
+            sendActivePlayerCommand("alarm update id:" + Util.encode(id) + " url:" + Util.encode(url));
         }
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
@@ -1527,7 +1657,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Calculate and set player subscription states every time a client of the bus
      * un/registers.
-     * <p/>
+     * <p>
      * For example, this ensures that if a new client subscribes and needs real
      * time updates, the player subscription states will be updated accordingly.
      */
@@ -1547,13 +1677,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void post(Object event) {
-            Log.i("EventBus", "post() " + event.getClass().getSimpleName() + ": " + event);
+            Log.v("EventBus", "post() " + event.getClass().getSimpleName() + ": " + event);
             super.post(event);
         }
 
         @Override
         public void postSticky(Object event) {
-            Log.i("EventBus", "postSticky() " + event.getClass().getSimpleName() + ": " + event);
+            Log.v("EventBus", "postSticky() " + event.getClass().getSimpleName() + ": " + event);
             super.postSticky(event);
         }
 
