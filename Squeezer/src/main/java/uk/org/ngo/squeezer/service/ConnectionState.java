@@ -223,7 +223,7 @@ public class ConnectionState {
         return mConnectionState == CONNECTION_STARTED;
     }
 
-    void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, CliClient cli) {
+    void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, IClient cli) {
         Thread listeningThread = new ListeningThread(eventBus, executor, cli, socketRef.get(),
                 currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
@@ -237,14 +237,14 @@ public class ConnectionState {
 
         private final Socket socket;
 
-        private final CliClient cli;
+        private final IClient client;
 
         private final int generationNumber;
 
-        private ListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, CliClient cli, Socket socket, int generationNumber) {
+        private ListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, IClient client, Socket socket, int generationNumber) {
             mEventBus = eventBus;
             mExecutor = executor;
-            this.cli = cli;
+            this.client = client;
             this.socket = socket;
             this.generationNumber = generationNumber;
         }
@@ -258,7 +258,7 @@ public class ConnectionState {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             } catch (IOException e) {
                 Log.v(TAG, "IOException while creating BufferedReader: " + e);
-                cli.disconnect(false);
+                client.disconnect(false);
                 return;
             }
             IOException exception = null;
@@ -276,7 +276,7 @@ public class ConnectionState {
                     // else we should notify about it.
                     if (currentConnectionGeneration.get() == generationNumber) {
                         Log.v(TAG, "Server disconnected; exception=" + exception);
-                        cli.disconnect(exception == null);
+                        client.disconnect(exception == null);
                     } else {
                         // Who cares.
                         Log.v(TAG, "Old generation connection disconnected, as expected.");
@@ -294,7 +294,7 @@ public class ConnectionState {
                 mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        cli.onLineReceived(inputLine);
+                        client.onLineReceived(inputLine);
                     }
                 });
             }
@@ -303,7 +303,7 @@ public class ConnectionState {
 
     void startConnect(final SqueezeService service, @NonNull final EventBus eventBus,
                       @NonNull final Executor executor,
-                      final CliClient cli, String hostPort, final String userName,
+                      final IClient client, String hostPort, final String userName,
                       final String password) {
         Log.v(TAG, "startConnect");
         // Common mistakes, based on crash reports...
@@ -342,8 +342,8 @@ public class ConnectionState {
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                     setConnectionState(eventBus, CONNECTION_COMPLETED);
-                    startListeningThread(eventBus, executor, cli);
-                    onCliPortConnectionEstablished(eventBus, cli, userName, password);
+                    startListeningThread(eventBus, executor, client);
+                    onCliPortConnectionEstablished(eventBus, client, userName, password);
                     Authenticator.setDefault(new Authenticator() {
                         @Override
                         public PasswordAuthentication getPasswordAuthentication() {
@@ -379,7 +379,7 @@ public class ConnectionState {
      * therefore a disconnect when handshake (the next step after authentication) is not completed,
      * is considered an authentication failure.
      */
-    void onCliPortConnectionEstablished(final EventBus eventBus, final CliClient cli, final String userName, final String password) {
+    void onCliPortConnectionEstablished(final EventBus eventBus, final IClient cli, final String userName, final String password) {
         setConnectionState(eventBus, ConnectionState.LOGIN_STARTED);
         cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
     }

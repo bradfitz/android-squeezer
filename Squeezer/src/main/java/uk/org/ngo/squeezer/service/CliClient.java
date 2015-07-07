@@ -61,7 +61,6 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
-import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
@@ -78,11 +77,10 @@ import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
-class CliClient implements IClient {
+class CliClient extends BaseClient {
 
     private static final String TAG = "CliClient";
 
-    final ConnectionState connectionState = new ConnectionState();
 
     /** {@link java.util.regex.Pattern} that splits strings on spaces. */
     private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
@@ -98,12 +96,6 @@ class CliClient implements IClient {
     /** The prefix for URLs for downloads and cover art. */
     private String mUrlPrefix;
 
-    /** Shared event bus for status changes. */
-    @NonNull private final EventBus mEventBus;
-
-    /** Executor for off-main-thread work. */
-    @NonNull
-    private final ScheduledThreadPoolExecutor mExecutor = new ScheduledThreadPoolExecutor(1);
 
     /** The types of command handler. */
     @IntDef(flag=true, value={
@@ -364,16 +356,12 @@ class CliClient implements IClient {
     private final int pageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
 
     CliClient(@NonNull EventBus eventBus) {
-        mEventBus = eventBus;
+        super(eventBus);
     }
 
-    void initialize() {
-        mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
-    }
-
-    // Call through to connectionState implementation for the moment.
-    void disconnect(boolean loginFailed) {
-        connectionState.disconnect(mEventBus, loginFailed);
+    // Call through to mConnectionState implementation for the moment.
+    public void disconnect(boolean loginFailed) {
+        mConnectionState.disconnect(mEventBus, loginFailed);
         mPlayers.clear();
     }
 
@@ -381,22 +369,11 @@ class CliClient implements IClient {
     // asynchronous responses are received.
     private int _correlationid = 0;
 
-
-    /**
-     * Send the supplied commands to the SqueezeboxServer.
-     * <p>
-     * <b>All</b> data to the server goes through this method
-     * <p>
-     * <b>Note</b> don't call this from the main (UI) thread. If you are unsure if you are on the
-     * main thread, then use {@link #sendCommand(String...)} instead.
-     *
-     * @param commands List of commands to send
-     */
-    synchronized void sendCommandImmediately(String... commands) {
+    public synchronized void sendCommandImmediately(String... commands) {
         if (commands.length == 0) {
             return;
         }
-        PrintWriter writer = connectionState.getSocketWriter();
+        PrintWriter writer = mConnectionState.getSocketWriter();
         if (writer == null) {
             return;
         }
@@ -415,16 +392,7 @@ class CliClient implements IClient {
         writer.flush();
     }
 
-    /**
-     * Send the supplied commands to the SqueezeboxServer.
-     * <p>
-     * This method takes care to avoid performing network operations on the main thread. Use {@link
-     * #sendCommandImmediately(String...)} if you are sure you are not on the main thread (eg if
-     * called from the listening thread).
-     *
-     * @param commands List of commands to send
-     */
-    void sendCommand(final String... commands) {
+    public void sendCommand(final String... commands) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             sendCommandImmediately(commands);
         } else {
@@ -437,11 +405,6 @@ class CliClient implements IClient {
         }
     }
 
-    /**
-     * Send the specified command for the specified player to the SqueezeboxServer
-     *
-     * @param command The command to send
-     */
     public void sendPlayerCommand(final Player player, final String command) {
         sendCommand(Util.encode(player.getId()) + " " + command);
     }
@@ -541,11 +504,11 @@ class CliClient implements IClient {
         internalRequestItems(player.getId(), cmd, start, parameters, callback);
     }
 
-    void requestItems(String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
+    public void requestItems(String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
         internalRequestItems(null, cmd, start, parameters, callback);
     }
 
-    void requestItems(String cmd, int start, IServiceItemListCallback callback) {
+    public void requestItems(String cmd, int start, IServiceItemListCallback callback) {
         requestItems(cmd, start, null, callback);
     }
 
@@ -553,11 +516,11 @@ class CliClient implements IClient {
         internalRequestItems(null, cmd, start, pageSize, parameters, callback);
     }
 
-    void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback callback) {
+    public void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback callback) {
         requestItems(cmd, start, pageSize, null, callback);
     }
 
-    void requestPlayerItems(@Nullable Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
+    public void requestPlayerItems(@Nullable Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
         if (player == null) {
             return;
         }
@@ -865,9 +828,9 @@ class CliClient implements IClient {
 
     // Shims around ConnectionState methods.
 
-    void startConnect(final SqueezeService service, String hostPort, final String userName,
-                      final String password) {
-        connectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
+    public void startConnect(final SqueezeService service, String hostPort, final String userName,
+                             final String password) {
+        mConnectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
 
     }
 
@@ -957,13 +920,13 @@ class CliClient implements IClient {
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Preference received: " + tokens);
                 if ("httpport".equals(tokens.get(1)) && tokens.size() >= 3) {
-                    connectionState.setHttpPort(Integer.parseInt(tokens.get(2)));
+                    mConnectionState.setHttpPort(Integer.parseInt(tokens.get(2)));
                 }
                 if ("jivealbumsort".equals(tokens.get(1)) && tokens.size() >= 3) {
-                    connectionState.setPreferedAlbumSort(tokens.get(2));
+                    mConnectionState.setPreferedAlbumSort(tokens.get(2));
                 }
                 if ("mediadirs".equals(tokens.get(1)) && tokens.size() >= 3) {
-                    connectionState.setMediaDirs(Util.decode(tokens.get(2)));
+                    mConnectionState.setMediaDirs(Util.decode(tokens.get(2)));
                 }
             }
         });
@@ -972,17 +935,17 @@ class CliClient implements IClient {
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Capability received: " + tokens);
                 if ("favorites".equals(tokens.get(1)) && tokens.size() >= 4) {
-                    connectionState.setCanFavorites(Util.parseDecimalIntOrZero(tokens.get(3)) == 1);
+                    mConnectionState.setCanFavorites(Util.parseDecimalIntOrZero(tokens.get(3)) == 1);
                 }
                 if ("musicfolder".equals(tokens.get(1)) && tokens.size() >= 3) {
-                    connectionState
+                    mConnectionState
                             .setCanMusicfolder(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
                 }
                 if ("myapps".equals(tokens.get(1)) && tokens.size() >= 4) {
-                    connectionState.setCanMyApps(Util.parseDecimalIntOrZero(tokens.get(3)) == 1);
+                    mConnectionState.setCanMyApps(Util.parseDecimalIntOrZero(tokens.get(3)) == 1);
                 }
                 if ("randomplay".equals(tokens.get(1)) && tokens.size() >= 3) {
-                    connectionState
+                    mConnectionState
                             .setCanRandomplay(Util.parseDecimalIntOrZero(tokens.get(2)) == 1);
                 }
             }
@@ -1023,8 +986,8 @@ class CliClient implements IClient {
                 Crashlytics.setString("server_version", tokens.get(1));
 
                 mEventBus.postSticky(new HandshakeComplete(
-                        connectionState.canFavorites(), connectionState.canMusicfolder(),
-                        connectionState.canMusicfolder(), connectionState.canRandomplay()));
+                        mConnectionState.canFavorites(), mConnectionState.canMusicfolder(),
+                        mConnectionState.canMusicfolder(), mConnectionState.canRandomplay()));
             }
         });
 
@@ -1293,7 +1256,7 @@ class CliClient implements IClient {
         return handlers;
     }
 
-    void onLineReceived(String serverLine) {
+    public void onLineReceived(String serverLine) {
         Log.v(TAG, "RECV: " + serverLine);
 
         // Make sure that username/password do not make it to Crashlytics.
@@ -1503,28 +1466,28 @@ class CliClient implements IClient {
         });
     }
 
-    boolean isConnected() {
-        return connectionState.isConnected();
+    public boolean isConnected() {
+        return mConnectionState.isConnected();
     }
 
-    boolean isConnectInProgress() {
-        return connectionState.isConnectInProgress();
+    public boolean isConnectInProgress() {
+        return mConnectionState.isConnectInProgress();
     }
 
     int getHttpPort() {
-        return connectionState.getHttpPort();
+        return mConnectionState.getHttpPort();
     }
 
     String getCurrentHost() {
-        return connectionState.getCurrentHost();
+        return mConnectionState.getCurrentHost();
     }
 
-    String[] getMediaDirs() {
-        return connectionState.getMediaDirs();
+    public String[] getMediaDirs() {
+        return mConnectionState.getMediaDirs();
     }
 
     public String getPreferredAlbumSort() {
-        return connectionState.getPreferredAlbumSort();
+        return mConnectionState.getPreferredAlbumSort();
     }
 
 }

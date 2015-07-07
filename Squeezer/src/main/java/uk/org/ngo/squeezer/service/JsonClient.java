@@ -16,8 +16,97 @@
 
 package uk.org.ngo.squeezer.service;
 
-public class JsonClient  {
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.List;
+
+import de.greenrobot.event.EventBus;
+import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+
+public class JsonClient extends BaseClient {
     private static final String TAG = JsonClient.class.getSimpleName();
 
+    JsonClient(@NonNull EventBus eventBus) {
+        super(eventBus);
+    }
 
+    @Override
+    public void disconnect(boolean loginFailed) {
+
+    }
+
+    @Override
+    public void sendCommandImmediately(String... commands) {
+
+    }
+
+    @Override
+    public void sendCommand(String... commands) {
+
+    }
+
+    @Override
+    public void sendPlayerCommand(Player player, String command) {
+
+    }
+
+    @Override
+    public String[] getMediaDirs() {
+        return new String[0];
+    }
+
+    @Override
+    public boolean isConnected() {
+        return false;
+    }
+
+    @Override
+    public boolean isConnectInProgress() {
+        return false;
+    }
+
+    // Shims around ConnectionState methods.
+    // XXX Very similar to code in CliClient.
+    public void startConnect(final SqueezeService service, String hostPort, final String userName,
+                      final String password) {
+        mConnectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
+    }
+
+    @Override
+    public void onLineReceived(String serverLine) {
+
+    }
+
+    @Override
+    public String getPreferredAlbumSort() {
+        return null;
+    }
+
+    @Override
+    public void cancelClientRequests(Object object) {
+
+    }
+
+    @Override
+    public void requestItems(String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
+
+    }
+
+    @Override
+    public void requestItems(String cmd, int start, IServiceItemListCallback callback) {
+
+    }
+
+    @Override
+    public void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback callback) {
+
+    }
+
+    @Override
+    public void requestPlayerItems(@Nullable Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
+
+    }
 }
