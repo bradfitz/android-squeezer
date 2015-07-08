@@ -22,6 +22,8 @@ import android.support.annotation.NonNull;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import de.greenrobot.event.EventBus;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 abstract class BaseClient implements IClient {
@@ -34,6 +36,8 @@ abstract class BaseClient implements IClient {
 
     /** Shared event bus for status changes. */
     @NonNull protected final EventBus mEventBus;
+
+    protected final int mPageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
 
     BaseClient(EventBus eventBus) {
         mEventBus = eventBus;

@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
@@ -353,8 +352,6 @@ class CliClient extends BaseClient {
         return map;
     }
 
-    private final int pageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
-
     CliClient(@NonNull EventBus eventBus) {
         super(eventBus);
     }
@@ -367,7 +364,7 @@ class CliClient extends BaseClient {
 
     // All requests are tagged with a correlation id, which can be used when
     // asynchronous responses are received.
-    private int _correlationid = 0;
+    private int mCorrelationId = 0;
 
     public synchronized void sendCommandImmediately(String... commands) {
         if (commands.length == 0) {
@@ -422,14 +419,14 @@ class CliClient extends BaseClient {
      * <p>
      * If a reply with with matching entry is this list comes in, it is discarded.
      */
-    private final Map<Integer, IServiceItemListCallback> pendingRequests
+    private final Map<Integer, IServiceItemListCallback> mPendingRequests
             = new ConcurrentHashMap<Integer, IServiceItemListCallback>();
 
     public void cancelClientRequests(Object client) {
-        for (Map.Entry<Integer, IServiceItemListCallback> entry : pendingRequests.entrySet()) {
+        for (Map.Entry<Integer, IServiceItemListCallback> entry : mPendingRequests.entrySet()) {
             if (entry.getValue().getClient() == client) {
                 Log.i(TAG, "cancel request: [" + entry.getKey() + ";" + entry.getValue() +"]");
-                pendingRequests.remove(entry.getKey());
+                mPendingRequests.remove(entry.getKey());
             }
         }
     }
@@ -449,7 +446,7 @@ class CliClient extends BaseClient {
      * @see #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)
      */
     private void internalRequestItems(String playerId, String cmd, int start, int pageSize, List<String> parameters, IServiceItemListCallback callback) {
-        pendingRequests.put(_correlationid, callback);
+        mPendingRequests.put(mCorrelationId, callback);
         final StringBuilder sb = new StringBuilder(cmd + " " + start + " " + pageSize);
         if (playerId != null) {
             sb.insert(0, Util.encode(playerId) + " ");
@@ -460,7 +457,7 @@ class CliClient extends BaseClient {
             }
         }
         sb.append(" correlationid:");
-        sb.append(_correlationid++);
+        sb.append(mCorrelationId++);
         sendCommand(sb.toString());
     }
 
@@ -497,7 +494,7 @@ class CliClient extends BaseClient {
             parameters.add("full_list:1");
         }
 
-        internalRequestItems(playerId, cmd, (full_list ? 0 : start), (start == 0 ? 1 : pageSize), parameters, callback);
+        internalRequestItems(playerId, cmd, (full_list ? 0 : start), (start == 0 ? 1 : mPageSize), parameters, callback);
     }
 
     void requestItems(Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
@@ -669,7 +666,7 @@ class CliClient extends BaseClient {
         // Process the lists for all the registered handlers
         int end = start + itemsPerResponse;
         int max = 0;
-        IServiceItemListCallback callback = pendingRequests.get(correlationId);
+        IServiceItemListCallback callback = mPendingRequests.get(correlationId);
         for (SqueezeParserInfo parser : cmd.parserInfos) {
             Integer count = counts.get(parser.count_id);
             int countValue = (count == null ? 0 : count);
@@ -686,8 +683,8 @@ class CliClient extends BaseClient {
         // If the client is still around check if we need to order more items,
         // otherwise were done, so remove the callback
         if (callback != null) {
-            if ((full_list || end % pageSize != 0) && end < max) {
-                int count = (end + pageSize > max ? max - end : full_list ? pageSize : pageSize - itemsPerResponse);
+            if ((full_list || end % mPageSize != 0) && end < max) {
+                int count = (end + mPageSize > max ? max - end : full_list ? mPageSize : mPageSize - itemsPerResponse);
                 StringBuilder cmdline = new StringBuilder();
                 cmdline.append(playerid);
                 cmdline.append(prefix);
@@ -701,7 +698,7 @@ class CliClient extends BaseClient {
                 }
                 sendCommandImmediately(cmdline.toString());
             } else
-                pendingRequests.remove(correlationId);
+                mPendingRequests.remove(correlationId);
         }
     }
 

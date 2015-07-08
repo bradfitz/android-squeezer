@@ -158,7 +158,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         callbacks.remove(item);
     }
 
-    final IClient mClient = new CliClient(mEventBus);
+    final IClient mClient = new JsonClient(mEventBus);
 
     /**
      * Is scrobbling enabled?
