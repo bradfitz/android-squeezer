@@ -1394,17 +1394,16 @@ class CliClient implements IClient {
         String notification = tokens.get(2);
         if ("newsong".equals(notification)) {
             sendCommand(tokens.get(0), "status - 1 tags:" + SqueezeService.SONGTAGS);
-        } else if ("play".equals(notification)) {
-            updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PLAY_STATE_PLAY);
-        } else if ("stop".equals(notification)) {
-            updatePlayStatus(Util.decode(tokens.get(0)), PlayerState.PLAY_STATE_STOP);
-        } else if ("pause".equals(notification)) {
-            updatePlayStatus(Util.decode(tokens.get(0)), parsePause(tokens.size() >= 4 ? tokens.get(3) : null));
         } else if ("addtracks".equals(notification)) {
             mEventBus.postSticky(new PlaylistTracksAdded());
         } else if ("delete".equals(notification)) {
             mEventBus.postSticky(new PlaylistTracksDeleted());
         }
+
+        // Ignore "play", "stop", "pause" playlist notifications that come through here,
+        // as they come through every time a track changes, causing the notification to
+        // briefly disappear and re-appear. The top level "play", "stop", and "pause"
+        // messages don't have this problem.
     }
 
     private void updatePlayerVolume(String playerId, int newVolume) {
