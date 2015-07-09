@@ -60,14 +60,6 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private IntEditTextPreference fadeInPref;
 
-    private ListPreference mNotificationTypePref;
-
-    private ListPreference onSelectAlbumPref;
-
-    private ListPreference onSelectSongPref;
-
-    private ListPreference onSelectThemePref;
-
     private final ThemeManager mThemeManager = new ThemeManager();
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -110,9 +102,9 @@ public class SettingsActivity extends PreferenceActivity implements
 
         fillScrobblePreferences(preferences);
 
-        mNotificationTypePref = (ListPreference) findPreference(Preferences.KEY_NOTIFICATION_TYPE);
-        mNotificationTypePref.setOnPreferenceChangeListener(this);
-        fillNotificationPreferences(preferences);
+        ListPreference notificationTypePref = (ListPreference) findPreference(Preferences.KEY_NOTIFICATION_TYPE);
+        notificationTypePref.setOnPreferenceChangeListener(this);
+        fillNotificationPreferences(preferences, notificationTypePref);
 
         fillPlayableItemSelectionPreferences();
 
@@ -151,20 +143,21 @@ public class SettingsActivity extends PreferenceActivity implements
         }
     }
 
-    private void fillNotificationPreferences(SharedPreferences preferences) {
+    private void fillNotificationPreferences(SharedPreferences preferences,
+                                             ListPreference notificationTypePref) {
         // If an old KEY_NOTIFY_OF_CONNECTION preference exists, use it, delete it, and
         // upgrade it to the new KEY_NOTIFICATION_TYPE preference.
         if (preferences.contains(Preferences.KEY_NOTIFY_OF_CONNECTION)) {
             boolean enabled = preferences.getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false);
-            mNotificationTypePref.setValue(enabled ? Preferences.NOTIFICATION_TYPE_ALWAYS :
+            notificationTypePref.setValue(enabled ? Preferences.NOTIFICATION_TYPE_ALWAYS :
                     Preferences.NOTIFICATION_TYPE_PLAYING);
             Editor editor = preferences.edit();
-            editor.putString(Preferences.KEY_NOTIFICATION_TYPE, mNotificationTypePref.getValue());
+            editor.putString(Preferences.KEY_NOTIFICATION_TYPE, notificationTypePref.getValue());
             editor.remove(Preferences.KEY_NOTIFY_OF_CONNECTION);
             editor.commit();
         }
 
-        updateListPreferenceSummary(mNotificationTypePref, mNotificationTypePref.getValue());
+        updateListPreferenceSummary(notificationTypePref, notificationTypePref.getValue());
     }
 
     private void fillPlayableItemSelectionPreferences() {
@@ -174,7 +167,7 @@ public class SettingsActivity extends PreferenceActivity implements
         String insertLabel = getString(PlayableItemAction.Type.INSERT.labelId);
         String browseLabel = getString(PlayableItemAction.Type.BROWSE.labelId);
 
-        onSelectAlbumPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION);
+        ListPreference onSelectAlbumPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION);
         onSelectAlbumPref.setEntryValues(new String[]{
                 PlayableItemAction.Type.PLAY.name(),
                 PlayableItemAction.Type.INSERT.name(),
@@ -190,7 +183,7 @@ public class SettingsActivity extends PreferenceActivity implements
         onSelectAlbumPref.setOnPreferenceChangeListener(this);
         updateListPreferenceSummary(onSelectAlbumPref, onSelectAlbumPref.getValue());
 
-        onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
+        ListPreference onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
         onSelectSongPref.setEntryValues(new String[]{
                 PlayableItemAction.Type.NONE.name(),
                 PlayableItemAction.Type.PLAY.name(),
@@ -208,9 +201,9 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     private void fillThemeSelectionPreferences() {
-        onSelectThemePref = (ListPreference) findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
-        ArrayList<String> entryValues = new ArrayList<String>();
-        ArrayList<String> entries = new ArrayList<String>();
+        ListPreference onSelectThemePref = (ListPreference) findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
+        ArrayList<String> entryValues = new ArrayList<>();
+        ArrayList<String> entries = new ArrayList<>();
 
         for (ThemeManager.Theme theme : ThemeManager.Theme.values()) {
             entryValues.add(theme.name());
@@ -272,7 +265,8 @@ public class SettingsActivity extends PreferenceActivity implements
      * updated when the preference changes. See http://stackoverflow.com/a/7018053/775306
      * for details.
      *
-     * @param pref
+     * @param pref the preference to set
+     * @param value the preference's value (might not be set yet)
      */
     private void updateListPreferenceSummary(ListPreference pref, String value) {
         CharSequence[] entries = pref.getEntries();
@@ -302,7 +296,7 @@ public class SettingsActivity extends PreferenceActivity implements
                 Preferences.KEY_ON_SELECT_ALBUM_ACTION.equals(key) ||
                 Preferences.KEY_ON_SELECT_SONG_ACTION.equals(key) ||
                 Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
-            updateListPreferenceSummary((ListPreference) preference, (String) newValue.toString());
+            updateListPreferenceSummary((ListPreference) preference, (String) newValue);
             return true;
         }
 
