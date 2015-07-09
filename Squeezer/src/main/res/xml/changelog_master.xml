@@ -2,8 +2,8 @@
 
 <changelog>
     <release
-        version="1.4.0-beta-1"
-        versioncode="53">
+        version="1.4.0"
+        versioncode="54">
         <change>New support for managing alarms on players. Most of the code by Kurt.</change>
 
         <change>Improved the support for apps, contributed by Christer Wendel.</change>
