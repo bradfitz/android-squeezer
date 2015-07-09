@@ -14,6 +14,8 @@ Features include:
 
 *   Full library search.
 
+*   Manage players (names, synchronisation groups, sleep, alarms)
+
 *   Internet radio support (browse, staff picks, search).
 
 *   Scan the local network for compatible Squeezeservers.
