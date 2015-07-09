@@ -51,11 +51,11 @@ x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktivere
         aktiv Wi-Fi forbindelse
     </string>
 
-    <string name="settings_notifyofconnection_title">Notifikation ved forbindelse</string>
-    <string name="settings_notifyofconnection_on">Vis notifikation ved forbindelse, også når der
+    <string name="settings_notification_type_title">Notifikation ved forbindelse</string>
+    <string name="settings_notification_type_always">Vis notifikation ved forbindelse, også når der
         ikke spilles musik
     </string>
-    <string name="settings_notifyofconnection_off">Vis kun notification når der spilles musik
+    <string name="settings_notification_type_playing">Vis kun notification når der spilles musik
     </string>
 
     <string name="settings_category_ui">Squeezer grænseflade</string>

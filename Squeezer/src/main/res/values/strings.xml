@@ -52,11 +52,12 @@
         try to connect
     </string>
 
-    <string name="settings_notifyofconnection_title">Notify of connection</string>
-    <string name="settings_notifyofconnection_on">Show notification while connected, even when not
-        playing music
+    <string name="settings_notification_type_title">Notify of connection</string>
+    <string name="settings_notification_type_none">Never</string>
+    <string name="settings_notification_type_playing">Only while playing music
     </string>
-    <string name="settings_notifyofconnection_off">Show notification only while playing music
+    <string name="settings_notification_type_always">While connected, even when not
+        playing music
     </string>
 
     <string name="settings_scrobble_title">Scrobble to Last.fm</string>

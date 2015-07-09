@@ -44,9 +44,9 @@
     <string name="settings_autoconnect_summary">Bied aan Wi-Fi in te schakelen, en bij Wi-Fi
         beschikbaarheid, probeer te verbinden.
     </string>
-    <string name="settings_notifyofconnection_title">Melding bij verbinding</string>
-    <string name="settings_notifyofconnection_on">Toon melding bij verbinding, zelfs zonder muziek</string>
-    <string name="settings_notifyofconnection_off">Toon alleen melding bij afspelen muziek</string>
+    <string name="settings_notification_type_title">Melding bij verbinding</string>
+    <string name="settings_notification_type_always">Toon melding bij verbinding, zelfs zonder muziek</string>
+    <string name="settings_notification_type_playing">Toon alleen melding bij afspelen muziek</string>
     <string name="settings_scrobble_title">Scrobble naar Last.fm</string>
     <string name="settings_scrobble_on">Informatie van muzieknummer is verzonden naar Last.fm</string>
     <string name="settings_scrobble_off">Informatie van muzieknummer is niet verzonden naar Last.fm</string>

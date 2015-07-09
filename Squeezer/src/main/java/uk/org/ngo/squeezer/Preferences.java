@@ -20,6 +20,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.support.annotation.StringDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 public final class Preferences {
 
@@ -44,7 +48,18 @@ public final class Preferences {
     public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
 
     // Do we keep the notification going at top, even when we're not connected?
+    // Deprecated, retained for compatibility when upgrading.
     public static final String KEY_NOTIFY_OF_CONNECTION = "squeezer.notifyofconnection";
+
+    // Type of notification to show.
+    public static final String KEY_NOTIFICATION_TYPE = "squeezer.notification_type";
+
+    @StringDef({NOTIFICATION_TYPE_NONE, NOTIFICATION_TYPE_PLAYING, NOTIFICATION_TYPE_ALWAYS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface NotificationType {}
+    public static final String NOTIFICATION_TYPE_NONE = "none";
+    public static final String NOTIFICATION_TYPE_PLAYING = "playing";
+    public static final String NOTIFICATION_TYPE_ALWAYS = "always";
 
     // Do we scrobble track information?
     // Deprecated, retained for compatibility when upgrading. Was an int, of
@@ -87,7 +102,6 @@ public final class Preferences {
         this.context = context;
         sharedPreferences = context.getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
     }
-
 
     private String getStringPreference(String preference, String defaultValue) {
         final String pref = sharedPreferences.getString(preference, null);
