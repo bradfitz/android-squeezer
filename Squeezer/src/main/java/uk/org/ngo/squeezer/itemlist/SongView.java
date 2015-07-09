@@ -31,7 +31,6 @@ import uk.org.ngo.squeezer.framework.PlaylistItemView;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.service.ISqueezeService;
 
 import static android.text.format.DateUtils.formatElapsedTime;
 
@@ -138,7 +137,7 @@ public class SongView extends PlaylistItemView<Song> {
 
     /**
      * Creates the context menu for a song by inflating R.menu.songcontextmenu.
-     * <p/>
+     * <p>
      * Subclasses that show songs in playlists should call through to this first, then adjust the
      * visibility of R.id.group_playlist.
      */

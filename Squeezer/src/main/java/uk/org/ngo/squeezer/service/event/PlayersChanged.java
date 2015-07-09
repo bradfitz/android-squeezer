@@ -16,10 +16,6 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.model.Player;

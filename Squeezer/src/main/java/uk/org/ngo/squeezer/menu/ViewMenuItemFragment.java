@@ -13,9 +13,9 @@ import uk.org.ngo.squeezer.itemlist.dialog.BaseViewDialog;
 
 /**
  * A fragment that implements a "View" menu.
- * <p/>
+ * <p>
  * Activities that host this fragment must implement {@link ListActivityWithViewMenu}.
- * <p/>
+ * <p>
  * <pre>
  * {@code
  * public void onCreate(Bundle savedInstanceState) {

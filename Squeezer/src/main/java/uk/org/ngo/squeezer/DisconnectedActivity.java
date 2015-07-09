@@ -30,13 +30,11 @@ import java.lang.annotation.RetentionPolicy;
 import uk.org.ngo.squeezer.dialog.InfoDialog;
 import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.service.ConnectionState;
-import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 /**
  * An activity for when the user is not connected to a Squeezeserver.
- * <p/>
+ * <p>
  * Provide a UI for connecting to the configured server, launch HomeActivity when the user
  * connects.
  */
@@ -81,10 +79,10 @@ public class DisconnectedActivity extends BaseActivity {
 
     /**
      * Show this activity.
-     * <p/>
+     * <p>
      * Flags are set to clear the previous activities, as trying to go back while disconnected makes
      * no sense.
-     * <p/>
+     * <p>
      * The pending transition is overridden to animate the activity in place, rather than having it
      * appear to move in from off-screen.
      *

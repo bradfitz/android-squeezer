@@ -19,15 +19,11 @@ package uk.org.ngo.squeezer.itemlist;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.SpinnerItemView;
 import uk.org.ngo.squeezer.model.Genre;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class GenreView extends SpinnerItemView<Genre> {
 

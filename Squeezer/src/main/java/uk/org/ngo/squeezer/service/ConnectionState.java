@@ -252,9 +252,10 @@ public class ConnectionState {
         @Override
         public void run() {
             Log.d(TAG, "Listening thread started");
+
             BufferedReader in;
             try {
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()), 128);
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             } catch (IOException e) {
                 Log.v(TAG, "IOException while creating BufferedReader: " + e);
                 cli.disconnect(false);
@@ -363,7 +364,7 @@ public class ConnectionState {
 
     /**
      * Authenticate on the SqueezeServer.
-     * <p/>
+     * <p>
      * The server does
      * <pre>
      * login user wrongpassword

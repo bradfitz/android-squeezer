@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * Provides a fragment that will be retained across the lifecycle of the activity that hosts it.
- * <p/>
+ * <p>
  * Get an instance of this class by calling {@link #getInstance(String, FragmentManager)}, and place
  * objects that should be persisted across the activity lifecycle using {@link #put(String,
  * Object)}. Retrieve persisted objects with {@link #get(String)}.

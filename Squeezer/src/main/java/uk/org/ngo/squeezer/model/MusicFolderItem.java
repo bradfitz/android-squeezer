@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.model;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -28,7 +29,7 @@ import uk.org.ngo.squeezer.framework.PlaylistItem;
 
 /**
  * Encapsulate a music folder item on the Squeezeserver.
- * <p/>
+ * <p>
  * An item has a name and a type. The name is free text, the type may be one of "track", "folder",
  * "playlist", or "unknown".
  *
@@ -85,24 +86,24 @@ public class MusicFolderItem extends PlaylistItem {
         return this;
     }
 
-    @Nullable
-    private String url;
+    @NonNull
+    private Uri url = Uri.EMPTY;
 
-    @Nullable
-    public String getUrl() {
+    @NonNull
+    public Uri getUrl() {
         return url;
     }
 
-    public void setUrl(@Nullable String url) {
+    public void setUrl(@NonNull Uri url) {
         this.url = url;
     }
 
     /** The URL to use to download the song. */
     @NonNull
-    private String mDownloadUrl = "";
+    private Uri mDownloadUrl = Uri.EMPTY;
 
     @NonNull
-    public String getDownloadUrl() {
+    public Uri getDownloadUrl() {
         return mDownloadUrl;
     }
 
@@ -110,8 +111,8 @@ public class MusicFolderItem extends PlaylistItem {
         setId(record.get("id"));
         name = record.get("filename");
         type = record.get("type");
-        url = record.get("url");
-        mDownloadUrl = Strings.nullToEmpty(record.get("download_url"));
+        url = Uri.parse(Strings.nullToEmpty(record.get("url")));
+        mDownloadUrl = Uri.parse(Strings.nullToEmpty(record.get("download_url")));
     }
 
     public static final Creator<MusicFolderItem> CREATOR = new Creator<MusicFolderItem>() {
@@ -130,8 +131,8 @@ public class MusicFolderItem extends PlaylistItem {
         setId(source.readString());
         name = source.readString();
         type = source.readString();
-        url = source.readString();
-        mDownloadUrl = source.readString();
+        url = Uri.parse(source.readString());
+        mDownloadUrl = Uri.parse(source.readString());
     }
 
     @Override
@@ -139,8 +140,8 @@ public class MusicFolderItem extends PlaylistItem {
         dest.writeString(getId());
         dest.writeString(name);
         dest.writeString(type);
-        dest.writeString(url);
-        dest.writeString(mDownloadUrl);
+        dest.writeString(url.toString());
+        dest.writeString(mDownloadUrl.toString());
     }
 
     @Override

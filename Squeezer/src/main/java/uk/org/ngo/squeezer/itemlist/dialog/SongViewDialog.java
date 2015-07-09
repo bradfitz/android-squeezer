@@ -49,7 +49,7 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
 
     /**
      * Sort order strings supported by the server.
-     * <p/>
+     * <p>
      * Values must correspond with the string expected by the server. Any '__' in the strings will
      * be removed.
      */

@@ -62,6 +62,7 @@ import java.util.Collections;
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
@@ -74,6 +75,7 @@ import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -117,7 +119,9 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     private MenuItem menu_item_players;
 
-    private MenuItem menu_item_playlists;
+    private MenuItem menu_item_playlist;
+
+    private MenuItem menu_item_alarm;
 
     private MenuItem menu_item_search;
 
@@ -738,10 +742,10 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     /**
      * Builds a context menu suitable for the currently playing song.
-     * <p/>
+     * <p>
      * Takes the general song context menu, and disables items that make no sense for the song that
      * is currently playing.
-     * <p/>
+     * <p>
      * {@inheritDoc}
      *
      * @param menu
@@ -766,7 +770,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     /**
      * Handles clicks on the context menu.
-     * <p/>
+     * <p>
      * {@inheritDoc}
      *
      * @param item
@@ -822,13 +826,14 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         menu_item_poweron = menu.findItem(R.id.menu_item_poweron);
         menu_item_poweroff = menu.findItem(R.id.menu_item_poweroff);
         menu_item_players = menu.findItem(R.id.menu_item_players);
-        menu_item_playlists = menu.findItem(R.id.menu_item_playlist);
+        menu_item_playlist = menu.findItem(R.id.menu_item_playlist);
+        menu_item_alarm = menu.findItem(R.id.menu_item_alarm);
         menu_item_search = menu.findItem(R.id.menu_item_search);
     }
 
     /**
      * Sets the state of assorted option menu items based on whether or not there is a connection to
-     * the server.
+     * the server, and if so, whether any players are connected.
      */
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
@@ -840,16 +845,30 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
         // These are all set at the same time, so one check is sufficient
         if (menu_item_connect != null) {
+            // Set visibility and enabled state of menu items that are not player-specific.
             menu_item_connect.setVisible(!connected);
             menu_item_disconnect.setVisible(connected);
-            menu_item_players.setEnabled(connected);
-            menu_item_playlists.setEnabled(connected);
+
+            // Set visibility and enabled state of menu items that are player-specific and
+            // require a connection to the server.
+            boolean haveConnectedPlayers = connected && mService != null
+                    && !mService.getConnectedPlayers().isEmpty();
+
+            menu_item_players.setVisible(haveConnectedPlayers);
+            menu_item_playlist.setVisible(haveConnectedPlayers);
+            menu_item_alarm.setVisible(haveConnectedPlayers);
+            if (connected)
+                menu_item_alarm.setTitle(ServerString.ALARM.getLocalizedString());
             menu_item_search.setEnabled(connected);
         }
 
         // Don't show the item to go to CurrentPlaylistActivity if in CurrentPlaylistActivity.
-        if (mActivity instanceof CurrentPlaylistActivity && menu_item_playlists != null) {
-            menu_item_playlists.setVisible(false);
+        if (mActivity instanceof CurrentPlaylistActivity && menu_item_playlist != null) {
+            menu_item_playlist.setVisible(false);
+        }
+        // Don't show the item to go to alarms if in AlarmsActivity.
+        if (mActivity instanceof AlarmsActivity && menu_item_alarm != null) {
+            menu_item_alarm.setVisible(false);
         }
 
         updatePowerMenuItems(canPowerOn(), canPowerOff());
@@ -881,6 +900,9 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                 break;
             case R.id.menu_item_players:
                 PlayerListActivity.show(mActivity);
+                return true;
+            case R.id.menu_item_alarm:
+                AlarmsActivity.show(mActivity);
                 return true;
             case R.id.menu_item_about:
                 new AboutDialog().show(getFragmentManager(), "AboutDialog");

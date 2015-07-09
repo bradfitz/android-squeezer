@@ -48,6 +48,8 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.model.Alarm;
+import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
@@ -63,6 +65,7 @@ import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
+import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
@@ -224,6 +227,14 @@ class CliClient implements IClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
+                        HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC,
+                        "alarms",
+                        new HashSet<String>(Arrays.asList("filter", "dow")),
+                        new SqueezeParserInfo(new BaseListHandler<Alarm>(){})
+                )
+        );
+        list.add(
+                new ExtendedQueryFormatCmd(
                         "artists",
                         new HashSet<String>(
                                 Arrays.asList("search", "genre_id", "album_id", "tags", "charset")),
@@ -287,6 +298,13 @@ class CliClient implements IClient {
         );
         list.add(
                 new ExtendedQueryFormatCmd(
+                        "alarm playlists",
+                        new HashSet<String>(),
+                        "category",
+                        new BaseListHandler<AlarmPlaylist>(){})
+        );
+        list.add(
+                new ExtendedQueryFormatCmd(
                         HANDLER_LIST_GLOBAL,
                         "search",
                         new HashSet<String>(Arrays.asList("term", "charset")),
@@ -319,8 +337,9 @@ class CliClient implements IClient {
                 new ExtendedQueryFormatCmd(
                         "apps",
                         new HashSet<String>(Arrays.asList("sort", "charset")),
-                        "icon",
-                        new PluginListHandler())
+                        new PluginListHandler(),
+                        "cmd", "name", "type", "icon", "weight"
+                )
         );
         list.add(
                 new ExtendedQueryFormatCmd(
@@ -328,7 +347,7 @@ class CliClient implements IClient {
                         "items",
                         new HashSet<String>(
                                 Arrays.asList("item_id", "search", "want_url", "charset")),
-                        new SqueezeParserInfo(new BaseListHandler<PluginItem>(){}))
+                        new SqueezeParserInfo(new PluginItemListHandler()))
         );
 
         return list.toArray(new ExtendedQueryFormatCmd[list.size()]);
@@ -365,9 +384,9 @@ class CliClient implements IClient {
 
     /**
      * Send the supplied commands to the SqueezeboxServer.
-     * <p/>
+     * <p>
      * <b>All</b> data to the server goes through this method
-     * <p/>
+     * <p>
      * <b>Note</b> don't call this from the main (UI) thread. If you are unsure if you are on the
      * main thread, then use {@link #sendCommand(String...)} instead.
      *
@@ -398,7 +417,7 @@ class CliClient implements IClient {
 
     /**
      * Send the supplied commands to the SqueezeboxServer.
-     * <p/>
+     * <p>
      * This method takes care to avoid performing network operations on the main thread. Use {@link
      * #sendCommandImmediately(String...)} if you are sure you are not on the main thread (eg if
      * called from the listening thread).
@@ -454,34 +473,21 @@ class CliClient implements IClient {
 
     /**
      * Send an asynchronous request to the SqueezeboxServer for the specified items.
-     * <p/>
-     * Items are requested in chunks of <code>R.integer.PageSize</code>, and returned
-     * to the caller via the specified callback.
-     * <p/>
-     * If start is zero, this will order one item, to quickly learn the number of items
-     * from the server. When the server response with this item it is transferred to the
-     * caller. The remaining items in the first page are then ordered, and transferred
-     * to the caller when they arrive.
-     * <p/>
-     * If start is < 0, it means the caller wants the entire list. They are ordered in
-     * pages, and transferred to the caller as they arrive.
-     * <p/>
-     * Otherwise request a page of items starting from start.
-     * <p/>
+     * <p>
+     * Items are returned to the caller via the specified callback.
+     * <p>
      * See {@link #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for details.
      *
      * @param playerId Id of the current player or null
      * @param cmd Identifies the type of items
      * @param start First item to return
+     * @param pageSize No of items to return
      * @param parameters Item specific parameters for the request
      * @see #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)
      */
-    private void requestItems(String playerId, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-        boolean full_list = (start < 0);
-
+    private void internalRequestItems(String playerId, String cmd, int start, int pageSize, List<String> parameters, IServiceItemListCallback callback) {
         pendingRequests.put(_correlationid, callback);
-        final StringBuilder sb = new StringBuilder(
-                cmd + " " + (full_list ? 0 : start) + " " + (start == 0 ? 1 : pageSize));
+        final StringBuilder sb = new StringBuilder(cmd + " " + start + " " + pageSize);
         if (playerId != null) {
             sb.insert(0, Util.encode(playerId) + " ");
         }
@@ -490,26 +496,72 @@ class CliClient implements IClient {
                 sb.append(" ").append(Util.encode(parameter));
             }
         }
-        if (full_list)
-            sb.append(" full_list:1");
         sb.append(" correlationid:");
         sb.append(_correlationid++);
         sendCommand(sb.toString());
     }
 
+    /**
+     * Send an asynchronous request to the SqueezeboxServer for the specified items.
+     * <p>
+     * Items are requested in chunks of <code>R.integer.PageSize</code>, and returned
+     * to the caller via the specified callback.
+     * <p>
+     * If start is zero, this will order one item, to quickly learn the number of items
+     * from the server. When the server response with this item it is transferred to the
+     * caller. The remaining items in the first page are then ordered, and transferred
+     * to the caller when they arrive.
+     * <p>
+     * If start is < 0, it means the caller wants the entire list. They are ordered in
+     * pages, and transferred to the caller as they arrive.
+     * <p>
+     * Otherwise request a page of items starting from start.
+     * <p>
+     * See {@link #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for details.
+     *
+     * @param playerId Id of the current player or null
+     * @param cmd Identifies the type of items
+     * @param start First item to return
+     * @param parameters Item specific parameters for the request
+     * @see #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)
+     */
+    private void internalRequestItems(String playerId, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
+        boolean full_list = (start < 0);
+
+        if (full_list) {
+            if (parameters == null)
+                parameters = new ArrayList<String>();
+            parameters.add("full_list:1");
+        }
+
+        internalRequestItems(playerId, cmd, (full_list ? 0 : start), (start == 0 ? 1 : pageSize), parameters, callback);
+    }
+
+    void requestItems(Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
+        internalRequestItems(player.getId(), cmd, start, parameters, callback);
+    }
+
     void requestItems(String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-        requestItems(null, cmd, start, parameters, callback);
+        internalRequestItems(null, cmd, start, parameters, callback);
     }
 
     void requestItems(String cmd, int start, IServiceItemListCallback callback) {
         requestItems(cmd, start, null, callback);
     }
 
+    void requestItems(String cmd, int start, int pageSize, List<String> parameters, IServiceItemListCallback callback) {
+        internalRequestItems(null, cmd, start, pageSize, parameters, callback);
+    }
+
+    void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback callback) {
+        requestItems(cmd, start, pageSize, null, callback);
+    }
+
     void requestPlayerItems(@Nullable Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
         if (player == null) {
             return;
         }
-        requestItems(player.getId(), cmd, start, parameters, callback);
+        requestItems(player, cmd, start, parameters, callback);
     }
 
     /**
@@ -562,13 +614,13 @@ class CliClient implements IClient {
 
     /**
      * Generic method to parse replies for queries in extended query format
-     * <p/>
+     * <p>
      * This is the control center for asynchronous and paging receiving of data from SqueezeServer.
-     * <p/>
+     * <p>
      * Transfer of each data type are started by an asynchronous request by one of the public method
      * in this module. This method will forward the data using the supplied {@link ListHandler}, and
      * and order the next page if necessary, repeating the current query parameters.
-     * <p/>
+     * <p>
      * Activities should just initiate the request, and supply a callback to receive a page of
      * data.
      *
@@ -731,7 +783,15 @@ class CliClient implements IClient {
     private class PluginListHandler extends BaseListHandler<Plugin> {
         @Override
         public void add(Map<String, String> record) {
-            fixIconTag(record);
+            fixImageTag("icon", record);
+            super.add(record);
+        }
+    }
+
+    private class PluginItemListHandler extends BaseListHandler<PluginItem> {
+        @Override
+        public void add(Map<String, String> record) {
+            fixImageTag("image", record);
             super.add(record);
         }
     }
@@ -786,21 +846,21 @@ class CliClient implements IClient {
     }
 
     /**
-     * Make sure the icon tag is an absolute URL.
+     * Make sure the icon/image tag is an absolute URL.
      *
      * @param record The record to modify.
      */
-    private void fixIconTag(Map<String, String> record) {
-        String icon = record.get("icon");
-        if (icon == null) {
+    private void fixImageTag(String imageTag, Map<String, String> record) {
+        String image = record.get(imageTag);
+        if (image == null) {
             return;
         }
 
-        if (Uri.parse(icon).isAbsolute()) {
+        if (Uri.parse(image).isAbsolute()) {
             return;
         }
 
-        record.put("icon", mUrlPrefix + (icon.startsWith("/") ? icon : "/" + icon));
+        record.put(imageTag, mUrlPrefix + (image.startsWith("/") ? image : "/" + image));
     }
 
     // Shims around ConnectionState methods.
@@ -812,7 +872,7 @@ class CliClient implements IClient {
     }
 
     private interface CmdHandler {
-        public void handle(List<String> tokens);
+        void handle(List<String> tokens);
     }
 
     private final Map<String, CmdHandler> globalHandlers = initializeGlobalHandlers();
@@ -874,6 +934,14 @@ class CliClient implements IClient {
                     parseSqueezerList(extQueryFormatCmdMap.get("playlists tracks"), tokens);
                 } else {
                     parseSqueezerList(extQueryFormatCmdMap.get("playlists"), tokens);
+                }
+            }
+        });
+        handlers.put("alarm", new CmdHandler() {
+            @Override
+            public void handle(List<String> tokens) {
+                if ("playlists".equals(tokens.get(1))) {
+                    parseSqueezerList(extQueryFormatCmdMap.get("alarm playlists"), tokens);
                 }
             }
         });
@@ -982,7 +1050,7 @@ class CliClient implements IClient {
 
     /**
      * Initialise handlers for player-specific commands.
-     * <p/>
+     * <p>
      * All commands processed by these handlers start with the player ID.
      *
      * @return
@@ -1031,12 +1099,41 @@ class CliClient implements IClient {
                 parsePlaylistNotification(tokens);
             }
         });
+        handlers.put("playerpref", new CmdHandler() {
+            @Override
+            public void handle(List<String> tokens) {
+                Log.i(TAG, "Player preference received: " + tokens);
+                if (tokens.size() == 4) {
+                    Player player = mPlayers.get(Util.decode(tokens.get(0)));
+                    if (player == null) {
+                        return;
+                    }
+
+                    String pref = Util.decode(tokens.get(2));
+                    if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
+                        mEventBus.post(new PlayerPrefReceived(player, pref,
+                                Util.decode(tokens.get(3))));
+                    }
+                }
+            }
+        });
 
         return handlers;
     }
 
     private Map<String, CmdHandler> initializeGlobalPlayerSpecificHandlers() {
         Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
+
+        for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
+            if (cmd.handlerList == HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC) {
+                handlers.put(cmd.cmd, new CmdHandler() {
+                    @Override
+                    public void handle(List<String> tokens) {
+                        parseSqueezerList(cmd, tokens);
+                    }
+                });
+            }
+        }
 
         // &lt;playerid> client &lt;new|disconnect|reconnect>
         handlers.put("client", new CmdHandler() {
@@ -1156,12 +1253,22 @@ class CliClient implements IClient {
             @Override
             public void handle(List<String> tokens) {
                 Log.v(TAG, "Prefset received: " + tokens);
-                if (tokens.size() > 4 && "server".equals(tokens.get(2)) && "volume".equals(
-                        tokens.get(3))) {
-                    Player player = mPlayers.get(Util.decode(tokens.get(0)));
-                    int newVolume = Util.parseDecimalIntOrZero(tokens.get(4));
-                    player.getPlayerState().setCurrentVolume(newVolume);
-                    mEventBus.post(new PlayerVolume(newVolume, player));
+                if (tokens.size() == 5 && tokens.get(2).equals("server")) {
+                    String playerId = Util.decode(tokens.get(0));
+                    Player player = mPlayers.get(playerId);
+                    if (player == null) {
+                        return;
+                    }
+
+                    if (tokens.get(3).equals("volume")) {
+                        updatePlayerVolume(playerId, Util.parseDecimalIntOrZero(tokens.get(4)));
+                    }
+
+                    @Player.Pref.Name String pref = tokens.get(3);
+                    if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
+                        String value = Util.decode(tokens.get(4));
+                        mEventBus.post(new PlayerPrefReceived(player, pref, Util.decode(tokens.get(4))));
+                    }
                 }
             }
         });
@@ -1241,7 +1348,7 @@ class CliClient implements IClient {
 
     /**
      * Parse a token in to a key-value pair.  The value is optional.
-     * <p/>
+     * <p>
      * The token is assumed to be URL encoded, with the key and value separated by ':' (encoded
      * as '%3A').
      *
@@ -1298,6 +1405,15 @@ class CliClient implements IClient {
         } else if ("delete".equals(notification)) {
             mEventBus.postSticky(new PlaylistTracksDeleted());
         }
+    }
+
+    private void updatePlayerVolume(String playerId, int newVolume) {
+        Player player = mPlayers.get(playerId);
+        if (player == null) {
+            return;
+        }
+        player.getPlayerState().setCurrentVolume(newVolume);
+        mEventBus.post(new PlayerVolume(newVolume, player));
     }
 
     private void updatePlayStatus(@NonNull String playerId, String playStatus) {

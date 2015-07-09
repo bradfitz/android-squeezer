@@ -45,7 +45,7 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
 /**
  * Represents the view hierarchy for a single {@link Item} subclass, suitable for displaying in a
  * {@link ItemListActivity}.
- * <p/>
+ * <p>
  * This class supports views that have a {@link TextView} to display the primary information about
  * the {@link Item} and can optionally enable additional views.  The layout is defined in {@code
  * res/layout/list_item.xml}. <ul> <li>A {@link SquareImageView} suitable for displaying icons</li>
@@ -54,16 +54,16 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  * display an item in one of two states.  The primary state is when the data to be inserted in to
  * the view is known, and represented by a complete {@link Item} subclass. The loading state is when
  * the data type is known, but has not been fetched from the server yet.
- * <p/>
+ * <p>
  * To customise the view's display create an int of {@link ViewParam} and pass it to
  * {@link #setViewParams(int)} or {@link #setLoadingViewParams(int)} depending on whether
  * you want to change the layout of the view in its primary state or the loading state. For example,
  * if the primary state should show a context button you may not want to show that button while
  * waiting for data to arrive.
- * <p/>
+ * <p>
  * Override {@link #bindView(View, Item)} and {@link #bindView(View, String)} to
  * control how data from the item is inserted in to the view.
- * <p/>
+ * <p>
  * If you need a completely custom view hierarchy then override {@link #getAdapterView(View,
  * ViewGroup, int)} and {@link #getAdapterView(View, ViewGroup, String)}.
  *
@@ -199,12 +199,12 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
     /**
      * Returns a view suitable for displaying the data of item in a list. Item may not be null.
-     * <p/>
+     * <p>
      * Override this method and {@link #getAdapterView(View, ViewGroup, String)} if your subclass
      * uses a different layout.
      */
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, T item) {
+    public View getAdapterView(View convertView, ViewGroup parent, int position, T item) {
         View view = getAdapterView(convertView, parent, mViewParams);
         bindView(view, item);
         return view;
@@ -212,7 +212,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
     /**
      * Binds the item's name to {@link ViewHolder#text1}.
-     * <p/>
+     * <p>
      * OVerride this instead of {@link #getAdapterView(View, ViewGroup, Item)} if the
      * default layouts are sufficient.
      *
@@ -227,7 +227,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
     /**
      * Returns a view suitable for displaying the "Loading..." text.
-     * <p/>
+     * <p>
      * Override this method and {@link #getAdapterView(View, ViewGroup, Item)} if your
      * extension uses a different layout.
      */
@@ -240,7 +240,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
     /**
      * Binds the text to {@link ViewHolder#text1}.
-     * <p/>
+     * <p>
      * Override this instead of {@link #getAdapterView(View, ViewGroup, String)} if the default
      * layout is sufficient.
      *
