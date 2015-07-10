@@ -42,6 +42,7 @@ import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.ClientRequest;
 import uk.org.ngo.squeezer.model.ClientRequestParameters;
+import uk.org.ngo.squeezer.model.ClientResponse;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
@@ -93,7 +94,10 @@ public class JsonClient extends BaseClient {
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
-                Log.d("JSON", "Received " + in.readLine());
+                String recv = in.readLine();
+                Log.d("JSON", "Received " + recv);
+
+                ClientResponse clientResponse = LoganSquare.parse(recv, ClientResponse.class);
             } finally {
                 urlConnection.disconnect();
             }
