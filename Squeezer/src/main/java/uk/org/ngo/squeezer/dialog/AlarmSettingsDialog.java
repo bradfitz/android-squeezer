@@ -23,7 +23,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -53,10 +52,12 @@ public class AlarmSettingsDialog extends DialogFragment {
         Player getPlayer();
 
         /**
+         * @param playerPref the name of the preference to get
+         * @param def the default value to return if the preference does not exist
          * @return The value of the PlayerPref identified by <code>playerPref</code>
          */
-        @Nullable
-        String getPlayerPref(@Player.Pref.Name String playerPref);
+        @NonNull
+        String getPlayerPref(@NonNull @Player.Pref.Name String playerPref, @NonNull String def);
 
         /**
          * Called when the user selects the dialog's positive button.
@@ -153,10 +154,10 @@ public class AlarmSettingsDialog extends DialogFragment {
             }
         });
 
-        alarmVolume.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_DEFAULT_VOLUME)));
-        alarmSnooze.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_SNOOZE_SECONDS)) / 60);
-        alarmTimeout.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_TIMEOUT_SECONDS)) / 60);
-        alarmFadeToggle.setChecked("1".equals(mHostActivity.getPlayerPref(Player.Pref.ALARM_FADE_SECONDS)));
+        alarmVolume.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_DEFAULT_VOLUME, "50")));
+        alarmSnooze.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_SNOOZE_SECONDS, "600")) / 60);
+        alarmTimeout.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_TIMEOUT_SECONDS, "300")) / 60);
+        alarmFadeToggle.setChecked("1".equals(mHostActivity.getPlayerPref(Player.Pref.ALARM_FADE_SECONDS, "0")));
 
         Builder builder = new Builder(getActivity());
         builder.setView(view);

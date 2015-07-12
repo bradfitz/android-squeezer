@@ -21,11 +21,11 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.datetimepicker.time.RadialPickerLayout;
@@ -69,6 +69,9 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
     /** View that contains all_alarms_{on,off}_hint text. */
     private TextView mAllAlarmsHintView;
 
+    /** Settings button. */
+    private ImageView mSettingsButton;
+
     /** Have player preference values been requested from the server? */
     private boolean mPrefsOrdered = false;
 
@@ -92,13 +95,14 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
                 TimePickerFragment.show(getSupportFragmentManager(), DateFormat.is24HourFormat(AlarmsActivity.this), getThemeId() == R.style.AppTheme);
             }
         });
-        findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
+
+        mSettingsButton = (ImageView) findViewById(R.id.settings);
+        mSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new AlarmSettingsDialog().show(getSupportFragmentManager(), "AlarmSettingsDialog");
             }
         });
-
     }
 
     @Override
@@ -216,6 +220,17 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
             mAlarmsEnabledButton.setChecked(checked);
             mAllAlarmsHintView.setText(checked ? R.string.all_alarms_on_hint : R.string.all_alarms_off_hint);
         }
+
+        // The settings dialog can only be shown after all 4 prefs have been received, so
+        // that it can show their values.
+        if (mSettingsButton.getVisibility() == View.INVISIBLE) {
+            if (mPlayerPrefs.containsKey(Player.Pref.ALARM_DEFAULT_VOLUME) &&
+                    mPlayerPrefs.containsKey(Player.Pref.ALARM_SNOOZE_SECONDS) &&
+                    mPlayerPrefs.containsKey(Player.Pref.ALARM_TIMEOUT_SECONDS) &&
+                    mPlayerPrefs.containsKey(Player.Pref.ALARM_FADE_SECONDS)) {
+                mSettingsButton.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     public void onEventMainThread(PlayersChanged event) {
@@ -253,9 +268,13 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
     }
 
     @Override
-    @Nullable
-    public String getPlayerPref(@Player.Pref.Name String playerPref) {
-        return mPlayerPrefs.get(playerPref);
+    @NonNull
+    public String getPlayerPref(@NonNull @Player.Pref.Name String playerPref, @NonNull String def) {
+        String ret = mPlayerPrefs.get(playerPref);
+        if (ret == null) {
+            ret = def;
+        }
+        return ret;
     }
 
     @Override
