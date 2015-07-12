@@ -1266,7 +1266,6 @@ class CliClient implements IClient {
 
                     @Player.Pref.Name String pref = tokens.get(3);
                     if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
-                        String value = Util.decode(tokens.get(4));
                         mEventBus.post(new PlayerPrefReceived(player, pref, Util.decode(tokens.get(4))));
                     }
                 }
