@@ -1139,13 +1139,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public boolean playlistControl(@BaseActivity.PlaylistControlCmd String cmd, PlaylistItem playlistItem) {
+        public boolean playlistControl(@BaseActivity.PlaylistControlCmd String cmd, PlaylistItem playlistItem, int index) {
             if (!isConnected()) {
                 return false;
             }
 
             sendActivePlayerCommand(
-                    "playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter());
+                    "playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter() + " play_index:" + index);
             return true;
         }
 

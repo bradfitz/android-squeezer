@@ -149,6 +149,10 @@ public class SongView extends PlaylistItemView<Song> {
 
         Song song = (Song) menuInfo.item;
 
+        if (browseByAlbum) {
+            menu.findItem(R.id.play_from_here).setVisible(true);
+        }
+
         if (!"".equals(song.getAlbumId()) && !browseByAlbum) {
             menu.findItem(R.id.view_this_album).setVisible(true);
         }
@@ -165,6 +169,10 @@ public class SongView extends PlaylistItemView<Song> {
     @Override
     public boolean doItemContext(android.view.MenuItem menuItem, int index, Song selectedItem) {
         switch (menuItem.getItemId()) {
+            case R.id.play_from_here:
+                getActivity().play(selectedItem.getAlbum(), index);
+                return true;
+
             case R.id.view_this_album:
                 SongListActivity.show(getActivity(), selectedItem.getAlbum());
                 return true;

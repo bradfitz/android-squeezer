@@ -123,7 +123,7 @@ public interface ISqueezeService {
     boolean previousTrack();
     boolean toggleShuffle();
     boolean toggleRepeat();
-    boolean playlistControl(String cmd, PlaylistItem playlistItem);
+    boolean playlistControl(String cmd, PlaylistItem playlistItem, int index);
     boolean randomPlay(String type) throws SqueezeService.HandshakeNotCompleteException;
     boolean playlistIndex(int index);
     boolean playlistRemove(int index);
