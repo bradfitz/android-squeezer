@@ -405,6 +405,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="song_display_options">Songview options</string>
     <string name="songs_sort_order_title">Title</string>
     <string name="songs_sort_order_tracknum">Track</string>
+    <string name="songs_sort_order_albumtrack">Album, Track</string>
 
     <!--  Analytics preference strings -->
     <string name="pref_cat_error_reports">Error reports and statistics</string>

@@ -54,23 +54,24 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
      * be removed.
      */
     public enum SongsSortOrder implements BaseViewDialog.EnumWithText {
-        title(R.string.songs_sort_order_title),
-        tracknum(R.string.songs_sort_order_tracknum);
-        // TODO: At least some versions of the server support "albumtrack",
-        // is that useful?
+        title(R.string.songs_sort_order_title, ""),
+        tracknum(R.string.songs_sort_order_tracknum, ""),
+        albumtrack(R.string.songs_sort_order_albumtrack, "7.6");
 
-        /**
-         * The text to use for this ordering
-         */
+        /** The text to use for this ordering */
         private final int stringResource;
+
+        /** Supperted since (server version) */
+        private final String since;
 
         @Override
         public String getText(Context context) {
             return context.getText(stringResource).toString();
         }
 
-        SongsSortOrder(int stringResource) {
+        SongsSortOrder(int stringResource, String since) {
             this.stringResource = stringResource;
+            this.since = since;
         }
     }
 
