@@ -67,7 +67,7 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
      * Values must correspond with the string expected by the server. Any '__' in the strings will
      * be removed.
      */
-    public enum AlbumsSortOrder implements BaseViewDialog.EnumWithText {
+    public enum AlbumsSortOrder implements BaseViewDialog.VersionedEnumWithText {
         __new(ServerString.BROWSE_NEW_MUSIC),
         album(ServerString.ALBUM),
         artflow(ServerString.SORT_ARTISTYEARALBUM),
@@ -76,6 +76,11 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
         yearartistalbum(ServerString.SORT_YEARARTISTALBUM);
 
         private final ServerString serverString;
+
+        @Override
+        public boolean can(String version) {
+            return true;
+        }
 
         @Override
         public String getText(Context context) {

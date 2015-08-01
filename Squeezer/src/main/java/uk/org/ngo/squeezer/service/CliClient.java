@@ -1020,11 +1020,14 @@ class CliClient implements IClient {
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Version received: " + tokens);
                 mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
-                Crashlytics.setString("server_version", tokens.get(1));
+                String version = tokens.get(1);
+                connectionState.setServerVersion(version);
+                Crashlytics.setString("server_version", version);
 
                 mEventBus.postSticky(new HandshakeComplete(
                         connectionState.canFavorites(), connectionState.canMusicfolder(),
-                        connectionState.canMusicfolder(), connectionState.canRandomplay()));
+                        connectionState.canMusicfolder(), connectionState.canRandomplay(),
+                        version));
             }
         });
 
@@ -1520,6 +1523,10 @@ class CliClient implements IClient {
 
     String[] getMediaDirs() {
         return connectionState.getMediaDirs();
+    }
+
+    public String getServerVersion() {
+        return connectionState.getServerVersion();
     }
 
     public String getPreferredAlbumSort() {

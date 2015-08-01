@@ -230,6 +230,9 @@ public class SongListActivity extends BaseListActivity<Song>
      */
     @Override
     public void onEventMainThread(HandshakeComplete event) {
+        if (!sortOrder.can(event.version)) {
+            sortOrder = SongViewDialog.SongsSortOrder.title;
+        }
         super.onEventMainThread(event);
         updateArtwork();
     }
@@ -327,7 +330,9 @@ public class SongListActivity extends BaseListActivity<Song>
 
     @Override
     public void showViewDialog() {
-        new SongViewDialog().show(this.getSupportFragmentManager(), "OrderDialog");
+        if (getService() != null) {
+            SongViewDialog.showDialog(getSupportFragmentManager(), getService().getServerVersion());
+        }
     }
 
     @Override

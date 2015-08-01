@@ -1013,6 +1013,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
+        public String getServerVersion() throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+            return cli.getServerVersion();
+        }
+
+        @Override
         public String preferredAlbumSort() throws HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
