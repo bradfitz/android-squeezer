@@ -63,7 +63,7 @@ public class PlaylistView extends BaseItemView<Playlist> {
         menu.add(Menu.NONE, R.id.play_now, 3, R.string.PLAY_NOW);
         menu.add(Menu.NONE, R.id.play_next, 3, R.string.PLAY_NEXT);
         menu.add(Menu.NONE, R.id.add_to_playlist, 4, R.string.ADD_TO_END);
-        menu.add(Menu.NONE, R.id.download, 5, R.string.DOWNLOAD_ITEM);
+        menu.add(Menu.NONE, R.id.download, 5, R.string.DOWNLOAD);
     }
 
     @Override

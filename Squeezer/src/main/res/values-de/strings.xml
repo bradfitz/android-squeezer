@@ -134,9 +134,9 @@
     <string name="PLAY_NOW">Abspielen</string>
     <string name="ADD_TO_END">Zur Wiedergabeliste hinzufügen</string>
     <string name="PLAY_NEXT">Nach dem aktuellen Titel wiedergeben</string>
-    <string name="DOWNLOAD_ITEM">Herunterladen</string>
+    <string name="DOWNLOAD">Herunterladen</string>
 
-    <string name="PLAYLIST_REMOVE_ITEM">Von der Wiedergabeliste entfernen</string>
+    <string name="PLAYLIST_REMOVE">Von der Wiedergabeliste entfernen</string>
     <string name="PLAYLIST_MOVE_UP">Nach oben schieben</string>
     <string name="PLAYLIST_MOVE_DOWN">Nach unten schieben</string>
     <string name="PLAYLIST_MOVE">Verschiebe &#8230;</string>
