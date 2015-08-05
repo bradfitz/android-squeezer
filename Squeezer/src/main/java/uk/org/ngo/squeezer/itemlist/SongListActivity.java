@@ -386,12 +386,16 @@ public class SongListActivity extends BaseListActivity<Song>
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Only show the play entries from the options menu for albums (the context menu already
-        // shows them).
-        if (album == null) {
+        // Play all requires that we're showing all titles of an item which can be played.
+        // If we're showing tracks of an album, the context menu already shows them, so don't show
+        // the menu items.
+        final PlaylistItem playlistItem = getPlaylistItem();
+        if (album == null && playlistItem != null) {
             getMenuInflater().inflate(R.menu.playmenu, menu);
             playButton = menu.findItem(R.id.play_now);
+            playButton.setTitle(getString(R.string.PLAY_ITEM, playlistItem.getName()));
             addButton = menu.findItem(R.id.add_to_playlist);
+            addButton.setTitle(getString(R.string.ADD_ITEM_TO_END, playlistItem.getName()));
         }
         return super.onCreateOptionsMenu(menu);
     }
