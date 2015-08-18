@@ -271,7 +271,7 @@ public class SettingsActivity extends PreferenceActivity implements
     private void updateListPreferenceSummary(ListPreference pref, String value) {
         CharSequence[] entries = pref.getEntries();
         int index = pref.findIndexOfValue(value);
-        pref.setSummary(entries[index]);
+        if (index != -1) pref.setSummary(entries[index]);
     }
 
     /**
