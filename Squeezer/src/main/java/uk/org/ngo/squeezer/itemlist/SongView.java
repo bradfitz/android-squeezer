@@ -24,12 +24,10 @@ import android.view.View;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.framework.PlaylistItemView;
-import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Song;
 
@@ -117,13 +115,6 @@ public class SongView extends PlaylistItemView<Song> {
 
         viewHolder.text1.setText(label);
         viewHolder.text2.setText("");
-    }
-
-    @Override
-    protected PlayableItemAction getOnSelectAction() {
-        String actionType = preferences.getString(Preferences.KEY_ON_SELECT_SONG_ACTION,
-                PlayableItemAction.Type.NONE.name());
-        return PlayableItemAction.createAction(getActivity(), actionType);
     }
 
     /**

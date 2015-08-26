@@ -21,11 +21,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.PlaylistItemView;
-import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 
 /**
@@ -68,13 +66,6 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
         }
 
         viewHolder.icon.setImageResource(icon_resource);
-    }
-
-    @Override
-    protected PlayableItemAction getOnSelectAction() {
-        String actionType = preferences.getString(Preferences.KEY_ON_SELECT_SONG_ACTION,
-                PlayableItemAction.Type.NONE.name());
-        return PlayableItemAction.createAction(getActivity(), actionType);
     }
 
     @Override

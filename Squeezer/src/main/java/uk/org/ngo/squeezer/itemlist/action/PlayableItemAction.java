@@ -1,26 +1,42 @@
 package uk.org.ngo.squeezer.itemlist.action;
 
+import android.support.annotation.NonNull;
+
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 
 public abstract class PlayableItemAction {
 
+    public static final Type[] ALBUM_ACTIONS = new Type[]{
+            Type.NONE,
+            Type.PLAY,
+            Type.INSERT,
+            Type.ADD,
+            Type.BROWSE
+    };
+    public static final Type[] SONG_ACTIONS = new Type[]{
+            Type.NONE,
+            Type.PLAY,
+            Type.INSERT,
+            Type.ADD
+    };
+
     public enum Type {
         /**
-         * Do nothing
+         * Ask
          */
         NONE(R.string.NO_ACTION),
         /**
-         * PLay song immediately
+         * PLay item immediately
          */
         PLAY(R.string.PLAY_NOW),
         /**
-         * Add the song to the playlist
+         * Add the item to the playlist
          */
         ADD(R.string.ADD_TO_END),
         /**
-         * Play the song after the current song
+         * Play the item after the current song
          */
         INSERT(R.string.PLAY_NEXT),
         /**
@@ -48,16 +64,9 @@ public abstract class PlayableItemAction {
 
     public abstract void execute(PlaylistItem item);
 
-    public static PlayableItemAction createAction(
-            ItemListActivity activity, String actionType) {
-        if (actionType == null || "".equals(actionType)) {
-            return new PlayAction(activity);
-        }
-
-        Type type = Type.valueOf(actionType);
+    @NonNull
+    public static PlayableItemAction createAction( ItemListActivity activity, Type type) {
         switch (type) {
-            case NONE:
-                return null;
             case BROWSE:
                 return new BrowseSongsAction(activity);
             case ADD:
@@ -65,8 +74,9 @@ public abstract class PlayableItemAction {
             case INSERT:
                 return new InsertAction(activity);
             case PLAY:
-            default:
                 return new PlayAction(activity);
+            default:
+                return new AskAction(activity);
         }
     }
 }

@@ -25,6 +25,12 @@ import android.support.annotation.StringDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import uk.org.ngo.squeezer.framework.PlaylistItem;
+import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
+import uk.org.ngo.squeezer.model.Album;
+import uk.org.ngo.squeezer.model.MusicFolderItem;
+import uk.org.ngo.squeezer.model.Song;
+
 public final class Preferences {
 
     public static final String NAME = "Squeezer";
@@ -78,10 +84,10 @@ public final class Preferences {
     public static final String KEY_FADE_IN_SECS = "squeezer.fadeInSecs";
 
     // What do to when an album is selected in the list view
-    public static final String KEY_ON_SELECT_ALBUM_ACTION = "squeezer.action.onselect.album";
+    protected static final String KEY_ON_SELECT_ALBUM_ACTION = "squeezer.action.onselect.album";
 
     // What do to when a song is selected in the list view
-    public static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
+    protected static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
 
     // Preferred album list layout.
     public static final String KEY_ALBUM_LIST_LAYOUT = "squeezer.album.list.layout";
@@ -109,6 +115,10 @@ public final class Preferences {
             return defaultValue;
         }
         return pref;
+    }
+
+    public void registerOnSharedPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
     }
 
     public ServerAddress getServerAddress() {
@@ -201,4 +211,33 @@ public final class Preferences {
         return sharedPreferences.getBoolean(KEY_SQUEEZEPLAYER_ENABLED, true);
     }
 
+    public PlayableItemAction.Type getOnItemSelectAction(Class<? extends PlaylistItem> clazz) {
+        final String actionName = sharedPreferences.getString(getOnSelectItemActionKey(clazz), PlayableItemAction.Type.NONE.name());
+        try {
+            return PlayableItemAction.Type.valueOf(actionName);
+        } catch (IllegalArgumentException e) {
+            return PlayableItemAction.Type.NONE;
+        }
+    }
+
+    public void setOnSelectItemAction(Class<? extends PlaylistItem> clazz, PlayableItemAction.Type action) {
+        String key = getOnSelectItemActionKey(clazz);
+
+        if (action != null) {
+            sharedPreferences.edit().putString(key, action.name()).commit();
+        } else {
+            sharedPreferences.edit().remove(key);
+        }
+    }
+
+    private String getOnSelectItemActionKey(Class<? extends PlaylistItem> clazz) {
+        String key = null;
+        if (clazz == Song.class) key = KEY_ON_SELECT_SONG_ACTION; else
+        if (clazz == MusicFolderItem.class) key = KEY_ON_SELECT_SONG_ACTION; else
+        if (clazz == Album.class) key = KEY_ON_SELECT_ALBUM_ACTION;
+        if (key == null) {
+            throw new IllegalArgumentException("Default action for class '" + clazz + " is not supported");
+        }
+        return key;
+    }
 }

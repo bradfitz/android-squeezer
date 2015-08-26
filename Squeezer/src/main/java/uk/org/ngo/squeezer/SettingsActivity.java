@@ -161,43 +161,28 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     private void fillPlayableItemSelectionPreferences() {
-        String noneLabel = getString(PlayableItemAction.Type.NONE.labelId);
-        String addLabel = getString(PlayableItemAction.Type.ADD.labelId);
-        String playLabel = getString(PlayableItemAction.Type.PLAY.labelId);
-        String insertLabel = getString(PlayableItemAction.Type.INSERT.labelId);
-        String browseLabel = getString(PlayableItemAction.Type.BROWSE.labelId);
-
         ListPreference onSelectAlbumPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION);
-        onSelectAlbumPref.setEntryValues(new String[]{
-                PlayableItemAction.Type.PLAY.name(),
-                PlayableItemAction.Type.INSERT.name(),
-                PlayableItemAction.Type.ADD.name(),
-                PlayableItemAction.Type.BROWSE.name()
-        });
-        onSelectAlbumPref.setEntries(new String[]{playLabel, insertLabel,
-                addLabel, browseLabel});
-        onSelectAlbumPref.setDefaultValue(PlayableItemAction.Type.BROWSE.name());
+        fillPlayableItemPreference(onSelectAlbumPref, PlayableItemAction.ALBUM_ACTIONS);
+
+        ListPreference onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
+        fillPlayableItemPreference(onSelectSongPref, PlayableItemAction.SONG_ACTIONS);
+    }
+
+    private void fillPlayableItemPreference(ListPreference onSelectAlbumPref, PlayableItemAction.Type[] actionTypes) {
+        String[] values = new String[actionTypes.length];
+        String[] entries = new String[actionTypes.length];
+        for (int i = 0; i < actionTypes.length; i++) {
+           values[i] = actionTypes[i].name();
+            entries[i] = getString(actionTypes[i].labelId);
+        }
+        onSelectAlbumPref.setEntryValues(values);
+        onSelectAlbumPref.setEntries(entries);
+        onSelectAlbumPref.setDefaultValue(actionTypes[0].name());
         if (onSelectAlbumPref.getValue() == null) {
-            onSelectAlbumPref.setValue(PlayableItemAction.Type.BROWSE.name());
+            onSelectAlbumPref.setValue(actionTypes[0].name());
         }
         onSelectAlbumPref.setOnPreferenceChangeListener(this);
         updateListPreferenceSummary(onSelectAlbumPref, onSelectAlbumPref.getValue());
-
-        ListPreference onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
-        onSelectSongPref.setEntryValues(new String[]{
-                PlayableItemAction.Type.NONE.name(),
-                PlayableItemAction.Type.PLAY.name(),
-                PlayableItemAction.Type.INSERT.name(),
-                PlayableItemAction.Type.ADD.name()
-        });
-        onSelectSongPref.setEntries(new String[]{noneLabel, playLabel,
-                insertLabel, addLabel});
-        onSelectSongPref.setDefaultValue(PlayableItemAction.Type.NONE.name());
-        if (onSelectSongPref.getValue() == null) {
-            onSelectSongPref.setValue(PlayableItemAction.Type.NONE.name());
-        }
-        onSelectSongPref.setOnPreferenceChangeListener(this);
-        updateListPreferenceSummary(onSelectSongPref, onSelectSongPref.getValue());
     }
 
     private void fillThemeSelectionPreferences() {
