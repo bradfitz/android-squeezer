@@ -2,7 +2,6 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,14 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
 import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.framework.VersionedEnumWithText;
 import uk.org.ngo.squeezer.menu.ViewMenuItemFragment;
 import uk.org.ngo.squeezer.util.Reflection;
 
 public abstract class BaseViewDialog<
         T extends Item,
-        ListLayout extends Enum<ListLayout> & BaseViewDialog.EnumWithTextAndIcon,
-        SortOrder extends Enum<SortOrder> & BaseViewDialog.VersionedEnumWithText> extends DialogFragment {
+        ListLayout extends Enum<ListLayout> & EnumWithTextAndIcon,
+        SortOrder extends Enum<SortOrder> & VersionedEnumWithText> extends DialogFragment {
 
     @NonNull
     @Override
@@ -132,17 +133,5 @@ public abstract class BaseViewDialog<
     }
 
     protected abstract String getTitle();
-
-    public interface EnumWithText {
-        String getText(Context context);
-    }
-
-    public interface VersionedEnumWithText extends EnumWithText {
-        boolean can(String serverVersion);
-    }
-
-    public interface EnumWithTextAndIcon extends EnumWithText {
-        int getIconAttribute();
-    }
 
 }

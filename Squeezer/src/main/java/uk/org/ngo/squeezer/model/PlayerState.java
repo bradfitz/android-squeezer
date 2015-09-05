@@ -33,6 +33,7 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.framework.EnumWithId;
 import uk.org.ngo.squeezer.service.ServerString;
 
 
@@ -459,11 +460,6 @@ public class PlayerState implements Parcelable {
         public static RepeatStatus valueOf(int id) {
             return lookup.get(id);
         }
-    }
-
-    public interface EnumWithId {
-
-        int getId();
     }
 
     public static class EnumIdLookup<E extends Enum<E> & EnumWithId> {
