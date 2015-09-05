@@ -22,7 +22,6 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
-import android.util.SparseArray;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -33,6 +32,7 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.framework.EnumIdLookup;
 import uk.org.ngo.squeezer.framework.EnumWithId;
 import uk.org.ngo.squeezer.service.ServerString;
 
@@ -459,21 +459,6 @@ public class PlayerState implements Parcelable {
 
         public static RepeatStatus valueOf(int id) {
             return lookup.get(id);
-        }
-    }
-
-    public static class EnumIdLookup<E extends Enum<E> & EnumWithId> {
-
-        private final SparseArray<E> map = new SparseArray<E>();
-
-        public EnumIdLookup(Class<E> enumType) {
-            for (E v : enumType.getEnumConstants()) {
-                map.put(v.getId(), v);
-            }
-        }
-
-        public E get(int num) {
-            return map.get(num);
         }
     }
 
