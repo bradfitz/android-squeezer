@@ -55,7 +55,7 @@ public class AskAction extends PlayableItemAction {
             final String[] typeStrings = new String[typeNames.length];
             for (int i = 0; i < typeNames.length; i++) {
                 types[i] = Type.valueOf(typeNames[i]);
-                typeStrings[i] = getString(types[i].labelId);
+                typeStrings[i] = types[i].getText(activity);
             }
 
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
