@@ -42,8 +42,8 @@ dependencies {
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
 
     // LoganSquare JSON
-    apt 'com.bluelinelabs:logansquare-compiler:1.0.6'
-    compile 'com.bluelinelabs:logansquare:1.0.6'
+//    apt 'com.bluelinelabs:logansquare-compiler:1.0.6'
+//    compile 'com.bluelinelabs:logansquare:1.0.6'
 
     // Crashlytics.
     compile 'com.crashlytics.android:crashlytics:1.+'
@@ -51,6 +51,12 @@ dependencies {
     // KitKat time picker
     compile 'com.nineoldandroids:library:2.4.0'
     compile project(':libs:datetimepicker')
+
+    // Comet client
+    compile 'org.cometd.java:cometd-java-client:3.0.5'
+    //compile 'org.slf4j:slf4j-log4j12'
+    compile 'org.slf4j:slf4j-android:1.7.12'
+    compile 'org.cometd.java:cometd-websocket-jetty:2.9.1'
 
     // JVM tests
     testCompile 'junit:junit:4.12'

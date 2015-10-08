@@ -984,7 +984,7 @@ class CliClient extends BaseClient {
 
                 mEventBus.postSticky(new HandshakeComplete(
                         mConnectionState.canFavorites(), mConnectionState.canMusicfolder(),
-                        mConnectionState.canMusicfolder(), mConnectionState.canRandomplay()));
+                        mConnectionState.canMyApps(), mConnectionState.canRandomplay()));
             }
         });
 

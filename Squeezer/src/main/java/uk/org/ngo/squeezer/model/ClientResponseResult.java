@@ -16,17 +16,11 @@
 
 package uk.org.ngo.squeezer.model;
 
-import com.bluelinelabs.logansquare.annotation.JsonField;
-import com.bluelinelabs.logansquare.annotation.JsonObject;
-
 import java.util.List;
 import java.util.Map;
 
-@JsonObject
 public class ClientResponseResult {
-    @JsonField
     int count;
 
-    @JsonField
     List<Map<String, String>> players_loop;
 }

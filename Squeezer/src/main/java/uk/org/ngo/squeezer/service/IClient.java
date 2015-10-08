@@ -31,6 +31,10 @@ interface IClient {
 
     void initialize();  // XXX Call this onCreate()?
 
+    // XXX: Document.
+    void startConnect(final SqueezeService service, String hostPort, final String userName,
+                      final String password);
+
     // XXX: Document
     void disconnect(boolean loginFailed);
 
@@ -72,9 +76,6 @@ interface IClient {
     boolean isConnected();
 
     boolean isConnectInProgress();
-
-    void startConnect(final SqueezeService service, String hostPort, final String userName,
-                      final String password);
 
     String getPreferredAlbumSort();
 

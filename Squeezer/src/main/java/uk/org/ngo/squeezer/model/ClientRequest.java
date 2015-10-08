@@ -16,25 +16,19 @@
 
 package uk.org.ngo.squeezer.model;
 
-import com.bluelinelabs.logansquare.annotation.JsonField;
-import com.bluelinelabs.logansquare.annotation.JsonObject;
 import com.google.common.base.Objects;
 
 /**
  * Represents a request to an LMS.
  */
-@JsonObject
 public class ClientRequest {
     /** Identifier for the request, echoed back by the LMS. */
-    @JsonField
     public int id;
 
     /** The server method to call. */
-    @JsonField
     public String method;
 
     /** The parameters to pass to the method. */
-    @JsonField(typeConverter = ClientRequestParametersConverter.class)
     public ClientRequestParameters params;
 
     public ClientRequest() {}

@@ -80,8 +80,11 @@ public class Player extends Item {
         mIp = record.get("ip");
         mName = record.get("name");
         mModel = record.get("model");
-        mCanPowerOff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
-        mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;
+        // XXX; Fix this, this comes through as a long when converted from JSON.
+        //mCanPowerOff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
+        //mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;
+        mCanPowerOff = true;
+        mConnected = true;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             mHashCode = mHashFunction.hashString(getId(), Charsets.UTF_8);

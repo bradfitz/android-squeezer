@@ -19,31 +19,23 @@ package uk.org.ngo.squeezer.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.bluelinelabs.logansquare.annotation.JsonField;
-import com.bluelinelabs.logansquare.annotation.JsonObject;
 import com.google.common.base.Objects;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@JsonObject
 public class ClientRequestParameters {
     /** String identifier for the player the request is for. Null indicates a server request. */
-    @JsonField
     public String playerId;
 
     /** The command to send. */
-    @JsonField
     public String command;
 
-    @JsonField
     public int start;
 
-    @JsonField
     public int itemsPerResponse;
 
-    @JsonField
     public List<String> parameters = new ArrayList<>(6);
 
     public ClientRequestParameters() {}
