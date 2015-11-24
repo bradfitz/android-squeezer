@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.support.annotation.StringDef;
@@ -27,6 +28,8 @@ import java.lang.annotation.RetentionPolicy;
 
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
+import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Song;
@@ -90,10 +93,10 @@ public final class Preferences {
     protected static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
 
     // Preferred album list layout.
-    public static final String KEY_ALBUM_LIST_LAYOUT = "squeezer.album.list.layout";
+    private static final String KEY_ALBUM_LIST_LAYOUT = "squeezer.album.list.layout";
 
     // Preferred song list layout.
-    public static final String KEY_SONG_LIST_LAYOUT = "squeezer.song.list.layout";
+    private static final String KEY_SONG_LIST_LAYOUT = "squeezer.song.list.layout";
 
     // Start SqueezePlayer automatically if installed.
     public static final String KEY_SQUEEZEPLAYER_ENABLED = "squeezer.squeezeplayer.enabled";
@@ -239,5 +242,37 @@ public final class Preferences {
             throw new IllegalArgumentException("Default action for class '" + clazz + " is not supported");
         }
         return key;
+    }
+
+    public AlbumViewDialog.AlbumListLayout getAlbumListLayout() {
+        String listLayoutString = sharedPreferences.getString(Preferences.KEY_ALBUM_LIST_LAYOUT, null);
+        if (listLayoutString == null) {
+            int screenSize = context.getResources().getConfiguration().screenLayout
+                    & Configuration.SCREENLAYOUT_SIZE_MASK;
+            return (screenSize >= Configuration.SCREENLAYOUT_SIZE_LARGE)
+                    ? AlbumViewDialog.AlbumListLayout.grid : AlbumViewDialog.AlbumListLayout.list;
+        } else {
+            return AlbumViewDialog.AlbumListLayout.valueOf(listLayoutString);
+        }
+    }
+
+    public void setAlbumListLayout(AlbumViewDialog.AlbumListLayout albumListLayout) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Preferences.KEY_ALBUM_LIST_LAYOUT, albumListLayout.name());
+        editor.commit();
+    }
+
+    public SongViewDialog.SongListLayout getSongListLayout() {
+        String listLayoutString = sharedPreferences.getString(Preferences.KEY_SONG_LIST_LAYOUT, null);
+        if (listLayoutString != null) {
+            return SongViewDialog.SongListLayout.valueOf(listLayoutString);
+        }
+        return SongViewDialog.SongListLayout.list;
+    }
+
+    public void setSongListLayout(SongViewDialog.SongListLayout songListLayout) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Preferences.KEY_SONG_LIST_LAYOUT, songListLayout.name());
+        editor.commit();
     }
 }

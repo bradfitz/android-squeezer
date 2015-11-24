@@ -305,20 +305,12 @@ public class SongListActivity extends BaseListActivity<Song>
      * Set the preferred album list layout.
      */
     private void setListLayout() {
-        SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
-        String listLayoutString = preferences.getString(Preferences.KEY_SONG_LIST_LAYOUT, null);
-        if (listLayoutString != null) {
-            listLayout = SongViewDialog.SongListLayout.valueOf(listLayoutString);
-        }
+        listLayout = new Preferences(this).getSongListLayout();
     }
 
     @Override
     public void setListLayout(SongViewDialog.SongListLayout listLayout) {
-        SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(Preferences.KEY_SONG_LIST_LAYOUT, listLayout.name());
-        editor.commit();
-
+        new Preferences(this).setSongListLayout(listLayout);
         startActivity(getIntent());
         finish();
     }
