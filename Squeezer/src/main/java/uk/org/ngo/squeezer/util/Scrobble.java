@@ -55,7 +55,7 @@ public class Scrobble {
             i.putExtra("app-name", context.getText(R.string.app_name));
             i.putExtra("app-package", "uk.org.ngo.squeezer");
             i.putExtra("track", currentSong.getName());
-            i.putExtra("album", currentSong.getAlbum());
+            i.putExtra("album", currentSong.getAlbumName());
             i.putExtra("artist", currentSong.getArtist());
             i.putExtra("duration", currentSong.getDuration());
             i.putExtra("source", "P");
@@ -64,7 +64,7 @@ public class Scrobble {
             i.setAction("net.jjc1138.android.scrobbler.action.MUSIC_STATUS");
             i.putExtra("playing", PlayerState.PLAY_STATE_PLAY.equals(playStatus));
             i.putExtra("track", currentSong.getName());
-            i.putExtra("album", currentSong.getAlbum());
+            i.putExtra("album", currentSong.getAlbumName());
             i.putExtra("artist", currentSong.getArtist());
             i.putExtra("secs", currentSong.getDuration());
             i.putExtra("source", "P");
