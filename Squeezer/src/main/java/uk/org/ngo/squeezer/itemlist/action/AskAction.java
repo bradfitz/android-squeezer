@@ -33,9 +33,9 @@ public class AskAction extends PlayableItemAction {
         }
 
         if (item instanceof Album) {
-            AskForActionDialog.showDialog(activity, item, ALBUM_ACTIONS);
+            AskForActionDialog.showDialog(activity, item, R.string.settings_album_selectaction, ALBUM_ACTIONS);
         } else if (item instanceof Song || item instanceof MusicFolderItem) {
-            AskForActionDialog.showDialog(activity, item, SONG_ACTIONS);
+            AskForActionDialog.showDialog(activity, item, R.string.settings_song_selectaction, SONG_ACTIONS);
         }
 
     }
@@ -50,6 +50,7 @@ public class AskAction extends PlayableItemAction {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             activity = (ItemListActivity) getActivity();
             final PlaylistItem item = getArguments().getParcelable("item");
+            final int titleId = getArguments().getInt("titleId");
             final String[] typeNames = getArguments().getStringArray("typeNames");
             final Type[]types = new Type[typeNames.length];
             final String[] typeStrings = new String[typeNames.length];
@@ -59,7 +60,7 @@ public class AskAction extends PlayableItemAction {
             }
 
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle(R.string.settings_song_selectaction);
+            builder.setTitle(titleId);
             builder.setSingleChoiceItems(typeStrings, -1, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -108,7 +109,7 @@ public class AskAction extends PlayableItemAction {
             }
         }
 
-        public static void showDialog(ItemListActivity activity, PlaylistItem item, Type[] types) {
+        public static void showDialog(ItemListActivity activity, PlaylistItem item, int titleId, Type[] types) {
             final List<String> typeNames = new ArrayList<>();
             for (Type type : types) {
                 if (type != Type.NONE) typeNames.add(type.name());
@@ -116,6 +117,7 @@ public class AskAction extends PlayableItemAction {
 
             Bundle args = new Bundle();
             args.putParcelable("item", item);
+            args.putInt("titleId", titleId);
             args.putStringArray("typeNames", typeNames.toArray(new String[typeNames.size()]));
             final AskForActionDialog dialog = new AskForActionDialog();
             dialog.setArguments(args);
