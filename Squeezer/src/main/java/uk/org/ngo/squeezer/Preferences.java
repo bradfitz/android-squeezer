@@ -26,6 +26,8 @@ import android.support.annotation.StringDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
+import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
@@ -104,12 +106,26 @@ public final class Preferences {
     // Preferred UI theme.
     public static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
 
+    // Download folder
+    public static final String KEY_DOWNLOAD_USE_SERVER_PATH = "squeezer.download.use_server_path";
+
+    // Download path structure
+    public static final String KEY_DOWNLOAD_PATH_STRUCTURE = "squeezer.download.path_structure";
+
+    // Download filename structure
+    public static final String KEY_DOWNLOAD_FILENAME_STRUCTURE = "squeezer.download.filename_structure";
+
     private final Context context;
     private final SharedPreferences sharedPreferences;
 
     public Preferences(Context context) {
         this.context = context;
         sharedPreferences = context.getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
+    }
+
+    public Preferences(Context context, SharedPreferences sharedPreferences) {
+        this.context = context;
+        this.sharedPreferences = sharedPreferences;
     }
 
     private String getStringPreference(String preference, String defaultValue) {
@@ -274,5 +290,19 @@ public final class Preferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Preferences.KEY_SONG_LIST_LAYOUT, songListLayout.name());
         editor.commit();
+    }
+
+    public boolean isDownloadUseServerPath() {
+        return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SERVER_PATH, true);
+    }
+
+    public DownloadPathStructure getDownloadPathStructure() {
+        final String string = sharedPreferences.getString(KEY_DOWNLOAD_PATH_STRUCTURE, null);
+        return (string == null ? DownloadPathStructure.ARTIST_ALBUM: DownloadPathStructure.valueOf(string));
+    }
+
+    public DownloadFilenameStructure getDownloadFilenameStructure() {
+        final String string = sharedPreferences.getString(KEY_DOWNLOAD_FILENAME_STRUCTURE, null);
+        return (string == null ? DownloadFilenameStructure.NUMBER_TITLE: DownloadFilenameStructure.valueOf(string));
     }
 }

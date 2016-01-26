@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.download;
 
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
+
+import uk.org.ngo.squeezer.service.SqueezeService;
 
 
 /**

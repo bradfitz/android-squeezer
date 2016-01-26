@@ -53,6 +53,7 @@ import android.view.WindowManager;
 import android.widget.RemoteViews;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -78,6 +79,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.RandomplayActivity;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.download.DownloadDatabase;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
@@ -754,7 +756,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
             for (Song item : items) {
-                downloadSong(item.getDownloadUrl(), item.getName(), item.getUrl(), item.getArtworkUrl());
+                downloadSong(item);
             }
         }
 
@@ -783,17 +785,35 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     };
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    private void downloadSong(Song song) {
+        final Preferences preferences = new Preferences(this);
+        if (preferences.isDownloadUseServerPath()) {
+            downloadSong(song.getDownloadUrl(), song.getName(), song.getUrl(), song.getArtworkUrl());
+        } else {
+            final String lastPathSegment = song.getUrl().getLastPathSegment();
+            final String fileExtension = Files.getFileExtension(lastPathSegment);
+            final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
+            downloadSong(song.getDownloadUrl(), song.getName(), localPath+"."+fileExtension, song.getArtworkUrl());
+        }
+    }
+
     private void downloadSong(@NonNull Uri url, String title, @NonNull Uri serverUrl, @NonNull Uri albumArtUrl) {
+        downloadSong(url, title, getLocalFile(serverUrl), albumArtUrl);
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    private void downloadSong(@NonNull Uri url, String title, String localPath, @NonNull Uri albumArtUrl) {
         if (url.equals(Uri.EMPTY)) {
             return;
         }
+
+        // Convert VFAT-unfriendly characters to "_".
+        localPath =  localPath.replaceAll("[?<>\\\\:*|\"]", "_");
 
         // If running on Gingerbread or greater use the Download Manager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
             DownloadDatabase downloadDatabase = new DownloadDatabase(this);
-            String localPath = getLocalFile(serverUrl);
             String tempFile = UUID.randomUUID().toString();
             String credentials = mUsername + ":" + mPassword;
             String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
@@ -955,7 +975,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Tries to get the path relative to the server music library.
      * <p>
      * If this is not possible resort to the last path segment of the server path.
-     * In both cases replace dangerous characters by safe ones.
      */
     private String getLocalFile(@NonNull Uri serverUrl) {
         String serverPath = serverUrl.getPath();
@@ -972,8 +991,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         else
             path = serverUrl.getLastPathSegment();
 
-        // Convert VFAT-unfriendly characters to "_".
-        return path.replaceAll("[?<>\\\\:*|\"]", "_");
+        return path;
     }
 
     private WifiManager.WifiLock wifiLock;
@@ -1814,7 +1832,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (item instanceof Song) {
                 Song song = (Song) item;
                 if (!song.isRemote()) {
-                    downloadSong(song.getDownloadUrl(), song.getName(), song.getUrl(), song.getArtworkUrl());
+                    downloadSong(song);
                 }
             } else if (item instanceof Playlist) {
                 playlistSongs(-1, (Playlist) item, songDownloadCallback);
@@ -1823,7 +1841,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 if ("track".equals(musicFolderItem.getType())) {
                     Uri url = musicFolderItem.getUrl();
                     if (! url.equals(Uri.EMPTY)) {
-                        downloadSong(((MusicFolderItem) item).getDownloadUrl(), musicFolderItem.getName(), url, Uri.EMPTY);
+                        downloadSong(musicFolderItem.getDownloadUrl(), musicFolderItem.getName(), url, Uri.EMPTY);
                     }
                 } else if ("folder".equals(musicFolderItem.getType())) {
                     musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);
