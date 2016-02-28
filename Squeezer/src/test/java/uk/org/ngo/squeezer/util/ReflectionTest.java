@@ -1,4 +1,4 @@
-package uk.org.ngo.squeezer.test.util;
+package uk.org.ngo.squeezer.util;
 
 import junit.framework.TestCase;
 
