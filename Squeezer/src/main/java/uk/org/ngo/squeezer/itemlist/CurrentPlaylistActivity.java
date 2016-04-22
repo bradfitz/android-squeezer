@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -59,6 +60,8 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
+
+    private Handler playlistIndexUpdateHandler = new Handler();
 
     private int currentPlaylistIndex;
 
@@ -304,7 +307,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
 
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
         Log.i(getTag(), "set selection(" + start + "): " + currentPlaylistIndex);
-        getListView().post(new Runnable() {
+        playlistIndexUpdateHandler.post(new Runnable() {
             @Override
             public void run() {
                 // TODO: this doesn't work if the current playlist is displayed in a grid
