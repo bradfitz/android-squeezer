@@ -157,6 +157,10 @@ public class SettingsActivity extends PreferenceActivity implements
             editor.commit();
         }
 
+        notificationTypePref.setDefaultValue(Preferences.NOTIFICATION_TYPE_NONE);
+        if (notificationTypePref.getValue() == null) {
+            notificationTypePref.setValue(Preferences.NOTIFICATION_TYPE_NONE);
+        }
         updateListPreferenceSummary(notificationTypePref, notificationTypePref.getValue());
     }
 
