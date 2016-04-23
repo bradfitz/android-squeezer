@@ -52,7 +52,7 @@
         try to connect
     </string>
 
-    <string name="settings_notification_type_title">Notify of connection</string>
+    <string name="settings_notification_type_title">Notifications</string>
     <string name="settings_notification_type_none">Never</string>
     <string name="settings_notification_type_playing">Only while playing music
     </string>
