@@ -151,6 +151,7 @@
     <string name="song_display_options">Liederansicht - Optionen</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Nummer</string>
+    <string name="songs_sort_order_albumtrack">Album, nummer</string>
 
     <!--  Analytics preference strings -->
     <string name="pref_cat_error_reports">Fehlerberichte und Statistiken</string>

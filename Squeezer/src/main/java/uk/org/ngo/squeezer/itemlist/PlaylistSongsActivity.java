@@ -100,6 +100,7 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
                 super.onCreateContextMenu(menu, v, menuInfo);
 
+                menu.findItem(R.id.play_from_here).setVisible(true);
                 menu.setGroupVisible(R.id.group_playlist, true);
 
                 if (menuInfo.position == 0) {
@@ -125,6 +126,10 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
                 switch (menuItem.getItemId()) {
                     case R.id.play_now:
                         play(selectedItem);
+                        return true;
+
+                    case R.id.play_from_here:
+                        play(playlist, index);
                         return true;
 
                     case R.id.add_to_playlist:

@@ -173,9 +173,6 @@ public class SongListActivity extends BaseListActivity<Song>
 
         BaseMenuFragment.add(this, FilterMenuFragment.class);
         BaseMenuFragment.add(this, ViewMenuItemFragment.class);
-
-        songViewLogic.setBrowseByAlbum(album != null);
-        songViewLogic.setBrowseByArtist(artist != null);
     }
 
     @Override
@@ -188,10 +185,13 @@ public class SongListActivity extends BaseListActivity<Song>
                     sortOrder = SongViewDialog.SongsSortOrder.tracknum;
                 } else if (Artist.class.getName().equals(key)) {
                     artist = extras.getParcelable(key);
+                    sortOrder = SongViewDialog.SongsSortOrder.albumtrack;
                 } else if (Year.class.getName().equals(key)) {
                     year = extras.getParcelable(key);
+                    sortOrder = SongViewDialog.SongsSortOrder.albumtrack;
                 } else if (Genre.class.getName().equals(key)) {
                     genre = extras.getParcelable(key);
+                    sortOrder = SongViewDialog.SongsSortOrder.albumtrack;
                 } else {
                     Log.e(getTag(), "Unexpected extra value: " + key + "("
                             + extras.get(key).getClass().getName() + ")");
@@ -230,6 +230,9 @@ public class SongListActivity extends BaseListActivity<Song>
      */
     @Override
     public void onEventMainThread(HandshakeComplete event) {
+        if (!sortOrder.can(event.version)) {
+            sortOrder = SongViewDialog.SongsSortOrder.title;
+        }
         super.onEventMainThread(event);
         updateArtwork();
     }
@@ -272,7 +275,7 @@ public class SongListActivity extends BaseListActivity<Song>
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.songs(this, start, sortOrder.name(), searchString, album, artist, year, genre);
 
-        boolean canPlay = (getCurrentPlaylistItem() != null);
+        boolean canPlay = (hasPlaylistItem());
         if (playButton != null) {
             playButton.setVisible(canPlay);
         }
@@ -327,7 +330,9 @@ public class SongListActivity extends BaseListActivity<Song>
 
     @Override
     public void showViewDialog() {
-        new SongViewDialog().show(this.getSupportFragmentManager(), "OrderDialog");
+        if (getService() != null) {
+            SongViewDialog.showDialog(getSupportFragmentManager(), getService().getServerVersion());
+        }
     }
 
     @Override
@@ -409,26 +414,27 @@ public class SongListActivity extends BaseListActivity<Song>
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        PlaylistItem playlistItem = getCurrentPlaylistItem();
         switch (item.getItemId()) {
             case R.id.play_now:
-                if (playlistItem != null) {
-                    play(playlistItem);
-                }
+                play(getPlaylistItem());
                 return true;
             case R.id.add_to_playlist:
-                if (playlistItem != null) {
-                    add(playlistItem);
-                }
+                add(getPlaylistItem());
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private PlaylistItem getCurrentPlaylistItem() {
-        int playlistItems = Util
-                .countBooleans(album != null, artist != null, genre != null, year != null);
-        if (playlistItems == 1 && TextUtils.isEmpty(searchString)) {
+    /* package */ boolean canPlayFromHere() {
+        if (hasPlaylistItem()) {
+            if (album != null) return (sortOrder == SongViewDialog.SongsSortOrder.tracknum);
+            return (sortOrder == SongViewDialog.SongsSortOrder.albumtrack);
+        }
+        return false;
+    }
+
+    /* package */ PlaylistItem getPlaylistItem() {
+        if (hasPlaylistItem()) {
             if (album != null) {
                 return album;
             }
@@ -443,6 +449,11 @@ public class SongListActivity extends BaseListActivity<Song>
             }
         }
         return null;
+    }
+
+    /* package */ boolean hasPlaylistItem() {
+        return (Util.countBooleans(album != null, artist != null, genre != null, year != null) == 1
+                && TextUtils.isEmpty(searchString));
     }
 
 }

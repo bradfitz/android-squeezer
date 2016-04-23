@@ -155,6 +155,7 @@
     <string name="song_display_options">Opties bij view nummer</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Nummer</string>
+    <string name="songs_sort_order_albumtrack">Album, nummer</string>
     <!--Analytics preference strings-->
     <string name="pref_cat_error_reports">Fouten rapporten en statistieken</string>
     <string name="pref_analytics_enable">Verzend gebruiks-statistieken</string>

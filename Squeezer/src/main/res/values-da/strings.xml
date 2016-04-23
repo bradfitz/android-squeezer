@@ -179,6 +179,7 @@ x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktivere
     <string name="BROWSE_ARTIST_ALBUMS">Vis album med sange af kunster</string>
     <string name="BROWSE_ARTIST_SONGS">Vis sange af kunster</string>
     <string name="PLAY_NOW">Afspil</string>
+    <string name="PLAY_FROM_HERE">Afspil herfra</string>
     <string name="ADD_TO_END">Tilføj til afspilningsliste</string>
     <string name="PLAY_NEXT">Afspil efter den sang der spilles nu</string>
     <string name="DOWNLOAD_ITEM">Hent</string>
@@ -201,6 +202,7 @@ x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktivere
     <string name="song_display_options">Indstillinger for visning af sange</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Spor</string>
+    <string name="songs_sort_order_albumtrack">Album, spor</string>
 
     <!--  Analytics preference strings -->
     <string name="pref_cat_error_reports">Fejlrapporter og statistik</string>
