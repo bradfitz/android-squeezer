@@ -117,7 +117,7 @@ public class MusicFolderView extends PlaylistItemView<MusicFolderItem> {
         // for an example.
         if (("track".equals(item.getType()) || "folder".equals(item.getType()))
                 && (item.getUrl() != null)) {
-            menu.add(Menu.NONE, R.id.download, Menu.NONE, R.string.DOWNLOAD_ITEM);
+            menu.add(Menu.NONE, R.id.download, Menu.NONE, R.string.DOWNLOAD);
         }
     }
 
