@@ -78,6 +78,7 @@ interface IClient {
     boolean isConnectInProgress();
 
     String getPreferredAlbumSort();
+    String getServerVersion();
 
     void cancelClientRequests(Object object);
 

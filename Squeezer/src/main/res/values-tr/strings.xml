@@ -247,8 +247,8 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
   <string name="NO_ACTION">Yok</string>
   <string name="PLAY_NOW">Oynat</string>
   <string name="ADD_TO_END">Çalma listesine ekle</string>
-  <string name="DOWNLOAD_ITEM">İndir</string>
-  <string name="PLAYLIST_REMOVE_ITEM">Çalma listesinden kaldır</string>
+  <string name="DOWNLOAD">İndir</string>
+  <string name="PLAYLIST_REMOVE">Çalma listesinden kaldır</string>
   <string name="PLAYLIST_MOVE_UP">Yukarı taşı</string>
   <string name="PLAYLIST_MOVE_DOWN">Aşağı taşı</string>
   <string name="PLAYLIST_MOVE">Taşı...</string>

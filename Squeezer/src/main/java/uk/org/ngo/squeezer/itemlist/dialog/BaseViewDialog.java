@@ -2,7 +2,6 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,15 +13,20 @@ import android.widget.BaseAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
 import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.framework.VersionedEnumWithText;
 import uk.org.ngo.squeezer.menu.ViewMenuItemFragment;
 import uk.org.ngo.squeezer.util.Reflection;
 
 public abstract class BaseViewDialog<
         T extends Item,
-        ListLayout extends Enum<ListLayout> & BaseViewDialog.EnumWithTextAndIcon,
-        SortOrder extends Enum<SortOrder> & BaseViewDialog.EnumWithText> extends DialogFragment {
+        ListLayout extends Enum<ListLayout> & EnumWithTextAndIcon,
+        SortOrder extends Enum<SortOrder> & VersionedEnumWithText> extends DialogFragment {
 
     @NonNull
     @Override
@@ -32,6 +36,9 @@ public abstract class BaseViewDialog<
         @SuppressWarnings("unchecked") final ViewMenuItemFragment.ListActivityWithViewMenu<T, ListLayout, SortOrder> activity = (ViewMenuItemFragment.ListActivityWithViewMenu<T, ListLayout, SortOrder>) getActivity();
         final int positionSortLabel = listLayoutClass.getEnumConstants().length;
         final int positionSortStart = positionSortLabel + 1;
+        Bundle args = getArguments();
+        final String serverVersion = (args != null ? args.getString("version") : "");
+        final List<SortOrder> sortOrders = getAvailableSortOrders(sortOrderClass.getEnumConstants(), serverVersion);
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -49,8 +56,7 @@ public abstract class BaseViewDialog<
 
                                @Override
                                public int getCount() {
-                                   return listLayoutClass.getEnumConstants().length + 1 + sortOrderClass
-                                           .getEnumConstants().length;
+                                   return listLayoutClass.getEnumConstants().length + 1 + sortOrders.size();
                                }
 
                                @Override
@@ -84,7 +90,7 @@ public abstract class BaseViewDialog<
                                                .inflate(android.R.layout.select_dialog_singlechoice,
                                                        parent, false);
                                        position -= positionSortStart;
-                                       SortOrder sortOrder = sortOrderClass.getEnumConstants()[position];
+                                       SortOrder sortOrder = sortOrders.get(position);
                                        textView.setText(sortOrder.getText(getActivity()));
                                        textView.setChecked(sortOrder == activity.getSortOrder());
                                        return textView;
@@ -104,13 +110,20 @@ public abstract class BaseViewDialog<
                                        dialog.dismiss();
                                    } else if (position > positionSortLabel) {
                                        position -= positionSortStart;
-                                       activity.setSortOrder(sortOrderClass.getEnumConstants()[position]);
+                                       activity.setSortOrder(sortOrders.get(position));
                                        dialog.dismiss();
                                    }
                                }
                            }
         );
         return builder.create();
+    }
+
+    private List<SortOrder> getAvailableSortOrders(SortOrder[] sortOrders, String version) {
+        List<SortOrder> availableSortOrders = new ArrayList<SortOrder>();
+        for (SortOrder sortOrder : sortOrders)
+            if (sortOrder.can(version)) availableSortOrders.add(sortOrder);
+        return availableSortOrders;
     }
 
     protected int getIcon(ListLayout listLayout) {
@@ -120,13 +133,5 @@ public abstract class BaseViewDialog<
     }
 
     protected abstract String getTitle();
-
-    public interface EnumWithText {
-        String getText(Context context);
-    }
-
-    public interface EnumWithTextAndIcon extends EnumWithText {
-        int getIconAttribute();
-    }
 
 }

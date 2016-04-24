@@ -57,12 +57,11 @@
     <PreferenceCategory
         android:title="@string/settings_category_ui">
 
-        <CheckBoxPreference
-            android:key="squeezer.notifyofconnection"
-            android:title="@string/settings_notifyofconnection_title"
-            android:summaryOn="@string/settings_notifyofconnection_on"
-            android:summaryOff="@string/settings_notifyofconnection_off"
-            android:persistent="true"/>
+        <ListPreference
+            android:key="squeezer.notification_type"
+            android:title="@string/settings_notification_type_title"
+            android:entries="@array/notification_type"
+            android:entryValues="@array/notification_type_value"/>
 
         <ListPreference
             android:key="squeezer.action.onselect.album"

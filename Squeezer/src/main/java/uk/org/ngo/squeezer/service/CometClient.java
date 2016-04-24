@@ -265,7 +265,8 @@ public class CometClient extends BaseClient {
                         super.onMessage(channel, message);
                         mEventBus.postSticky(new HandshakeComplete(
                                 mCanFavorites, mCanMusicfolder,
-                                mCanApps, mCanRandomplay));
+                                mCanApps, mCanRandomplay,
+                                "7.6"));
                     }
                 });
 

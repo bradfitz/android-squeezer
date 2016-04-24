@@ -2,6 +2,22 @@
 
 <changelog>
     <release
+        version="1.4.0"
+        versioncode="54">
+        <change>New support for managing alarms on players. Most of the code by Kurt.</change>
+
+        <change>Improved the support for apps, contributed by Christer Wendel.</change>
+
+        <change>Reduced risk of out-of-memory crashes when loading large album artwork.</change>
+
+        <change>Fixed a bug that prevented changing a player's sleep time.</change>
+
+        <change>Fixed a crash on Samsung devices.</change>
+
+        <change>Fixed potential crash when viewing the list of players.</change>
+    </release>
+
+    <release
         version="1.3.1"
         versioncode="52">
         <change>Remote and plugin song artwork is now supported in notification messages, based
@@ -399,8 +415,7 @@
         versioncode="7">
 
         <change>Included higher resolution icons for devices with a higher display density,
-            such as the Galaxy Nexus.
-        </change>
+            such as the Galaxy Nexus.</change>
 
         <change>Fixed a rare crash when releasing the Wi-Fi lock.</change>
 
@@ -419,35 +434,24 @@
         version="0.6"
         versioncode="6">
 
-        <change>
-            Browse the library:
-            Full support for browsing by artist, album, song, genre, or year. Also use
-            Internet radio stations.
-        </change>
+        <change>Browse the library: Full support for browsing by artist, album, song, genre, or
+            year. Also use Internet radio stations.</change>
 
-        <change>
-            Search:
-            Search your library by artist, album, song, and genre.
-        </change>
+        <change>Search: Search your library by artist, album, song, and genre.</change>
 
-        <change>
-            Playlists:
-            Create, modify, and delete playlists on the server.
-        </change>
+        <change>Playlists: Create, modify, and delete playlists on the server.</change>
 
         <change>Scrobble the currently playing track to Last.fm.</change>
 
         <change>"Now playing" UI: Larger album artwork, and the current artist and album are
             now links to searches for more songs by the same artist / from the same album. There is
-            also a "landscape" optimised UI.
-        </change>
+            also a "landscape" optimised UI.</change>
 
         <change>"Scrub" through the currently playing track using the seekbar.</change>
 
         <change>Control the player's volume using your device's hardware volume keys.</change>
 
         <change>Error reporting. If Squeezer encounters an error you can (optionally) submit
-            an error report to the developers.
-        </change>
+            an error report to the developers.</change>
     </release>
 </changelog>

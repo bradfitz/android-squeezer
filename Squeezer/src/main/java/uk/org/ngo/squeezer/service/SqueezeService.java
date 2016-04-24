@@ -170,8 +170,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     private boolean scrobblingPreviouslyEnabled;
 
-    /** Whether to show an on-going notification when a track is not playing. */
-    boolean mShowNotificationWhenNotPlaying;
+    /** User's preferred notification type. */
+    @Preferences.NotificationType
+    private String mNotificationType = Preferences.NOTIFICATION_TYPE_NONE;
 
     int mFadeInSecs;
 
@@ -249,8 +250,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
         scrobblingEnabled = preferences.getBoolean(Preferences.KEY_SCROBBLE_ENABLED, false);
         mFadeInSecs = preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0);
-        mShowNotificationWhenNotPlaying = preferences
-                .getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false);
+        //noinspection ResourceType
+        mNotificationType = preferences.getString(Preferences.KEY_NOTIFICATION_TYPE,
+                Preferences.NOTIFICATION_TYPE_PLAYING);
     }
 
     @Override
@@ -475,11 +477,17 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return;
         }
 
+        // If the user doesn't want notifications then kill it and get out.
+        if (Preferences.NOTIFICATION_TYPE_NONE.equals(mNotificationType)) {
+            clearOngoingNotification();
+            return;
+        }
+
         boolean playing = activePlayerState.isPlaying();
 
         // If the song is not playing and the user wants notifications only when playing then
         // kill the notification and get out.
-        if (!playing && !mShowNotificationWhenNotPlaying) {
+        if (!playing && Preferences.NOTIFICATION_TYPE_PLAYING.equals(mNotificationType)) {
             clearOngoingNotification();
             return;
         }
@@ -1005,6 +1013,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
+        public String getServerVersion() throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+            return mClient.getServerVersion();
+        }
+
+        @Override
         public String preferredAlbumSort() throws HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
@@ -1131,13 +1147,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public boolean playlistControl(@BaseActivity.PlaylistControlCmd String cmd, PlaylistItem playlistItem) {
+        public boolean playlistControl(@BaseActivity.PlaylistControlCmd String cmd, PlaylistItem playlistItem, int index) {
             if (!isConnected()) {
                 return false;
             }
 
             sendActivePlayerCommand(
-                    "playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter());
+                    "playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter() + " play_index:" + index);
             return true;
         }
 
@@ -1283,7 +1299,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             Log.i(TAG, "Preference changed: " + key);
             cachePreferences();
 
-            if (Preferences.KEY_NOTIFY_OF_CONNECTION.equals(key)) {
+            if (Preferences.KEY_NOTIFICATION_TYPE.equals(key)) {
                 updateOngoingNotification();
                 return;
             }

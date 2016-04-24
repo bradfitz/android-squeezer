@@ -42,7 +42,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
-        android:columnWidth="160dp"
+        android:columnWidth="@dimen/grid_column_width"
         android:fastScrollEnabled="true"
         android:numColumns="auto_fit"
         android:paddingBottom="4dp"

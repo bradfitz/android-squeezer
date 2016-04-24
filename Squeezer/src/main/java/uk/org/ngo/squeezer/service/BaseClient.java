@@ -46,4 +46,9 @@ abstract class BaseClient implements IClient {
         mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
     }
 
+    @Override
+    public String getServerVersion() {
+        return mConnectionState.getServerVersion();
+    }
+
 }

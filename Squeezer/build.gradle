@@ -8,12 +8,15 @@ buildscript {
         classpath 'com.android.tools.build:gradle:1.2.3'
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+        classpath 'com.github.triplet.gradle:play-publisher:1.1.0'
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'crashlytics'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'com.github.triplet.play'
+apply plugin: 'uk.org.ngo.gradle.whatsnew'
 
 repositories {
     mavenCentral()
@@ -36,7 +39,7 @@ dependencies {
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 
     // EventBus, https://github.com/greenrobot/EventBus.
-    compile project(':libs:eventbus:EventBus')
+    compile 'de.greenrobot:eventbus:2.4.1'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
@@ -77,6 +80,9 @@ android {
         targetSdkVersion 21
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
+
+        versionCode 54
+        versionName "1.4.0"
     }
 
     lintOptions {
@@ -84,22 +90,8 @@ android {
         warning 'MissingTranslation'
     }
 
-    buildTypes {
-        release {
-            minifyEnabled true
-            // You could use 'proguardFile "proguard.cfg"' here and get the
-            // same effect, but this ensures that any changes to
-            // proguard-android-optimize.txt are automatically included.
-            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
-            proguardFile "proguard-crashlytics.cfg"
-            proguardFile "proguard-eventbus.cfg"
-            proguardFile "proguard-guava.cfg"
-            proguardFile "proguard-squeezer.cfg"
-        }
-    }
-
     signingConfigs {
-        if(project.hasProperty("Squeezer.properties")
+        if (project.hasProperty("Squeezer.properties")
                 && file(project.property("Squeezer.properties")).exists()) {
             Properties props = new Properties()
             props.load(new FileInputStream(file(project.property("Squeezer.properties"))))
@@ -119,17 +111,44 @@ android {
         }
     }
 
-    productFlavors {
-        beta {
-            versionCode 51
-            versionName "1.3.1-beta-3"
-            signingConfig android.signingConfigs.release
-        }
-
-        live {
-            versionCode 52
-            versionName "1.3.1"
-            signingConfig android.signingConfigs.release
+    buildTypes {
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.release
+            // You could use 'proguardFile "proguard.cfg"' here and get the
+            // same effect, but this ensures that any changes to
+            // proguard-android-optimize.txt are automatically included.
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFile "proguard-crashlytics.cfg"
+            proguardFile "proguard-eventbus.cfg"
+            proguardFile "proguard-guava.cfg"
+            proguardFile "proguard-squeezer.cfg"
         }
     }
+}
+
+def getTrack() {
+    switch (android.defaultConfig.versionName) {
+        case ~/.*-beta-\d+/:
+            return 'beta'
+        case ~/\d+\.\d+\.\d+/:
+            return 'production'
+    }
+    throw new IllegalArgumentException("versionName '${versionName}' is not valid")
+}
+
+whatsnew {
+    changelogPath = 'Squeezer/src/main/res/xml/changelog_master.xml'
+    newsPath = 'NEWS'
+    if (getTrack() == 'beta') {
+        whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew-beta'
+    } else {
+        whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew'
+    }
+}
+
+play {
+    serviceAccountEmail = '1007218477134-c5q3v7d2dqahh6q09ltmimaa0jpq3qp6@developer.gserviceaccount.com'
+    pk12File = file('play-key.p12')
+    track = getTrack()
 }
