@@ -39,7 +39,7 @@ dependencies {
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 
     // EventBus, https://github.com/greenrobot/EventBus.
-    compile project(':libs:eventbus:EventBus')
+    compile 'de.greenrobot:eventbus:2.4.1'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
