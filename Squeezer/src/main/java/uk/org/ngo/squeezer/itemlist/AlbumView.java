@@ -25,10 +25,8 @@ import android.view.View;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
-import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -94,13 +92,6 @@ public class AlbumView extends AlbumArtView<Album> {
             ImageFetcher.getInstance(getActivity()).loadImage(artworkUrl, viewHolder.icon,
                     mIconWidth, mIconHeight);
         }
-    }
-
-    @Override
-    protected PlayableItemAction getOnSelectAction() {
-        String actionType = preferences.getString(Preferences.KEY_ON_SELECT_ALBUM_ACTION,
-                PlayableItemAction.Type.BROWSE.name());
-        return PlayableItemAction.createAction(getActivity(), actionType);
     }
 
     /**
