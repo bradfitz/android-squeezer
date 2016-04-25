@@ -1,8 +1,10 @@
 package uk.org.ngo.squeezer.itemlist.action;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 
@@ -22,7 +24,7 @@ public abstract class PlayableItemAction {
             Type.ADD
     };
 
-    public enum Type {
+    public enum Type implements EnumWithText {
         /**
          * Ask
          */
@@ -44,10 +46,15 @@ public abstract class PlayableItemAction {
          */
         BROWSE(R.string.BROWSE_SONGS);
 
-        public final int labelId;
+        private final int labelId;
 
         Type(int label) {
             this.labelId = label;
+        }
+
+        @Override
+        public String getText(Context context) {
+            return context.getString(labelId);
         }
     }
 

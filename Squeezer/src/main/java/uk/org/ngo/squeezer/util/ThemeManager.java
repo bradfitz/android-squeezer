@@ -18,10 +18,12 @@ package uk.org.ngo.squeezer.util;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.EnumWithText;
 
 /**
  * Manage the user's choice of theme and ensure that activities respect it.
@@ -37,16 +39,21 @@ public class ThemeManager {
     private int mCurrentTheme;
 
     /** Available themes. */
-    public enum Theme {
+    public enum Theme implements EnumWithText {
         LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar),
         DARK(R.string.settings_theme_dark, R.style.AppTheme);
 
-        public final int mLabelId;
+        private final int mLabelId;
         public final int mThemeId;
 
         Theme(int labelId, int themeId) {
             mLabelId = labelId;
             mThemeId = themeId;
+        }
+
+        @Override
+        public String getText(Context context) {
+            return context.getString(mLabelId);
         }
     }
 

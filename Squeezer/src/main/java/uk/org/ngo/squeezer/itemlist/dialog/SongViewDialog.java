@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
+import uk.org.ngo.squeezer.framework.VersionedEnumWithText;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.ServerString;
 
@@ -19,7 +21,7 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
     /**
      * Supported song list layouts.
      */
-    public enum SongListLayout implements BaseViewDialog.EnumWithTextAndIcon {
+    public enum SongListLayout implements EnumWithTextAndIcon {
         grid(R.attr.ic_action_view_as_grid, ServerString.SWITCH_TO_GALLERY),
         list(R.attr.ic_action_view_as_list, ServerString.SWITCH_TO_EXTENDED_LIST);
 
@@ -56,7 +58,7 @@ public class SongViewDialog extends BaseViewDialog<Song, SongViewDialog.SongList
      * Values must correspond with the string expected by the server. Any '__' in the strings will
      * be removed.
      */
-    public enum SongsSortOrder implements BaseViewDialog.VersionedEnumWithText {
+    public enum SongsSortOrder implements VersionedEnumWithText {
         title(R.string.songs_sort_order_title, ""),
         tracknum(R.string.songs_sort_order_tracknum, ""),
         albumtrack(R.string.songs_sort_order_albumtrack, "7.6");

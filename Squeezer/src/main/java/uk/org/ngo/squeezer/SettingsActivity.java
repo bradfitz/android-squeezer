@@ -41,6 +41,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -166,27 +167,39 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private void fillPlayableItemSelectionPreferences() {
         ListPreference onSelectAlbumPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION);
-        fillPlayableItemPreference(onSelectAlbumPref, PlayableItemAction.ALBUM_ACTIONS);
+        fillEnumPreference(onSelectAlbumPref, PlayableItemAction.ALBUM_ACTIONS);
 
         ListPreference onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
-        fillPlayableItemPreference(onSelectSongPref, PlayableItemAction.SONG_ACTIONS);
+        fillEnumPreference(onSelectSongPref, PlayableItemAction.SONG_ACTIONS);
     }
 
-    private void fillPlayableItemPreference(ListPreference onSelectAlbumPref, PlayableItemAction.Type[] actionTypes) {
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes) {
+        fillEnumPreference(listPreference, actionTypes.getEnumConstants());
+    }
+
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes, E defaultValue) {
+        fillEnumPreference(listPreference, actionTypes.getEnumConstants(), defaultValue);
+    }
+
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, E[] actionTypes) {
+        fillEnumPreference(listPreference, actionTypes, actionTypes[0]);
+    }
+
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, E[] actionTypes, E defaultValue) {
         String[] values = new String[actionTypes.length];
         String[] entries = new String[actionTypes.length];
         for (int i = 0; i < actionTypes.length; i++) {
-           values[i] = actionTypes[i].name();
-            entries[i] = getString(actionTypes[i].labelId);
+            values[i] = actionTypes[i].name();
+            entries[i] = actionTypes[i].getText(this);
         }
-        onSelectAlbumPref.setEntryValues(values);
-        onSelectAlbumPref.setEntries(entries);
-        onSelectAlbumPref.setDefaultValue(actionTypes[0].name());
-        if (onSelectAlbumPref.getValue() == null) {
-            onSelectAlbumPref.setValue(actionTypes[0].name());
+        listPreference.setEntryValues(values);
+        listPreference.setEntries(entries);
+        listPreference.setDefaultValue(defaultValue);
+        if (listPreference.getValue() == null) {
+            listPreference.setValue(defaultValue.name());
         }
-        onSelectAlbumPref.setOnPreferenceChangeListener(this);
-        updateListPreferenceSummary(onSelectAlbumPref, onSelectAlbumPref.getValue());
+        listPreference.setOnPreferenceChangeListener(this);
+        updateListPreferenceSummary(listPreference, listPreference.getValue());
     }
 
     private void fillThemeSelectionPreferences() {
@@ -196,7 +209,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
         for (ThemeManager.Theme theme : ThemeManager.Theme.values()) {
             entryValues.add(theme.name());
-            entries.add(getString(theme.mLabelId));
+            entries.add(theme.getText(this));
         }
 
         onSelectThemePref.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
