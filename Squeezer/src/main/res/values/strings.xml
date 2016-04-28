@@ -89,6 +89,7 @@
     <string name="menu_item_playlists_new">New</string>
     <string name="menu_item_playlist_clear">Clear playlist</string>
     <string name="menu_item_playlist_save">Save as playlist</string>
+    <string name="menu_item_playlist_show_current_song">Current song</string>
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
     <string name="connect_to_text">Connect to %s</string>

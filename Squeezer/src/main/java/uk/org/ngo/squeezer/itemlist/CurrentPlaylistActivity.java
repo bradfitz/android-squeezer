@@ -208,7 +208,9 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save};
+        final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save,
+                R.id.menu_item_playlist_show_current_song};
+
         final boolean knowCurrentPlaylist = getCurrentPlaylist() != null;
 
         for (int id : ids) {
@@ -231,6 +233,10 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             case R.id.menu_item_playlist_save:
                 PlaylistSaveDialog.addTo(this, getCurrentPlaylist());
                 return true;
+            case R.id.menu_item_playlist_show_current_song:
+                selectCurrentSong(currentPlaylistIndex, 0);
+                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
