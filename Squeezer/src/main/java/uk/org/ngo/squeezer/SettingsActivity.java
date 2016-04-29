@@ -41,6 +41,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -157,47 +158,48 @@ public class SettingsActivity extends PreferenceActivity implements
             editor.commit();
         }
 
+        notificationTypePref.setDefaultValue(Preferences.NOTIFICATION_TYPE_NONE);
+        if (notificationTypePref.getValue() == null) {
+            notificationTypePref.setValue(Preferences.NOTIFICATION_TYPE_NONE);
+        }
         updateListPreferenceSummary(notificationTypePref, notificationTypePref.getValue());
     }
 
     private void fillPlayableItemSelectionPreferences() {
-        String noneLabel = getString(PlayableItemAction.Type.NONE.labelId);
-        String addLabel = getString(PlayableItemAction.Type.ADD.labelId);
-        String playLabel = getString(PlayableItemAction.Type.PLAY.labelId);
-        String insertLabel = getString(PlayableItemAction.Type.INSERT.labelId);
-        String browseLabel = getString(PlayableItemAction.Type.BROWSE.labelId);
-
         ListPreference onSelectAlbumPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION);
-        onSelectAlbumPref.setEntryValues(new String[]{
-                PlayableItemAction.Type.PLAY.name(),
-                PlayableItemAction.Type.INSERT.name(),
-                PlayableItemAction.Type.ADD.name(),
-                PlayableItemAction.Type.BROWSE.name()
-        });
-        onSelectAlbumPref.setEntries(new String[]{playLabel, insertLabel,
-                addLabel, browseLabel});
-        onSelectAlbumPref.setDefaultValue(PlayableItemAction.Type.BROWSE.name());
-        if (onSelectAlbumPref.getValue() == null) {
-            onSelectAlbumPref.setValue(PlayableItemAction.Type.BROWSE.name());
-        }
-        onSelectAlbumPref.setOnPreferenceChangeListener(this);
-        updateListPreferenceSummary(onSelectAlbumPref, onSelectAlbumPref.getValue());
+        fillEnumPreference(onSelectAlbumPref, PlayableItemAction.ALBUM_ACTIONS);
 
         ListPreference onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
-        onSelectSongPref.setEntryValues(new String[]{
-                PlayableItemAction.Type.NONE.name(),
-                PlayableItemAction.Type.PLAY.name(),
-                PlayableItemAction.Type.INSERT.name(),
-                PlayableItemAction.Type.ADD.name()
-        });
-        onSelectSongPref.setEntries(new String[]{noneLabel, playLabel,
-                insertLabel, addLabel});
-        onSelectSongPref.setDefaultValue(PlayableItemAction.Type.NONE.name());
-        if (onSelectSongPref.getValue() == null) {
-            onSelectSongPref.setValue(PlayableItemAction.Type.NONE.name());
+        fillEnumPreference(onSelectSongPref, PlayableItemAction.SONG_ACTIONS);
+    }
+
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes) {
+        fillEnumPreference(listPreference, actionTypes.getEnumConstants());
+    }
+
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes, E defaultValue) {
+        fillEnumPreference(listPreference, actionTypes.getEnumConstants(), defaultValue);
+    }
+
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, E[] actionTypes) {
+        fillEnumPreference(listPreference, actionTypes, actionTypes[0]);
+    }
+
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, E[] actionTypes, E defaultValue) {
+        String[] values = new String[actionTypes.length];
+        String[] entries = new String[actionTypes.length];
+        for (int i = 0; i < actionTypes.length; i++) {
+            values[i] = actionTypes[i].name();
+            entries[i] = actionTypes[i].getText(this);
         }
-        onSelectSongPref.setOnPreferenceChangeListener(this);
-        updateListPreferenceSummary(onSelectSongPref, onSelectSongPref.getValue());
+        listPreference.setEntryValues(values);
+        listPreference.setEntries(entries);
+        listPreference.setDefaultValue(defaultValue);
+        if (listPreference.getValue() == null) {
+            listPreference.setValue(defaultValue.name());
+        }
+        listPreference.setOnPreferenceChangeListener(this);
+        updateListPreferenceSummary(listPreference, listPreference.getValue());
     }
 
     private void fillThemeSelectionPreferences() {
@@ -207,7 +209,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
         for (ThemeManager.Theme theme : ThemeManager.Theme.values()) {
             entryValues.add(theme.name());
-            entries.add(getString(theme.mLabelId));
+            entries.add(theme.getText(this));
         }
 
         onSelectThemePref.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
@@ -271,7 +273,7 @@ public class SettingsActivity extends PreferenceActivity implements
     private void updateListPreferenceSummary(ListPreference pref, String value) {
         CharSequence[] entries = pref.getEntries();
         int index = pref.findIndexOfValue(value);
-        pref.setSummary(entries[index]);
+        if (index != -1) pref.setSummary(entries[index]);
     }
 
     /**

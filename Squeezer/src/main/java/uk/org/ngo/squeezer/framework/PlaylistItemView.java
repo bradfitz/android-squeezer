@@ -19,7 +19,7 @@ package uk.org.ngo.squeezer.framework;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.util.Log;
+import android.support.annotation.NonNull;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
@@ -33,13 +33,14 @@ import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 public abstract class PlaylistItemView<T extends PlaylistItem> extends
         BaseItemView<T> implements OnSharedPreferenceChangeListener {
 
-    protected final SharedPreferences preferences;
+    private final Preferences preferences;
 
+    @NonNull
     protected PlayableItemAction onSelectAction;
 
     public PlaylistItemView(ItemListActivity activity) {
         super(activity);
-        preferences = activity.getSharedPreferences(Preferences.NAME, 0);
+        preferences = new Preferences(activity);
         preferences.registerOnSharedPreferenceChangeListener(this);
         onSelectAction = getOnSelectAction();
     }
@@ -49,19 +50,14 @@ public abstract class PlaylistItemView<T extends PlaylistItem> extends
         onSelectAction = getOnSelectAction();
     }
 
-    abstract protected PlayableItemAction getOnSelectAction();
-
-    @Override
-    public boolean isSelectable(T item) {
-        return (onSelectAction != null);
+    private final PlayableItemAction getOnSelectAction() {
+        final PlayableItemAction.Type type = preferences.getOnItemSelectAction(getItemClass());
+        return PlayableItemAction.createAction(getActivity(), type);
     }
 
     @Override
     public void onItemSelected(int index, T item) {
-        Log.d(getTag(), "Executing on select action");
-        if (onSelectAction != null) {
-            onSelectAction.execute(item);
-        }
+        onSelectAction.execute(item);
     }
 
 }

@@ -18,6 +18,8 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 import android.content.Context;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
+import uk.org.ngo.squeezer.framework.VersionedEnumWithText;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.service.ServerString;
 
@@ -31,7 +33,7 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
     /**
      * Supported album list layouts.
      */
-    public enum AlbumListLayout implements BaseViewDialog.EnumWithTextAndIcon {
+    public enum AlbumListLayout implements EnumWithTextAndIcon {
         grid(R.attr.ic_action_view_as_grid, ServerString.SWITCH_TO_GALLERY),
         list(R.attr.ic_action_view_as_list, ServerString.SWITCH_TO_EXTENDED_LIST);
 
@@ -67,7 +69,7 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
      * Values must correspond with the string expected by the server. Any '__' in the strings will
      * be removed.
      */
-    public enum AlbumsSortOrder implements BaseViewDialog.EnumWithText {
+    public enum AlbumsSortOrder implements VersionedEnumWithText {
         __new(ServerString.BROWSE_NEW_MUSIC),
         album(ServerString.ALBUM),
         artflow(ServerString.SORT_ARTISTYEARALBUM),
@@ -76,6 +78,11 @@ public class AlbumViewDialog extends BaseViewDialog<Album, AlbumViewDialog.Album
         yearartistalbum(ServerString.SORT_YEARARTISTALBUM);
 
         private final ServerString serverString;
+
+        @Override
+        public boolean can(String version) {
+            return true;
+        }
 
         @Override
         public String getText(Context context) {

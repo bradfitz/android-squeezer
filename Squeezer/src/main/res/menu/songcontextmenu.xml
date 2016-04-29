@@ -22,6 +22,10 @@
     <item android:id="@+id/play_now"
         android:title="@string/PLAY_NOW"/>
 
+    <item android:id="@+id/play_from_here"
+        android:title="@string/PLAY_FROM_HERE"
+        android:visible="false"/>
+
     <item android:id="@+id/play_next"
         android:title="@string/PLAY_NEXT"/>
 
@@ -29,7 +33,7 @@
         android:title="@string/ADD_TO_END"/>
 
     <item android:id="@+id/download"
-        android:title="@string/DOWNLOAD_ITEM"/>
+        android:title="@string/DOWNLOAD"/>
 
 
     <!-- Menu items that are enabled individually. -->
@@ -53,7 +57,7 @@
         android:visible="false">
 
         <item android:id="@+id/remove_from_playlist"
-            android:title="@string/PLAYLIST_REMOVE_ITEM"/>
+            android:title="@string/PLAYLIST_REMOVE"/>
 
         <item android:id="@+id/playlist_move_up"
             android:title="@string/PLAYLIST_MOVE_UP"/>

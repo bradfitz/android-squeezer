@@ -54,7 +54,7 @@ public abstract class ItemListActivity extends BaseActivity {
     /**
      * The number of items per page.
      */
-    private int mPageSize;
+    protected int mPageSize;
 
     /**
      * The pages that have been requested from the server.
@@ -195,13 +195,16 @@ public abstract class ItemListActivity extends BaseActivity {
     protected void onItemsReceived(final int count, final int start, int size) {
         Log.d(getTag(), "onItemsReceived(" + count + ", " + start + ", " + size + ")");
 
-        // Add this page of data to mReceivedPages and remove from mOrderedPages.
-        // Because we might receive a page in chunks, we test for the end of a page,
-        // before we register the page as being received.
-        if (((start + size) % mPageSize == 0) || (start + size == count)) {
-            int pageStart = (start + size == count) ? start : start + size - mPageSize;
-            mReceivedPages.add(pageStart);
-            mOrderedPages.remove(pageStart);
+        // If this doesn't add any items, then don't register the page a received
+        if (start < count && size != 0) {
+            // Because we might receive a page in chunks, we test if this is the end of a page
+            // before we register the page as received.
+            if (((start + size) % mPageSize == 0) || (start + size == count)) {
+                // Add this page of data to mReceivedPages and remove from mOrderedPages.
+                int pageStart = (start + size == count) ? start : start + size - mPageSize;
+                mReceivedPages.add(pageStart);
+                mOrderedPages.remove(pageStart);
+            }
         }
     }
 

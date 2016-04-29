@@ -412,25 +412,29 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
     // This section is just an easier way to call squeeze service
 
+    public void play(PlaylistItem item, int index) {
+        playlistControl(PLAYLIST_PLAY_NOW, item, index, R.string.ITEM_PLAYING);
+    }
+
     public void play(PlaylistItem item) {
-        playlistControl(PLAYLIST_PLAY_NOW, item, R.string.ITEM_PLAYING);
+        playlistControl(PLAYLIST_PLAY_NOW, item, 0, R.string.ITEM_PLAYING);
     }
 
     public void add(PlaylistItem item) {
-        playlistControl(PLAYLIST_ADD_TO_END, item, R.string.ITEM_ADDED);
+        playlistControl(PLAYLIST_ADD_TO_END, item, 0, R.string.ITEM_ADDED);
     }
 
     public void insert(PlaylistItem item) {
-        playlistControl(PLAYLIST_PLAY_AFTER_CURRENT, item, R.string.ITEM_INSERTED);
+        playlistControl(PLAYLIST_PLAY_AFTER_CURRENT, item, 0, R.string.ITEM_INSERTED);
     }
 
-    private void playlistControl(@PlaylistControlCmd String cmd, PlaylistItem item, int resId)
+    private void playlistControl(@PlaylistControlCmd String cmd, PlaylistItem item, int index, int resId)
             {
         if (mService == null) {
             return;
         }
 
-        mService.playlistControl(cmd, item);
+        mService.playlistControl(cmd, item, index);
         Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
     }
 

@@ -113,6 +113,7 @@ public interface ISqueezeService {
     boolean canPowerOff();
     void powerOn();
     void powerOff();
+    String getServerVersion() throws SqueezeService.HandshakeNotCompleteException;
     String preferredAlbumSort() throws SqueezeService.HandshakeNotCompleteException;
     void setPreferredAlbumSort(String preferredAlbumSort);
     boolean togglePausePlay();
@@ -123,7 +124,7 @@ public interface ISqueezeService {
     boolean previousTrack();
     boolean toggleShuffle();
     boolean toggleRepeat();
-    boolean playlistControl(String cmd, PlaylistItem playlistItem);
+    boolean playlistControl(String cmd, PlaylistItem playlistItem, int index);
     boolean randomPlay(String type) throws SqueezeService.HandshakeNotCompleteException;
     boolean playlistIndex(int index);
     boolean playlistRemove(int index);
@@ -222,6 +223,5 @@ public interface ISqueezeService {
      * @param item Song or item with songs to download
      */
     void downloadItem(FilterItem item) throws SqueezeService.HandshakeNotCompleteException;
-
 
 }
