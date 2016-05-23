@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -406,9 +405,9 @@ class CliClient implements IClient {
 
         // Make sure that username/password do not make it to Crashlytics.
         if (commands[0].startsWith("login ")) {
-            Crashlytics.setString("lastCommands", "login [username] [password]");
+            Util.crashlyticsSetString("lastCommands", "login [username] [password]");
         } else {
-            Crashlytics.setString("lastCommands", formattedCommands);
+            Util.crashlyticsSetString("lastCommands", formattedCommands);
         }
 
         writer.println(formattedCommands);
@@ -1022,7 +1021,7 @@ class CliClient implements IClient {
                 mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
                 String version = tokens.get(1);
                 connectionState.setServerVersion(version);
-                Crashlytics.setString("server_version", version);
+                Util.crashlyticsSetString("server_version", version);
 
                 mEventBus.postSticky(new HandshakeComplete(
                         connectionState.canFavorites(), connectionState.canMusicfolder(),
@@ -1300,9 +1299,9 @@ class CliClient implements IClient {
 
         // Make sure that username/password do not make it to Crashlytics.
         if (serverLine.startsWith("login ")) {
-            Crashlytics.setString("lastReceivedLine", "login [username] [password]");
+            Util.crashlyticsSetString("lastReceivedLine", "login [username] [password]");
         } else {
-            Crashlytics.setString("lastReceivedLine", serverLine);
+            Util.crashlyticsSetString("lastReceivedLine", serverLine);
         }
 
         List<String> tokens = Arrays.asList(mSpaceSplitPattern.split(serverLine));

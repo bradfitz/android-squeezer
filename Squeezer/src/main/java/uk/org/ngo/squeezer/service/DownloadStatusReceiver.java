@@ -27,9 +27,9 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.io.File;
+
+import uk.org.ngo.squeezer.Util;
 
 
 /**
@@ -86,15 +86,15 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                             if (tempFile.renameTo(localFile)) {
                                 context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(localFile)));
                             } else {
-                                Crashlytics.log(Log.ERROR, TAG, "Could not rename [" + tempFile + "] to [" + localFile + "]");
+                                Util.crashlyticsLog(Log.ERROR, TAG, "Could not rename [" + tempFile + "] to [" + localFile + "]");
                             }
                             break;
                         default:
-                            Crashlytics.log(Log.ERROR, TAG, "Unsuccessful download " + format(status, reason, title, url, local_url));
+                            Util.crashlyticsLog(Log.ERROR, TAG, "Unsuccessful download " + format(status, reason, title, url, local_url));
                             break;
                     }
                 } else {
-                    Crashlytics.log(Log.ERROR, TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
+                    Util.crashlyticsLog(Log.ERROR, TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
                 }
             //} else {
                 // Download complete events may still come in, even after DownloadManager.remove is

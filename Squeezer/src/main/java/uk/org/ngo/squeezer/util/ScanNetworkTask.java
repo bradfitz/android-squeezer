@@ -5,7 +5,6 @@ import android.net.wifi.WifiManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
@@ -15,6 +14,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.TreeMap;
+
+import uk.org.ngo.squeezer.Util;
 
 /**
  * Scans the local network for servers.
@@ -127,10 +128,10 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
             // new DatagramSocket(3483)
         } catch (UnknownHostException e) {
             // InetAddress.getByName()
-            Crashlytics.logException(e);
+            Util.crashlyticsLogException(e);
         } catch (IOException e) {
             // socket.send()
-            Crashlytics.logException(e);
+            Util.crashlyticsLogException(e);
         }
 
         if (socket != null) {
