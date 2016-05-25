@@ -55,8 +55,8 @@
 
     <string name="menu_item_disconnect">Verbindung trennen</string>
     <string name="menu_item_connect">Verbinden</string>
-    <string name="menu_item_poweron">Einschalten</string>
-    <string name="menu_item_poweroff">Ausschalten</string>
+    <string name="menu_item_poweron">Einschalten \"%s\"</string>
+    <string name="menu_item_poweroff">Ausschalten \"%s\"</string>
     <string name="menu_item_main">Wird gespielt</string>
     <string name="menu_item_home">Haupt-Menü</string>
     <string name="menu_item_fetch_all">Alle herunterladen</string>
