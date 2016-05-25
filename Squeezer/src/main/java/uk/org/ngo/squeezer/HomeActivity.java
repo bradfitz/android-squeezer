@@ -25,6 +25,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.MainThread;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -132,6 +133,7 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
+    @MainThread
     public void onEventMainThread(HandshakeComplete event) {
         int[] icons = new int[]{
                 R.drawable.ic_artists,
