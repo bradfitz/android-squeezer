@@ -77,8 +77,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 54
-        versionName "1.4.0"
+        versionCode 55
+        versionName "1.4.1-beta-1"
     }
 
     lintOptions {
@@ -127,7 +127,7 @@ android {
     }
 }
 
-def getTrack() {
+def publishTrack() {
     switch (android.defaultConfig.versionName) {
         case ~/.*-beta-\d+/:
             return 'beta'
@@ -140,7 +140,7 @@ def getTrack() {
 whatsnew {
     changelogPath = 'Squeezer/src/main/res/xml/changelog_master.xml'
     newsPath = 'NEWS'
-    if (getTrack() == 'beta') {
+    if (publishTrack() == 'beta') {
         whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew-beta'
     } else {
         whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew'
@@ -150,5 +150,5 @@ whatsnew {
 play {
     serviceAccountEmail = '1007218477134-c5q3v7d2dqahh6q09ltmimaa0jpq3qp6@developer.gserviceaccount.com'
     pk12File = file('play-key.p12')
-    track = getTrack()
+    track = publishTrack()
 }

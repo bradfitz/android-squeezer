@@ -1,11 +1,15 @@
-* New support for managing alarms on players. Most of the code by Kurt.
+&bull; Fixed a crash when scrobbling song information. Contributed by HumbleBeeBumbleBeeDebugs@gmail.com.
 
-* Improved the support for apps, contributed by Christer Wendel.
+&bull; Workaround an issue on some devices where the currently playing item is not highlighted in the playlist. Also add menu item to select the current song. Contributed by spiritcroc@gmail.com.
 
-* Reduced risk of out-of-memory crashes when loading large album artwork.
+&bull; Fixed a crash when retrieving playlists for alarms.
 
-* Fixed a bug that prevented changing a player's sleep time.
+&bull; Fixed poor UI in Internet Radio search.
 
-* Fixed a crash on Samsung devices.
+&bull; Show search results in a list or a grid depending on user preferences.
 
-* Fixed potential crash when viewing the list of players.
+&bull; Show a dialog to allow the user to choose what happens when tapping a song or an album.
+
+&bull; Provide "Play from here" option when looking at albums, playlists, artists, genres, and years.
+
+&bull; Provide an option to disable notifications entirely.

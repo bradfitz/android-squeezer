@@ -1,3 +1,28 @@
+1.4.1-beta-1
+============
+
+*   Fixed a crash when scrobbling song information. Contributed by
+    HumbleBeeBumbleBeeDebugs@gmail.com.
+
+*   Workaround an issue on some devices where the currently playing item is
+    not highlighted in the playlist. Also add menu item to select the current
+    song. Contributed by spiritcroc@gmail.com.
+
+*   Fixed a crash when retrieving playlists for alarms.
+
+*   Fixed poor UI in Internet Radio search.
+
+*   Show search results in a list or a grid depending on user preferences.
+
+*   Show a dialog to allow the user to choose what happens when tapping a song
+    or an album.
+
+*   Provide "Play from here" option when looking at albums, playlists,
+    artists, genres, and years.
+
+*   Provide an option to disable notifications entirely.
+
+
 1.4.0
 =====
 
