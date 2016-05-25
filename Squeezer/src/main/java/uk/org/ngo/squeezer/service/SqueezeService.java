@@ -457,6 +457,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Manages the state of any ongoing notification based on the player and connection state.
      */
+    @TargetApi(21)
     private void updateOngoingNotification() {
         Player activePlayer = this.mActivePlayer.get();
         PlayerState activePlayerState = getActivePlayerState();
