@@ -2,8 +2,8 @@
 
 <changelog>
     <release
-        version="1.4.1-beta-1"
-        versioncode="55">
+        version="1.4.1"
+        versioncode="56">
         <change>Fixed a crash when scrobbling song information. Contributed by
             HumbleBeeBumbleBeeDebugs@gmail.com.</change>
 
