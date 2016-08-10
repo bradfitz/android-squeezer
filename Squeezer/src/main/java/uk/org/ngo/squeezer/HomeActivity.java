@@ -31,14 +31,15 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
+import io.fabric.sdk.android.Fabric;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
@@ -97,8 +98,9 @@ public class HomeActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!BuildConfig.DEBUG) {
-            Crashlytics.start(this);
+
+        if (Util.supportCrashlytics()) {
+            Fabric.with(this, new Crashlytics());
         }
 
         setContentView(R.layout.item_list);

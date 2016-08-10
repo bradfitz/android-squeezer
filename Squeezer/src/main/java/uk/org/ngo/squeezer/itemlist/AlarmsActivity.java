@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import com.android.datetimepicker.time.RadialPickerLayout;
 import com.android.datetimepicker.time.TimePickerDialog;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -185,20 +186,16 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
 
         @Override
         public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<AlarmPlaylist> items, Class<AlarmPlaylist> dataType) {
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    if (start == 0) {
-                        mAlarmPlaylists.clear();
-                    }
+            if (start == 0) {
+                mAlarmPlaylists.clear();
+            }
 
-                    mAlarmPlaylists.addAll(items);
-                    if (start + items.size() >= count) {
-                        mAlarmView.setAlarmPlaylists(mAlarmPlaylists);
-                        getItemAdapter().notifyDataSetChanged();
-                    }
-                }
-            });
+            mAlarmPlaylists.addAll(items);
+            if (start + items.size() >= count) {
+                mAlarmView.setAlarmPlaylists(ImmutableList.copyOf(mAlarmPlaylists));
+                getItemAdapter().notifyDataSetChanged();
+
+            }
         }
 
         @Override

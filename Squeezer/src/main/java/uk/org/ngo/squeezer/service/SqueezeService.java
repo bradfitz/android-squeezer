@@ -43,7 +43,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -458,6 +457,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Manages the state of any ongoing notification based on the player and connection state.
      */
+    @TargetApi(21)
     private void updateOngoingNotification() {
         Player activePlayer = this.mActivePlayer.get();
         PlayerState activePlayerState = getActivePlayerState();
@@ -775,13 +775,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
 
-            Crashlytics.log("Registering new download");
-            Crashlytics.log("downloadId: " + downloadId);
-            Crashlytics.log("tempFile: " + tempFile);
-            Crashlytics.log("localPath: " + localPath);
+            Util.crashlyticsLog("Registering new download");
+            Util.crashlyticsLog("downloadId: " + downloadId);
+            Util.crashlyticsLog("tempFile: " + tempFile);
+            Util.crashlyticsLog("localPath: " + localPath);
 
             if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath)) {
-                Crashlytics.log(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
+                Util.crashlyticsLog(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
                 downloadManager.remove(downloadId);
             }
         }

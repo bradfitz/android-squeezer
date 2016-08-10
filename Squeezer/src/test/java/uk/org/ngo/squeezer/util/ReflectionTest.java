@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import uk.org.ngo.squeezer.util.Reflection;
-
 public class ReflectionTest extends TestCase {
 
     class Item {

@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -380,9 +379,9 @@ class CliClient extends BaseClient {
 
         // Make sure that username/password do not make it to Crashlytics.
         if (commands[0].startsWith("login ")) {
-            Crashlytics.setString("lastCommands", "login [username] [password]");
+            Util.crashlyticsSetString("lastCommands", "login [username] [password]");
         } else {
-            Crashlytics.setString("lastCommands", formattedCommands);
+            Util.crashlyticsSetString("lastCommands", formattedCommands);
         }
 
         writer.println(formattedCommands);
@@ -982,7 +981,7 @@ class CliClient extends BaseClient {
                 mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
                 String version = tokens.get(1);
                 mConnectionState.setServerVersion(version);
-                Crashlytics.setString("server_version", version);
+                Util.crashlyticsSetString("server_version", version);
 
                 mEventBus.postSticky(new HandshakeComplete(
                         mConnectionState.canFavorites(), mConnectionState.canMusicfolder(),
@@ -1229,7 +1228,6 @@ class CliClient extends BaseClient {
 
                     @Player.Pref.Name String pref = tokens.get(3);
                     if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
-                        String value = Util.decode(tokens.get(4));
                         mEventBus.post(new PlayerPrefReceived(player, pref, Util.decode(tokens.get(4))));
                     }
                 }
@@ -1261,9 +1259,9 @@ class CliClient extends BaseClient {
 
         // Make sure that username/password do not make it to Crashlytics.
         if (serverLine.startsWith("login ")) {
-            Crashlytics.setString("lastReceivedLine", "login [username] [password]");
+            Util.crashlyticsSetString("lastReceivedLine", "login [username] [password]");
         } else {
-            Crashlytics.setString("lastReceivedLine", serverLine);
+            Util.crashlyticsSetString("lastReceivedLine", serverLine);
         }
 
         List<String> tokens = Arrays.asList(mSpaceSplitPattern.split(serverLine));
