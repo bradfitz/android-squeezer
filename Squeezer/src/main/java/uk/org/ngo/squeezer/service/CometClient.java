@@ -303,8 +303,6 @@ public class CometClient extends BaseClient {
 //                        // fetched, as seeing the result triggers the
 //                        // "handshake is complete" logic elsewhere.
 //                        "version ?"
-
-                mBayeuxClient.disconnect();
             }
         });
     }
@@ -357,7 +355,7 @@ public class CometClient extends BaseClient {
 
     @Override
     public void disconnect(boolean loginFailed) {
-
+        mBayeuxClient.disconnect();
     }
 
     @Override
