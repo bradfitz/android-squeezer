@@ -76,6 +76,9 @@ public class CometClient extends BaseClient {
     /** Map from a command ("players") to the response channel that should be used for that command. */
     private static Map<String, String> mResponseChannel = new HashMap<>();
 
+    /** Wildcard subscription. */
+     private static final String WILDCARD_SUBSCRIBTION_FORMAT = "/%s/**";
+
     /** The format string for the channel to listen to for responses to one-shot requests. */
     private static final String CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT = "/%s/slim/request/%s";
 
@@ -186,6 +189,8 @@ public class CometClient extends BaseClient {
                     mBayeuxClient.getChannel(responseChannel).addListener(mRequestMap.get(cmd));
                     mBayeuxClient.getChannel(responseChannel).addListener(mLogJsonListener);
                 }
+
+                mBayeuxClient.getChannel(String.format(WILDCARD_SUBSCRIBTION_FORMAT, clientId)).subscribe(mLogJsonListener);
 
                 //mConnectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
 
