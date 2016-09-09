@@ -51,6 +51,7 @@ import uk.org.ngo.squeezer.BuildConfig;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.ClientRequest;
 import uk.org.ngo.squeezer.model.ClientRequestParameters;
 import uk.org.ngo.squeezer.model.ClientResponse;
@@ -113,6 +114,7 @@ public class CometClient extends BaseClient {
 
         mRequestMap = ImmutableMap.<String, ItemListener>builder()
                 .put("players", new PlayersListener())
+                .put("artists", new ArtistsListener())
                 .build();
     }
 
@@ -353,9 +355,40 @@ public class CometClient extends BaseClient {
         }
     }
 
+    private class ArtistsListener extends ItemListener {
+        @Override
+        public void onMessage(ClientSessionChannel channel, Message message) {
+            // Note: This is probably wrong, need to figure out result paging.
+            IServiceItemListCallback callback = mPendingRequests.get(message.getId());
+            if (callback == null) {
+                return;
+            }
+
+            Map<String, Object> data = message.getDataAsMap();
+            Object[] item_data = (Object[]) data.get("artists_loop");
+
+            List<Artist> items = new ArrayList<>(item_data.length);
+
+            for (Object item_d : item_data) {
+                Map<String, String> record = (Map<String, String>) item_d;
+                for (Map.Entry<String, String> entry : record.entrySet()) {
+                    Object value = entry.getValue();
+                    if (value != null && !(value instanceof String)) {
+                        record.put(entry.getKey(), value.toString());
+                    }
+                }
+                items.add(new Artist(record));
+            }
+
+            callback.onItemsReceived(item_data.length, 0, null, items, Player.class);
+        }
+    }
+
     @Override
     public void disconnect(boolean loginFailed) {
         mBayeuxClient.disconnect();
+        mConnectionState.disconnect(mEventBus, loginFailed);
+        mPlayers.clear();
     }
 
     @Override
@@ -492,7 +525,7 @@ public class CometClient extends BaseClient {
     private void internalRequestItems(String playerId, String cmd, int start, int pageSize,
                                      List<String> parameters, final IServiceItemListCallback callback) {
 
-        String responseChannel = mResponseChannel.get(cmd);
+        final String responseChannel = mResponseChannel.get(cmd);
         if (responseChannel == null) {
             Log.e(TAG, "No response channel for request " + cmd);
             return;
@@ -505,12 +538,26 @@ public class CometClient extends BaseClient {
             return;
         }
 
-        String[] request = new String[parameters.size() + 1];
+        final String[] request = new String[parameters.size() + 1];
         request[0] = cmd;
         for (int i = 1; i <= parameters.size(); i++) {
             request[i] = parameters.get(i - 1);
         }
 
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            requestItemsImmediately(request, responseChannel, callback);
+        } else {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    requestItemsImmediately(request, responseChannel, callback);
+                }
+            });
+        }
+
+    }
+
+    private void requestItemsImmediately(String[] request, String responseChannel, final IServiceItemListCallback callback) {
         mBayeuxClient.getChannel(CHANNEL_SLIM_REQUEST).publish(
                 new Request(request).getData(responseChannel), new ClientSessionChannel.MessageListener() {
                     @Override
