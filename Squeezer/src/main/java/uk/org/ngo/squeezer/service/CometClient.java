@@ -262,9 +262,7 @@ public class CometClient extends BaseClient {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
-                        if (message.isSuccessful()) {
-                            mPreferredAlbumSort = (String) message.getDataAsMap().get("_p2");
-                        }
+                        mPreferredAlbumSort = (String) message.getDataAsMap().get("_p2");
                     }
                 });
 
@@ -499,7 +497,7 @@ public class CometClient extends BaseClient {
 
     @Override
     public String getPreferredAlbumSort() {
-        return "album";
+        return mPreferredAlbumSort;
     }
 
     @Override
