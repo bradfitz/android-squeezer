@@ -51,6 +51,7 @@ import uk.org.ngo.squeezer.BuildConfig;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.ClientRequest;
 import uk.org.ngo.squeezer.model.ClientRequestParameters;
@@ -115,6 +116,7 @@ public class CometClient extends BaseClient {
         mRequestMap = ImmutableMap.<String, ItemListener>builder()
                 .put("players", new PlayersListener())
                 .put("artists", new ArtistsListener())
+                .put("albums", new AlbumsListener())
                 .build();
     }
 
@@ -384,6 +386,35 @@ public class CometClient extends BaseClient {
         }
     }
 
+    private class AlbumsListener extends ItemListener {
+        @Override
+        public void onMessage(ClientSessionChannel channel, Message message) {
+            // Note: This is probably wrong, need to figure out result paging.
+            IServiceItemListCallback callback = mPendingRequests.get(message.getId());
+            if (callback == null) {
+                return;
+            }
+
+            Map<String, Object> data = message.getDataAsMap();
+            Object[] item_data = (Object[]) data.get("albums_loop");
+
+            List<Album> items = new ArrayList<>(item_data.length);
+
+            for (Object item_d : item_data) {
+                Map<String, String> record = (Map<String, String>) item_d;
+                for (Map.Entry<String, String> entry : record.entrySet()) {
+                    Object value = entry.getValue();
+                    if (value != null && !(value instanceof String)) {
+                        record.put(entry.getKey(), value.toString());
+                    }
+                }
+                items.add(new Album(record));
+            }
+
+            callback.onItemsReceived(item_data.length, 0, null, items, Player.class);
+        }
+    }
+
     @Override
     public void disconnect(boolean loginFailed) {
         mBayeuxClient.disconnect();
@@ -468,7 +499,7 @@ public class CometClient extends BaseClient {
 
     @Override
     public String getPreferredAlbumSort() {
-        return null;
+        return "album";
     }
 
     @Override
