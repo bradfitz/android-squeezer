@@ -67,7 +67,7 @@ public class CometClient extends BaseClient {
     @Nullable
     private BayeuxClient mBayeuxClient;
 
-    private static final ClientSessionChannel.MessageListener mLogJsonListener = new LogJsonListener();
+    private static final ClientSessionChannel.MessageListener mLogJsonListener = new LogJsonListener("main");
 
     /** The channel to publish one-shot requests to. */
     private static final String CHANNEL_SLIM_REQUEST = "/slim/request";
@@ -194,7 +194,7 @@ public class CometClient extends BaseClient {
                     mBayeuxClient.getChannel(responseChannel).addListener(mLogJsonListener);
                 }
 
-                mBayeuxClient.getChannel(String.format(WILDCARD_SUBSCRIBTION_FORMAT, clientId)).subscribe(mLogJsonListener);
+                mBayeuxClient.getChannel(String.format(WILDCARD_SUBSCRIBTION_FORMAT, clientId)).subscribe(new LogJsonListener("wildcard-subscription") {});
 
                 //mConnectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
 
@@ -218,7 +218,7 @@ public class CometClient extends BaseClient {
 
                 // The responses to pref requests do not include the preference being returned either.
 
-                mBayeuxClient.getChannel(chnCanMusicfolder).addListener(new LogJsonListener() {
+                mBayeuxClient.getChannel(chnCanMusicfolder).addListener(new LogJsonListener(chnCanMusicfolder) {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
@@ -226,7 +226,7 @@ public class CometClient extends BaseClient {
                     }
                 });
 
-                mBayeuxClient.getChannel(chnCanRandomplay).addListener(new LogJsonListener() {
+                mBayeuxClient.getChannel(chnCanRandomplay).addListener(new LogJsonListener(chnCanRandomplay) {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
@@ -234,7 +234,7 @@ public class CometClient extends BaseClient {
                     }
                 });
 
-                mBayeuxClient.getChannel(chnCanFavorites).addListener(new LogJsonListener() {
+                mBayeuxClient.getChannel(chnCanFavorites).addListener(new LogJsonListener(chnCanFavorites) {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
@@ -242,7 +242,7 @@ public class CometClient extends BaseClient {
                     }
                 });
 
-                mBayeuxClient.getChannel(chnCanMyapps).addListener(new LogJsonListener() {
+                mBayeuxClient.getChannel(chnCanMyapps).addListener(new LogJsonListener(chnCanMyapps) {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
@@ -250,7 +250,7 @@ public class CometClient extends BaseClient {
                     }
                 });
 
-                mBayeuxClient.getChannel(chnPrefMediadirs).addListener(new LogJsonListener() {
+                mBayeuxClient.getChannel(chnPrefMediadirs).addListener(new LogJsonListener(chnPrefMediadirs) {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
@@ -258,7 +258,7 @@ public class CometClient extends BaseClient {
                     }
                 });
 
-                mBayeuxClient.getChannel(chnPrefAlbumSort).addListener(new LogJsonListener() {
+                mBayeuxClient.getChannel(chnPrefAlbumSort).addListener(new LogJsonListener(chnPrefAlbumSort) {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
@@ -266,7 +266,7 @@ public class CometClient extends BaseClient {
                     }
                 });
 
-                mBayeuxClient.getChannel(chnVersion).addListener(new LogJsonListener() {
+                mBayeuxClient.getChannel(chnVersion).addListener(new LogJsonListener(chnVersion) {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
@@ -312,10 +312,16 @@ public class CometClient extends BaseClient {
     abstract class ItemListener implements ClientSessionChannel.MessageListener {}
 
     private static class LogJsonListener implements ClientSessionChannel.MessageListener {
+        private final String tag;
+
+        public LogJsonListener(String tag) {
+            this.tag = tag;
+        }
+
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
-            Log.v(TAG, String.format("RECV [%s] (%s): %s",
-                    message.isSuccessful() ? "S" : "F", message.getChannel(), message.getJSON()));
+            Log.v(TAG, String.format("RECV { tag:%s, success:%s channel:'%s',  message:%s }",
+                    tag, message.isSuccessful(), message.getChannel(), message.getJSON()));
 //            Map<String, Object> data = message.getDataAsMap();
 //            Log.v(TAG, "map: " + data);
 //            Log.v(TAG, "id: " + message.getId());
