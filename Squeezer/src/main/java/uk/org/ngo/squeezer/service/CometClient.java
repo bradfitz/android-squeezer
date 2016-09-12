@@ -194,7 +194,9 @@ public class CometClient extends BaseClient {
                     mBayeuxClient.getChannel(responseChannel).addListener(mLogJsonListener);
                 }
 
-                mBayeuxClient.getChannel(String.format(WILDCARD_SUBSCRIBTION_FORMAT, clientId)).subscribe(new LogJsonListener("wildcard-subscription") {});
+                mBayeuxClient.getChannel(String.format(WILDCARD_SUBSCRIBTION_FORMAT, clientId)).subscribe(
+                        new LogJsonListener("wildcard-subscription") {},
+                        new LogJsonListener("subscribe-callback") {}                );
 
                 //mConnectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
 
