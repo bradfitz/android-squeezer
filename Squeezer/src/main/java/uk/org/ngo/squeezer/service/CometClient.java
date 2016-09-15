@@ -17,29 +17,21 @@
 package uk.org.ngo.squeezer.service;
 
 import android.os.Looper;
-import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
 import org.cometd.client.transport.LongPollingTransport;
+import org.cometd.common.HashMapMessage;
 import org.eclipse.jetty.client.HttpClient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,14 +40,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.BuildConfig;
-import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
-import uk.org.ngo.squeezer.model.ClientRequest;
-import uk.org.ngo.squeezer.model.ClientRequestParameters;
-import uk.org.ngo.squeezer.model.ClientResponse;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
@@ -145,15 +132,38 @@ public class CometClient extends BaseClient {
         Map<String, Object> options = new HashMap<>();
         ClientTransport transport = new LongPollingTransport(options, httpClient);
         mBayeuxClient = new BayeuxClient(url, transport) {
+            public Map<Object,String> subscriptionIds = new HashMap<>();
+
             @Override
             public void onSending(List<? extends Message> messages) {
                 super.onSending(messages);
-                if (BuildConfig.DEBUG) {
-                    for (Message message : messages) {
-                        if ("/meta/connect".equals(message.getChannel())) {
-                            return;
+                for (Message message : messages) {
+                    String channelName = message.getChannel();
+                    if (Channel.META_SUBSCRIBE.equals(channelName)) {
+                        subscriptionIds.put(message.get(Message.SUBSCRIPTION_FIELD), message.getId());
+                    }
+                    if (BuildConfig.DEBUG) {
+                        if (!Channel.META_CONNECT.equals(channelName)) {
+                            Log.d(TAG, "SEND: " + message.getJSON());
                         }
-                        Log.d(TAG, "SEND: " + message.getJSON());
+                    }
+                }
+            }
+
+            @Override
+            public void onMessages(List<Message.Mutable> messages) {
+                super.onMessages(messages);
+                for (Message message : messages) {
+                    String channelName = message.getChannel();
+                    if (Channel.META_SUBSCRIBE.equals(channelName)) {
+                        if (message.getId() == null && message instanceof HashMapMessage) {
+                            ((HashMapMessage)message).setId(subscriptionIds.get(message.get(Message.SUBSCRIPTION_FIELD)));
+                        }
+                    }
+                    if (BuildConfig.DEBUG) {
+                        if (!Channel.META_CONNECT.equals(channelName)) {
+                            Log.d(TAG, "RECV: " + message.getJSON());
+                        }
                     }
                 }
             }
