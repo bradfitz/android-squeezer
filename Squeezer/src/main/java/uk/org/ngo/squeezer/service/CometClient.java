@@ -127,43 +127,7 @@ public class CometClient extends BaseClient {
 
         Map<String, Object> options = new HashMap<>();
         ClientTransport transport = new LongPollingTransport(options, httpClient);
-        mBayeuxClient = new BayeuxClient(url, transport) {
-            public Map<Object,String> subscriptionIds = new HashMap<>();
-
-            @Override
-            public void onSending(List<? extends Message> messages) {
-                super.onSending(messages);
-                for (Message message : messages) {
-                    String channelName = message.getChannel();
-                    if (Channel.META_SUBSCRIBE.equals(channelName)) {
-                        subscriptionIds.put(message.get(Message.SUBSCRIPTION_FIELD), message.getId());
-                    }
-                    if (BuildConfig.DEBUG) {
-                        if (!Channel.META_CONNECT.equals(channelName)) {
-                            Log.d(TAG, "SEND: " + message.getJSON());
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onMessages(List<Message.Mutable> messages) {
-                super.onMessages(messages);
-                for (Message message : messages) {
-                    String channelName = message.getChannel();
-                    if (Channel.META_SUBSCRIBE.equals(channelName)) {
-                        if (message.getId() == null && message instanceof HashMapMessage) {
-                            ((HashMapMessage)message).setId(subscriptionIds.get(message.get(Message.SUBSCRIPTION_FIELD)));
-                        }
-                    }
-                    if (BuildConfig.DEBUG) {
-                        if (!Channel.META_CONNECT.equals(channelName)) {
-                            Log.d(TAG, "RECV: " + message.getJSON());
-                        }
-                    }
-                }
-            }
-        };
+        mBayeuxClient = new SqueezerBayeuxClient(url, transport);
 
         mExecutor.execute(new Runnable() {
             @Override
@@ -273,6 +237,49 @@ public class CometClient extends BaseClient {
 //                        "version ?"
             }
         });
+    }
+
+    private static class SqueezerBayeuxClient extends BayeuxClient {
+        private Map<Object,String> subscriptionIds;
+
+        public SqueezerBayeuxClient(String url, ClientTransport transport) {
+            super(url, transport);
+            subscriptionIds = new HashMap<>();
+        }
+
+        @Override
+        public void onSending(List<? extends Message> messages) {
+            super.onSending(messages);
+            for (Message message : messages) {
+                String channelName = message.getChannel();
+                if (Channel.META_SUBSCRIBE.equals(channelName)) {
+                    subscriptionIds.put(message.get(Message.SUBSCRIPTION_FIELD), message.getId());
+                }
+                if (BuildConfig.DEBUG) {
+                    if (!Channel.META_CONNECT.equals(channelName)) {
+                        Log.d(TAG, "SEND: " + message.getJSON());
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onMessages(List<Message.Mutable> messages) {
+            super.onMessages(messages);
+            for (Message message : messages) {
+                String channelName = message.getChannel();
+                if (Channel.META_SUBSCRIBE.equals(channelName)) {
+                    if (message.getId() == null && message instanceof HashMapMessage) {
+                        ((HashMapMessage)message).setId(subscriptionIds.get(message.get(Message.SUBSCRIPTION_FIELD)));
+                    }
+                }
+                if (BuildConfig.DEBUG) {
+                    if (!Channel.META_CONNECT.equals(channelName)) {
+                        Log.d(TAG, "RECV: " + message.getJSON());
+                    }
+                }
+            }
+        }
     }
 
     abstract class ItemListener implements ClientSessionChannel.MessageListener {}
