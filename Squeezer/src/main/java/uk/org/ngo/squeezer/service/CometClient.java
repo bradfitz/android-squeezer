@@ -74,6 +74,7 @@ public class CometClient extends BaseClient {
     private boolean mCanRandomplay = false;
     private boolean mCanFavorites = false;
     private boolean mCanApps = false;
+    private String mVersion = "";
 
     private String mPreferredAlbumSort = "album";
     private String[] mMediaDirs;
@@ -212,10 +213,11 @@ public class CometClient extends BaseClient {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         //XXX implement wait for all replies and run the state machine accordingly
+                        mVersion = (String) message.getDataAsMap().get("_version");
                         mEventBus.postSticky(new HandshakeComplete(
                                 mCanFavorites, mCanMusicfolder,
                                 mCanApps, mCanRandomplay,
-                                "7.6"));
+                                mVersion));
                     }
                 }, "version", "?");
 
