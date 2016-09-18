@@ -54,16 +54,11 @@ public class CometClient extends BaseClient {
     @Nullable
     private BayeuxClient mBayeuxClient;
 
-    private static final ClientSessionChannel.MessageListener mLogJsonListener = new LogJsonListener("main");
-
     /** The channel to publish one-shot requests to. */
     private static final String CHANNEL_SLIM_REQUEST = "/slim/request";
 
     /** Map from a command ("players") to the listener class for responses. */
     private  final Map<String, ItemListener> mRequestMap;
-
-    /** Wildcard subscription. */
-     private static final String WILDCARD_SUBSCRIBTION_FORMAT = "/%s/**";
 
     /** The format string for the channel to listen to for responses to one-shot requests. */
     private static final String CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT = "/%s/slim/request/%s";
@@ -173,7 +168,7 @@ public class CometClient extends BaseClient {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mBayeuxClient.handshake(mLogJsonListener);
+                mBayeuxClient.handshake();
                 if (!mBayeuxClient.waitFor(10000, BayeuxClient.State.CONNECTED)) {
                     mConnectionState.setConnectionState(mEventBus, ConnectionState.CONNECTION_FAILED);
                     return;  // XXX: Check if returning here is the right thing to do? Any other cleanup?
@@ -186,10 +181,9 @@ public class CometClient extends BaseClient {
 
                 String clientId = mBayeuxClient.getId();
 
-                mBayeuxClient.getChannel(String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "*")).addListener(new LogJsonListener("request response listener") {
+                mBayeuxClient.getChannel(String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        super.onMessage(channel, message);
                         ClientSessionChannel.MessageListener listener = mPendingRequests.get(message.getChannel());
                         if (listener != null) {
                             listener.onMessage(channel, message);
@@ -197,10 +191,6 @@ public class CometClient extends BaseClient {
                         }
                     }
                 });
-
-                mBayeuxClient.getChannel(String.format(WILDCARD_SUBSCRIBTION_FORMAT, clientId)).subscribe(
-                        new LogJsonListener("wildcard-subscription") {},
-                        new LogJsonListener("subscribe-callback") {}                );
 
                 //mConnectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
 
@@ -212,59 +202,51 @@ public class CometClient extends BaseClient {
 
                 // Learn server capabilites.
 
-                request(new LogJsonListener("can_musicfolder") {
+                request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        super.onMessage(channel, message);
                         mCanMusicfolder = "1".equals(message.getDataAsMap().get("_can"));
                     }
                 }, "can", "musicfolder", "?");
 
-                request(new LogJsonListener("can_randomplay") {
+                request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        super.onMessage(channel, message);
                         mCanRandomplay = "1".equals(message.getDataAsMap().get("_can"));
                     }
                 }, "can", "randomplay", "?");
 
-                request(new LogJsonListener("can_favorites") {
+                request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        super.onMessage(channel, message);
                         mCanFavorites = "1".equals(message.getDataAsMap().get("_can"));
                     }
                 }, "can", "favorites", "items", "?");
 
-                request(new LogJsonListener("can_myapps") {
+                request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        super.onMessage(channel, message);
                         mCanApps = "1".equals(message.getDataAsMap().get("_can"));
                     }
                 }, "can", "myapps", "items", "?");
 
-                request(new LogJsonListener("pref_mediadirs") {
+                request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        super.onMessage(channel, message);
                         //mMediaDirs = (String[]) message.getDataAsMap().get("_p2");
                     }
                 }, "pref", "mediadirs", "?");
 
-                request(new LogJsonListener("pref_jivealbumsort") {
+                request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        super.onMessage(channel, message);
                         mPreferredAlbumSort = (String) message.getDataAsMap().get("_p2");
                     }
                 }, "pref", "jivealbumsort", "?");
 
-                request(new LogJsonListener("version") {
+                request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        super.onMessage(channel, message);
-
                         //XXX implement wait for all replies and run the state machine accordingly
                         mEventBus.postSticky(new HandshakeComplete(
                                 mCanFavorites, mCanMusicfolder,
@@ -294,32 +276,6 @@ public class CometClient extends BaseClient {
     }
 
     abstract class ItemListener implements ClientSessionChannel.MessageListener {}
-
-    private static class LogJsonListener implements ClientSessionChannel.MessageListener {
-        private final String tag;
-
-        public LogJsonListener(String tag) {
-            this.tag = tag;
-        }
-
-        @Override
-        public void onMessage(ClientSessionChannel channel, Message message) {
-            Log.v(TAG, String.format("RECV { tag:%s, success:%s channel:'%s',  message:%s }",
-                    tag, message.isSuccessful(), message.getChannel(), message.getJSON()));
-//            Map<String, Object> data = message.getDataAsMap();
-//            Log.v(TAG, "map: " + data);
-//            Log.v(TAG, "id: " + message.getId());
-//
-//            Log.v(TAG, "values: " + data.get("players_loop"));
-//            Log.v(TAG, "advice: " + message.getAdvice());
-//
-//            Object[] players_loop;
-//            players_loop = (Object[]) data.get("players_loop");
-//            Log.v(TAG, "players_loop: " + players_loop[0]);
-//            HashMap h = (HashMap<String, String>) players_loop[0];
-//            Log.v(TAG, "name: " + h.get("name"));
-        }
-    }
 
     private class PlayersListener extends ItemListener {
         @Override
