@@ -62,9 +62,6 @@ public class CometClient extends BaseClient {
     /** Map from a command ("players") to the listener class for responses. */
     private  final Map<String, ItemListener> mRequestMap;
 
-    /** Map from a command ("players") to the response channel that should be used for that command. */
-    private static Map<String, String> mResponseChannel = new HashMap<>();
-
     /** Wildcard subscription. */
      private static final String WILDCARD_SUBSCRIBTION_FORMAT = "/%s/**";
 
@@ -90,12 +87,16 @@ public class CometClient extends BaseClient {
     private ClientSessionChannel mRequestChannel;
 
     private Map<String, Player> mPlayers = new HashMap<>();
-    private final Map<String, IServiceItemListCallback> mPendingRequests
+
+    private final Map<String, ClientSessionChannel.MessageListener> mPendingRequests
+            = new ConcurrentHashMap<>();
+
+    private final Map<String, IServiceItemListCallback> mPendingBrowseRequests
             = new ConcurrentHashMap<>();
 
     // All requests are tagged with a correlation id, which can be used when
     // asynchronous responses are received.
-    private int mCorrelationId = 0;
+    private volatile int mCorrelationId = 0;
 
     CometClient(@NonNull EventBus eventBus) {
         super(eventBus);
@@ -183,26 +184,19 @@ public class CometClient extends BaseClient {
                 mConnectionState.setConnectionState(mEventBus, ConnectionState.LOGIN_STARTED);
                 mConnectionState.setConnectionState(mEventBus, ConnectionState.LOGIN_COMPLETED);
 
-                mResponseChannel.clear();
-
-                // Have the client listen for replies on all channels we care about, and make sure
-                // the listeners are hooked up to each channel.
-                //
-                // Note: If this was a table, it would be
-                // R = "players" (the command)
-                // C = "/%s/slim/request/players" (the response channel, with clientId to be filled in)
-                // V = new PlayerListener (the listener)
                 String clientId = mBayeuxClient.getId();
-                for (String cmd : mRequestMap.keySet()) {
-                    String responseChannel = String.format(
-                            CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, cmd
-                    );
 
-                    mResponseChannel.put(cmd, responseChannel);
-                    mRequestMap.get(cmd);
-                    mBayeuxClient.getChannel(responseChannel).addListener(mRequestMap.get(cmd));
-                    mBayeuxClient.getChannel(responseChannel).addListener(mLogJsonListener);
-                }
+                mBayeuxClient.getChannel(String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "*")).addListener(new LogJsonListener("request response listener") {
+                    @Override
+                    public void onMessage(ClientSessionChannel channel, Message message) {
+                        super.onMessage(channel, message);
+                        ClientSessionChannel.MessageListener listener = mPendingRequests.get(message.getChannel());
+                        if (listener != null) {
+                            listener.onMessage(channel, message);
+                            mPendingRequests.remove(channel);
+                        }
+                    }
+                });
 
                 mBayeuxClient.getChannel(String.format(WILDCARD_SUBSCRIBTION_FORMAT, clientId)).subscribe(
                         new LogJsonListener("wildcard-subscription") {},
@@ -216,92 +210,70 @@ public class CometClient extends BaseClient {
 
                 // XXX: "listen 1" -- serverstatus?
 
-                // Learn server capabilites. The responses to "can" requests do not include
-                // the feature that was being request, so each one needs its own response channel.
-                String chnCanMusicfolder = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "can_musicfolder");
-                String chnCanRandomplay = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "can_randomplay");
-                String chnCanFavorites = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "can_favorites");
-                String chnCanMyapps = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "can_myapps");
+                // Learn server capabilites.
 
-                String chnPrefAlbumSort = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "pref_jivealbumsort");
-                String chnPrefMediadirs = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "pref_mediadirs");
-
-                String chnVersion = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "version");
-
-                // The responses to pref requests do not include the preference being returned either.
-
-                mBayeuxClient.getChannel(chnCanMusicfolder).addListener(new LogJsonListener(chnCanMusicfolder) {
+                request(new LogJsonListener("can_musicfolder") {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
                         mCanMusicfolder = "1".equals(message.getDataAsMap().get("_can"));
                     }
-                });
+                }, "can", "musicfolder", "?");
 
-                mBayeuxClient.getChannel(chnCanRandomplay).addListener(new LogJsonListener(chnCanRandomplay) {
+                request(new LogJsonListener("can_randomplay") {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
                         mCanRandomplay = "1".equals(message.getDataAsMap().get("_can"));
                     }
-                });
+                }, "can", "randomplay", "?");
 
-                mBayeuxClient.getChannel(chnCanFavorites).addListener(new LogJsonListener(chnCanFavorites) {
+                request(new LogJsonListener("can_favorites") {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
                         mCanFavorites = "1".equals(message.getDataAsMap().get("_can"));
                     }
-                });
+                }, "can", "favorites", "items", "?");
 
-                mBayeuxClient.getChannel(chnCanMyapps).addListener(new LogJsonListener(chnCanMyapps) {
+                request(new LogJsonListener("can_myapps") {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
                         mCanApps = "1".equals(message.getDataAsMap().get("_can"));
                     }
-                });
+                }, "can", "myapps", "items", "?");
 
-                mBayeuxClient.getChannel(chnPrefMediadirs).addListener(new LogJsonListener(chnPrefMediadirs) {
+                request(new LogJsonListener("pref_mediadirs") {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
                         //mMediaDirs = (String[]) message.getDataAsMap().get("_p2");
                     }
-                });
+                }, "pref", "mediadirs", "?");
 
-                mBayeuxClient.getChannel(chnPrefAlbumSort).addListener(new LogJsonListener(chnPrefAlbumSort) {
+                request(new LogJsonListener("pref_jivealbumsort") {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
                         mPreferredAlbumSort = (String) message.getDataAsMap().get("_p2");
                     }
-                });
+                }, "pref", "jivealbumsort", "?");
 
-                mBayeuxClient.getChannel(chnVersion).addListener(new LogJsonListener(chnVersion) {
+                request(new LogJsonListener("version") {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         super.onMessage(channel, message);
+
+                        //XXX implement wait for all replies and run the state machine accordingly
                         mEventBus.postSticky(new HandshakeComplete(
                                 mCanFavorites, mCanMusicfolder,
                                 mCanApps, mCanRandomplay,
                                 "7.6"));
                     }
-                });
-
-                mRequestChannel = mBayeuxClient.getChannel(CHANNEL_SLIM_REQUEST);
-
-                mRequestChannel.publish(new Request("can", "musicfolder", "?").getData(chnCanMusicfolder), mLogJsonListener);
-                mRequestChannel.publish(new Request("can", "randomplay", "?").getData(chnCanRandomplay), mLogJsonListener);
-                mRequestChannel.publish(new Request("can", "favorites", "items", "?").getData(chnCanFavorites), mLogJsonListener);
-                mRequestChannel.publish(new Request("can", "myapps", "items", "?").getData(chnCanMyapps), mLogJsonListener);
+                }, "version", "?");
 
                 // XXX: Skipped "pref httpport ?"
-
-                mRequestChannel.publish(new Request("pref", "jivealbumsort", "?").getData(chnPrefAlbumSort), mLogJsonListener);
-                mRequestChannel.publish(new Request("pref", "mediadirs", "?").getData(chnPrefMediadirs), mLogJsonListener);
-
-                mRequestChannel.publish(new Request("version", "?").getData(chnVersion), mLogJsonListener);
 
 //                sendCommandImmediately(
 //                        "listen 1", // subscribe to all server notifications
@@ -355,7 +327,7 @@ public class CometClient extends BaseClient {
             // XXX: Sanity check that the message contains an ID and players_loop
 
             // Note: This is probably wrong, need to figure out result paging.
-            IServiceItemListCallback callback = mPendingRequests.get(message.getId());
+            IServiceItemListCallback callback = mPendingBrowseRequests.get(message.getChannel());
             if (callback == null) {
                 return;
             }
@@ -377,7 +349,7 @@ public class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             // Note: This is probably wrong, need to figure out result paging.
-            IServiceItemListCallback callback = mPendingRequests.get(message.getId());
+            IServiceItemListCallback callback = mPendingBrowseRequests.get(message.getChannel());
             if (callback == null) {
                 return;
             }
@@ -406,7 +378,7 @@ public class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             // Note: This is probably wrong, need to figure out result paging.
-            IServiceItemListCallback callback = mPendingRequests.get(message.getId());
+            IServiceItemListCallback callback = mPendingBrowseRequests.get(message.getChannel());
             if (callback == null) {
                 return;
             }
@@ -555,6 +527,13 @@ public class CometClient extends BaseClient {
         }
     }
 
+    private String request(ClientSessionChannel.MessageListener callback, String... cmd) {
+        String responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
+        mPendingRequests.put(responseChannel, callback);
+        mBayeuxClient.getChannel(CHANNEL_SLIM_REQUEST).publish(new Request(cmd).getData(responseChannel));
+        return responseChannel;
+    }
+
     /**
      * Send an asynchronous request to the SqueezeboxServer for the specified items.
      * <p>
@@ -572,12 +551,7 @@ public class CometClient extends BaseClient {
     private void internalRequestItems(String playerId, String cmd, int start, int pageSize,
                                      List<String> parameters, final IServiceItemListCallback callback) {
 
-        final String responseChannel = mResponseChannel.get(cmd);
-        if (responseChannel == null) {
-            Log.e(TAG, "No response channel for request " + cmd);
-            return;
-        }
-
+        final ItemListener itemListener = mRequestMap.get(cmd);
 
         // XXX: Check for NPE (and or save the channel earlier)
         if (playerId != null) {
@@ -592,32 +566,16 @@ public class CometClient extends BaseClient {
         }
 
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            requestItemsImmediately(request, responseChannel, callback);
+            mPendingBrowseRequests.put(request(itemListener, request), callback);
         } else {
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    requestItemsImmediately(request, responseChannel, callback);
+                    mPendingBrowseRequests.put(request(itemListener, request), callback);
                 }
             });
         }
 
-    }
-
-    private void requestItemsImmediately(String[] request, String responseChannel, final IServiceItemListCallback callback) {
-        mBayeuxClient.getChannel(CHANNEL_SLIM_REQUEST).publish(
-                new Request(request).getData(responseChannel), new ClientSessionChannel.MessageListener() {
-                    @Override
-                    public void onMessage(ClientSessionChannel channel, Message message) {
-                        if (message.isSuccessful()) {
-                            mPendingRequests.put(message.getId(), callback);
-                        } else {
-                            Log.e(TAG, "Message failed: " + message.getJSON());
-                        }
-
-                    }
-                }
-        );
     }
 
     /**
