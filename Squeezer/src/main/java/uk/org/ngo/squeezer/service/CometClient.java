@@ -45,6 +45,7 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
@@ -102,6 +103,7 @@ public class CometClient extends BaseClient {
                 .put("players", new PlayersListener())
                 .put("artists", new ArtistsListener())
                 .put("albums", new AlbumsListener())
+                .put("songs", new SongsListener())
                 .build();
     }
 
@@ -333,6 +335,13 @@ public class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             parseMessage("albums_loop", message);
+        }
+    }
+
+    private class SongsListener extends ItemListener<Song> {
+        @Override
+        public void onMessage(ClientSessionChannel channel, Message message) {
+            parseMessage("titles_loop", message);
         }
     }
 
