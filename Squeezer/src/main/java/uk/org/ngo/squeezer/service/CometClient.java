@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.BuildConfig;
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
@@ -124,7 +125,7 @@ public class CometClient extends BaseClient {
         // distinguish between CLI and Comet.
         // XXX: Also need to deal with usernames and passwords, and HTTPS
         //String url = String.format("http://%s/cometd", hostPort);
-        String url = "http://192.168.0.44:9000/cometd";
+        String url = "http://192.168.0.13:9001/cometd";
 
         Map<String, Object> options = new HashMap<>();
         ClientTransport transport = new LongPollingTransport(options, httpClient);
@@ -284,93 +285,54 @@ public class CometClient extends BaseClient {
         }
     }
 
-    abstract class ItemListener implements ClientSessionChannel.MessageListener {}
+    abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {
+        protected void parseMessage(String itemLoopName, Message message) {
+            // Note: This is probably wrong, need to figure out result paging.
+            IServiceItemListCallback callback = mPendingBrowseRequests.get(message.getChannel());
+            if (callback == null) {
+                return;
+            }
 
-    private class PlayersListener extends ItemListener {
+            clear();
+            Map<String, Object> data = message.getDataAsMap();
+            long count = (long) data.get("count");
+            Object[] item_data = (Object[]) data.get(itemLoopName);
+            if (item_data != null) {
+                for (Object item_d : item_data) {
+                    Map<String, String> record = (Map<String, String>) item_d;
+                    for (Map.Entry<String, String> entry : record.entrySet()) {
+                        Object value = entry.getValue();
+                        if (value != null && !(value instanceof String)) {
+                            record.put(entry.getKey(), value.toString());
+                        }
+                    }
+                    add(record);
+                }
+            }
+
+            callback.onItemsReceived((int)count, 0, null, getItems(), getDataType());
+        }
+    }
+
+    private class PlayersListener extends ItemListener<Player> {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             // XXX: Sanity check that the message contains an ID and players_loop
-
-            // Note: This is probably wrong, need to figure out result paging.
-            IServiceItemListCallback callback = mPendingBrowseRequests.get(message.getChannel());
-            if (callback == null) {
-                return;
-            }
-
-            Map<String, Object> data = message.getDataAsMap();
-            Object[] item_data = (Object[]) data.get("players_loop");
-
-            List<Player> items = new ArrayList<>();
-
-            if (item_data != null) {
-                for (Object player_d : item_data) {
-                    items.add(new Player((Map<String, String>) player_d));
-                }
-            }
-
-            callback.onItemsReceived(item_data.length, 0, null, items, Player.class);
+            parseMessage("players_loop", message);
         }
     }
 
-    private class ArtistsListener extends ItemListener {
+    private class ArtistsListener extends ItemListener<Artist> {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
-            // Note: This is probably wrong, need to figure out result paging.
-            IServiceItemListCallback callback = mPendingBrowseRequests.get(message.getChannel());
-            if (callback == null) {
-                return;
-            }
-
-            Map<String, Object> data = message.getDataAsMap();
-            Object[] item_data = (Object[]) data.get("artists_loop");
-
-            List<Artist> items = new ArrayList<>();
-
-            if (item_data != null) {
-                for (Object item_d : item_data) {
-                    Map<String, String> record = (Map<String, String>) item_d;
-                    for (Map.Entry<String, String> entry : record.entrySet()) {
-                        Object value = entry.getValue();
-                        if (value != null && !(value instanceof String)) {
-                            record.put(entry.getKey(), value.toString());
-                        }
-                    }
-                    items.add(new Artist(record));
-                }
-            }
-
-            callback.onItemsReceived(item_data.length, 0, null, items, Player.class);
+            parseMessage("artists_loop", message);
         }
     }
 
-    private class AlbumsListener extends ItemListener {
+    private class AlbumsListener extends ItemListener<Album> {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
-            // Note: This is probably wrong, need to figure out result paging.
-            IServiceItemListCallback callback = mPendingBrowseRequests.get(message.getChannel());
-            if (callback == null) {
-                return;
-            }
-
-            Map<String, Object> data = message.getDataAsMap();
-            Object[] item_data = (Object[]) data.get("albums_loop");
-
-            List<Album> items = new ArrayList<>();
-
-            if (item_data != null) {
-                for (Object item_d : item_data) {
-                    Map<String, String> record = (Map<String, String>) item_d;
-                    for (Map.Entry<String, String> entry : record.entrySet()) {
-                        Object value = entry.getValue();
-                        if (value != null && !(value instanceof String)) {
-                            record.put(entry.getKey(), value.toString());
-                        }
-                    }
-                    items.add(new Album(record));
-                }
-            }
-
-            callback.onItemsReceived(item_data.length, 0, null, items, Player.class);
+            parseMessage("albums_loop", message);
         }
     }
 

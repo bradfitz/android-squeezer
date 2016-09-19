@@ -19,7 +19,7 @@ import uk.org.ngo.squeezer.framework.Item;
 abstract class BaseListHandler<T extends Item> implements ListHandler<T> {
     private static final String TAG = BaseListHandler.class.getSimpleName();
 
-    protected List<T> items;
+    private List<T> items;
 
     @SuppressWarnings("unchecked")
     private final Class<T> dataType = (Class<T>) Reflection
