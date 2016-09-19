@@ -298,15 +298,17 @@ public class CometClient extends BaseClient {
             }
 
             Map<String, Object> data = message.getDataAsMap();
-            Object[] player_data = (Object[]) data.get("players_loop");
+            Object[] item_data = (Object[]) data.get("players_loop");
 
-            List<Player> players = new ArrayList<>(player_data.length);
+            List<Player> items = new ArrayList<>();
 
-            for (Object player_d : player_data) {
-                players.add(new Player((Map<String, String>) player_d));
+            if (item_data != null) {
+                for (Object player_d : item_data) {
+                    items.add(new Player((Map<String, String>) player_d));
+                }
             }
 
-            callback.onItemsReceived(player_data.length, 0, null, players, Player.class);
+            callback.onItemsReceived(item_data.length, 0, null, items, Player.class);
         }
     }
 
@@ -322,17 +324,19 @@ public class CometClient extends BaseClient {
             Map<String, Object> data = message.getDataAsMap();
             Object[] item_data = (Object[]) data.get("artists_loop");
 
-            List<Artist> items = new ArrayList<>(item_data.length);
+            List<Artist> items = new ArrayList<>();
 
-            for (Object item_d : item_data) {
-                Map<String, String> record = (Map<String, String>) item_d;
-                for (Map.Entry<String, String> entry : record.entrySet()) {
-                    Object value = entry.getValue();
-                    if (value != null && !(value instanceof String)) {
-                        record.put(entry.getKey(), value.toString());
+            if (item_data != null) {
+                for (Object item_d : item_data) {
+                    Map<String, String> record = (Map<String, String>) item_d;
+                    for (Map.Entry<String, String> entry : record.entrySet()) {
+                        Object value = entry.getValue();
+                        if (value != null && !(value instanceof String)) {
+                            record.put(entry.getKey(), value.toString());
+                        }
                     }
+                    items.add(new Artist(record));
                 }
-                items.add(new Artist(record));
             }
 
             callback.onItemsReceived(item_data.length, 0, null, items, Player.class);
@@ -351,17 +355,19 @@ public class CometClient extends BaseClient {
             Map<String, Object> data = message.getDataAsMap();
             Object[] item_data = (Object[]) data.get("albums_loop");
 
-            List<Album> items = new ArrayList<>(item_data.length);
+            List<Album> items = new ArrayList<>();
 
-            for (Object item_d : item_data) {
-                Map<String, String> record = (Map<String, String>) item_d;
-                for (Map.Entry<String, String> entry : record.entrySet()) {
-                    Object value = entry.getValue();
-                    if (value != null && !(value instanceof String)) {
-                        record.put(entry.getKey(), value.toString());
+            if (item_data != null) {
+                for (Object item_d : item_data) {
+                    Map<String, String> record = (Map<String, String>) item_d;
+                    for (Map.Entry<String, String> entry : record.entrySet()) {
+                        Object value = entry.getValue();
+                        if (value != null && !(value instanceof String)) {
+                            record.put(entry.getKey(), value.toString());
+                        }
                     }
+                    items.add(new Album(record));
                 }
-                items.add(new Album(record));
             }
 
             callback.onItemsReceived(item_data.length, 0, null, items, Player.class);
