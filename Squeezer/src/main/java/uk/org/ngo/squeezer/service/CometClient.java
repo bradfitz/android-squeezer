@@ -124,7 +124,7 @@ public class CometClient extends BaseClient {
         // distinguish between CLI and Comet.
         // XXX: Also need to deal with usernames and passwords, and HTTPS
         //String url = String.format("http://%s/cometd", hostPort);
-        String url = "http://192.168.0.13:9001/cometd";
+        String url = "http://192.168.0.44:9000/cometd";
 
         Map<String, Object> options = new HashMap<>();
         ClientTransport transport = new LongPollingTransport(options, httpClient);
