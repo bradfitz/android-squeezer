@@ -46,6 +46,14 @@ abstract class BaseClient implements IClient {
         mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
     }
 
+    public boolean isConnected() {
+        return mConnectionState.isConnected();
+    }
+
+    public boolean isConnectInProgress() {
+        return mConnectionState.isConnectInProgress();
+    }
+
     @Override
     public String getServerVersion() {
         return mConnectionState.getServerVersion();

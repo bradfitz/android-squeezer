@@ -1463,14 +1463,6 @@ class CliClient extends BaseClient {
         });
     }
 
-    public boolean isConnected() {
-        return mConnectionState.isConnected();
-    }
-
-    public boolean isConnectInProgress() {
-        return mConnectionState.isConnectInProgress();
-    }
-
     int getHttpPort() {
         return mConnectionState.getHttpPort();
     }

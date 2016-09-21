@@ -33,6 +33,7 @@ import org.cometd.common.HashMapMessage;
 import org.eclipse.jetty.client.HttpClient;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +90,7 @@ public class CometClient extends BaseClient {
     private final Map<String, ClientSessionChannel.MessageListener> mPendingRequests
             = new ConcurrentHashMap<>();
 
-    private final Map<String, IServiceItemListCallback> mPendingBrowseRequests
+    private final Map<String, BrowseRequest> mPendingBrowseRequests
             = new ConcurrentHashMap<>();
 
     // All requests are tagged with a correlation id, which can be used when
@@ -289,15 +290,15 @@ public class CometClient extends BaseClient {
 
     abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {
         protected void parseMessage(String itemLoopName, Message message) {
-            // Note: This is probably wrong, need to figure out result paging.
-            IServiceItemListCallback callback = mPendingBrowseRequests.get(message.getChannel());
-            if (callback == null) {
+            BrowseRequest browseRequest = mPendingBrowseRequests.get(message.getChannel());
+            if (browseRequest == null) {
                 return;
             }
 
+            mPendingBrowseRequests.remove(message.getChannel());
             clear();
             Map<String, Object> data = message.getDataAsMap();
-            long count = (long) data.get("count");
+            int count = ((Long) data.get("count")).intValue();
             Object[] item_data = (Object[]) data.get(itemLoopName);
             if (item_data != null) {
                 for (Object item_d : item_data) {
@@ -312,7 +313,23 @@ public class CometClient extends BaseClient {
                 }
             }
 
-            callback.onItemsReceived((int)count, 0, null, getItems(), getDataType());
+            // Process the lists for all the registered handlers
+            final boolean fullList = browseRequest.isFullList();
+            final int start = browseRequest.getStart();
+            final int end = start + browseRequest.getItemsPerResponse();
+            int max = 0;
+            //XXX support returned parameters
+            browseRequest.getCallback().onItemsReceived(count, start, null, getItems(), getDataType());
+            if (count > max) {
+                max = count;
+            }
+
+            // Check if we need to order more items
+            if ((fullList || end % mPageSize != 0) && end < max) {
+                int itemsPerResponse = (end + mPageSize > max ? max - end : fullList ? mPageSize : mPageSize - browseRequest.getItemsPerResponse());
+                //XXX support playerid and prefix
+                internalRequestItems(browseRequest.update(end, itemsPerResponse));
+            }
         }
     }
 
@@ -372,16 +389,6 @@ public class CometClient extends BaseClient {
         return new String[0];
     }
 
-    @Override
-    public boolean isConnected() {
-        return false;
-    }
-
-    @Override
-    public boolean isConnectInProgress() {
-        return false;
-    }
-
 
     /**
      * Queries for all players known by the server.
@@ -438,7 +445,7 @@ public class CometClient extends BaseClient {
     }
 
     // Should probably have a pool of these.
-    private class Request {
+    private static class Request {
         String[] cmd;
 
         Request(String... cmd) {
@@ -469,6 +476,54 @@ public class CometClient extends BaseClient {
         }
     }
 
+    private static class BrowseRequest {
+        private final String cmd;
+        private final boolean fullList;
+        private int start;
+        private int itemsPerResponse;
+        private final List<String> parameters;
+        private final IServiceItemListCallback callback;
+
+        public BrowseRequest(String cmd, int start, int itemsPerResponse, List<String> parameters, IServiceItemListCallback callback) {
+            this.cmd = cmd;
+            this.fullList = (start < 0);
+            this.start = (fullList ? 0 : start);
+            this.itemsPerResponse = (start == 0 ? 1 : itemsPerResponse);
+            this.parameters = parameters;
+            this.callback = callback;
+        }
+
+        public BrowseRequest update(int start, int itemsPerResponse) {
+            this.start = start;
+            this.itemsPerResponse = itemsPerResponse;
+            return this;
+        }
+
+        public String getCmd() {
+            return cmd;
+        }
+
+        public boolean isFullList() {
+            return (fullList);
+        }
+
+        public int getStart() {
+            return start;
+        }
+
+        public int getItemsPerResponse() {
+            return itemsPerResponse;
+        }
+
+        public List<String> getParameters() {
+            return (parameters == null ? Collections.<String>emptyList() : parameters);
+        }
+
+        public IServiceItemListCallback getCallback() {
+            return callback;
+        }
+    }
+
     private String request(ClientSessionChannel.MessageListener callback, String... cmd) {
         String responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
         mPendingRequests.put(responseChannel, callback);
@@ -481,100 +536,72 @@ public class CometClient extends BaseClient {
      * <p>
      * Items are returned to the caller via the specified callback.
      * <p>
-     * See {@link #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for details.
+     * See {@link ItemListener#parseMessage(String, Message)} for details.
      *
      * @param playerId Id of the current player or null
      * @param cmd Identifies the type of items
      * @param start First item to return
      * @param pageSize No of items to return
      * @param parameters Item specific parameters for the request
-     * @see #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)
+     * @see ItemListener#parseMessage(String, Message)
      */
+
     private void internalRequestItems(String playerId, String cmd, int start, int pageSize,
-                                     List<String> parameters, final IServiceItemListCallback callback) {
-
-        final ItemListener itemListener = mRequestMap.get(cmd);
-
-        // XXX: Check for NPE (and or save the channel earlier)
+                                      List<String> parameters, final IServiceItemListCallback callback) {
         if (playerId != null) {
             Log.e(TAG, "Haven't written code for players yet");
             return;
         }
 
-        final String[] request = new String[parameters.size() + 1];
-        request[0] = cmd;
-        for (int i = 1; i <= parameters.size(); i++) {
-            request[i] = parameters.get(i - 1);
+        final BrowseRequest browseRequest = new BrowseRequest(cmd, start, pageSize, parameters, callback);
+        internalRequestItems(browseRequest);
+    }
+
+    private void internalRequestItems(final BrowseRequest browseRequest) {
+        final ItemListener itemListener = mRequestMap.get(browseRequest.getCmd());
+
+        final String[] request = new String[browseRequest.getParameters().size() + 3];
+        request[0] = browseRequest.getCmd();
+        request[1] = String.valueOf(browseRequest.getStart());
+        request[2] = String.valueOf(browseRequest.getItemsPerResponse());
+        for (int i = 0; i < browseRequest.getParameters().size(); i++) {
+            request[i+3] = browseRequest.getParameters().get(i);
         }
 
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mPendingBrowseRequests.put(request(itemListener, request), callback);
+            mPendingBrowseRequests.put(request(itemListener, request), browseRequest);
         } else {
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    mPendingBrowseRequests.put(request(itemListener, request), callback);
+                    mPendingBrowseRequests.put(request(itemListener, request), browseRequest);
                 }
             });
         }
-
-    }
-
-    /**
-     * Send an asynchronous request to the SqueezeboxServer for the specified items.
-     * <p>
-     * Items are requested in chunks of <code>R.integer.PageSize</code>, and returned
-     * to the caller via the specified callback.
-     * <p>
-     * If start is zero, this will order one item, to quickly learn the number of items
-     * from the server. When the server response with this item it is transferred to the
-     * caller. The remaining items in the first page are then ordered, and transferred
-     * to the caller when they arrive.
-     * <p>
-     * If start is < 0, it means the caller wants the entire list. They are ordered in
-     * pages, and transferred to the caller as they arrive.
-     * <p>
-     * Otherwise request a page of items starting from start.
-     * <p>
-     * See {@link #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for details.
-     *
-     * @param playerId Id of the current player or null
-     * @param cmd Identifies the type of items
-     * @param start First item to return
-     * @param parameters Item specific parameters for the request
-     * @see #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)
-     */
-    private void internalRequestItems(String playerId, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-        boolean full_list = (start < 0);
-
-        if (full_list) {
-            if (parameters == null)
-                parameters = new ArrayList<String>();
-            parameters.add("full_list:1");
-        }
-
-        internalRequestItems(playerId, cmd, (full_list ? 0 : start), (start == 0 ? 1 : mPageSize), parameters, callback);
     }
 
     @Override
     public void requestItems(String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-        internalRequestItems(null, cmd, start, parameters, callback);
+        internalRequestItems(null, cmd, start, mPageSize, parameters, callback);
     }
 
     @Override
     public void requestItems(String cmd, int start, IServiceItemListCallback callback) {
-        requestItems(cmd, start, null, callback);
+        internalRequestItems(null, cmd, start, mPageSize, null, callback);
     }
 
 
 
     @Override
     public void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback callback) {
-
+        internalRequestItems(null, cmd, start, pageSize, null, callback);
     }
 
     @Override
     public void requestPlayerItems(@Nullable Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-
+        if (player == null) {
+            return;
+        }
+        internalRequestItems(player.getId(), cmd, mPageSize, start, parameters, callback);
     }
 }
