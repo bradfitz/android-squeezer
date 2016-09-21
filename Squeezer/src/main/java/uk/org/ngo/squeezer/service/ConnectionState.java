@@ -158,6 +158,16 @@ public class ConnectionState {
         return dirs == null ? new String[0] : dirs;
     }
 
+    public void setMediaDirs(Object[] dirs) {
+        String[] value = new String[dirs == null ? 0 : dirs.length];
+        if (dirs != null) {
+            for (int i = 0; i < dirs.length; i++) {
+                value[i] = (String) dirs[i];
+            }
+        }
+        mediaDirs.set(value);
+    }
+
     public void setMediaDirs(String dirs) {
         mediaDirs.set(mSemicolonSplitPattern.split(dirs));
     }

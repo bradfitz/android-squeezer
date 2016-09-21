@@ -199,7 +199,7 @@ public class CometClient extends BaseClient {
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mConnectionState.setMediaDirs((String) message.getDataAsMap().get("_p2"));
+                        mConnectionState.setMediaDirs((Object[]) message.getDataAsMap().get("_p2"));
                     }
                 }, "pref", "mediadirs", "?");
 
