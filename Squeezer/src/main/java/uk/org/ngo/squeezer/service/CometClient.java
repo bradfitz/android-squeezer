@@ -23,13 +23,11 @@ import android.util.Log;
 
 import com.google.common.collect.ImmutableMap;
 
-import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
 import org.cometd.client.transport.LongPollingTransport;
-import org.cometd.common.HashMapMessage;
 import org.eclipse.jetty.client.HttpClient;
 
 import java.util.ArrayList;
@@ -40,7 +38,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.BuildConfig;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Album;
@@ -239,49 +236,6 @@ public class CometClient extends BaseClient {
 //                        "version ?"
             }
         });
-    }
-
-    private static class SqueezerBayeuxClient extends BayeuxClient {
-        private Map<Object,String> subscriptionIds;
-
-        public SqueezerBayeuxClient(String url, ClientTransport transport) {
-            super(url, transport);
-            subscriptionIds = new HashMap<>();
-        }
-
-        @Override
-        public void onSending(List<? extends Message> messages) {
-            super.onSending(messages);
-            for (Message message : messages) {
-                String channelName = message.getChannel();
-                if (Channel.META_SUBSCRIBE.equals(channelName)) {
-                    subscriptionIds.put(message.get(Message.SUBSCRIPTION_FIELD), message.getId());
-                }
-                if (BuildConfig.DEBUG) {
-                    if (!Channel.META_CONNECT.equals(channelName)) {
-                        Log.d(TAG, "SEND: " + message.getJSON());
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void onMessages(List<Message.Mutable> messages) {
-            super.onMessages(messages);
-            for (Message message : messages) {
-                String channelName = message.getChannel();
-                if (Channel.META_SUBSCRIBE.equals(channelName)) {
-                    if (message.getId() == null && message instanceof HashMapMessage) {
-                        ((HashMapMessage)message).setId(subscriptionIds.get(message.get(Message.SUBSCRIPTION_FIELD)));
-                    }
-                }
-                if (BuildConfig.DEBUG) {
-                    if (!Channel.META_CONNECT.equals(channelName)) {
-                        Log.d(TAG, "RECV: " + message.getJSON());
-                    }
-                }
-            }
-        }
     }
 
     abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {
