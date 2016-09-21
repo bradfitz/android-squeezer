@@ -82,15 +82,12 @@ public class CometClient extends BaseClient {
     private String mPreferredAlbumSort = "album";
     private String[] mMediaDirs;
 
-    /** Channels */
-    private ClientSessionChannel mRequestChannel;
-
     private Map<String, Player> mPlayers = new HashMap<>();
 
     private final Map<String, ClientSessionChannel.MessageListener> mPendingRequests
             = new ConcurrentHashMap<>();
 
-    private final Map<String, BrowseRequest> mPendingBrowseRequests
+    private final Map<String, BrowseRequest<? extends Item>> mPendingBrowseRequests
             = new ConcurrentHashMap<>();
 
     // All requests are tagged with a correlation id, which can be used when
@@ -156,7 +153,7 @@ public class CometClient extends BaseClient {
                         ClientSessionChannel.MessageListener listener = mPendingRequests.get(message.getChannel());
                         if (listener != null) {
                             listener.onMessage(channel, message);
-                            mPendingRequests.remove(channel);
+                            mPendingRequests.remove(message.getChannel());
                         }
                     }
                 });
@@ -290,7 +287,8 @@ public class CometClient extends BaseClient {
 
     abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {
         protected void parseMessage(String itemLoopName, Message message) {
-            BrowseRequest browseRequest = mPendingBrowseRequests.get(message.getChannel());
+            @SuppressWarnings("unchecked")
+            BrowseRequest<T> browseRequest = (BrowseRequest<T>) mPendingBrowseRequests.get(message.getChannel());
             if (browseRequest == null) {
                 return;
             }
@@ -398,7 +396,7 @@ public class CometClient extends BaseClient {
     // XXX Copied from CliClient.
     private void fetchPlayers() {
         requestItems("players", -1, new IServiceItemListCallback<Player>() {
-            private final HashMap<String, Player> players = new HashMap<String, Player>();
+            private final HashMap<String, Player> players = new HashMap<>();
 
             @Override
             public void onItemsReceived(int count, int start, Map<String, String> parameters,
@@ -476,15 +474,15 @@ public class CometClient extends BaseClient {
         }
     }
 
-    private static class BrowseRequest {
+    private static class BrowseRequest<T extends Item> {
         private final String cmd;
         private final boolean fullList;
         private int start;
         private int itemsPerResponse;
         private final List<String> parameters;
-        private final IServiceItemListCallback callback;
+        private final IServiceItemListCallback<T> callback;
 
-        public BrowseRequest(String cmd, int start, int itemsPerResponse, List<String> parameters, IServiceItemListCallback callback) {
+        public BrowseRequest(String cmd, int start, int itemsPerResponse, List<String> parameters, IServiceItemListCallback<T> callback) {
             this.cmd = cmd;
             this.fullList = (start < 0);
             this.start = (fullList ? 0 : start);
@@ -519,7 +517,7 @@ public class CometClient extends BaseClient {
             return (parameters == null ? Collections.<String>emptyList() : parameters);
         }
 
-        public IServiceItemListCallback getCallback() {
+        public IServiceItemListCallback<T> getCallback() {
             return callback;
         }
     }
@@ -546,18 +544,18 @@ public class CometClient extends BaseClient {
      * @see ItemListener#parseMessage(String, Message)
      */
 
-    private void internalRequestItems(String playerId, String cmd, int start, int pageSize,
-                                      List<String> parameters, final IServiceItemListCallback callback) {
+    private <T extends Item> void internalRequestItems(String playerId, String cmd, int start, int pageSize,
+                                      List<String> parameters, final IServiceItemListCallback<T> callback) {
         if (playerId != null) {
             Log.e(TAG, "Haven't written code for players yet");
             return;
         }
 
-        final BrowseRequest browseRequest = new BrowseRequest(cmd, start, pageSize, parameters, callback);
+        final BrowseRequest<T> browseRequest = new BrowseRequest<>(cmd, start, pageSize, parameters, callback);
         internalRequestItems(browseRequest);
     }
 
-    private void internalRequestItems(final BrowseRequest browseRequest) {
+    private <T extends Item> void internalRequestItems(final BrowseRequest<T> browseRequest) {
         final ItemListener itemListener = mRequestMap.get(browseRequest.getCmd());
 
         final String[] request = new String[browseRequest.getParameters().size() + 3];
