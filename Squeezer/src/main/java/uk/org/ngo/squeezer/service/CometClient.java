@@ -80,7 +80,6 @@ public class CometClient extends BaseClient {
     private String mVersion = "";
 
     private String mPreferredAlbumSort = "album";
-    private String[] mMediaDirs;
 
     private Map<String, Player> mPlayers = new HashMap<>();
 
@@ -199,7 +198,7 @@ public class CometClient extends BaseClient {
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        //mMediaDirs = (String[]) message.getDataAsMap().get("_p2");
+                        mConnectionState.setMediaDirs((String) message.getDataAsMap().get("_p2"));
                     }
                 }, "pref", "mediadirs", "?");
 
@@ -384,7 +383,7 @@ public class CometClient extends BaseClient {
 
     @Override
     public String[] getMediaDirs() {
-        return new String[0];
+        return mConnectionState.getMediaDirs();
     }
 
 
