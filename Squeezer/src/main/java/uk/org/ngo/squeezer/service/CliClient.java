@@ -27,9 +27,17 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
@@ -357,7 +368,18 @@ class CliClient extends BaseClient {
 
     // Call through to mConnectionState implementation for the moment.
     public void disconnect(boolean loginFailed) {
+        currentConnectionGeneration.incrementAndGet();
         mConnectionState.disconnect(mEventBus, loginFailed);
+        Socket socket = socketRef.get();
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+            }
+        }
+        socketRef.set(null);
+        socketWriter.set(null);
+        httpPort.set(null);
         mPlayers.clear();
     }
 
@@ -369,7 +391,7 @@ class CliClient extends BaseClient {
         if (commands.length == 0) {
             return;
         }
-        PrintWriter writer = mConnectionState.getSocketWriter();
+        PrintWriter writer = socketWriter.get();
         if (writer == null) {
             return;
         }
@@ -826,7 +848,7 @@ class CliClient extends BaseClient {
 
     public void startConnect(final SqueezeService service, String hostPort, final String userName,
                              final String password) {
-        mConnectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
+        startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
 
     }
 
@@ -916,7 +938,7 @@ class CliClient extends BaseClient {
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Preference received: " + tokens);
                 if ("httpport".equals(tokens.get(1)) && tokens.size() >= 3) {
-                    mConnectionState.setHttpPort(Integer.parseInt(tokens.get(2)));
+                    httpPort.set(Integer.parseInt(tokens.get(2)));
                 }
                 if ("jivealbumsort".equals(tokens.get(1)) && tokens.size() >= 3) {
                     mConnectionState.setPreferedAlbumSort(tokens.get(2));
@@ -972,7 +994,7 @@ class CliClient extends BaseClient {
             /**
              * Seeing the <code>version</code> result indicates that the
              * handshake has completed (see
-             * {@link SqueezeService#onCliPortConnectionEstablished(String, String)}),
+             * {@link ConnectionState#onCliPortConnectionEstablished(EventBus, IClient, String, String)}),
              * post a {@link HandshakeComplete} event.
              */
             @Override
@@ -1404,7 +1426,7 @@ class CliClient extends BaseClient {
      * Note: Authentication may not actually have completed at this point. The server has
      * responded to the "login" request, but if the username/password pair was incorrect it
      * has (probably) not yet disconnected the socket. See
-     * {@link uk.org.ngo.squeezer.service.ConnectionState.ListeningThread#run()} for the code
+     * {@link ListeningThread#run()} for the code
      * that determines whether authentication succeeded.
      */
     private void onAuthenticated() {
@@ -1463,12 +1485,12 @@ class CliClient extends BaseClient {
         });
     }
 
-    int getHttpPort() {
-        return mConnectionState.getHttpPort();
+    private int getHttpPort() {
+        return httpPort.get();
     }
 
-    String getCurrentHost() {
-        return mConnectionState.getCurrentHost();
+    private String getCurrentHost() {
+        return currentHost.get();
     }
 
     public String[] getMediaDirs() {
@@ -1477,6 +1499,168 @@ class CliClient extends BaseClient {
 
     public String getPreferredAlbumSort() {
         return mConnectionState.getPreferredAlbumSort();
+    }
+
+
+
+    // Incremented once per new connection and given to the Thread
+    // that's listening on the socket.  So if it dies and it's not the
+    // most recent version, then it's expected.  Else it should notify
+    // the server of the disconnection.
+    private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
+
+    private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
+
+    private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
+
+    // Where we connected (or are connecting) to:
+    private final AtomicReference<String> currentHost = new AtomicReference<String>();
+
+    private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
+
+    private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
+
+    private final AtomicReference<String> userName = new AtomicReference<String>();
+
+    private final AtomicReference<String> password = new AtomicReference<String>();
+
+    void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, IClient cli) {
+        Thread listeningThread = new ListeningThread(eventBus, executor, cli, socketRef.get(),
+                currentConnectionGeneration.incrementAndGet());
+        listeningThread.start();
+    }
+
+    private class ListeningThread extends Thread {
+
+        @NonNull private final EventBus mEventBus;
+
+        @NonNull private final Executor mExecutor;
+
+        private final Socket socket;
+
+        private final IClient client;
+
+        private final int generationNumber;
+
+        private ListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, IClient client, Socket socket, int generationNumber) {
+            mEventBus = eventBus;
+            mExecutor = executor;
+            this.client = client;
+            this.socket = socket;
+            this.generationNumber = generationNumber;
+        }
+
+        @Override
+        public void run() {
+            Log.d(TAG, "Listening thread started");
+
+            BufferedReader in;
+            try {
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            } catch (IOException e) {
+                Log.v(TAG, "IOException while creating BufferedReader: " + e);
+                client.disconnect(false);
+                return;
+            }
+            IOException exception = null;
+            while (true) {
+                String line;
+                try {
+                    line = in.readLine();
+                } catch (IOException e) {
+                    line = null;
+                    exception = e;
+                }
+                if (line == null) {
+                    // Socket disconnected.  This is expected
+                    // if we're not the main connection generation anymore,
+                    // else we should notify about it.
+                    if (currentConnectionGeneration.get() == generationNumber) {
+                        Log.v(TAG, "Server disconnected; exception=" + exception);
+                        client.disconnect(exception == null);
+                    } else {
+                        // Who cares.
+                        Log.v(TAG, "Old generation connection disconnected, as expected.");
+                    }
+                    return;
+                }
+                final String inputLine = line;
+
+                // If a login attempt was in progress and this is a line that does not start
+                // with "login " then the login must have been successful (otherwise the
+                // server would have disconnected), so update the connection state accordingly.
+                if (mConnectionState.isLoginStarted() && !inputLine.startsWith("login ")) {
+                    mConnectionState.setConnectionState(mEventBus, ConnectionState.LOGIN_COMPLETED);
+                }
+                mExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        client.onLineReceived(inputLine);
+                    }
+                });
+            }
+        }
+    }
+
+    private void startConnect(final SqueezeService service, @NonNull final EventBus eventBus,
+                      @NonNull final Executor executor,
+                      final IClient client, String hostPort, final String userName,
+                      final String password) {
+        Log.v(TAG, "startConnect");
+        // Common mistakes, based on crash reports...
+        if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
+            hostPort = hostPort.substring(7);
+        }
+
+        // Ending in whitespace?  From LatinIME, probably?
+        while (hostPort.endsWith(" ")) {
+            hostPort = hostPort.substring(0, hostPort.length() - 1);
+        }
+
+        final int port = Util.parsePort(hostPort);
+        final String host = Util.parseHost(hostPort);
+        final String cleanHostPort = host + ":" + port;
+
+        currentHost.set(host);
+        cliPort.set(port);
+        httpPort.set(null);  // not known until later, after connect.
+        this.userName.set(userName);
+        this.password.set(password);
+
+        // Start the off-thread connect.
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Ensuring service is disconnected");
+                service.disconnect();
+                Socket socket = new Socket();
+                try {
+                    Log.d(TAG, "Connecting to: " + cleanHostPort);
+                    mConnectionState.setConnectionState(eventBus, ConnectionState.CONNECTION_STARTED);
+                    socket.connect(new InetSocketAddress(host, port),
+                            4000 /* ms timeout */);
+                    socketRef.set(socket);
+                    Log.d(TAG, "Connected to: " + cleanHostPort);
+                    socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
+                    mConnectionState.setConnectionState(eventBus, ConnectionState.CONNECTION_COMPLETED);
+                    startListeningThread(eventBus, executor, client);
+                    mConnectionState.onCliPortConnectionEstablished(eventBus, client, userName, password);
+                    Authenticator.setDefault(new Authenticator() {
+                        @Override
+                        public PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(userName, password.toCharArray());
+                        }
+                    });
+                } catch (SocketTimeoutException e) {
+                    Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
+                    mConnectionState.setConnectionState(eventBus, ConnectionState.CONNECTION_FAILED);
+                } catch (IOException e) {
+                    Log.e(TAG, "IOException connecting to: " + cleanHostPort);
+                    mConnectionState.setConnectionState(eventBus, ConnectionState.CONNECTION_FAILED);
+                }
+            }
+
+        });
     }
 
 }

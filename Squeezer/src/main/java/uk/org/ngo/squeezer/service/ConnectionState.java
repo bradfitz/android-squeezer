@@ -20,20 +20,9 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
@@ -47,12 +36,6 @@ public class ConnectionState {
 
     /** {@link java.util.regex.Pattern} that splits strings on semi-colons. */
     private static final Pattern mSemicolonSplitPattern = Pattern.compile(";");
-
-    // Incremented once per new connection and given to the Thread
-    // that's listening on the socket.  So if it dies and it's not the
-    // most recent version, then it's expected.  Else it should notify
-    // the server of the disconnection.
-    private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
 
     // Connection state machine
     @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED,
@@ -87,46 +70,19 @@ public class ConnectionState {
 
     private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
 
-    private final AtomicReference<String> serverVersion = new AtomicReference<String>();
+    private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
-    private final AtomicReference<String> preferredAlbumSort = new AtomicReference<String>("album");
+    private final AtomicReference<String> preferredAlbumSort = new AtomicReference<>("album");
 
-    private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
-
-    private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
-
-    // Where we connected (or are connecting) to:
-    private final AtomicReference<String> currentHost = new AtomicReference<String>();
-
-    private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
-
-    private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
-
-    private final AtomicReference<String> userName = new AtomicReference<String>();
-
-    private final AtomicReference<String> password = new AtomicReference<String>();
-
-    private final AtomicReference<String[]> mediaDirs = new AtomicReference<String[]>();
+    private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
 
     void disconnect(EventBus eventBus, boolean loginFailed) {
         Log.v(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
-        currentConnectionGeneration.incrementAndGet();
-        Socket socket = socketRef.get();
-        if (socket != null) {
-            try {
-                socket.close();
-            } catch (IOException e) {
-            }
-        }
-        socketRef.set(null);
-        socketWriter.set(null);
-
         if (loginFailed) {
             setConnectionState(eventBus, LOGIN_FAILED);
         } else {
             setConnectionState(eventBus, DISCONNECTED);
         }
-        httpPort.set(null);
         mediaDirs.set(null);
     }
 
@@ -142,15 +98,6 @@ public class ConnectionState {
         Log.d(TAG, "Setting connection state to: " + connectionState);
         mConnectionState = connectionState;
         eventBus.postSticky(new ConnectionChanged(mConnectionState));
-    }
-
-    PrintWriter getSocketWriter() {
-        return socketWriter.get();
-    }
-
-    void setHttpPort(Integer port) {
-        httpPort.set(port);
-        Log.v(TAG, "HTTP port is now: " + port);
     }
 
     public String[] getMediaDirs() {
@@ -243,143 +190,8 @@ public class ConnectionState {
         return mConnectionState == CONNECTION_STARTED;
     }
 
-    void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, IClient cli) {
-        Thread listeningThread = new ListeningThread(eventBus, executor, cli, socketRef.get(),
-                currentConnectionGeneration.incrementAndGet());
-        listeningThread.start();
-    }
-
-    private class ListeningThread extends Thread {
-
-        @NonNull private final EventBus mEventBus;
-
-        @NonNull private final Executor mExecutor;
-
-        private final Socket socket;
-
-        private final IClient client;
-
-        private final int generationNumber;
-
-        private ListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, IClient client, Socket socket, int generationNumber) {
-            mEventBus = eventBus;
-            mExecutor = executor;
-            this.client = client;
-            this.socket = socket;
-            this.generationNumber = generationNumber;
-        }
-
-        @Override
-        public void run() {
-            Log.d(TAG, "Listening thread started");
-
-            BufferedReader in;
-            try {
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            } catch (IOException e) {
-                Log.v(TAG, "IOException while creating BufferedReader: " + e);
-                client.disconnect(false);
-                return;
-            }
-            IOException exception = null;
-            while (true) {
-                String line;
-                try {
-                    line = in.readLine();
-                } catch (IOException e) {
-                    line = null;
-                    exception = e;
-                }
-                if (line == null) {
-                    // Socket disconnected.  This is expected
-                    // if we're not the main connection generation anymore,
-                    // else we should notify about it.
-                    if (currentConnectionGeneration.get() == generationNumber) {
-                        Log.v(TAG, "Server disconnected; exception=" + exception);
-                        client.disconnect(exception == null);
-                    } else {
-                        // Who cares.
-                        Log.v(TAG, "Old generation connection disconnected, as expected.");
-                    }
-                    return;
-                }
-                final String inputLine = line;
-
-                // If a login attempt was in progress and this is a line that does not start
-                // with "login " then the login must have been successful (otherwise the
-                // server would have disconnected), so update the connection state accordingly.
-                if (mConnectionState == LOGIN_STARTED && !inputLine.startsWith("login ")) {
-                    setConnectionState(mEventBus, LOGIN_COMPLETED);
-                }
-                mExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        client.onLineReceived(inputLine);
-                    }
-                });
-            }
-        }
-    }
-
-    void startConnect(final SqueezeService service, @NonNull final EventBus eventBus,
-                      @NonNull final Executor executor,
-                      final IClient client, String hostPort, final String userName,
-                      final String password) {
-        Log.v(TAG, "startConnect");
-        // Common mistakes, based on crash reports...
-        if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
-            hostPort = hostPort.substring(7);
-        }
-
-        // Ending in whitespace?  From LatinIME, probably?
-        while (hostPort.endsWith(" ")) {
-            hostPort = hostPort.substring(0, hostPort.length() - 1);
-        }
-
-        final int port = Util.parsePort(hostPort);
-        final String host = Util.parseHost(hostPort);
-        final String cleanHostPort = host + ":" + port;
-
-        currentHost.set(host);
-        cliPort.set(port);
-        httpPort.set(null);  // not known until later, after connect.
-        this.userName.set(userName);
-        this.password.set(password);
-
-        // Start the off-thread connect.
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Ensuring service is disconnected");
-                service.disconnect();
-                Socket socket = new Socket();
-                try {
-                    Log.d(TAG, "Connecting to: " + cleanHostPort);
-                    setConnectionState(eventBus, CONNECTION_STARTED);
-                    socket.connect(new InetSocketAddress(host, port),
-                            4000 /* ms timeout */);
-                    socketRef.set(socket);
-                    Log.d(TAG, "Connected to: " + cleanHostPort);
-                    socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
-                    setConnectionState(eventBus, CONNECTION_COMPLETED);
-                    startListeningThread(eventBus, executor, client);
-                    onCliPortConnectionEstablished(eventBus, client, userName, password);
-                    Authenticator.setDefault(new Authenticator() {
-                        @Override
-                        public PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication(userName, password.toCharArray());
-                        }
-                    });
-                } catch (SocketTimeoutException e) {
-                    Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
-                    setConnectionState(eventBus, CONNECTION_FAILED);
-                } catch (IOException e) {
-                    Log.e(TAG, "IOException connecting to: " + cleanHostPort);
-                    setConnectionState(eventBus, CONNECTION_FAILED);
-                }
-            }
-
-        });
+    boolean isLoginStarted() {
+        return mConnectionState == LOGIN_STARTED;
     }
 
     /**
@@ -402,23 +214,6 @@ public class ConnectionState {
     void onCliPortConnectionEstablished(final EventBus eventBus, final IClient cli, final String userName, final String password) {
         setConnectionState(eventBus, ConnectionState.LOGIN_STARTED);
         cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
-    }
-
-
-    Integer getHttpPort() {
-        return httpPort.get();
-    }
-
-    String getUserName() {
-        return userName.get();
-    }
-
-    String getPassword() {
-        return password.get();
-    }
-
-    String getCurrentHost() {
-        return currentHost.get();
     }
 
 }
