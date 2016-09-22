@@ -71,15 +71,6 @@ public class CometClient extends BaseClient {
     /** The format string for the channel to listen to for responses to playerstatus requests. */
     private static final String CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT = "/%s/slim/playerstatus/%s";
 
-    /** Server capabilities */
-    private boolean mCanMusicfolder = false;
-    private boolean mCanRandomplay = false;
-    private boolean mCanFavorites = false;
-    private boolean mCanApps = false;
-    private String mVersion = "";
-
-    private String mPreferredAlbumSort = "album";
-
     private Map<String, Player> mPlayers = new HashMap<>();
 
     private final Map<String, ClientSessionChannel.MessageListener> mPendingRequests
@@ -171,28 +162,28 @@ public class CometClient extends BaseClient {
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mCanMusicfolder = "1".equals(message.getDataAsMap().get("_can"));
+                        mConnectionState.setCanMusicfolder("1".equals(message.getDataAsMap().get("_can")));
                     }
                 }, "can", "musicfolder", "?");
 
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mCanRandomplay = "1".equals(message.getDataAsMap().get("_can"));
+                        mConnectionState.setCanRandomplay("1".equals(message.getDataAsMap().get("_can")));
                     }
                 }, "can", "randomplay", "?");
 
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mCanFavorites = "1".equals(message.getDataAsMap().get("_can"));
+                        mConnectionState.setCanFavorites("1".equals(message.getDataAsMap().get("_can")));
                     }
                 }, "can", "favorites", "items", "?");
 
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mCanApps = "1".equals(message.getDataAsMap().get("_can"));
+                        mConnectionState.setCanMyApps("1".equals(message.getDataAsMap().get("_can")));
                     }
                 }, "can", "myapps", "items", "?");
 
@@ -206,7 +197,7 @@ public class CometClient extends BaseClient {
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mPreferredAlbumSort = (String) message.getDataAsMap().get("_p2");
+                        mConnectionState.setPreferedAlbumSort((String) message.getDataAsMap().get("_p2"));
                     }
                 }, "pref", "jivealbumsort", "?");
 
@@ -214,11 +205,11 @@ public class CometClient extends BaseClient {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         //XXX implement wait for all replies and run the state machine accordingly
-                        mVersion = (String) message.getDataAsMap().get("_version");
+                        mConnectionState.setServerVersion((String) message.getDataAsMap().get("_version"));
                         mEventBus.postSticky(new HandshakeComplete(
-                                mCanFavorites, mCanMusicfolder,
-                                mCanApps, mCanRandomplay,
-                                mVersion));
+                                mConnectionState.canFavorites(), mConnectionState.canMusicfolder(),
+                                mConnectionState.canMyApps(), mConnectionState.canRandomplay(),
+                                mConnectionState.getServerVersion()));
                     }
                 }, "version", "?");
 
@@ -405,7 +396,7 @@ public class CometClient extends BaseClient {
 
     @Override
     public String getPreferredAlbumSort() {
-        return mPreferredAlbumSort;
+        return mConnectionState.getPreferredAlbumSort();
     }
 
     @Override
