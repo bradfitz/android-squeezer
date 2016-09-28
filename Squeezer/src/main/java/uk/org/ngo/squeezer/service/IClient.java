@@ -44,7 +44,7 @@ interface IClient {
      * <b>All</b> data to the server goes through this method
      * <p>
      * <b>Note</b> don't call this from the main (UI) thread. If you are unsure if you are on the
-     * main thread, then use {@link #sendCommand(String...)} instead.
+     * main thread, then use {@link #sendCommand(String)} instead.
      *
      * @param commands List of commands to send
      */
@@ -52,15 +52,15 @@ interface IClient {
     void sendCommandImmediately(String... commands);
 
     /**
-     * Send the supplied commands to the SqueezeboxServer.
+     * Send the supplied command to the SqueezeboxServer.
      * <p>
      * This method takes care to avoid performing network operations on the main thread. Use {@link
      * #sendCommandImmediately(String...)} if you are sure you are not on the main thread (eg if
      * called from the listening thread).
      *
-     * @param commands List of commands to send
+     * @param command Command to send
      */
-    void sendCommand(final String... commands);
+    void sendCommand(final String command);
 
     /**
      * Send the specified command for the specified player to the SqueezeboxServer

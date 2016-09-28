@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 public class ConnectionState {
@@ -192,28 +191,6 @@ public class ConnectionState {
 
     boolean isLoginStarted() {
         return mConnectionState == LOGIN_STARTED;
-    }
-
-    /**
-     * Authenticate on the SqueezeServer.
-     * <p>
-     * The server does
-     * <pre>
-     * login user wrongpassword
-     * login user ******
-     * (Connection terminated)
-     * </pre>
-     * instead of as documented
-     * <pre>
-     * login user wrongpassword
-     * (Connection terminated)
-     * </pre>
-     * therefore a disconnect when handshake (the next step after authentication) is not completed,
-     * is considered an authentication failure.
-     */
-    void onCliPortConnectionEstablished(final EventBus eventBus, final IClient cli, final String userName, final String password) {
-        setConnectionState(eventBus, ConnectionState.LOGIN_STARTED);
-        cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
     }
 
 }

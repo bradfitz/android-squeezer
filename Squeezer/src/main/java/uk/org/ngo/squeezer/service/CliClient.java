@@ -387,6 +387,7 @@ class CliClient extends BaseClient {
     // asynchronous responses are received.
     private int mCorrelationId = 0;
 
+    @Override
     public synchronized void sendCommandImmediately(String... commands) {
         if (commands.length == 0) {
             return;
@@ -410,14 +411,15 @@ class CliClient extends BaseClient {
         writer.flush();
     }
 
-    public void sendCommand(final String... commands) {
+    @Override
+    public void sendCommand(final String command) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            sendCommandImmediately(commands);
+            sendCommandImmediately(command);
         } else {
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    sendCommandImmediately(commands);
+                    sendCommandImmediately(command);
                 }
             });
         }
@@ -848,7 +850,7 @@ class CliClient extends BaseClient {
 
     public void startConnect(final SqueezeService service, String hostPort, final String userName,
                              final String password) {
-        startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
+        startConnect(service, mEventBus, mExecutor, hostPort, userName, password);
 
     }
 
@@ -994,7 +996,7 @@ class CliClient extends BaseClient {
             /**
              * Seeing the <code>version</code> result indicates that the
              * handshake has completed (see
-             * {@link ConnectionState#onCliPortConnectionEstablished(EventBus, IClient, String, String)}),
+             * {@link CliClient#onCliPortConnectionEstablished(EventBus, String, String)}),
              * post a {@link HandshakeComplete} event.
              */
             @Override
@@ -1376,7 +1378,7 @@ class CliClient extends BaseClient {
         Log.v(TAG, "Playlist notification received: " + tokens);
         String notification = tokens.get(2);
         if ("newsong".equals(notification)) {
-            sendCommand(tokens.get(0), "status - 1 tags:" + SqueezeService.SONGTAGS);
+            sendCommand(tokens.get(0) + " status - 1 tags:" + SqueezeService.SONGTAGS);
         } else if ("addtracks".equals(notification)) {
             mEventBus.postSticky(new PlaylistTracksAdded());
         } else if ("delete".equals(notification)) {
@@ -1524,8 +1526,8 @@ class CliClient extends BaseClient {
 
     private final AtomicReference<String> password = new AtomicReference<String>();
 
-    void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, IClient cli) {
-        Thread listeningThread = new ListeningThread(eventBus, executor, cli, socketRef.get(),
+    void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor) {
+        Thread listeningThread = new ListeningThread(eventBus, executor, this, socketRef.get(),
                 currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
     }
@@ -1604,7 +1606,7 @@ class CliClient extends BaseClient {
 
     private void startConnect(final SqueezeService service, @NonNull final EventBus eventBus,
                       @NonNull final Executor executor,
-                      final IClient client, String hostPort, final String userName,
+                      String hostPort, final String userName,
                       final String password) {
         Log.v(TAG, "startConnect");
         // Common mistakes, based on crash reports...
@@ -1643,8 +1645,8 @@ class CliClient extends BaseClient {
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                     mConnectionState.setConnectionState(eventBus, ConnectionState.CONNECTION_COMPLETED);
-                    startListeningThread(eventBus, executor, client);
-                    mConnectionState.onCliPortConnectionEstablished(eventBus, client, userName, password);
+                    startListeningThread(eventBus, executor);
+                    onCliPortConnectionEstablished(eventBus, userName, password);
                     Authenticator.setDefault(new Authenticator() {
                         @Override
                         public PasswordAuthentication getPasswordAuthentication() {
@@ -1661,6 +1663,28 @@ class CliClient extends BaseClient {
             }
 
         });
+    }
+
+    /**
+     * Authenticate on the SqueezeServer.
+     * <p>
+     * The server does
+     * <pre>
+     * login user wrongpassword
+     * login user ******
+     * (Connection terminated)
+     * </pre>
+     * instead of as documented
+     * <pre>
+     * login user wrongpassword
+     * (Connection terminated)
+     * </pre>
+     * therefore a disconnect when handshake (the next step after authentication) is not completed,
+     * is considered an authentication failure.
+     */
+    private void onCliPortConnectionEstablished(final EventBus eventBus, final String userName, final String password) {
+        mConnectionState.setConnectionState(eventBus, ConnectionState.LOGIN_STARTED);
+        sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
     }
 
 }

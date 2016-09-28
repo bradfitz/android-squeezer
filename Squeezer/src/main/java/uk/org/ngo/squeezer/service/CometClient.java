@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.framework.Item;
@@ -56,11 +57,14 @@ public class CometClient extends BaseClient {
     @Nullable
     private BayeuxClient mBayeuxClient;
 
+    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
+    private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
+
     /** The channel to publish one-shot requests to. */
     private static final String CHANNEL_SLIM_REQUEST = "/slim/request";
 
     /** Map from a command ("players") to the listener class for responses. */
-    private  final Map<String, ItemListener> mRequestMap;
+    private  final Map<String, SlimCommand> mCommandMap;
 
     /** The format string for the channel to listen to for responses to one-shot requests. */
     private static final String CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT = "/%s/slim/request/%s";
@@ -86,13 +90,17 @@ public class CometClient extends BaseClient {
     CometClient(@NonNull EventBus eventBus) {
         super(eventBus);
 
-        mRequestMap = ImmutableMap.<String, ItemListener>builder()
-                .put("players", new PlayersListener())
-                .put("artists", new ArtistsListener())
-                .put("albums", new AlbumsListener())
-                .put("songs", new SongsListener())
-                .put("genres", new GenresListener())
-                .put("years", new YearsListener())
+        mCommandMap = ImmutableMap.<String, SlimCommand>builder()
+                .put("players", new SlimCommand(new PlayersListener()))
+                .put("artists", new SlimCommand(new ArtistsListener()))
+                .put("albums", new SlimCommand(new AlbumsListener()))
+                .put("songs", new SlimCommand(new SongsListener()))
+                .put("genres", new SlimCommand(new GenresListener()))
+                .put("years", new SlimCommand(new YearsListener()))
+
+                //XXX status is both request and subscribe
+                .put("status", new SlimCommand(CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT))
+
                 .build();
     }
 
@@ -146,6 +154,14 @@ public class CometClient extends BaseClient {
                             listener.onMessage(channel, message);
                             mPendingRequests.remove(message.getChannel());
                         }
+                    }
+                });
+
+                mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
+                    @Override
+                    public void onMessage(ClientSessionChannel channel, Message message) {
+                        //TODO implement
+                        Log.d(TAG, "StatusListener#onMessage: " + message);
                     }
                 });
 
@@ -335,13 +351,16 @@ public class CometClient extends BaseClient {
     }
 
     @Override
-    public void sendCommand(String... commands) {
-
+    public void sendCommand(String command) {
+        sendPlayerCommand(null, command);
     }
 
     @Override
     public void sendPlayerCommand(Player player, String command) {
-
+        String[] tokens = mSpaceSplitPattern.split(command);
+        String cmd = tokens[0];
+        SlimCommand slimCommand = mCommandMap.get(cmd);
+        sendCometMessage(player, slimCommand, tokens);
     }
 
     @Override
@@ -404,35 +423,30 @@ public class CometClient extends BaseClient {
 
     }
 
-    // Should probably have a pool of these.
-    private static class Request {
-        String[] cmd;
+    private static class SlimCommand {
+        private final String responseChannel;
+        private final ClientSessionChannel.MessageListener listener;
 
-        Request(String... cmd) {
-            this.cmd = cmd;
+        public SlimCommand(ClientSessionChannel.MessageListener listener) {
+            this.responseChannel = null;
+            this.listener = listener;
         }
 
-//        Request(String player, String cmd, List<String> parameters) {
-//            if (player != null) {
-//                this.player = player;
-//            }
-//            this.cmd = new String[parameters.size() + 1];
-//            this.cmd[0] = cmd;
-//            for (int i = 1; i <= parameters.size(); i++) {
-//                this.cmd[i] = parameters.get(i - 1);
-//            }
-//        }
+        public SlimCommand(String responseChannel) {
+            this.responseChannel = responseChannel;
+            this.listener = null;
+        }
 
-        Map<String, Object> getData(String chnResponse) {
-            Map<String, Object> data = new HashMap<>();
+        public String getResponseChannel() {
+            return responseChannel;
+        }
 
-            List<Object> request = new ArrayList<>();
-            request.add("");
-            request.add(cmd);
+        public ClientSessionChannel.MessageListener getListener() {
+            return listener;
+        }
 
-            data.put("request", request);
-            data.put("response", chnResponse);
-            return data;
+        public boolean isSubscribe() {
+            return (responseChannel != null);
         }
     }
 
@@ -487,8 +501,37 @@ public class CometClient extends BaseClient {
     private String request(ClientSessionChannel.MessageListener callback, String... cmd) {
         String responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
         mPendingRequests.put(responseChannel, callback);
-        mBayeuxClient.getChannel(CHANNEL_SLIM_REQUEST).publish(new Request(cmd).getData(responseChannel));
+        sendCometMessage(null, CHANNEL_SLIM_REQUEST, responseChannel, cmd);
+
         return responseChannel;
+    }
+
+    private String sendCometMessage(final Player player, SlimCommand slimCommand, String... cmd) {
+        String channel;
+        String responseChannel;
+        if (slimCommand.isSubscribe()) {
+            channel = CHANNEL_SLIM_SUBSCRIBE;
+            responseChannel = String.format(slimCommand.getResponseChannel(), mBayeuxClient.getId(), player.getId());
+        } else {
+            channel = CHANNEL_SLIM_REQUEST;
+            responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);;
+            mPendingRequests.put(responseChannel, slimCommand.getListener());
+        }
+        sendCometMessage(player, channel, responseChannel, cmd);
+        return responseChannel;
+    }
+
+    private void sendCometMessage(final Player player, String channel, final String responseChannel, String... cmd) {
+        List<Object> request = new ArrayList<>();
+        request.add(player == null ? "" : player.getId());
+        request.add(cmd);
+
+        Map<String, Object> data1 = new HashMap<>();
+        data1.put("request", request);
+        data1.put("response", responseChannel);
+        Map<String, Object> data = data1;
+
+        mBayeuxClient.getChannel(channel).publish(data);
     }
 
     /**
@@ -518,7 +561,7 @@ public class CometClient extends BaseClient {
     }
 
     private <T extends Item> void internalRequestItems(final BrowseRequest<T> browseRequest) {
-        final ItemListener itemListener = mRequestMap.get(browseRequest.getCmd());
+        final SlimCommand command = mCommandMap.get(browseRequest.getCmd());
 
         final String[] request = new String[browseRequest.getParameters().size() + 3];
         request[0] = browseRequest.getCmd();
@@ -529,12 +572,12 @@ public class CometClient extends BaseClient {
         }
 
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mPendingBrowseRequests.put(request(itemListener, request), browseRequest);
+            mPendingBrowseRequests.put(sendCometMessage(null, command, request), browseRequest);
         } else {
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    mPendingBrowseRequests.put(request(itemListener, request), browseRequest);
+                    mPendingBrowseRequests.put(sendCometMessage(null, command, request), browseRequest);
                 }
             });
         }
