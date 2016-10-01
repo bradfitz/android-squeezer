@@ -36,4 +36,13 @@ public class PlayerPrefReceived {
         this.pref = pref;
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "PlayerPrefReceived{" +
+                "player=" + player +
+                ", pref='" + pref + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

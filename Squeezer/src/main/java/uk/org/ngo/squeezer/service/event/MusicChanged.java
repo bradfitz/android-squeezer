@@ -34,4 +34,12 @@ public class MusicChanged {
         this.player = player;
         this.playerState = playerState;
     }
+
+    @Override
+    public String toString() {
+        return "MusicChanged{" +
+                "player=" + player +
+                ", playerState=" + playerState +
+                '}';
+    }
 }

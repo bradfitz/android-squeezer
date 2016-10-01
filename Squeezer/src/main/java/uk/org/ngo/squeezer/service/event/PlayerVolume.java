@@ -33,4 +33,12 @@ public class PlayerVolume {
         this.volume = volume;
         this.player = player;
     }
+
+    @Override
+    public String toString() {
+        return "PlayerVolume{" +
+                "volume=" + volume +
+                ", player=" + player +
+                '}';
+    }
 }

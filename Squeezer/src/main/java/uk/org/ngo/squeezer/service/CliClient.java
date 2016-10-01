@@ -632,7 +632,6 @@ class CliClient extends BaseClient {
             }
             String key = Util.decode(token.substring(0, colonPos));
             String value = Util.decode(token.substring(colonPos + 3));
-            Log.v(TAG, "key=" + key + ", value: " + value);
 
             if ("rescan".equals(key)) {
                 rescan = (Util.parseDecimalIntOrZero(value) == 1);

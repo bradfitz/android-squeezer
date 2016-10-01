@@ -38,4 +38,13 @@ public class RepeatStatusChanged {
         this.initial = initial;
         this.repeatStatus = repeatStatus;
     }
+
+    @Override
+    public String toString() {
+        return "RepeatStatusChanged{" +
+                "player=" + player +
+                ", initial=" + initial +
+                ", repeatStatus=" + repeatStatus +
+                '}';
+    }
 }

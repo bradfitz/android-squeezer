@@ -38,4 +38,13 @@ public class ShuffleStatusChanged {
         this.initial = initial;
         this.shuffleStatus = shuffleStatus;
     }
+
+    @Override
+    public String toString() {
+        return "ShuffleStatusChanged{" +
+                "player=" + player +
+                ", initial=" + initial +
+                ", shuffleStatus=" + shuffleStatus +
+                '}';
+    }
 }

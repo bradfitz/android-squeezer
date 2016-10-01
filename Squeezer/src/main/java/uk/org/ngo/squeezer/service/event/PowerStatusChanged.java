@@ -36,4 +36,13 @@ public class PowerStatusChanged {
         this.canPowerOn = canPowerOn;
         this.canPowerOff = canPowerOff;
     }
+
+    @Override
+    public String toString() {
+        return "PowerStatusChanged{" +
+                "player=" + player +
+                ", canPowerOn=" + canPowerOn +
+                ", canPowerOff=" + canPowerOff +
+                '}';
+    }
 }

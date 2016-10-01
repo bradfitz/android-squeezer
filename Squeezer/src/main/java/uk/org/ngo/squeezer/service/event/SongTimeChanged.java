@@ -37,4 +37,13 @@ public class SongTimeChanged {
         this.currentPosition = currentPosition;
         this.duration = duration;
     }
+
+    @Override
+    public String toString() {
+        return "SongTimeChanged{" +
+                "player=" + player +
+                ", currentPosition=" + currentPosition +
+                ", duration=" + duration +
+                '}';
+    }
 }

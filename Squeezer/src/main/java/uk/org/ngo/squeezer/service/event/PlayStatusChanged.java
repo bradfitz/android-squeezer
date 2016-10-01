@@ -36,4 +36,12 @@ public class PlayStatusChanged {
         this.playStatus = playStatus;
         this.player = player;
     }
+
+    @Override
+    public String toString() {
+        return "PlayStatusChanged{" +
+                "playStatus='" + playStatus + '\'' +
+                ", player=" + player +
+                '}';
+    }
 }

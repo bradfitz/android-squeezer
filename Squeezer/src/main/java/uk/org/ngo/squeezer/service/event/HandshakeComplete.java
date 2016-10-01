@@ -43,4 +43,15 @@ public class HandshakeComplete {
         this.canRandomPlay = canRandomPlay;
         this.version = version;
     }
+
+    @Override
+    public String toString() {
+        return "HandshakeComplete{" +
+                "canFavourites=" + canFavourites +
+                ", canMusicFolders=" + canMusicFolders +
+                ", canMyApps=" + canMyApps +
+                ", canRandomPlay=" + canRandomPlay +
+                ", version='" + version + '\'' +
+                '}';
+    }
 }

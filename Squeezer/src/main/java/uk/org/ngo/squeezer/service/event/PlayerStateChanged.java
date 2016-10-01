@@ -34,4 +34,12 @@ public class PlayerStateChanged {
         this.player = player;
         this.playerState = playerState;
     }
+
+    @Override
+    public String toString() {
+        return "PlayerStateChanged{" +
+                "player=" + player +
+                ", playerState=" + playerState +
+                '}';
+    }
 }
