@@ -27,7 +27,7 @@ import uk.org.ngo.squeezer.model.Player;
 /**
  * Interface implemented by all network clients of the server.
  */
-interface IClient {
+interface SlimClient {
 
     void initialize();  // XXX Call this onCreate()?
 

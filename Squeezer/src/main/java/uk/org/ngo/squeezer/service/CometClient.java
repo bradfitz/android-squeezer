@@ -36,9 +36,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Album;
@@ -53,12 +55,22 @@ import uk.org.ngo.squeezer.service.event.PlayersChanged;
 public class CometClient extends BaseClient {
     private static final String TAG = CometClient.class.getSimpleName();
 
+    // Where we connected (or are connecting) to:
+    private final AtomicReference<String> currentHost = new AtomicReference<>();
+    private final AtomicReference<Integer> httpPort = new AtomicReference<>();
+
     /** Client to the comet server. */
     @Nullable
     private BayeuxClient mBayeuxClient;
 
+    /** {@link java.util.regex.Pattern} that splits strings on colon. */
+    private static final Pattern mColonSplitPattern = Pattern.compile(":");
+
     /** {@link java.util.regex.Pattern} that splits strings on spaces. */
     private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
+
+    /** {@link java.util.regex.Pattern} that splits strings on forward slash. */
+    private static final Pattern mSlashSplitPattern = Pattern.compile("/");
 
     /** The channel to publish one-shot requests to. */
     private static final String CHANNEL_SLIM_REQUEST = "/slim/request";
@@ -124,7 +136,11 @@ public class CometClient extends BaseClient {
         // distinguish between CLI and Comet.
         // XXX: Also need to deal with usernames and passwords, and HTTPS
         //String url = String.format("http://%s/cometd", hostPort);
-        String url = "http://192.168.0.13:9001/cometd";
+        final String host = Util.parseHost(hostPort);
+        currentHost.set(host);
+        httpPort.set(9001);  // hardcoded for now.
+        mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
+        String url = mUrlPrefix + "/cometd";
 
         Map<String, Object> options = new HashMap<>();
         ClientTransport transport = new LongPollingTransport(options, httpClient);
@@ -160,8 +176,7 @@ public class CometClient extends BaseClient {
                 mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        //TODO implement
-                        Log.d(TAG, "StatusListener#onMessage: " + message);
+                        parseStatus(message);
                     }
                 });
 
@@ -247,6 +262,35 @@ public class CometClient extends BaseClient {
 //                        "version ?"
             }
         });
+    }
+
+    private void parseStatus(Message message) {
+        String[] channelParts = mSlashSplitPattern.split(message.getChannel());
+        String playerId = channelParts[channelParts.length - 1];
+        Player player = mPlayers.get(playerId);
+
+        // XXX: Can we ever see a status for a player we don't know about?
+        // XXX: Maybe the better thing to do is to add it.
+        if (player == null)
+            return;
+
+        Map<String, String> tokenMap = new HashMap<>();
+        Object data = message.getData();
+        if (data instanceof Map) {
+            Map<String, Object> messageData = message.getDataAsMap();
+            for (Map.Entry<String, Object> entry : messageData.entrySet()) {
+                Object value = entry.getValue();
+                tokenMap.put(entry.getKey(), value != null && !(value instanceof String) ? value.toString() : (String)value);
+            }
+        } else {
+            Object[] messageData = (Object[]) data;
+            for (Object token : messageData) {
+                String[] split = mColonSplitPattern.split((String)token, 2);
+                tokenMap.put(split[0], split.length > 1 ? split[1] : null);
+            }
+        }
+
+        parseStatus(player, tokenMap);
     }
 
     abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {
@@ -361,6 +405,14 @@ public class CometClient extends BaseClient {
         String cmd = tokens[0];
         SlimCommand slimCommand = mCommandMap.get(cmd);
         sendCometMessage(player, slimCommand, tokens);
+    }
+
+    private int getHttpPort() {
+        return httpPort.get();
+    }
+
+    private String getCurrentHost() {
+        return currentHost.get();
     }
 
     @Override
@@ -514,7 +566,7 @@ public class CometClient extends BaseClient {
             responseChannel = String.format(slimCommand.getResponseChannel(), mBayeuxClient.getId(), player.getId());
         } else {
             channel = CHANNEL_SLIM_REQUEST;
-            responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);;
+            responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
             mPendingRequests.put(responseChannel, slimCommand.getListener());
         }
         sendCometMessage(player, channel, responseChannel, cmd);
@@ -526,10 +578,9 @@ public class CometClient extends BaseClient {
         request.add(player == null ? "" : player.getId());
         request.add(cmd);
 
-        Map<String, Object> data1 = new HashMap<>();
-        data1.put("request", request);
-        data1.put("response", responseChannel);
-        Map<String, Object> data = data1;
+        Map<String, Object> data = new HashMap<>();
+        data.put("request", request);
+        data.put("response", responseChannel);
 
         mBayeuxClient.getChannel(channel).publish(data);
     }

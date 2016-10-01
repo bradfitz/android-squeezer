@@ -24,8 +24,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -71,20 +69,13 @@ import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
-import uk.org.ngo.squeezer.service.event.MusicChanged;
-import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
-import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistCreateFailed;
 import uk.org.ngo.squeezer.service.event.PlaylistRenameFailed;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksDeleted;
-import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
-import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
-import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
-import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 class CliClient extends BaseClient {
 
@@ -100,10 +91,7 @@ class CliClient extends BaseClient {
     private static final Joiner mNewlineJoiner = Joiner.on("\n").skipNulls();
 
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
-    private final Map<String, Player> mPlayers = new HashMap<String, Player>();
-
-    /** The prefix for URLs for downloads and cover art. */
-    private String mUrlPrefix;
+    private final Map<String, Player> mPlayers = new HashMap<>();
 
 
     /** The types of command handler. */
@@ -178,8 +166,6 @@ class CliClient extends BaseClient {
          *
          * @param cmd The command to send to the server.
          * @param taggedParameters The keys for any tagged parameters to send.
-         * @param itemDelimiter The identifier of the tagged parameter that marks the start of
-         *    a new block of information.
          * @param handler The handler used to construct new model objects from the response.
          */
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
@@ -780,55 +766,6 @@ class CliClient extends BaseClient {
     }
 
     /**
-     * Adds a <code>artwork_url</code> entry for the item passed in.
-     * <p>
-     * If an <code>artwork_url</code> entry already exists and is absolute it is preserved.
-     * If it exists but is relative it is canonicalised.  Otherwise it is synthesised from
-     * the <code>artwork_track_id</code> tag (if it exists) otherwise the item's <code>id</code>.
-     *
-     * @param record The record to modify.
-     */
-    private void addArtworkUrlTag(Map<String, String> record) {
-        String artworkUrl = record.get("artwork_url");
-
-        // Nothing to do if the artwork_url tag already exists and is absolute.
-        if (artworkUrl != null && artworkUrl.startsWith("http")) {
-            return;
-        }
-
-        // If artworkUrl is non-null it must be relative. Canonicalise it and return.
-        if (artworkUrl != null) {
-            record.put("artwork_url", mUrlPrefix + "/" + artworkUrl);
-            return;
-        }
-
-        // Need to generate an artwork_url value.
-
-        // Prefer using the artwork_track_id entry to generate the URL
-        String artworkTrackId = record.get("artwork_track_id");
-
-        if (artworkTrackId != null) {
-            record.put("artwork_url", mUrlPrefix + "/music/" + artworkTrackId + "/cover.jpg");
-            return;
-        }
-
-        // If coverart exists but artwork_track_id is missing then use the item's ID.
-        if ("1".equals(record.get("coverart"))) {
-            record.put("artwork_url", mUrlPrefix + "/music/" + record.get("id") + "/cover.jpg");
-            return;
-        }
-    }
-
-    /**
-     * Adds a <code>download_url</code> entry for the item passed in.
-     *
-     * @param record The record to modify.
-     */
-    private void addDownloadUrlTag(Map<String, String> record) {
-        record.put("download_url", mUrlPrefix + "/music/" + record.get("id") + "/download");
-    }
-
-    /**
      * Make sure the icon/image tag is an absolute URL.
      *
      * @param record The record to modify.
@@ -1097,6 +1034,7 @@ class CliClient extends BaseClient {
 
                     String pref = Util.decode(tokens.get(2));
                     if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
+                        //noinspection WrongConstant
                         mEventBus.post(new PlayerPrefReceived(player, pref,
                                 Util.decode(tokens.get(3))));
                     }
@@ -1108,7 +1046,7 @@ class CliClient extends BaseClient {
     }
 
     private Map<String, CmdHandler> initializeGlobalPlayerSpecificHandlers() {
-        Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
+        Map<String, CmdHandler> handlers = new HashMap<>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
             if (cmd.handlerList == HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC) {
@@ -1148,88 +1086,8 @@ class CliClient extends BaseClient {
                     if (player == null)
                         return;
 
-                    PlayerState playerState = player.getPlayerState();
-
                     HashMap<String, String> tokenMap = parseTokens(tokens);
-                    addArtworkUrlTag(tokenMap);
-                    addDownloadUrlTag(tokenMap);
-
-                    boolean unknownRepeatStatus = playerState.getRepeatStatus() == null;
-                    boolean unknownShuffleStatus = playerState.getShuffleStatus() == null;
-
-                    boolean changedPower = playerState.setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
-                    boolean changedShuffleStatus = playerState.setShuffleStatus(tokenMap.get("playlist shuffle"));
-                    boolean changedRepeatStatus = playerState.setRepeatStatus(tokenMap.get("playlist repeat"));
-                    boolean changedCurrentPlaylistIndex = playerState.setCurrentPlaylistIndex(Util.parseDecimalIntOrZero(tokenMap.get("playlist_cur_index")));
-                    boolean changedCurrentPlaylist = playerState.setCurrentPlaylist(tokenMap.get("playlist_name"));
-                    boolean changedSleep = playerState.setSleep(Util.parseDecimalIntOrZero(tokenMap.get("will_sleep_in")));
-                    boolean changedSleepDuration = playerState.setSleepDuration(Util.parseDecimalIntOrZero(tokenMap.get("sleep")));
-                    boolean changedSong = playerState.setCurrentSong(new Song(tokenMap));
-                    boolean changedSongDuration = playerState.setCurrentSongDuration(Util.parseDecimalIntOrZero(tokenMap.get("duration")));
-                    boolean changedSongTime = playerState.setCurrentTimeSecond(Util.parseDecimalIntOrZero(tokenMap.get("time")));
-                    boolean changedVolume = playerState.setCurrentVolume(Util.parseDecimalIntOrZero(tokenMap.get("mixer volume")));
-                    boolean changedSyncMaster = playerState.setSyncMaster(tokenMap.get("sync_master"));
-                    boolean changedSyncSlaves = playerState.setSyncSlaves(Splitter.on(",").omitEmptyStrings().splitToList(Strings.nullToEmpty(tokenMap.get("sync_slaves"))));
-                    boolean changedSubscription = playerState.setSubscriptionType(tokenMap.get("subscribe"));
-
-                    player.setPlayerState(playerState);
-
-                    // Kept as its own method because other methods call it, unlike the explicit
-                    // calls to the callbacks below.
-                    updatePlayStatus(player.getId(), tokenMap.get("mode"));
-
-                    // XXX: Handled by onEvent(PlayStatusChanged) in the service.
-                    //updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
-
-                    // Note to self: The problem here is that with second-to-second updates enabled
-                    // the playerlistactivity callback will be called every second.  Thinking that
-                    // a better approach would be for clients to register a single callback and a
-                    // bitmask of events they're interested in based on the change* variables.
-                    // Each callback would be called a maximum of once, with the new player and a
-                    // bitmask that corresponds to which changes happened (so the client can
-                    // distinguish between the types of changes).
-
-                    // Might also be worth investigating Otto as an event bus instead.
-
-                    // Quick and dirty fix -- only call onPlayerStateReceived for changes to the
-                    // player state (ignore changes to Song, SongDuration, SongTime).
-
-                    if (changedPower || changedSleep || changedSleepDuration || changedVolume
-                            || changedSong || changedSyncMaster || changedSyncSlaves) {
-                        mEventBus.post(new PlayerStateChanged(player, playerState));
-                    }
-
-                    // Power status
-                    if (changedPower) {
-                        mEventBus.post(new PowerStatusChanged(
-                                player,
-                                !player.getPlayerState().isPoweredOn(),
-                                !player.getPlayerState().isPoweredOn()));
-                    }
-
-                    // Current song
-                    if (changedSong) {
-                        mEventBus.postSticky(new MusicChanged(player, playerState));
-                    }
-
-                    // Shuffle status.
-                    if (changedShuffleStatus) {
-                        mEventBus.post(new ShuffleStatusChanged(player,
-                                unknownShuffleStatus, playerState.getShuffleStatus()));
-                    }
-
-                    // Repeat status.
-                    if (changedRepeatStatus) {
-                        mEventBus.post(new RepeatStatusChanged(player,
-                                unknownRepeatStatus, playerState.getRepeatStatus()));
-                    }
-
-                    // Position in song
-                    if (changedSongDuration || changedSongTime) {
-                        mEventBus.post(new SongTimeChanged(player,
-                                playerState.getCurrentTimeSecond(),
-                                playerState.getCurrentSongDuration()));
-                    }
+                    parseStatus(player, tokenMap);
                 } else {
                     parseSqueezerList(extQueryFormatCmdMap.get("status"), tokens);
                 }
@@ -1262,7 +1120,7 @@ class CliClient extends BaseClient {
     }
 
     private Map<String, CmdHandler> initializePrefixedPlayerSpecificHandlers() {
-        Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
+        Map<String, CmdHandler> handlers = new HashMap<>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
             if (cmd.handlerList == CliClient.HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC) {
@@ -1319,7 +1177,7 @@ class CliClient extends BaseClient {
     }
 
     private HashMap<String, String> parseTokens(List<String> tokens) {
-        HashMap<String, String> tokenMap = new HashMap<String, String>();
+        HashMap<String, String> tokenMap = new HashMap<>();
         String[] kv;
         for (String token : tokens) {
             kv = parseToken(token);
@@ -1407,18 +1265,7 @@ class CliClient extends BaseClient {
             return;
         }
 
-        // Handle unknown states.
-        if (!playStatus.equals(PlayerState.PLAY_STATE_PLAY) &&
-                !playStatus.equals(PlayerState.PLAY_STATE_PAUSE) &&
-                !playStatus.equals(PlayerState.PLAY_STATE_STOP)) {
-            return;
-        }
-
-        PlayerState playerState = player.getPlayerState();
-
-        if (playerState.setPlayStatus(playStatus)) {
-            mEventBus.post(new PlayStatusChanged(playStatus, player));
-        }
+        updatePlayStatus(player, playStatus);
     }
 
     /**
@@ -1457,7 +1304,7 @@ class CliClient extends BaseClient {
      */
     private void fetchPlayers() {
         requestItems("players", -1, new IServiceItemListCallback<Player>() {
-            private final HashMap<String, Player> players = new HashMap<String, Player>();
+            private final HashMap<String, Player> players = new HashMap<>();
 
             @Override
             public void onItemsReceived(int count, int start, Map<String, String> parameters,
@@ -1511,20 +1358,20 @@ class CliClient extends BaseClient {
     // the server of the disconnection.
     private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
 
-    private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
+    private final AtomicReference<Socket> socketRef = new AtomicReference<>();
 
-    private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
+    private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<>();
 
     // Where we connected (or are connecting) to:
-    private final AtomicReference<String> currentHost = new AtomicReference<String>();
+    private final AtomicReference<String> currentHost = new AtomicReference<>();
 
-    private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
+    private final AtomicReference<Integer> httpPort = new AtomicReference<>();
 
-    private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
+    private final AtomicReference<Integer> cliPort = new AtomicReference<>();
 
-    private final AtomicReference<String> userName = new AtomicReference<String>();
+    private final AtomicReference<String> userName = new AtomicReference<>();
 
-    private final AtomicReference<String> password = new AtomicReference<String>();
+    private final AtomicReference<String> password = new AtomicReference<>();
 
     void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor) {
         Thread listeningThread = new ListeningThread(eventBus, executor, this, socketRef.get(),
@@ -1540,11 +1387,11 @@ class CliClient extends BaseClient {
 
         private final Socket socket;
 
-        private final IClient client;
+        private final SlimClient client;
 
         private final int generationNumber;
 
-        private ListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, IClient client, Socket socket, int generationNumber) {
+        private ListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, SlimClient client, Socket socket, int generationNumber) {
             mEventBus = eventBus;
             mExecutor = executor;
             this.client = client;
