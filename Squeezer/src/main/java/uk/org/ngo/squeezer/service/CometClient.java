@@ -275,12 +275,25 @@ public class CometClient extends BaseClient {
             return;
 
         Map<String, String> tokenMap = new HashMap<>();
+        Song song = null;
         Object data = message.getData();
         if (data instanceof Map) {
             Map<String, Object> messageData = message.getDataAsMap();
             for (Map.Entry<String, Object> entry : messageData.entrySet()) {
                 Object value = entry.getValue();
                 tokenMap.put(entry.getKey(), value != null && !(value instanceof String) ? value.toString() : (String)value);
+            }
+
+            Object[] item_data = (Object[]) messageData.get("playlist_loop");
+            if (item_data != null && item_data.length > 0) {
+                Map<String, String> record = (Map<String, String>) item_data[0];
+                for (Map.Entry<String, String> entry : record.entrySet()) {
+                    Object value = entry.getValue();
+                    if (value != null && !(value instanceof String)) {
+                        record.put(entry.getKey(), value.toString());
+                    }
+                }
+                song = new Song(record);
             }
         } else {
             Object[] messageData = (Object[]) data;
@@ -290,7 +303,7 @@ public class CometClient extends BaseClient {
             }
         }
 
-        parseStatus(player, tokenMap);
+        parseStatus(player, song, tokenMap);
     }
 
     abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {

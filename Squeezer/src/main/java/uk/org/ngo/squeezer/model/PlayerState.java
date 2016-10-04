@@ -386,6 +386,28 @@ public class PlayerState implements Parcelable {
     public static final String PLAY_STATE_PAUSE = "pause";
     public static final String PLAY_STATE_STOP = "stop";
 
+    @Override
+    public String toString() {
+        return "PlayerState{" +
+                "playerId='" + playerId + '\'' +
+                ", poweredOn=" + poweredOn +
+                ", playStatus='" + playStatus + '\'' +
+                ", shuffleStatus=" + shuffleStatus +
+                ", repeatStatus=" + repeatStatus +
+                ", currentSong=" + currentSong +
+                ", currentPlaylist='" + currentPlaylist + '\'' +
+                ", currentPlaylistIndex=" + currentPlaylistIndex +
+                ", currentTimeSecond=" + currentTimeSecond +
+                ", currentSongDuration=" + currentSongDuration +
+                ", currentVolume=" + currentVolume +
+                ", sleepDuration=" + sleepDuration +
+                ", sleep=" + sleep +
+                ", mSyncMaster='" + mSyncMaster + '\'' +
+                ", mSyncSlaves=" + mSyncSlaves +
+                ", mPlayerSubscriptionType='" + mPlayerSubscriptionType + '\'' +
+                '}';
+    }
+
     public enum ShuffleStatus implements EnumWithId {
         SHUFFLE_OFF(0, R.attr.ic_action_av_shuffle_off, ServerString.SHUFFLE_OFF),
         SHUFFLE_SONG(1, R.attr.ic_action_av_shuffle_song, ServerString.SHUFFLE_ON_SONGS),

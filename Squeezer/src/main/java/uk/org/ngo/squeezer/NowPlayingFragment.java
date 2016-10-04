@@ -1086,7 +1086,9 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     @MainThread
     public void onEventMainThread(PlayStatusChanged event) {
-        updatePlayPauseIcon(event.playStatus);
+        if (event.player.equals(mService.getActivePlayer())) {
+            updatePlayPauseIcon(event.playStatus);
+        }
     }
 
     @MainThread

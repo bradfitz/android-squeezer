@@ -79,7 +79,7 @@ abstract class BaseClient implements SlimClient {
 
 
 
-    protected void parseStatus(final Player player, Map<String, String> tokenMap) {
+    protected void parseStatus(final Player player, Song song, Map<String, String> tokenMap) {
         PlayerState playerState = player.getPlayerState();
 
         addArtworkUrlTag(tokenMap);
@@ -93,7 +93,8 @@ abstract class BaseClient implements SlimClient {
         boolean changedRepeatStatus = playerState.setRepeatStatus(tokenMap.get("playlist repeat"));
         boolean changedSleep = playerState.setSleep(Util.parseDecimalIntOrZero(tokenMap.get("will_sleep_in")));
         boolean changedSleepDuration = playerState.setSleepDuration(Util.parseDecimalIntOrZero(tokenMap.get("sleep")));
-        boolean changedSong = playerState.setCurrentSong(new Song(tokenMap));
+        if (song == null) song = new Song(tokenMap);
+        boolean changedSong = playerState.setCurrentSong(song);
         boolean changedSongDuration = playerState.setCurrentSongDuration(Util.parseDecimalIntOrZero(tokenMap.get("duration")));
         boolean changedSongTime = playerState.setCurrentTimeSecond(Util.parseDecimalIntOrZero(tokenMap.get("time")));
         boolean changedVolume = playerState.setCurrentVolume(Util.parseDecimalIntOrZero(tokenMap.get("mixer volume")));

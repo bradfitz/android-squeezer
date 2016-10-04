@@ -1086,7 +1086,7 @@ class CliClient extends BaseClient {
                         return;
 
                     HashMap<String, String> tokenMap = parseTokens(tokens);
-                    parseStatus(player, tokenMap);
+                    parseStatus(player, null, tokenMap);
                 } else {
                     parseSqueezerList(extQueryFormatCmdMap.get("status"), tokens);
                 }
