@@ -275,7 +275,6 @@ public class CometClient extends BaseClient {
             return;
 
         Map<String, String> tokenMap = new HashMap<>();
-        Song song = null;
         Object data = message.getData();
         if (data instanceof Map) {
             Map<String, Object> messageData = message.getDataAsMap();
@@ -284,6 +283,7 @@ public class CometClient extends BaseClient {
                 tokenMap.put(entry.getKey(), value != null && !(value instanceof String) ? value.toString() : (String)value);
             }
 
+            Song song = null;
             Object[] item_data = (Object[]) messageData.get("playlist_loop");
             if (item_data != null && item_data.length > 0) {
                 Map<String, String> record = (Map<String, String>) item_data[0];
@@ -295,15 +295,18 @@ public class CometClient extends BaseClient {
                 }
                 song = new Song(record);
             }
+            parseStatus(player, song, tokenMap);
         } else {
-            Object[] messageData = (Object[]) data;
-            for (Object token : messageData) {
-                String[] split = mColonSplitPattern.split((String)token, 2);
-                tokenMap.put(split[0], split.length > 1 ? split[1] : null);
+            Object[] tokens = (Object[]) data;
+            if (Util.arraysStartsWith(tokens, new String[]{"status", "-", "subscribe:1", "1"})) {
+                for (Object token : tokens) {
+                    String[] split = mColonSplitPattern.split((String) token, 2);
+                    tokenMap.put(split[0], split.length > 1 ? split[1] : null);
+                }
+                parseStatus(player, null, tokenMap);
             }
         }
 
-        parseStatus(player, song, tokenMap);
     }
 
     abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {
@@ -417,6 +420,7 @@ public class CometClient extends BaseClient {
         String[] tokens = mSpaceSplitPattern.split(command);
         String cmd = tokens[0];
         SlimCommand slimCommand = mCommandMap.get(cmd);
+        if (slimCommand == null) slimCommand = new SlimCommand();
         sendCometMessage(player, slimCommand, tokens);
     }
 
@@ -492,11 +496,19 @@ public class CometClient extends BaseClient {
         private final String responseChannel;
         private final ClientSessionChannel.MessageListener listener;
 
+        /** We don't wan't a response => no response channel and no message listener */
+        public SlimCommand() {
+            this.responseChannel = null;
+            this.listener = null;
+        }
+
+        /** Callback for the request response */
         public SlimCommand(ClientSessionChannel.MessageListener listener) {
             this.responseChannel = null;
             this.listener = listener;
         }
 
+        /** Response channel for the events for the subscription */
         public SlimCommand(String responseChannel) {
             this.responseChannel = responseChannel;
             this.listener = null;
@@ -580,7 +592,7 @@ public class CometClient extends BaseClient {
         } else {
             channel = CHANNEL_SLIM_REQUEST;
             responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
-            mPendingRequests.put(responseChannel, slimCommand.getListener());
+            if (slimCommand.getListener() != null) mPendingRequests.put(responseChannel, slimCommand.getListener());
         }
         sendCometMessage(player, channel, responseChannel, cmd);
         return responseChannel;

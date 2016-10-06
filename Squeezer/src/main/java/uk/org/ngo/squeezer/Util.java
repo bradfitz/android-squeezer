@@ -26,12 +26,14 @@ import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.common.base.Strings;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Formatter;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Util {
@@ -149,6 +151,14 @@ public class Util {
             Log.d(TAG, "Can't parse port out of " + hostPort);
             return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
         }
+    }
+
+    public static boolean arraysStartsWith(Object[] a, Object[] b) {
+        int n = (a.length < b.length ? a.length : b.length);
+        for (int i = 0; i < n; i++) {
+            if (!Objects.equals(a[i], b[i])) return false;
+        }
+        return true;
     }
 
     /**
