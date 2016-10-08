@@ -522,7 +522,7 @@ public class CometClient extends BaseClient {
             return listener;
         }
 
-        public boolean isSubscribe() {
+        public boolean isSubscribtionCommand() {
             return (responseChannel != null);
         }
     }
@@ -586,8 +586,10 @@ public class CometClient extends BaseClient {
     private String sendCometMessage(final Player player, SlimCommand slimCommand, String... cmd) {
         String channel;
         String responseChannel;
-        if (slimCommand.isSubscribe()) {
-            channel = CHANNEL_SLIM_SUBSCRIBE;
+        if (slimCommand.isSubscribtionCommand()) {
+            boolean subscribe = isSubscribe(cmd);
+            // If this is not a subscription, use the request channel.
+            channel = subscribe ? CHANNEL_SLIM_SUBSCRIBE : CHANNEL_SLIM_REQUEST;
             responseChannel = String.format(slimCommand.getResponseChannel(), mBayeuxClient.getId(), player.getId());
         } else {
             channel = CHANNEL_SLIM_REQUEST;
@@ -608,6 +610,13 @@ public class CometClient extends BaseClient {
         data.put("response", responseChannel);
 
         mBayeuxClient.getChannel(channel).publish(data);
+    }
+
+    private boolean isSubscribe(String... tokens) {
+        for (String token : tokens) {
+            if (token.contains("subscribe:")) return true;
+        }
+        return false;
     }
 
     /**
