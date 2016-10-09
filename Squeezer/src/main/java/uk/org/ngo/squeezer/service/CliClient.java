@@ -202,12 +202,12 @@ class CliClient extends BaseClient {
             = initializeExtQueryFormatCmdMap();
 
     private ExtendedQueryFormatCmd[] initializeExtQueryFormatCmds() {
-        List<ExtendedQueryFormatCmd> list = new ArrayList<ExtendedQueryFormatCmd>();
+        List<ExtendedQueryFormatCmd> list = new ArrayList<>();
 
         list.add(
                 new ExtendedQueryFormatCmd(
                         "players",
-                        new HashSet<String>(Arrays.asList("playerprefs", "charset")),
+                        new HashSet<>(Arrays.asList("playerprefs", "charset")),
                         "playerindex",
                         new BaseListHandler<Player>() {}
                 )
@@ -216,14 +216,14 @@ class CliClient extends BaseClient {
                 new ExtendedQueryFormatCmd(
                         HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC,
                         "alarms",
-                        new HashSet<String>(Arrays.asList("filter", "dow")),
+                        new HashSet<>(Arrays.asList("filter", "dow")),
                         new SqueezeParserInfo(new BaseListHandler<Alarm>(){})
                 )
         );
         list.add(
                 new ExtendedQueryFormatCmd(
                         "artists",
-                        new HashSet<String>(
+                        new HashSet<>(
                                 Arrays.asList("search", "genre_id", "album_id", "tags", "charset")),
                         new ArtistListHandler()
                 )
@@ -231,7 +231,7 @@ class CliClient extends BaseClient {
         list.add(
                 new ExtendedQueryFormatCmd(
                         "albums",
-                        new HashSet<String>(
+                        new HashSet<>(
                                 Arrays.asList("search", "genre_id", "artist_id", "track_id", "year",
                                         "compilation", "sort", "tags", "charset")),
                         new AlbumListHandler()
@@ -240,7 +240,7 @@ class CliClient extends BaseClient {
         list.add(
                 new ExtendedQueryFormatCmd(
                         "years",
-                        new HashSet<String>(Arrays.asList("charset")),
+                        new HashSet<>(Arrays.asList("charset")),
                         "year",
                         new BaseListHandler<Year>(){}
                 )
@@ -248,7 +248,7 @@ class CliClient extends BaseClient {
         list.add(
                 new ExtendedQueryFormatCmd(
                         "genres",
-                        new HashSet<String>(
+                        new HashSet<>(
                                 Arrays.asList("search", "artist_id", "album_id", "track_id", "year",
                                         "tags", "charset")),
                         new GenreListHandler()
@@ -257,14 +257,14 @@ class CliClient extends BaseClient {
         list.add(
                 new ExtendedQueryFormatCmd(
                         "musicfolder",
-                        new HashSet<String>(Arrays.asList("folder_id", "url", "tags", "charset")),
+                        new HashSet<>(Arrays.asList("folder_id", "url", "tags", "charset")),
                         new MusicFolderListHandler()
                 )
         );
         list.add(
                 new ExtendedQueryFormatCmd(
                         "songs",
-                        new HashSet<String>(
+                        new HashSet<>(
                                 Arrays.asList("genre_id", "artist_id", "album_id", "year", "search",
                                         "tags", "sort", "charset")),
                         new SongListHandler()
@@ -273,13 +273,13 @@ class CliClient extends BaseClient {
         list.add(
                 new ExtendedQueryFormatCmd(
                         "playlists",
-                        new HashSet<String>(Arrays.asList("search", "tags", "charset")),
+                        new HashSet<>(Arrays.asList("search", "tags", "charset")),
                         new BaseListHandler<Playlist>(){})
         );
         list.add(
                 new ExtendedQueryFormatCmd(
                         "playlists tracks",
-                        new HashSet<String>(Arrays.asList("playlist_id", "tags", "charset")),
+                        new HashSet<>(Arrays.asList("playlist_id", "tags", "charset")),
                         "playlist index",
                         new SongListHandler())
         );
@@ -294,7 +294,7 @@ class CliClient extends BaseClient {
                 new ExtendedQueryFormatCmd(
                         HANDLER_LIST_GLOBAL,
                         "search",
-                        new HashSet<String>(Arrays.asList("term", "charset")),
+                        new HashSet<>(Arrays.asList("term", "charset")),
                         new SqueezeParserInfo("genres_count", new GenreListHandler(), "genre_id"),
                         new SqueezeParserInfo("albums_count", new AlbumListHandler(), "album_id"),
                         new SqueezeParserInfo("contributors_count", new ArtistListHandler()
@@ -306,7 +306,7 @@ class CliClient extends BaseClient {
                 new ExtendedQueryFormatCmd(
                         HANDLER_LIST_PLAYER_SPECIFIC,
                         "status",
-                        new HashSet<String>(Arrays.asList("tags", "charset", "subscribe")),
+                        new HashSet<>(Arrays.asList("tags", "charset", "subscribe")),
                         new SqueezeParserInfo("playlist_tracks", new SongListHandler(),
                                 "playlist index")
                 )
@@ -314,7 +314,7 @@ class CliClient extends BaseClient {
         list.add(
                 new ExtendedQueryFormatCmd(
                         "radios",
-                        new HashSet<String>(Arrays.asList("sort", "charset")),
+                        new HashSet<>(Arrays.asList("sort", "charset")),
                         new PluginListHandler(),
                         "cmd", "name", "type", "icon", "weight"
                 )
@@ -323,7 +323,7 @@ class CliClient extends BaseClient {
         list.add(
                 new ExtendedQueryFormatCmd(
                         "apps",
-                        new HashSet<String>(Arrays.asList("sort", "charset")),
+                        new HashSet<>(Arrays.asList("sort", "charset")),
                         new PluginListHandler(),
                         "cmd", "name", "type", "icon", "weight"
                 )
@@ -332,7 +332,7 @@ class CliClient extends BaseClient {
                 new ExtendedQueryFormatCmd(
                         HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC,
                         "items",
-                        new HashSet<String>(
+                        new HashSet<>(
                                 Arrays.asList("item_id", "search", "want_url", "charset")),
                         new SqueezeParserInfo(new PluginItemListHandler()))
         );
@@ -341,7 +341,7 @@ class CliClient extends BaseClient {
     }
 
     private Map<String, ExtendedQueryFormatCmd> initializeExtQueryFormatCmdMap() {
-        Map<String, ExtendedQueryFormatCmd> map = new HashMap<String, ExtendedQueryFormatCmd>();
+        Map<String, ExtendedQueryFormatCmd> map = new HashMap<>();
         for (ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
             map.put(cmd.cmd, cmd);
         }
@@ -355,7 +355,7 @@ class CliClient extends BaseClient {
     // Call through to mConnectionState implementation for the moment.
     public void disconnect(boolean loginFailed) {
         currentConnectionGeneration.incrementAndGet();
-        mConnectionState.disconnect(mEventBus, loginFailed);
+        mConnectionState.disconnect(loginFailed);
         Socket socket = socketRef.get();
         if (socket != null) {
             try {
@@ -429,7 +429,7 @@ class CliClient extends BaseClient {
      * If a reply with with matching entry is this list comes in, it is discarded.
      */
     private final Map<Integer, IServiceItemListCallback> mPendingRequests
-            = new ConcurrentHashMap<Integer, IServiceItemListCallback>();
+            = new ConcurrentHashMap<>();
 
     public void cancelClientRequests(Object client) {
         for (Map.Entry<Integer, IServiceItemListCallback> entry : mPendingRequests.entrySet()) {
@@ -499,7 +499,7 @@ class CliClient extends BaseClient {
 
         if (full_list) {
             if (parameters == null)
-                parameters = new ArrayList<String>();
+                parameters = new ArrayList<>();
             parameters.add("full_list:1");
         }
 
@@ -557,7 +557,7 @@ class CliClient extends BaseClient {
          */
         public SqueezeParserInfo(String countId, ListHandler<? extends Item> handler, String... columns) {
             count_id = countId;
-            this.columns = new HashSet<String>(Arrays.asList(columns));
+            this.columns = new HashSet<>(Arrays.asList(columns));
             this.handler = handler;
         }
 
@@ -609,12 +609,12 @@ class CliClient extends BaseClient {
         int correlationId = 0;
         boolean rescan = false;
         boolean full_list = false;
-        final Map<String, String> taggedParameters = new HashMap<String, String>();
-        final Map<String, String> parameters = new HashMap<String, String>();
-        final Set<String> countIdSet = new HashSet<String>();
-        final Map<String, SqueezeParserInfo> itemDelimeterMap = new HashMap<String, SqueezeParserInfo>();
-        final Map<String, Integer> counts = new HashMap<String, Integer>();
-        final Map<String, String> record = new HashMap<String, String>();
+        final Map<String, String> taggedParameters = new HashMap<>();
+        final Map<String, String> parameters = new HashMap<>();
+        final Set<String> countIdSet = new HashSet<>();
+        final Map<String, SqueezeParserInfo> itemDelimeterMap = new HashMap<>();
+        final Map<String, Integer> counts = new HashMap<>();
+        final Map<String, String> record = new HashMap<>();
 
         for (SqueezeParserInfo parserInfo : cmd.parserInfos) {
             parserInfo.handler.clear();
@@ -812,7 +812,7 @@ class CliClient extends BaseClient {
             = initializePrefixedPlayerSpecificHandlers();
 
     private Map<String, CmdHandler> initializeGlobalHandlers() {
-        Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
+        Map<String, CmdHandler> handlers = new HashMap<>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
             if (cmd.handlerList == CliClient.HANDLER_LIST_GLOBAL) {
@@ -932,7 +932,7 @@ class CliClient extends BaseClient {
             /**
              * Seeing the <code>version</code> result indicates that the
              * handshake has completed (see
-             * {@link CliClient#onCliPortConnectionEstablished(EventBus, String, String)}),
+             * {@link CliClient#onCliPortConnectionEstablished(String, String)}),
              * post a {@link HandshakeComplete} event.
              */
             @Override
@@ -942,11 +942,6 @@ class CliClient extends BaseClient {
                 String version = tokens.get(1);
                 mConnectionState.setServerVersion(version);
                 Util.crashlyticsSetString("server_version", version);
-
-                mEventBus.postSticky(new HandshakeComplete(
-                        mConnectionState.canFavorites(), mConnectionState.canMusicfolder(),
-                        mConnectionState.canMyApps(), mConnectionState.canRandomplay(),
-                        version));
             }
         });
 
@@ -954,7 +949,7 @@ class CliClient extends BaseClient {
     }
 
     private Map<String, CmdHandler> initializePrefixedHandlers() {
-        Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
+        Map<String, CmdHandler> handlers = new HashMap<>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
             if (cmd.handlerList == CliClient.HANDLER_LIST_PREFIXED) {
@@ -978,7 +973,7 @@ class CliClient extends BaseClient {
      * @return
      */
     private Map<String, CmdHandler> initializePlayerSpecificHandlers() {
-        Map<String, CmdHandler> handlers = new HashMap<String, CmdHandler>();
+        Map<String, CmdHandler> handlers = new HashMap<>();
 
         for (final CliClient.ExtendedQueryFormatCmd cmd : extQueryFormatCmds) {
             if (cmd.handlerList == CliClient.HANDLER_LIST_PLAYER_SPECIFIC) {
@@ -1372,16 +1367,13 @@ class CliClient extends BaseClient {
 
     private final AtomicReference<String> password = new AtomicReference<>();
 
-    void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor) {
-        Thread listeningThread = new ListeningThread(eventBus, executor, this, socketRef.get(),
+    void startListeningThread(@NonNull Executor executor) {
+        Thread listeningThread = new ListeningThread(executor, this, socketRef.get(),
                 currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
     }
 
     private class ListeningThread extends Thread {
-
-        @NonNull private final EventBus mEventBus;
-
         @NonNull private final Executor mExecutor;
 
         private final Socket socket;
@@ -1390,8 +1382,7 @@ class CliClient extends BaseClient {
 
         private final int generationNumber;
 
-        private ListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, SlimClient client, Socket socket, int generationNumber) {
-            mEventBus = eventBus;
+        private ListeningThread(@NonNull Executor executor, SlimClient client, Socket socket, int generationNumber) {
             mExecutor = executor;
             this.client = client;
             this.socket = socket;
@@ -1438,7 +1429,7 @@ class CliClient extends BaseClient {
                 // with "login " then the login must have been successful (otherwise the
                 // server would have disconnected), so update the connection state accordingly.
                 if (mConnectionState.isLoginStarted() && !inputLine.startsWith("login ")) {
-                    mConnectionState.setConnectionState(mEventBus, ConnectionState.LOGIN_COMPLETED);
+                    mConnectionState.setConnectionState(ConnectionState.LOGIN_COMPLETED);
                 }
                 mExecutor.execute(new Runnable() {
                     @Override
@@ -1484,15 +1475,15 @@ class CliClient extends BaseClient {
                 Socket socket = new Socket();
                 try {
                     Log.d(TAG, "Connecting to: " + cleanHostPort);
-                    mConnectionState.setConnectionState(eventBus, ConnectionState.CONNECTION_STARTED);
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
                     socket.connect(new InetSocketAddress(host, port),
                             4000 /* ms timeout */);
                     socketRef.set(socket);
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
-                    mConnectionState.setConnectionState(eventBus, ConnectionState.CONNECTION_COMPLETED);
-                    startListeningThread(eventBus, executor);
-                    onCliPortConnectionEstablished(eventBus, userName, password);
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
+                    startListeningThread(executor);
+                    onCliPortConnectionEstablished(userName, password);
                     Authenticator.setDefault(new Authenticator() {
                         @Override
                         public PasswordAuthentication getPasswordAuthentication() {
@@ -1501,10 +1492,10 @@ class CliClient extends BaseClient {
                     });
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
-                    mConnectionState.setConnectionState(eventBus, ConnectionState.CONNECTION_FAILED);
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                 } catch (IOException e) {
                     Log.e(TAG, "IOException connecting to: " + cleanHostPort);
-                    mConnectionState.setConnectionState(eventBus, ConnectionState.CONNECTION_FAILED);
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                 }
             }
 
@@ -1528,8 +1519,8 @@ class CliClient extends BaseClient {
      * therefore a disconnect when handshake (the next step after authentication) is not completed,
      * is considered an authentication failure.
      */
-    private void onCliPortConnectionEstablished(final EventBus eventBus, final String userName, final String password) {
-        mConnectionState.setConnectionState(eventBus, ConnectionState.LOGIN_STARTED);
+    private void onCliPortConnectionEstablished(final String userName, final String password) {
+        mConnectionState.setConnectionState(ConnectionState.LOGIN_STARTED);
         sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
     }
 

@@ -49,7 +49,6 @@ import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
-import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
 public class CometClient extends BaseClient {
@@ -119,7 +118,7 @@ public class CometClient extends BaseClient {
     // Shims around ConnectionState methods.
     public void startConnect(final SqueezeService service, String hostPort, final String userName,
                              final String password) {
-        mConnectionState.setConnectionState(mEventBus, ConnectionState.CONNECTION_STARTED);
+        mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
 
         HttpClient httpClient = new HttpClient();
         try {
@@ -128,7 +127,7 @@ public class CometClient extends BaseClient {
             // XXX: Handle this properly. Maybe startConnect() should throw exceptions if the
             // connection fails?
             e.printStackTrace();
-            mConnectionState.setConnectionState(mEventBus, ConnectionState.CONNECTION_FAILED);
+            mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
             return;
         }
 
@@ -151,14 +150,14 @@ public class CometClient extends BaseClient {
             public void run() {
                 mBayeuxClient.handshake();
                 if (!mBayeuxClient.waitFor(10000, BayeuxClient.State.CONNECTED)) {
-                    mConnectionState.setConnectionState(mEventBus, ConnectionState.CONNECTION_FAILED);
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                     return;  // XXX: Check if returning here is the right thing to do? Any other cleanup?
                 }
 
                 // Connected from this point on.
-                mConnectionState.setConnectionState(mEventBus, ConnectionState.CONNECTION_COMPLETED);
-                mConnectionState.setConnectionState(mEventBus, ConnectionState.LOGIN_STARTED);
-                mConnectionState.setConnectionState(mEventBus, ConnectionState.LOGIN_COMPLETED);
+                mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
+                mConnectionState.setConnectionState(ConnectionState.LOGIN_STARTED);
+                mConnectionState.setConnectionState(ConnectionState.LOGIN_COMPLETED);
 
                 String clientId = mBayeuxClient.getId();
 
@@ -235,12 +234,7 @@ public class CometClient extends BaseClient {
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        //XXX implement wait for all replies and run the state machine accordingly
                         mConnectionState.setServerVersion((String) message.getDataAsMap().get("_version"));
-                        mEventBus.postSticky(new HandshakeComplete(
-                                mConnectionState.canFavorites(), mConnectionState.canMusicfolder(),
-                                mConnectionState.canMyApps(), mConnectionState.canRandomplay(),
-                                mConnectionState.getServerVersion()));
                     }
                 }, "version", "?");
 
@@ -401,7 +395,7 @@ public class CometClient extends BaseClient {
     @Override
     public void disconnect(boolean loginFailed) {
         mBayeuxClient.disconnect();
-        mConnectionState.disconnect(mEventBus, loginFailed);
+        mConnectionState.disconnect(loginFailed);
         mPlayers.clear();
     }
 

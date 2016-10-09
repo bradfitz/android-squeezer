@@ -22,12 +22,12 @@ import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class ConnectionState {
 
@@ -35,6 +35,12 @@ public class ConnectionState {
 
     /** {@link java.util.regex.Pattern} that splits strings on semi-colons. */
     private static final Pattern mSemicolonSplitPattern = Pattern.compile(";");
+
+    public ConnectionState(@NonNull EventBus eventBus) {
+        mEventBus = eventBus;
+    }
+
+    private final EventBus mEventBus;
 
     // Connection state machine
     @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED,
@@ -60,28 +66,34 @@ public class ConnectionState {
     private volatile int mConnectionState = DISCONNECTED;
 
     /** Does the server support "favorites items" queries? */
-    private final AtomicBoolean mCanFavorites = new AtomicBoolean(false);
+    private final AtomicReference<Boolean> mCanFavorites = new AtomicReference<>();
 
-    private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
+    private final AtomicReference<Boolean> mCanMusicfolder = new AtomicReference<>();
 
     /** Does the server support "myapps items" queries? */
-    private final AtomicBoolean mCanMyApps = new AtomicBoolean(false);
+    private final AtomicReference<Boolean> mCanMyApps = new AtomicReference<>();
 
-    private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
+    private final AtomicReference<Boolean> canRandomplay = new AtomicReference<>();
 
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
-    private final AtomicReference<String> preferredAlbumSort = new AtomicReference<>("album");
+    private final AtomicReference<String> preferredAlbumSort = new AtomicReference<>();
 
     private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
 
-    void disconnect(EventBus eventBus, boolean loginFailed) {
+    void disconnect(boolean loginFailed) {
         Log.v(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
         if (loginFailed) {
-            setConnectionState(eventBus, LOGIN_FAILED);
+            setConnectionState(LOGIN_FAILED);
         } else {
-            setConnectionState(eventBus, DISCONNECTED);
+            setConnectionState(DISCONNECTED);
         }
+        mCanFavorites.set(null);
+        mCanMusicfolder.set(null);
+        mCanMyApps.set(null);
+        canRandomplay.set(null);
+        serverVersion.set(null);
+        preferredAlbumSort.set(null);
         mediaDirs.set(null);
     }
 
@@ -89,14 +101,12 @@ public class ConnectionState {
      * Sets a new connection state, and posts a sticky
      * {@link uk.org.ngo.squeezer.service.event.ConnectionChanged} event with the new state.
      *
-     * @param eventBus The eventbus to post the event to.
      * @param connectionState The new connection state.
      */
-    void setConnectionState(@NonNull EventBus eventBus,
-            @ConnectionStates int connectionState) {
+    void setConnectionState(@ConnectionStates int connectionState) {
         Log.d(TAG, "Setting connection state to: " + connectionState);
         mConnectionState = connectionState;
-        eventBus.postSticky(new ConnectionChanged(mConnectionState));
+        mEventBus.postSticky(new ConnectionChanged(mConnectionState));
     }
 
     public String[] getMediaDirs() {
@@ -112,46 +122,57 @@ public class ConnectionState {
             }
         }
         mediaDirs.set(value);
+        maybeSendHandshakeComplete();
     }
 
     public void setMediaDirs(String dirs) {
         mediaDirs.set(mSemicolonSplitPattern.split(dirs));
+        maybeSendHandshakeComplete();
     }
 
     void setCanFavorites(boolean value) {
         mCanFavorites.set(value);
+        maybeSendHandshakeComplete();
     }
 
     boolean canFavorites() {
-        return mCanFavorites.get();
+        Boolean b = mCanFavorites.get();
+        return (b == null ? false : b);
     }
 
     void setCanMusicfolder(boolean value) {
         mCanMusicfolder.set(value);
+        maybeSendHandshakeComplete();
     }
 
     boolean canMusicfolder() {
-        return mCanMusicfolder.get();
+        Boolean b = mCanMusicfolder.get();
+        return (b == null ? false : b);
     }
 
     void setCanMyApps(boolean value) {
         mCanMyApps.set(value);
+        maybeSendHandshakeComplete();
     }
 
     boolean canMyApps() {
-        return mCanMyApps.get();
+        Boolean b = mCanMyApps.get();
+        return (b == null ? false : b);
     }
 
     void setCanRandomplay(boolean value) {
         canRandomplay.set(value);
+        maybeSendHandshakeComplete();
     }
 
     boolean canRandomplay() {
-        return canRandomplay.get();
+        Boolean b = canRandomplay.get();
+        return  (b == null ? false : b);
     }
 
     public void setServerVersion(String version) {
         serverVersion.set(version);
+        maybeSendHandshakeComplete();
     }
 
     public String getServerVersion() {
@@ -160,10 +181,30 @@ public class ConnectionState {
 
     public void setPreferedAlbumSort(String value) {
         preferredAlbumSort.set(value);
+        maybeSendHandshakeComplete();
     }
 
     public String getPreferredAlbumSort() {
-        return preferredAlbumSort.get();
+        String s = preferredAlbumSort.get();
+        return (s == null ? "album" : s);
+    }
+
+    private void maybeSendHandshakeComplete() {
+        if (isHandshakeComplete()) {
+            mEventBus.postSticky(new HandshakeComplete(
+                    canFavorites(), canMusicfolder(),
+                    canMyApps(), canRandomplay(),
+                    getServerVersion()));
+        }
+    }
+    private boolean isHandshakeComplete() {
+        return mCanMusicfolder.get() != null &&
+                canRandomplay.get() != null &&
+                mCanFavorites.get() != null &&
+                mCanMyApps.get() != null &&
+                preferredAlbumSort.get() != null &&
+                mediaDirs.get() != null &&
+                serverVersion.get() != null;
     }
 
     /**

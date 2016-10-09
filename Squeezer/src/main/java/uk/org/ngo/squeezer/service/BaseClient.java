@@ -42,7 +42,7 @@ import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 abstract class BaseClient implements SlimClient {
 
-    protected final ConnectionState mConnectionState = new ConnectionState();
+    protected final ConnectionState mConnectionState;
 
     /** Executor for off-main-thread work. */
     @NonNull
@@ -58,6 +58,7 @@ abstract class BaseClient implements SlimClient {
 
     BaseClient(EventBus eventBus) {
         mEventBus = eventBus;
+        mConnectionState = new ConnectionState(eventBus);
     }
 
     public void initialize() {
