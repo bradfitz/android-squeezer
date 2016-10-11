@@ -110,7 +110,38 @@ public class CometClient extends BaseClient {
                 .put("years", new SlimCommand(new YearsListener()))
 
                 //XXX status is both request and subscribe
-                .put("status", new SlimCommand(CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT))
+                .put("status", new SlimCommand() {
+                    private ClientSessionChannel.MessageListener statusListener = new StatusListener();
+
+                    @Override
+                    public String[] getChannels(Player player, String... cmd) {
+                        if (isCurrentPlaylistRequest(cmd)) return super.getChannels(player, cmd);
+
+                        String[] channels = new String[2];
+                        boolean subscribe = isSubscribe(cmd);
+                        // If this is not a subscription, use the request channel.
+                        channels[0] = subscribe ? CHANNEL_SLIM_SUBSCRIBE : CHANNEL_SLIM_REQUEST;
+                        channels[1] = String.format(CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT, mBayeuxClient.getId(), player.getId());
+
+                        return channels;
+                    }
+
+                    @Override
+                    public ClientSessionChannel.MessageListener getListener(String... cmd) {
+                        return (isCurrentPlaylistRequest(cmd) ? statusListener : null);
+                    }
+
+                    private boolean isSubscribe(String... tokens) {
+                        for (String token : tokens) {
+                            if (token.contains("subscribe:")) return true;
+                        }
+                        return false;
+                    }
+
+                    private boolean isCurrentPlaylistRequest(String[] cmd) {
+                        return !cmd[1].equals("-");
+                    }
+                })
 
                 .build();
     }
@@ -304,7 +335,7 @@ public class CometClient extends BaseClient {
     }
 
     abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {
-        protected void parseMessage(String itemLoopName, Message message) {
+        protected void parseMessage(String countName, String itemLoopName, Message message) {
             @SuppressWarnings("unchecked")
             BrowseRequest<T> browseRequest = (BrowseRequest<T>) mPendingBrowseRequests.get(message.getChannel());
             if (browseRequest == null) {
@@ -314,7 +345,7 @@ public class CometClient extends BaseClient {
             mPendingBrowseRequests.remove(message.getChannel());
             clear();
             Map<String, Object> data = message.getDataAsMap();
-            int count = ((Long) data.get("count")).intValue();
+            int count = ((Long) data.get(countName)).intValue();
             Object[] item_data = (Object[]) data.get(itemLoopName);
             if (item_data != null) {
                 for (Object item_d : item_data) {
@@ -346,6 +377,10 @@ public class CometClient extends BaseClient {
                 //XXX support playerid and prefix
                 internalRequestItems(browseRequest.update(end, itemsPerResponse));
             }
+        }
+
+        protected void parseMessage(String itemLoopName, Message message) {
+            parseMessage("count", itemLoopName, message);
         }
     }
 
@@ -389,6 +424,13 @@ public class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             parseMessage("years_loop", message);
+        }
+    }
+
+    private class StatusListener extends ItemListener<Song> {
+        @Override
+        public void onMessage(ClientSessionChannel channel, Message message) {
+            parseMessage("playlist_tracks", "playlist_loop", message);
         }
     }
 
@@ -486,42 +528,35 @@ public class CometClient extends BaseClient {
 
     }
 
-    private static class SlimCommand {
-        private final String responseChannel;
+    private class SlimCommand {
         private final ClientSessionChannel.MessageListener listener;
 
-        /** We don't wan't a response => no response channel and no message listener */
+        /** We don't wan't a response => no message listener */
         public SlimCommand() {
-            this.responseChannel = null;
             this.listener = null;
         }
 
         /** Callback for the request response */
         public SlimCommand(ClientSessionChannel.MessageListener listener) {
-            this.responseChannel = null;
             this.listener = listener;
         }
 
-        /** Response channel for the events for the subscription */
-        public SlimCommand(String responseChannel) {
-            this.responseChannel = responseChannel;
-            this.listener = null;
+        /** 0: request channel, 1: response channel */
+        public String[] getChannels(Player player, String ... cmd) {
+            String channels[] = new String[2];
+            channels[0] = CHANNEL_SLIM_REQUEST;
+            channels[1] = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
+
+            return channels;
         }
 
-        public String getResponseChannel() {
-            return responseChannel;
-        }
-
-        public ClientSessionChannel.MessageListener getListener() {
+        public ClientSessionChannel.MessageListener getListener(String... cmd) {
             return listener;
-        }
-
-        public boolean isSubscribtionCommand() {
-            return (responseChannel != null);
         }
     }
 
     private static class BrowseRequest<T extends Item> {
+        private final Player player;
         private final String cmd;
         private final boolean fullList;
         private int start;
@@ -529,7 +564,8 @@ public class CometClient extends BaseClient {
         private final List<String> parameters;
         private final IServiceItemListCallback<T> callback;
 
-        public BrowseRequest(String cmd, int start, int itemsPerResponse, List<String> parameters, IServiceItemListCallback<T> callback) {
+        public BrowseRequest(Player player, String cmd, int start, int itemsPerResponse, List<String> parameters, IServiceItemListCallback<T> callback) {
+            this.player = player;
             this.cmd = cmd;
             this.fullList = (start < 0);
             this.start = (fullList ? 0 : start);
@@ -578,20 +614,11 @@ public class CometClient extends BaseClient {
     }
 
     private String sendCometMessage(final Player player, SlimCommand slimCommand, String... cmd) {
-        String channel;
-        String responseChannel;
-        if (slimCommand.isSubscribtionCommand()) {
-            boolean subscribe = isSubscribe(cmd);
-            // If this is not a subscription, use the request channel.
-            channel = subscribe ? CHANNEL_SLIM_SUBSCRIBE : CHANNEL_SLIM_REQUEST;
-            responseChannel = String.format(slimCommand.getResponseChannel(), mBayeuxClient.getId(), player.getId());
-        } else {
-            channel = CHANNEL_SLIM_REQUEST;
-            responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
-            if (slimCommand.getListener() != null) mPendingRequests.put(responseChannel, slimCommand.getListener());
-        }
-        sendCometMessage(player, channel, responseChannel, cmd);
-        return responseChannel;
+        String channels[] = slimCommand.getChannels(player, cmd);
+        sendCometMessage(player, channels[0], channels[1], cmd);
+        ClientSessionChannel.MessageListener listener = slimCommand.getListener(cmd);
+        if (listener != null) mPendingRequests.put(channels[1], listener);
+        return channels[1];
     }
 
     private void sendCometMessage(final Player player, String channel, final String responseChannel, String... cmd) {
@@ -606,13 +633,6 @@ public class CometClient extends BaseClient {
         mBayeuxClient.getChannel(channel).publish(data);
     }
 
-    private boolean isSubscribe(String... tokens) {
-        for (String token : tokens) {
-            if (token.contains("subscribe:")) return true;
-        }
-        return false;
-    }
-
     /**
      * Send an asynchronous request to the SqueezeboxServer for the specified items.
      * <p>
@@ -620,7 +640,7 @@ public class CometClient extends BaseClient {
      * <p>
      * See {@link ItemListener#parseMessage(String, Message)} for details.
      *
-     * @param playerId Id of the current player or null
+     * @param player player or null
      * @param cmd Identifies the type of items
      * @param start First item to return
      * @param pageSize No of items to return
@@ -628,14 +648,9 @@ public class CometClient extends BaseClient {
      * @see ItemListener#parseMessage(String, Message)
      */
 
-    private <T extends Item> void internalRequestItems(String playerId, String cmd, int start, int pageSize,
+    private <T extends Item> void internalRequestItems(Player player, String cmd, int start, int pageSize,
                                       List<String> parameters, final IServiceItemListCallback<T> callback) {
-        if (playerId != null) {
-            Log.e(TAG, "Haven't written code for players yet");
-            return;
-        }
-
-        final BrowseRequest<T> browseRequest = new BrowseRequest<>(cmd, start, pageSize, parameters, callback);
+        final BrowseRequest<T> browseRequest = new BrowseRequest<>(player, cmd, start, pageSize, parameters, callback);
         internalRequestItems(browseRequest);
     }
 
@@ -651,12 +666,12 @@ public class CometClient extends BaseClient {
         }
 
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mPendingBrowseRequests.put(sendCometMessage(null, command, request), browseRequest);
+            mPendingBrowseRequests.put(sendCometMessage(browseRequest.player, command, request), browseRequest);
         } else {
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    mPendingBrowseRequests.put(sendCometMessage(null, command, request), browseRequest);
+                    mPendingBrowseRequests.put(sendCometMessage(browseRequest.player, command, request), browseRequest);
                 }
             });
         }
@@ -684,6 +699,6 @@ public class CometClient extends BaseClient {
         if (player == null) {
             return;
         }
-        internalRequestItems(player.getId(), cmd, mPageSize, start, parameters, callback);
+        internalRequestItems(player, cmd, start, mPageSize, parameters, callback);
     }
 }
