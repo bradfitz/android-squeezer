@@ -32,8 +32,8 @@ interface SlimClient {
     void initialize();  // XXX Call this onCreate()?
 
     // XXX: Document.
-    void startConnect(final SqueezeService service, String hostPort, final String userName,
-                      final String password);
+    void startConnect(final SqueezeService service, String host, int cliPort, int httpPort,
+                      final String userName, final String password);
 
     // XXX: Document
     void disconnect(boolean loginFailed);

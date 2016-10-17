@@ -30,6 +30,7 @@ import org.cometd.client.transport.ClientTransport;
 import org.cometd.client.transport.LongPollingTransport;
 import org.eclipse.jetty.client.HttpClient;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
@@ -109,7 +111,7 @@ public class CometClient extends BaseClient {
                 .put("genres", new SlimCommand(new GenresListener()))
                 .put("years", new SlimCommand(new YearsListener()))
 
-                //XXX status is both request and subscribe
+                // Special handling for status as it is both request and subscribe
                 .put("status", new SlimCommand() {
                     private ClientSessionChannel.MessageListener statusListener = new StatusListener();
 
@@ -147,38 +149,50 @@ public class CometClient extends BaseClient {
     }
 
     // Shims around ConnectionState methods.
-    public void startConnect(final SqueezeService service, String hostPort, final String userName,
-                             final String password) {
+    public void startConnect(final SqueezeService service,
+                             final String host, final int cliPort, final int httpPort,
+                             final String userName, final String password) {
+        Log.i(TAG, "Connecting to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
         mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
 
-        HttpClient httpClient = new HttpClient();
+        final HttpClient httpClient = new HttpClient();
         try {
             httpClient.start();
         } catch (Exception e) {
             // XXX: Handle this properly. Maybe startConnect() should throw exceptions if the
             // connection fails?
-            e.printStackTrace();
+            Log.e(TAG, "Can't start HttpClient", e);
             mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
             return;
         }
 
-        // XXX: Need to split apart hostPort, and provide a config mechanism that can
-        // distinguish between CLI and Comet.
-        // XXX: Also need to deal with usernames and passwords, and HTTPS
-        //String url = String.format("http://%s/cometd", hostPort);
-        final String host = Util.parseHost(hostPort);
+        // XXX: Need to deal with usernames and passwords, and HTTPS
         currentHost.set(host);
-        httpPort.set(9001);  // hardcoded for now.
-        mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
-        String url = mUrlPrefix + "/cometd";
-
-        Map<String, Object> options = new HashMap<>();
-        ClientTransport transport = new LongPollingTransport(options, httpClient);
-        mBayeuxClient = new SqueezerBayeuxClient(url, transport);
 
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
+                if (httpPort != 0) {
+                    CometClient.this.httpPort.set(httpPort);
+                } else {
+                    try {
+                        int port = new HttpPortLearner().learnHttpPort(host, cliPort, userName, password);
+                        CometClient.this.httpPort.set(port);
+                        new Preferences(service).saveHttpPort(port);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Can't learn http port", e);
+                        mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
+                        return;
+                    }
+                }
+
+                mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
+                String url = mUrlPrefix + "/cometd";
+
+                Map<String, Object> options = new HashMap<>();
+                ClientTransport transport = new LongPollingTransport(options, httpClient);
+                mBayeuxClient = new SqueezerBayeuxClient(url, transport);
+
                 mBayeuxClient.handshake();
                 if (!mBayeuxClient.waitFor(10000, BayeuxClient.State.CONNECTED)) {
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
@@ -186,6 +200,7 @@ public class CometClient extends BaseClient {
                 }
 
                 // Connected from this point on.
+                Log.i(TAG, "Connected, start learning server capabilities");
                 mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
                 mConnectionState.setConnectionState(ConnectionState.LOGIN_STARTED);
                 mConnectionState.setConnectionState(ConnectionState.LOGIN_COMPLETED);
@@ -210,10 +225,6 @@ public class CometClient extends BaseClient {
                     }
                 });
 
-                //mConnectionState.startConnect(service, mEventBus, mExecutor, this, hostPort, userName, password);
-
-                // There's no persistent connection to manage.  Run the connection state machine
-                // so that the UI gets in to a consistent state
                 fetchPlayers();
 
                 // XXX: "listen 1" -- serverstatus?

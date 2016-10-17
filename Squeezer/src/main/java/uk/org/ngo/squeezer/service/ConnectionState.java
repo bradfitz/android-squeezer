@@ -82,7 +82,7 @@ public class ConnectionState {
     private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
 
     void disconnect(boolean loginFailed) {
-        Log.v(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
+        Log.i(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
         if (loginFailed) {
             setConnectionState(LOGIN_FAILED);
         } else {
@@ -104,7 +104,7 @@ public class ConnectionState {
      * @param connectionState The new connection state.
      */
     void setConnectionState(@ConnectionStates int connectionState) {
-        Log.d(TAG, "Setting connection state to: " + connectionState);
+        Log.i(TAG, "Setting connection state to: " + connectionState);
         mConnectionState = connectionState;
         mEventBus.postSticky(new ConnectionChanged(mConnectionState));
     }

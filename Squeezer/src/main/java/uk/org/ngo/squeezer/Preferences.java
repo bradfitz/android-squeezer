@@ -41,6 +41,9 @@ public final class Preferences {
     // e.g. "10.0.0.81:9090"
     public static final String KEY_SERVER_ADDRESS = "squeezer.serveraddr";
 
+    // Squeezebox Server port for http connections
+    private static final String KEY_SERVER_HTTP_PORT = "squeezer.http_port";
+
     // Optional Squeezebox Server name
     private static final String KEY_SERVER_NAME = "squeezer.server_name";
 
@@ -130,38 +133,63 @@ public final class Preferences {
         WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
         serverAddress.bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
-        if (serverAddress.bssId != null)
-            serverAddress.address = getStringPreference(KEY_SERVER_ADDRESS + "_" + serverAddress.bssId, null);
-        if (serverAddress.address == null)
-            serverAddress.address = getStringPreference(KEY_SERVER_ADDRESS, null);
+        String address = null;
+        if (serverAddress.bssId != null) {
+            address = getStringPreference(KEY_SERVER_ADDRESS + "_" + serverAddress.bssId, null);
+        }
+        if (address == null) {
+            address = getStringPreference(KEY_SERVER_ADDRESS, null);
+        }
+        serverAddress.setAddress(address);
 
         return serverAddress;
     }
 
     public static class ServerAddress {
         public String bssId;
-        public String address; // <host name or ip>:<port>
+        public String host;
+        public int cliPort;
 
-        @Override
-        public String toString() {
-            return (bssId != null ? bssId + "_ " : "") + address + "_";
+        public String address() {
+            return host + ":" + cliPort;
+
+        }
+
+        public String prefix() {
+            return (bssId != null ? bssId + "_ " : "") + address() + "_";
+        }
+
+        public void setAddress(String address) {
+            host = Util.parseHost(address);
+            cliPort= Util.parsePort(address);
         }
     }
 
-    public ServerAddress saveServerAddress(String address) {
+    public ServerAddress saveServerAddress(String host, int cliPort) {
         WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
         String bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
 
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(bssId != null ? KEY_SERVER_ADDRESS + "_" + bssId : KEY_SERVER_ADDRESS, address);
-        editor.commit();
-
         ServerAddress serverAddress = new ServerAddress();
         serverAddress.bssId = bssId;
-        serverAddress.address = address;
+        serverAddress.host = host;
+        serverAddress.cliPort = cliPort;
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(bssId != null ? KEY_SERVER_ADDRESS + "_" + bssId : KEY_SERVER_ADDRESS, serverAddress.address());
+        editor.commit();
 
         return serverAddress;
+    }
+
+    public int getHttpPort(ServerAddress serverAddress) {
+        return sharedPreferences.getInt(serverAddress.prefix() + KEY_SERVER_HTTP_PORT, 0);
+    }
+
+    public void saveHttpPort(int httpPort) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(getServerAddress().prefix() + KEY_SERVER_HTTP_PORT, httpPort);
+        editor.commit();
     }
 
     public String getServerName() {
@@ -169,13 +197,13 @@ public final class Preferences {
     }
 
     public String getServerName(ServerAddress serverAddress) {
-        String serverName = getStringPreference(serverAddress + KEY_SERVER_NAME, null);
-        return serverName != null ? serverName : serverAddress.address;
+        String serverName = getStringPreference(serverAddress.prefix() + KEY_SERVER_NAME, null);
+        return serverName != null ? serverName : serverAddress.host;
     }
 
     public void saveServerName(ServerAddress serverAddress, String serverName) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(serverAddress + KEY_SERVER_NAME, serverName);
+        editor.putString(serverAddress.prefix() + KEY_SERVER_NAME, serverName);
         editor.commit();
     }
 
@@ -184,7 +212,7 @@ public final class Preferences {
     }
 
     public String getUserName(ServerAddress serverAddress, String defaultValue) {
-        return getStringPreference(serverAddress + KEY_USERNAME, defaultValue);
+        return getStringPreference(serverAddress.prefix() + KEY_USERNAME, defaultValue);
     }
 
     public String getPassword(ServerAddress serverAddress) {
@@ -192,13 +220,13 @@ public final class Preferences {
     }
 
     public String getPassword(ServerAddress serverAddress, String defaultValue) {
-        return getStringPreference(serverAddress + KEY_PASSWORD, defaultValue);
+        return getStringPreference(serverAddress.prefix() + KEY_PASSWORD, defaultValue);
     }
 
     public void saveUserCredentials(ServerAddress serverAddress, String userName, String password) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(serverAddress + KEY_USERNAME, userName);
-        editor.putString(serverAddress + KEY_PASSWORD, password);
+        editor.putString(serverAddress.prefix() + KEY_USERNAME, userName);
+        editor.putString(serverAddress.prefix() + KEY_PASSWORD, password);
         editor.commit();
     }
 

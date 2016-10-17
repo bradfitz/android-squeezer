@@ -36,6 +36,7 @@ import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -956,8 +957,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
 
         Preferences.ServerAddress serverAddress = preferences.getServerAddress();
-        String ipPort = serverAddress.address;
-        if (ipPort == null) {
+        if (TextUtils.isEmpty(serverAddress.host)) {
             // Set up a server connection, if it is not present
             DisconnectedActivity.show(mActivity);
             return;
@@ -967,8 +967,9 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             Log.v(TAG, "Connection is already in progress, connecting aborted");
             return;
         }
-        Log.v(TAG, "startConnect, ipPort: " + ipPort);
-        mService.startConnect(ipPort, preferences.getUserName(serverAddress, "test"),
+        mService.startConnect(serverAddress.host, serverAddress.cliPort,
+                preferences.getHttpPort(serverAddress),
+                preferences.getUserName(serverAddress, "test"),
                 preferences.getPassword(serverAddress, "test1"));
     }
 

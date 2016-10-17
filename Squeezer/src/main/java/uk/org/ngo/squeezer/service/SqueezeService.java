@@ -890,10 +890,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public void startConnect(String hostPort, String userName, String password) {
+        public void startConnect(String host, int cliPort, int httpPort, String userName, String password) {
             mUsername = userName;
             mPassword = password;
-            mClient.startConnect(SqueezeService.this, hostPort, userName, password);
+            mClient.startConnect(SqueezeService.this, host, cliPort, httpPort, userName, password);
         }
 
         @Override

@@ -84,10 +84,10 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             mServerAddressEditText = (EditText) findViewById(R.id.server_address);
             mUserNameEditText = (EditText) findViewById(R.id.username);
             mPasswordEditText = (EditText) findViewById(R.id.password);
-            setServerAddress(serverAddress.address);
+            setServerAddress(serverAddress.address());
 
             // Set up the servers spinner.
-            mServersAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item);
+            mServersAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
             mServersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mServerName = (TextView) findViewById(R.id.server_name);
             mServersSpinner = (Spinner) findViewById(R.id.found_servers);
@@ -120,13 +120,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
 
     public void savePreferences() {
         String address = mServerAddressEditText.getText().toString();
-
-        // Append the default port if necessary.
-        if (!address.contains(":")) {
-            address += ":" + getResources().getInteger(R.integer.DefaultPort);
-        }
-
-        Preferences.ServerAddress serverAddress = mPreferences.saveServerAddress(address);
+        Preferences.ServerAddress serverAddress = mPreferences.saveServerAddress(Util.parseHost(address), Util.parsePort(address));
 
         final String serverName = getServerName(address);
         if (serverName != null) {
@@ -211,9 +205,10 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
 
         Preferences.ServerAddress serverAddress = new Preferences.ServerAddress();
         serverAddress.bssId = mBssId;
-        serverAddress.address = host + ":" + port;
+        serverAddress.host = host;
+        serverAddress.cliPort = port;
 
-        mServerAddressEditText.setText(serverAddress.address);
+        mServerAddressEditText.setText(serverAddress.address());
         mUserNameEditText.setText(mPreferences.getUserName(serverAddress));
         mPasswordEditText.setText(mPreferences.getPassword(serverAddress));
     }

@@ -783,11 +783,53 @@ class CliClient extends BaseClient {
     }
 
     // Shims around ConnectionState methods.
+    @Override
+    public void startConnect(final SqueezeService service,
+                             final String host, final int cliPort, int httpPort,
+                             final String userName, final String password) {
+        Log.i(TAG, "Connecting to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
+        final String cleanHostPort = host + ":" + cliPort;
 
-    public void startConnect(final SqueezeService service, String hostPort, final String userName,
-                             final String password) {
-        startConnect(service, mEventBus, mExecutor, hostPort, userName, password);
+        currentHost.set(host);
+        this.cliPort.set(cliPort);
+        this.httpPort.set(null);  // not known until later, after connect.
+        this.userName.set(userName);
+        this.password.set(password);
 
+        // Start the off-thread connect.
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Ensuring service is disconnected");
+                service.disconnect();
+                Socket socket = new Socket();
+                try {
+                    Log.d(TAG, "Connecting to: " + cleanHostPort);
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
+                    socket.connect(new InetSocketAddress(host, cliPort),
+                            4000 /* ms timeout */);
+                    socketRef.set(socket);
+                    Log.d(TAG, "Connected to: " + cleanHostPort);
+                    socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
+                    startListeningThread(mExecutor);
+                    onCliPortConnectionEstablished(userName, password);
+                    Authenticator.setDefault(new Authenticator() {
+                        @Override
+                        public PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(userName, password.toCharArray());
+                        }
+                    });
+                } catch (SocketTimeoutException e) {
+                    Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
+                } catch (IOException e) {
+                    Log.e(TAG, "IOException connecting to: " + cleanHostPort);
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
+                }
+            }
+
+        });
     }
 
     private interface CmdHandler {
@@ -1439,67 +1481,6 @@ class CliClient extends BaseClient {
                 });
             }
         }
-    }
-
-    private void startConnect(final SqueezeService service, @NonNull final EventBus eventBus,
-                      @NonNull final Executor executor,
-                      String hostPort, final String userName,
-                      final String password) {
-        Log.v(TAG, "startConnect");
-        // Common mistakes, based on crash reports...
-        if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
-            hostPort = hostPort.substring(7);
-        }
-
-        // Ending in whitespace?  From LatinIME, probably?
-        while (hostPort.endsWith(" ")) {
-            hostPort = hostPort.substring(0, hostPort.length() - 1);
-        }
-
-        final int port = Util.parsePort(hostPort);
-        final String host = Util.parseHost(hostPort);
-        final String cleanHostPort = host + ":" + port;
-
-        currentHost.set(host);
-        cliPort.set(port);
-        httpPort.set(null);  // not known until later, after connect.
-        this.userName.set(userName);
-        this.password.set(password);
-
-        // Start the off-thread connect.
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Ensuring service is disconnected");
-                service.disconnect();
-                Socket socket = new Socket();
-                try {
-                    Log.d(TAG, "Connecting to: " + cleanHostPort);
-                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
-                    socket.connect(new InetSocketAddress(host, port),
-                            4000 /* ms timeout */);
-                    socketRef.set(socket);
-                    Log.d(TAG, "Connected to: " + cleanHostPort);
-                    socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
-                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
-                    startListeningThread(executor);
-                    onCliPortConnectionEstablished(userName, password);
-                    Authenticator.setDefault(new Authenticator() {
-                        @Override
-                        public PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication(userName, password.toCharArray());
-                        }
-                    });
-                } catch (SocketTimeoutException e) {
-                    Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
-                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
-                } catch (IOException e) {
-                    Log.e(TAG, "IOException connecting to: " + cleanHostPort);
-                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
-                }
-            }
-
-        });
     }
 
     /**
