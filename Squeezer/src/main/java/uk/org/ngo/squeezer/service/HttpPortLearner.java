@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.regex.Pattern;
@@ -44,11 +45,12 @@ class HttpPortLearner {
      */
     public int learnHttpPort(String host, int cliPort, String userName, String password) throws IOException {
         Log.d(TAG, "learnHttpPort(" + userName + "@" + host + ":" + cliPort + ")");
-        socket = new Socket(host, cliPort);
+        socket = new Socket();
+        socket.connect(new InetSocketAddress(host, cliPort), 4000 /* ms timeout */);
         socketWriter = new PrintWriter(socket.getOutputStream(), true);
         socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        socket.setSoTimeout(10 * 1000);
+        socket.setSoTimeout(5 * 1000);
 
         executeCommand("login " + userName + " " + password);
         String response = executeCommand("pref httpport ?");
