@@ -86,7 +86,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         SqueezeboxServerMock.starter().start();
         mWantedState = ConnectionState.CONNECTION_FAILED;
 
-        mService.startConnect("localhost", 0, "test", "test");
+        mService.startConnect("localhost", 80, 0, "test", "test");
 
         synchronized(mLockWantedState) {
             mLockWantedState.wait(TIMEOUT_IN_MS);
@@ -106,8 +106,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
     public void testConnect() throws InterruptedException {
         SqueezeboxServerMock.starter().start();
 
-        mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT,
-                0, "test", "test");
+        mService.startConnect("localhost", SqueezeboxServerMock.CLI_PORT, 0, "test", "test");
 
         synchronized (mLockHandshakeComplete) {
             mLockHandshakeComplete.wait(TIMEOUT_IN_MS);
@@ -146,8 +145,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
     public void testConnectProtectedServer() throws InterruptedException {
         SqueezeboxServerMock.starter().username("user").password("1234").start();
 
-        mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT,
-                0, "user", "1234");
+        mService.startConnect("localhost", SqueezeboxServerMock.CLI_PORT, 0, "user", "1234");
 
         synchronized (mLockHandshakeComplete) {
             mLockHandshakeComplete.wait(TIMEOUT_IN_MS);
@@ -187,7 +185,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         SqueezeboxServerMock.starter().username("user").password("1234").start();
         mWantedState = ConnectionState.LOGIN_FAILED;
 
-        mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, 0, "test", "test");
+        mService.startConnect("localhost", SqueezeboxServerMock.CLI_PORT, 0, "test", "test");
 
         synchronized (mLockWantedState) {
             mLockWantedState.wait(TIMEOUT_IN_MS);
