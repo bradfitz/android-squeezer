@@ -61,7 +61,7 @@ dependencies {
     compile 'org.cometd.java:cometd-java-client:3.0.5'
     //compile 'org.slf4j:slf4j-log4j12'
     compile 'org.slf4j:slf4j-android:1.7.12'
-    compile 'org.cometd.java:cometd-websocket-jetty:2.9.1'
+    //compile 'org.cometd.java:cometd-websocket-jetty:2.9.1'
 
     // JVM tests
     testCompile 'junit:junit:4.12'
@@ -128,6 +128,7 @@ android {
             proguardFile "proguard-crashlytics.cfg"
             proguardFile "proguard-eventbus.cfg"
             proguardFile "proguard-guava.cfg"
+            proguardFile "proguard-cometd.cfg"
             proguardFile "proguard-squeezer.cfg"
         }
     }
