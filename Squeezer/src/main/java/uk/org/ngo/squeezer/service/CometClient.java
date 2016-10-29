@@ -234,28 +234,28 @@ public class CometClient extends BaseClient {
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mConnectionState.setCanMusicfolder("1".equals(message.getDataAsMap().get("_can")));
+                        mConnectionState.setCanMusicfolder(Long.valueOf(1).equals(message.getDataAsMap().get("_can")));
                     }
                 }, "can", "musicfolder", "?");
 
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mConnectionState.setCanRandomplay("1".equals(message.getDataAsMap().get("_can")));
+                        mConnectionState.setCanRandomplay(Long.valueOf(1).equals(message.getDataAsMap().get("_can")));
                     }
                 }, "can", "randomplay", "?");
 
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mConnectionState.setCanFavorites("1".equals(message.getDataAsMap().get("_can")));
+                        mConnectionState.setCanFavorites(Long.valueOf(1).equals(message.getDataAsMap().get("_can")));
                     }
                 }, "can", "favorites", "items", "?");
 
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mConnectionState.setCanMyApps("1".equals(message.getDataAsMap().get("_can")));
+                        mConnectionState.setCanMyApps(Long.valueOf(1).equals(message.getDataAsMap().get("_can")));
                     }
                 }, "can", "myapps", "items", "?");
 
