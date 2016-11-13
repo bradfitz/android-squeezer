@@ -17,13 +17,10 @@
 package uk.org.ngo.squeezer.service;
 
 import android.net.Uri;
-import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
-import com.google.common.base.Joiner;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -71,7 +68,6 @@ import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
-import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistCreateFailed;
 import uk.org.ngo.squeezer.service.event.PlaylistRenameFailed;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
@@ -84,14 +80,6 @@ class CliClient extends BaseClient {
 
     /** {@link java.util.regex.Pattern} that splits strings on spaces. */
     private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
-
-    /**
-     * Join multiple strings (skipping nulls) together with newlines.
-     */
-    private static final Joiner mNewlineJoiner = Joiner.on("\n").skipNulls();
-
-    /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
-    private final Map<String, Player> mPlayers = new HashMap<>();
 
 
     /** The types of command handler. */
@@ -196,9 +184,9 @@ class CliClient extends BaseClient {
 
     }
 
-    final ExtendedQueryFormatCmd[] extQueryFormatCmds = initializeExtQueryFormatCmds();
+    private final ExtendedQueryFormatCmd[] extQueryFormatCmds = initializeExtQueryFormatCmds();
 
-    final Map<String, ExtendedQueryFormatCmd> extQueryFormatCmdMap
+    private final Map<String, ExtendedQueryFormatCmd> extQueryFormatCmdMap
             = initializeExtQueryFormatCmdMap();
 
     private ExtendedQueryFormatCmd[] initializeExtQueryFormatCmds() {
@@ -353,6 +341,7 @@ class CliClient extends BaseClient {
     }
 
     // Call through to mConnectionState implementation for the moment.
+    @Override
     public void disconnect(boolean loginFailed) {
         currentConnectionGeneration.incrementAndGet();
         mConnectionState.disconnect(loginFailed);
@@ -374,45 +363,25 @@ class CliClient extends BaseClient {
     private int mCorrelationId = 0;
 
     @Override
-    public synchronized void sendCommandImmediately(String... commands) {
-        if (commands.length == 0) {
-            return;
-        }
+    public synchronized void sendCommandImmediately(Player player, String command) {
+        String formattedCommand = (player!= null ? Util.encode(player.getId()) + " " + command : command);
+
         PrintWriter writer = socketWriter.get();
         if (writer == null) {
             return;
         }
 
-        String formattedCommands = mNewlineJoiner.join(commands);
-        Log.v(TAG, "SEND: " + formattedCommands);
+        Log.v(TAG, "SEND: " + formattedCommand);
 
         // Make sure that username/password do not make it to Crashlytics.
-        if (commands[0].startsWith("login ")) {
-            Util.crashlyticsSetString("lastCommands", "login [username] [password]");
+        if (command.startsWith("login ")) {
+            Util.crashlyticsSetString("lastCommand", "login [username] [password]");
         } else {
-            Util.crashlyticsSetString("lastCommands", formattedCommands);
+            Util.crashlyticsSetString("lastCommand", formattedCommand);
         }
 
-        writer.println(formattedCommands);
+        writer.println(formattedCommand);
         writer.flush();
-    }
-
-    @Override
-    public void sendCommand(final String command) {
-        if (Looper.getMainLooper() != Looper.myLooper()) {
-            sendCommandImmediately(command);
-        } else {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    sendCommandImmediately(command);
-                }
-            });
-        }
-    }
-
-    public void sendPlayerCommand(final Player player, final String command) {
-        sendCommand(Util.encode(player.getId()) + " " + command);
     }
 
     /**
@@ -428,110 +397,43 @@ class CliClient extends BaseClient {
      * <p>
      * If a reply with with matching entry is this list comes in, it is discarded.
      */
-    private final Map<Integer, IServiceItemListCallback> mPendingRequests
+    private final Map<Integer, BrowseRequest> mPendingRequests
             = new ConcurrentHashMap<>();
 
+    @Override
     public void cancelClientRequests(Object client) {
-        for (Map.Entry<Integer, IServiceItemListCallback> entry : mPendingRequests.entrySet()) {
-            if (entry.getValue().getClient() == client) {
+        for (Map.Entry<Integer, BrowseRequest> entry : mPendingRequests.entrySet()) {
+            if (entry.getValue().getCallback().getClient() == client) {
                 Log.i(TAG, "cancel request: [" + entry.getKey() + ";" + entry.getValue() +"]");
                 mPendingRequests.remove(entry.getKey());
             }
         }
     }
 
-    /**
-     * Send an asynchronous request to the SqueezeboxServer for the specified items.
-     * <p>
-     * Items are returned to the caller via the specified callback.
-     * <p>
-     * See {@link #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for details.
-     *
-     * @param playerId Id of the current player or null
-     * @param cmd Identifies the type of items
-     * @param start First item to return
-     * @param pageSize No of items to return
-     * @param parameters Item specific parameters for the request
-     * @see #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)
-     */
-    private void internalRequestItems(String playerId, String cmd, int start, int pageSize, List<String> parameters, IServiceItemListCallback callback) {
-        mPendingRequests.put(mCorrelationId, callback);
-        final StringBuilder sb = new StringBuilder(cmd + " " + start + " " + pageSize);
-        if (playerId != null) {
-            sb.insert(0, Util.encode(playerId) + " ");
-        }
-        if (parameters != null) {
-            for (String parameter : parameters) {
+    @Override
+    protected <T extends Item> void internalRequestItems(BrowseRequest<T> request) {
+        mPendingRequests.put(mCorrelationId, request);
+        final StringBuilder sb = new StringBuilder(request.getRequest() + " " + request.getStart() + " " + request.getItemsPerResponse());
+        if (request.getParameters() != null) {
+            for (String parameter : request.getParameters()) {
                 sb.append(" ").append(Util.encode(parameter));
             }
         }
         sb.append(" correlationid:");
         sb.append(mCorrelationId++);
-        sendCommand(sb.toString());
+        command(request.getPlayer(), sb.toString());
     }
 
-    /**
-     * Send an asynchronous request to the SqueezeboxServer for the specified items.
-     * <p>
-     * Items are requested in chunks of <code>R.integer.PageSize</code>, and returned
-     * to the caller via the specified callback.
-     * <p>
-     * If start is zero, this will order one item, to quickly learn the number of items
-     * from the server. When the server response with this item it is transferred to the
-     * caller. The remaining items in the first page are then ordered, and transferred
-     * to the caller when they arrive.
-     * <p>
-     * If start is < 0, it means the caller wants the entire list. They are ordered in
-     * pages, and transferred to the caller as they arrive.
-     * <p>
-     * Otherwise request a page of items starting from start.
-     * <p>
-     * See {@link #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for details.
-     *
-     * @param playerId Id of the current player or null
-     * @param cmd Identifies the type of items
-     * @param start First item to return
-     * @param parameters Item specific parameters for the request
-     * @see #parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)
-     */
-    private void internalRequestItems(String playerId, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-        boolean full_list = (start < 0);
-
-        if (full_list) {
-            if (parameters == null)
-                parameters = new ArrayList<>();
-            parameters.add("full_list:1");
-        }
-
-        internalRequestItems(playerId, cmd, (full_list ? 0 : start), (start == 0 ? 1 : mPageSize), parameters, callback);
+    @Override
+    public void requestPlayerStatus(Player player) {
+        playerCommand(player, "status - 1 tags:" + SONGTAGS);
     }
 
-    void requestItems(Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-        internalRequestItems(player.getId(), cmd, start, parameters, callback);
+    @Override
+    public void subscribePlayerStatus(Player player, String playerSubscriptionType) {
+        playerCommand(player, "status - 1 subscribe:" + playerSubscriptionType + " tags:" + SONGTAGS);
     }
 
-    public void requestItems(String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-        internalRequestItems(null, cmd, start, parameters, callback);
-    }
-
-    public void requestItems(String cmd, int start, IServiceItemListCallback callback) {
-        requestItems(cmd, start, null, callback);
-    }
-
-    void requestItems(String cmd, int start, int pageSize, List<String> parameters, IServiceItemListCallback callback) {
-        internalRequestItems(null, cmd, start, pageSize, parameters, callback);
-    }
-
-    public void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback callback) {
-        requestItems(cmd, start, pageSize, null, callback);
-    }
-
-    public void requestPlayerItems(@Nullable Player player, String cmd, int start, List<String> parameters, IServiceItemListCallback callback) {
-        if (player == null) {
-            return;
-        }
-        requestItems(player, cmd, start, parameters, callback);
-    }
 
     /**
      * Data for {@link CliClient#parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)}
@@ -601,14 +503,12 @@ class CliClient extends BaseClient {
 
         final int ofs = mSpaceSplitPattern.split(cmd.cmd).length + (cmd.playerSpecific ? 1 : 0) + (cmd.prefixed ? 1 : 0);
         int actionsCount = 0;
-        final String playerid = (cmd.playerSpecific ? tokens.get(0) + " " : "");
         final String prefix = (cmd.prefixed ? tokens.get(cmd.playerSpecific ? 1 : 0) + " " : "");
         final int start = Util.parseDecimalIntOrZero(tokens.get(ofs));
         final int itemsPerResponse = Util.parseDecimalIntOrZero(tokens.get(ofs + 1));
 
         int correlationId = 0;
         boolean rescan = false;
-        boolean full_list = false;
         final Map<String, String> taggedParameters = new HashMap<>();
         final Map<String, String> parameters = new HashMap<>();
         final Set<String> countIdSet = new HashSet<>();
@@ -635,9 +535,6 @@ class CliClient extends BaseClient {
 
             if ("rescan".equals(key)) {
                 rescan = (Util.parseDecimalIntOrZero(value) == 1);
-            } else if ("full_list".equals(key)) {
-                full_list = (Util.parseDecimalIntOrZero(value) == 1);
-                taggedParameters.put(key, token);
             } else if ("correlationid".equals(key)) {
                 correlationId = Util.parseDecimalIntOrZero(value);
                 taggedParameters.put(key, token);
@@ -674,7 +571,8 @@ class CliClient extends BaseClient {
         // Process the lists for all the registered handlers
         int end = start + itemsPerResponse;
         int max = 0;
-        IServiceItemListCallback callback = mPendingRequests.get(correlationId);
+        BrowseRequest request = mPendingRequests.get(correlationId);
+        IServiceItemListCallback callback = request.getCallback();
         for (SqueezeParserInfo parser : cmd.parserInfos) {
             Integer count = counts.get(parser.count_id);
             int countValue = (count == null ? 0 : count);
@@ -691,10 +589,9 @@ class CliClient extends BaseClient {
         // If the client is still around check if we need to order more items,
         // otherwise were done, so remove the callback
         if (callback != null) {
-            if ((full_list || end % mPageSize != 0) && end < max) {
-                int count = (end + mPageSize > max ? max - end : full_list ? mPageSize : mPageSize - itemsPerResponse);
+            if ((request.isFullList() || end % mPageSize != 0) && end < max) {
+                int count = (end + mPageSize > max ? max - end : request.isFullList() ? mPageSize : mPageSize - request.getItemsPerResponse());
                 StringBuilder cmdline = new StringBuilder();
-                cmdline.append(playerid);
                 cmdline.append(prefix);
                 cmdline.append(cmd.cmd);
                 cmdline.append(" ");
@@ -704,7 +601,8 @@ class CliClient extends BaseClient {
                 for (String parameter : taggedParameters.values()) {
                     cmdline.append(" ").append(parameter);
                 }
-                sendCommandImmediately(cmdline.toString());
+                request.update(end, itemsPerResponse);
+                sendCommandImmediately(request.getPlayer(), cmdline.toString());
             } else
                 mPendingRequests.remove(correlationId);
         }
@@ -791,7 +689,6 @@ class CliClient extends BaseClient {
         final String cleanHostPort = host + ":" + cliPort;
 
         currentHost.set(host);
-        this.cliPort.set(cliPort);
         this.httpPort.set(null);  // not known until later, after connect.
         this.userName.set(userName);
         this.password.set(password);
@@ -886,7 +783,7 @@ class CliClient extends BaseClient {
                             mEventBus.post(new PlaylistRenameFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
                                     tokenMap.get("newname"))));
                         } else {
-                            sendCommandImmediately(
+                            sendCommandImmediately(null,
                                     "playlists rename playlist_id:" + tokenMap.get("playlist_id")
                                             + " newname:" + Util.encode(tokenMap.get("newname")));
                         }
@@ -965,7 +862,7 @@ class CliClient extends BaseClient {
 
                 // Fetch the next strings until the list is completely translated
                 if (maxOrdinal < ServerString.values().length - 1) {
-                    sendCommandImmediately(
+                    sendCommandImmediately(null,
                             "getstring " + ServerString.values()[maxOrdinal + 1].name());
                 }
             }
@@ -984,6 +881,10 @@ class CliClient extends BaseClient {
                 String version = tokens.get(1);
                 mConnectionState.setServerVersion(version);
                 Util.crashlyticsSetString("server_version", version);
+
+                /* Start an asynchronous fetch of the squeezeservers localized strings */
+                //XXX does not belong here
+                sendCommandImmediately(null, "getstring " + ServerString.values()[0].name());
             }
         });
 
@@ -1064,15 +965,13 @@ class CliClient extends BaseClient {
                 Log.i(TAG, "Player preference received: " + tokens);
                 if (tokens.size() == 4) {
                     Player player = mPlayers.get(Util.decode(tokens.get(0)));
-                    if (player == null) {
-                        return;
-                    }
-
-                    String pref = Util.decode(tokens.get(2));
-                    if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
-                        //noinspection WrongConstant
-                        mEventBus.post(new PlayerPrefReceived(player, pref,
-                                Util.decode(tokens.get(3))));
+                    if (player != null) {
+                        String pref = Util.decode(tokens.get(2));
+                        if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
+                            //noinspection WrongConstant
+                            mEventBus.post(new PlayerPrefReceived(player, pref,
+                                    Util.decode(tokens.get(3))));
+                        }
                     }
                 }
             }
@@ -1119,11 +1018,10 @@ class CliClient extends BaseClient {
 
                     // XXX: Can we ever see a status for a player we don't know about?
                     // XXX: Maybe the better thing to do is to add it.
-                    if (player == null)
-                        return;
-
-                    HashMap<String, String> tokenMap = parseTokens(tokens);
-                    parseStatus(player, null, tokenMap);
+                    if (player != null) {
+                        HashMap<String, String> tokenMap = parseTokens(tokens);
+                        parseStatus(player, null, tokenMap);
+                    }
                 } else {
                     parseSqueezerList(extQueryFormatCmdMap.get("status"), tokens);
                 }
@@ -1136,17 +1034,15 @@ class CliClient extends BaseClient {
                 if (tokens.size() == 5 && tokens.get(2).equals("server")) {
                     String playerId = Util.decode(tokens.get(0));
                     Player player = mPlayers.get(playerId);
-                    if (player == null) {
-                        return;
-                    }
+                    if (player != null) {
+                        if (tokens.get(3).equals("volume")) {
+                            updatePlayerVolume(playerId, Util.parseDecimalIntOrZero(tokens.get(4)));
+                        }
 
-                    if (tokens.get(3).equals("volume")) {
-                        updatePlayerVolume(playerId, Util.parseDecimalIntOrZero(tokens.get(4)));
-                    }
-
-                    @Player.Pref.Name String pref = tokens.get(3);
-                    if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
-                        mEventBus.post(new PlayerPrefReceived(player, pref, Util.decode(tokens.get(4))));
+                        @Player.Pref.Name String pref = tokens.get(3);
+                        if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
+                            mEventBus.post(new PlayerPrefReceived(player, pref, Util.decode(tokens.get(4))));
+                        }
                     }
                 }
             }
@@ -1172,7 +1068,7 @@ class CliClient extends BaseClient {
         return handlers;
     }
 
-    public void onLineReceived(String serverLine) {
+    private void onLineReceived(String serverLine) {
         Log.v(TAG, "RECV: " + serverLine);
 
         // Make sure that username/password do not make it to Crashlytics.
@@ -1272,7 +1168,10 @@ class CliClient extends BaseClient {
         Log.v(TAG, "Playlist notification received: " + tokens);
         String notification = tokens.get(2);
         if ("newsong".equals(notification)) {
-            sendCommand(tokens.get(0) + " status - 1 tags:" + SqueezeService.SONGTAGS);
+            Player player = mPlayers.get(tokens.get(0));
+            if (player != null) {
+                requestPlayerStatus(player);
+            }
         } else if ("addtracks".equals(notification)) {
             mEventBus.postSticky(new PlaylistTracksAdded());
         } else if ("delete".equals(notification)) {
@@ -1287,21 +1186,17 @@ class CliClient extends BaseClient {
 
     private void updatePlayerVolume(String playerId, int newVolume) {
         Player player = mPlayers.get(playerId);
-        if (player == null) {
-            return;
+        if (player != null) {
+            player.getPlayerState().setCurrentVolume(newVolume);
+            mEventBus.post(new PlayerVolume(newVolume, player));
         }
-        player.getPlayerState().setCurrentVolume(newVolume);
-        mEventBus.post(new PlayerVolume(newVolume, player));
     }
 
     private void updatePlayStatus(@NonNull String playerId, String playStatus) {
         Player player = mPlayers.get(playerId);
-
-        if (player == null) {
-            return;
+        if (player != null) {
+            updatePlayStatus(player, playStatus);
         }
-
-        updatePlayStatus(player, playStatus);
     }
 
     /**
@@ -1316,15 +1211,15 @@ class CliClient extends BaseClient {
      */
     private void onAuthenticated() {
         fetchPlayers();
-        sendCommandImmediately(
-                "listen 1", // subscribe to all server notifications
-                "can musicfolder ?", // learn music folder browsing support
-                "can randomplay ?", // learn random play function functionality
-                "can favorites items ?", // learn support for "Favorites" plugin
-                "can myapps items ?", // learn support for "MyApps" plugin
-                "pref httpport ?", // learn the HTTP port (needed for images)
-                "pref jivealbumsort ?", // learn the preferred album sort order
-                "pref mediadirs ?", // learn the base path(s) of the server music library
+        sendCommandImmediately(null,
+                "listen 1\n"+ // subscribe to all server notifications
+                "can musicfolder ?\n"+ // learn music folder browsing support
+                "can randomplay ?\n"+ // learn random play function functionality
+                "can favorites items ?\n"+ // learn support for "Favorites" plugin
+                "can myapps items ?\n"+ // learn support for "MyApps" plugin
+                "pref httpport ?\n"+ // learn the HTTP port (needed for images)
+                "pref jivealbumsort ?\n"+ // learn the preferred album sort order
+                "pref mediadirs ?\n"+ // learn the base path(s) of the server music library
 
                 // Fetch the version number. This must be the last thing
                 // fetched, as seeing the result triggers the
@@ -1332,60 +1227,6 @@ class CliClient extends BaseClient {
                 "version ?"
         );
     }
-
-    /**
-     * Queries for all players known by the server.
-     * </p>
-     * Posts a PlayersChanged message if the list of players has changed.
-     */
-    private void fetchPlayers() {
-        requestItems("players", -1, new IServiceItemListCallback<Player>() {
-            private final HashMap<String, Player> players = new HashMap<>();
-
-            @Override
-            public void onItemsReceived(int count, int start, Map<String, String> parameters,
-                                        List<Player> items, Class<Player> dataType) {
-                for (Player player : items) {
-                    players.put(player.getId(), player);
-                }
-
-                // If all players have been received then determine the new active player.
-                if (start + items.size() >= count) {
-                    if (players.equals(mPlayers)) {
-                        return;
-                    }
-
-                    mPlayers.clear();
-                    mPlayers.putAll(players);
-
-                    // XXX: postSticky?
-                    mEventBus.postSticky(new PlayersChanged(mPlayers));
-                }
-            }
-
-            @Override
-            public Object getClient() {
-                return CliClient.this;
-            }
-        });
-    }
-
-    private int getHttpPort() {
-        return httpPort.get();
-    }
-
-    private String getCurrentHost() {
-        return currentHost.get();
-    }
-
-    public String[] getMediaDirs() {
-        return mConnectionState.getMediaDirs();
-    }
-
-    public String getPreferredAlbumSort() {
-        return mConnectionState.getPreferredAlbumSort();
-    }
-
 
 
     // Incremented once per new connection and given to the Thread
@@ -1399,17 +1240,11 @@ class CliClient extends BaseClient {
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<>();
 
     // Where we connected (or are connecting) to:
-    private final AtomicReference<String> currentHost = new AtomicReference<>();
-
-    private final AtomicReference<Integer> httpPort = new AtomicReference<>();
-
-    private final AtomicReference<Integer> cliPort = new AtomicReference<>();
-
     private final AtomicReference<String> userName = new AtomicReference<>();
 
     private final AtomicReference<String> password = new AtomicReference<>();
 
-    void startListeningThread(@NonNull Executor executor) {
+    private void startListeningThread(@NonNull Executor executor) {
         Thread listeningThread = new ListeningThread(executor, this, socketRef.get(),
                 currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
@@ -1420,11 +1255,11 @@ class CliClient extends BaseClient {
 
         private final Socket socket;
 
-        private final SlimClient client;
+        private final CliClient client;
 
         private final int generationNumber;
 
-        private ListeningThread(@NonNull Executor executor, SlimClient client, Socket socket, int generationNumber) {
+        private ListeningThread(@NonNull Executor executor, CliClient client, Socket socket, int generationNumber) {
             mExecutor = executor;
             this.client = client;
             this.socket = socket;
@@ -1502,7 +1337,7 @@ class CliClient extends BaseClient {
      */
     private void onCliPortConnectionEstablished(final String userName, final String password) {
         mConnectionState.setConnectionState(ConnectionState.LOGIN_STARTED);
-        sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
+        sendCommandImmediately(null, "login " + Util.encode(userName) + " " + Util.encode(password));
     }
 
 }

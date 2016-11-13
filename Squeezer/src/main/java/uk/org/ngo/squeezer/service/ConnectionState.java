@@ -191,6 +191,7 @@ public class ConnectionState {
 
     private void maybeSendHandshakeComplete() {
         if (isHandshakeComplete()) {
+            //XXX strings?
             mEventBus.postSticky(new HandshakeComplete(
                     canFavorites(), canMusicfolder(),
                     canMyApps(), canRandomplay(),
