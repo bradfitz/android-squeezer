@@ -140,7 +140,7 @@ interface SlimClient {
     void requestPlayerStatus(Player newActivePlayer);
 
     void subscribePlayerStatus(Player newActivePlayer,
-                               @PlayerState.PlayerSubscriptionType String playerSubscriptionType);
+                               @PlayerState.PlayerSubscriptionType String subscriptionType);
 
     String[] getMediaDirs();
 

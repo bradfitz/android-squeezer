@@ -89,6 +89,8 @@ class CometClient extends BaseClient {
     private final Map<String, BrowseRequest<? extends Item>> mPendingBrowseRequests
             = new ConcurrentHashMap<>();
 
+    private final ClientSessionChannel.MessageListener publishListener = new PublishListener();
+
     // All requests are tagged with a correlation id, which can be used when
     // asynchronous responses are received.
     private volatile int mCorrelationId = 0;
@@ -243,23 +245,6 @@ class CometClient extends BaseClient {
                         mConnectionState.setServerVersion((String) message.getDataAsMap().get("_version"));
                     }
                 }, "version", "?");
-
-                // XXX: Skipped "pref httpport ?"
-
-//                sendCommandImmediately(
-//                        "listen 1", // subscribe to all server notifications
-//                        "can musicfolder ?", // learn music folder browsing support
-//                        "can randomplay ?", // learn random play function functionality
-//                        "can favorites items ?", // learn support for "Favorites" plugin
-//                        "can myapps items ?", // learn support for "MyApps" plugin
-//                        "pref httpport ?", // learn the HTTP port (needed for images)
-//                        "pref jivealbumsort ?", // learn the preferred album sort order
-//                        "pref mediadirs ?", // learn the base path(s) of the server music library
-//
-//                        // Fetch the version number. This must be the last thing
-//                        // fetched, as seeing the result triggers the
-//                        // "handshake is complete" logic elsewhere.
-//                        "version ?"
             }
         });
     }
@@ -309,7 +294,17 @@ class CometClient extends BaseClient {
 
     }
 
-    abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {
+    private static class PublishListener implements ClientSessionChannel.MessageListener {
+        @Override
+        public void onMessage(ClientSessionChannel channel, Message message) {
+            if (!message.isSuccessful()) {
+                // TODO crashlytics
+                Log.e(TAG, message.getJSON());
+            }
+        }
+    }
+
+    private abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ClientSessionChannel.MessageListener {
         void parseMessage(String countName, String itemLoopName, Message message) {
             @SuppressWarnings("unchecked")
             BrowseRequest<T> browseRequest = (BrowseRequest<T>) mPendingBrowseRequests.get(message.getChannel());
@@ -461,24 +456,14 @@ class CometClient extends BaseClient {
         return request(null, callback, cmd);
     }
 
-    private String request(Player player, ClientSessionChannel.MessageListener callback, String... cmd) {
+    private String request(final Player player, ClientSessionChannel.MessageListener callback, String... cmd) {
         String responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
         if (callback != null) mPendingRequests.put(responseChannel, callback);
-        sendCometMessage(player, CHANNEL_SLIM_REQUEST, responseChannel, cmd);
+        publishMessage(player, CHANNEL_SLIM_REQUEST, responseChannel, null, cmd);
         return responseChannel;
     }
 
-    private String sendCometMessage(final Player player, final String channel, final String responseChannel, String cmd) {
-        return sendCometMessage(player, channel, responseChannel, null, mSpaceSplitPattern.split(cmd));
-    }
-
-    private String sendCometMessage(final Player player, final String channel, final String responseChannel, ClientSessionChannel.MessageListener listener, String... cmd) {
-        sendCometMessage(player, channel, responseChannel, cmd);
-        if (listener != null) mPendingRequests.put(responseChannel, listener);
-        return responseChannel;
-    }
-
-    private void sendCometMessage(final Player player, String channel, final String responseChannel, String... cmd) {
+    private void publishMessage(final Player player, String channel, final String responseChannel, ClientSessionChannel.MessageListener publishListener, String... cmd) {
         List<Object> request = new ArrayList<>();
         request.add(player == null ? "" : player.getId());
         request.add(cmd);
@@ -487,7 +472,7 @@ class CometClient extends BaseClient {
         data.put("request", request);
         data.put("response", responseChannel);
 
-        mBayeuxClient.getChannel(channel).publish(data);
+        mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.publishListener);
     }
 
     @Override
@@ -502,15 +487,13 @@ class CometClient extends BaseClient {
             request[i+3] = browseRequest.getParameters().get(i);
         }
 
-        final String responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
-
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mPendingBrowseRequests.put(sendCometMessage(browseRequest.getPlayer(), CHANNEL_SLIM_REQUEST, responseChannel, listener, request), browseRequest);
+            mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, request), browseRequest);
         } else {
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    mPendingBrowseRequests.put(sendCometMessage(browseRequest.getPlayer(), CHANNEL_SLIM_REQUEST, responseChannel, listener, request), browseRequest);
+                    mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, request), browseRequest);
                 }
             });
         }
@@ -518,12 +501,20 @@ class CometClient extends BaseClient {
 
     @Override
     public void requestPlayerStatus(Player player) {
-        sendCometMessage(player, CHANNEL_SLIM_REQUEST, playerStatusResponseChannel(player), "status - 1 tags:" + SONGTAGS);
+        publishMessage(player, CHANNEL_SLIM_REQUEST, playerStatusResponseChannel(player), null, "status", "-", "1", "tags:" + SONGTAGS);
     }
 
     @Override
-    public void subscribePlayerStatus(Player player, String playerSubscriptionType) {
-        sendCometMessage(player, CHANNEL_SLIM_SUBSCRIBE, playerStatusResponseChannel(player), "status - 1 subscribe:" + playerSubscriptionType + " tags:" + SONGTAGS);
+    public void subscribePlayerStatus(final Player player, final String subscriptionType) {
+        publishMessage(player, CHANNEL_SLIM_SUBSCRIBE, playerStatusResponseChannel(player), new PublishListener() {
+            @Override
+            public void onMessage(ClientSessionChannel channel, Message message) {
+                super.onMessage(channel, message);
+                if (message.isSuccessful()) {
+                    player.getPlayerState().setSubscriptionType(subscriptionType);
+                }
+            }
+        }, "status", "-", "1", "subscribe:" + subscriptionType, "tags:" + SONGTAGS);
     }
 
     private String playerStatusResponseChannel(Player player) {

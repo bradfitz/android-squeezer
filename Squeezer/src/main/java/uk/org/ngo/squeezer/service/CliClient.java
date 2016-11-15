@@ -430,8 +430,8 @@ class CliClient extends BaseClient {
     }
 
     @Override
-    public void subscribePlayerStatus(Player player, String playerSubscriptionType) {
-        playerCommand(player, "status - 1 subscribe:" + playerSubscriptionType + " tags:" + SONGTAGS);
+    public void subscribePlayerStatus(Player player, String subscriptionType) {
+        playerCommand(player, "status - 1 subscribe:" + subscriptionType + " tags:" + SONGTAGS);
     }
 
 
@@ -1020,6 +1020,7 @@ class CliClient extends BaseClient {
                     // XXX: Maybe the better thing to do is to add it.
                     if (player != null) {
                         HashMap<String, String> tokenMap = parseTokens(tokens);
+                        player.getPlayerState().setSubscriptionType(tokenMap.get("subscribe"));
                         parseStatus(player, null, tokenMap);
                     }
                 } else {
