@@ -823,7 +823,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void adjustVolumeBy(int delta) {
             if (delta > 0) {
-                activePlayerCommand("mixer volume %2B" + delta);
+                activePlayerCommand("mixer volume " + mClient.encode("+" + delta));
             } else if (delta < 0) {
                 activePlayerCommand("mixer volume " + delta);
             }
@@ -871,7 +871,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void playerRename(Player player, String newName) {
-            mClient.playerCommand(player, "name " + Util.encode(newName));
+            mClient.playerCommand(player, "name " + mClient.encode(newName));
         }
 
         @Override
@@ -882,7 +882,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
             Player master = mPlayers.get(masterId);
-            mClient.playerCommand(master, "sync " + Util.encode(slave.getId()));
+            mClient.playerCommand(master, "sync " + mClient.encode(slave.getId()));
         }
 
         @Override
@@ -981,7 +981,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void setPreferredAlbumSort(String preferredAlbumSort) {
             if (isConnected()) {
-                mClient.command("pref jivealbumsort " + Util.encode(preferredAlbumSort));
+                mClient.command("pref jivealbumsort " + mClient.encode(preferredAlbumSort));
             }
         }
 
@@ -1162,7 +1162,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            activePlayerCommand("playlist save " + Util.encode(name));
+            activePlayerCommand("playlist save " + mClient.encode(name));
             return true;
         }
 
@@ -1323,7 +1323,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return;
             }
-            activePlayerCommand("alarm delete id:" + Util.encode(id));
+            activePlayerCommand("alarm delete id:" + mClient.encode(id));
         }
 
         @Override
@@ -1331,33 +1331,33 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return;
             }
-            activePlayerCommand("alarm update id:" + Util.encode(id) + " time:" + time);
+            activePlayerCommand("alarm update id:" + mClient.encode(id) + " time:" + time);
         }
 
         @Override
         public void alarmAddDay(String id, int day) {
-            activePlayerCommand("alarm update id:" + Util.encode(id) + " dowAdd:" + day);
+            activePlayerCommand("alarm update id:" + mClient.encode(id) + " dowAdd:" + day);
         }
 
         @Override
         public void alarmRemoveDay(String id, int day) {
-            activePlayerCommand("alarm update id:" + Util.encode(id) + " dowDel:" + day);
+            activePlayerCommand("alarm update id:" + mClient.encode(id) + " dowDel:" + day);
         }
 
         @Override
         public void alarmEnable(String id, boolean enabled) {
-            activePlayerCommand("alarm update id:" + Util.encode(id) + " enabled:" + (enabled ? "1" : "0"));
+            activePlayerCommand("alarm update id:" + mClient.encode(id) + " enabled:" + (enabled ? "1" : "0"));
         }
 
         @Override
         public void alarmRepeat(String id, boolean repeat) {
-            activePlayerCommand("alarm update id:" + Util.encode(id) + " repeat:" + (repeat ? "1" : "0"));
+            activePlayerCommand("alarm update id:" + mClient.encode(id) + " repeat:" + (repeat ? "1" : "0"));
         }
 
         @Override
         public void alarmSetPlaylist(String id, AlarmPlaylist playlist) {
             String url = "".equals(playlist.getId()) ? "0" : playlist.getId();
-            activePlayerCommand("alarm update id:" + Util.encode(id) + " url:" + Util.encode(url));
+            activePlayerCommand("alarm update id:" + mClient.encode(id) + " url:" + mClient.encode(url));
         }
 
         /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
@@ -1516,7 +1516,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mClient.command("playlists new name:" + Util.encode(name));
+            mClient.command("playlists new name:" + mClient.encode(name));
             return true;
         }
 
@@ -1537,7 +1537,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
             mClient.command(
                     "playlists rename " + playlist.getFilterParameter() + " dry_run:1 newname:"
-                            + Util.encode(newname));
+                            + mClient.encode(newname));
             return true;
         }
 

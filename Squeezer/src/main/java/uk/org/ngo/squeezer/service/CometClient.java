@@ -520,4 +520,9 @@ class CometClient extends BaseClient {
     private String playerStatusResponseChannel(Player player) {
         return String.format(CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT, mBayeuxClient.getId(), player.getId());
     }
+
+    @Override
+    public String encode(String s) {
+        return s;
+    }
 }

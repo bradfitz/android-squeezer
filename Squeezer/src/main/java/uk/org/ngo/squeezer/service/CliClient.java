@@ -364,7 +364,7 @@ class CliClient extends BaseClient {
 
     @Override
     public synchronized void sendCommandImmediately(Player player, String command) {
-        String formattedCommand = (player!= null ? Util.encode(player.getId()) + " " + command : command);
+        String formattedCommand = (player!= null ? encode(player.getId()) + " " + command : command);
 
         PrintWriter writer = socketWriter.get();
         if (writer == null) {
@@ -416,7 +416,7 @@ class CliClient extends BaseClient {
         final StringBuilder sb = new StringBuilder(request.getRequest() + " " + request.getStart() + " " + request.getItemsPerResponse());
         if (request.getParameters() != null) {
             for (String parameter : request.getParameters()) {
-                sb.append(" ").append(Util.encode(parameter));
+                sb.append(" ").append(encode(parameter));
             }
         }
         sb.append(" correlationid:");
@@ -432,6 +432,11 @@ class CliClient extends BaseClient {
     @Override
     public void subscribePlayerStatus(Player player, String subscriptionType) {
         playerCommand(player, "status - 1 subscribe:" + subscriptionType + " tags:" + SONGTAGS);
+    }
+
+    @Override
+    public String encode(String s) {
+        return Util.encode(s);
     }
 
 
@@ -785,7 +790,7 @@ class CliClient extends BaseClient {
                         } else {
                             sendCommandImmediately(null,
                                     "playlists rename playlist_id:" + tokenMap.get("playlist_id")
-                                            + " newname:" + Util.encode(tokenMap.get("newname")));
+                                            + " newname:" + encode(tokenMap.get("newname")));
                         }
                     }
                 } else if ("tracks".equals(tokens.get(1))) {
@@ -1338,7 +1343,7 @@ class CliClient extends BaseClient {
      */
     private void onCliPortConnectionEstablished(final String userName, final String password) {
         mConnectionState.setConnectionState(ConnectionState.LOGIN_STARTED);
-        sendCommandImmediately(null, "login " + Util.encode(userName) + " " + Util.encode(password));
+        sendCommandImmediately(null, "login " + encode(userName) + " " + encode(password));
     }
 
 }

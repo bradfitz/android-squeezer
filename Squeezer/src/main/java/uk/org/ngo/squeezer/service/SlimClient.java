@@ -147,4 +147,6 @@ interface SlimClient {
     String getPreferredAlbumSort();
 
     String getServerVersion();
+
+    String encode(String s);
 }

@@ -199,7 +199,6 @@ abstract class BaseClient implements SlimClient {
         return mConnectionState.getPreferredAlbumSort();
     }
 
-
     /**
      * Queries for all players known by the server.
      * </p>
