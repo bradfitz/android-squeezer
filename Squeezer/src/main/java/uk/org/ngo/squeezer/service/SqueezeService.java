@@ -54,7 +54,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
@@ -119,7 +118,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once
      */
-    final Map<ServiceCallback, ServiceCallbackList> callbacks = new ConcurrentHashMap<ServiceCallback, ServiceCallbackList>();
+    final Map<ServiceCallback, ServiceCallbackList> callbacks = new ConcurrentHashMap<>();
 
     @Override
     public void addClient(ServiceCallbackList callbackList, ServiceCallback item) {
@@ -154,10 +153,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     @Nullable String mPassword;
 
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
-    private final Map<String, Player> mPlayers = new HashMap<String, Player>();
+    private final Map<String, Player> mPlayers = new HashMap<>();
 
     /** The active player (the player to which commands are sent by default). */
-    private final AtomicReference<Player> mActivePlayer = new AtomicReference<Player>();
+    private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
 
     private static final String ACTION_NEXT_TRACK = "uk.org.ngo.squeezer.service.ACTION_NEXT_TRACK";
     private static final String ACTION_PREV_TRACK = "uk.org.ngo.squeezer.service.ACTION_PREV_TRACK";
@@ -280,7 +279,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * The player state change might warrant a new subscription type (e.g., if the
      * player didn't have a sleep duration set, and now does).
-     * @param event
      */
     public void onEvent(PlayerStateChanged event) {
         updatePlayerSubscription(event.player, calculateSubscriptionTypeFor(event.player));
@@ -401,10 +399,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         // Do nothing if the player subscription type hasn't changed. This prevents sending a
         // subscription update "status" message which will be echoed back by the server and
         // trigger processing of the status message by the service.
-        if (playerState != null) {
-            if (playerState.getSubscriptionType().equals(playerSubscriptionType)) {
-                return;
-            }
+        if (playerState.getSubscriptionType().equals(playerSubscriptionType)) {
+            return;
         }
 
         mClient.subscribePlayerStatus(player, playerSubscriptionType);
@@ -746,7 +742,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private String getLocalFile(@NonNull Uri serverUrl) {
         String serverPath = serverUrl.getPath();
         String mediaDir = null;
-        String path = null;
+        String path;
         for (String dir : mClient.getMediaDirs()) {
             if (serverPath.startsWith(dir)) {
                 mediaDir = dir;
@@ -894,9 +890,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         @Nullable
         public PlayerState getActivePlayerState() {
-            if (mActivePlayer == null) {
-                return null;
-            }
             Player activePlayer = mActivePlayer.get();
             if (activePlayer == null) {
                 return null;
@@ -918,8 +911,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         /**
          * Issues a query for given player preference.
-         *
-         * @param playerPref
          */
         @Override
         public void playerPref(@Player.Pref.Name String playerPref) {
@@ -934,26 +925,22 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public boolean canPowerOn() {
             Player activePlayer = getActivePlayer();
-
             if (activePlayer == null) {
                 return false;
             } else {
                 PlayerState playerState = activePlayer.getPlayerState();
-                return canPower() && activePlayer.getConnected() && playerState != null
-                        && !playerState.isPoweredOn();
+                return canPower() && activePlayer.getConnected() && !playerState.isPoweredOn();
             }
         }
 
         @Override
         public boolean canPowerOff() {
             Player activePlayer = getActivePlayer();
-
             if (activePlayer == null) {
                 return false;
             } else {
                 PlayerState playerState = activePlayer.getPlayerState();
-                return canPower() && activePlayer.getConnected() && playerState != null
-                        && playerState.isPoweredOn();
+                return canPower() && activePlayer.getConnected() && playerState.isPoweredOn();
             }
         }
 
@@ -1201,8 +1188,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public List<Player> getPlayers() {
-            // TODO: Return a Collection, instead of casting? Or return an ImmutableList?
-            return (List<Player>) new ArrayList<Player>(mPlayers.values());
+            // TODO: return an ImmutableList?
+            return new ArrayList<>(mPlayers.values());
         }
 
         @Override
@@ -1257,7 +1244,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             // If the server address changed then disconnect.
             if (key.startsWith(Preferences.KEY_SERVER_ADDRESS)) {
                 disconnect();
-                return;
+                //return;
             }
         }
 
@@ -1366,7 +1353,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            List<String> parameters = new ArrayList<String>();
+            List<String> parameters = new ArrayList<>();
             parameters.add("tags:" + BaseClient.ALBUMTAGS);
             parameters.add("sort:" + sortOrder);
             if (searchString != null && searchString.length() > 0) {
@@ -1385,7 +1372,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            List<String> parameters = new ArrayList<String>();
+            List<String> parameters = new ArrayList<>();
             if (searchString != null && searchString.length() > 0) {
                 parameters.add("search:" + searchString);
             }
@@ -1410,7 +1397,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            List<String> parameters = new ArrayList<String>();
+            List<String> parameters = new ArrayList<>();
             if (searchString != null && searchString.length() > 0) {
                 parameters.add("search:" + searchString);
             }
@@ -1436,7 +1423,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
 
-            List<String> parameters = new ArrayList<String>();
+            List<String> parameters = new ArrayList<>();
 
             parameters.add("tags:u");//TODO only available from version 7.6 so instead keep track of path
             if (musicFolderItem != null) {
@@ -1452,7 +1439,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            List<String> parameters = new ArrayList<String>();
+            List<String> parameters = new ArrayList<>();
             parameters.add("tags:" + BaseClient.SONGTAGS);
             parameters.add("sort:" + sortOrder);
             if (searchString != null && searchString.length() > 0) {
@@ -1582,7 +1569,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            List<String> parameters = new ArrayList<String>();
+            List<String> parameters = new ArrayList<>();
             if (parent != null) {
                 parameters.add("item_id:" + parent.getId());
             }
