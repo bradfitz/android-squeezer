@@ -35,6 +35,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -88,12 +89,12 @@ class CliClient extends BaseClient {
             HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC, HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface HandlerListType {}
-    public static final int HANDLER_LIST_GLOBAL = 1;
-    public static final int HANDLER_LIST_PREFIXED = 1 << 1;
-    public static final int HANDLER_LIST_PLAYER_SPECIFIC = 1 << 2;
-    public static final int HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC = 1 << 3;
-    public static final int HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC = 1 << 4;
+    @interface HandlerListType {}
+    static final int HANDLER_LIST_GLOBAL = 1;
+    static final int HANDLER_LIST_PREFIXED = 1 << 1;
+    static final int HANDLER_LIST_PLAYER_SPECIFIC = 1 << 2;
+    static final int HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC = 1 << 3;
+    static final int HANDLER_LIST_PREFIXED_PLAYER_SPECIFIC = 1 << 4;
 
     /**
      * Represents a command that can be sent to the server using the extended query format.
@@ -139,8 +140,8 @@ class CliClient extends BaseClient {
          * @param taggedParameters Tagged parameters to send
          * @param parserInfos ?
          */
-        public ExtendedQueryFormatCmd(@HandlerListType int handlerList, String cmd,
-                                      Set<String> taggedParameters, SqueezeParserInfo... parserInfos) {
+        ExtendedQueryFormatCmd(@HandlerListType int handlerList, String cmd,
+                               Set<String> taggedParameters, SqueezeParserInfo... parserInfos) {
             this.handlerList = handlerList;
             playerSpecific = (PLAYER_SPECIFIC_HANDLER_LISTS & handlerList) != 0;
             prefixed = (PREFIXED_HANDLER_LISTS & handlerList) != 0;
@@ -156,14 +157,14 @@ class CliClient extends BaseClient {
          * @param taggedParameters The keys for any tagged parameters to send.
          * @param handler The handler used to construct new model objects from the response.
          */
-        public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
-                                      ListHandler<? extends Item> handler, String... columns) {
-            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler, columns));
+        <T extends Item> ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
+                               ListHandler<T> handler, String... columns) {
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo<>(handler, columns));
         }
 
-        public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
-                                      String itemDelimiter, ListHandler<? extends Item> handler) {
-            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
+        <T extends Item> ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
+                               String itemDelimiter, ListHandler<T> handler) {
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo<>(itemDelimiter, handler));
         }
 
         /**
@@ -173,9 +174,9 @@ class CliClient extends BaseClient {
          * @param taggedParameters The keys for any tagged parameters to send.
          * @param handler The handler used to construct new model objects from the response.
          */
-        public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
-                ListHandler<? extends Item> handler) {
-            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler));
+        <T extends Item> ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
+                               ListHandler<T> handler) {
+            this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo<>(handler));
         }
 
         public String toString() {
@@ -205,7 +206,7 @@ class CliClient extends BaseClient {
                         HANDLER_LIST_GLOBAL_PLAYER_SPECIFIC,
                         "alarms",
                         new HashSet<>(Arrays.asList("filter", "dow")),
-                        new SqueezeParserInfo(new BaseListHandler<Alarm>(){})
+                        new SqueezeParserInfo<>(new BaseListHandler<Alarm>(){})
                 )
         );
         list.add(
@@ -228,7 +229,7 @@ class CliClient extends BaseClient {
         list.add(
                 new ExtendedQueryFormatCmd(
                         "years",
-                        new HashSet<>(Arrays.asList("charset")),
+                        new HashSet<>(Collections.singletonList("charset")),
                         "year",
                         new BaseListHandler<Year>(){}
                 )
@@ -283,11 +284,11 @@ class CliClient extends BaseClient {
                         HANDLER_LIST_GLOBAL,
                         "search",
                         new HashSet<>(Arrays.asList("term", "charset")),
-                        new SqueezeParserInfo("genres_count", new GenreListHandler(), "genre_id"),
-                        new SqueezeParserInfo("albums_count", new AlbumListHandler(), "album_id"),
-                        new SqueezeParserInfo("contributors_count", new ArtistListHandler()
+                        new SqueezeParserInfo<>("genres_count", new GenreListHandler(), "genre_id"),
+                        new SqueezeParserInfo<>("albums_count", new AlbumListHandler(), "album_id"),
+                        new SqueezeParserInfo<>("contributors_count", new ArtistListHandler()
                                 , "contributor_id"),
-                        new SqueezeParserInfo("tracks_count", new SongListHandler(), "track_id")
+                        new SqueezeParserInfo<>("tracks_count", new SongListHandler(), "track_id")
                 )
         );
         list.add(
@@ -295,7 +296,7 @@ class CliClient extends BaseClient {
                         HANDLER_LIST_PLAYER_SPECIFIC,
                         "status",
                         new HashSet<>(Arrays.asList("tags", "charset", "subscribe")),
-                        new SqueezeParserInfo("playlist_tracks", new SongListHandler(),
+                        new SqueezeParserInfo<>("playlist_tracks", new SongListHandler(),
                                 "playlist index")
                 )
         );
@@ -322,7 +323,7 @@ class CliClient extends BaseClient {
                         "items",
                         new HashSet<>(
                                 Arrays.asList("item_id", "search", "want_url", "charset")),
-                        new SqueezeParserInfo(new PluginItemListHandler()))
+                        new SqueezeParserInfo<>(new PluginItemListHandler()))
         );
 
         return list.toArray(new ExtendedQueryFormatCmd[list.size()]);
@@ -350,6 +351,7 @@ class CliClient extends BaseClient {
             try {
                 socket.close();
             } catch (IOException e) {
+                //We tried to do the right thing
             }
         }
         socketRef.set(null);
@@ -397,12 +399,12 @@ class CliClient extends BaseClient {
      * <p>
      * If a reply with with matching entry is this list comes in, it is discarded.
      */
-    private final Map<Integer, BrowseRequest> mPendingRequests
+    private final Map<Integer, BrowseRequest<?>> mPendingRequests
             = new ConcurrentHashMap<>();
 
     @Override
     public void cancelClientRequests(Object client) {
-        for (Map.Entry<Integer, BrowseRequest> entry : mPendingRequests.entrySet()) {
+        for (Map.Entry<Integer, BrowseRequest<?>> entry : mPendingRequests.entrySet()) {
             if (entry.getValue().getCallback().getClient() == client) {
                 Log.i(TAG, "cancel request: [" + entry.getKey() + ";" + entry.getValue() +"]");
                 mPendingRequests.remove(entry.getKey());
@@ -445,13 +447,13 @@ class CliClient extends BaseClient {
      *
      * @author kaa
      */
-    private static class SqueezeParserInfo {
+    private static class SqueezeParserInfo<T extends Item> {
 
         private final Set<String> columns;
 
         private final String count_id;
 
-        private final ListHandler<? extends Item> handler;
+        private final ListHandler<T> handler;
 
         /**
          * @param countId The label for the tag which contains the total number of results, normally
@@ -462,25 +464,25 @@ class CliClient extends BaseClient {
          *                Multiple columns is supported to workaround of a bug in recent server
          *                versions.
          */
-        public SqueezeParserInfo(String countId, ListHandler<? extends Item> handler, String... columns) {
+        SqueezeParserInfo(String countId, ListHandler<T> handler, String... columns) {
             count_id = countId;
             this.columns = new HashSet<>(Arrays.asList(columns));
             this.handler = handler;
         }
 
-        public SqueezeParserInfo(String itemDelimiter, ListHandler<? extends Item> handler) {
+        SqueezeParserInfo(String itemDelimiter, ListHandler<T> handler) {
             this("count", handler, itemDelimiter);
         }
 
-        public SqueezeParserInfo(ListHandler<? extends Item> handler, String... columns) {
+        SqueezeParserInfo(ListHandler<T> handler, String... columns) {
             this("count", handler, columns);
         }
 
-        public SqueezeParserInfo(ListHandler<? extends Item> handler) {
+        SqueezeParserInfo(ListHandler<T> handler) {
             this("id", handler);
         }
 
-        public boolean isComplete(Map<String, String> record) {
+        boolean isComplete(Map<String, String> record) {
             for (String column : columns) {
                 if (!record.containsKey(column)) return false;
             }
@@ -517,11 +519,11 @@ class CliClient extends BaseClient {
         final Map<String, String> taggedParameters = new HashMap<>();
         final Map<String, String> parameters = new HashMap<>();
         final Set<String> countIdSet = new HashSet<>();
-        final Map<String, SqueezeParserInfo> itemDelimeterMap = new HashMap<>();
+        final Map<String, SqueezeParserInfo<?>> itemDelimeterMap = new HashMap<>();
         final Map<String, Integer> counts = new HashMap<>();
         final Map<String, String> record = new HashMap<>();
 
-        for (SqueezeParserInfo parserInfo : cmd.parserInfos) {
+        for (SqueezeParserInfo<?> parserInfo : cmd.parserInfos) {
             parserInfo.handler.clear();
             countIdSet.add(parserInfo.count_id);
             for (String column : parserInfo.columns) itemDelimeterMap.put(column, parserInfo);
@@ -576,8 +578,8 @@ class CliClient extends BaseClient {
         // Process the lists for all the registered handlers
         int end = start + itemsPerResponse;
         int max = 0;
-        BrowseRequest request = mPendingRequests.get(correlationId);
-        IServiceItemListCallback callback = request.getCallback();
+        BrowseRequest<?> request = mPendingRequests.get(correlationId);
+        IServiceItemListCallback<? extends Item> callback = request.getCallback();
         for (SqueezeParserInfo parser : cmd.parserInfos) {
             Integer count = counts.get(parser.count_id);
             int countValue = (count == null ? 0 : count);
@@ -771,11 +773,10 @@ class CliClient extends BaseClient {
         handlers.put("playlists", new CmdHandler() {
             @Override
             public void handle(List<String> tokens) {
-                if ("delete".equals(tokens.get(1))) {
-                    ;
-                } else if ("edit".equals(tokens.get(1))) {
-                    ;
-                } else if ("new".equals(tokens.get(1))) {
+//                if ("delete".equals(tokens.get(1))) {
+//                } else if ("edit".equals(tokens.get(1))) {
+//                } else
+                if ("new".equals(tokens.get(1))) {
                     HashMap<String, String> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("overwritten_playlist_id") != null) {
                         mEventBus.post(new PlaylistCreateFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
@@ -917,8 +918,6 @@ class CliClient extends BaseClient {
      * Initialise handlers for player-specific commands.
      * <p>
      * All commands processed by these handlers start with the player ID.
-     *
-     * @return
      */
     private Map<String, CmdHandler> initializePlayerSpecificHandlers() {
         Map<String, CmdHandler> handlers = new HashMap<>();
@@ -950,7 +949,6 @@ class CliClient extends BaseClient {
         handlers.put("pause", new CmdHandler() {
             /**
              * <code>&lt;playerid> pause &lt;0|1|></code>
-             * @param tokens
              */
             @Override
             public void handle(List<String> tokens) {
@@ -1025,6 +1023,7 @@ class CliClient extends BaseClient {
                     // XXX: Maybe the better thing to do is to add it.
                     if (player != null) {
                         HashMap<String, String> tokenMap = parseTokens(tokens);
+                        //noinspection WrongConstant
                         player.getPlayerState().setSubscriptionType(tokenMap.get("subscribe"));
                         parseStatus(player, null, tokenMap);
                     }
