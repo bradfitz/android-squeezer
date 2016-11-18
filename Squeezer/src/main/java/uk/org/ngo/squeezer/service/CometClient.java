@@ -32,6 +32,7 @@ import org.eclipse.jetty.client.HttpClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 
@@ -73,6 +75,7 @@ class CometClient extends BaseClient {
 
     /** Map from a command ("players") to the listener class for responses. */
     private  final Map<String, ItemListener> mItemRequestMap;
+    private  final Map<String, ItemListener> mPrefixedItemRequestMap;
 
     /** The format string for the channel to listen to for responses to one-shot requests. */
     private static final String CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT = "/%s/slim/request/%s";
@@ -111,6 +114,10 @@ class CometClient extends BaseClient {
                 .put("alarms", new AlarmsListener())
                 .put("status", new SongsListener("playlist_tracks", "playlist_loop"))
 
+                .build();
+
+        mPrefixedItemRequestMap = ImmutableMap.<String, ItemListener>builder()
+                .put("items", new PluginItemListener())
                 .build();
     }
 
@@ -435,6 +442,13 @@ class CometClient extends BaseClient {
         }
     }
 
+    private class PluginItemListener extends ItemListener<PluginItem> {
+        @Override
+        public void onMessage(ClientSessionChannel channel, Message message) {
+            parseMessage("item_loop", message);
+        }
+    }
+
     @Override
     public void disconnect(boolean loginFailed) {
         mBayeuxClient.disconnect();
@@ -479,21 +493,22 @@ class CometClient extends BaseClient {
     protected  <T extends Item> void internalRequestItems(final BrowseRequest<T> browseRequest) {
         final ItemListener listener = mItemRequestMap.get(browseRequest.getRequest());
 
-        final String[] request = new String[browseRequest.getParameters().size() + 3];
-        request[0] = browseRequest.getRequest();
-        request[1] = String.valueOf(browseRequest.getStart());
-        request[2] = String.valueOf(browseRequest.getItemsPerResponse());
-        for (int i = 0; i < browseRequest.getParameters().size(); i++) {
-            request[i+3] = browseRequest.getParameters().get(i);
+        final List<String> request = new ArrayList<>(browseRequest.getParameters().size() + 3);
+        request.addAll(Arrays.asList(mSpaceSplitPattern.split(browseRequest.getRequest())));
+        request.add(String.valueOf(browseRequest.getStart()));
+        request.add(String.valueOf(browseRequest.getItemsPerResponse()));
+        for (String parameter : browseRequest.getParameters()) {
+            request.add(parameter);
         }
 
+        final String[] cmd = request.toArray(new String[request.size()]);
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, request), browseRequest);
+            mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, cmd), browseRequest);
         } else {
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, request), browseRequest);
+                    mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, cmd), browseRequest);
                 }
             });
         }

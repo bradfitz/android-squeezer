@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.service;
 
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;

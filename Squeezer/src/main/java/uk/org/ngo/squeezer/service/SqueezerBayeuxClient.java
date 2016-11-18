@@ -46,7 +46,7 @@ class SqueezerBayeuxClient extends BayeuxClient {
 
     private Map<Object, String> subscriptionIds;
 
-    public SqueezerBayeuxClient(String url, ClientTransport transport) {
+    SqueezerBayeuxClient(String url, ClientTransport transport) {
         super(url, transport);
         subscriptionIds = new HashMap<>();
     }
