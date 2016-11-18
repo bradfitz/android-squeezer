@@ -76,7 +76,6 @@ class CometClient extends BaseClient {
 
     /** Map from a command ("players") to the listener class for responses. */
     private  final Map<String, ItemListener> mItemRequestMap;
-    private  final Map<String, ItemListener> mPrefixedItemRequestMap;
 
     /** The format string for the channel to listen to for responses to one-shot requests. */
     private static final String CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT = "/%s/slim/request/%s";
@@ -115,10 +114,6 @@ class CometClient extends BaseClient {
                 .put("alarms", new AlarmsListener())
                 .put("alarm playlists", new AlarmPlaylistsListener())
                 .put("status", new SongsListener("playlist_tracks", "playlist_loop"))
-
-                .build();
-
-        mPrefixedItemRequestMap = ImmutableMap.<String, ItemListener>builder()
                 .put("items", new PluginItemListener())
                 .build();
     }
@@ -503,6 +498,7 @@ class CometClient extends BaseClient {
         final ItemListener listener = mItemRequestMap.get(browseRequest.getRequest());
 
         final List<String> request = new ArrayList<>(browseRequest.getParameters().size() + 3);
+        if (browseRequest.getPlugin() != null) request.add(browseRequest.getPlugin().getId());
         request.addAll(Arrays.asList(mSpaceSplitPattern.split(browseRequest.getRequest())));
         request.add(String.valueOf(browseRequest.getStart()));
         request.add(String.valueOf(browseRequest.getItemsPerResponse()));

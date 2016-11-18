@@ -22,6 +22,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.common.base.Joiner;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -415,7 +417,11 @@ class CliClient extends BaseClient {
     @Override
     protected <T extends Item> void internalRequestItems(BrowseRequest<T> request) {
         mPendingRequests.put(mCorrelationId, request);
-        final StringBuilder sb = new StringBuilder(request.getRequest() + " " + request.getStart() + " " + request.getItemsPerResponse());
+        final StringBuilder sb = new StringBuilder();
+        if (request.getPlugin() != null) {
+            sb.append(request.getPlugin().getId()).append(" ");
+        }
+        Joiner.on(' ').appendTo(sb, request.getRequest(), request.getStart(), request.getItemsPerResponse());
         if (request.getParameters() != null) {
             for (String parameter : request.getParameters()) {
                 sb.append(" ").append(encode(parameter));

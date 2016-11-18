@@ -38,6 +38,7 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -128,15 +129,20 @@ abstract class BaseClient implements SlimClient {
     }
 
 
-    private <T extends Item> void internalRequestItems(Player player, String cmd, int start, int pageSize,
+    private <T extends Item> void internalRequestItems(Player player, Plugin plugin, String cmd, int start, int pageSize,
                                                           final IServiceItemListCallback<T> callback, List<String> parameters) {
-        final BrowseRequest<T> browseRequest = new BrowseRequest<>(player, cmd, start, pageSize, callback, parameters);
+        final BrowseRequest<T> browseRequest = new BrowseRequest<>(player, plugin, cmd, start, pageSize, callback, parameters);
         internalRequestItems(browseRequest);
     }
 
     @Override
+    public <T extends Item> void requestItems(Player player, Plugin plugin, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters) {
+        internalRequestItems(player, plugin, cmd, start, pageSize, callback, Arrays.asList(parameters));
+    }
+
+    @Override
     public <T extends Item> void requestItems(Player player, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters) {
-        internalRequestItems(player, cmd, start, pageSize, callback, Arrays.asList(parameters));
+        internalRequestItems(player, null, cmd, start, pageSize, callback, Arrays.asList(parameters));
     }
 
     @Override
@@ -151,27 +157,26 @@ abstract class BaseClient implements SlimClient {
 
     @Override
     public <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback, List<String> parameters) {
-        internalRequestItems(null, cmd, start, mPageSize, callback, parameters);
+        internalRequestItems(null, null, cmd, start, mPageSize, callback, parameters);
     }
 
     @Override
-    public <T extends Item> void requestPlayerItems(Player player, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, List<String> parameters) {
+    public <T extends Item> void requestPlayerItems(Player player, Plugin plugin, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, List<String> parameters) {
         if (player == null) {
             return;
         }
-        internalRequestItems(player, cmd, start, pageSize, callback, parameters);
+        internalRequestItems(player, plugin, cmd, start, pageSize, callback, parameters);
     }
 
     @Override
     public <T extends Item> void requestPlayerItems(Player player, String cmd, int start, IServiceItemListCallback<T> callback, String... parameters) {
-        requestPlayerItems(player, cmd, start, mPageSize, callback, Arrays.asList(parameters));
+        requestPlayerItems(player, null, cmd, start, mPageSize, callback, Arrays.asList(parameters));
     }
 
     @Override
-    public <T extends Item> void requestPlayerItems(Player player, String cmd, int start, IServiceItemListCallback<T> callback, List<String> parameters) {
-        requestPlayerItems(player, cmd, start, mPageSize, callback, parameters);
+    public <T extends Item> void requestPlayerItems(Player player, Plugin plugin, String cmd, int start, IServiceItemListCallback<T> callback, List<String> parameters) {
+        requestPlayerItems(player, plugin, cmd, start, mPageSize, callback, parameters);
     }
-
 
     public void initialize() {
         mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
@@ -394,6 +399,7 @@ abstract class BaseClient implements SlimClient {
 
     static class BrowseRequest<T extends Item> {
         private final Player player;
+        private final Plugin plugin;
         private final String request;
         private final boolean fullList;
         private int start;
@@ -401,8 +407,9 @@ abstract class BaseClient implements SlimClient {
         private final List<String> parameters;
         private final IServiceItemListCallback<T> callback;
 
-        BrowseRequest(Player player, String cmd, int start, int itemsPerResponse, IServiceItemListCallback<T> callback, List<String> parameters) {
+        BrowseRequest(Player player, Plugin plugin, String cmd, int start, int itemsPerResponse, IServiceItemListCallback<T> callback, List<String> parameters) {
             this.player = player;
+            this.plugin = plugin;
             this.request = cmd;
             this.fullList = (start < 0);
             this.start = (fullList ? 0 : start);
@@ -419,6 +426,10 @@ abstract class BaseClient implements SlimClient {
 
         public Player getPlayer() {
             return player;
+        }
+
+        public Plugin getPlugin() {
+            return plugin;
         }
 
         public String getRequest() {

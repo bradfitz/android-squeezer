@@ -22,6 +22,7 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.Plugin;
 
 /**
  * Interface implemented by all network clients of the server.
@@ -93,6 +94,12 @@ interface SlimClient {
      * @param callback Received items are returned in this.
      * @param parameters additional parameters for the command
      */
+    <T extends Item> void requestItems(Player player, Plugin plugin, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters);
+
+    /**
+     * Calls {@link #requestPlayerItems(Player, String, int, int, IServiceItemListCallback, List)}
+     * with null plugin
+     */
     <T extends Item> void requestItems(Player player, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters);
 
     /**
@@ -117,19 +124,19 @@ interface SlimClient {
      * Like {@link #requestItems(Player, String, int, int, IServiceItemListCallback, String...)}
      * but does nothing if player is null
      */
-    <T extends Item> void requestPlayerItems(Player player, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, List<String> parameters);
+    <T extends Item> void requestPlayerItems(Player player, Plugin plugin, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, List<String> parameters);
 
     /**
-     * Calls {@link #requestPlayerItems(Player, String, int, int, IServiceItemListCallback, List)}
-     * with default page size
+     * Calls {@link #requestPlayerItems(Player, Plugin, String, int, int, IServiceItemListCallback, List)}
+     * with default page size and null plugin
      */
     <T extends Item> void requestPlayerItems(Player player, String cmd, int start, IServiceItemListCallback<T> callback, String... parameters);
 
     /**
-     * Calls {@link #requestPlayerItems(Player, String, int, int, IServiceItemListCallback, List)}
+     * Calls {@link #requestItems(Player, Plugin, String, int, int, IServiceItemListCallback, String...)}
      * with default page size
      */
-    <T extends Item> void requestPlayerItems(Player player, String cmd, int start, IServiceItemListCallback<T> callback, List<String> parameters);
+    <T extends Item> void requestPlayerItems(Player player, Plugin plugin, String cmd, int start, IServiceItemListCallback<T> callback, List<String> parameters);
 
     /**
      * Notify that the specified client (activity) nno longer wants messages from LMS.

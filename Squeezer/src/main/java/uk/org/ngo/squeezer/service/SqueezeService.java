@@ -1576,7 +1576,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (search != null && search.length() > 0) {
                 parameters.add("search:" + search);
             }
-            mClient.requestPlayerItems(mActivePlayer.get(), plugin.getId() + " items", start, callback, parameters);
+            mClient.requestPlayerItems(mActivePlayer.get(), plugin, "items", start, callback, parameters);
         }
 
         @Override
