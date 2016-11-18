@@ -44,6 +44,7 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.model.Alarm;
+import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
@@ -112,6 +113,7 @@ class CometClient extends BaseClient {
                 .put("playlists tracks", new SongsListener())
                 .put("radios", new PluginListener("radioss_loop"))
                 .put("alarms", new AlarmsListener())
+                .put("alarm playlists", new AlarmPlaylistsListener())
                 .put("status", new SongsListener("playlist_tracks", "playlist_loop"))
 
                 .build();
@@ -411,7 +413,7 @@ class CometClient extends BaseClient {
     private class YearsListener extends ItemListener<Year> {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
-            parseMessage("alarms_loop", message);
+            parseMessage("years_loop", message);
         }
     }
 
@@ -425,7 +427,14 @@ class CometClient extends BaseClient {
     private class AlarmsListener extends ItemListener<Alarm> {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
-            parseMessage("years_loop", message);
+            parseMessage("alarms_loop", message);
+        }
+    }
+
+    private class AlarmPlaylistsListener extends ItemListener<AlarmPlaylist> {
+        @Override
+        public void onMessage(ClientSessionChannel channel, Message message) {
+            parseMessage("playlists_loop", message);
         }
     }
 
