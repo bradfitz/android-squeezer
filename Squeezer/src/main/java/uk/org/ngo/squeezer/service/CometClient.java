@@ -111,6 +111,7 @@ class CometClient extends BaseClient {
                 .put("playlists", new PlaylistsListener())
                 .put("playlists tracks", new SongsListener())
                 .put("radios", new PluginListener("radioss_loop"))
+                .put("apps", new PluginListener("appss_loop"))
                 .put("alarms", new AlarmsListener())
                 .put("alarm playlists", new AlarmPlaylistsListener())
                 .put("status", new SongsListener("playlist_tracks", "playlist_loop"))
@@ -339,8 +340,8 @@ class CometClient extends BaseClient {
             final int start = browseRequest.getStart();
             final int end = start + browseRequest.getItemsPerResponse();
             int max = 0;
-            //XXX support returned parameters
-            browseRequest.getCallback().onItemsReceived(count, start, null, getItems(), getDataType());
+            //XXX ugly bugly
+            browseRequest.getCallback().onItemsReceived(count, start, (Map<String,String>)(Object)data, getItems(), getDataType());
             if (count > max) {
                 max = count;
             }
@@ -449,7 +450,7 @@ class CometClient extends BaseClient {
     private class PluginItemListener extends ItemListener<PluginItem> {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
-            parseMessage("item_loop", message);
+            parseMessage("loop_loop", message);
         }
     }
 
