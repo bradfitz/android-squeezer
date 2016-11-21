@@ -48,6 +48,7 @@ import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
+import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -110,6 +111,7 @@ class CometClient extends BaseClient {
                 .put("years", new YearsListener())
                 .put("playlists", new PlaylistsListener())
                 .put("playlists tracks", new SongsListener())
+                .put("musicfolder", new MusicFolderListener())
                 .put("radios", new PluginListener("radioss_loop"))
                 .put("apps", new PluginListener("appss_loop"))
                 .put("alarms", new AlarmsListener())
@@ -417,6 +419,13 @@ class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             parseMessage("playlists_loop", message);
+        }
+    }
+
+    private class MusicFolderListener extends ItemListener<MusicFolderItem> {
+        @Override
+        public void onMessage(ClientSessionChannel channel, Message message) {
+            parseMessage("folder_loop", message);
         }
     }
 
