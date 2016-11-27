@@ -23,11 +23,13 @@ import android.util.Log;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
 import org.cometd.client.transport.LongPollingTransport;
+import org.cometd.websocket.client.WebSocketTransport;
 import org.eclipse.jetty.client.HttpClient;
 
 import java.io.IOException;
@@ -38,6 +40,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+
+import javax.websocket.ContainerProvider;
+import javax.websocket.WebSocketContainer;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
@@ -128,7 +133,10 @@ class CometClient extends BaseClient {
         Log.i(TAG, "Connecting to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
         mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
 
+        WebSocketContainer webSocketContainer = ContainerProvider.getWebSocketContainer();
+        final ClientTransport wsTransport = new WebSocketTransport(null, null, webSocketContainer);
         final HttpClient httpClient = new HttpClient();
+        httpClient.addBean(webSocketContainer, true);
         try {
             httpClient.start();
         } catch (Exception e) {
@@ -162,13 +170,26 @@ class CometClient extends BaseClient {
                 mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
                 String url = mUrlPrefix + "/cometd";
 
-                Map<String, Object> options = new HashMap<>();
-                ClientTransport transport = new LongPollingTransport(options, httpClient);
-                mBayeuxClient = new SqueezerBayeuxClient(url, transport);
+                ClientTransport httpTransport = new LongPollingTransport(null, httpClient);
+                mBayeuxClient = new SqueezerBayeuxClient(url, wsTransport, httpTransport);
+                mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
+                    public void onMessage(ClientSessionChannel channel, Message message) {
+                        if (!message.isSuccessful()) {
+                            Log.w(TAG, Channel.META_HANDSHAKE + ": " + message.getJSON());
+                            Map<String, Object> failure = (Map<String, Object>) message.get("failure");
+                            if (failure != null) {
+                                Message failMessage = (Message) failure.get("message");
+                                Exception exception = (Exception) failure.get("exception");
+                                Log.w(TAG, "Failure message: " + failMessage.getJSON(), exception);
+                            }
+                        }
+                    }
+                });
 
                 mBayeuxClient.handshake();
                 if (!mBayeuxClient.waitFor(10000, BayeuxClient.State.CONNECTED)) {
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
+                    Log.i(TAG, "handshake TIMEOUT");
                     return;  // XXX: Check if returning here is the right thing to do? Any other cleanup?
                 }
 

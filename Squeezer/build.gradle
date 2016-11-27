@@ -58,10 +58,11 @@ dependencies {
     compile project(':libs:datetimepicker')
 
     // Comet client
-    compile 'org.cometd.java:cometd-java-client:3.0.5'
+    //compile 'org.cometd.java:cometd-java-client:3.0.5'
+    compile 'org.cometd.java:cometd-java-websocket-javax-client:3.0.5'
+    compile "org.glassfish.tyrus.bundles:tyrus-standalone-client:1.5"
     //compile 'org.slf4j:slf4j-log4j12'
     compile 'org.slf4j:slf4j-android:1.7.12'
-    //compile 'org.cometd.java:cometd-websocket-jetty:2.9.1'
 
     // JVM tests
     testCompile 'junit:junit:4.12'
