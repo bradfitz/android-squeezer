@@ -468,6 +468,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                 connectedPlayers.add(player);
             }
         }
+        Collections.sort(connectedPlayers); // sort players alphabetically by player name
 
         ActionBar actionBar = mActivity.getSupportActionBar();
 
