@@ -120,6 +120,8 @@ public class PlayerState implements Parcelable {
     @NonNull
     private String currentPlaylist;
 
+    private int currentPlaylistTracksNum;
+
     private int currentPlaylistIndex;
 
     private int currentTimeSecond;
@@ -247,6 +249,11 @@ public class PlayerState implements Parcelable {
         return currentPlaylist;
     }
 
+    /** @return the number of tracks in the current playlist */
+    public int getCurrentPlaylistTracksNum() {
+        return currentPlaylistTracksNum;
+    }
+
     public int getCurrentPlaylistIndex() {
         return currentPlaylistIndex;
     }
@@ -259,6 +266,15 @@ public class PlayerState implements Parcelable {
             return false;
 
         currentPlaylist = playlist;
+        return true;
+    }
+
+    // set the number of tracks in the current playlist
+    public boolean setCurrentPlaylistTracksNum(int value) {
+        if (value == currentPlaylistTracksNum)
+            return false;
+
+        currentPlaylistTracksNum = value;
         return true;
     }
 
