@@ -61,7 +61,7 @@ public class Player extends Item implements Comparable {
 
     @Override
     public int compareTo(Object otherPlayer) {
-        return this.mName.compareTo(((Player)otherPlayer).mName);
+        return this.mName.compareToIgnoreCase(((Player)otherPlayer).mName);
     }
 
     public static class Pref {
