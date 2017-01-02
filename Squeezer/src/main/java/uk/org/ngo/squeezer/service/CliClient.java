@@ -1261,7 +1261,7 @@ class CliClient extends BaseClient {
         listeningThread.start();
     }
 
-    private class ListeningThread extends Thread {
+    private static class ListeningThread extends Thread {
         @NonNull private final Executor mExecutor;
 
         private final Socket socket;
@@ -1302,7 +1302,7 @@ class CliClient extends BaseClient {
                     // Socket disconnected.  This is expected
                     // if we're not the main connection generation anymore,
                     // else we should notify about it.
-                    if (currentConnectionGeneration.get() == generationNumber) {
+                    if (client.currentConnectionGeneration.get() == generationNumber) {
                         Log.v(TAG, "Server disconnected; exception=" + exception);
                         client.disconnect(exception == null);
                     } else {
@@ -1316,8 +1316,8 @@ class CliClient extends BaseClient {
                 // If a login attempt was in progress and this is a line that does not start
                 // with "login " then the login must have been successful (otherwise the
                 // server would have disconnected), so update the connection state accordingly.
-                if (mConnectionState.isLoginStarted() && !inputLine.startsWith("login ")) {
-                    mConnectionState.setConnectionState(ConnectionState.LOGIN_COMPLETED);
+                if (client.mConnectionState.isLoginStarted() && !inputLine.startsWith("login ")) {
+                    client.mConnectionState.setConnectionState(ConnectionState.LOGIN_COMPLETED);
                 }
                 mExecutor.execute(new Runnable() {
                     @Override
