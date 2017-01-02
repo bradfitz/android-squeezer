@@ -28,8 +28,8 @@ import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
+import org.cometd.client.transport.HttpClientTransport;
 import org.cometd.client.transport.LongPollingTransport;
-import org.cometd.websocket.client.WebSocketTransport;
 import org.eclipse.jetty.client.HttpClient;
 
 import java.io.IOException;
@@ -40,9 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
-
-import javax.websocket.ContainerProvider;
-import javax.websocket.WebSocketContainer;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
@@ -64,9 +61,8 @@ import uk.org.ngo.squeezer.model.Year;
 class CometClient extends BaseClient {
     private static final String TAG = CometClient.class.getSimpleName();
 
-    /** Client to the comet server. */
-    @Nullable
-    private BayeuxClient mBayeuxClient;
+    /** The maximum number of milliseconds to wait before considering a request to the LMS failed */
+    private static final int LONG_POLLING_TIMEOUT = 120_000;
 
     /** {@link java.util.regex.Pattern} that splits strings on colon. */
     private static final Pattern mColonSplitPattern = Pattern.compile(":");
@@ -91,6 +87,10 @@ class CometClient extends BaseClient {
 
     /** The format string for the channel to listen to for responses to playerstatus requests. */
     private static final String CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT = "/%s/slim/playerstatus/%s";
+
+    /** Client to the comet server. */
+    @Nullable
+    private BayeuxClient mBayeuxClient;
 
     private final Map<String, ClientSessionChannel.MessageListener> mPendingRequests
             = new ConcurrentHashMap<>();
@@ -133,10 +133,7 @@ class CometClient extends BaseClient {
         Log.i(TAG, "Connecting to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
         mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
 
-        WebSocketContainer webSocketContainer = ContainerProvider.getWebSocketContainer();
-        final ClientTransport wsTransport = new WebSocketTransport(null, null, webSocketContainer);
         final HttpClient httpClient = new HttpClient();
-        httpClient.addBean(webSocketContainer, true);
         try {
             httpClient.start();
         } catch (Exception e) {
@@ -153,6 +150,7 @@ class CometClient extends BaseClient {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
+                Log.i(TAG, "Background connect to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
                 if (httpPort != 0) {
                     CometClient.this.httpPort.set(httpPort);
                 } else {
@@ -170,8 +168,10 @@ class CometClient extends BaseClient {
                 mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
                 String url = mUrlPrefix + "/cometd";
 
-                ClientTransport httpTransport = new LongPollingTransport(null, httpClient);
-                mBayeuxClient = new SqueezerBayeuxClient(url, wsTransport, httpTransport);
+                Map<String, Object> options = new HashMap<>();
+                options.put(HttpClientTransport.MAX_NETWORK_DELAY_OPTION, LONG_POLLING_TIMEOUT);
+                ClientTransport httpTransport = new LongPollingTransport(options, httpClient);
+                mBayeuxClient = new SqueezerBayeuxClient(url, httpTransport);
                 mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         if (!message.isSuccessful()) {

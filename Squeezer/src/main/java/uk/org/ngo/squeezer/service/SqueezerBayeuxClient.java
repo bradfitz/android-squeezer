@@ -52,6 +52,12 @@ class SqueezerBayeuxClient extends BayeuxClient {
     }
 
     @Override
+    public void onFailure(Throwable failure, List<? extends Message> messages) {
+        super.onFailure(failure, messages);
+        Log.w(TAG, "onFailure(" + messages + ")", failure);
+    }
+
+    @Override
     public void onSending(List<? extends Message> messages) {
         super.onSending(messages);
         for (Message message : messages) {
@@ -60,9 +66,7 @@ class SqueezerBayeuxClient extends BayeuxClient {
                 subscriptionIds.put(message.get(Message.SUBSCRIPTION_FIELD), message.getId());
             }
             if (BuildConfig.DEBUG) {
-                if (!Channel.META_CONNECT.equals(channelName)) {
-                    Log.d(TAG, "SEND: " + message.getJSON());
-                }
+                Log.d(TAG, "SEND: " + message.getJSON());
             }
         }
     }
@@ -78,9 +82,7 @@ class SqueezerBayeuxClient extends BayeuxClient {
                 }
             }
             if (BuildConfig.DEBUG) {
-                if (!Channel.META_CONNECT.equals(channelName)) {
-                    Log.d(TAG, "RECV: " + message.getJSON());
-                }
+                Log.d(TAG, "RECV: " + message.getJSON());
             }
         }
     }
