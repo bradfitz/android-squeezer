@@ -1,5 +1,11 @@
 #!groovy
 
+properties(
+    [
+        pipelineTriggers([cron('H 2 * * *')]),
+    ]
+)
+
 node
 {
     currentBuild.result = "SUCCESS"
