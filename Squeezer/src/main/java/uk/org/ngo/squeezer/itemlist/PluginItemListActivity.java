@@ -40,6 +40,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
+import uk.org.ngo.squeezer.itemlist.dialog.SearchPluginDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -124,7 +125,12 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
-        service.pluginItems(start, plugin, parent, search, this);
+        if(search == null && parent != null && parent.getType() != null && parent.getType().equals("search")) {
+            SearchPluginDialog.addTo(this, start, plugin, parent);
+        }
+        else {
+            service.pluginItems(start, plugin, parent, search, this);
+        }
     }
 
 
