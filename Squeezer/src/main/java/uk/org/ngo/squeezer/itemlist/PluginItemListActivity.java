@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringDef;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,7 +41,6 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
-import uk.org.ngo.squeezer.itemlist.dialog.SearchPluginDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -71,8 +71,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
         if (extras != null) {
             plugin = extras.getParcelable(Plugin.class.getName());
             parent = extras.getParcelable(PluginItem.class.getName());
-            findViewById(R.id.search_view).setVisibility(
-                    plugin.isSearchable() ? View.VISIBLE : View.GONE);
+            findViewById(R.id.search_view).setVisibility(isSearchable() ? View.VISIBLE : View.GONE);
 
             ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
             final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
@@ -111,11 +110,14 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
     }
 
     private void clearAndReOrderItems(String searchString) {
-        if (getService() != null && !(plugin.isSearchable() && (searchString == null
-                || searchString.length() == 0))) {
+        if (getService() != null && !(isSearchable() && TextUtils.isEmpty(searchString))) {
             search = searchString;
             super.clearAndReOrderItems();
         }
+    }
+
+    private boolean isSearchable() {
+        return plugin.isSearchable() || (parent != null && "search".equals(parent.getType()));
     }
 
     @Override
@@ -125,12 +127,8 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
-        if(search == null && parent != null && parent.getType() != null && parent.getType().equals("search")) {
-            SearchPluginDialog.addTo(this, start, plugin, parent);
-        }
-        else {
+        if (!(isSearchable() && TextUtils.isEmpty(search)))
             service.pluginItems(start, plugin, parent, search, this);
-        }
     }
 
 
