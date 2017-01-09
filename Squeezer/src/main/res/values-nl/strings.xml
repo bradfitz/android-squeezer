@@ -57,8 +57,8 @@
     <string name="settings_category_ui">Squeezer interface</string>
     <string name="menu_item_disconnect">Verbreek contact</string>
     <string name="menu_item_connect">Verbind</string>
-    <string name="menu_item_poweron">Aanzetten</string>
-    <string name="menu_item_poweroff">Schakel uit</string>
+    <string name="menu_item_poweron">Aanzetten \"%s\"</string>
+    <string name="menu_item_poweroff">Schakel uit \"%s\"</string>
     <string name="menu_item_main">Speelt nu</string>
     <string name="menu_item_home">Hoofdmenu</string>
     <string name="menu_item_fetch_all">Download resterend</string>

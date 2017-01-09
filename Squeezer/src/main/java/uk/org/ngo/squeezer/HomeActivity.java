@@ -20,11 +20,11 @@ package uk.org.ngo.squeezer;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.MainThread;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -111,14 +111,12 @@ public class HomeActivity extends BaseActivity {
 
         // Enable Analytics if the option is on, and we're not running in debug
         // mode so that debug tests don't pollute the stats.
-        if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
-            if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0) {
-                Log.v("NowPlayingActivity", "Tracking page view 'HomeActivity");
-                // Start the tracker in manual dispatch mode...
-                tracker = GoogleAnalyticsTracker.getInstance();
-                tracker.startNewSession("UA-26457780-1", this);
-                tracker.trackPageView("HomeActivity");
-            }
+        if ((!BuildConfig.DEBUG) && preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
+            Log.v("NowPlayingActivity", "Tracking page view 'HomeActivity");
+            // Start the tracker in manual dispatch mode...
+            tracker = GoogleAnalyticsTracker.getInstance();
+            tracker.startNewSession("UA-26457780-1", this);
+            tracker.trackPageView("HomeActivity");
         }
 
         // Show the change log if necessary.
@@ -132,6 +130,7 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
+    @MainThread
     public void onEventMainThread(HandshakeComplete event) {
         int[] icons = new int[]{
                 R.drawable.ic_artists,
