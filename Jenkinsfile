@@ -24,6 +24,9 @@ node
        stage "APKs"
             sh "./gradlew assembleRelease"
             archiveArtifacts artifacts: "Squeezer/build/outputs/apk/*.apk", fingerprint: true
+			
+       stage "Lint Report"
+            step([$class: 'LintPublisher', pattern: 'Squeezer/build/outputs/lint-results*.xml'])
     }
 		
     catch (err) 
