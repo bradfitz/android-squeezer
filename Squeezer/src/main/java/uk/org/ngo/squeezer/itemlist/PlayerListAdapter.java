@@ -31,6 +31,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -128,18 +129,15 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
         prevPlayerSyncGroups = HashMultimap.create(playerSyncGroups);
         clear();
 
-        ArrayList<Player> masters = new ArrayList<Player>(playerSyncGroups.values());
-
-        for (Player master : masters) {
-            String masterId = master.getId();
-            if (playerSyncGroups.containsKey(masterId)) { // masterId doesn't have to be present in the playerSyncGroups key list
-                SyncGroup syncGroup = new SyncGroup(new PlayerView(mActivity));
-
-                List<Player> slaves = new ArrayList<Player>(playerSyncGroups.get(masterId));
-                mPlayerCount += slaves.size();
-                syncGroup.update(slaves.size(), 0, slaves);
-                mChildAdapters.add(syncGroup);
-            }
+        // Get a list of slaves for every synchronization group
+        for (Collection<Player> slaves: playerSyncGroups.asMap().values()) {
+            // create a new synchronization group
+            SyncGroup syncGroup = new SyncGroup(new PlayerView(mActivity));
+            mPlayerCount += slaves.size();
+            // add the slaves (the players) to the synchronization group
+            syncGroup.update(slaves.size(), 0, new ArrayList<>(slaves));
+            // add synchronization group to the child adapters
+            mChildAdapters.add(syncGroup);
         }
         Collections.sort(mChildAdapters); // sort syncgroup list alphabetically by syncgroup name
         notifyDataSetChanged();
