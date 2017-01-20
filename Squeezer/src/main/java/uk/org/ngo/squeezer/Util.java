@@ -17,12 +17,15 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
+
+import com.crashlytics.android.Crashlytics;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -219,5 +222,71 @@ public class Util {
         view.startAnimation(alphaAnimation);
 
         return view;
+    }
+
+    /** @return True if Crashlytics is supported in this build. */
+    public static boolean supportCrashlytics() {
+        // Don't include in debug builds
+        if (BuildConfig.DEBUG) {
+            return false;
+        }
+
+        // Don't include in <= API 7 (only works on API 8 and above).
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ECLAIR_MR1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Calls {@link Crashlytics#setString(String, String)} if Crashlytics is
+     * enabled in this build, otherwise does nothing.
+     *
+     * @param key
+     * @param value
+     */
+    public static void crashlyticsSetString(String key, String value) {
+        if (supportCrashlytics()) {
+            Crashlytics.setString(key, value);
+        }
+    }
+
+    /**
+     * Calls {@link Crashlytics#log(String)} if Crashlytics is enabled in
+     * this build, otherwise does nothing.
+     *
+     * @param msg
+     */
+    public static void crashlyticsLog(String msg) {
+        if (supportCrashlytics()) {
+            Crashlytics.log(msg);
+        }
+    }
+
+    /**
+     * Calls {@link Crashlytics#log(int, String, String)} if Crashlytics is
+     * enabled in this build, otherwise does nothing.
+     *
+     * @param priority
+     * @param tag
+     * @param msg
+     */
+    public static void crashlyticsLog(int priority, String tag, String msg) {
+        if (supportCrashlytics()) {
+            Crashlytics.log(priority, tag, msg);
+        }
+    }
+
+    /**
+     * Calls {@link Crashlytics#logException(Throwable)} if Crashlytics is
+     * enabled in this build, otherwise does nothing.
+     *
+     * @param throwable
+     */
+    public static void crashlyticsLogException(java.lang.Throwable throwable) {
+        if (supportCrashlytics()) {
+            Crashlytics.logException(throwable);
+        }
     }
 }

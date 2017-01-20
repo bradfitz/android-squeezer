@@ -22,7 +22,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -40,7 +39,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -52,11 +50,9 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.common.io.Files;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -489,6 +485,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Manages the state of any ongoing notification based on the player and connection state.
      */
+    @TargetApi(21)
     private void updateOngoingNotification() {
         Player activePlayer = this.mActivePlayer.get();
         PlayerState activePlayerState = getActivePlayerState();
@@ -824,13 +821,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
 
-            Crashlytics.log("Registering new download");
-            Crashlytics.log("downloadId: " + downloadId);
-            Crashlytics.log("tempFile: " + tempFile);
-            Crashlytics.log("localPath: " + localPath);
+            Util.crashlyticsLog("Registering new download");
+            Util.crashlyticsLog("downloadId: " + downloadId);
+            Util.crashlyticsLog("tempFile: " + tempFile);
+            Util.crashlyticsLog("localPath: " + localPath);
 
             if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath, albumArtUrl)) {
-                Crashlytics.log(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
+                Util.crashlyticsLog(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
                 downloadManager.remove(downloadId);
             }
         }
@@ -870,7 +867,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                                             public void onScanCompleted(String path, final Uri uri) {
                                                 if (!Uri.EMPTY.equals(downloadEntry.albumArtUrl)) {
                                                     // It seems that onScanCompleted is called off thread
-                                                    // (though I can find no dokumentation for it)
+                                                    // (though I can find no documentation for it)
                                                     // so we make this run on the main thread, as the ImageFetcher
                                                     // may need it (if it creates a new cache)
                                                     mMainThreadHandler.post(new Runnable() {
@@ -884,15 +881,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                                         }
                                 );
                             } else {
-                                Crashlytics.log(Log.ERROR, TAG, "Could not rename [" + tempFile + "] to [" + localFile + "]");
+                                Util.crashlyticsLog(Log.ERROR, TAG, "Could not rename [" + tempFile + "] to [" + localFile + "]");
                             }
                             break;
                         default:
-                            Crashlytics.log(Log.ERROR, TAG, "Unsuccessful download " + format(status, reason, title, url, local_url));
+                            Util.crashlyticsLog(Log.ERROR, TAG, "Unsuccessful download " + format(status, reason, title, url, local_url));
                             break;
                     }
                 } else {
-                    Crashlytics.log(Log.ERROR, TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
+                    Util.crashlyticsLog(Log.ERROR, TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
                 }
                 //} else {
                 // Download complete events may still come in, even after DownloadManager.remove is
@@ -949,8 +946,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                                                         values.put(MediaStore.Audio.Media.DATA, file.getPath());
                                                         getContentResolver().insert(sArtworkUri, values);
                                                     }
-                                                } catch (FileNotFoundException e) {
-                                                    Log.e(TAG, "Error creating thumbs bitmap file: ", e);
                                                 } catch (IOException e) {
                                                     Log.e(TAG, "Error creating thumbs bitmap file: ", e);
                                                 }

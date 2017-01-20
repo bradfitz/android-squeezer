@@ -147,7 +147,7 @@ public class Song extends ArtworkItem {
      * @return Whether the song has artwork associated with it.
      */
     public boolean hasArtwork() {
-        return ! (mArtworkUrl == Uri.EMPTY);
+        return ! (mArtworkUrl.equals(Uri.EMPTY));
     }
 
     @NonNull

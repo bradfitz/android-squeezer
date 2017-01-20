@@ -20,25 +20,26 @@ package uk.org.ngo.squeezer;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.MainThread;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
+import io.fabric.sdk.android.Fabric;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
@@ -97,8 +98,9 @@ public class HomeActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!BuildConfig.DEBUG) {
-            Crashlytics.start(this);
+
+        if (Util.supportCrashlytics()) {
+            Fabric.with(this, new Crashlytics());
         }
 
         setContentView(R.layout.item_list);
@@ -109,14 +111,12 @@ public class HomeActivity extends BaseActivity {
 
         // Enable Analytics if the option is on, and we're not running in debug
         // mode so that debug tests don't pollute the stats.
-        if (preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
-            if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0) {
-                Log.v("NowPlayingActivity", "Tracking page view 'HomeActivity");
-                // Start the tracker in manual dispatch mode...
-                tracker = GoogleAnalyticsTracker.getInstance();
-                tracker.startNewSession("UA-26457780-1", this);
-                tracker.trackPageView("HomeActivity");
-            }
+        if ((!BuildConfig.DEBUG) && preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
+            Log.v("NowPlayingActivity", "Tracking page view 'HomeActivity");
+            // Start the tracker in manual dispatch mode...
+            tracker = GoogleAnalyticsTracker.getInstance();
+            tracker.startNewSession("UA-26457780-1", this);
+            tracker.trackPageView("HomeActivity");
         }
 
         // Show the change log if necessary.
@@ -130,6 +130,7 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
+    @MainThread
     public void onEventMainThread(HandshakeComplete event) {
         int[] icons = new int[]{
                 R.drawable.ic_artists,

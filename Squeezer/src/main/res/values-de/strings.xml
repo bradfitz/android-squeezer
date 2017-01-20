@@ -55,8 +55,8 @@
 
     <string name="menu_item_disconnect">Verbindung trennen</string>
     <string name="menu_item_connect">Verbinden</string>
-    <string name="menu_item_poweron">Einschalten</string>
-    <string name="menu_item_poweroff">Ausschalten</string>
+    <string name="menu_item_poweron">Einschalten \"%s\"</string>
+    <string name="menu_item_poweroff">Ausschalten \"%s\"</string>
     <string name="menu_item_main">Wird gespielt</string>
     <string name="menu_item_home">Haupt-Menü</string>
     <string name="menu_item_fetch_all">Alle herunterladen</string>
@@ -68,6 +68,7 @@
     <string name="menu_item_playlists_new">Neu</string>
     <string name="menu_item_playlist_clear">Löschen</string>
     <string name="menu_item_playlist_save">Speichern</string>
+    <string name="menu_item_playlist_show_current_song">Aktuelles Lied</string>
     <string name="menu_item_volume">Lautstärke</string>
     <string name="connecting_text">Verbinde</string>
     <string name="connecting_to_text">Verbinde mit SqueezeBox CLI %s</string>
