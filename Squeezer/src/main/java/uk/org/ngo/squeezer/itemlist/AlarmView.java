@@ -49,6 +49,7 @@ import android.widget.TextView;
 
 import com.android.datetimepicker.time.RadialPickerLayout;
 import com.android.datetimepicker.time.TimePickerDialog;
+import com.google.common.collect.ImmutableList;
 
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
@@ -267,8 +268,11 @@ public class AlarmView extends BaseItemView<Alarm> {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     }
 
-    public void setAlarmPlaylists(List<AlarmPlaylist> alarmPlaylists) {
+    // Require an immutable list so that caller's can't modify it when this method iterates
+    // over it.
+    public void setAlarmPlaylists(ImmutableList<AlarmPlaylist> alarmPlaylists) {
         String currentCategory = null;
+
         mAlarmPlaylists.clear();
         for (AlarmPlaylist alarmPlaylist : alarmPlaylists) {
             if (!alarmPlaylist.getCategory().equals(currentCategory)) {

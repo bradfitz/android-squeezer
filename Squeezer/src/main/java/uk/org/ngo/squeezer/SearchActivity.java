@@ -22,9 +22,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
-import android.widget.ExpandableListView.OnChildClickListener;
 
 import java.util.List;
 import java.util.Map;
@@ -53,17 +52,6 @@ public class SearchActivity extends ItemListActivity {
 
         searchResultsAdapter = new SearchAdapter(this);
         resultsExpandableListView = (ExpandableListView) findViewById(R.id.search_expandable_list);
-
-        resultsExpandableListView.setOnChildClickListener(new OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
-                    int childPosition, long id) {
-                searchResultsAdapter.onChildClick(groupPosition, childPosition);
-                return true;
-            }
-        });
-
-        resultsExpandableListView.setOnCreateContextMenuListener(searchResultsAdapter);
         resultsExpandableListView.setOnScrollListener(new ScrollListener());
 
         handleIntent(getIntent());
@@ -85,15 +73,7 @@ public class SearchActivity extends ItemListActivity {
     @Override
     public final boolean onContextItemSelected(MenuItem menuItem) {
         if (getService() != null) {
-            ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListContextMenuInfo) menuItem
-                    .getMenuInfo();
-            long packedPosition = contextMenuInfo.packedPosition;
-            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-            int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-            if (ExpandableListView.getPackedPositionType(packedPosition)
-                    == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                return searchResultsAdapter.doItemContext(menuItem, groupPosition, childPosition);
-            }
+            return searchResultsAdapter.doItemContext(menuItem);
         }
         return false;
     }
@@ -120,6 +100,24 @@ public class SearchActivity extends ItemListActivity {
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.search(start, searchString, itemListCallback);
+    }
+
+    @Override
+    public void maybeOrderVisiblePages(AbsListView listView) {
+        final int firstVisiblePosition = listView.getFirstVisiblePosition();
+        int currentPagePosition = -1;
+        for (int pos = 0; pos < listView.getChildCount(); pos++) {
+            long packedPosition = resultsExpandableListView.getExpandableListPosition(firstVisiblePosition + pos);
+            if (ExpandableListView.PACKED_POSITION_TYPE_CHILD == ExpandableListView.getPackedPositionType(packedPosition)) {
+                final int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+                final Integer colCount = searchResultsAdapter.getGroup(groupPosition).getColCount();
+                final int childPosition = ExpandableListView.getPackedPositionChild(packedPosition) * colCount;
+                int pagePosition = (childPosition / mPageSize) * mPageSize;
+                if (pagePosition != currentPagePosition) {
+                    maybeOrderPage(currentPagePosition = pagePosition);
+                }
+            }
+        }
     }
 
     /**

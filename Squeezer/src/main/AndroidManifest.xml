@@ -17,8 +17,14 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="uk.org.ngo.squeezer"
     android:versionCode="13" android:versionName="0.9.1">
+
+    <!-- Crashlytics is for API 8+. Override that here, as Squeezer checks for
+         the API level before invoking it. -->
+    <uses-sdk android:targetSdkVersion="21" android:minSdkVersion="7"
+        tools:overrideLibrary="com.crashlytics.android,com.crashlytics.android.answers,io.fabric.sdk.android,com.crashlytics.android.core,com.crashlytics.android.beta"/>
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
@@ -49,7 +55,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".NowPlayingActivity" android:label="@string/app_name"/>
+        <activity android:name=".NowPlayingActivity" android:label="@string/app_name"
+            android:exported="true"/>
         <activity android:name=".SettingsActivity" android:label="@string/activity_settings_name"/>
         <activity android:name=".DisconnectedActivity" android:label="Disconnected"/>
 
@@ -74,7 +81,7 @@
             android:label="@string/app_name"/>
         <activity android:name=".itemlist.SongListActivity" android:label="@string/app_name"/>
         <activity android:name=".itemlist.CurrentPlaylistActivity"
-            android:label="@string/app_name"/>
+            android:label="@string/app_name" android:exported="true"/>
         <activity android:name=".itemlist.PlaylistsActivity" android:label="@string/app_name"/>
         <activity android:name=".itemlist.PlaylistSongsActivity" android:label="@string/app_name"/>
         <activity android:name=".itemlist.RadioListActivity" android:label="@string/app_name"/>

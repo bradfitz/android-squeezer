@@ -44,9 +44,9 @@
     <string name="settings_autoconnect_summary">Bied aan Wi-Fi in te schakelen, en bij Wi-Fi
         beschikbaarheid, probeer te verbinden.
     </string>
-    <string name="settings_notifyofconnection_title">Melding bij verbinding</string>
-    <string name="settings_notifyofconnection_on">Toon melding bij verbinding, zelfs zonder muziek</string>
-    <string name="settings_notifyofconnection_off">Toon alleen melding bij afspelen muziek</string>
+    <string name="settings_notification_type_title">Melding bij verbinding</string>
+    <string name="settings_notification_type_always">Toon melding bij verbinding, zelfs zonder muziek</string>
+    <string name="settings_notification_type_playing">Toon alleen melding bij afspelen muziek</string>
     <string name="settings_scrobble_title">Scrobble naar Last.fm</string>
     <string name="settings_scrobble_on">Informatie van muzieknummer is verzonden naar Last.fm</string>
     <string name="settings_scrobble_off">Informatie van muzieknummer is niet verzonden naar Last.fm</string>
@@ -57,8 +57,8 @@
     <string name="settings_category_ui">Squeezer interface</string>
     <string name="menu_item_disconnect">Verbreek contact</string>
     <string name="menu_item_connect">Verbind</string>
-    <string name="menu_item_poweron">Aanzetten</string>
-    <string name="menu_item_poweroff">Schakel uit</string>
+    <string name="menu_item_poweron">Aanzetten \"%s\"</string>
+    <string name="menu_item_poweroff">Schakel uit \"%s\"</string>
     <string name="menu_item_main">Speelt nu</string>
     <string name="menu_item_home">Hoofdmenu</string>
     <string name="menu_item_fetch_all">Download resterend</string>
@@ -139,9 +139,9 @@
     <string name="PLAY_NOW">Speel af</string>
     <string name="ADD_TO_END">Voeg toe aan Playlist</string>
     <string name="PLAY_NEXT">Speel af na huidige liedje</string>
-    <string name="DOWNLOAD_ITEM">Download</string>
+    <string name="DOWNLOAD">Download</string>
     <string name="DOWNLOAD_MANAGER_NEEDED">Download vereist Android 2.3 of later</string>
-    <string name="PLAYLIST_REMOVE_ITEM">Verwijder van playlist</string>
+    <string name="PLAYLIST_REMOVE">Verwijder van playlist</string>
     <string name="PLAYLIST_MOVE_UP">Verplaats naar boven</string>
     <string name="PLAYLIST_MOVE_DOWN">Verplaats naar beneden</string>
     <string name="PLAYLIST_MOVE">Verplaats …</string>
@@ -155,6 +155,7 @@
     <string name="song_display_options">Opties bij view nummer</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Nummer</string>
+    <string name="songs_sort_order_albumtrack">Album, nummer</string>
     <!--Analytics preference strings-->
     <string name="pref_cat_error_reports">Fouten rapporten en statistieken</string>
     <string name="pref_analytics_enable">Verzend gebruiks-statistieken</string>

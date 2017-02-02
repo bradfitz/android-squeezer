@@ -18,6 +18,8 @@
 
 <resources>
     <string name="app_name">Squeezer</string>
+    <string name="execute_always">Altid</string>
+    <string name="execute_just_once">Kun én gang</string>
     <string name="undo">Fortryd</string>
     <string name="disabled">Deaktiveret</string>
     <string name="volume">%s lydstyrke</string>
@@ -33,7 +35,7 @@
     <string name="settings_serveraddr_hint">Navn eller IP addresse på server</string>
     <string name="settings_server_prompt">Vælg en server</string>
     <string name="settings_server_rescan">Opdatér</string>
-x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke
+    <string name="settings_server_scanning_disabled_msg">Scanning er deaktiveret, fordi Wi-Fi ikke
         er forbundet.
     </string>
     <string name="settings_theme_title">Tema</string>
@@ -51,11 +53,11 @@ x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktivere
         aktiv Wi-Fi forbindelse
     </string>
 
-    <string name="settings_notifyofconnection_title">Notifikation ved forbindelse</string>
-    <string name="settings_notifyofconnection_on">Vis notifikation ved forbindelse, også når der
+    <string name="settings_notification_type_title">Notifikation ved forbindelse</string>
+    <string name="settings_notification_type_always">Vis notifikation ved forbindelse, også når der
         ikke spilles musik
     </string>
-    <string name="settings_notifyofconnection_off">Vis kun notification når der spilles musik
+    <string name="settings_notification_type_playing">Vis kun notification når der spilles musik
     </string>
 
     <string name="settings_category_ui">Squeezer grænseflade</string>
@@ -179,12 +181,15 @@ x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktivere
     <string name="BROWSE_ARTIST_ALBUMS">Vis album med sange af kunster</string>
     <string name="BROWSE_ARTIST_SONGS">Vis sange af kunster</string>
     <string name="PLAY_NOW">Afspil</string>
+    <string name="PLAY_ITEM">Afspil \"%s\"</string>
+    <string name="PLAY_FROM_HERE">Afspil herfra</string>
     <string name="ADD_TO_END">Tilføj til afspilningsliste</string>
+    <string name="ADD_ITEM_TO_END">Tilføj \"%s\" til afspilningsliste</string>
     <string name="PLAY_NEXT">Afspil efter den sang der spilles nu</string>
-    <string name="DOWNLOAD_ITEM">Hent</string>
+    <string name="DOWNLOAD">Hent</string>
     <string name="DOWNLOAD_MANAGER_NEEDED">Hent kræver Android 2.3 eller nyere</string>
 
-    <string name="PLAYLIST_REMOVE_ITEM">Fjern fra afspilningsliste</string>
+    <string name="PLAYLIST_REMOVE">Fjern fra afspilningsliste</string>
     <string name="PLAYLIST_MOVE_UP">Flyt op</string>
     <string name="PLAYLIST_MOVE_DOWN">Flyt ned</string>
     <string name="PLAYLIST_MOVE">Flyt&#8230;</string>
@@ -201,6 +206,7 @@ x    <string name="settings_server_scanning_disabled_msg">Scanning er deaktivere
     <string name="song_display_options">Indstillinger for visning af sange</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Spor</string>
+    <string name="songs_sort_order_albumtrack">Album, spor</string>
 
     <!--  Analytics preference strings -->
     <string name="pref_cat_error_reports">Fejlrapporter og statistik</string>

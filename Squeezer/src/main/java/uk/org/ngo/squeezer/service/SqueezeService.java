@@ -43,7 +43,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -170,8 +169,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     private boolean scrobblingPreviouslyEnabled;
 
-    /** Whether to show an on-going notification when a track is not playing. */
-    boolean mShowNotificationWhenNotPlaying;
+    /** User's preferred notification type. */
+    @Preferences.NotificationType
+    private String mNotificationType = Preferences.NOTIFICATION_TYPE_NONE;
 
     int mFadeInSecs;
 
@@ -249,8 +249,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
         scrobblingEnabled = preferences.getBoolean(Preferences.KEY_SCROBBLE_ENABLED, false);
         mFadeInSecs = preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0);
-        mShowNotificationWhenNotPlaying = preferences
-                .getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false);
+        //noinspection ResourceType
+        mNotificationType = preferences.getString(Preferences.KEY_NOTIFICATION_TYPE,
+                Preferences.NOTIFICATION_TYPE_PLAYING);
     }
 
     @Override
@@ -456,6 +457,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /**
      * Manages the state of any ongoing notification based on the player and connection state.
      */
+    @TargetApi(21)
     private void updateOngoingNotification() {
         Player activePlayer = this.mActivePlayer.get();
         PlayerState activePlayerState = getActivePlayerState();
@@ -475,11 +477,17 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return;
         }
 
+        // If the user doesn't want notifications then kill it and get out.
+        if (Preferences.NOTIFICATION_TYPE_NONE.equals(mNotificationType)) {
+            clearOngoingNotification();
+            return;
+        }
+
         boolean playing = activePlayerState.isPlaying();
 
         // If the song is not playing and the user wants notifications only when playing then
         // kill the notification and get out.
-        if (!playing && !mShowNotificationWhenNotPlaying) {
+        if (!playing && Preferences.NOTIFICATION_TYPE_PLAYING.equals(mNotificationType)) {
             clearOngoingNotification();
             return;
         }
@@ -767,13 +775,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
 
-            Crashlytics.log("Registering new download");
-            Crashlytics.log("downloadId: " + downloadId);
-            Crashlytics.log("tempFile: " + tempFile);
-            Crashlytics.log("localPath: " + localPath);
+            Util.crashlyticsLog("Registering new download");
+            Util.crashlyticsLog("downloadId: " + downloadId);
+            Util.crashlyticsLog("tempFile: " + tempFile);
+            Util.crashlyticsLog("localPath: " + localPath);
 
             if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath)) {
-                Crashlytics.log(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
+                Util.crashlyticsLog(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
                 downloadManager.remove(downloadId);
             }
         }
@@ -1005,6 +1013,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
+        public String getServerVersion() throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+            return cli.getServerVersion();
+        }
+
+        @Override
         public String preferredAlbumSort() throws HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
@@ -1131,13 +1147,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         @Override
-        public boolean playlistControl(@BaseActivity.PlaylistControlCmd String cmd, PlaylistItem playlistItem) {
+        public boolean playlistControl(@BaseActivity.PlaylistControlCmd String cmd, PlaylistItem playlistItem, int index) {
             if (!isConnected()) {
                 return false;
             }
 
             sendActivePlayerCommand(
-                    "playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter());
+                    "playlistcontrol cmd:" + cmd + " " + playlistItem.getPlaylistParameter() + " play_index:" + index);
             return true;
         }
 
@@ -1283,7 +1299,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             Log.i(TAG, "Preference changed: " + key);
             cachePreferences();
 
-            if (Preferences.KEY_NOTIFY_OF_CONNECTION.equals(key)) {
+            if (Preferences.KEY_NOTIFICATION_TYPE.equals(key)) {
                 updateOngoingNotification();
                 return;
             }

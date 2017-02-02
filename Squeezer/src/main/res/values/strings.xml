@@ -18,6 +18,8 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Squeezer</string>
+    <string name="execute_always">Always</string>
+    <string name="execute_just_once">Just once</string>
     <string name="undo">Undo</string>
     <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
@@ -52,11 +54,12 @@
         try to connect
     </string>
 
-    <string name="settings_notifyofconnection_title">Notify of connection</string>
-    <string name="settings_notifyofconnection_on">Show notification while connected, even when not
-        playing music
+    <string name="settings_notification_type_title">Notifications</string>
+    <string name="settings_notification_type_none">Never</string>
+    <string name="settings_notification_type_playing">Only while playing music
     </string>
-    <string name="settings_notifyofconnection_off">Show notification only while playing music
+    <string name="settings_notification_type_always">While connected, even when not
+        playing music
     </string>
 
     <string name="settings_scrobble_title">Scrobble to Last.fm</string>
@@ -86,6 +89,7 @@
     <string name="menu_item_playlists_new">New</string>
     <string name="menu_item_playlist_clear">Clear playlist</string>
     <string name="menu_item_playlist_save">Save as playlist</string>
+    <string name="menu_item_playlist_show_current_song">Go to current song</string>
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
     <string name="connect_to_text">Connect to %s</string>
@@ -344,7 +348,7 @@ agreed to in writing, Licensor provides the Work (and each
 Contributor provides its Contributions) on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
 implied, including, without limitation, any warranties or conditions
-of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+of title, non-infringement, merchantability, or fitness for a
 PARTICULAR PURPOSE. You are solely responsible for determining the
 appropriateness of using or redistributing the Work and assume any
 risks associated with Your exercise of permissions under this License.&lt;/p&gt;
@@ -381,12 +385,15 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="BROWSE_ARTIST_ALBUMS">Browse albums with songs by artist</string>
     <string name="BROWSE_ARTIST_SONGS">Browse songs by artist</string>
     <string name="PLAY_NOW">Play</string>
+    <string name="PLAY_ITEM">Play \"%s\"</string>
+    <string name="PLAY_FROM_HERE">Play from here</string>
     <string name="ADD_TO_END">Add to playlist</string>
+    <string name="ADD_ITEM_TO_END">Add \"%s\" to playlist</string>
     <string name="PLAY_NEXT">Play after the current song</string>
-    <string name="DOWNLOAD_ITEM">Download</string>
+    <string name="DOWNLOAD">Download</string>
     <string name="DOWNLOAD_MANAGER_NEEDED">Download requires Android 2.3 or later</string>
 
-    <string name="PLAYLIST_REMOVE_ITEM">Remove from playlist</string>
+    <string name="PLAYLIST_REMOVE">Remove from playlist</string>
     <string name="PLAYLIST_MOVE_UP">Move up</string>
     <string name="PLAYLIST_MOVE_DOWN">Move down</string>
     <string name="PLAYLIST_MOVE">Move&#8230;</string>
@@ -403,6 +410,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="song_display_options">Songview options</string>
     <string name="songs_sort_order_title">Title</string>
     <string name="songs_sort_order_tracknum">Track</string>
+    <string name="songs_sort_order_albumtrack">Album, Track</string>
 
     <!--  Analytics preference strings -->
     <string name="pref_cat_error_reports">Error reports and statistics</string>

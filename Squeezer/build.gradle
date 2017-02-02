@@ -1,23 +1,26 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven { url 'http://download.crashlytics.com/maven' }
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
-        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+        classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+        classpath 'com.github.triplet.gradle:play-publisher:1.1.0'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'crashlytics'
+apply plugin: 'io.fabric'
 apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'com.github.triplet.play'
+apply plugin: 'uk.org.ngo.gradle.whatsnew'
 
 repositories {
     mavenCentral()
-    maven { url 'http://download.crashlytics.com/maven' }
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 dependencies {
@@ -36,7 +39,7 @@ dependencies {
     compile 'com.google.code.findbugs:jsr305:2.0.2'
 
     // EventBus, https://github.com/greenrobot/EventBus.
-    compile project(':libs:eventbus:EventBus')
+    compile 'de.greenrobot:eventbus:2.4.1'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
@@ -46,7 +49,9 @@ dependencies {
     compile 'com.bluelinelabs:logansquare:1.0.6'
 
     // Crashlytics.
-    compile 'com.crashlytics.android:crashlytics:1.+'
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+        transitive = true
+    }
 
     // KitKat time picker
     compile 'com.nineoldandroids:library:2.4.0'
@@ -71,6 +76,9 @@ android {
         targetSdkVersion 21
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
+
+        versionCode 56
+        versionName "1.4.1"
     }
 
     lintOptions {
@@ -78,22 +86,8 @@ android {
         warning 'MissingTranslation'
     }
 
-    buildTypes {
-        release {
-            minifyEnabled true
-            // You could use 'proguardFile "proguard.cfg"' here and get the
-            // same effect, but this ensures that any changes to
-            // proguard-android-optimize.txt are automatically included.
-            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
-            proguardFile "proguard-crashlytics.cfg"
-            proguardFile "proguard-eventbus.cfg"
-            proguardFile "proguard-guava.cfg"
-            proguardFile "proguard-squeezer.cfg"
-        }
-    }
-
     signingConfigs {
-        if(project.hasProperty("Squeezer.properties")
+        if (project.hasProperty("Squeezer.properties")
                 && file(project.property("Squeezer.properties")).exists()) {
             Properties props = new Properties()
             props.load(new FileInputStream(file(project.property("Squeezer.properties"))))
@@ -113,17 +107,48 @@ android {
         }
     }
 
-    productFlavors {
-        beta {
-            versionCode 53
-            versionName "1.4.0-beta-1"
-            signingConfig android.signingConfigs.release
+    buildTypes {
+        debug {
+            ext.enableCrashlytics = false
         }
 
-        live {
-            versionCode 54
-            versionName "1.4.0"
-            signingConfig android.signingConfigs.release
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.release
+            // You could use 'proguardFile "proguard.cfg"' here and get the
+            // same effect, but this ensures that any changes to
+            // proguard-android-optimize.txt are automatically included.
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFile "proguard-crashlytics.cfg"
+            proguardFile "proguard-eventbus.cfg"
+            proguardFile "proguard-guava.cfg"
+            proguardFile "proguard-squeezer.cfg"
         }
     }
+}
+
+def publishTrack() {
+    switch (android.defaultConfig.versionName) {
+        case ~/.*-beta-\d+/:
+            return 'beta'
+        case ~/\d+\.\d+\.\d+/:
+            return 'production'
+    }
+    throw new IllegalArgumentException("versionName '${versionName}' is not valid")
+}
+
+whatsnew {
+    changelogPath = 'Squeezer/src/main/res/xml/changelog_master.xml'
+    newsPath = 'NEWS'
+    if (publishTrack() == 'beta') {
+        whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew-beta'
+    } else {
+        whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew'
+    }
+}
+
+play {
+    serviceAccountEmail = '1007218477134-c5q3v7d2dqahh6q09ltmimaa0jpq3qp6@developer.gserviceaccount.com'
+    pk12File = file('play-key.p12')
+    track = publishTrack()
 }

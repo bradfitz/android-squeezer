@@ -1,4 +1,4 @@
-package uk.org.ngo.squeezer.test.util;
+package uk.org.ngo.squeezer.util;
 
 import junit.framework.TestCase;
 
@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import uk.org.ngo.squeezer.util.Reflection;
 
 public class ReflectionTest extends TestCase {
 

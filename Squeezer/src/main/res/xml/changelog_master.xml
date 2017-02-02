@@ -2,6 +2,31 @@
 
 <changelog>
     <release
+        version="1.4.1"
+        versioncode="56">
+        <change>Fixed a crash when scrobbling song information. Contributed by
+            HumbleBeeBumbleBeeDebugs@gmail.com.</change>
+
+        <change>Workaround an issue on some devices where the currently playing item is not
+            highlighted in the playlist. Also add menu item to select the current song.
+            Contributed by spiritcroc@gmail.com.</change>
+
+        <change>Fixed a crash when retrieving playlists for alarms.</change>
+
+        <change>Fixed poor UI in Internet Radio search.</change>
+
+        <change>Show search results in a list or a grid depending on user preferences.</change>
+
+        <change>Show a dialog to allow the user to choose what happens when tapping a song or
+            an album.</change>
+
+        <change>Provide "Play from here" option when looking at albums, playlists, artists,
+            genres, and years.</change>
+
+        <change>Provide an option to disable notifications entirely.</change>
+    </release>
+
+    <release
         version="1.4.0"
         versioncode="54">
         <change>New support for managing alarms on players. Most of the code by Kurt.</change>
@@ -415,8 +440,7 @@
         versioncode="7">
 
         <change>Included higher resolution icons for devices with a higher display density,
-            such as the Galaxy Nexus.
-        </change>
+            such as the Galaxy Nexus.</change>
 
         <change>Fixed a rare crash when releasing the Wi-Fi lock.</change>
 
@@ -435,35 +459,24 @@
         version="0.6"
         versioncode="6">
 
-        <change>
-            Browse the library:
-            Full support for browsing by artist, album, song, genre, or year. Also use
-            Internet radio stations.
-        </change>
+        <change>Browse the library: Full support for browsing by artist, album, song, genre, or
+            year. Also use Internet radio stations.</change>
 
-        <change>
-            Search:
-            Search your library by artist, album, song, and genre.
-        </change>
+        <change>Search: Search your library by artist, album, song, and genre.</change>
 
-        <change>
-            Playlists:
-            Create, modify, and delete playlists on the server.
-        </change>
+        <change>Playlists: Create, modify, and delete playlists on the server.</change>
 
         <change>Scrobble the currently playing track to Last.fm.</change>
 
         <change>"Now playing" UI: Larger album artwork, and the current artist and album are
             now links to searches for more songs by the same artist / from the same album. There is
-            also a "landscape" optimised UI.
-        </change>
+            also a "landscape" optimised UI.</change>
 
         <change>"Scrub" through the currently playing track using the seekbar.</change>
 
         <change>Control the player's volume using your device's hardware volume keys.</change>
 
         <change>Error reporting. If Squeezer encounters an error you can (optionally) submit
-            an error report to the developers.
-        </change>
+            an error report to the developers.</change>
     </release>
 </changelog>

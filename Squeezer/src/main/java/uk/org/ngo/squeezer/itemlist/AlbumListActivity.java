@@ -218,25 +218,12 @@ public class AlbumListActivity extends BaseListActivity<Album>
      * size, on the assumption that the artwork grid is preferred on larger screens.
      */
     private void setListLayout() {
-        SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
-        String listLayoutString = preferences.getString(Preferences.KEY_ALBUM_LIST_LAYOUT, null);
-        if (listLayoutString == null) {
-            int screenSize = getResources().getConfiguration().screenLayout
-                    & Configuration.SCREENLAYOUT_SIZE_MASK;
-            listLayout = (screenSize >= Configuration.SCREENLAYOUT_SIZE_LARGE)
-                    ? AlbumViewDialog.AlbumListLayout.grid : AlbumViewDialog.AlbumListLayout.list;
-        } else {
-            listLayout = AlbumViewDialog.AlbumListLayout.valueOf(listLayoutString);
-        }
+        listLayout = new Preferences(this).getAlbumListLayout();
     }
 
     @Override
     public void setListLayout(AlbumViewDialog.AlbumListLayout listLayout) {
-        SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(Preferences.KEY_ALBUM_LIST_LAYOUT, listLayout.name());
-        editor.commit();
-
+        new Preferences(this).setAlbumListLayout(listLayout);
         startActivity(getIntent());
         finish();
     }

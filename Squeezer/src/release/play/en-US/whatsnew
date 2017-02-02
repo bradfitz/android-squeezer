@@ -1,0 +1,11 @@
+* New support for managing alarms on players. Most of the code by Kurt.
+
+* Improved the support for apps, contributed by Christer Wendel.
+
+* Reduced risk of out-of-memory crashes when loading large album artwork.
+
+* Fixed a bug that prevented changing a player's sleep time.
+
+* Fixed a crash on Samsung devices.
+
+* Fixed potential crash when viewing the list of players.

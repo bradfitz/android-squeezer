@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -59,6 +60,14 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
     }
+
+    /**
+     * Handler for updating the index of the currently selected item in the playlist.
+     * In theory you can post a Runnable to the ListView, but that appears to fail on
+     * some OEM Android versions, whereas a dedicated Handler always works. See
+     * https://github.com/nikclayton/android-squeezer/pull/164 for more.
+     */
+    private Handler playlistIndexUpdateHandler = new Handler();
 
     private int currentPlaylistIndex;
 
@@ -208,7 +217,9 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save};
+        final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save,
+                R.id.menu_item_playlist_show_current_song};
+
         final boolean knowCurrentPlaylist = getCurrentPlaylist() != null;
 
         for (int id : ids) {
@@ -231,6 +242,10 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             case R.id.menu_item_playlist_save:
                 PlaylistSaveDialog.addTo(this, getCurrentPlaylist());
                 return true;
+            case R.id.menu_item_playlist_show_current_song:
+                selectCurrentSong(currentPlaylistIndex, 0);
+                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -304,7 +319,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
 
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
         Log.i(getTag(), "set selection(" + start + "): " + currentPlaylistIndex);
-        getListView().post(new Runnable() {
+        playlistIndexUpdateHandler.post(new Runnable() {
             @Override
             public void run() {
                 // TODO: this doesn't work if the current playlist is displayed in a grid

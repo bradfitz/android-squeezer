@@ -24,11 +24,10 @@ import android.view.View;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.framework.PlaylistItemView;
-import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Song;
 
@@ -70,21 +69,11 @@ public class SongView extends PlaylistItemView<Song> {
 
     @SecondLineDetails private int mDetails = DETAILS_NONE;
 
-    private boolean browseByAlbum;
-
-    public void setBrowseByAlbum(boolean browseByAlbum) {
-        this.browseByAlbum = browseByAlbum;
-    }
-
-    private boolean browseByArtist;
-
-    public void setBrowseByArtist(boolean browseByArtist) {
-        this.browseByArtist = browseByArtist;
-    }
+    private SongListActivity songListActivity;
 
     public SongView(ItemListActivity activity) {
         super(activity);
-
+        if (activity instanceof SongListActivity) songListActivity = (SongListActivity) activity;
         setViewParams(VIEW_PARAM_TWO_LINE | VIEW_PARAM_CONTEXT_BUTTON);
     }
 
@@ -128,13 +117,6 @@ public class SongView extends PlaylistItemView<Song> {
         viewHolder.text2.setText("");
     }
 
-    @Override
-    protected PlayableItemAction getOnSelectAction() {
-        String actionType = preferences.getString(Preferences.KEY_ON_SELECT_SONG_ACTION,
-                PlayableItemAction.Type.NONE.name());
-        return PlayableItemAction.createAction(getActivity(), actionType);
-    }
-
     /**
      * Creates the context menu for a song by inflating R.menu.songcontextmenu.
      * <p>
@@ -149,7 +131,11 @@ public class SongView extends PlaylistItemView<Song> {
 
         Song song = (Song) menuInfo.item;
 
-        if (!"".equals(song.getAlbumId()) && !browseByAlbum) {
+        if (canPlayFromHere()) {
+            menu.findItem(R.id.play_from_here).setVisible(true);
+        }
+
+        if (!"".equals(song.getAlbumId()) && !hasAlbum()) {
             menu.findItem(R.id.view_this_album).setVisible(true);
         }
 
@@ -157,7 +143,7 @@ public class SongView extends PlaylistItemView<Song> {
             menu.findItem(R.id.view_albums_by_song).setVisible(true);
         }
 
-        if (!"".equals(song.getArtistId()) && !browseByArtist) {
+        if (!"".equals(song.getArtistId()) && !hasArtist()) {
             menu.findItem(R.id.view_songs_by_artist).setVisible(true);
         }
     }
@@ -165,6 +151,10 @@ public class SongView extends PlaylistItemView<Song> {
     @Override
     public boolean doItemContext(android.view.MenuItem menuItem, int index, Song selectedItem) {
         switch (menuItem.getItemId()) {
+            case R.id.play_from_here:
+                getActivity().play(getPlayListItem(), index);
+                return true;
+
             case R.id.view_this_album:
                 SongListActivity.show(getActivity(), selectedItem.getAlbum());
                 return true;
@@ -187,5 +177,21 @@ public class SongView extends PlaylistItemView<Song> {
     @Override
     public String getQuantityString(int quantity) {
         return getActivity().getResources().getQuantityString(R.plurals.song, quantity);
+    }
+
+    private boolean hasAlbum() {
+        return (songListActivity != null && songListActivity.getAlbum() != null);
+    }
+
+    private boolean hasArtist() {
+        return (songListActivity != null && songListActivity.getAlbum() != null);
+    }
+    private PlaylistItem getPlayListItem() {
+        return (songListActivity != null ? songListActivity.getPlaylistItem() : null);
+    }
+
+    private boolean canPlayFromHere() {
+        return (songListActivity != null && songListActivity.canPlayFromHere());
+
     }
 }

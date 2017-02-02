@@ -55,8 +55,8 @@
 
     <string name="menu_item_disconnect">Verbindung trennen</string>
     <string name="menu_item_connect">Verbinden</string>
-    <string name="menu_item_poweron">Einschalten</string>
-    <string name="menu_item_poweroff">Ausschalten</string>
+    <string name="menu_item_poweron">Einschalten \"%s\"</string>
+    <string name="menu_item_poweroff">Ausschalten \"%s\"</string>
     <string name="menu_item_main">Wird gespielt</string>
     <string name="menu_item_home">Haupt-Menü</string>
     <string name="menu_item_fetch_all">Alle herunterladen</string>
@@ -68,6 +68,7 @@
     <string name="menu_item_playlists_new">Neu</string>
     <string name="menu_item_playlist_clear">Löschen</string>
     <string name="menu_item_playlist_save">Speichern</string>
+    <string name="menu_item_playlist_show_current_song">Aktuelles Lied</string>
     <string name="menu_item_volume">Lautstärke</string>
     <string name="connecting_text">Verbinde</string>
     <string name="connecting_to_text">Verbinde mit SqueezeBox CLI %s</string>
@@ -134,9 +135,9 @@
     <string name="PLAY_NOW">Abspielen</string>
     <string name="ADD_TO_END">Zur Wiedergabeliste hinzufügen</string>
     <string name="PLAY_NEXT">Nach dem aktuellen Titel wiedergeben</string>
-    <string name="DOWNLOAD_ITEM">Herunterladen</string>
+    <string name="DOWNLOAD">Herunterladen</string>
 
-    <string name="PLAYLIST_REMOVE_ITEM">Von der Wiedergabeliste entfernen</string>
+    <string name="PLAYLIST_REMOVE">Von der Wiedergabeliste entfernen</string>
     <string name="PLAYLIST_MOVE_UP">Nach oben schieben</string>
     <string name="PLAYLIST_MOVE_DOWN">Nach unten schieben</string>
     <string name="PLAYLIST_MOVE">Verschiebe &#8230;</string>
@@ -151,6 +152,7 @@
     <string name="song_display_options">Liederansicht - Optionen</string>
     <string name="songs_sort_order_title">Titel</string>
     <string name="songs_sort_order_tracknum">Nummer</string>
+    <string name="songs_sort_order_albumtrack">Album, nummer</string>
 
     <!--  Analytics preference strings -->
     <string name="pref_cat_error_reports">Fehlerberichte und Statistiken</string>
