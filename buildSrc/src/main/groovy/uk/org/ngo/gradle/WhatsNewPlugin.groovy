@@ -46,7 +46,7 @@ class WhatsNewPlugin implements Plugin<Project> {
 
             String content = ''
             changelog.release[0].change.each { change ->
-                content += '* ' + change + '\n\n'
+                content += '&bull; ' + change.text().replaceAll('\n', ' ').replaceAll(' +', ' ').trim() + '\n\n'
             }
 
             new File(project.whatsnew.whatsnewPath).setText(content.trim(), 'UTF-8')

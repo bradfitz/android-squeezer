@@ -91,6 +91,7 @@ public class ItemAdapterTest extends ActivityInstrumentationTestCase2<ArtistList
     public void testRemoveItem() {
         // For all items remove the first item.
         // For each item removed assert the resulting list is correct.
+        artistItemAdapter.clear();
         artistItemAdapter.update(artists.length, 0, Arrays.asList(artists));
         for (int i = 1; i <= artists.length; i++) {
             artistItemAdapter.removeItem(0);
