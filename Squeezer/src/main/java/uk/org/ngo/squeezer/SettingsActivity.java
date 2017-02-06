@@ -33,17 +33,20 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
-import android.support.v4.content.ContextCompat;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
+import uk.org.ngo.squeezer.download.DownloadStorage;
 import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
@@ -176,14 +179,35 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     private void fillDownloadPreferences(Preferences preferences) {
-        final CheckBoxPreference useServerPathPreference = (CheckBoxPreference) findPreference(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH);
+        final DownloadStorage downloadStorage = new DownloadStorage(this);
+        final PreferenceCategory downloadCategory = (PreferenceCategory) findPreference(Preferences.KEY_DOWNLOAD_CATEGORY);
+        final PreferenceScreen useSdCardScreen = (PreferenceScreen) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD_SCREEN);
+        final CheckBoxPreference useSdCardPreference = (CheckBoxPreference) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD);
         final ListPreference pathStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
+        final ListPreference filenameStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
+        if (downloadStorage.isPublicMediaStorageRemovable() || !downloadStorage.hasRemovableMediaStorage()) {
+            downloadCategory.removePreference(useSdCardScreen);
+        }
+
+        useSdCardPreference.setSummary(Html.fromHtml(getString(R.string.settings_download_use_sd_card_desc)));
+        fillEnumPreference(pathStructurePreference, DownloadPathStructure.class, preferences.getDownloadPathStructure());
+        fillEnumPreference(filenameStructurePreference, DownloadFilenameStructure.class, preferences.getDownloadFilenameStructure());
+
+        updateDownloadPreferences(preferences);
+    }
+
+    private void updateDownloadPreferences(Preferences preferences) {
+        final PreferenceScreen useSdCardScreen = (PreferenceScreen) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD_SCREEN);
+        if (useSdCardScreen != null) {
+            final boolean useSdCard = preferences.isDownloadUseSdCard();
+            useSdCardScreen.setSummary(useSdCard ? R.string.on : R.string.off);
+            ((BaseAdapter)useSdCardScreen.getRootAdapter()).notifyDataSetChanged();
+        }
+
+        final CheckBoxPreference useServerPathPreference = (CheckBoxPreference) findPreference(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH);        final ListPreference pathStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
         final ListPreference filenameStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
         final boolean useServerPath = preferences.isDownloadUseServerPath();
         useServerPathPreference.setChecked(useServerPath);
-        useServerPathPreference.setOnPreferenceChangeListener(this);
-        fillEnumPreference(pathStructurePreference, DownloadPathStructure.class, preferences.getDownloadPathStructure());
-        fillEnumPreference(filenameStructurePreference, DownloadFilenameStructure.class, preferences.getDownloadFilenameStructure());
         pathStructurePreference.setEnabled(!useServerPath);
         filenameStructurePreference.setEnabled(!useServerPath);
     }
@@ -340,8 +364,9 @@ public class SettingsActivity extends PreferenceActivity implements
             updateAddressSummary(new Preferences(this, sharedPreferences));
         }
 
-        if (key.startsWith(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH)) {
-            fillDownloadPreferences(new Preferences(this, sharedPreferences));
+        if (key.startsWith(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH) ||
+                key.startsWith(Preferences.KEY_DOWNLOAD_USE_SD_CARD)) {
+            updateDownloadPreferences(new Preferences(this, sharedPreferences));
         }
 
         if (service != null) {

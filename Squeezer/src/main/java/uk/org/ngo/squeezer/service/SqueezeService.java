@@ -76,6 +76,7 @@ import uk.org.ngo.squeezer.RandomplayActivity;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
+import uk.org.ngo.squeezer.download.DownloadStorage;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
@@ -821,11 +822,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
 
-            Util.crashlyticsLog("Registering new download");
-            Util.crashlyticsLog("downloadId: " + downloadId);
-            Util.crashlyticsLog("tempFile: " + tempFile);
-            Util.crashlyticsLog("localPath: " + localPath);
-
             if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath, albumArtUrl)) {
                 Util.crashlyticsLog(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
                 downloadManager.remove(downloadId);
@@ -835,6 +831,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private void handleDownloadComplete(long id) {
+        final DownloadStorage downloadStorage = new DownloadStorage(this);
         final DownloadDatabase downloadDatabase = new DownloadDatabase(this);
         final DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         final DownloadManager.Query query = new DownloadManager.Query().setFilterById(id);
@@ -853,11 +850,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     switch (status) {
                         case DownloadManager.STATUS_SUCCESSFUL:
                             File tempFile = new File(getExternalFilesDir(Environment.DIRECTORY_MUSIC), downloadEntry.tempName);
-                            File localFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), downloadEntry.fileName);
-                            File localFolder = localFile.getParentFile();
-                            if (!localFolder.exists())
-                                localFolder.mkdirs();
-                            if (tempFile.renameTo(localFile)) {
+                            try {
+                                File localFile = new File(downloadStorage.getDownloadDir(), downloadEntry.fileName);
+                                Util.moveFile(tempFile, localFile);
                                 MediaScannerConnection.scanFile(
                                         getApplicationContext(),
                                         new String[]{localFile.getAbsolutePath()},
@@ -880,8 +875,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                                             }
                                         }
                                 );
-                            } else {
-                                Util.crashlyticsLog(Log.ERROR, TAG, "Could not rename [" + tempFile + "] to [" + localFile + "]");
+                            } catch (IOException e) {
+                                Util.crashlyticsLogException(e);
                             }
                             break;
                         default:
@@ -891,10 +886,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 } else {
                     Util.crashlyticsLog(Log.ERROR, TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
                 }
-                //} else {
-                // Download complete events may still come in, even after DownloadManager.remove is
-                // called, so don't log this
-                //Logger.logError(TAG, "Download manager does not have an entry for " + id);
+            //} else {
+            // Download complete events may still come in, even after DownloadManager.remove is
+            // called, so don't log this
+            //Logger.logError(TAG, "Download manager does not have an entry for " + id);
             }
         } finally {
             cursor.close();

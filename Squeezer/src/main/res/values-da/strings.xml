@@ -21,6 +21,8 @@
     <string name="execute_always">Altid</string>
     <string name="execute_just_once">Kun én gang</string>
     <string name="undo">Fortryd</string>
+    <string name="on">Til</string>
+    <string name="off">Fra</string>
     <string name="disabled">Deaktiveret</string>
     <string name="volume">%s lydstyrke</string>
     <string name="menu_item_players">Afspillere</string>

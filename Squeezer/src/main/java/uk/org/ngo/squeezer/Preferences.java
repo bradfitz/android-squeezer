@@ -104,16 +104,23 @@ public final class Preferences {
     public static final String KEY_SQUEEZEPLAYER_ENABLED = "squeezer.squeezeplayer.enabled";
 
     // Preferred UI theme.
-    public static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
+    static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
+
+    // Download category
+    static final String KEY_DOWNLOAD_CATEGORY = "squeezer.download.category";
 
     // Download folder
-    public static final String KEY_DOWNLOAD_USE_SERVER_PATH = "squeezer.download.use_server_path";
+    static final String KEY_DOWNLOAD_USE_SERVER_PATH = "squeezer.download.use_server_path";
 
     // Download path structure
-    public static final String KEY_DOWNLOAD_PATH_STRUCTURE = "squeezer.download.path_structure";
+    static final String KEY_DOWNLOAD_PATH_STRUCTURE = "squeezer.download.path_structure";
 
     // Download filename structure
-    public static final String KEY_DOWNLOAD_FILENAME_STRUCTURE = "squeezer.download.filename_structure";
+    static final String KEY_DOWNLOAD_FILENAME_STRUCTURE = "squeezer.download.filename_structure";
+
+    // Use SD-card (getExternalMediaDirs)
+    static final String KEY_DOWNLOAD_USE_SD_CARD_SCREEN = "squeezer.download.use_sd_card.screen";
+    static final String KEY_DOWNLOAD_USE_SD_CARD = "squeezer.download.use_sd_card";
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
@@ -304,5 +311,9 @@ public final class Preferences {
     public DownloadFilenameStructure getDownloadFilenameStructure() {
         final String string = sharedPreferences.getString(KEY_DOWNLOAD_FILENAME_STRUCTURE, null);
         return (string == null ? DownloadFilenameStructure.NUMBER_TITLE: DownloadFilenameStructure.valueOf(string));
+    }
+
+    public boolean isDownloadUseSdCard() {
+        return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SD_CARD, false);
     }
 }
