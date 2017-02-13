@@ -253,6 +253,19 @@ public class Util {
     }
 
     /**
+     * Calls {@link Crashlytics#setLong(String, long)} if Crashlytics is
+     * enabled in this build, otherwise does nothing.
+     *
+     * @param key
+     * @param value
+     */
+    public static void crashlyticsSetLong(String key, long value) {
+        if (supportCrashlytics()) {
+            Crashlytics.setLong(key, value);
+        }
+    }
+
+    /**
      * Calls {@link Crashlytics#log(String)} if Crashlytics is enabled in
      * this build, otherwise does nothing.
      *
