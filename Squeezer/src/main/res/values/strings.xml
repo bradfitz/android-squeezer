@@ -116,7 +116,7 @@
     <string name="filter_text_hint">Search %s</string>
     <string name="search_text_hint">Enter search text</string>
     <string name="search_music_library_hint">Search artist, album, genre or song title.</string>
-    <string name="move_to_dialog_title">Move song number %s</string>
+    <string name="move_to_dialog_title">Move song number %d</string>
     <string name="move_to_index_hint">Enter new position for song</string>
     <string name="save_playlist_title">Save playlist</string>
     <string name="save_playlist_hint">Enter name of playlist</string>

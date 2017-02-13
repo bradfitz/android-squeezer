@@ -115,7 +115,7 @@
     <string name="search_text_hint">Angiv søgetekst</string>
     <string name="search_music_library_hint">Søg efter kunster, album, genre eller sang titel.
     </string>
-    <string name="move_to_dialog_title">Flyt sang nr %s</string>
+    <string name="move_to_dialog_title">Flyt sang nr %d</string>
     <string name="move_to_index_hint">Angiv ny position for sang</string>
     <string name="save_playlist_title">Gem afspilningsliste</string>
     <string name="save_playlist_hint">Angiv navn på afspilningsliste</string>

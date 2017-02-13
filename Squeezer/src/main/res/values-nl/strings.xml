@@ -88,7 +88,7 @@
     <string name="filter_text_hint">Zoek naar %s</string>
     <string name="search_text_hint">Voer zoektekst in</string>
     <string name="search_music_library_hint">Zoek artiest, album, genre of titel van nummer.</string>
-    <string name="move_to_dialog_title">Verplaats lied nummer %s</string>
+    <string name="move_to_dialog_title">Verplaats lied nummer %d</string>
     <string name="move_to_index_hint">Vul nieuwe positie voor nummer in</string>
     <string name="save_playlist_title">Bewaar playlist</string>
     <string name="save_playlist_hint">Voer naam playlist in</string>
