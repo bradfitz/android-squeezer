@@ -1,5 +1,6 @@
 allprojects {
     tasks.withType(Javadoc) {
+        // Disable lint, due to issues in the EventBus code comments.
         options.addStringOption('Xdoclint:none', '-quiet')
         options.addStringOption('encoding', 'UTF-8')
     }
