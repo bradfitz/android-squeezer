@@ -67,7 +67,7 @@ public class PlayerState implements Parcelable {
         poweredOn = (source.readByte() == 1);
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
         repeatStatus = RepeatStatus.valueOf(source.readInt());
-        currentSong = source.readParcelable(null);
+        currentSong = source.readParcelable(Song.class.getClassLoader());
         currentPlaylist = source.readString();
         currentPlaylistIndex = source.readInt();
         currentTimeSecond = source.readInt();
