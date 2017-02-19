@@ -311,9 +311,11 @@ public class Util {
         if (!sourceFile.renameTo(destinationFile)) {
             // We could not rename. This may be because source and destination are on different
             // mount points, so we attempt to copy and delete instead.
-            FileChannel sourceChannel = new FileInputStream(sourceFile).getChannel();
-            FileChannel destinationChannel = new FileOutputStream(destinationFile).getChannel();
+            FileChannel sourceChannel = null;
+            FileChannel destinationChannel = null;
             try {
+                sourceChannel = new FileInputStream(sourceFile).getChannel();
+                destinationChannel = new FileOutputStream(destinationFile).getChannel();
                 // Transfer the file in chunks to avoid out of memory issues
                 final long blockSize = Math.min(268435456, sourceChannel.size());
                 long position = 0;
