@@ -128,6 +128,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     };
 
     @Override
+    @CallSuper
     protected void onCreate(android.os.Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -170,6 +171,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     @Override
+    @CallSuper
     public void onPause() {
         // At least some Samsung devices call onPause without ensuring that onResume is called
         // first, per https://code.google.com/p/android/issues/detail?id=74464, so mVolumePanel
@@ -206,11 +208,13 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
      * Clear the image memory cache if memory gets low.
      */
     @Override
+    @CallSuper
     public void onLowMemory() {
         ImageFetcher.onLowMemory();
     }
 
     @Override
+    @CallSuper
     public void onDestroy() {
         super.onDestroy();
         unbindService(serviceConnection);
@@ -275,6 +279,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     @Override
+    @CallSuper
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.base_activity, menu);
@@ -284,6 +289,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     @Override
+    @CallSuper
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean haveConnectedPlayers = isConnected() && mService != null
                 && !mService.getConnectedPlayers().isEmpty();
@@ -296,6 +302,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     @Override
+    @CallSuper
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
