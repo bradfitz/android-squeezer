@@ -21,6 +21,8 @@
     <string name="execute_always">Always</string>
     <string name="execute_just_once">Just once</string>
     <string name="undo">Undo</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
     <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
     <string name="menu_item_players">Players</string>
@@ -502,4 +504,26 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="settings_album_selectaction">Album select action</string>
     <string name="settings_song_selectaction">Song select action</string>
     <string name="confirm_cancel_downloads">Cancel pending downloads?</string>
+
+    <string name="settings_category_download">Download</string>
+    <string name="settings_download_use_sd_card">Download music to SD-Card</string>
+    <string name="settings_download_use_sd_card_desc">
+        &lt;p&gt;Store downloaded music on SD-Card.&lt;/p&gt;
+        &lt;p&gt;&lt;b&gt;Note&lt;/b&gt; The downloaded music will be deleted when this app is
+        uninstalled.&lt;/p&gt;
+    </string>
+    <string name="settings_download_use_server_path">Use server path and filename</string>
+    <string name="settings_download_path_structure">Folder hierarchy</string>
+    <string name="settings_download_filename_structure">File name</string>
+    <string name="download_path_structure_artist_artistalbum">Artist/Artist - Album</string>
+    <string name="download_path_structure_artist_album">Artist/Album</string>
+    <string name="download_path_structure_artistalbum">Artist - Album</string>
+    <string name="download_path_structure_album">Album</string>
+    <string name="download_path_structure_artist">Artist</string>
+    <string name="download_filename_structure_number_title">Number - Title</string>
+    <string name="download_filename_structure_artist_title">Artist - Title</string>
+    <string name="download_filename_structure_artist_number_title">Artist - Number - Title</string>
+    <string name="download_filename_structure_albumartist_number_title">Artist (Album) - Number - Title</string>
+    <string name="download_filename_structure_title">Title</string>
+    <string name="download_filename_structure_number_dot_artist_title">Number. Artist - Title</string>
 </resources>

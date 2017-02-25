@@ -21,6 +21,8 @@
     <string name="execute_always">Altid</string>
     <string name="execute_just_once">Kun én gang</string>
     <string name="undo">Fortryd</string>
+    <string name="on">Til</string>
+    <string name="off">Fra</string>
     <string name="disabled">Deaktiveret</string>
     <string name="volume">%s lydstyrke</string>
     <string name="menu_item_players">Afspillere</string>
@@ -298,4 +300,18 @@
     <string name="settings_album_selectaction">Handling ved valg af album</string>
     <string name="settings_song_selectaction">Handling ved valg af sang</string>
     <string name="confirm_cancel_downloads">Annullér ventende overførsler?</string>
+
+    <string name="settings_download_path_structure">Mappestruktur</string>
+    <string name="settings_download_filename_structure">Filnavn</string>
+    <string name="download_path_structure_artist_artistalbum">Kunstner/Kunstner - Album</string>
+    <string name="download_path_structure_artist_album">Kunstner/Album</string>
+    <string name="download_path_structure_artistalbum">Kunstner - Album</string>
+    <string name="download_path_structure_album">Album</string>
+    <string name="download_path_structure_artist">Kunstner</string>
+    <string name="download_filename_structure_number_title">Nummer - Titel</string>
+    <string name="download_filename_structure_artist_title">Kunstner - Titel</string>
+    <string name="download_filename_structure_artist_number_title">Kunstner - Nummer - Titel</string>
+    <string name="download_filename_structure_albumartist_number_title">Kunstner (Album) - Nummer - Titel</string>
+    <string name="download_filename_structure_title">Titel</string>
+    <string name="download_filename_structure_number_dot_artist_title">Nummer. Kunstner - Titel</string>
 </resources>

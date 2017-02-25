@@ -27,9 +27,14 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.channels.FileChannel;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
@@ -254,13 +259,15 @@ public class Util {
 
     /**
      * Calls {@link Crashlytics#log(String)} if Crashlytics is enabled in
-     * this build, otherwise does nothing.
+     * this build, otherwise log to .
      *
      * @param msg
      */
     public static void crashlyticsLog(String msg) {
         if (supportCrashlytics()) {
             Crashlytics.log(msg);
+        } else {
+            Log.i("Util.crashlyticsLog", msg);
         }
     }
 
@@ -275,6 +282,8 @@ public class Util {
     public static void crashlyticsLog(int priority, String tag, String msg) {
         if (supportCrashlytics()) {
             Crashlytics.log(priority, tag, msg);
+        } else {
+            Log.println(priority, tag, msg);
         }
     }
 
@@ -287,6 +296,41 @@ public class Util {
     public static void crashlyticsLogException(java.lang.Throwable throwable) {
         if (supportCrashlytics()) {
             Crashlytics.logException(throwable);
+        } else {
+            Log.i("Util.crashlyticsLog", "", throwable);
+        }
+    }
+
+    public static void moveFile(File sourceFile, File destinationFile) throws IOException {
+        File destFolder = destinationFile.getParentFile();
+        if (!destFolder.exists()) {
+            if (!destFolder.mkdirs()) {
+                throw new IOException("Cant create folder for '" + destinationFile + "'");
+            }
+        }
+        if (!sourceFile.renameTo(destinationFile)) {
+            // We could not rename. This may be because source and destination are on different
+            // mount points, so we attempt to copy and delete instead.
+            FileChannel sourceChannel = null;
+            FileChannel destinationChannel = null;
+            try {
+                sourceChannel = new FileInputStream(sourceFile).getChannel();
+                destinationChannel = new FileOutputStream(destinationFile).getChannel();
+                // Transfer the file in chunks to avoid out of memory issues
+                final long blockSize = Math.min(268435456, sourceChannel.size());
+                long position = 0;
+                while (destinationChannel.transferFrom(sourceChannel, position, blockSize) > 0) {
+                    position += blockSize;
+                }
+            } finally {
+                if (sourceChannel != null)
+                    sourceChannel.close();
+                if (destinationChannel != null)
+                    destinationChannel.close();
+            }
+            if (!sourceFile.delete()) {
+                throw new IOException("failed to delete " + sourceFile);
+            }
         }
     }
 }

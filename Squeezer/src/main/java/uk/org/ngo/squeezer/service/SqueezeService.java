@@ -22,28 +22,40 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadata;
+import android.media.MediaScannerConnection;
 import android.media.session.MediaSession;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.RemoteViews;
 
+import com.google.common.io.Files;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,6 +75,8 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.RandomplayActivity;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.download.DownloadDatabase;
+import uk.org.ngo.squeezer.download.DownloadStorage;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
@@ -133,6 +147,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     @NonNull
     private final ScheduledThreadPoolExecutor mExecutor = new ScheduledThreadPoolExecutor(1);
 
+    /** Handler for main-thread work. */
+    @NonNull
+    private final Handler mMainThreadHandler = new Handler();
+
     /** True if the handshake with the server has completed, otherwise false. */
     private volatile boolean mHandshakeComplete = false;
 
@@ -191,6 +209,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private static final String ACTION_PAUSE = "uk.org.ngo.squeezer.service.ACTION_PAUSE";
     private static final String ACTION_CLOSE = "uk.org.ngo.squeezer.service.ACTION_CLOSE";
 
+    private static final String ACTION_DOWNLOAD_COMPLETE = "uk.org.ngo.squeezer.service.ACTION_DOWNLOAD_COMPLETE";
+    private static final String EXTRA_DOWNLOAD_ID = "EXTRA_DOWNLOAD_ID";
+
     /**
      * Thrown when the service is asked to send a command to the server before the server
      * handshake completes.
@@ -200,6 +221,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         public HandshakeNotCompleteException(String message) { super(message); }
         public HandshakeNotCompleteException(String message, Throwable cause) { super(message, cause); }
         public HandshakeNotCompleteException(Throwable cause) { super(cause); }
+    }
+
+    public static void onDownloadComplete(Context context, long downloadId) {
+        context.startService(new Intent(context, SqueezeService.class)
+                .setAction(ACTION_DOWNLOAD_COMPLETE)
+                .putExtra(EXTRA_DOWNLOAD_ID, downloadId));
     }
 
     @Override
@@ -234,6 +261,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     squeezeService.pause();
                 } else if (intent.getAction().equals(ACTION_CLOSE)) {
                     squeezeService.disconnect();
+                } else if (intent.getAction().equals(ACTION_DOWNLOAD_COMPLETE)) {
+                    handleDownloadComplete(intent.getLongExtra(EXTRA_DOWNLOAD_ID, -1));
                 }
             }
         } catch(Exception e) {
@@ -725,7 +754,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
             for (Song item : items) {
-                downloadSong(item.getDownloadUrl(), item.getName(), item.getUrl());
+                downloadSong(item);
             }
         }
 
@@ -754,17 +783,35 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     };
 
+    private void downloadSong(Song song) {
+        final Preferences preferences = new Preferences(this);
+        if (preferences.isDownloadUseServerPath()) {
+            downloadSong(song.getDownloadUrl(), song.getName(), song.getUrl(), song.getArtworkUrl());
+        } else {
+            final String lastPathSegment = song.getUrl().getLastPathSegment();
+            final String fileExtension = Files.getFileExtension(lastPathSegment);
+            final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
+            downloadSong(song.getDownloadUrl(), song.getName(), localPath+"."+fileExtension, song.getArtworkUrl());
+        }
+    }
+
+    private void downloadSong(@NonNull Uri url, String title, @NonNull Uri serverUrl, @NonNull Uri albumArtUrl) {
+        downloadSong(url, title, getLocalFile(serverUrl), albumArtUrl);
+    }
+
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void downloadSong(@NonNull Uri url, String title, @NonNull Uri serverUrl) {
+    private void downloadSong(@NonNull Uri url, String title, String localPath, @NonNull Uri albumArtUrl) {
         if (url.equals(Uri.EMPTY)) {
             return;
         }
+
+        // Convert VFAT-unfriendly characters to "_".
+        localPath =  localPath.replaceAll("[?<>\\\\:*|\"]", "_");
 
         // If running on Gingerbread or greater use the Download Manager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
             DownloadDatabase downloadDatabase = new DownloadDatabase(this);
-            String localPath = getLocalFile(serverUrl);
             String tempFile = UUID.randomUUID().toString();
             String credentials = mUsername + ":" + mPassword;
             String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
@@ -775,23 +822,104 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
             long downloadId = downloadManager.enqueue(request);
 
-            Util.crashlyticsLog("Registering new download");
-            Util.crashlyticsLog("downloadId: " + downloadId);
-            Util.crashlyticsLog("tempFile: " + tempFile);
-            Util.crashlyticsLog("localPath: " + localPath);
-
-            if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath)) {
+            if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath, albumArtUrl)) {
                 Util.crashlyticsLog(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
                 downloadManager.remove(downloadId);
             }
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    private void handleDownloadComplete(long id) {
+        final DownloadStorage downloadStorage = new DownloadStorage(this);
+        final DownloadDatabase downloadDatabase = new DownloadDatabase(this);
+        final DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        final DownloadManager.Query query = new DownloadManager.Query().setFilterById(id);
+
+        final Cursor cursor = downloadManager.query(query);
+        try {
+            if (!cursor.moveToNext()) {
+                // Download complete events may still come in, even after DownloadManager.remove is
+                // called, so don't log this
+                //Logger.logError(TAG, "Download manager does not have an entry for " + id);
+                return;
+            }
+
+            int downloadId = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_ID));
+            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+            int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
+            String title = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_TITLE));
+            String url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
+            String local_url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+
+            final DownloadDatabase.DownloadEntry downloadEntry = downloadDatabase.popDownloadEntry(downloadId);
+            if (downloadEntry == null) {
+                Util.crashlyticsLog(Log.ERROR, TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
+                return;
+            }
+            if (status != DownloadManager.STATUS_SUCCESSFUL) {
+                Util.crashlyticsLog(Log.ERROR, TAG, "Unsuccessful download " + format(status, reason, title, url, local_url));
+                return;
+            }
+
+            File tempFile = new File(getExternalFilesDir(Environment.DIRECTORY_MUSIC), downloadEntry.tempName);
+            try {
+                File localFile = new File(downloadStorage.getDownloadDir(), downloadEntry.fileName);
+                Util.moveFile(tempFile, localFile);
+                MediaScannerConnection.scanFile(
+                        getApplicationContext(),
+                        new String[]{localFile.getAbsolutePath()},
+                        null,
+                        new DownloadOnScanCompletedListener(downloadEntry)
+                );
+            } catch (IOException e) {
+                Util.crashlyticsLogException(e);
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    // TODO hack
+    // This is a hack, as it relies on internals of the AOSP MediaProvider class, and the below
+    // non-public URI.
+    // We mimic the behavior of the media provider when it creates an album thumb, so a media player
+    // will receive the location of our downloaded album art when queriyng
+    // MediaStore.Audio.Albums.ALBUM_ART.
+    private static final Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+    private void downloadAlbumArt(Uri songUri, Uri albumArtUrl) {
+        final Cursor songCursor = getContentResolver().query(songUri, new String[] { MediaStore.Audio.Media.ALBUM_ID }, null, null, null);
+        if (songCursor == null) {
+            return;
+        }
+
+        try {
+            if (songCursor.moveToNext()) {
+                final int albumId = songCursor.getInt(songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+
+                WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                wm.getDefaultDisplay().getMetrics(displayMetrics);
+                final int imageSize = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
+
+                ImageFetcher.getInstance(this).loadImage(albumArtUrl,
+                        imageSize,
+                        imageSize,
+                        new DownloadImageWorkerCallback(albumId));
+            }
+        } finally {
+            songCursor.close();
+        }
+    }
+
+    private String format(int status, int reason, String title, String url, String local_url) {
+        return "{status:" + status + ", reason:" + reason + ", title:'" + title + "', url:'" + url + "', local url:'" + local_url + "'}";
+    }
+
     /**
      * Tries to get the path relative to the server music library.
      * <p>
      * If this is not possible resort to the last path segment of the server path.
-     * In both cases replace dangerous characters by safe ones.
      */
     private String getLocalFile(@NonNull Uri serverUrl) {
         String serverPath = serverUrl.getPath();
@@ -808,9 +936,71 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         else
             path = serverUrl.getLastPathSegment();
 
-        // Convert VFAT-unfriendly characters to "_".
-        return path.replaceAll("[?<>\\\\:*|\"]", "_");
+        return path;
     }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private class DownloadOnScanCompletedListener implements MediaScannerConnection.OnScanCompletedListener {
+        private final DownloadDatabase.DownloadEntry downloadEntry;
+
+        public DownloadOnScanCompletedListener(DownloadDatabase.DownloadEntry downloadEntry) {
+            this.downloadEntry = downloadEntry;
+        }
+
+        @Override
+        public void onScanCompleted(String path, final Uri uri) {
+            if (!Uri.EMPTY.equals(downloadEntry.albumArtUrl)) {
+                // It seems that onScanCompleted is called off thread
+                // (though I can find no documentation for it)
+                // so we make this run on the main thread, as the ImageFetcher
+                // may need it (if it creates a new cache)
+                mMainThreadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        downloadAlbumArt(uri, downloadEntry.albumArtUrl);
+                    }
+                });
+            }
+        }
+    }
+
+    private class DownloadImageWorkerCallback implements ImageWorker.ImageWorkerCallback {
+        private final int albumId;
+
+        public DownloadImageWorkerCallback(int albumId) {
+            this.albumId = albumId;
+        }
+
+        @Override
+        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        public void process(Object data, @Nullable final Bitmap bitmap) {
+            if (bitmap != null) {
+                mExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        final File folder = new File(Environment.getExternalStorageDirectory(),"albumthumbs");
+                        final File file = new File(folder, String.valueOf(albumId) + ".jpg");
+                        if (!folder.exists())
+                            folder.mkdirs();
+                        try {
+                            OutputStream outputStream = new FileOutputStream(file);
+                            boolean success = bitmap.compress(Bitmap.CompressFormat.JPEG, 75, outputStream);
+                            outputStream.close();
+                            if (success) {
+                                ContentValues values = new ContentValues();
+                                values.put(MediaStore.Audio.Albums.ALBUM_ID, albumId);
+                                values.put(MediaStore.Audio.Media.DATA, file.getPath());
+                                getContentResolver().insert(sArtworkUri, values);
+                            }
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error creating thumbs bitmap file: ", e);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
 
     private WifiManager.WifiLock wifiLock;
 
@@ -1650,7 +1840,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (item instanceof Song) {
                 Song song = (Song) item;
                 if (!song.isRemote()) {
-                    downloadSong(song.getDownloadUrl(), song.getName(), song.getUrl());
+                    downloadSong(song);
                 }
             } else if (item instanceof Playlist) {
                 playlistSongs(-1, (Playlist) item, songDownloadCallback);
@@ -1659,7 +1849,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 if ("track".equals(musicFolderItem.getType())) {
                     Uri url = musicFolderItem.getUrl();
                     if (! url.equals(Uri.EMPTY)) {
-                        downloadSong(((MusicFolderItem) item).getDownloadUrl(), musicFolderItem.getName(), url);
+                        downloadSong(musicFolderItem.getDownloadUrl(), musicFolderItem.getName(), url, Uri.EMPTY);
                     }
                 } else if ("folder".equals(musicFolderItem.getType())) {
                     musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);
