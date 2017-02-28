@@ -114,6 +114,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private static final String TAG = "SqueezeService";
 
     private static final int PLAYBACKSERVICE_STATUS = 1;
+    private static final int DOWNLOAD_ERROR = 2;
 
     /** {@link java.util.regex.Pattern} that splits strings on spaces. */
     private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
@@ -949,18 +950,53 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void onScanCompleted(String path, final Uri uri) {
-            if (!Uri.EMPTY.equals(downloadEntry.albumArtUrl)) {
-                // It seems that onScanCompleted is called off thread
-                // (though I can find no documentation for it)
-                // so we make this run on the main thread, as the ImageFetcher
-                // may need it (if it creates a new cache)
-                mMainThreadHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        downloadAlbumArt(uri, downloadEntry.albumArtUrl);
-                    }
-                });
+            if (uri != null) {
+                if (!Uri.EMPTY.equals(downloadEntry.albumArtUrl)) {
+                    // It seems that onScanCompleted is called off thread
+                    // (though I can find no documentation for it)
+                    // so we make this run on the main thread, as the ImageFetcher
+                    // may need it (if it creates a new cache)
+                    mMainThreadHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            downloadAlbumArt(uri, downloadEntry.albumArtUrl);
+                        }
+                    });
+                }
+            } else {
+                // Scanning failed, probably the file format is not supported.
+                Log.i(TAG, "'" + path + "' could not be added to the media database");
+                if (!new File(path).delete()) {
+                    Util.crashlyticsLog(Log.ERROR, TAG, "Could not delete '" + path + "', which could not be added to the media database");
+                }
+                notifyFailedMediaScan(downloadEntry.fileName);
             }
+        }
+
+        private void notifyFailedMediaScan(String fileName) {
+            String name = Util.getBaseName(fileName);
+
+            // Content intent is required on some API levels even if
+            // https://developer.android.com/guide/topics/ui/notifiers/notifications.html
+            // says it's optional
+            PendingIntent emptyPendingIntent = PendingIntent.getService(
+                    SqueezeService.this,
+                    0,
+                    new Intent(),  //Dummy Intent do nothing
+                    0);
+
+            final NotificationCompat.Builder builder = new NotificationCompat.Builder(SqueezeService.this);
+            builder.setContentIntent(emptyPendingIntent);
+            builder.setOngoing(false);
+            builder.setOnlyAlertOnce(true);
+            builder.setAutoCancel(true);
+            builder.setSmallIcon(R.drawable.squeezer_notification);
+            builder.setTicker(name + " " + getString(R.string.NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR));
+            builder.setContentTitle(name);
+            builder.setContentText(getString(R.string.NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR));
+
+            final NotificationManagerCompat nm = NotificationManagerCompat.from(SqueezeService.this);
+            nm.notify(DOWNLOAD_ERROR, builder.build());
         }
     }
 
