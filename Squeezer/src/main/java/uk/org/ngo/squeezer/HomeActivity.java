@@ -25,6 +25,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.MainThread;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -33,7 +34,6 @@ import android.widget.ListView;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +105,12 @@ public class HomeActivity extends BaseActivity {
 
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+            actionBar.setDisplayUseLogoEnabled(true);
+        }
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);

@@ -14,15 +14,15 @@ repositories {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '25.0.2'
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 7
-        targetSdkVersion 21
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
     }
 }
 dependencies {
-    compile 'com.android.support:support-v4:21.0.2'
+    compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
     compile 'com.nineoldandroids:library:2.4.0'
 }
