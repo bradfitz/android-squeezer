@@ -989,7 +989,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         // we will also give the user the opportunity to enable Wi-Fi
         if (preferences.isAutoConnect()) {
             WifiManager wifiManager = (WifiManager) mActivity
-                    .getSystemService(Context.WIFI_SERVICE);
+                    .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             if (!wifiManager.isWifiEnabled()) {
                 FragmentManager fragmentManager = getFragmentManager();
                 if (fragmentManager != null) {

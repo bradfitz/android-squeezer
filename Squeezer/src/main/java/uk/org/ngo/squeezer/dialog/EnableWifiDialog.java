@@ -29,7 +29,8 @@ public class EnableWifiDialog extends DialogFragment {
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                WifiManager wifiManager = (WifiManager) getActivity().getSystemService(
+                WifiManager wifiManager = (WifiManager) getActivity()
+                        .getApplicationContext().getSystemService(
                         Context.WIFI_SERVICE);
                 if (!wifiManager.isWifiEnabled()) {
                     Log.v(getTag(), "Enabling Wifi");

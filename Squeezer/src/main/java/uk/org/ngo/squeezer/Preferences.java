@@ -150,7 +150,8 @@ public final class Preferences {
     public ServerAddress getServerAddress() {
         ServerAddress serverAddress = new ServerAddress();
 
-        WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager mWifiManager = (WifiManager) context
+                .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
         serverAddress.bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
         if (serverAddress.bssId != null)
@@ -172,7 +173,8 @@ public final class Preferences {
     }
 
     public ServerAddress saveServerAddress(String address) {
-        WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager mWifiManager = (WifiManager) context
+                .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
         String bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
 
