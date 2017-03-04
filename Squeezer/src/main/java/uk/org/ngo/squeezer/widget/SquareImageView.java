@@ -25,7 +25,7 @@ import android.widget.ImageView;
  * Sets both view dimensions to whichever of height and width are measured as being smaller,
  * resulting in a square image.
  */
-public class SquareImageView extends ImageView {
+public class SquareImageView extends android.support.v7.widget.AppCompatImageView {
 
     private boolean mBlockLayout;
 

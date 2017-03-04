@@ -28,7 +28,7 @@ import android.widget.ImageButton;
 /**
  * A button that will repeatedly call a 'listener' method as long as the button is pressed.
  */
-public class RepeatingImageButton extends ImageButton {
+public class RepeatingImageButton extends android.support.v7.widget.AppCompatImageButton {
 
     private long mStartTime;
 

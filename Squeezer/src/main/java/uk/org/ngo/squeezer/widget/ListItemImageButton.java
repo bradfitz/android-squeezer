@@ -39,7 +39,7 @@ import android.widget.ImageButton;
  * <p>
  * See Cyril Mottier's discussion of this, and code, in http://android.cyrilmottier.com/?p=525.
  */
-public class ListItemImageButton extends ImageButton {
+public class ListItemImageButton extends android.support.v7.widget.AppCompatImageButton {
 
     public ListItemImageButton(Context context) {
         super(context);
