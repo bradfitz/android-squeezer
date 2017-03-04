@@ -254,7 +254,7 @@ public final class Preferences {
         if (action != null) {
             sharedPreferences.edit().putString(key, action.name()).commit();
         } else {
-            sharedPreferences.edit().remove(key);
+            sharedPreferences.edit().remove(key).commit();
         }
     }
 
