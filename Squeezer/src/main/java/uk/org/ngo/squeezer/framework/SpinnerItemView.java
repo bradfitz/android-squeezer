@@ -20,8 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.model.Genre;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 
 /**
  * Base class for item views that can be shown in a spinner.

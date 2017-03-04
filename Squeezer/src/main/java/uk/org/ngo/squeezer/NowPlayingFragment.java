@@ -88,9 +88,6 @@ import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-import static android.R.attr.button;
-import static uk.org.ngo.squeezer.R.plurals.song;
-
 public class NowPlayingFragment extends Fragment implements View.OnCreateContextMenuListener {
 
     private final String TAG = "NowPlayingFragment";

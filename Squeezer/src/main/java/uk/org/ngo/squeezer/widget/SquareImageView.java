@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.widget;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 /**
  * Sets both view dimensions to whichever of height and width are measured as being smaller,

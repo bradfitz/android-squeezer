@@ -23,7 +23,6 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
 
 /**
  * A button that will repeatedly call a 'listener' method as long as the button is pressed.
