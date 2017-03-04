@@ -65,7 +65,11 @@ class WhatsNewPlugin implements Plugin<Project> {
                 content += ('=' * release.@version.text().size()) + '\n\n'
                 release.change.each { change ->
                     String filledText = fill(
-                            change.text().replaceAll('\n', ' ').replaceAll(' +', ' ').trim(),
+                            change.text()
+                                    .replaceAll('\n', ' ')
+                                    .replaceAll(' +', ' ')
+                                    .replaceAll('\u200B', '')  // Collapse zero-width space
+                                    .trim(),
                             78, '    ').trim()
                     content += '*   ' + filledText + '\n\n'
                 }
