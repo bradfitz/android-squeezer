@@ -130,9 +130,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @Override
     @CallSuper
     protected void onCreate(android.os.Bundle savedInstanceState) {
+        mTheme.onCreate(this);
         super.onCreate(savedInstanceState);
 
-        mTheme.onCreate(this);
         ActionBar actionBar = getSupportActionBar();
 
         if (actionBar != null) {
