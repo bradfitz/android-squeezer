@@ -38,8 +38,8 @@ import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.cketti.library.changelog.ChangeLog;
 import io.fabric.sdk.android.Fabric;
+import uk.org.ngo.squeezer.dialog.ChangeLogDialog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
@@ -126,12 +126,12 @@ public class HomeActivity extends BaseActivity {
         }
 
         // Show the change log if necessary.
-        ChangeLog changeLog = new ChangeLog(this);
+        ChangeLogDialog changeLog = new ChangeLogDialog(this);
         if (changeLog.isFirstRun()) {
             if (changeLog.isFirstRunEver()) {
                 changeLog.skipLogDialog();
             } else {
-                changeLog.getLogDialog().show();
+                changeLog.getThemedLogDialog().show();
             }
         }
     }
