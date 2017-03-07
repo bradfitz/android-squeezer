@@ -106,10 +106,10 @@ public class HomeActivity extends BaseActivity {
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
 
+        // Turn off the home icon.
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
-            actionBar.setDisplayUseLogoEnabled(true);
         }
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);

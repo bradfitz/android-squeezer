@@ -133,13 +133,11 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         mTheme.onCreate(this);
         super.onCreate(savedInstanceState);
 
+        // Set the icon as the home button, and display it.
         ActionBar actionBar = getSupportActionBar();
-
         if (actionBar != null) {
-            actionBar.setLogo(R.drawable.ic_launcher);
-            actionBar.setDisplayUseLogoEnabled(false);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_launcher);
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(true);
         }
 
         bindService(new Intent(this, SqueezeService.class), serviceConnection,
