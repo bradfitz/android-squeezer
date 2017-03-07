@@ -23,6 +23,7 @@
 
         <uk.org.ngo.squeezer.dialog.ServerAddressPreference
             android:key="squeezer.serveraddr"
+            android:dialogLayout="@layout/server_address_dialog"
             android:title="@string/settings_serveraddr_title"
             android:summary="@string/settings_serveraddr_summary"
             android:dialogMessage="@string/settings_serveraddr_summary"
