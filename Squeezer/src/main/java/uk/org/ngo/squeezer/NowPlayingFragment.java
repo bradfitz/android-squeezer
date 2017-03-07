@@ -487,18 +487,19 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         if (connectedPlayers.size() > 1) {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            final Context actionBarContext = actionBar.getThemedContext();
             final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(
-                    actionBar.getThemedContext(), android.R.layout.simple_spinner_dropdown_item,
+                    actionBarContext, android.R.layout.simple_spinner_dropdown_item,
                     connectedPlayers) {
                 @Override
                 public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent,
+                    return Util.getActionBarSpinnerItemView(actionBarContext, convertView, parent,
                             getItem(position).getName());
                 }
 
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent,
+                    return Util.getActionBarSpinnerItemView(actionBarContext, convertView, parent,
                             getItem(position).getName());
                 }
             };
