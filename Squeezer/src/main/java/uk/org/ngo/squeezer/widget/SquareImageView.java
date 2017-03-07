@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -24,18 +25,22 @@ import android.util.AttributeSet;
  * Sets both view dimensions to whichever of height and width are measured as being smaller,
  * resulting in a square image.
  */
+@SuppressLint("NewApi")
 public class SquareImageView extends android.support.v7.widget.AppCompatImageView {
 
     private boolean mBlockLayout;
 
+    @SuppressLint("NewApi")
     public SquareImageView(Context context) {
         super(context);
     }
 
+    @SuppressLint("NewApi")
     public SquareImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
+    @SuppressLint("NewApi")
     public SquareImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
