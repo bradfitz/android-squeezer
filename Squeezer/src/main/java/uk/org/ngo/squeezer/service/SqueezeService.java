@@ -23,7 +23,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -42,24 +41,19 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Base64;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.WindowManager;
 import android.widget.RemoteViews;
 
 import com.google.common.io.Files;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -914,38 +908,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
-    // TODO hack
-    // This is a hack, as it relies on internals of the AOSP MediaProvider class, and the below
-    // non-public URI.
-    // We mimic the behavior of the media provider when it creates an album thumb, so a media player
-    // will receive the location of our downloaded album art when queriyng
-    // MediaStore.Audio.Albums.ALBUM_ART.
-    private static final Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
-    private void downloadAlbumArt(Uri songUri, Uri albumArtUrl) {
-        final Cursor songCursor = getContentResolver().query(songUri, new String[] { MediaStore.Audio.Media.ALBUM_ID }, null, null, null);
-        if (songCursor == null) {
-            return;
-        }
-
-        try {
-            if (songCursor.moveToNext()) {
-                final int albumId = songCursor.getInt(songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-
-                WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-                DisplayMetrics displayMetrics = new DisplayMetrics();
-                wm.getDefaultDisplay().getMetrics(displayMetrics);
-                final int imageSize = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
-
-                ImageFetcher.getInstance(this).loadImage(albumArtUrl,
-                        imageSize,
-                        imageSize,
-                        new DownloadImageWorkerCallback(albumId));
-            }
-        } finally {
-            songCursor.close();
-        }
-    }
-
     private String format(int status, int reason, String title, String url, String local_url) {
         return "{status:" + status + ", reason:" + reason + ", title:'" + title + "', url:'" + url + "', local url:'" + local_url + "'}";
     }
@@ -983,20 +945,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void onScanCompleted(String path, final Uri uri) {
-            if (uri != null) {
-                if (!Uri.EMPTY.equals(downloadEntry.albumArtUrl)) {
-                    // It seems that onScanCompleted is called off thread
-                    // (though I can find no documentation for it)
-                    // so we make this run on the main thread, as the ImageFetcher
-                    // may need it (if it creates a new cache)
-                    mMainThreadHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            downloadAlbumArt(uri, downloadEntry.albumArtUrl);
-                        }
-                    });
-                }
-            } else {
+            if (uri == null) {
                 // Scanning failed, probably the file format is not supported.
                 Log.i(TAG, "'" + path + "' could not be added to the media database");
                 if (!new File(path).delete()) {
@@ -1030,43 +979,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
             final NotificationManagerCompat nm = NotificationManagerCompat.from(SqueezeService.this);
             nm.notify(DOWNLOAD_ERROR, builder.build());
-        }
-    }
-
-    private class DownloadImageWorkerCallback implements ImageWorker.ImageWorkerCallback {
-        private final int albumId;
-
-        public DownloadImageWorkerCallback(int albumId) {
-            this.albumId = albumId;
-        }
-
-        @Override
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        public void process(Object data, @Nullable final Bitmap bitmap) {
-            if (bitmap != null) {
-                mExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        final File folder = new File(Environment.getExternalStorageDirectory(),"albumthumbs");
-                        final File file = new File(folder, String.valueOf(albumId) + ".jpg");
-                        if (!folder.exists())
-                            folder.mkdirs();
-                        try {
-                            OutputStream outputStream = new FileOutputStream(file);
-                            boolean success = bitmap.compress(Bitmap.CompressFormat.JPEG, 75, outputStream);
-                            outputStream.close();
-                            if (success) {
-                                ContentValues values = new ContentValues();
-                                values.put(MediaStore.Audio.Albums.ALBUM_ID, albumId);
-                                values.put(MediaStore.Audio.Media.DATA, file.getPath());
-                                getContentResolver().insert(sArtworkUri, values);
-                            }
-                        } catch (IOException e) {
-                            Log.e(TAG, "Error creating thumbs bitmap file: ", e);
-                        }
-                    }
-                });
-            }
         }
     }
 
