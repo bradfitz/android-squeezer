@@ -18,12 +18,12 @@ package uk.org.ngo.squeezer.dialog;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog.Builder;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;

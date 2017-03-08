@@ -5,7 +5,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:2.3.0'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
         classpath 'com.github.triplet.gradle:play-publisher:1.1.0'
         classpath 'io.fabric.tools:gradle:1.+'
@@ -28,9 +28,9 @@ dependencies {
     // Android support libraries
     // Note: these libraries require the "Google Repository" and "Android
     //       Support Repository" to be installed via the SDK manager.
-    compile 'com.android.support:support-v4:21.0.2'
-    compile 'com.android.support:appcompat-v7:20.0.0'
-    compile 'com.android.support:support-annotations:22.2.0'
+    compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
+    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    compile "com.android.support:support-annotations:$rootProject.supportLibraryVersion"
 
     // Third party libraries
     compile 'com.google.guava:guava:18.0'
@@ -43,10 +43,6 @@ dependencies {
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
-
-    // LoganSquare JSON
-    apt 'com.bluelinelabs:logansquare-compiler:1.0.6'
-    compile 'com.bluelinelabs:logansquare:1.0.6'
 
     // Crashlytics.
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
@@ -62,8 +58,8 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "22.0.1"
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
 
     def gitHash = "git rev-parse --short HEAD".execute().text.trim()
     def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
@@ -72,8 +68,8 @@ android {
     def gitDescription = dirtyWorkingCopy ? "${gitHash}-dirty" : gitHash
 
     defaultConfig {
-        minSdkVersion 7
-        targetSdkVersion 21
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 

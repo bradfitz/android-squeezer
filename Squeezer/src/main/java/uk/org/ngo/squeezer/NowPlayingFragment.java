@@ -103,6 +103,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     private TextView trackText;
 
+    @Nullable
     private ImageView btnContextMenu;
 
     private TextView currentTime;
@@ -127,8 +128,10 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     private ImageButton playPauseButton;
 
+    @Nullable
     private ImageButton nextButton;
 
+    @Nullable
     private ImageButton prevButton;
 
     private ImageButton shuffleButton;
@@ -251,8 +254,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             v = inflater.inflate(R.layout.now_playing_fragment_full, container, false);
 
             artistText = (TextView) v.findViewById(R.id.artistname);
-            nextButton = (ImageButton) v.findViewById(R.id.next);
-            prevButton = (ImageButton) v.findViewById(R.id.prev);
             shuffleButton = (ImageButton) v.findViewById(R.id.shuffle);
             repeatButton = (ImageButton) v.findViewById(R.id.repeat);
             currentTime = (TextView) v.findViewById(R.id.currenttime);
@@ -278,6 +279,11 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         albumText = (TextView) v.findViewById(R.id.albumname);
         playPauseButton = (ImageButton) v.findViewById(R.id.pause);
 
+        // May or may not be present in the layout, depending on orientation,
+        // screen width, and so on.
+        nextButton = (ImageButton) v.findViewById(R.id.next);
+        prevButton = (ImageButton) v.findViewById(R.id.prev);
+
         // Marquee effect on TextViews only works if they're focused.
         trackText.requestFocus();
 
@@ -298,13 +304,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             }
         });
 
-        if (mFullHeightLayout) {
-            /*
-             * TODO: Simplify these following the notes at
-             * http://developer.android.com/resources/articles/ui-1.6.html.
-             * Maybe. because the TextView resources don't support the
-             * android:onClick attribute.
-             */
+        if (nextButton != null) {
             nextButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -314,7 +314,9 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                     mService.nextTrack();
                 }
             });
+        }
 
+        if (prevButton != null) {
             prevButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -324,7 +326,15 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                     mService.previousTrack();
                 }
             });
+        }
 
+        if (mFullHeightLayout) {
+            /*
+             * TODO: Simplify these following the notes at
+             * http://developer.android.com/resources/articles/ui-1.6.html.
+             * Maybe. because the TextView resources don't support the
+             * android:onClick attribute.
+             */
             shuffleButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -477,18 +487,19 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         if (connectedPlayers.size() > 1) {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            final Context actionBarContext = actionBar.getThemedContext();
             final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(
-                    actionBar.getThemedContext(), android.R.layout.simple_spinner_dropdown_item,
+                    actionBarContext, android.R.layout.simple_spinner_dropdown_item,
                     connectedPlayers) {
                 @Override
                 public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent,
+                    return Util.getActionBarSpinnerItemView(actionBarContext, convertView, parent,
                             getItem(position).getName());
                 }
 
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    return Util.getActionBarSpinnerItemView(getContext(), convertView, parent,
+                    return Util.getActionBarSpinnerItemView(actionBarContext, convertView, parent,
                             getItem(position).getName());
                 }
             };
@@ -626,31 +637,29 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         if (song != null) {
             albumText.setText(song.getAlbumName());
             trackText.setText(song.getName());
+
+            // If remote and number of tracks in playlist is not 1, it's spotify
+            // or another streaming service. Then make prev- en nextbutton available
+            if ((song.isRemote()) && (playerState.getCurrentPlaylistTracksNum() == 1)) {
+                // TODO: figure out how to parse the buttons HASH;
+                // for now just assume the next button is enabled if there was a
+                // "buttons" response.
+                setButtonState(nextButton, song.getButtons().length() == 0);
+                disableButton(prevButton);
+                if (btnContextMenu != null) {
+                    btnContextMenu.setVisibility(View.GONE);
+                }
+            } else {
+                enableButton(nextButton);
+                enableButton(prevButton);
+                if (btnContextMenu != null) {
+                    btnContextMenu.setVisibility(View.VISIBLE);
+                }
+            }
+
             if (mFullHeightLayout) {
                 artistText.setText(song.getArtist());
                 totalTime.setText(Util.formatElapsedTime(song.getDuration()));
-                // If remote and number of tracks in playlist is not 1, it's spotify
-                // or another streaming service. Then make prev- en nextbutton available
-                if ((song.isRemote()) && (playerState.getCurrentPlaylistTracksNum() == 1)) {
-                    if (song.getButtons().length() == 0) {
-                        nextButton.setEnabled(false);
-                        Util.setAlpha(nextButton, 0.25f);
-                    } else {
-                        // TODO: figure out how to parse the buttons HASH;
-                        // for now just assume the next button is enabled
-                        nextButton.setEnabled(true);
-                        Util.setAlpha(nextButton, 1.0f);
-                    }
-                    prevButton.setEnabled(false);
-                    Util.setAlpha(prevButton, 0.25f);
-                    btnContextMenu.setVisibility(View.GONE);
-                } else {
-                    nextButton.setEnabled(true);
-                    Util.setAlpha(nextButton, 1.0f);
-                    prevButton.setEnabled(true);
-                    Util.setAlpha(prevButton, 1.0f);
-                    btnContextMenu.setVisibility(View.VISIBLE);
-                }
             }
         } else {
             albumText.setText("");
@@ -671,10 +680,44 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                         ? R.drawable.icon_iradio_noart
                         : R.drawable.icon_album_noart);
             }
+        } else {
+            ImageFetcher.getInstance(mActivity).loadImage(song.getArtworkUrl(), albumArt);
+        }
+    }
+
+    /**
+     * Enable a button, which may be null.
+     *
+     * @param button the button to enable.
+     */
+    private static void enableButton(@Nullable ImageButton button) {
+        setButtonState(button, true);
+    }
+
+    /**
+     * Disable a button, which may be null.
+     *
+     * @param button the button to enable.
+     */
+    private static void disableButton(@Nullable ImageButton button) {
+        setButtonState(button, false);
+    }
+
+    /**
+     * Sets the state of a button to either enabled or disabled. Enabled buttons
+     * are active and have a 1.0 alpha, disabled buttons are inactive and have a
+     * 0.25 alpha. {@code button} may be null, in which case nothing happens.
+     *
+     * @param button the button to affect
+     * @param state the desired state, {@code true} to enable {@code false} to disable.
+     */
+    private static void setButtonState(@Nullable ImageButton button, boolean state) {
+        if (button == null) {
             return;
         }
 
-        ImageFetcher.getInstance(mActivity).loadImage(song.getArtworkUrl(), albumArt);
+        button.setEnabled(state);
+        Util.setAlpha(button, state ? 1.0f : 0.25f);
     }
 
     private boolean setSecondsElapsed(int seconds) {
@@ -944,7 +987,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         // we will also give the user the opportunity to enable Wi-Fi
         if (preferences.isAutoConnect()) {
             WifiManager wifiManager = (WifiManager) mActivity
-                    .getSystemService(Context.WIFI_SERVICE);
+                    .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             if (!wifiManager.isWifiEnabled()) {
                 FragmentManager fragmentManager = getFragmentManager();
                 if (fragmentManager != null) {
@@ -1013,15 +1056,14 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         playPauseButton.setImageResource(
                 mActivity.getAttributeValue(R.attr.ic_action_av_connect));
 
+        disableButton(nextButton);
+        disableButton(prevButton);
+
         if (mFullHeightLayout) {
-            nextButton.setEnabled(false);
-            prevButton.setEnabled(false);
             shuffleButton.setEnabled(false);
             repeatButton.setEnabled(false);
 
             albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
-            nextButton.setImageResource(0);
-            prevButton.setImageResource(0);
             shuffleButton.setImageResource(0);
             repeatButton.setImageResource(0);
             updatePlayerDropDown(Collections.<Player>emptyList(), null);
@@ -1051,14 +1093,11 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
         dismissConnectingDialog();
 
+        enableButton(nextButton);
+        enableButton(prevButton);
         if (mFullHeightLayout) {
-            nextButton.setEnabled(true);
-            prevButton.setEnabled(true);
             shuffleButton.setEnabled(true);
             repeatButton.setEnabled(true);
-
-            nextButton.setImageResource(mActivity.getAttributeValue(R.attr.ic_action_av_next));
-            prevButton.setImageResource(mActivity.getAttributeValue(R.attr.ic_action_av_previous));
             seekBar.setEnabled(true);
         } else {
             mProgressBar.setEnabled(true);

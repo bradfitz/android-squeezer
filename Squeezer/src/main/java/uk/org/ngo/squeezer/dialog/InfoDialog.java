@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.dialog;
 
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,6 +23,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog.Builder;
 import android.text.Html;
 
 public class InfoDialog extends DialogFragment {

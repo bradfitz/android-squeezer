@@ -5,7 +5,7 @@
         version="1.4.1"
         versioncode="56">
         <change>Fixed a crash when scrobbling song information. Contributed by
-            HumbleBeeBumbleBeeDebugs@gmail.com.</change>
+            HumbleBeeBumbleBeeDebugs@&#8203;gmail.com.</change>
 
         <change>Workaround an issue on some devices where the currently playing item is not
             highlighted in the playlist. Also add menu item to select the current song.
@@ -47,10 +47,10 @@
         versioncode="52">
         <change>Remote and plugin song artwork is now supported in notification messages, based
             on code submitted by Christer Wendel,
-            https://github.com/nikclayton/android-squeezer/pull/128.</change>
+            https://github.com/nikclayton/&#8203;android-squeezer/pull/128.</change>
 
         <change>A partial translation in to Turkish, submitted by
-            https://www.transifex.com/accounts/profile/echelon/.</change>
+            https://www.transifex.com/accounts/&#8203;profile/echelon/.</change>
 
         <change>Improved the efficiency of the image cache.</change>
 
@@ -58,12 +58,12 @@
 
         <change>Fixed issue with track information not updating on some devices
             when the song changes,
-            https://github.com/nikclayton/android-squeezer/issues/125.</change>
+            https://github.com/nikclayton/&#8203;android-squeezer/issues/125.</change>
 
         <change>Fixed a crash on rooted devices.</change>
 
         <change>Fixed bug where the UI would not update after selecting a different
-            player (https://github.com/nikclayton/android-squeezer/issues/121).</change>
+            player (https://github.com/nikclayton/&#8203;android-squeezer/issues/121).</change>
 
         <change>Fixed crash caused by race condition when connecting to a server.</change>
     </release>
@@ -247,7 +247,7 @@
 
         <change>Fixed a bug when determining whether album artwork is available.</change>
 
-        <change>Fixed https://code.google.com/p/android/issues/detail?id=63570, a bug
+        <change>Fixed https://code.google.com/p/android/&#8203;issues/detail?id=63570, a bug
             in Android 4.4.2 when tasks are re-ordered.</change>
 
         <change>Internal restructuring to make Squeezer faster and use less memory.</change>

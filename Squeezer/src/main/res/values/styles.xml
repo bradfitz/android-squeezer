@@ -48,6 +48,9 @@
         <item name="ic_delete">@drawable/ic_delete</item>
 
         <item name="floatLabelColor">@color/float_label_dark</item>
+
+        <item name="dialogTheme">@style/Theme.AppCompat.Dialog</item>
+        <item name="alertDialogTheme">@style/Theme.AppCompat.Dialog.Alert</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -80,6 +83,9 @@
         <item name="ic_delete">@drawable/ic_delete_light</item>
 
         <item name="floatLabelColor">@color/float_label_light</item>
+
+        <item name="dialogTheme">@style/Theme.AppCompat.Light.Dialog</item>
+        <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
     </style>
 
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->

@@ -2,8 +2,6 @@ package uk.org.ngo.squeezer.download;
 
 import android.content.Context;
 
-import java.io.File;
-
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.model.Song;

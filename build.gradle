@@ -5,3 +5,17 @@ allprojects {
         options.addStringOption('encoding', 'UTF-8')
     }
 }
+
+ext {
+    compileSdkVersion = 24
+    buildToolsVersion = "25.0.2"
+    minSdkVersion = 7
+    targetSdkVersion = 21
+
+    assert minSdkVersion <= targetSdkVersion : "minSdkVersion too big"
+    assert targetSdkVersion <= compileSdkVersion : "targetSdkVersion too big"
+
+    // All support libraries must use the same version. The major version must be
+    // the same as the compileSdkVersion
+    supportLibraryVersion = "${compileSdkVersion}.1.1"
+}

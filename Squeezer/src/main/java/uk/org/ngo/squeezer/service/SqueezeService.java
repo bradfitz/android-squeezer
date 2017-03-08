@@ -22,9 +22,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -39,9 +41,11 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Base64;
@@ -213,6 +217,26 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private static final String ACTION_DOWNLOAD_COMPLETE = "uk.org.ngo.squeezer.service.ACTION_DOWNLOAD_COMPLETE";
     private static final String EXTRA_DOWNLOAD_ID = "EXTRA_DOWNLOAD_ID";
 
+    private final BroadcastReceiver deviceIdleModeReceiver = new BroadcastReceiver() {
+        @Override
+        @RequiresApi(api = Build.VERSION_CODES.M)
+        public void onReceive(Context context, Intent intent) {
+            // On M and above going in to Doze mode suspends the network but does not shut down
+            // existing network connections or cause them to generate exceptions. Explicitly
+            // disconnect here, so that resuming from Doze mode forces a reconnect. See
+            // https://github.com/nikclayton/android-squeezer/issues/177.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+
+                if (pm.isDeviceIdleMode()) {
+                    Log.d(TAG, "Entering doze mode, disconnecting");
+                    disconnect();
+                }
+            }
+        }
+    };
+
+
     /**
      * Thrown when the service is asked to send a command to the server before the server
      * handshake completes.
@@ -241,11 +265,16 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         cachePreferences();
 
-        setWifiLock(((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(
+        setWifiLock(((WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE)).createWifiLock(
                 WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
 
         mEventBus.register(this, 1);  // Get events before other subscribers
         cli.initialize();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            registerReceiver(deviceIdleModeReceiver, new IntentFilter(
+                    PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED));
+        }
     }
 
     @Override
@@ -307,6 +336,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         super.onDestroy();
         disconnect();
         mEventBus.unregister(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            unregisterReceiver(deviceIdleModeReceiver);
+        }
     }
 
     void disconnect() {
