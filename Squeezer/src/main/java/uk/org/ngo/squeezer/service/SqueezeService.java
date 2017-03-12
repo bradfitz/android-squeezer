@@ -337,7 +337,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         mEventBus.unregister(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            unregisterReceiver(deviceIdleModeReceiver);
+            try {
+                unregisterReceiver(deviceIdleModeReceiver);
+            } catch (IllegalArgumentException e) {
+                // Do nothing. This can occur in testing when we destroy the service before the
+                // receiver is registered.
+            }
         }
     }
 
