@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -312,6 +313,13 @@ public class Util {
         } else {
             Log.i("Util.crashlyticsLog", "", throwable);
         }
+    }
+
+    @NonNull
+    public static String getBaseName(String fileName) {
+        String name = new File(fileName).getName();
+        int pos = name.lastIndexOf(".");
+        return (pos > 0) ? name.substring(0, pos) : name;
     }
 
     public static void moveFile(File sourceFile, File destinationFile) throws IOException {
