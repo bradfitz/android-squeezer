@@ -1,15 +1,19 @@
-&bull; Fixed a crash when scrobbling song information. Contributed by HumbleBeeBumbleBeeDebugs@gmail.com.
+&bull; Download enhancements: choose whether to store downloaded music on/off the device's removable storage (if it has one); choose the folder structure that's used.
 
-&bull; Workaround an issue on some devices where the currently playing item is not highlighted in the playlist. Also add menu item to select the current song. Contributed by spiritcroc@gmail.com.
+&bull; Enable next/previous track support on some streaming services, like Spotify. Submitted by gerrelt_m@hotmail.com.
 
-&bull; Fixed a crash when retrieving playlists for alarms.
+&bull; Include artist information in the "Now playing" section. Submitted by Frieder Schrempf <fr.sc@online.de>
 
-&bull; Fixed poor UI in Internet Radio search.
+&bull; Support searching in plugins that provide that feature. Submitted by original@flautz.de.
 
-&bull; Show search results in a list or a grid depending on user preferences.
+&bull; Include additional music player controls on devices with larger screens, or when in landscape orientation.
 
-&bull; Show a dialog to allow the user to choose what happens when tapping a song or an album.
+&bull; Sort the list of players alphabetically. Submitted by gerrelt_m@hotmail.com.
 
-&bull; Provide "Play from here" option when looking at albums, playlists, artists, genres, and years.
+&bull; Fixed an issue where Squeezer would appear to hang after a period of inactivity on Android devices that support Doze mode.
 
-&bull; Provide an option to disable notifications entirely.
+&bull; Fixed memory leak on devices running Android Marshmallow and below.
+
+&bull; Increase the amount of space that can be used by the image cache.
+
+&bull; Assorted small UI fixes and improvements.

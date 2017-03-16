@@ -1,3 +1,35 @@
+1.5.0-beta-1
+============
+
+*   Download enhancements: choose whether to store downloaded music on/off the
+    device's removable storage (if it has one); choose the folder structure
+    that's used.
+
+*   Enable next/previous track support on some streaming services, like
+    Spotify. Submitted by gerrelt_m@hotmail.com.
+
+*   Include artist information in the "Now playing" section. Submitted by
+    Frieder Schrempf <fr.sc@online.de>
+
+*   Support searching in plugins that provide that feature. Submitted by
+    original@flautz.de.
+
+*   Include additional music player controls on devices with larger screens,
+    or when in landscape orientation.
+
+*   Sort the list of players alphabetically. Submitted by
+    gerrelt_m@hotmail.com.
+
+*   Fixed an issue where Squeezer would appear to hang after a period of
+    inactivity on Android devices that support Doze mode.
+
+*   Fixed memory leak on devices running Android Marshmallow and below.
+
+*   Increase the amount of space that can be used by the image cache.
+
+*   Assorted small UI fixes and improvements.
+
+
 1.4.1
 =====
 
