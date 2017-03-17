@@ -33,22 +33,22 @@ import uk.org.ngo.squeezer.BuildConfig;
 /**
  * {@link BayeuxClient} implementation for the Squeezer App.
  * <p>
- * This is responsible for logging and work around a problem the standard {@link BayeuxClient} set
- * a message id in subscriptions requests and expect the server to echo it in the subscription
- * repsonse.
+ * This is responsible for logging and to work around an id problem.
  * <p>
- * LMS doesn't do that (it is not a required field in the spec), so we intercept outgoing and
- * incoming mesages, note the message id from the subscription request, and add it to the
- * subscription response.
+ * The standard {@link BayeuxClient} set a message id in the request and expect the server to echo
+ * it, in the response.
+ * <p>
+ * LMS doesn't do include the message id in all responses (it is not a required field in the spec),
+ * so we intercept outgoing and incoming messages, note the message id from the request, and add it
+ * to the response.
  */
 class SqueezerBayeuxClient extends BayeuxClient {
     private static final String TAG = SqueezerBayeuxClient.class.getSimpleName();
 
-    private Map<Object, String> subscriptionIds;
+    private Map<Object, String> subscriptionIds = new HashMap<>();
 
     SqueezerBayeuxClient(String url, ClientTransport transport, ClientTransport... transports) {
         super(url, transport, transports);
-        subscriptionIds = new HashMap<>();
     }
 
     @Override
@@ -61,8 +61,7 @@ class SqueezerBayeuxClient extends BayeuxClient {
     public void onSending(List<? extends Message> messages) {
         super.onSending(messages);
         for (Message message : messages) {
-            String channelName = message.getChannel();
-            if (Channel.META_SUBSCRIBE.equals(channelName)) {
+            if (Channel.META_SUBSCRIBE.equals(message.getChannel())) {
                 subscriptionIds.put(message.get(Message.SUBSCRIPTION_FIELD), message.getId());
             }
             if (BuildConfig.DEBUG) {
@@ -75,10 +74,11 @@ class SqueezerBayeuxClient extends BayeuxClient {
     public void onMessages(List<Message.Mutable> messages) {
         super.onMessages(messages);
         for (Message message : messages) {
-            String channelName = message.getChannel();
-            if (Channel.META_SUBSCRIBE.equals(channelName)) {
-                if (message.getId() == null && message instanceof HashMapMessage) {
-                    ((HashMapMessage) message).setId(subscriptionIds.get(message.get(Message.SUBSCRIPTION_FIELD)));
+            if (message.getId() == null && message instanceof HashMapMessage) {
+                if (Channel.META_SUBSCRIBE.equals(message.getChannel())) {
+                    Object key = message.get(Message.SUBSCRIPTION_FIELD);
+                    ((HashMapMessage) message).setId(subscriptionIds.get(key));
+                    subscriptionIds.remove(key);
                 }
             }
             if (BuildConfig.DEBUG) {

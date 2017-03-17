@@ -170,7 +170,7 @@ class CometClient extends BaseClient {
 
                 Map<String, Object> options = new HashMap<>();
                 options.put(HttpClientTransport.MAX_NETWORK_DELAY_OPTION, LONG_POLLING_TIMEOUT);
-                ClientTransport httpTransport = new LongPollingTransport(options, httpClient);
+                ClientTransport httpTransport = new HttpStreamingTransport(options, httpClient);
                 mBayeuxClient = new SqueezerBayeuxClient(url, httpTransport);
                 mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
                     public void onMessage(ClientSessionChannel channel, Message message) {
@@ -188,6 +188,7 @@ class CometClient extends BaseClient {
 
                 mBayeuxClient.handshake();
                 if (!mBayeuxClient.waitFor(10000, BayeuxClient.State.CONNECTED)) {
+                    mBayeuxClient.disconnect();
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                     Log.i(TAG, "handshake TIMEOUT");
                     return;  // XXX: Check if returning here is the right thing to do? Any other cleanup?
@@ -228,28 +229,28 @@ class CometClient extends BaseClient {
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mConnectionState.setCanMusicfolder(Long.valueOf(1).equals(message.getDataAsMap().get("_can")));
+                        mConnectionState.setCanMusicfolder(getInt(message.getDataAsMap().get("_can"))== 1);
                     }
                 }, "can", "musicfolder", "?");
 
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mConnectionState.setCanRandomplay(Long.valueOf(1).equals(message.getDataAsMap().get("_can")));
+                        mConnectionState.setCanRandomplay(getInt(message.getDataAsMap().get("_can")) == 1);
                     }
                 }, "can", "randomplay", "?");
 
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mConnectionState.setCanFavorites(Long.valueOf(1).equals(message.getDataAsMap().get("_can")));
+                        mConnectionState.setCanFavorites(getInt(message.getDataAsMap().get("_can")) == 1);
                     }
                 }, "can", "favorites", "items", "?");
 
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        mConnectionState.setCanMyApps(Long.valueOf(1).equals(message.getDataAsMap().get("_can")));
+                        mConnectionState.setCanMyApps(getInt(message.getDataAsMap().get("_can")) == 1);
                     }
                 }, "can", "myapps", "items", "?");
 
@@ -343,7 +344,7 @@ class CometClient extends BaseClient {
             mPendingBrowseRequests.remove(message.getChannel());
             clear();
             Map<String, Object> data = message.getDataAsMap();
-            int count = ((Long) data.get(countName)).intValue();
+            int count = getInt(data.get(countName));
             Object[] item_data = (Object[]) data.get(itemLoopName);
             if (item_data != null) {
                 for (Object item_d : item_data) {
@@ -380,6 +381,10 @@ class CometClient extends BaseClient {
         void parseMessage(String itemLoopName, Message message) {
             parseMessage("count", itemLoopName, message);
         }
+    }
+
+    private int getInt(Object value) {
+        return (value instanceof Number) ? ((Number)value).intValue() : Util.parseDecimalIntOrZero((String)value);
     }
 
     private class PlayersListener extends ItemListener<Player> {
