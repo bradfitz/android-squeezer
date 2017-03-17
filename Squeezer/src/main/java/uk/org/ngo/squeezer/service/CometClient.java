@@ -491,7 +491,12 @@ class CometClient extends BaseClient {
 
     @Override
     public void disconnect(boolean loginFailed) {
-        mBayeuxClient.disconnect();
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mBayeuxClient.disconnect();
+            }
+        });
         mConnectionState.disconnect(loginFailed);
         mPlayers.clear();
     }
