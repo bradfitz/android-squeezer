@@ -163,8 +163,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
     }
 
-    private void delegateSend(final TransportListener listener, final List<Message.Mutable> messages)
-    {
+    private void delegateSend(final TransportListener listener, final List<Message.Mutable> messages) {
         _delegate.registerMessages(listener, messages);
         try {
             String content = generateJSON(messages);
@@ -183,15 +182,12 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
     }
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void transportSend(final TransportListener listener, final List<Message.Mutable> messages)
-    {
+    private void transportSend(final TransportListener listener, final List<Message.Mutable> messages) {
         String url = getURL();
         final URI uri = URI.create(url);
-        if (_appendMessageType && messages.size() == 1)
-        {
+        if (_appendMessageType && messages.size() == 1) {
             Message.Mutable message = messages.get(0);
-            if (message.isMeta())
-            {
+            if (message.isMeta()) {
                 String type = message.getChannel().substring(Channel.META.length());
                 if (url.endsWith("/"))
                     url = url.substring(0, url.length() - 1);
@@ -203,8 +199,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         request.header(HttpHeader.CONTENT_TYPE.asString(), "application/json;charset=UTF-8");
 
         StringBuilder builder = new StringBuilder();
-        for (HttpCookie cookie : getCookieStore().get(uri))
-        {
+        for (HttpCookie cookie : getCookieStore().get(uri)) {
             builder.setLength(0);
             builder.append(cookie.getName()).append("=").append(cookie.getValue());
             request.header(HttpHeader.COOKIE.asString(), builder.toString());
@@ -214,18 +209,15 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
         customize(request);
 
-        synchronized (this)
-        {
+        synchronized (this) {
             if (_aborted)
                 throw new IllegalStateException("Aborted");
             _requests.add(request);
         }
 
-        request.listener(new Request.Listener.Adapter()
-        {
+        request.listener(new Request.Listener.Adapter() {
             @Override
-            public void onHeaders(Request request)
-            {
+            public void onHeaders(Request request) {
                 listener.onSending(messages);
             }
         });
@@ -236,14 +228,11 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         // so there are no races between the two timeouts
         request.idleTimeout(maxNetworkDelay * 2, TimeUnit.MILLISECONDS);
         request.timeout(maxNetworkDelay, TimeUnit.MILLISECONDS);
-        request.send(new BufferingResponseListener(_maxBufferSize)
-        {
+        request.send(new BufferingResponseListener(_maxBufferSize) {
             @Override
-            public boolean onHeader(Response response, HttpField field)
-            {
+            public boolean onHeader(Response response, HttpField field) {
                 HttpHeader header = field.getHeader();
-                if (header != null && (header == HttpHeader.SET_COOKIE || header == HttpHeader.SET_COOKIE2))
-                {
+                if (header != null && (header == HttpHeader.SET_COOKIE || header == HttpHeader.SET_COOKIE2)) {
                     // We do not allow cookies to be handled by HttpClient, since one
                     // HttpClient instance is shared by multiple BayeuxClient instances.
                     // Instead, we store the cookies in the BayeuxClient instance.
@@ -255,63 +244,47 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 return true;
             }
 
-            private void storeCookies(URI uri, Map<String, List<String>> cookies)
-            {
-                try
-                {
+            private void storeCookies(URI uri, Map<String, List<String>> cookies) {
+                try {
                     _cookieManager.put(uri, cookies);
-                }
-                catch (IOException x)
-                {
+                } catch (IOException x) {
                     if (logger.isDebugEnabled())
                         logger.debug("", x);
                 }
             }
 
             @Override
-            public void onComplete(Result result)
-            {
-                synchronized (HttpStreamingTransport.this)
-                {
+            public void onComplete(Result result) {
+                synchronized (HttpStreamingTransport.this) {
                     _requests.remove(result.getRequest());
                 }
 
-                if (result.isFailed())
-                {
+                if (result.isFailed()) {
                     listener.onFailure(result.getFailure(), messages);
                     return;
                 }
 
                 Response response = result.getResponse();
                 int status = response.getStatus();
-                if (status == HttpStatus.OK_200)
-                {
+                if (status == HttpStatus.OK_200) {
                     String content = getContentAsString();
-                    if (content != null && content.length() > 0)
-                    {
-                        try
-                        {
+                    if (content != null && content.length() > 0) {
+                        try {
                             List<Message.Mutable> messages = parseMessages(content);
                             if (logger.isDebugEnabled())
                                 logger.debug("Received messages {}", messages);
                             listener.onMessages(messages);
-                        }
-                        catch (ParseException x)
-                        {
+                        } catch (ParseException x) {
                             listener.onFailure(x, messages);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         Map<String, Object> failure = new HashMap<>(2);
                         // Convert the 200 into 204 (no content)
                         failure.put("httpCode", 204);
                         TransportException x = new TransportException(failure);
                         listener.onFailure(x, messages);
                     }
-                }
-                else
-                {
+                } else {
                     Map<String, Object> failure = new HashMap<>(2);
                     failure.put("httpCode", status);
                     TransportException x = new TransportException(failure);
@@ -354,20 +327,17 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             }
         }
 
-        private void registerMessage(final Message.Mutable message, final TransportListener listener)
-        {
+        private void registerMessage(final Message.Mutable message, final TransportListener listener) {
             // Calculate max network delay
             long maxNetworkDelay = getMaxNetworkDelay();
-            if (Channel.META_CONNECT.equals(message.getChannel()))
-            {
+            if (Channel.META_CONNECT.equals(message.getChannel())) {
                 Map<String, Object> advice = message.getAdvice();
                 if (advice == null)
                     advice = _advice;
-                if (advice != null)
-                {
+                if (advice != null) {
                     Object timeout = advice.get("timeout");
                     if (timeout instanceof Number)
-                        maxNetworkDelay += ((Number)timeout).intValue();
+                        maxNetworkDelay += ((Number) timeout).intValue();
                     else if (timeout != null)
                         maxNetworkDelay += Integer.parseInt(timeout.toString());
                 }
@@ -376,15 +346,12 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
             // Schedule a task to expire if the maxNetworkDelay elapses
             final long expiration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) + maxNetworkDelay;
-            ScheduledFuture<?> task = _scheduler.schedule(new Runnable()
-            {
+            ScheduledFuture<?> task = _scheduler.schedule(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     long now = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
                     long delay = now - expiration;
-                    if (logger.isDebugEnabled())
-                    {
+                    if (logger.isDebugEnabled()) {
                         if (delay > 5000) // TODO: make the max delay a parameter ?
                             logger.debug("Message {} expired {} ms too late", message, delay);
                         logger.debug("Expiring message {}", message);
@@ -405,8 +372,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 throw new IllegalStateException();
         }
 
-        private Exchange deregisterMessage(Message message)
-        {
+        private Exchange deregisterMessage(Message message) {
             Exchange exchange = null;
             // TODO document this
             if (message.getId() != null) {
@@ -436,22 +402,17 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             return exchange;
         }
 
-        public void send(String content)
-        {
+        public void send(String content) {
             Socket session;
-            synchronized (this)
-            {
+            synchronized (this) {
                 session = socket;
             }
-            try
-            {
+            try {
                 if (session == null)
                     throw new IOException("Unconnected");
 
                 sendText(content);
-            }
-            catch (Throwable x)
-            {
+            } catch (Throwable x) {
                 fail(x, "Exception");
             }
         }
@@ -576,22 +537,19 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
     }
 
-    private static class Exchange
-    {
+    private static class Exchange {
         private final Message.Mutable message;
         private final TransportListener listener;
         private final ScheduledFuture<?> task;
 
-        public Exchange(Message.Mutable message, TransportListener listener, ScheduledFuture<?> task)
-        {
+        public Exchange(Message.Mutable message, TransportListener listener, ScheduledFuture<?> task) {
             this.message = message;
             this.listener = listener;
             this.task = task;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return getClass().getSimpleName() + " " + message;
         }
     }
