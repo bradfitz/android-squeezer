@@ -136,6 +136,24 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         for (Request request : requests) {
             request.abort(new Exception("Transport " + this + " aborted"));
         }
+        shutdownScheduler();
+    }
+
+    @Override
+    public void terminate()
+    {
+        shutdownScheduler();
+        super.terminate();
+    }
+
+    private void shutdownScheduler()
+    {
+        if (_shutdownScheduler)
+        {
+            _shutdownScheduler = false;
+            _scheduler.shutdownNow();
+            _scheduler = null;
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
@@ -273,6 +291,11 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                             List<Message.Mutable> messages = parseMessages(content);
                             if (logger.isDebugEnabled())
                                 logger.debug("Received messages {}", messages);
+                            for (Message.Mutable message : messages) {
+                                if (message.isSuccessful() && Channel.META_DISCONNECT.equals(message.getChannel())) {
+                                    _delegate.disconnect("Disconnect");
+                                }
+                            }
                             listener.onMessages(messages);
                         } catch (ParseException x) {
                             listener.onFailure(x, messages);
@@ -301,8 +324,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         private boolean connected;
 
         private final Map<String, Exchange> _exchanges = new ConcurrentHashMap<>();
-        private boolean _connected;
-        private boolean _disconnected;
         private Map<String, Object> _advice;
 
         public Delegate() {
@@ -341,7 +362,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     else if (timeout != null)
                         maxNetworkDelay += Integer.parseInt(timeout.toString());
                 }
-                _connected = true;
             }
 
             // Schedule a task to expire if the maxNetworkDelay elapses
@@ -388,10 +408,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     }
                 }
             }
-            if (Channel.META_CONNECT.equals(message.getChannel()))
-                _connected = false;
-            else if (Channel.META_DISCONNECT.equals(message.getChannel()))
-                _disconnected = true;
 
             if (logger.isDebugEnabled())
                 logger.debug("Deregistering {} for message {}", exchange, message);
@@ -403,9 +419,9 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
 
         public void send(String content) {
-            Socket session;
+            PrintWriter session;
             synchronized (this) {
-                session = socket;
+                session = writer;
             }
             try {
                 if (session == null)
@@ -431,14 +447,9 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         protected void onData(String data) {
             try {
                 List<Message.Mutable> messages = parseMessages(data);
-                if (isAttached()) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Received messages {}", data);
-                    onMessages(messages);
-                } else {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Discarded messages {}", data);
-                }
+                if (logger.isDebugEnabled())
+                    logger.debug("Received messages {}", data);
+                onMessages(messages);
             } catch (ParseException x) {
                 fail(x, "Exception");
             }
@@ -467,9 +478,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                         if (logger.isDebugEnabled())
                             logger.debug("Could not find request for reply {}", message);
                     }
-
-                    if (_disconnected && !_connected)
-                        disconnect("Disconnect");
                 } else {
                     _listener.onMessages(Collections.singletonList(message));
                 }
@@ -494,45 +502,18 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
 
         private void disconnect(String reason) {
-            if (detach())
+            if (connected)
                 shutdown(reason);
         }
 
-        private boolean isAttached() {
-            synchronized (HttpStreamingTransport.this) {
-                return this == _delegate;
-            }
-        }
-
-        private boolean detach() {
-            synchronized (HttpStreamingTransport.this) {
-                boolean attached = this == _delegate;
-                if (attached)
-                    _delegate = null;
-                return attached;
-            }
-        }
-
         protected void shutdown(String reason) {
-            Socket session;
-            synchronized (this) {
-                session = socket;
-                close();
-            }
-            if (session != null) {
-                Log.i(TAG, "Closing socket, reason: " + reason);
-                try {
-                    session.close();
-                } catch (IOException x) {
-                    Log.w("Could not close socket", x);
-                }
-            }
-        }
-
-        protected void close() {
-            synchronized (this) {
-                socket = null;
-                writer = null;
+            connected = false;
+            writer = null;
+            Log.i(TAG, "Closing socket, reason: " + reason);
+            try {
+                socket.close();
+            } catch (IOException x) {
+                Log.w("Could not close socket", x);
             }
         }
     }
@@ -611,7 +592,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     }
                 } catch (IOException e) {
                     Log.i(TAG, "Server disconnected; exception=" + e);
-                    if (!delegate._disconnected) {
+                    if (delegate.connected) {
                         delegate.failMessages(e);
                     }
                     return;
