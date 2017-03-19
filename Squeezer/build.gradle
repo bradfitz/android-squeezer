@@ -144,7 +144,6 @@ whatsnew {
 }
 
 play {
-    serviceAccountEmail = '1007218477134-c5q3v7d2dqahh6q09ltmimaa0jpq3qp6@developer.gserviceaccount.com'
-    pk12File = file('play-key.p12')
+    jsonFile = file('key.json')
     track = publishTrack()
 }
