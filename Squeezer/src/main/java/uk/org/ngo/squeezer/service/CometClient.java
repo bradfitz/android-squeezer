@@ -29,7 +29,6 @@ import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
 import org.cometd.client.transport.HttpClientTransport;
-import org.cometd.client.transport.LongPollingTransport;
 import org.eclipse.jetty.client.HttpClient;
 
 import java.io.IOException;
@@ -57,6 +56,7 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 class CometClient extends BaseClient {
     private static final String TAG = CometClient.class.getSimpleName();
@@ -131,6 +131,7 @@ class CometClient extends BaseClient {
                              final String host, final int cliPort, final int httpPort,
                              final String userName, final String password) {
         Log.i(TAG, "Connecting to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
+        mEventBus.register(this);
         mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
 
         final HttpClient httpClient = new HttpClient();
@@ -489,7 +490,31 @@ class CometClient extends BaseClient {
         }
     }
 
-    @Override
+    public void onEvent(HandshakeComplete event) {
+        request(new ClientSessionChannel.MessageListener() {
+            @Override
+            public void onMessage(ClientSessionChannel channel, Message message) {
+                int maxOrdinal = 0;
+                Map<String, Object> tokenMap = message.getDataAsMap();
+                for (Map.Entry<String, Object> entry : tokenMap.entrySet()) {
+                    if (entry.getValue() != null) {
+                        ServerString serverString = ServerString.valueOf(entry.getKey());
+                        serverString.setLocalizedString(entry.getValue().toString());
+                        if (serverString.ordinal() > maxOrdinal) {
+                            maxOrdinal = serverString.ordinal();
+                        }
+                    }
+                }
+
+                // Fetch the next strings until the list is completely translated
+                if (maxOrdinal < ServerString.values().length - 1) {
+                    request(this,"getstring", ServerString.values()[maxOrdinal + 1].name());
+                }
+            }
+        }, "getstring",  ServerString.values()[0].name());
+    }
+
+        @Override
     public void disconnect(boolean loginFailed) {
         mExecutor.execute(new Runnable() {
             @Override
