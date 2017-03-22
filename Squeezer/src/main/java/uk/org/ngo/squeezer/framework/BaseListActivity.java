@@ -266,7 +266,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     }
 
     @Override
-    public void onItemsReceived(int count, int start, Map<String, String> parameters, List<T> items, Class<T> dataType) {
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<T> items, Class<T> dataType) {
         onItemsReceived(count, start, items);
     }
 

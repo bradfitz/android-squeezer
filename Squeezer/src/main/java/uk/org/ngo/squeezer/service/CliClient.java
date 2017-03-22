@@ -523,7 +523,7 @@ class CliClient extends BaseClient {
         int correlationId = 0;
         boolean rescan = false;
         final Map<String, String> taggedParameters = new HashMap<>();
-        final Map<String, String> parameters = new HashMap<>();
+        final Map<String, Object> parameters = new HashMap<>();
         final Set<String> countIdSet = new HashSet<>();
         final Map<String, SqueezeParserInfo<?>> itemDelimeterMap = new HashMap<>();
         final Map<String, Integer> counts = new HashMap<>();
@@ -630,7 +630,7 @@ class CliClient extends BaseClient {
      */
     private class AlbumListHandler extends BaseListHandler<Album> {
         @Override
-        public void add(Map<String, String> record) {
+        public void add(Map<String, Object> record) {
             addArtworkUrlTag(record);
             super.add(record);
         }
@@ -641,7 +641,7 @@ class CliClient extends BaseClient {
      */
     private class MusicFolderListHandler extends BaseListHandler<MusicFolderItem> {
         @Override
-        public void add(Map<String, String> record) {
+        public void add(Map<String, Object> record) {
             addDownloadUrlTag(record);
             super.add(record);
         }
@@ -652,7 +652,7 @@ class CliClient extends BaseClient {
      */
     private class SongListHandler extends BaseListHandler<Song> {
         @Override
-        public void add(Map<String, String> record) {
+        public void add(Map<String, Object> record) {
             addArtworkUrlTag(record);
             addDownloadUrlTag(record);
             super.add(record);
@@ -661,7 +661,7 @@ class CliClient extends BaseClient {
 
     private class PluginListHandler extends BaseListHandler<Plugin> {
         @Override
-        public void add(Map<String, String> record) {
+        public void add(Map<String, Object> record) {
             fixImageTag("icon", record);
             super.add(record);
         }
@@ -669,7 +669,7 @@ class CliClient extends BaseClient {
 
     private class PluginItemListHandler extends BaseListHandler<PluginItem> {
         @Override
-        public void add(Map<String, String> record) {
+        public void add(Map<String, Object> record) {
             fixImageTag("image", record);
             super.add(record);
         }
@@ -680,8 +680,8 @@ class CliClient extends BaseClient {
      *
      * @param record The record to modify.
      */
-    private void fixImageTag(String imageTag, Map<String, String> record) {
-        String image = record.get(imageTag);
+    private void fixImageTag(String imageTag, Map<String, Object> record) {
+        String image = Util.getString(record, imageTag);
         if (image == null) {
             return;
         }
@@ -783,21 +783,21 @@ class CliClient extends BaseClient {
 //                } else if ("edit".equals(tokens.get(1))) {
 //                } else
                 if ("new".equals(tokens.get(1))) {
-                    HashMap<String, String> tokenMap = parseTokens(tokens);
+                    HashMap<String, Object> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("overwritten_playlist_id") != null) {
                         mEventBus.post(new PlaylistCreateFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
                                 tokenMap.get("name"))));
                     }
                 } else if ("rename".equals(tokens.get(1))) {
-                    HashMap<String, String> tokenMap = parseTokens(tokens);
+                    HashMap<String, Object> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("dry_run") != null) {
                         if (tokenMap.get("overwritten_playlist_id") != null) {
                             mEventBus.post(new PlaylistRenameFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                    tokenMap.get("newname"))));
+                                    Util.getString(tokenMap, "newname"))));
                         } else {
                             sendCommandImmediately(null,
                                     "playlists rename playlist_id:" + tokenMap.get("playlist_id")
-                                            + " newname:" + encode(tokenMap.get("newname")));
+                                            + " newname:" + encode(Util.getString(tokenMap, "newname")));
                         }
                     }
                 } else if ("tracks".equals(tokens.get(1))) {
@@ -861,11 +861,11 @@ class CliClient extends BaseClient {
             @Override
             public void handle(List<String> tokens) {
                 int maxOrdinal = 0;
-                Map<String, String> tokenMap = parseTokens(tokens);
-                for (Map.Entry<String, String> entry : tokenMap.entrySet()) {
+                Map<String, Object> tokenMap = parseTokens(tokens);
+                for (Map.Entry<String, Object> entry : tokenMap.entrySet()) {
                     if (entry.getValue() != null) {
                         ServerString serverString = ServerString.valueOf(entry.getKey());
-                        serverString.setLocalizedString(entry.getValue());
+                        serverString.setLocalizedString(Util.getString(entry.getValue(), null));
                         if (serverString.ordinal() > maxOrdinal) {
                             maxOrdinal = serverString.ordinal();
                         }
@@ -1028,9 +1028,9 @@ class CliClient extends BaseClient {
                     // XXX: Can we ever see a status for a player we don't know about?
                     // XXX: Maybe the better thing to do is to add it.
                     if (player != null) {
-                        HashMap<String, String> tokenMap = parseTokens(tokens);
+                        HashMap<String, Object> tokenMap = parseTokens(tokens);
                         //noinspection WrongConstant
-                        player.getPlayerState().setSubscriptionType(tokenMap.get("subscribe"));
+                        player.getPlayerState().setSubscriptionType(Util.getString(tokenMap, "subscribe"));
                         parseStatus(player, null, tokenMap);
                     }
                 } else {
@@ -1119,8 +1119,8 @@ class CliClient extends BaseClient {
         }
     }
 
-    private HashMap<String, String> parseTokens(List<String> tokens) {
-        HashMap<String, String> tokenMap = new HashMap<>();
+    private HashMap<String, Object> parseTokens(List<String> tokens) {
+        HashMap<String, Object> tokenMap = new HashMap<>();
         String[] kv;
         for (String token : tokens) {
             kv = parseToken(token);

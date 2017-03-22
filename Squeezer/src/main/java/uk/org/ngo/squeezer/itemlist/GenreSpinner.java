@@ -57,7 +57,7 @@ public class GenreSpinner {
         private ItemAdapter<Genre> adapter;
 
         @Override
-        public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<Genre> list, Class<Genre> dataType) {
+        public void onItemsReceived(final int count, final int start, Map<String, Object> parameters, final List<Genre> list, Class<Genre> dataType) {
             callback.getUIThreadHandler().post(new Runnable() {
                 @Override
                 public void run() {

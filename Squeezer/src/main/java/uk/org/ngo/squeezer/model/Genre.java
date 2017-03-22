@@ -47,9 +47,9 @@ public class Genre extends PlaylistItem {
         return this;
     }
 
-    public Genre(Map<String, String> record) {
-        setId(record.containsKey("genre_id") ? record.get("genre_id") : record.get("id"));
-        name = record.get("genre");
+    public Genre(Map<String, Object> record) {
+        setId(getString(record, record.containsKey("genre_id") ? "genre_id" : "id"));
+        name = getString(record, "genre");
     }
 
     public static final Creator<Genre> CREATOR = new Creator<Genre>() {

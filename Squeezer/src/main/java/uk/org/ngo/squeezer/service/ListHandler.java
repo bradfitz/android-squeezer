@@ -48,5 +48,5 @@ interface ListHandler<T extends Item> {
      *
      * @param record Item data from Squeezebox Server
      */
-    void add(Map<String, String> record);
+    void add(Map<String, Object> record);
 }

@@ -22,6 +22,6 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.service.ServiceCallback;
 
 public interface IServiceItemListCallback<T extends Item> extends ServiceCallback {
-    void onItemsReceived(int count, int start, Map<String, String> parameters, List<T> items, Class<T> dataType);
+    void onItemsReceived(int count, int start, Map<String, Object> parameters, List<T> items, Class<T> dataType);
 }
 

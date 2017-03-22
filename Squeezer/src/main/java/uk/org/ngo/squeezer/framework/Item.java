@@ -17,6 +17,11 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
+import java.util.Map;
+
+import uk.org.ngo.squeezer.Util;
 
 /**
  * Base class for SqueezeServer data. Specializations must implement all the necessary boilerplate
@@ -84,4 +89,24 @@ public abstract class Item implements Parcelable {
     public String toString() {
         return toStringOpen() + " }";
     }
+
+
+    protected int getInt(Map<String, Object> record, String fieldName) {
+        return Util.getInt(record, fieldName);
+    }
+
+    protected int getInt(Map<String, Object> record, String fieldName, int defaultValue) {
+        return Util.getInt(record, fieldName, defaultValue);
+    }
+
+
+    protected String getString(Map<String, Object> record, String fieldName) {
+        return Util.getString(record, fieldName);
+    }
+
+    @NonNull
+    protected String getStringOrEmpty(Map<String, Object> record, String fieldName) {
+        return Util.getStringOrEmpty(record, fieldName);
+    }
+
 }

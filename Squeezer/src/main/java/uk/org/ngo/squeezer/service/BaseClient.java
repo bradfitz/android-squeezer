@@ -20,7 +20,6 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -213,7 +212,7 @@ abstract class BaseClient implements SlimClient {
             private final HashMap<String, Player> players = new HashMap<>();
 
             @Override
-            public void onItemsReceived(int count, int start, Map<String, String> parameters,
+            public void onItemsReceived(int count, int start, Map<String, Object> parameters,
                                         List<Player> items, Class<Player> dataType) {
                 for (Player player : items) {
                     players.put(player.getId(), player);
@@ -250,7 +249,7 @@ abstract class BaseClient implements SlimClient {
 
 
 
-    void parseStatus(final Player player, Song song, Map<String, String> tokenMap) {
+    void parseStatus(final Player player, Song song, Map<String, Object> tokenMap) {
         PlayerState playerState = player.getPlayerState();
 
         addArtworkUrlTag(tokenMap);
@@ -259,24 +258,24 @@ abstract class BaseClient implements SlimClient {
         boolean unknownRepeatStatus = playerState.getRepeatStatus() == null;
         boolean unknownShuffleStatus = playerState.getShuffleStatus() == null;
 
-        boolean changedPower = playerState.setPoweredOn(Util.parseDecimalIntOrZero(tokenMap.get("power")) == 1);
-        boolean changedShuffleStatus = playerState.setShuffleStatus(tokenMap.get("playlist shuffle"));
-        boolean changedRepeatStatus = playerState.setRepeatStatus(tokenMap.get("playlist repeat"));
-        boolean changedSleep = playerState.setSleep(Util.parseDecimalIntOrZero(tokenMap.get("will_sleep_in")));
-        boolean changedSleepDuration = playerState.setSleepDuration(Util.parseDecimalIntOrZero(tokenMap.get("sleep")));
+        boolean changedPower = playerState.setPoweredOn(Util.getInt(tokenMap, "power") == 1);
+        boolean changedShuffleStatus = playerState.setShuffleStatus(Util.getString(tokenMap, "playlist shuffle"));
+        boolean changedRepeatStatus = playerState.setRepeatStatus(Util.getString(tokenMap, "playlist repeat"));
+        boolean changedSleep = playerState.setSleep(Util.getInt(tokenMap, "will_sleep_in"));
+        boolean changedSleepDuration = playerState.setSleepDuration(Util.getInt(tokenMap, "sleep"));
         if (song == null) song = new Song(tokenMap);
         boolean changedSong = playerState.setCurrentSong(song);
-        boolean changedSongDuration = playerState.setCurrentSongDuration(Util.parseDecimalIntOrZero(tokenMap.get("duration")));
-        boolean changedSongTime = playerState.setCurrentTimeSecond(Util.parseDecimalIntOrZero(tokenMap.get("time")));
-        boolean changedVolume = playerState.setCurrentVolume(Util.parseDecimalIntOrZero(tokenMap.get("mixer volume")));
-        boolean changedSyncMaster = playerState.setSyncMaster(tokenMap.get("sync_master"));
-        boolean changedSyncSlaves = playerState.setSyncSlaves(Splitter.on(",").omitEmptyStrings().splitToList(Strings.nullToEmpty(tokenMap.get("sync_slaves"))));
+        boolean changedSongDuration = playerState.setCurrentSongDuration(Util.getInt(tokenMap, "duration"));
+        boolean changedSongTime = playerState.setCurrentTimeSecond(Util.getInt(tokenMap, "time"));
+        boolean changedVolume = playerState.setCurrentVolume(Util.getInt(tokenMap, "mixer volume"));
+        boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(tokenMap, "sync_master"));
+        boolean changedSyncSlaves = playerState.setSyncSlaves(Splitter.on(",").omitEmptyStrings().splitToList(Util.getStringOrEmpty(tokenMap, "sync_slaves")));
 
         player.setPlayerState(playerState);
 
         // Kept as its own method because other methods call it, unlike the explicit
         // calls to the callbacks below.
-        updatePlayStatus(player, tokenMap.get("mode"));
+        updatePlayStatus(player, Util.getString(tokenMap, "mode"));
 
         // XXX: Handled by onEvent(PlayStatusChanged) in the service.
         //updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
@@ -341,8 +340,8 @@ abstract class BaseClient implements SlimClient {
      *
      * @param record The record to modify.
      */
-    void addArtworkUrlTag(Map<String, String> record) {
-        String artworkUrl = record.get("artwork_url");
+    void addArtworkUrlTag(Map<String, Object> record) {
+        String artworkUrl = Util.getString(record, "artwork_url");
 
         // Nothing to do if the artwork_url tag already exists and is absolute.
         if (artworkUrl != null && artworkUrl.startsWith("http")) {
@@ -358,7 +357,7 @@ abstract class BaseClient implements SlimClient {
         // Need to generate an artwork_url value.
 
         // Prefer using the artwork_track_id entry to generate the URL
-        String artworkTrackId = record.get("artwork_track_id");
+        String artworkTrackId = Util.getString(record, "artwork_track_id");
 
         if (artworkTrackId != null) {
             record.put("artwork_url", mUrlPrefix + "/music/" + artworkTrackId + "/cover.jpg");
@@ -377,7 +376,7 @@ abstract class BaseClient implements SlimClient {
      *
      * @param record The record to modify.
      */
-    void addDownloadUrlTag(Map<String, String> record) {
+    void addDownloadUrlTag(Map<String, Object> record) {
         record.put("download_url", mUrlPrefix + "/music/" + record.get("id") + "/download");
     }
 

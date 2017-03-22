@@ -107,12 +107,12 @@ public class MusicFolderItem extends PlaylistItem {
         return mDownloadUrl;
     }
 
-    public MusicFolderItem(Map<String, String> record) {
-        setId(record.get("id"));
-        name = record.get("filename");
-        type = record.get("type");
-        url = Uri.parse(Strings.nullToEmpty(record.get("url")));
-        mDownloadUrl = Uri.parse(Strings.nullToEmpty(record.get("download_url")));
+    public MusicFolderItem(Map<String, Object> record) {
+        setId(getString(record, "id"));
+        name = getString(record, "filename");
+        type = getString(record, "type");
+        url = Uri.parse(getStringOrEmpty(record, "url"));
+        mDownloadUrl = Uri.parse(getStringOrEmpty(record, "download_url"));
     }
 
     public static final Creator<MusicFolderItem> CREATOR = new Creator<MusicFolderItem>() {

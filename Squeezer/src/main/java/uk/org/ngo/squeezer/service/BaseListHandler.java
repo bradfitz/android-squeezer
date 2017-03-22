@@ -45,7 +45,7 @@ abstract class BaseListHandler<T extends Item> implements ListHandler<T> {
     }
 
     @Override
-    public void add(Map<String, String> record) {
+    public void add(Map<String, Object> record) {
         if (constructor == null) {
             try {
                 constructor = dataType.getDeclaredConstructor(Map.class);

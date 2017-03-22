@@ -35,8 +35,8 @@ public class Year extends PlaylistItem {
         return "year";
     }
 
-    public Year(Map<String, String> record) {
-        setId(record.get("year"));
+    public Year(Map<String, Object> record) {
+        setId(getString(record, "year"));
     }
 
     public static final Creator<Year> CREATOR = new Creator<Year>() {

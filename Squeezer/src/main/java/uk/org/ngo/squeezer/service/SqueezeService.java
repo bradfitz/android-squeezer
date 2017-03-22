@@ -669,7 +669,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /** A download request will be passed to the download manager for each song called back to this */
     private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<Song>() {
         @Override
-        public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
+        public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
             for (Song item : items) {
                 downloadSong(item.getDownloadUrl(), item.getName(), item.getUrl());
             }
@@ -688,7 +688,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     private final IServiceItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new IServiceItemListCallback<MusicFolderItem>() {
         @Override
-        public void onItemsReceived(int count, int start, Map<String, String> parameters, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
+        public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
             for (MusicFolderItem item : items) {
                 squeezeService.downloadItem(item);
             }

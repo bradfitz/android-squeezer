@@ -96,14 +96,14 @@ public class PluginItem extends Item {
         this.audio = audio;
     }
 
-    public PluginItem(Map<String, String> record) {
-        setId(record.get("id"));
-        name = record.containsKey("name") ? record.get("name") : record.get("title");
-        description = record.get("description");
-        type = record.get("type");
-        image = record.get("image");
-        hasitems = (Util.parseDecimalIntOrZero(record.get("hasitems")) != 0);
-        audio = (Util.parseDecimalIntOrZero(record.get("isaudio")) != 0);
+    public PluginItem(Map<String, Object> record) {
+        setId(getString(record, "id"));
+        name = getString(record, record.containsKey("name") ? "name" : "title");
+        description = getString(record, "description");
+        type = getString(record, "type");
+        image = getString(record, "image");
+        hasitems = (getInt(record, "hasitems") != 0);
+        audio = (getInt(record, "isaudio") != 0);
     }
 
     public static final Creator<PluginItem> CREATOR = new Creator<PluginItem>() {

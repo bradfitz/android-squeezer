@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
@@ -150,12 +151,12 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
     }
 
     @Override
-    public void onItemsReceived(int count, int start, final Map<String, String> parameters, List<PluginItem> items, Class<PluginItem> dataType) {
+    public void onItemsReceived(int count, int start, final Map<String, Object> parameters, List<PluginItem> items, Class<PluginItem> dataType) {
         if (parameters.containsKey("title")) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    updateHeader(parameters.get("title"));
+                    updateHeader(Util.getString(parameters, "title"));
                 }
             });
         }
@@ -174,7 +175,7 @@ public class PluginItemListActivity extends BaseListActivity<PluginItem>
                 playerName = service.getActivePlayer().getName();
             }
 
-            String errorMsg = parameters.get("networkerror");
+            String errorMsg = Util.getString(parameters, "networkerror");
 
             String errorMessage = String.format(resources.getString(R.string.server_error),
                     playerName, errorMsg);

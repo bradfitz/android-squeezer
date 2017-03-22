@@ -56,7 +56,7 @@ public class YearSpinner {
         private ItemAdapter<Year> adapter;
 
         @Override
-        public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<Year> list, Class<Year> dataType) {
+        public void onItemsReceived(final int count, final int start, Map<String, Object> parameters, final List<Year> list, Class<Year> dataType) {
             callback.getUIThreadHandler().post(new Runnable() {
                 @Override
                 public void run() {

@@ -47,9 +47,9 @@ public class Playlist extends PlaylistItem {
         return this;
     }
 
-    public Playlist(Map<String, String> record) {
-        setId(record.containsKey("playlist_id") ? record.get("playlist_id") : record.get("id"));
-        name = record.get("playlist");
+    public Playlist(Map<String, Object> record) {
+        setId(getString(record, record.containsKey("playlist_id") ? "playlist_id" : "id"));
+        name = getString(record, "playlist");
     }
 
     public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {

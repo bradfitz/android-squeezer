@@ -98,12 +98,12 @@ public class Plugin extends Item {
         setIconResource(iconResource);
     }
 
-    public Plugin(Map<String, String> record) {
-        setId(record.get("cmd"));
-        name = record.get("name");
-        type = record.get("type");
-        icon = record.get("icon");
-        weight = Util.parseDecimalIntOrZero(record.get("weight"));
+    public Plugin(Map<String, Object> record) {
+        setId(getString(record, "cmd"));
+        name = getString(record, "name");
+        type = getString(record, "type");
+        icon = getString(record, "icon");
+        weight = getInt(record, "weight");
     }
 
     public static final Creator<Plugin> CREATOR = new Creator<Plugin>() {

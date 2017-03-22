@@ -52,10 +52,9 @@ public class Artist extends PlaylistItem {
         setName(artist);
     }
 
-    public Artist(Map<String, String> record) {
-        setId(record.containsKey("contributor_id") ? record.get("contributor_id")
-                : record.get("id"));
-        name = record.containsKey("contributor") ? record.get("contributor") : record.get("artist");
+    public Artist(Map<String, Object> record) {
+        setId(getString(record, record.containsKey("contributor_id") ? "contributor_id" : "id"));
+        name = getString(record, record.containsKey("contributor") ? "contributor" : "artist");
     }
 
     public static final Creator<Artist> CREATOR = new Creator<Artist>() {

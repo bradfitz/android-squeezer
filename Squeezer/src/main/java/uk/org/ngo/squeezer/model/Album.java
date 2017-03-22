@@ -89,13 +89,13 @@ public class Album extends ArtworkItem {
         setName(album);
     }
 
-    public Album(Map<String, String> record) {
-        setId(record.containsKey("album_id") ? record.get("album_id") : record.get("id"));
-        setName(record.get("album"));
-        setArtist(record.get("artist"));
-        setYear(Util.parseDecimalIntOrZero(record.get("year")));
-        setArtwork_track_id(record.get("artwork_track_id"));
-        mArtworkUrl = Uri.parse(Strings.nullToEmpty(record.get("artwork_url")));
+    public Album(Map<String, Object> record) {
+        setId(getString(record, record.containsKey("album_id") ? "album_id" : "id"));
+        setName(getString(record, "album"));
+        setArtist(getString(record, "artist"));
+        setYear(getInt(record, "year"));
+        setArtwork_track_id(getString(record, "artwork_track_id"));
+        mArtworkUrl = Uri.parse(getStringOrEmpty(record, "artwork_url"));
     }
 
     public static final Creator<Album> CREATOR = new Creator<Album>() {

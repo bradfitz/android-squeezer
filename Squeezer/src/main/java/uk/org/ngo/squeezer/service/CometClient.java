@@ -131,7 +131,9 @@ class CometClient extends BaseClient {
                              final String host, final int cliPort, final int httpPort,
                              final String userName, final String password) {
         Log.i(TAG, "Connecting to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
-        mEventBus.register(this);
+        if (!mEventBus.isRegistered(this)) {
+            mEventBus.register(this);
+        }
         mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
 
         final HttpClient httpClient = new HttpClient();
@@ -289,29 +291,19 @@ class CometClient extends BaseClient {
         if (player == null)
             return;
 
-        Map<String, String> tokenMap = new HashMap<>();
         Object data = message.getData();
         if (data instanceof Map) {
             Map<String, Object> messageData = message.getDataAsMap();
-            for (Map.Entry<String, Object> entry : messageData.entrySet()) {
-                Object value = entry.getValue();
-                tokenMap.put(entry.getKey(), value != null && !(value instanceof String) ? value.toString() : (String)value);
-            }
 
             Song song = null;
             Object[] item_data = (Object[]) messageData.get("playlist_loop");
             if (item_data != null && item_data.length > 0) {
-                Map<String, String> record = (Map<String, String>) item_data[0];
-                for (Map.Entry<String, String> entry : record.entrySet()) {
-                    Object value = entry.getValue();
-                    if (value != null && !(value instanceof String)) {
-                        record.put(entry.getKey(), value.toString());
-                    }
-                }
+                Map<String, Object> record = (Map<String, Object>) item_data[0];
                 song = new Song(record);
             }
-            parseStatus(player, song, tokenMap);
+            parseStatus(player, song, messageData);
         } else {
+            Map<String, Object> tokenMap = new HashMap<>();
             Object[] tokens = (Object[]) data;
             if (Util.arraysStartsWith(tokens, new String[]{"status", "-", "subscribe:1", "1"})) {
                 for (Object token : tokens) {
@@ -349,13 +341,7 @@ class CometClient extends BaseClient {
             Object[] item_data = (Object[]) data.get(itemLoopName);
             if (item_data != null) {
                 for (Object item_d : item_data) {
-                    Map<String, String> record = (Map<String, String>) item_d;
-                    for (Map.Entry<String, String> entry : record.entrySet()) {
-                        Object value = entry.getValue();
-                        if (value != null && !(value instanceof String)) {
-                            record.put(entry.getKey(), value.toString());
-                        }
-                    }
+                    Map<String, Object> record = (Map<String, Object>) item_d;
                     add(record);
                 }
             }
@@ -365,8 +351,7 @@ class CometClient extends BaseClient {
             final int start = browseRequest.getStart();
             final int end = start + browseRequest.getItemsPerResponse();
             int max = 0;
-            //XXX ugly bugly
-            browseRequest.getCallback().onItemsReceived(count, start, (Map<String,String>)(Object)data, getItems(), getDataType());
+            browseRequest.getCallback().onItemsReceived(count, start, data, getItems(), getDataType());
             if (count > max) {
                 max = count;
             }

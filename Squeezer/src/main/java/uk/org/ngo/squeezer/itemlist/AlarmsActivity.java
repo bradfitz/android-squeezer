@@ -185,7 +185,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         private final List<AlarmPlaylist> mAlarmPlaylists = new ArrayList<>();
 
         @Override
-        public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<AlarmPlaylist> items, Class<AlarmPlaylist> dataType) {
+        public void onItemsReceived(final int count, final int start, Map<String, Object> parameters, final List<AlarmPlaylist> items, Class<AlarmPlaylist> dataType) {
             if (start == 0) {
                 mAlarmPlaylists.clear();
             }

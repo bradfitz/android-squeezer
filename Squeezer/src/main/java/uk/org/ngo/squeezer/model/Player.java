@@ -75,11 +75,11 @@ public class Player extends Item {
                 ALARMS_ENABLED);
     }
 
-    public Player(Map<String, String> record) {
-        setId(record.get("playerid"));
-        mIp = record.get("ip");
-        mName = record.get("name");
-        mModel = record.get("model");
+    public Player(Map<String, Object> record) {
+        setId(getString(record, "playerid"));
+        mIp = getString(record, "ip");
+        mName = getString(record, "name");
+        mModel = getString(record, "model");
         // XXX; Fix this, this comes through as a long when converted from JSON.
         //mCanPowerOff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
         //mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;

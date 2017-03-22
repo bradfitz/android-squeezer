@@ -152,33 +152,32 @@ public class Song extends ArtworkItem {
         return mArtworkUrl;
     }
 
-    public Song(Map<String, String> record) {
+    public Song(Map<String, Object> record) {
         if (getId() == null) {
-            setId(record.get("track_id"));
+            setId(getString(record, "track_id"));
         }
         if (getId() == null) {
-            setId(record.get("id"));
+            setId(getString(record, "id"));
         }
 
-        mName = record.containsKey("track") ? Strings.nullToEmpty(record.get("track"))
-                : Strings.nullToEmpty(record.get("title"));
+        mName = getStringOrEmpty(record, record.containsKey("track") ? "track" : "title");
 
-        mArtist = Strings.nullToEmpty(record.get("artist"));
-        mAlbumName = Strings.nullToEmpty(record.get("album"));
-        mCompilation = Util.parseDecimalIntOrZero(record.get("compilation")) == 1;
-        mDuration = Util.parseDecimalIntOrZero(record.get("duration"));
-        mYear = Util.parseDecimalIntOrZero(record.get("year"));
-        mArtistId = Strings.nullToEmpty(record.get("artist_id"));
-        mAlbumId = Strings.nullToEmpty(record.get("album_id"));
-        mRemote = Util.parseDecimalIntOrZero(record.get("remote")) != 0;
-        mTrackNum = Util.parseDecimalInt(record.get("tracknum"), 1);
+        mArtist = getStringOrEmpty(record, "artist");
+        mAlbumName = getStringOrEmpty(record, "album");
+        mCompilation = getInt(record, "compilation") == 1;
+        mDuration = getInt(record, "duration");
+        mYear = getInt(record, "year");
+        mArtistId = getStringOrEmpty(record, "artist_id");
+        mAlbumId = getStringOrEmpty(record, "album_id");
+        mRemote = getInt(record, "remote") != 0;
+        mTrackNum = getInt(record, "tracknum", 1);
 
-        mArtworkUrl = Uri.parse(Strings.nullToEmpty(record.get("artwork_url")));
-        mUrl = Uri.parse(Strings.nullToEmpty(record.get("url")));
-        mDownloadUrl = Uri.parse(Strings.nullToEmpty(record.get("download_url")));
-        mButtons = Strings.nullToEmpty(record.get("buttons"));
+        mArtworkUrl = Uri.parse(getStringOrEmpty(record, "artwork_url"));
+        mUrl = Uri.parse(getStringOrEmpty(record, "url"));
+        mDownloadUrl = Uri.parse(getStringOrEmpty(record, "download_url"));
+        mButtons = getStringOrEmpty(record, "buttons");
 
-        String artworkTrackId = record.get("artwork_track_id");
+        String artworkTrackId = getString(record,"artwork_track_id");
 
         Album album = new Album(mAlbumId, mAlbumName);
         album.setArtist(mCompilation ? "Various" : mArtist);

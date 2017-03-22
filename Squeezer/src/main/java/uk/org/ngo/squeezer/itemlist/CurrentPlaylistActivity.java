@@ -300,7 +300,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    public void onItemsReceived(int count, int start, Map<String, String> parameters, List<Song> items, Class<Song> dataType) {
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
         super.onItemsReceived(count, start, parameters, items, dataType);
         ISqueezeService service = getService();
         if (service == null) {

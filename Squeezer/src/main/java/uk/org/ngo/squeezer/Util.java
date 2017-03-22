@@ -17,7 +17,9 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +35,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Formatter;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -81,6 +84,38 @@ public class Util {
     public static int parseDecimalIntOrZero(String value) {
         return parseDecimalInt(value, 0);
     }
+
+    public static int getInt(Map<String, Object> record, String fieldName) {
+        return getInt(record, fieldName, 0);
+    }
+
+    public static int getInt(Map<String, Object> record, String fieldName, int defaultValue) {
+        return getInt(record.get(fieldName), defaultValue);
+    }
+
+    public static int getInt(Object value, int defaultValue) {
+        return (value instanceof Number) ? ((Number)value).intValue() : Util.parseDecimalInt((String)value, defaultValue);
+    }
+
+    public static String getString(Map<String, Object> record, String fieldName) {
+        return getString(record.get(fieldName), null);
+    }
+
+    @NonNull
+    public static String getStringOrEmpty(Map<String, Object> record, String fieldName) {
+        return getStringOrEmpty(record.get(fieldName));
+    }
+
+    @NonNull
+    public static String getStringOrEmpty(Object value) {
+        return getString(value, "");
+    }
+
+    public static String getString(Object value, String defaultValue) {
+        if (value == null) return defaultValue;
+        return (value instanceof String) ? (String)value : value.toString();
+    }
+
 
     private static final StringBuilder sFormatBuilder = new StringBuilder();
 
