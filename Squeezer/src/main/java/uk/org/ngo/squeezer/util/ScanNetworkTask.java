@@ -80,7 +80,8 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
         byte[] data = new byte[512];
         System.arraycopy(request, 0, data, 0, request.length);
 
-        WifiManager wm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wm = (WifiManager) mContext
+                .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiLock = wm.createWifiLock(TAG);
 
         // mServerMap.put("Dummy", "127.0.0.1");

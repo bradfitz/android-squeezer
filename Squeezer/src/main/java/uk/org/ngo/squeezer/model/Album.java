@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.model;
 import android.net.Uri;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.google.common.base.Strings;
 

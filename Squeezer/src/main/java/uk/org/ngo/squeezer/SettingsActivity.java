@@ -33,15 +33,22 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
+import uk.org.ngo.squeezer.download.DownloadStorage;
 import uk.org.ngo.squeezer.framework.EnumWithText;
+import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -87,33 +94,34 @@ public class SettingsActivity extends PreferenceActivity implements
         getPreferenceManager().setSharedPreferencesName(Preferences.NAME);
         addPreferencesFromResource(R.xml.preferences);
 
-        SharedPreferences preferences = getPreferenceManager().getSharedPreferences();
-        preferences.registerOnSharedPreferenceChangeListener(this);
+        SharedPreferences sharedPreferences = getPreferenceManager().getSharedPreferences();
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        Preferences preferences = new Preferences(this, sharedPreferences);
 
         addressPref = findPreference(Preferences.KEY_SERVER_ADDRESS);
-        updateAddressSummary();
+        updateAddressSummary(preferences);
 
         fadeInPref = (IntEditTextPreference) findPreference(Preferences.KEY_FADE_IN_SECS);
         fadeInPref.setOnPreferenceChangeListener(this);
-        updateFadeInSecondsSummary(preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0));
+        updateFadeInSecondsSummary(sharedPreferences.getInt(Preferences.KEY_FADE_IN_SECS, 0));
 
         CheckBoxPreference autoConnectPref = (CheckBoxPreference) findPreference(
                 Preferences.KEY_AUTO_CONNECT);
-        autoConnectPref.setChecked(preferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true));
+        autoConnectPref.setChecked(sharedPreferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true));
 
-        fillScrobblePreferences(preferences);
+        fillScrobblePreferences(sharedPreferences);
 
         ListPreference notificationTypePref = (ListPreference) findPreference(Preferences.KEY_NOTIFICATION_TYPE);
         notificationTypePref.setOnPreferenceChangeListener(this);
-        fillNotificationPreferences(preferences, notificationTypePref);
+        fillNotificationPreferences(sharedPreferences, notificationTypePref);
 
         fillPlayableItemSelectionPreferences();
-
+        fillDownloadPreferences(preferences);
         fillThemeSelectionPreferences();
 
         CheckBoxPreference startSqueezePlayerPref = (CheckBoxPreference) findPreference(
                 Preferences.KEY_SQUEEZEPLAYER_ENABLED);
-        startSqueezePlayerPref.setChecked(preferences.getBoolean(Preferences.KEY_SQUEEZEPLAYER_ENABLED, true));
+        startSqueezePlayerPref.setChecked(sharedPreferences.getBoolean(Preferences.KEY_SQUEEZEPLAYER_ENABLED, true));
     }
 
     private void fillScrobblePreferences(SharedPreferences preferences) {
@@ -166,12 +174,70 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     private void fillPlayableItemSelectionPreferences() {
-        ListPreference onSelectAlbumPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION);
-        fillEnumPreference(onSelectAlbumPref, PlayableItemAction.ALBUM_ACTIONS);
-
-        ListPreference onSelectSongPref = (ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION);
-        fillEnumPreference(onSelectSongPref, PlayableItemAction.SONG_ACTIONS);
+        fillEnumPreference((ListPreference) findPreference(Preferences.KEY_ON_SELECT_ALBUM_ACTION), PlayableItemAction.ALBUM_ACTIONS);
+        fillEnumPreference((ListPreference) findPreference(Preferences.KEY_ON_SELECT_SONG_ACTION), PlayableItemAction.SONG_ACTIONS);
     }
+
+    private void fillDownloadPreferences(Preferences preferences) {
+        final DownloadStorage downloadStorage = new DownloadStorage(this);
+        final PreferenceCategory downloadCategory = (PreferenceCategory) findPreference(Preferences.KEY_DOWNLOAD_CATEGORY);
+        final PreferenceScreen useSdCardScreen = (PreferenceScreen) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD_SCREEN);
+        final CheckBoxPreference useSdCardPreference = (CheckBoxPreference) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD);
+        final ListPreference pathStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
+        final ListPreference filenameStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
+        if (downloadStorage.isPublicMediaStorageRemovable() || !downloadStorage.hasRemovableMediaStorage()) {
+            downloadCategory.removePreference(useSdCardScreen);
+        }
+
+        useSdCardPreference.setSummary(Html.fromHtml(getString(R.string.settings_download_use_sd_card_desc)));
+        fillEnumPreference(pathStructurePreference, DownloadPathStructure.class, preferences.getDownloadPathStructure());
+        fillEnumPreference(filenameStructurePreference, DownloadFilenameStructure.class, preferences.getDownloadFilenameStructure());
+
+        updateDownloadPreferences(preferences);
+    }
+
+    private void updateDownloadPreferences(Preferences preferences) {
+        final PreferenceScreen useSdCardScreen = (PreferenceScreen) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD_SCREEN);
+        if (useSdCardScreen != null) {
+            final boolean useSdCard = preferences.isDownloadUseSdCard();
+            useSdCardScreen.setSummary(useSdCard ? R.string.on : R.string.off);
+            ((BaseAdapter)useSdCardScreen.getRootAdapter()).notifyDataSetChanged();
+        }
+
+        final CheckBoxPreference useServerPathPreference = (CheckBoxPreference) findPreference(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH);        final ListPreference pathStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
+        final ListPreference filenameStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
+        final boolean useServerPath = preferences.isDownloadUseServerPath();
+        useServerPathPreference.setChecked(useServerPath);
+        pathStructurePreference.setEnabled(!useServerPath);
+        filenameStructurePreference.setEnabled(!useServerPath);
+    }
+
+    private void fillThemeSelectionPreferences() {
+        ListPreference onSelectThemePref = (ListPreference) findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
+        ArrayList<String> entryValues = new ArrayList<>();
+        ArrayList<String> entries = new ArrayList<>();
+
+        for (ThemeManager.Theme theme : ThemeManager.Theme.values()) {
+            entryValues.add(theme.name());
+            entries.add(theme.getText(this));
+        }
+
+        onSelectThemePref.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
+        onSelectThemePref.setEntries(entries.toArray(new String[entries.size()]));
+        onSelectThemePref.setDefaultValue(ThemeManager.getDefaultTheme().name());
+        if (onSelectThemePref.getValue() == null) {
+            onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
+        } else {
+            try {
+                ThemeManager.Theme t = ThemeManager.Theme.valueOf(onSelectThemePref.getValue());
+            } catch (Exception e) {
+                onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
+            }
+        }
+        onSelectThemePref.setOnPreferenceChangeListener(this);
+        updateListPreferenceSummary(onSelectThemePref, onSelectThemePref.getValue());
+    }
+
 
     private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes) {
         fillEnumPreference(listPreference, actionTypes.getEnumConstants());
@@ -202,32 +268,6 @@ public class SettingsActivity extends PreferenceActivity implements
         updateListPreferenceSummary(listPreference, listPreference.getValue());
     }
 
-    private void fillThemeSelectionPreferences() {
-        ListPreference onSelectThemePref = (ListPreference) findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
-        ArrayList<String> entryValues = new ArrayList<>();
-        ArrayList<String> entries = new ArrayList<>();
-
-        for (ThemeManager.Theme theme : ThemeManager.Theme.values()) {
-            entryValues.add(theme.name());
-            entries.add(theme.getText(this));
-        }
-
-        onSelectThemePref.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
-        onSelectThemePref.setEntries(entries.toArray(new String[entries.size()]));
-        onSelectThemePref.setDefaultValue(ThemeManager.getDefaultTheme().name());
-        if (onSelectThemePref.getValue() == null) {
-            onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
-        } else {
-            try {
-                ThemeManager.Theme t = ThemeManager.Theme.valueOf(onSelectThemePref.getValue());
-            } catch (Exception e) {
-                onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
-            }
-        }
-        onSelectThemePref.setOnPreferenceChangeListener(this);
-        updateListPreferenceSummary(onSelectThemePref, onSelectThemePref.getValue());
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -240,8 +280,7 @@ public class SettingsActivity extends PreferenceActivity implements
         unbindService(serviceConnection);
     }
 
-    private void updateAddressSummary() {
-        Preferences preferences = new Preferences(this);
+    private void updateAddressSummary(Preferences preferences) {
         String serverName = preferences.getServerName();
         if (serverName != null && serverName.length() > 0) {
             addressPref.setSummary(serverName);
@@ -278,11 +317,6 @@ public class SettingsActivity extends PreferenceActivity implements
 
     /**
      * A preference has been changed by the user, but has not yet been persisted.
-     *
-     * @param preference
-     * @param newValue
-     *
-     * @return
      */
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -291,15 +325,15 @@ public class SettingsActivity extends PreferenceActivity implements
 
         if (Preferences.KEY_FADE_IN_SECS.equals(key)) {
             updateFadeInSecondsSummary(Util.parseDecimalIntOrZero(newValue.toString()));
-            return true;
         }
 
         if (Preferences.KEY_NOTIFICATION_TYPE.equals(key) ||
                 Preferences.KEY_ON_SELECT_ALBUM_ACTION.equals(key) ||
                 Preferences.KEY_ON_SELECT_SONG_ACTION.equals(key) ||
-                Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
+                Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key) ||
+                Preferences.KEY_DOWNLOAD_PATH_STRUCTURE.equals(key) ||
+                Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE.equals(key)) {
             updateListPreferenceSummary((ListPreference) preference, (String) newValue);
-            return true;
         }
 
         // If the user has enabled Scrobbling but we don't think it will work
@@ -314,24 +348,25 @@ public class SettingsActivity extends PreferenceActivity implements
                     return false;
                 }
             }
-            return true;
         }
 
-        return false;
+        return true;
     }
 
     /**
      * A preference has been changed by the user and is going to be persisted.
-     *
-     * @param sharedPreferences
-     * @param key
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.v(TAG, "Preference changed: " + key);
 
         if (key.startsWith(Preferences.KEY_SERVER_ADDRESS)) {
-            updateAddressSummary();
+            updateAddressSummary(new Preferences(this, sharedPreferences));
+        }
+
+        if (key.startsWith(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH) ||
+                key.startsWith(Preferences.KEY_DOWNLOAD_USE_SD_CARD)) {
+            updateDownloadPreferences(new Preferences(this, sharedPreferences));
         }
 
         if (service != null) {

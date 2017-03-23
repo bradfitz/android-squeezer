@@ -16,10 +16,10 @@
 
 package uk.org.ngo.squeezer.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageButton;
 
 /**
  * Display an {@link android.widget.ImageButton} with customised behaviour suitable for use in a
@@ -39,16 +39,20 @@ import android.widget.ImageButton;
  * <p>
  * See Cyril Mottier's discussion of this, and code, in http://android.cyrilmottier.com/?p=525.
  */
-public class ListItemImageButton extends ImageButton {
+@SuppressLint("NewApi")
+public class ListItemImageButton extends android.support.v7.widget.AppCompatImageButton {
 
+    @SuppressLint("NewApi")
     public ListItemImageButton(Context context) {
         super(context);
     }
 
+    @SuppressLint("NewApi")
     public ListItemImageButton(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
+    @SuppressLint("NewApi")
     public ListItemImageButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }

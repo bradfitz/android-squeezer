@@ -17,6 +17,8 @@
 package uk.org.ngo.squeezer.itemlist;
 
 
+import com.google.common.base.Strings;
+
 import android.support.annotation.IntDef;
 import android.view.ContextMenu;
 import android.view.View;
@@ -94,10 +96,10 @@ public class SongView extends PlaylistItemView<Song> {
         viewHolder.text2.setText(mJoiner.join(
                 (mDetails & DETAILS_TRACK_NO) > 0 ? item.getTrackNum() : null,
                 (mDetails & DETAILS_DURATION) > 0 ? formatElapsedTime(item.getDuration()) : null,
-                (mDetails & DETAILS_ARTIST) > 0 ? item.getArtist() : null,
-                (mDetails & DETAILS_ARTIST_IF_COMPILATION) > 0 && item.getCompilation() ? item
-                        .getArtist() : null,
-                (mDetails & DETAILS_ALBUM) > 0 ? item.getAlbumName() : null,
+                (mDetails & DETAILS_ARTIST) > 0 ? Strings.emptyToNull(item.getArtist()) : null,
+                (mDetails & DETAILS_ARTIST_IF_COMPILATION) > 0 && item.getCompilation() ?
+                        Strings.emptyToNull(item.getArtist()) : null,
+                (mDetails & DETAILS_ALBUM) > 0 ? Strings.emptyToNull(item.getAlbumName()) : null,
                 (mDetails & DETAILS_YEAR) > 0 ? item.getYear() : null
         ));
     }

@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.Log;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.client.transport.HttpClientTransport;
@@ -327,9 +326,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         private Map<String, Object> _advice;
 
         public Delegate() {
-            new DefaultHttpClient();
             socket = new Socket();
-
         }
 
         public void connect(String host, int port) throws IOException {

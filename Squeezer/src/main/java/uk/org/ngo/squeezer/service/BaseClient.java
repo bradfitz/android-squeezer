@@ -258,9 +258,15 @@ abstract class BaseClient implements SlimClient {
         boolean unknownRepeatStatus = playerState.getRepeatStatus() == null;
         boolean unknownShuffleStatus = playerState.getShuffleStatus() == null;
 
+
+
+
         boolean changedPower = playerState.setPoweredOn(Util.getInt(tokenMap, "power") == 1);
         boolean changedShuffleStatus = playerState.setShuffleStatus(Util.getString(tokenMap, "playlist shuffle"));
         boolean changedRepeatStatus = playerState.setRepeatStatus(Util.getString(tokenMap, "playlist repeat"));
+        playerState.setCurrentPlaylistTracksNum(Util.getInt(tokenMap, "playlist_tracks"));
+        playerState.setCurrentPlaylistIndex(Util.getInt(tokenMap, "playlist_cur_index"));
+        playerState.setCurrentPlaylist(Util.getString(tokenMap, "playlist_name"));
         boolean changedSleep = playerState.setSleep(Util.getInt(tokenMap, "will_sleep_in"));
         boolean changedSleepDuration = playerState.setSleepDuration(Util.getInt(tokenMap, "sleep"));
         if (song == null) song = new Song(tokenMap);
@@ -270,6 +276,7 @@ abstract class BaseClient implements SlimClient {
         boolean changedVolume = playerState.setCurrentVolume(Util.getInt(tokenMap, "mixer volume"));
         boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(tokenMap, "sync_master"));
         boolean changedSyncSlaves = playerState.setSyncSlaves(Splitter.on(",").omitEmptyStrings().splitToList(Util.getStringOrEmpty(tokenMap, "sync_slaves")));
+        playerState.setSubscriptionType(Util.getString(tokenMap, "subscribe"));
 
         player.setPlayerState(playerState);
 

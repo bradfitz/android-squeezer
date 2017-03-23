@@ -9,26 +9,25 @@ The name of the branch is release-x.y.z, according to the release number.
 ## Make 1-n releases from the branch
 
 Repeat the following process for each release. Beta versions are named
-x.y.z-beta-n, where n starts at 0.
+x.y.z-beta-n, where n starts at 1.
 
-### Set the new version number.
+### Update the version numbers.
 
-- Update the version numbers.
+Edit `Squeezer/build.gradle`.  Edit the `versionCode` and `versionName`
+values.
 
-  Edit `Squeezer/build.gradle`.  Edit the `versionCode` and `versionName`
-  values.
+### Update the release notes.
 
-- Update the release notes.
+Edit `Squeezer/src/main/res/xml/changelog_master.xml` with the details.
+Run `git log master..develop` to see what's changed
 
-  Edit `Squeezer/src/main/res/xml/changelog_master.xml` with the details.
+### Update the `whatsnew` or `whatsnew-beta` files.
 
-- Update the `whatsnew` or `whatsnew-beta` files.
+Run `./gradlew generateWhatsNew` to update the files.
 
-  Run `./gradlew generateWhatsNew` to update the files.
+### Update the `NEWS` file.
 
-- Update the `NEWS` file.
-
-  Run `./gradlew generateNews` to update the file.
+Run `./gradlew generateNews` to update the file.
 
 ### Generate and test the release APK
 
