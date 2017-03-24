@@ -393,6 +393,12 @@ class CometClient extends BaseClient {
         public void onMessage(ClientSessionChannel channel, Message message) {
             parseMessage("albums_loop", message);
         }
+
+        @Override
+        public void add(Map<String, Object> record) {
+            addArtworkUrlTag(record);
+            super.add(record);
+        }
     }
 
     private class SongsListener extends ItemListener<Song> {
@@ -410,6 +416,13 @@ class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             parseMessage(countName, itemLoopName, message);
+        }
+
+        @Override
+        public void add(Map<String, Object> record) {
+            addArtworkUrlTag(record);
+            addDownloadUrlTag(record);
+            super.add(record);
         }
     }
 
@@ -438,6 +451,12 @@ class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             parseMessage("folder_loop", message);
+        }
+
+        @Override
+        public void add(Map<String, Object> record) {
+            addDownloadUrlTag(record);
+            super.add(record);
         }
     }
 
