@@ -71,6 +71,7 @@ import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
+import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistCreateFailed;
 import uk.org.ngo.squeezer.service.event.PlaylistRenameFailed;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
@@ -1237,6 +1238,43 @@ class CliClient extends BaseClient {
                 // "handshake is complete" logic elsewhere.
                 "version ?"
         );
+    }
+
+    /**
+     * Queries for all players known by the server.
+     * </p>
+     * Posts a PlayersChanged message if the list of players has changed.
+     */
+    private void fetchPlayers() {
+        requestItems("players", -1, new IServiceItemListCallback<Player>() {
+            private final HashMap<String, Player> players = new HashMap<>();
+
+            @Override
+            public void onItemsReceived(int count, int start, Map<String, Object> parameters,
+                                        List<Player> items, Class<Player> dataType) {
+                for (Player player : items) {
+                    players.put(player.getId(), player);
+                }
+
+                // If all players have been received then determine the new active player.
+                if (start + items.size() >= count) {
+                    if (players.equals(mPlayers)) {
+                        return;
+                    }
+
+                    mPlayers.clear();
+                    mPlayers.putAll(players);
+
+                    // XXX: postSticky?
+                    mEventBus.postSticky(new PlayersChanged(mPlayers));
+                }
+            }
+
+            @Override
+            public Object getClient() {
+                return this;
+            }
+        });
     }
 
 

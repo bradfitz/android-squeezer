@@ -43,7 +43,6 @@ import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
-import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
@@ -200,43 +199,6 @@ abstract class BaseClient implements SlimClient {
 
     public String getPreferredAlbumSort() {
         return mConnectionState.getPreferredAlbumSort();
-    }
-
-    /**
-     * Queries for all players known by the server.
-     * </p>
-     * Posts a PlayersChanged message if the list of players has changed.
-     */
-    void fetchPlayers() {
-        requestItems("players", -1, new IServiceItemListCallback<Player>() {
-            private final HashMap<String, Player> players = new HashMap<>();
-
-            @Override
-            public void onItemsReceived(int count, int start, Map<String, Object> parameters,
-                                        List<Player> items, Class<Player> dataType) {
-                for (Player player : items) {
-                    players.put(player.getId(), player);
-                }
-
-                // If all players have been received then determine the new active player.
-                if (start + items.size() >= count) {
-                    if (players.equals(mPlayers)) {
-                        return;
-                    }
-
-                    mPlayers.clear();
-                    mPlayers.putAll(players);
-
-                    // XXX: postSticky?
-                    mEventBus.postSticky(new PlayersChanged(mPlayers));
-                }
-            }
-
-            @Override
-            public Object getClient() {
-                return this;
-            }
-        });
     }
 
     int getHttpPort() {

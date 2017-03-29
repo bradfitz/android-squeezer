@@ -57,9 +57,13 @@ import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
 class CometClient extends BaseClient {
     private static final String TAG = CometClient.class.getSimpleName();
+
+    /** Server events to listen for **/
+    static final String SERVER_STATUS_TAGS = "aCdejJKlstxyu";
 
     /** The maximum number of milliseconds to wait before considering a request to the LMS failed */
     private static final int LONG_POLLING_TIMEOUT = 120_000;
@@ -85,8 +89,11 @@ class CometClient extends BaseClient {
     /** The channel to publish subscription requests to. */
     private static final String CHANNEL_SLIM_SUBSCRIBE = "/slim/subscribe";
 
-    /** The format string for the channel to listen to for responses to playerstatus requests. */
-    private static final String CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT = "/%s/slim/playerstatus/%s";
+    /** The format string for the channel to listen to for playerstatus evcents. */
+    private static final String CHANNEL_PLAYER_STATUS_FORMAT = "/%s/slim/playerstatus/%s";
+
+    /** The format string for the channel to listen to for serverstatus events. */
+    private static final String CHANNEL_SERVER_STATUS_FORMAT = "/%s/slim/serverstatus";
 
     /** Client to the comet server. */
     @Nullable
@@ -108,7 +115,6 @@ class CometClient extends BaseClient {
         super(eventBus);
 
         mItemRequestMap = ImmutableMap.<String, ItemListener>builder()
-                .put("players", new PlayersListener())
                 .put("artists", new ArtistsListener())
                 .put("albums", new AlbumsListener())
                 .put("songs", new SongsListener())
@@ -194,7 +200,7 @@ class CometClient extends BaseClient {
                     mBayeuxClient.disconnect();
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                     Log.i(TAG, "handshake TIMEOUT");
-                    return;  // XXX: Check if returning here is the right thing to do? Any other cleanup?
+                    return;
                 }
 
                 // Connected from this point on.
@@ -216,16 +222,25 @@ class CometClient extends BaseClient {
                     }
                 });
 
-                mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
+                mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         parseStatus(message);
                     }
                 });
 
-                fetchPlayers();
+                mBayeuxClient.getChannel(String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId)).subscribe(new ClientSessionChannel.MessageListener() {
+                    @Override
+                    public void onMessage(ClientSessionChannel channel, Message message) {
+                        parseServerStatus(message);
+                    }
+                });
 
-                // XXX: "listen 1" -- serverstatus?
+                publishMessage(null, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null, "serverstatus", "0", "255",
+                        "subscribe:0",
+                        "prefs:ignoredarticles,browseagelimit,noGenreFilter,PLUGIN_TRACKSTAT,audiodir",
+                        "playerprefs:playtrackalbum,digitalVolumeControl"
+                );
 
                 // Learn server capabilites.
 
@@ -279,6 +294,27 @@ class CometClient extends BaseClient {
                 }, "version", "?");
             }
         });
+    }
+
+
+    private void parseServerStatus(Message message) {
+        Map<String, Object> data = message.getDataAsMap();
+        Object[] item_data = (Object[]) data.get("players_loop");
+        final HashMap<String, Player> players = new HashMap<>();
+        if (item_data != null) {
+            for (Object item_d : item_data) {
+                Map<String, Object> record = (Map<String, Object>) item_d;
+                Player player = new Player(record);
+                players.put(player.getId(), player);
+            }
+            if (!players.equals(mPlayers)) {
+                mPlayers.clear();
+                mPlayers.putAll(players);
+
+                // XXX: postSticky?
+                mEventBus.postSticky(new PlayersChanged(mPlayers));
+            }
+        }
     }
 
     private void parseStatus(Message message) {
@@ -371,14 +407,6 @@ class CometClient extends BaseClient {
 
     private int getInt(Object value) {
         return (value instanceof Number) ? ((Number)value).intValue() : Util.parseDecimalIntOrZero((String)value);
-    }
-
-    private class PlayersListener extends ItemListener<Player> {
-        @Override
-        public void onMessage(ClientSessionChannel channel, Message message) {
-            // XXX: Sanity check that the message contains an ID and players_loop
-            parseMessage("players_loop", message);
-        }
     }
 
     private class ArtistsListener extends ItemListener<Artist> {
@@ -608,7 +636,7 @@ class CometClient extends BaseClient {
     }
 
     private String playerStatusResponseChannel(Player player) {
-        return String.format(CHANNEL_PLAYER_STATUS_RESPONSE_FORMAT, mBayeuxClient.getId(), player.getId());
+        return String.format(CHANNEL_PLAYER_STATUS_FORMAT, mBayeuxClient.getId(), player.getId());
     }
 
     @Override
