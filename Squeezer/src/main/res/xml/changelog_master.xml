@@ -2,14 +2,8 @@
 
 <changelog>
     <release
-        version="1.5.0-beta-2"
-        versioncode="58">
-        <change>Fix possible crash when checking for removable storage.</change>
-    </release>
-
-    <release
-        version="1.5.0-beta-1"
-        versioncode="57">
+        version="1.5.0"
+        versioncode="59">
         <change>Download enhancements: choose whether to store downloaded music on/off the
             device's removable storage (if it has one); choose the folder structure that's
             used.</change>

@@ -1,11 +1,5 @@
-1.5.0-beta-2
-============
-
-*   Fix possible crash when checking for removable storage.
-
-
-1.5.0-beta-1
-============
+1.5.0
+=====
 
 *   Download enhancements: choose whether to store downloaded music on/off the
     device's removable storage (if it has one); choose the folder structure
