@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.0'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
-        classpath 'com.github.triplet.gradle:play-publisher:1.1.0'
+        classpath 'com.github.triplet.gradle:play-publisher:1.2.0'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -73,8 +73,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 56
-        versionName "1.4.1"
+        versionCode 59
+        versionName "1.5.0"
     }
 
     lintOptions {
@@ -144,7 +144,7 @@ whatsnew {
 }
 
 play {
-    serviceAccountEmail = '1007218477134-c5q3v7d2dqahh6q09ltmimaa0jpq3qp6@developer.gserviceaccount.com'
-    pk12File = file('play-key.p12')
+    jsonFile = file('key.json')
     track = publishTrack()
+    untrackOld = true
 }

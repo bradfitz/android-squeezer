@@ -67,7 +67,7 @@ public class DownloadStorage {
     public boolean hasRemovableMediaStorage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             for (File dir : context.getExternalMediaDirs())
-                if (Environment.isExternalStorageRemovable(dir))
+                if (dir != null && Environment.isExternalStorageRemovable(dir))
                     return true;
         return false;
     }
@@ -78,7 +78,7 @@ public class DownloadStorage {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private File getRemovableMediaStorage() throws IOException {
         for (File dir : context.getExternalMediaDirs()) {
-            if (Environment.isExternalStorageRemovable(dir))
+            if (dir != null && Environment.isExternalStorageRemovable(dir))
                 return new File(dir, Environment.DIRECTORY_MUSIC);
         }
         throw new IOException("A removable media directory was expected, but none was found");
