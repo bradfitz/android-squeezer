@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.download;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -33,7 +34,7 @@ public class DownloadDatabase {
 
     private class DOWNLOAD_DATABASE {
         private static final String NAME = "download";
-        private static final int VERSION = 1;
+        private static final int VERSION = 2;
 
         private class SONG {
             private static final String TABLE = "download";
@@ -42,6 +43,7 @@ public class DownloadDatabase {
                 private static final String DOWNLOAD_ID = "download_id";
                 private static final String TEMP_NAME = "temp_name";
                 private static final String FILE_NAME = "file_name";
+                private static final String ALBUM_ART = "album_art";
             }
         }
     }
@@ -93,11 +95,13 @@ public class DownloadDatabase {
             sqLiteDatabase.execSQL("CREATE TABLE " + DOWNLOAD_DATABASE.SONG.TABLE + "(" +
                     DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + " INTEGER, " +
                     DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME + " TEXT, " +
-                    DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME + " TEXT)");
+                    DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME + " TEXT, " +
+                    DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM_ART + " TEXT)");
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + DOWNLOAD_DATABASE.SONG.TABLE);
             // Upgrades just creates a new database. The database keeps track of
             // active downloads, so it holds only temporary information.
             onCreate(sqLiteDatabase);
@@ -113,11 +117,12 @@ public class DownloadDatabase {
      * @param fileName Filename to use when the file is downloaded
      * @return False if we could not register the download
      */
-    public boolean registerDownload(long downloadId, @NonNull String tempName, @NonNull String fileName) {
+    public boolean registerDownload(long downloadId, @NonNull String tempName, @NonNull String fileName, @NonNull Uri albumArtUrl) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID, downloadId);
         contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME, tempName);
         contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME, fileName);
+        contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM_ART, albumArtUrl.toString());
         return (db.insert(DOWNLOAD_DATABASE.SONG.TABLE, null, contentValues) != -1);
     }
 
@@ -137,10 +142,7 @@ public class DownloadDatabase {
                 new String[]{String.valueOf(downloadId)});
         try {
             if (cursor.moveToNext()) {
-                entry = new DownloadEntry();
-                entry.downloadId = cursor.getLong(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID));
-                entry.tempName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME));
-                entry.fileName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME));
+                entry = getDownloadEntry(cursor);
             }
         } finally {
             cursor.close();
@@ -157,15 +159,20 @@ public class DownloadDatabase {
         Cursor cursor = db.rawQuery("select * from " + DOWNLOAD_DATABASE.SONG.TABLE, null);
         try {
             while (cursor.moveToNext()) {
-                DownloadEntry entry = new DownloadEntry();
-                entry.downloadId = cursor.getLong(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID));
-                entry.tempName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME));
-                entry.fileName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME));
-                callback.handle(entry);
+                callback.handle(getDownloadEntry(cursor));
             }
         } finally {
             cursor.close();
         }
+    }
+
+    private DownloadEntry getDownloadEntry(Cursor cursor) {
+        DownloadEntry entry = new DownloadEntry();
+        entry.downloadId = cursor.getLong(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID));
+        entry.tempName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME));
+        entry.fileName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME));
+        entry.albumArtUrl = Uri.parse(cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM_ART)));
+        return entry;
     }
 
     public void remove(long... downloadIds) {
@@ -185,6 +192,7 @@ public class DownloadDatabase {
         public long downloadId;
         public String tempName;
         public String fileName;
+        public Uri albumArtUrl;
     }
 
     public interface DownloadHandler {

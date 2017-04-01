@@ -88,7 +88,7 @@
     <string name="filter_text_hint">Suchen nach %s</string>
     <string name="search_text_hint">Suchtext</string>
     <string name="search_music_library_hint">Suche nach Künstler, Album, Genre oder Titel.</string>
-    <string name="move_to_dialog_title">Verschiebe Lied Nummer %s</string>
+    <string name="move_to_dialog_title">Verschiebe Lied Nummer %d</string>
     <string name="move_to_index_hint">Bitte neue Position für das Lied eingeben</string>
     <string name="save_playlist_title">Wiedergabeliste speichern</string>
     <string name="save_playlist_hint">Name für die Wiedergabeliste eingeben</string>
@@ -112,6 +112,7 @@
     <string name="unknown_track">Unbekanntes Lied</string>
     <string name="unknown_album">Unbekanntes Album</string>
     <string name="unknown_artist">Unbekannter Künstler</string>
+    <string name="unknown_artistalbum">Unbekannter Künstler/Album</string>
 
     <string name="tips_title">Tipps</string>
     <string name="tip_volume">Sie können die Musiklautstärke mit den Lautstärketasten des Geräts

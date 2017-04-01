@@ -26,6 +26,8 @@ import android.support.annotation.StringDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
+import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
@@ -102,7 +104,23 @@ public final class Preferences {
     public static final String KEY_SQUEEZEPLAYER_ENABLED = "squeezer.squeezeplayer.enabled";
 
     // Preferred UI theme.
-    public static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
+    static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
+
+    // Download category
+    static final String KEY_DOWNLOAD_CATEGORY = "squeezer.download.category";
+
+    // Download folder
+    static final String KEY_DOWNLOAD_USE_SERVER_PATH = "squeezer.download.use_server_path";
+
+    // Download path structure
+    static final String KEY_DOWNLOAD_PATH_STRUCTURE = "squeezer.download.path_structure";
+
+    // Download filename structure
+    static final String KEY_DOWNLOAD_FILENAME_STRUCTURE = "squeezer.download.filename_structure";
+
+    // Use SD-card (getExternalMediaDirs)
+    static final String KEY_DOWNLOAD_USE_SD_CARD_SCREEN = "squeezer.download.use_sd_card.screen";
+    static final String KEY_DOWNLOAD_USE_SD_CARD = "squeezer.download.use_sd_card";
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
@@ -110,6 +128,11 @@ public final class Preferences {
     public Preferences(Context context) {
         this.context = context;
         sharedPreferences = context.getSharedPreferences(Preferences.NAME, Context.MODE_PRIVATE);
+    }
+
+    public Preferences(Context context, SharedPreferences sharedPreferences) {
+        this.context = context;
+        this.sharedPreferences = sharedPreferences;
     }
 
     private String getStringPreference(String preference, String defaultValue) {
@@ -127,7 +150,8 @@ public final class Preferences {
     public ServerAddress getServerAddress() {
         ServerAddress serverAddress = new ServerAddress();
 
-        WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager mWifiManager = (WifiManager) context
+                .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
         serverAddress.bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
         if (serverAddress.bssId != null)
@@ -149,7 +173,8 @@ public final class Preferences {
     }
 
     public ServerAddress saveServerAddress(String address) {
-        WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager mWifiManager = (WifiManager) context
+                .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo connectionInfo = mWifiManager.getConnectionInfo();
         String bssId = (connectionInfo != null ? connectionInfo.getBSSID() : null);
 
@@ -229,7 +254,7 @@ public final class Preferences {
         if (action != null) {
             sharedPreferences.edit().putString(key, action.name()).commit();
         } else {
-            sharedPreferences.edit().remove(key);
+            sharedPreferences.edit().remove(key).commit();
         }
     }
 
@@ -274,5 +299,23 @@ public final class Preferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Preferences.KEY_SONG_LIST_LAYOUT, songListLayout.name());
         editor.commit();
+    }
+
+    public boolean isDownloadUseServerPath() {
+        return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SERVER_PATH, true);
+    }
+
+    public DownloadPathStructure getDownloadPathStructure() {
+        final String string = sharedPreferences.getString(KEY_DOWNLOAD_PATH_STRUCTURE, null);
+        return (string == null ? DownloadPathStructure.ARTIST_ALBUM: DownloadPathStructure.valueOf(string));
+    }
+
+    public DownloadFilenameStructure getDownloadFilenameStructure() {
+        final String string = sharedPreferences.getString(KEY_DOWNLOAD_FILENAME_STRUCTURE, null);
+        return (string == null ? DownloadFilenameStructure.NUMBER_TITLE: DownloadFilenameStructure.valueOf(string));
+    }
+
+    public boolean isDownloadUseSdCard() {
+        return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SD_CARD, false);
     }
 }

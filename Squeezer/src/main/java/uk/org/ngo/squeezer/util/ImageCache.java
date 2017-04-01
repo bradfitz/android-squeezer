@@ -40,6 +40,8 @@ import java.io.OutputStream;
 
 import uk.org.ngo.squeezer.BuildConfig;
 
+import static uk.org.ngo.squeezer.Util.crashlyticsSetLong;
+
 /**
  * This class holds our bitmap caches (memory and disk).
  */
@@ -51,7 +53,10 @@ public class ImageCache {
     private static final int DEFAULT_MEM_CACHE_SIZE = 1024 * 1024 * 5; // 5MB
 
     // Default disk cache size
-    private static final int DEFAULT_DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+    private static final int MAX_DISK_CACHE_SIZE = 1024 * 1024 * 100; // 100MB
+
+    // Default disk cache percent
+    private static final float DEFAULT_DISK_CACHE_SIZE_PERCENT = 0.2f;
 
     // Compression settings when writing images to disk cache
     private static final CompressFormat DEFAULT_COMPRESS_FORMAT = CompressFormat.JPEG;
@@ -171,10 +176,17 @@ public class ImageCache {
                     if (!diskCacheDir.exists()) {
                         diskCacheDir.mkdirs();
                     }
-                    if (getUsableSpace(diskCacheDir) > mCacheParams.diskCacheSize) {
+                    long usableSpace = getUsableSpace(diskCacheDir);
+                    long diskCacheSize = Math.round(Math.min(
+                            usableSpace * mCacheParams.diskCacheSizePercent,
+                            MAX_DISK_CACHE_SIZE));
+                    Log.d(TAG, "Usable space: " + usableSpace);
+                    Log.d(TAG, "  Cache size: " + diskCacheSize);
+                    crashlyticsSetLong("cache_size", diskCacheSize);
+
+                    if (usableSpace > diskCacheSize) {
                         try {
-                            mDiskLruCache = DiskLruCache.open(
-                                    diskCacheDir, 1, 1, mCacheParams.diskCacheSize);
+                            mDiskLruCache = DiskLruCache.open(diskCacheDir, 1, 1, diskCacheSize);
                             if (BuildConfig.DEBUG) {
                                 Log.d(TAG, "Disk cache initialized in " + diskCacheDir);
                             }
@@ -511,7 +523,9 @@ public class ImageCache {
 
         public int memCacheSize = DEFAULT_MEM_CACHE_SIZE;
 
-        public final int diskCacheSize = DEFAULT_DISK_CACHE_SIZE;
+        public float diskCacheSizePercent = DEFAULT_DISK_CACHE_SIZE_PERCENT;
+
+        public final int maxDiskCacheSize = MAX_DISK_CACHE_SIZE;
 
         public File diskCacheDir;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service;
+package uk.org.ngo.squeezer.download;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

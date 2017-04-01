@@ -23,9 +23,12 @@ import android.support.annotation.NonNull;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
+import java.io.File;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
+import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.ArtworkItem;
 
 public class Song extends ArtworkItem {
@@ -280,5 +283,9 @@ public class Song extends ArtworkItem {
     @Override
     public int hashCode() {
         return Objects.hashCode(getId(), mName, mAlbumName, mArtist, mArtworkUrl);
+    }
+
+    public String getLocalPath(DownloadPathStructure downloadPathStructure, DownloadFilenameStructure downloadFilenameStructure) {
+        return new File(downloadPathStructure.get(this), downloadFilenameStructure.get(this)).getPath();
     }
 }

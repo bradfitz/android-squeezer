@@ -67,7 +67,7 @@ public class PlayerState implements Parcelable {
         poweredOn = (source.readByte() == 1);
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
         repeatStatus = RepeatStatus.valueOf(source.readInt());
-        currentSong = source.readParcelable(null);
+        currentSong = source.readParcelable(Song.class.getClassLoader());
         currentPlaylist = source.readString();
         currentPlaylistIndex = source.readInt();
         currentTimeSecond = source.readInt();
@@ -120,6 +120,8 @@ public class PlayerState implements Parcelable {
     /** The name of the current playlist, which may be the empty string. */
     @NonNull
     private String currentPlaylist;
+
+    private int currentPlaylistTracksNum;
 
     private int currentPlaylistIndex;
 
@@ -248,6 +250,11 @@ public class PlayerState implements Parcelable {
         return currentPlaylist;
     }
 
+    /** @return the number of tracks in the current playlist */
+    public int getCurrentPlaylistTracksNum() {
+        return currentPlaylistTracksNum;
+    }
+
     public int getCurrentPlaylistIndex() {
         return currentPlaylistIndex;
     }
@@ -260,6 +267,15 @@ public class PlayerState implements Parcelable {
             return false;
 
         currentPlaylist = playlist;
+        return true;
+    }
+
+    // set the number of tracks in the current playlist
+    public boolean setCurrentPlaylistTracksNum(int value) {
+        if (value == currentPlaylistTracksNum)
+            return false;
+
+        currentPlaylistTracksNum = value;
         return true;
     }
 

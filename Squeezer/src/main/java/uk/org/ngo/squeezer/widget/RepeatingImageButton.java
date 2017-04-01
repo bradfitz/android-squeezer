@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -23,12 +24,12 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
 
 /**
  * A button that will repeatedly call a 'listener' method as long as the button is pressed.
  */
-public class RepeatingImageButton extends ImageButton {
+@SuppressLint("NewApi")
+public class RepeatingImageButton extends android.support.v7.widget.AppCompatImageButton {
 
     private long mStartTime;
 
@@ -46,6 +47,7 @@ public class RepeatingImageButton extends ImageButton {
         this(context, attrs, android.R.attr.imageButtonStyle);
     }
 
+    @SuppressLint("NewApi")
     public RepeatingImageButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         setFocusable(true);

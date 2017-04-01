@@ -17,8 +17,6 @@
 package uk.org.ngo.squeezer.dialog;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageInfo;
@@ -27,15 +25,14 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog.Builder;
 import android.view.View;
 import android.widget.TextView;
 
-import de.cketti.library.changelog.ChangeLog;
 import uk.org.ngo.squeezer.BuildConfig;
 import uk.org.ngo.squeezer.R;
 
 public class AboutDialog extends DialogFragment {
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -57,14 +54,14 @@ public class AboutDialog extends DialogFragment {
             titleText.setText(getString(R.string.app_name));
         }
 
-        Builder builder = new AlertDialog.Builder(getActivity());
+        Builder builder = new Builder(getActivity());
         builder.setView(view);
         builder.setPositiveButton(android.R.string.ok, null);
         builder.setNeutralButton(R.string.changelog_full_title, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ChangeLog changeLog = new ChangeLog(getActivity());
-                changeLog.getFullLogDialog().show();
+                ChangeLogDialog changeLog = new ChangeLogDialog(getActivity());
+                changeLog.getThemedFullLogDialog().show();
             }
         });
         builder.setNegativeButton(R.string.dialog_license, new DialogInterface.OnClickListener() {

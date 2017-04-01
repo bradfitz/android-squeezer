@@ -25,6 +25,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.MainThread;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,12 +35,11 @@ import android.widget.ListView;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
-import de.cketti.library.changelog.ChangeLog;
 import io.fabric.sdk.android.Fabric;
+import uk.org.ngo.squeezer.dialog.ChangeLogDialog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
@@ -106,6 +106,12 @@ public class HomeActivity extends BaseActivity {
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
 
+        // Turn off the home icon.
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+        }
+
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
 
@@ -120,12 +126,12 @@ public class HomeActivity extends BaseActivity {
         }
 
         // Show the change log if necessary.
-        ChangeLog changeLog = new ChangeLog(this);
+        ChangeLogDialog changeLog = new ChangeLogDialog(this);
         if (changeLog.isFirstRun()) {
             if (changeLog.isFirstRunEver()) {
                 changeLog.skipLogDialog();
             } else {
-                changeLog.getLogDialog().show();
+                changeLog.getThemedLogDialog().show();
             }
         }
     }

@@ -1,6 +1,5 @@
 package uk.org.ngo.squeezer.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,7 +29,8 @@ public class EnableWifiDialog extends DialogFragment {
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                WifiManager wifiManager = (WifiManager) getActivity().getSystemService(
+                WifiManager wifiManager = (WifiManager) getActivity()
+                        .getApplicationContext().getSystemService(
                         Context.WIFI_SERVICE);
                 if (!wifiManager.isWifiEnabled()) {
                     Log.v(getTag(), "Enabling Wifi");

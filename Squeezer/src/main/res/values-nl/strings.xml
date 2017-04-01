@@ -88,7 +88,7 @@
     <string name="filter_text_hint">Zoek naar %s</string>
     <string name="search_text_hint">Voer zoektekst in</string>
     <string name="search_music_library_hint">Zoek artiest, album, genre of titel van nummer.</string>
-    <string name="move_to_dialog_title">Verplaats lied nummer %s</string>
+    <string name="move_to_dialog_title">Verplaats lied nummer %d</string>
     <string name="move_to_index_hint">Vul nieuwe positie voor nummer in</string>
     <string name="save_playlist_title">Bewaar playlist</string>
     <string name="save_playlist_hint">Voer naam playlist in</string>
@@ -115,6 +115,7 @@
     <string name="unknown_track">Onbekend nummer</string>
     <string name="unknown_album">Onbekend album</string>
     <string name="unknown_artist">Onbekende artiest</string>
+    <string name="unknown_artistalbum">Onbekende artiest/album</string>
     <string name="unknown_year">Onbekend jaar</string>
     <string name="tips_title">Tips</string>
     <string name="tip_volume">Gebruik de volume knoppen van uw apparaat om het afspeel volume te
