@@ -156,7 +156,7 @@ class CometClient extends BaseClient {
         // XXX: Need to deal with usernames and passwords, and HTTPS
         currentHost.set(host);
 
-        mExecutor.execute(new Runnable() {
+        mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
                 Log.i(TAG, "Background connect to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
@@ -548,7 +548,7 @@ class CometClient extends BaseClient {
 
         @Override
     public void disconnect(boolean loginFailed) {
-        mExecutor.execute(new Runnable() {
+        mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
                 mBayeuxClient.disconnect();
@@ -608,7 +608,7 @@ class CometClient extends BaseClient {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, cmd), browseRequest);
         } else {
-            mExecutor.execute(new Runnable() {
+            mBackgroundHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, cmd), browseRequest);

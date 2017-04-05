@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
@@ -80,9 +82,9 @@ abstract class BaseClient implements SlimClient {
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
     final Map<String, Player> mPlayers = new HashMap<>();
 
-    /** Executor for off-main-thread work. */
+    /** Handler for off-main-thread work. */
     @NonNull
-    final ScheduledThreadPoolExecutor mExecutor = new ScheduledThreadPoolExecutor(1);
+    final Handler mBackgroundHandler;
 
     /** Shared event bus for status changes. */
     @NonNull final EventBus mEventBus;
@@ -95,6 +97,10 @@ abstract class BaseClient implements SlimClient {
     BaseClient(@NonNull EventBus eventBus) {
         mEventBus = eventBus;
         mConnectionState = new ConnectionState(eventBus);
+
+        HandlerThread handlerThread = new HandlerThread(SqueezeService.class.getSimpleName());
+        handlerThread.start();
+        mBackgroundHandler = new Handler(handlerThread.getLooper());
     }
 
     protected abstract void sendCommandImmediately(Player player, String command);
@@ -106,7 +112,7 @@ abstract class BaseClient implements SlimClient {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             sendCommandImmediately(player, command);
         } else {
-            mExecutor.execute(new Runnable() {
+            mBackgroundHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     sendCommandImmediately(player, command);

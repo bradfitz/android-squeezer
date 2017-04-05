@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.service;
 
 import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -708,7 +708,7 @@ class CliClient extends BaseClient {
         this.password.set(password);
 
         // Start the off-thread connect.
-        mExecutor.execute(new Runnable() {
+        mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
                 Log.d(TAG, "Ensuring service is disconnected");
@@ -723,7 +723,7 @@ class CliClient extends BaseClient {
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
-                    startListeningThread(mExecutor);
+                    startListeningThread(mBackgroundHandler);
                     onCliPortConnectionEstablished(userName, password);
                     Authenticator.setDefault(new Authenticator() {
                         @Override
@@ -1293,14 +1293,14 @@ class CliClient extends BaseClient {
 
     private final AtomicReference<String> password = new AtomicReference<>();
 
-    private void startListeningThread(@NonNull Executor executor) {
-        Thread listeningThread = new ListeningThread(executor, this, socketRef.get(),
+    private void startListeningThread(@NonNull Handler handler) {
+        Thread listeningThread = new ListeningThread(handler, this, socketRef.get(),
                 currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
     }
 
     private static class ListeningThread extends Thread {
-        @NonNull private final Executor mExecutor;
+        @NonNull private final Handler mHandler;
 
         private final Socket socket;
 
@@ -1308,8 +1308,8 @@ class CliClient extends BaseClient {
 
         private final int generationNumber;
 
-        private ListeningThread(@NonNull Executor executor, CliClient client, Socket socket, int generationNumber) {
-            mExecutor = executor;
+        private ListeningThread(@NonNull Handler handler, CliClient client, Socket socket, int generationNumber) {
+            mHandler = handler;
             this.client = client;
             this.socket = socket;
             this.generationNumber = generationNumber;
@@ -1357,7 +1357,7 @@ class CliClient extends BaseClient {
                 if (client.mConnectionState.isLoginStarted() && !inputLine.startsWith("login ")) {
                     client.mConnectionState.setConnectionState(ConnectionState.LOGIN_COMPLETED);
                 }
-                mExecutor.execute(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         client.onLineReceived(inputLine);
