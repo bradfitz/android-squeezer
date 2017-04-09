@@ -16,9 +16,6 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.google.common.base.Splitter;
@@ -28,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import de.greenrobot.event.EventBus;
@@ -82,10 +78,6 @@ abstract class BaseClient implements SlimClient {
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
     final Map<String, Player> mPlayers = new HashMap<>();
 
-    /** Handler for off-main-thread work. */
-    @NonNull
-    final Handler mBackgroundHandler;
-
     /** Shared event bus for status changes. */
     @NonNull final EventBus mEventBus;
 
@@ -97,29 +89,11 @@ abstract class BaseClient implements SlimClient {
     BaseClient(@NonNull EventBus eventBus) {
         mEventBus = eventBus;
         mConnectionState = new ConnectionState(eventBus);
-
-        HandlerThread handlerThread = new HandlerThread(SqueezeService.class.getSimpleName());
-        handlerThread.start();
-        mBackgroundHandler = new Handler(handlerThread.getLooper());
     }
 
-    protected abstract void sendCommandImmediately(Player player, String command);
+    public abstract void command(Player player, String command);
     protected abstract <T extends Item> void internalRequestItems(BrowseRequest<T> browseRequest);
 
-
-    @Override
-    public void command(final Player player, final String command) {
-        if (Looper.getMainLooper() != Looper.myLooper()) {
-            sendCommandImmediately(player, command);
-        } else {
-            mBackgroundHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    sendCommandImmediately(player, command);
-                }
-            });
-        }
-    }
 
     @Override
     public void command(final String command) {

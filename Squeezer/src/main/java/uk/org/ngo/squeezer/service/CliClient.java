@@ -17,7 +17,7 @@
 package uk.org.ngo.squeezer.service;
 
 import android.net.Uri;
-import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -81,10 +83,12 @@ class CliClient extends BaseClient {
 
     private static final String TAG = "CliClient";
 
-
     /** {@link java.util.regex.Pattern} that splits strings on spaces. */
     private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
 
+
+    /** Executor for off-main-thread work. */
+    private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
     /** The types of command handler. */
     @IntDef(flag=true, value={
@@ -368,7 +372,20 @@ class CliClient extends BaseClient {
     private int mCorrelationId = 0;
 
     @Override
-    public synchronized void sendCommandImmediately(Player player, String command) {
+    public void command(final Player player, final String command) {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            sendCommandImmediately(player, command);
+        } else {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    sendCommandImmediately(player, command);
+                }
+            });
+        }
+    }
+
+    private void sendCommandImmediately(Player player, String command) {
         String formattedCommand = (player!= null ? encode(player.getId()) + " " + command : command);
 
         PrintWriter writer = socketWriter.get();
@@ -708,7 +725,7 @@ class CliClient extends BaseClient {
         this.password.set(password);
 
         // Start the off-thread connect.
-        mBackgroundHandler.post(new Runnable() {
+        mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 Log.d(TAG, "Ensuring service is disconnected");
@@ -723,7 +740,7 @@ class CliClient extends BaseClient {
                     Log.d(TAG, "Connected to: " + cleanHostPort);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
-                    startListeningThread(mBackgroundHandler);
+                    startListeningThread(mExecutor);
                     onCliPortConnectionEstablished(userName, password);
                     Authenticator.setDefault(new Authenticator() {
                         @Override
@@ -1293,14 +1310,14 @@ class CliClient extends BaseClient {
 
     private final AtomicReference<String> password = new AtomicReference<>();
 
-    private void startListeningThread(@NonNull Handler handler) {
-        Thread listeningThread = new ListeningThread(handler, this, socketRef.get(),
+    private void startListeningThread(@NonNull Executor executor) {
+        Thread listeningThread = new ListeningThread(executor, this, socketRef.get(),
                 currentConnectionGeneration.incrementAndGet());
         listeningThread.start();
     }
 
     private static class ListeningThread extends Thread {
-        @NonNull private final Handler mHandler;
+        @NonNull private final Executor mExecutor;
 
         private final Socket socket;
 
@@ -1308,8 +1325,8 @@ class CliClient extends BaseClient {
 
         private final int generationNumber;
 
-        private ListeningThread(@NonNull Handler handler, CliClient client, Socket socket, int generationNumber) {
-            mHandler = handler;
+        private ListeningThread(@NonNull Executor executor, CliClient client, Socket socket, int generationNumber) {
+            mExecutor = executor;
             this.client = client;
             this.socket = socket;
             this.generationNumber = generationNumber;
@@ -1357,7 +1374,7 @@ class CliClient extends BaseClient {
                 if (client.mConnectionState.isLoginStarted() && !inputLine.startsWith("login ")) {
                     client.mConnectionState.setConnectionState(ConnectionState.LOGIN_COMPLETED);
                 }
-                mHandler.post(new Runnable() {
+                mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         client.onLineReceived(inputLine);

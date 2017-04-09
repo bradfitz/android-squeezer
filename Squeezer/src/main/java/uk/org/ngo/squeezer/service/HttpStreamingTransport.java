@@ -2,7 +2,6 @@ package uk.org.ngo.squeezer.service;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.util.Log;
 
 import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
@@ -330,10 +329,8 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
 
         public void connect(String host, int port) throws IOException {
-            Log.i(TAG, "connect(" + host + ", " + port + ")");
             socket.connect(new InetSocketAddress(host, port), 4000); // TODO use proper timeout
             connected = true;
-            Log.i(TAG, "connected to: " + host + ":" + port);
             writer = new PrintWriter(socket.getOutputStream());
             new ListeningThread(this, socket.getInputStream()).start();
         }
@@ -436,7 +433,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     "Content-Length: " + json.length() + "\r\n" +
                     "\r\n" +
                     json;
-            Log.i(TAG, "send:\n" + msg);
             writer.print(msg);
             writer.flush();
         }
@@ -506,11 +502,11 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         protected void shutdown(String reason) {
             connected = false;
             writer = null;
-            Log.i(TAG, "Closing socket, reason: " + reason);
+            logger.trace("Closing socket, reason: " + reason);
             try {
                 socket.close();
             } catch (IOException x) {
-                Log.w("Could not close socket", x);
+                logger.warn("Could not close socket", x);
             }
         }
     }
@@ -543,7 +539,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
         @Override
         public void run() {
-            Log.i(TAG, "Listening thread started");
             boolean statusOk = false;
             boolean chunked = false;
             int contentSize = 0;
@@ -551,14 +546,12 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 try {
                     if (!chunked) {
                         String statusLine = readLine();
-                        Log.i(TAG, "status: " + statusLine);
                         statusOk = "HTTP/1.1 200 OK".equals(statusLine);
                     }
                     if (statusOk) {
                         if (!chunked) {
                             String headerLine;
                             while (!"".equals(headerLine = readLine())) {
-                                Log.i(TAG, "header: " + headerLine);
                                 if ("Transfer-Encoding: chunked".equals(headerLine))
                                     chunked = true;
                                 int pos = headerLine.indexOf("Content-Length: ");
@@ -583,12 +576,11 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                             while (!"0".equals(readLine())) {
                                 delegate.onData(readLine());
                             }
-                            Log.i(TAG, "reading final/empty chunk");
                             readLine();//Read final/empty chunk
                         }
                     }
                 } catch (IOException e) {
-                    Log.i(TAG, "Server disconnected; exception=" + e);
+                    logger.trace("Server disconnected; exception=" + e);
                     if (delegate.connected) {
                         delegate.failMessages(e);
                     }

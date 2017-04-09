@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -62,9 +64,6 @@ import uk.org.ngo.squeezer.service.event.PlayersChanged;
 class CometClient extends BaseClient {
     private static final String TAG = CometClient.class.getSimpleName();
 
-    /** Server events to listen for **/
-    static final String SERVER_STATUS_TAGS = "aCdejJKlstxyu";
-
     /** The maximum number of milliseconds to wait before considering a request to the LMS failed */
     private static final int LONG_POLLING_TIMEOUT = 120_000;
 
@@ -80,9 +79,6 @@ class CometClient extends BaseClient {
     /** The channel to publish one-shot requests to. */
     private static final String CHANNEL_SLIM_REQUEST = "/slim/request";
 
-    /** Map from a command ("players") to the listener class for responses. */
-    private  final Map<String, ItemListener> mItemRequestMap;
-
     /** The format string for the channel to listen to for responses to one-shot requests. */
     private static final String CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT = "/%s/slim/request/%s";
 
@@ -94,6 +90,14 @@ class CometClient extends BaseClient {
 
     /** The format string for the channel to listen to for serverstatus events. */
     private static final String CHANNEL_SERVER_STATUS_FORMAT = "/%s/slim/serverstatus";
+
+
+    /** Handler for off-main-thread work. */
+    @NonNull
+    private final Handler mBackgroundHandler;
+
+    /** Map from a command ("players") to the listener class for responses. */
+    private  final Map<String, ItemListener> mItemRequestMap;
 
     /** Client to the comet server. */
     @Nullable
@@ -113,6 +117,10 @@ class CometClient extends BaseClient {
 
     CometClient(@NonNull EventBus eventBus) {
         super(eventBus);
+
+        HandlerThread handlerThread = new HandlerThread(SqueezeService.class.getSimpleName());
+        handlerThread.start();
+        mBackgroundHandler = new CliHandler(handlerThread.getLooper());
 
         mItemRequestMap = ImmutableMap.<String, ItemListener>builder()
                 .put("artists", new ArtistsListener())
@@ -156,6 +164,7 @@ class CometClient extends BaseClient {
         // XXX: Need to deal with usernames and passwords, and HTTPS
         currentHost.set(host);
 
+        // Start the background connect
         mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -546,20 +555,15 @@ class CometClient extends BaseClient {
         }, "getstring",  ServerString.values()[0].name());
     }
 
-        @Override
+    @Override
     public void disconnect(boolean loginFailed) {
-        mBackgroundHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mBayeuxClient.disconnect();
-            }
-        });
+        mBackgroundHandler.sendEmptyMessage(MSG_DISCONNECT);
         mConnectionState.disconnect(loginFailed);
         mPlayers.clear();
     }
 
     @Override
-    public void sendCommandImmediately(Player player, String command) {
+    public void command(Player player, String command) {
         request(player, null, mSpaceSplitPattern.split(command));
     }
 
@@ -579,7 +583,18 @@ class CometClient extends BaseClient {
         return responseChannel;
     }
 
-    private void publishMessage(final Player player, String channel, final String responseChannel, ClientSessionChannel.MessageListener publishListener, String... cmd) {
+    private void publishMessage(final Player player, final String channel, final String responseChannel, final ClientSessionChannel.MessageListener publishListener, final String... cmd) {
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            _publishMessage(player, channel, responseChannel, publishListener, cmd);
+        } else {
+            PublishMessage publishMessage = new PublishMessage(player, channel, responseChannel, publishListener, cmd);
+            android.os.Message message = mBackgroundHandler.obtainMessage(MSG_PUBLISH, publishMessage);
+            mBackgroundHandler.sendMessage(message);
+        }
+
+    }
+
+    private void _publishMessage(Player player, String channel, String responseChannel, ClientSessionChannel.MessageListener publishListener, String... cmd) {
         List<Object> request = new ArrayList<>();
         request.add(player == null ? "" : player.getId());
         request.add(cmd);
@@ -605,16 +620,7 @@ class CometClient extends BaseClient {
         }
 
         final String[] cmd = request.toArray(new String[request.size()]);
-        if (Looper.getMainLooper() != Looper.myLooper()) {
-            mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, cmd), browseRequest);
-        } else {
-            mBackgroundHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, cmd), browseRequest);
-                }
-            });
-        }
+        mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, cmd), browseRequest);
     }
 
     @Override
@@ -642,5 +648,42 @@ class CometClient extends BaseClient {
     @Override
     public String encode(String s) {
         return s;
+    }
+
+    private static final int MSG_PUBLISH = 1;
+    private static final int MSG_DISCONNECT = 2;
+    private class CliHandler extends Handler {
+        CliHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case MSG_PUBLISH:
+                    PublishMessage message = (PublishMessage) msg.obj;
+                    _publishMessage(message.player, message.channel, message.responseChannel, message.publishListener, message.cmd);
+                    break;
+                case MSG_DISCONNECT:
+                    mBayeuxClient.disconnect();
+                    break;
+            }
+        }
+    }
+
+    private static class PublishMessage {
+        final Player player;
+        final String channel;
+        final String responseChannel;
+        final ClientSessionChannel.MessageListener publishListener;
+        final String[] cmd;
+
+        private PublishMessage(Player player, String channel, String responseChannel, ClientSessionChannel.MessageListener publishListener, String... cmd) {
+            this.player = player;
+            this.channel = channel;
+            this.responseChannel = responseChannel;
+            this.publishListener = publishListener;
+            this.cmd = cmd;
+        }
     }
 }
