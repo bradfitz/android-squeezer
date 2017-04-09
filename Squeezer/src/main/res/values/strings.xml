@@ -528,4 +528,5 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="download_filename_structure_title">Title</string>
     <string name="download_filename_structure_number_dot_artist_title">Number. Artist - Title</string>
     <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">could not be added to the device\'s media database</string>
+    <string name="pref_cat_third_party">Third-party integration</string>
 </resources>
