@@ -838,6 +838,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return;
         }
 
+        if (localPath == null) {
+            return;
+        }
+
         // Convert VFAT-unfriendly characters to "_".
         localPath =  localPath.replaceAll("[?<>\\\\:*|\"]", "_");
 
@@ -922,20 +926,23 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * <p>
      * If this is not possible resort to the last path segment of the server path.
      */
+    @Nullable
     private String getLocalFile(@NonNull Uri serverUrl) {
         String serverPath = serverUrl.getPath();
         String mediaDir = null;
-        String path = null;
+        String path;
         for (String dir : cli.getMediaDirs()) {
             if (serverPath.startsWith(dir)) {
                 mediaDir = dir;
                 break;
             }
         }
-        if (mediaDir != null)
+        if (mediaDir != null) {
             path = serverPath.substring(mediaDir.length(), serverPath.length());
-        else
+        } else {
+            // Note: if serverUrl is the empty string this can return null.
             path = serverUrl.getLastPathSegment();
+        }
 
         return path;
     }
