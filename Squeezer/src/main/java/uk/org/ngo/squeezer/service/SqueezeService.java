@@ -57,7 +57,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -197,7 +196,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     @Nullable String mPassword;
 
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
-    private final Map<String, Player> mPlayers = new HashMap<String, Player>();
+    private final Map<String, Player> mPlayers = new ConcurrentHashMap<>();
 
     /** The active player (the player to which commands are sent by default). */
     private final AtomicReference<Player> mActivePlayer = new AtomicReference<Player>();
@@ -457,9 +456,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Adjusts the subscription to players' status updates.
      */
     private void updateAllPlayerSubscriptionStates() {
-        // mPlayers might be modified by another thread, so copy the values.
-        Collection<Player> players = mPlayers.values();
-        for (Player player : players) {
+        for (Player player : mPlayers.values()) {
             updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
         }
     }
