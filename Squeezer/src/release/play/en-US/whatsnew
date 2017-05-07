@@ -1,9 +1,1 @@
-&bull; Choose whether to store downloaded music on/off the device's removable storage; choose the folder structure that's used.
-
-&bull; Enable next/previous track support on some streaming services, like Spotify.
-
-&bull; Support searching in plugins.
-
-&bull; Include additional music player controls on devices with larger screens, or when in landscape orientation.
-
-&bull; Fixed an issue where Squeezer would appear to hang after a period of inactivity on Android devices that support Doze mode.
+&bull; Fix assorted potential crashes.
