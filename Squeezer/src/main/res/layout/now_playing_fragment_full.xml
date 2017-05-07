@@ -17,7 +17,8 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:paddingLeft="8dp">
@@ -45,31 +46,35 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/album">
+
         <TextView
             android:id="@+id/trackname"
-            android:layout_width="fill_parent"
+            style="@style/SqueezerWidget.NowPlaying.SongName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="left|top"
             android:paddingRight="8dp"
-            android:paddingTop="2dp"
-            style="@style/SqueezerWidget.NowPlaying.SongName"/>
+            android:paddingTop="2dp"/>
+
     </LinearLayout>
 
     <TextView
         android:id="@+id/albumname"
         android:layout_below="@id/track_wrapper"
-        android:layout_toLeftOf="@id/context_menu"
         android:gravity="left|top"
         android:paddingTop="4dp"
-        style="@style/SqueezerWidget.NowPlaying.AlbumName"/>
+        style="@style/SqueezerWidget.NowPlaying.AlbumName"
+        android:layout_toLeftOf="@+id/favorite"
+        android:layout_toStartOf="@+id/favorite"/>
 
     <TextView
         android:id="@+id/artistname"
         android:layout_below="@id/albumname"
-        android:layout_toLeftOf="@id/context_menu"
         android:gravity="left|top"
         android:paddingTop="4dp"
-        style="@style/SqueezerWidget.NowPlaying.ArtistName"/>
+        style="@style/SqueezerWidget.NowPlaying.ArtistName"
+        android:layout_toLeftOf="@+id/favorite"
+        android:layout_toStartOf="@+id/favorite"/>
 
     <uk.org.ngo.squeezer.widget.ListItemImageButton
         android:id="@+id/context_menu"
@@ -142,6 +147,15 @@
             android:id="@+id/repeat"
             style="@style/SqueezerWidget.MediaButton.Repeat"/>
     </LinearLayout>
+
+    <uk.org.ngo.squeezer.widget.FavoriteButton
+        android:id="@+id/favorite"
+        style="@style/SqueezerWidget.MediaButton.Favorite"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_above="@+id/seekbar"
+        android:layout_toLeftOf="@+id/context_menu"
+        android:layout_toStartOf="@+id/context_menu"/>
 </RelativeLayout>
 
 
