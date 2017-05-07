@@ -2,8 +2,8 @@
 
 <changelog>
     <release
-        version="1.5.1-beta-1"
-        versioncode="60">
+        version="1.5.1"
+        versioncode="61">
         <change>Fix assorted potential crashes.</change>
     </release>
 

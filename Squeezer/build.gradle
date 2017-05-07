@@ -73,8 +73,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 60
-        versionName "1.5.1-beta-1"
+        versionCode 61
+        versionName "1.5.1"
     }
 
     lintOptions {
