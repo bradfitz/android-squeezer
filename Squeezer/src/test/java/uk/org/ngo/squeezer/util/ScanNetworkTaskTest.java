@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.util;
 
+import com.google.common.base.Strings;
+
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ import java.util.List;
 
 public class ScanNetworkTaskTest extends TestCase {
     public void testExtractNameFromBuffer() {
-        List<BufferTest> testTable = new ArrayList<BufferTest>();
+        List<BufferTest> testTable = new ArrayList<>();
 
         // Success cases.
 
@@ -42,6 +44,21 @@ public class ScanNetworkTaskTest extends TestCase {
         // NAME tuple followed by another tuple is OK.
         testTable.add(new BufferTest(
                 "Successor tuple", "EIPAD\04\01\02\03\04NAME\04TestVERS\011", "Test"));
+
+        // Names longer than 127 characters are OK (catch errors as bytes are signed).  Need to
+        // use a byte[] here instead of a string, as a string literal \200 and above becomes a
+        // 2-byte value when String.getBytes() is called.
+        String name = Strings.repeat("a", 128);
+        byte [] buffer = ("ENAME\01" + name).getBytes();
+        buffer[5] = (byte) 0x80;
+        testTable.add(new BufferTest("128 char name", buffer, name));
+
+        //noinspection ReuseOfLocalVariable
+        name = Strings.repeat("a", 256);
+        //noinspection ReuseOfLocalVariable
+        buffer = ("ENAME\01" + name).getBytes();
+        buffer[5] = (byte) 0xff;
+        testTable.add(new BufferTest("255 char name", buffer, Strings.repeat("a", 255)));
 
         // Expected failure cases to handle..
 
@@ -69,15 +86,15 @@ public class ScanNetworkTaskTest extends TestCase {
     /**
      * Represents a single test of the buffer extraction code.
      */
-    private class BufferTest {
+    private static class BufferTest {
         /** Test message. */
-        String message;
+        final String message;
 
         /** Buffer to test. */
-        byte[] buffer;
+        final byte[] buffer;
 
         /** Expected value. */
-        String expected;
+        final String expected;
 
         BufferTest(String message, byte[] buffer, String expected) {
             this.message = message;

@@ -589,7 +589,7 @@ public class ImageCache {
         final String cachePath = ((Environment.MEDIA_MOUNTED.equals(Environment
                 .getExternalStorageState()) || !isExternalStorageRemovable())
                 && externalCacheDir != null)
-                ? getExternalCacheDir(context).getPath()
+                ? externalCacheDir.getPath()
                 : context.getCacheDir().getPath();
 
         return new File(cachePath + File.separator + uniqueName);
@@ -640,6 +640,7 @@ public class ImageCache {
      * @return The external cache dir
      */
     @TargetApi(8)
+    @Nullable
     public static File getExternalCacheDir(Context context) {
         if (UIUtils.hasFroyo()) {
             return context.getExternalCacheDir();

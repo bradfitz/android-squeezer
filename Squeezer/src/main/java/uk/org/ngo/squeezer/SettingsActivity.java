@@ -185,7 +185,7 @@ public class SettingsActivity extends PreferenceActivity implements
         final CheckBoxPreference useSdCardPreference = (CheckBoxPreference) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD);
         final ListPreference pathStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
         final ListPreference filenameStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
-        if (downloadStorage.isPublicMediaStorageRemovable() || !downloadStorage.hasRemovableMediaStorage()) {
+        if (DownloadStorage.isPublicMediaStorageRemovable() || !downloadStorage.hasRemovableMediaStorage()) {
             downloadCategory.removePreference(useSdCardScreen);
         }
 

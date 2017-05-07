@@ -5,7 +5,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:2.3.1'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
         classpath 'com.github.triplet.gradle:play-publisher:1.2.0'
         classpath 'io.fabric.tools:gradle:1.+'
@@ -45,7 +45,7 @@ dependencies {
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
 
     // Crashlytics.
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true
     }
 
@@ -73,8 +73,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 59
-        versionName "1.5.0"
+        versionCode 61
+        versionName "1.5.1"
     }
 
     lintOptions {

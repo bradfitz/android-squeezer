@@ -52,10 +52,14 @@ public class DownloadStorage {
      * @return True if removable music storage (like an SD card) is available, false otherwise.
      */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public boolean isPublicMediaStorageRemovable() {
+    public static boolean isPublicMediaStorageRemovable() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             File publicMusicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
-            return Environment.isExternalStorageRemovable(publicMusicDirectory);
+            try {
+                return publicMusicDirectory.mkdirs() && Environment.isExternalStorageRemovable(publicMusicDirectory);
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
         }
         return false;
     }

@@ -34,7 +34,7 @@ Run `./gradlew generateNews` to update the file.
 From the top level directory, run:
 
     ./gradlew build
-    ./gradlew installLiveRelease
+    ./gradlew installRelease
 
 Verify that the version number in the About dialog is correct and that
 Squeezer works correctly.
