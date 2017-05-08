@@ -187,6 +187,10 @@ class CometClient extends BaseClient {
                         Log.e(TAG, "Can't learn http port", e);
                         mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                         return;
+                    } catch (ServerDisconnectedException e) {
+                        Log.i(TAG, "learnHttpPort", e);
+                        mConnectionState.setConnectionState(ConnectionState.LOGIN_FAILED);
+                        return;
                     }
                 }
 

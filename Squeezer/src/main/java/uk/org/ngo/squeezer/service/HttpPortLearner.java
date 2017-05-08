@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2017 Kurt Aaholst <kaaholst@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,9 @@ class HttpPortLearner {
      * Connect to the LMS, log in and request http port.
      * @return LMS http port
      * @throws IOException if connection fails, or we can't get the http port
+     * @throws ServerDisconnectedException if the server disconnects before we can read the http port
      */
-    public int learnHttpPort(String host, int cliPort, String userName, String password) throws IOException {
+    public int learnHttpPort(String host, int cliPort, String userName, String password) throws IOException, ServerDisconnectedException {
         Log.d(TAG, "learnHttpPort(" + userName + "@" + host + ":" + cliPort + ")");
         socket = new Socket();
         socket.connect(new InetSocketAddress(host, cliPort), 4000 /* ms timeout */);
@@ -56,7 +57,11 @@ class HttpPortLearner {
         String response = executeCommand("pref httpport ?");
         disconnect();
 
-        String[] tokens = (response != null? mSpaceSplitPattern.split(response) : null);
+        if (response == null) {
+            throw new ServerDisconnectedException("Cannot learn http port, server disconnected unexpectedly");
+        }
+
+        String[] tokens = mSpaceSplitPattern.split(response);
         if (tokens == null || tokens.length != 3 || !"pref".equals(tokens[0]) || !"httpport".equals(tokens[1])) {
             throw new IOException("Cannot learn http port, unexpected response: " + response);
         }
