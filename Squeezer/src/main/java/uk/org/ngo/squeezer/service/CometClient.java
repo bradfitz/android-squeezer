@@ -91,6 +91,13 @@ class CometClient extends BaseClient {
     /** The format string for the channel to listen to for serverstatus events. */
     private static final String CHANNEL_SERVER_STATUS_FORMAT = "/%s/slim/serverstatus";
 
+    // Maximum time for wait for comet connect
+    private static final int CONNECTION_TIMEOUT = 10000;
+
+
+    // Maximum time for wait replies for server capabilities
+    private static final long HANDSHAKE_TIMEOUT = 2000;
+
 
     /** Handler for off-main-thread work. */
     @NonNull
@@ -205,10 +212,10 @@ class CometClient extends BaseClient {
                 });
 
                 mBayeuxClient.handshake();
-                if (!mBayeuxClient.waitFor(10000, BayeuxClient.State.CONNECTED)) {
+                if (!mBayeuxClient.waitFor(CONNECTION_TIMEOUT, BayeuxClient.State.CONNECTED)) {
                     mBayeuxClient.disconnect();
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
-                    Log.i(TAG, "handshake TIMEOUT");
+                    Log.i(TAG, "comet handshake TIMEOUT");
                     return;
                 }
 
@@ -251,8 +258,11 @@ class CometClient extends BaseClient {
                         "playerprefs:playtrackalbum,digitalVolumeControl"
                 );
 
-                // Learn server capabilites.
+                // Set a timeout for the handshake
+                mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
+                mBackgroundHandler.sendEmptyMessageDelayed(MSG_HANDSHAKE_TIMEOUT, HANDSHAKE_TIMEOUT);
 
+                // Learn server capabilites.
                 request(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
@@ -532,6 +542,7 @@ class CometClient extends BaseClient {
     }
 
     public void onEvent(HandshakeComplete event) {
+        mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
         request(new ClientSessionChannel.MessageListener() {
             @Override
             public void onMessage(ClientSessionChannel channel, Message message) {
@@ -652,6 +663,7 @@ class CometClient extends BaseClient {
 
     private static final int MSG_PUBLISH = 1;
     private static final int MSG_DISCONNECT = 2;
+    private static final int MSG_HANDSHAKE_TIMEOUT = 3;
     private class CliHandler extends Handler {
         CliHandler(Looper looper) {
             super(looper);
@@ -666,6 +678,10 @@ class CometClient extends BaseClient {
                     break;
                 case MSG_DISCONNECT:
                     mBayeuxClient.disconnect();
+                    break;
+                case MSG_HANDSHAKE_TIMEOUT:
+                    Log.w(TAG, "LMS handshake timeout");
+                    disconnect(false);
                     break;
             }
         }
