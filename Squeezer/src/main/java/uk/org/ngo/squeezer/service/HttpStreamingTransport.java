@@ -223,7 +223,9 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
         request.content(new StringContentProvider(generateJSON(messages)));
 
-        customize(request);
+        for (HttpField httpField : customHeaders()) {
+            request.header(httpField.getHeader(), httpField.getValue());
+        }
 
         synchronized (this) {
             if (_aborted)
@@ -427,13 +429,17 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             }
         }
 
-        public void sendText(String json) {
-            String msg = "POST /cometd HTTP/1.1\r\n" +
+        private void sendText(String json) {
+            StringBuilder msg = new StringBuilder("POST /cometd HTTP/1.1\r\n" +
                     "Content-Type: application/json;charset=UTF-8\r\n" +
-                    "Content-Length: " + json.length() + "\r\n" +
-                    "\r\n" +
-                    json;
-            writer.print(msg);
+                    "Content-Length: " + json.length() + "\r\n");
+
+            for (HttpField httpField : customHeaders()) {
+                msg.append(httpField.getName()).append(": ").append(httpField.getValue()).append("\r\n");
+            }
+
+            msg.append("\r\n").append(json);
+            writer.print(msg.toString());
             writer.flush();
         }
 
@@ -612,7 +618,8 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
     }
 
 
-    protected void customize(Request request) {
+    protected List<HttpField> customHeaders() {
+        return Collections.emptyList();
     }
 
 }

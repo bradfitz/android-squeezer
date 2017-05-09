@@ -32,10 +32,16 @@ import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
 import org.cometd.client.transport.HttpClientTransport;
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.util.B64Code;
 
 import java.io.IOException;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,7 +194,7 @@ class CometClient extends BaseClient {
                         mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                         return;
                     } catch (ServerDisconnectedException e) {
-                        Log.i(TAG, "learnHttpPort", e);
+                        Log.i(TAG, "learnHttpPort: " + e.getMessage());
                         mConnectionState.setConnectionState(ConnectionState.LOGIN_FAILED);
                         return;
                     }
@@ -197,9 +203,23 @@ class CometClient extends BaseClient {
                 mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
                 String url = mUrlPrefix + "/cometd";
 
+                // Set the VM-wide authentication handler (needed by image fetcher and other using
+                Authenticator.setDefault(new Authenticator() {
+                    @Override
+                    public PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(userName, password.toCharArray());
+                    }
+                });
+
                 Map<String, Object> options = new HashMap<>();
                 options.put(HttpClientTransport.MAX_NETWORK_DELAY_OPTION, LONG_POLLING_TIMEOUT);
-                ClientTransport httpTransport = new HttpStreamingTransport(options, httpClient);
+                ClientTransport httpTransport = new HttpStreamingTransport(options, httpClient) {
+                    @Override
+                    protected List<HttpField> customHeaders() {
+                        String authorization = B64Code.encode(userName + ":" + password);
+                        return Collections.singletonList(new HttpField(HttpHeader.AUTHORIZATION, "Basic " + authorization));
+                    }
+                };
                 mBayeuxClient = new SqueezerBayeuxClient(url, httpTransport);
                 mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
                     public void onMessage(ClientSessionChannel channel, Message message) {
