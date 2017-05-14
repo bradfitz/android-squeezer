@@ -1174,6 +1174,9 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
 
         serverCanFavorite = event.canFavorites;
+        if (!serverCanFavorite && btnFavorite != null) {
+            btnFavorite.setVisibility(View.GONE);
+        }
 
         PlayerState playerState = getPlayerState();
 
