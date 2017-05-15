@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -556,6 +557,12 @@ class CometClient extends BaseClient {
         public void onMessage(ClientSessionChannel channel, Message message) {
             parseMessage(itemLoopName, message);
         }
+
+        @Override
+        public void add(Map<String, Object> record) {
+            fixImageTag("icon", record);
+            super.add(record);
+        }
     }
 
     private class PluginItemListener extends ItemListener<PluginItem> {
@@ -563,6 +570,30 @@ class CometClient extends BaseClient {
         public void onMessage(ClientSessionChannel channel, Message message) {
             parseMessage("loop_loop", message);
         }
+
+        @Override
+        public void add(Map<String, Object> record) {
+            fixImageTag("image", record);
+            super.add(record);
+        }
+    }
+
+    /**
+     * Make sure the icon/image tag is an absolute URL.
+     *
+     * @param record The record to modify.
+     */
+    private void fixImageTag(String imageTag, Map<String, Object> record) {
+        String image = Util.getString(record, imageTag);
+        if (image == null) {
+            return;
+        }
+
+        if (Uri.parse(image).isAbsolute()) {
+            return;
+        }
+
+        record.put(imageTag, mUrlPrefix + (image.startsWith("/") ? image : "/" + image));
     }
 
     public void onEvent(HandshakeComplete event) {
