@@ -234,6 +234,11 @@
         <item name="android:src">?attr/ic_action_av_repeat_off</item>
     </style>
 
+    <style name="SqueezerWidget.MediaButton.Favorite">
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_width">48dp</item>
+    </style>
+
     <style name="VolumePanel" parent="@android:style/Theme.Panel">
         <item name="android:windowAnimationStyle">@style/VolumeDialogAnimation</item>
     </style>

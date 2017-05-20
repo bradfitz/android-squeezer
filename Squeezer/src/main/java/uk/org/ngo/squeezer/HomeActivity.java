@@ -144,7 +144,7 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
-            mCanFavorites = event.canFavourites;
+            mCanFavorites = event.canFavorites;
             mCanMusicfolder = event.canMusicFolders;
             mCanMyApps = event.canMyApps;
             mCanRandomplay = event.canRandomPlay;
