@@ -71,7 +71,7 @@ public class SqueezerSongTest extends AndroidTestCase {
         assertFalse("... and is transitive (2)", song1.equals(song3));
 
         song1 = new Song(ImmutableMap.<String, Object>of("id", 1, "title", "Song"));
-        song1 = new Song(ImmutableMap.<String, Object>of("id", 21,"title", "Song"));
+        song2 = new Song(ImmutableMap.<String, Object>of("id", 21,"title", "Song"));
         assertFalse("Songs with same name but different IDs are different", song1.equals(song2));
         assertFalse("... and is symmetric", song2.equals(song1));
 
