@@ -33,7 +33,7 @@ public class UtilTest extends TestCase {
 
         AtomicReference<Item> atomicItem = new AtomicReference<Item>();
         Album album = new Album("1", "album");
-        Song song = new Song(new HashMap<String, String>());
+        Song song = new Song(new HashMap<String, Object>());
         song.setId("1");
 
         assertFalse(Util.atomicReferenceUpdated(atomicItem, null));
