@@ -86,6 +86,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     /** Whether volume changes should be ignored. */
     private boolean mIgnoreVolumeChange;
 
+    /** True if bindService() completed. */
+    private boolean boundService = false;
+
     /** Volume control panel. */
     @Nullable
     private VolumePanel mVolumePanel;
@@ -140,7 +143,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        bindService(new Intent(this, SqueezeService.class), serviceConnection,
+        boundService = bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
     }
@@ -220,7 +223,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @CallSuper
     public void onDestroy() {
         super.onDestroy();
-        unbindService(serviceConnection);
+        if (boundService) {
+            unbindService(serviceConnection);
+        }
     }
 
     /** Fix for https://code.google.com/p/android/issues/detail?id=63570. */

@@ -30,7 +30,7 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
     /**
      * Map server names to IP addresses.
      */
-    private final TreeMap<String, String> mServerMap = new TreeMap<String, String>();
+    private final TreeMap<String, String> mServerMap = new TreeMap<>();
 
     /**
      * UDP port to broadcast discovery requests to.
@@ -165,7 +165,7 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
      */
     @VisibleForTesting
     @Nullable
-    public static String extractNameFromBuffer(byte[] buffer) {
+    static String extractNameFromBuffer(byte[] buffer) {
         int i = 1;  // Skip over the initial 'E'.
 
         // Find the 'NAME' tuple. It's the only one that starts with an 'N'.
@@ -185,7 +185,9 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
         }
 
         i += 4;        // Skip over the 'NAME' tag.
-        int length = buffer[i++];  // Read the length, and skip over it.
+        // Read the length, and skip over it. Since bytes are signed, & 0xff to prevent treating
+        // the high-bit as a sign bit.
+        int length = buffer[i++] & 0xFF;
 
         // There must be at least "length" bytes left in the buffer.
         if ((i + length) > buffer.length) {
@@ -194,7 +196,6 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
 
         // i now pointing at the start of the value for the NAME tuple.  Extract "length" bytes.
         return new String(buffer, i, length);
-
     }
 
     @Override

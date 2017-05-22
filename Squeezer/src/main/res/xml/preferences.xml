@@ -42,18 +42,22 @@
         android:summary="@string/settings_autoconnect_summary"
         android:persistent="true"/>
 
-    <CheckBoxPreference
-        android:key="squeezer.scrobble.enabled"
-        android:title="@string/settings_scrobble_title"
-        android:summaryOn="@string/settings_scrobble_on"
-        android:summaryOff="@string/settings_scrobble_off"
-        android:persistent="true"/>
+    <PreferenceCategory
+        android:title="@string/pref_cat_third_party">
 
-    <CheckBoxPreference
-        android:key="squeezer.squeezeplayer.enabled"
-        android:title="@string/settings_squeezeplayer_title"
-        android:summary="@string/settings_squeezeplayer_summary"
-        android:persistent="true"/>
+        <CheckBoxPreference
+            android:key="squeezer.scrobble.enabled"
+            android:persistent="true"
+            android:summaryOff="@string/settings_scrobble_off"
+            android:summaryOn="@string/settings_scrobble_on"
+            android:title="@string/settings_scrobble_title"/>
+
+        <CheckBoxPreference
+            android:key="squeezer.squeezeplayer.enabled"
+            android:persistent="true"
+            android:summary="@string/settings_squeezeplayer_summary"
+            android:title="@string/settings_squeezeplayer_title"/>
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/settings_category_ui">

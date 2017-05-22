@@ -33,8 +33,10 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -1008,11 +1010,21 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                     .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             if (!wifiManager.isWifiEnabled()) {
                 FragmentManager fragmentManager = getFragmentManager();
-                if (fragmentManager != null) {
-                    EnableWifiDialog.show(getFragmentManager());
-                } else {
-                    Log.i(getTag(), "fragment manager is null so we can't show EnableWifiDialog");
+                if (fragmentManager == null) {
+                    Log.i(TAG, "fragment manager is null so we can't show EnableWifiDialog");
+                    return;
                 }
+
+                FragmentTransaction ft = fragmentManager.beginTransaction();
+                Fragment prev = fragmentManager.findFragmentByTag(EnableWifiDialog.TAG);
+                if (prev != null) {
+                    ft.remove(prev);
+                }
+                ft.addToBackStack(null);
+
+                // Create and show the dialog.
+                DialogFragment enableWifiDialog = new EnableWifiDialog();
+                enableWifiDialog.show(ft, EnableWifiDialog.TAG);
                 return;
                 // When a Wi-Fi connection is made this method will be called again by the
                 // broadcastReceiver

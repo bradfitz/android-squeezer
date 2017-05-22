@@ -55,7 +55,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -161,7 +160,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     @Nullable String mPassword;
 
     /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
-    private final Map<String, Player> mPlayers = new HashMap<>();
+    private final Map<String, Player> mPlayers = new ConcurrentHashMap<>();
 
     /** The active player (the player to which commands are sent by default). */
     private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
@@ -404,9 +403,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Adjusts the subscription to players' status updates.
      */
     private void updateAllPlayerSubscriptionStates() {
-        // mPlayers might be modified by another thread, so copy the values.
-        Collection<Player> players = mPlayers.values();
-        for (Player player : players) {
+        for (Player player : mPlayers.values()) {
             updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
         }
     }
@@ -777,6 +774,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return;
         }
 
+        if (localPath == null) {
+            return;
+        }
+
         // Convert VFAT-unfriendly characters to "_".
         localPath =  localPath.replaceAll("[?<>\\\\:*|\"]", "_");
 
@@ -861,6 +862,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * <p>
      * If this is not possible resort to the last path segment of the server path.
      */
+    @Nullable
     private String getLocalFile(@NonNull Uri serverUrl) {
         String serverPath = serverUrl.getPath();
         String mediaDir = null;
@@ -871,10 +873,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 break;
             }
         }
-        if (mediaDir != null)
+        if (mediaDir != null) {
             path = serverPath.substring(mediaDir.length(), serverPath.length());
-        else
+        } else {
+            // Note: if serverUrl is the empty string this can return null.
             path = serverUrl.getLastPathSegment();
+        }
 
         return path;
     }

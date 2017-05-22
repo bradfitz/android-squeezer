@@ -45,7 +45,7 @@ dependencies {
     compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
 
     // Crashlytics.
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true
     }
 
@@ -80,8 +80,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 59
-        versionName "1.5.0"
+        versionCode 61
+        versionName "1.5.1"
     }
 
     lintOptions {
