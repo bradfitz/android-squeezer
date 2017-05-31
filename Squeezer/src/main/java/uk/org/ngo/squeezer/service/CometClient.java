@@ -277,10 +277,12 @@ class CometClient extends BaseClient {
                     }
                 });
 
+                // Request server status
+                publishMessage(null, CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null, "serverstatus", "0", "255");
+
+                // Subscribe to server changes
                 publishMessage(null, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null, "serverstatus", "0", "255",
-                        "subscribe:0",
-                        "prefs:ignoredarticles,browseagelimit,noGenreFilter,PLUGIN_TRACKSTAT,audiodir",
-                        "playerprefs:playtrackalbum,digitalVolumeControl"
+                        "subscribe:0"
                 );
 
                 // Set a timeout for the handshake
