@@ -652,7 +652,8 @@ class CometClient extends BaseClient {
     }
 
     private void publishMessage(final Player player, final String channel, final String responseChannel, final ClientSessionChannel.MessageListener publishListener, final String... cmd) {
-        if (Looper.getMainLooper() != Looper.myLooper()) {
+        // Make sure all requests are done in the handler thread
+        if (mBackgroundHandler.getLooper() == Looper.myLooper()) {
             _publishMessage(player, channel, responseChannel, publishListener, cmd);
         } else {
             PublishMessage publishMessage = new PublishMessage(player, channel, responseChannel, publishListener, cmd);
