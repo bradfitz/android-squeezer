@@ -65,7 +65,7 @@ class SqueezerBayeuxClient extends BayeuxClient {
                 subscriptionIds.put(message.get(Message.SUBSCRIPTION_FIELD), message.getId());
             }
             if (BuildConfig.DEBUG) {
-                Log.d(TAG, "SEND: " + message.getJSON());
+                Log.v(TAG, "SEND: " + message.getJSON());
             }
         }
     }
@@ -82,7 +82,7 @@ class SqueezerBayeuxClient extends BayeuxClient {
                 }
             }
             if (BuildConfig.DEBUG) {
-                Log.d(TAG, "RECV: " + message.getJSON());
+                Log.v(TAG, "RECV: " + message.getJSON());
             }
         }
     }
