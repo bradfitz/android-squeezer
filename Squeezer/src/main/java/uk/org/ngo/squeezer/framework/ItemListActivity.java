@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.framework;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -192,10 +193,11 @@ public abstract class ItemListActivity extends BaseActivity {
      * @param start The start position of this update.
      * @param size The number of items in this update
      */
+    @CallSuper
     protected void onItemsReceived(final int count, final int start, int size) {
         Log.d(getTag(), "onItemsReceived(" + count + ", " + start + ", " + size + ")");
 
-        // If this doesn't add any items, then don't register the page a received
+        // If this doesn't add any items, then don't register the page as received
         if (start < count && size != 0) {
             // Because we might receive a page in chunks, we test if this is the end of a page
             // before we register the page as received.
