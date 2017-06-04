@@ -44,8 +44,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -123,7 +125,10 @@ class CometClient extends BaseClient {
     private final Map<String, BrowseRequest<? extends Item>> mPendingBrowseRequests
             = new ConcurrentHashMap<>();
 
-    private final ClientSessionChannel.MessageListener publishListener = new PublishListener();
+    private final Queue<PublishMessage> mCommandQueue = new LinkedList<>();
+    private boolean mCurrentCommand = false;
+
+    private final PublishListener publishListener = new PublishListener();
 
     // All requests are tagged with a correlation id, which can be used when
     // asynchronous responses are received.
@@ -398,13 +403,14 @@ class CometClient extends BaseClient {
 
     }
 
-    private static class PublishListener implements ClientSessionChannel.MessageListener {
+    private class PublishListener implements ClientSessionChannel.MessageListener {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             if (!message.isSuccessful()) {
                 // TODO crashlytics
                 Log.e(TAG, message.getJSON());
             }
+            mBackgroundHandler.sendEmptyMessage(MSG_PUBLISH_RESPONSE_RECIEVED);
         }
     }
 
@@ -651,7 +657,7 @@ class CometClient extends BaseClient {
         return responseChannel;
     }
 
-    private void publishMessage(final Player player, final String channel, final String responseChannel, final ClientSessionChannel.MessageListener publishListener, final String... cmd) {
+    private void publishMessage(final Player player, final String channel, final String responseChannel, final PublishListener publishListener, final String... cmd) {
         // Make sure all requests are done in the handler thread
         if (mBackgroundHandler.getLooper() == Looper.myLooper()) {
             _publishMessage(player, channel, responseChannel, publishListener, cmd);
@@ -663,16 +669,20 @@ class CometClient extends BaseClient {
 
     }
 
-    private void _publishMessage(Player player, String channel, String responseChannel, ClientSessionChannel.MessageListener publishListener, String... cmd) {
-        List<Object> request = new ArrayList<>();
-        request.add(player == null ? "" : player.getId());
-        request.add(cmd);
+    /** This may only be called from the handler thread */
+    private void _publishMessage(Player player, String channel, String responseChannel, PublishListener publishListener, String... cmd) {
+        if (!mCurrentCommand) {
+            mCurrentCommand = true;
+            List<Object> request = new ArrayList<>();
+            request.add(player == null ? "" : player.getId());
+            request.add(cmd);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("request", request);
-        data.put("response", responseChannel);
-
-        mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.publishListener);
+            Map<String, Object> data = new HashMap<>();
+            data.put("request", request);
+            data.put("response", responseChannel);
+            mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.publishListener);
+        } else
+            mCommandQueue.add(new PublishMessage(player, channel, responseChannel, publishListener, cmd));
     }
 
     @Override
@@ -722,6 +732,7 @@ class CometClient extends BaseClient {
     private static final int MSG_PUBLISH = 1;
     private static final int MSG_DISCONNECT = 2;
     private static final int MSG_HANDSHAKE_TIMEOUT = 3;
+    private static final int MSG_PUBLISH_RESPONSE_RECIEVED = 4;
     private class CliHandler extends Handler {
         CliHandler(Looper looper) {
             super(looper);
@@ -730,10 +741,11 @@ class CometClient extends BaseClient {
         @Override
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
-                case MSG_PUBLISH:
+                case MSG_PUBLISH: {
                     PublishMessage message = (PublishMessage) msg.obj;
                     _publishMessage(message.player, message.channel, message.responseChannel, message.publishListener, message.cmd);
                     break;
+                }
                 case MSG_DISCONNECT:
                     mBayeuxClient.disconnect();
                     break;
@@ -741,6 +753,13 @@ class CometClient extends BaseClient {
                     Log.w(TAG, "LMS handshake timeout");
                     disconnect(false);
                     break;
+                case MSG_PUBLISH_RESPONSE_RECIEVED: {
+                    mCurrentCommand = false;
+                    PublishMessage message = mCommandQueue.poll();
+                    if (message != null)
+                        _publishMessage(message.player, message.channel, message.responseChannel, message.publishListener, message.cmd);
+                    break;
+                }
             }
         }
     }
@@ -749,10 +768,10 @@ class CometClient extends BaseClient {
         final Player player;
         final String channel;
         final String responseChannel;
-        final ClientSessionChannel.MessageListener publishListener;
+        final PublishListener publishListener;
         final String[] cmd;
 
-        private PublishMessage(Player player, String channel, String responseChannel, ClientSessionChannel.MessageListener publishListener, String... cmd) {
+        private PublishMessage(Player player, String channel, String responseChannel, PublishListener publishListener, String... cmd) {
             this.player = player;
             this.channel = channel;
             this.responseChannel = responseChannel;
