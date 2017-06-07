@@ -81,7 +81,7 @@ android {
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
         versionCode 61
-        versionName "1.5.1"
+        versionName "2.0.0"
     }
 
     lintOptions {
@@ -138,7 +138,7 @@ def publishTrack() {
         case ~/\d+\.\d+\.\d+/:
             return 'production'
     }
-    throw new IllegalArgumentException("versionName '${versionName}' is not valid")
+    throw new IllegalArgumentException("versionName '${android.defaultConfig.versionName}' is not valid")
 }
 
 whatsnew {
