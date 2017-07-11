@@ -545,45 +545,51 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
         @Override
         public void run() {
-            boolean statusOk = false;
-            boolean chunked = false;
-            int contentSize = 0;
-            while (true) {
+            while (delegate.connected) {
                 try {
-                    if (!chunked) {
-                        String statusLine = readLine();
-                        statusOk = "HTTP/1.1 200 OK".equals(statusLine);
+                    int status = parseHttpStatus(readLine());
+
+                    boolean chunked = false;
+                    int contentSize = 0;
+                    String headerLine;
+                    while (!"".equals(headerLine = readLine())) {
+                        if ("Transfer-Encoding: chunked".equals(headerLine))
+                            chunked = true;
+                        int pos = headerLine.indexOf("Content-Length: ");
+                        if (pos == 0) {
+                            contentSize = Integer.parseInt(headerLine.substring("Content-Length: ".length()));
+                        }
                     }
-                    if (statusOk) {
-                        if (!chunked) {
-                            String headerLine;
-                            while (!"".equals(headerLine = readLine())) {
-                                if ("Transfer-Encoding: chunked".equals(headerLine))
-                                    chunked = true;
-                                int pos = headerLine.indexOf("Content-Length: ");
-                                if (pos == 0) {
-                                    contentSize = Integer.parseInt(headerLine.substring("Content-Length: ".length()));
-                                }
-                            }
-                        }
-                        if (!chunked) {
-                            String content = read(contentSize);
-                            if (content.length() > 0) {
+
+                    if (!chunked) {
+                        String content = read(contentSize);
+                        if (content.length() > 0) {
+                            if (status == HttpStatus.OK_200) {
                                 delegate.onData(content);
-                            } else {
-                                Map<String, Object> failure = new HashMap<>(2);
-                                // Convert the 200 into 204 (no content)
-                                failure.put("httpCode", 204);
-                                TransportException x = new TransportException(failure);
-                                delegate.fail(x, "No content");
+                            }
+                        } else {
+                            Map<String, Object> failure = new HashMap<>(2);
+                            // Convert the 200 into 204 (no content)
+                            failure.put("httpCode", HttpStatus.NO_CONTENT_204);
+                            TransportException x = new TransportException(failure);
+                            delegate.fail(x, "No content");
+                        }
+                    } else {
+                        while (!"0".equals(readLine())) {
+                            String data = readLine();
+                            if (status == HttpStatus.OK_200) {
+                                delegate.onData(data);
                             }
                         }
-                        if (chunked) {
-                            while (!"0".equals(readLine())) {
-                                delegate.onData(readLine());
-                            }
-                            readLine();//Read final/empty chunk
-                        }
+                        readLine();//Read final/empty chunk
+                        delegate.disconnect("End of chunks");
+                    }
+
+                    if (status != HttpStatus.OK_200) {
+                        Map<String, Object> failure = new HashMap<>(2);
+                        failure.put("httpCode", status);
+                        TransportException x = new TransportException(failure);
+                        delegate.fail(x, "Unexpected HTTP status code");
                     }
                 } catch (IOException e) {
                     logger.trace("Server disconnected; exception=" + e);
@@ -593,6 +599,18 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     return;
                 }
             }
+        }
+
+        Pattern httpStatusLinePattern = Pattern.compile("HTTP/1.1 (\\d{3}) \\p{Alpha}+");
+        private int parseHttpStatus(String statusLine) {
+            Matcher m = httpStatusLinePattern.matcher(statusLine);
+            try {
+                if (m.find()) {
+                    return Integer.parseInt(m.group(1));
+                }
+            } catch (NumberFormatException e) {
+            }
+            return -1;
         }
 
         private String readLine() throws IOException {

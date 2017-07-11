@@ -38,7 +38,7 @@ import uk.org.ngo.squeezer.BuildConfig;
  * The standard {@link BayeuxClient} set a message id in the request and expect the server to echo
  * it, in the response.
  * <p>
- * LMS doesn't do include the message id in all responses (it is not a required field in the spec),
+ * LMS doesn't include the message id in all responses (it is not a required field in the spec),
  * so we intercept outgoing and incoming messages, note the message id from the request, and add it
  * to the response.
  */
@@ -49,12 +49,6 @@ class SqueezerBayeuxClient extends BayeuxClient {
 
     SqueezerBayeuxClient(String url, ClientTransport transport, ClientTransport... transports) {
         super(url, transport, transports);
-    }
-
-    @Override
-    public void onFailure(Throwable failure, List<? extends Message> messages) {
-        super.onFailure(failure, messages);
-        Log.w(TAG, "onFailure(" + messages + ")", failure);
     }
 
     @Override

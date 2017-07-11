@@ -210,6 +210,7 @@ class CometClient extends BaseClient {
                 String url = mUrlPrefix + "/cometd";
 
                 // Set the VM-wide authentication handler (needed by image fetcher and other using
+                // the standard java http API)
                 Authenticator.setDefault(new Authenticator() {
                     @Override
                     public PasswordAuthentication getPasswordAuthentication() {
@@ -229,27 +230,27 @@ class CometClient extends BaseClient {
                 mBayeuxClient = new SqueezerBayeuxClient(url, httpTransport);
                 mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        if (!message.isSuccessful()) {
-                            Log.w(TAG, Channel.META_HANDSHAKE + ": " + message.getJSON());
+                        if (message.isSuccessful()) {
+                            onConnected();
+                        } else {
+                            Log.w(TAG, channel + ": " + message.getJSON());
+
                             Map<String, Object> failure = (Map<String, Object>) message.get("failure");
-                            if (failure != null) {
-                                Message failMessage = (Message) failure.get("message");
-                                Exception exception = (Exception) failure.get("exception");
-                                Log.w(TAG, "Failure message: " + failMessage.getJSON(), exception);
-                            }
+                            Message failMessage = (Message) failure.get("message");
+                            Exception exception = (Exception) failure.get("exception");
+                            int httpCode = (int) failure.get("httpCode");
+
+                            mBayeuxClient.disconnect();
+                            //TODO check for auth and report appropriately
+                            mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                         }
                     }
                 });
 
                 mBayeuxClient.handshake();
-                if (!mBayeuxClient.waitFor(CONNECTION_TIMEOUT, BayeuxClient.State.CONNECTED)) {
-                    mBayeuxClient.disconnect();
-                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
-                    Log.i(TAG, "comet handshake TIMEOUT");
-                    return;
-                }
+            }
 
-                // Connected from this point on.
+            protected void onConnected() {
                 Log.i(TAG, "Connected, start learning server capabilities");
                 mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
                 mConnectionState.setConnectionState(ConnectionState.LOGIN_STARTED);
@@ -407,8 +408,8 @@ class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             if (!message.isSuccessful()) {
-                // TODO crashlytics
-                Log.e(TAG, message.getJSON());
+                // TODO crashlytics and possible other handling
+                Log.e(TAG, channel + ": " + message.getJSON());
             }
             mBackgroundHandler.sendEmptyMessage(MSG_PUBLISH_RESPONSE_RECIEVED);
         }
