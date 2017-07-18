@@ -100,10 +100,6 @@ class CometClient extends BaseClient {
     /** The format string for the channel to listen to for serverstatus events. */
     private static final String CHANNEL_SERVER_STATUS_FORMAT = "/%s/slim/serverstatus";
 
-    // Maximum time for wait for comet connect
-    private static final int CONNECTION_TIMEOUT = 10000;
-
-
     // Maximum time for wait replies for server capabilities
     private static final long HANDSHAKE_TIMEOUT = 2000;
 
@@ -180,7 +176,7 @@ class CometClient extends BaseClient {
             return;
         }
 
-        // XXX: Need to deal with usernames and passwords, and HTTPS
+        // XXX: Need to deal with HTTPS
         currentHost.set(host);
 
         // Start the background connect
@@ -236,13 +232,11 @@ class CometClient extends BaseClient {
                             Log.w(TAG, channel + ": " + message.getJSON());
 
                             Map<String, Object> failure = (Map<String, Object>) message.get("failure");
-                            Message failMessage = (Message) failure.get("message");
-                            Exception exception = (Exception) failure.get("exception");
-                            int httpCode = (int) failure.get("httpCode");
+                            Object httpCodeValue = failure.get("httpCode");
+                            int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
 
                             mBayeuxClient.disconnect();
-                            //TODO check for auth and report appropriately
-                            mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
+                            mConnectionState.setConnectionState((httpCode == 401) ? ConnectionState.LOGIN_FAILED : ConnectionState.CONNECTION_FAILED);
                         }
                     }
                 });
