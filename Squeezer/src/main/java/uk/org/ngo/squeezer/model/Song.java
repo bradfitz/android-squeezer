@@ -143,6 +143,13 @@ public class Song extends ArtworkItem {
 
     @NonNull private Uri mArtworkUrl = Uri.EMPTY;
 
+    @NonNull private final String mLyrics;
+
+    @NonNull
+    public String getLyrics() {
+        return mLyrics;
+    }
+
     /**
      * @return Whether the song has artwork associated with it.
      */
@@ -180,6 +187,7 @@ public class Song extends ArtworkItem {
         mUrl = Uri.parse(Strings.nullToEmpty(record.get("url")));
         mDownloadUrl = Uri.parse(Strings.nullToEmpty(record.get("download_url")));
         mButtons = Strings.nullToEmpty(record.get("buttons"));
+        mLyrics = Strings.nullToEmpty(record.get("lyrics"));
 
         String artworkTrackId = record.get("artwork_track_id");
 
@@ -218,6 +226,7 @@ public class Song extends ArtworkItem {
         mUrl = Uri.parse(source.readString());
         mButtons = source.readString();
         mDownloadUrl = Uri.parse(source.readString());
+        mLyrics = source.readString();
     }
 
     @Override
@@ -236,6 +245,7 @@ public class Song extends ArtworkItem {
         dest.writeString(mUrl.toString());
         dest.writeString(mButtons);
         dest.writeString(mDownloadUrl.toString());
+        dest.writeString(mLyrics);
     }
 
     @Override
