@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.model;
 import android.net.Uri;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -141,6 +142,10 @@ public class Song extends ArtworkItem {
     @NonNull
     public String getLyrics() {
         return mLyrics;
+    }
+
+    public boolean hasLyrics() {
+        return !TextUtils.isEmpty(mLyrics);
     }
 
     /**

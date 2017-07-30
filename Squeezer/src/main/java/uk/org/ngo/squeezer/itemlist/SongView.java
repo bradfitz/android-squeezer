@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import android.support.annotation.IntDef;
 import android.view.ContextMenu;
 import android.view.View;
+import android.widget.Toast;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -137,6 +138,10 @@ public class SongView extends PlaylistItemView<Song> {
             menu.findItem(R.id.play_from_here).setVisible(true);
         }
 
+        if (song.hasLyrics()) {
+            menu.findItem(R.id.lyrics).setVisible(true);
+        }
+
         if (!"".equals(song.getAlbumId()) && !hasAlbum()) {
             menu.findItem(R.id.view_this_album).setVisible(true);
         }
@@ -155,6 +160,10 @@ public class SongView extends PlaylistItemView<Song> {
         switch (menuItem.getItemId()) {
             case R.id.play_from_here:
                 getActivity().play(getPlayListItem(), index);
+                return true;
+
+            case R.id.lyrics:
+                LyricsActivity.show(getActivity(), selectedItem);
                 return true;
 
             case R.id.view_this_album:

@@ -38,6 +38,10 @@
 
     <!-- Menu items that are enabled individually. -->
 
+    <item android:id="@+id/lyrics"
+        android:title="@string/lyrics_label"
+        android:visible="false"/>
+
     <item android:id="@+id/view_this_album"
         android:title="@string/BROWSE_ALBUM_SONGS"
         android:visible="false"/>
