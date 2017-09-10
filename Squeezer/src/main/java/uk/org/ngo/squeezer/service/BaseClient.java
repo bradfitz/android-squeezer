@@ -91,7 +91,6 @@ abstract class BaseClient implements SlimClient {
         mConnectionState = new ConnectionState(eventBus);
     }
 
-    public abstract void command(Player player, String command);
     protected abstract <T extends Item> void internalRequestItems(BrowseRequest<T> browseRequest);
 
 
