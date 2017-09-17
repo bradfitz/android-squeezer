@@ -97,7 +97,7 @@ interface SlimClient {
     <T extends Item> void requestItems(Player player, Plugin plugin, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters);
 
     /**
-     * Calls {@link #requestPlayerItems(Player, String, int, int, IServiceItemListCallback, List)}
+     * Calls {@link #requestItems(Player, String, int, int, IServiceItemListCallback, String...)}
      * with null plugin
      */
     <T extends Item> void requestItems(Player player, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters);
@@ -123,12 +123,6 @@ interface SlimClient {
     /**
      * Like {@link #requestItems(Player, String, int, int, IServiceItemListCallback, String...)}
      * but does nothing if player is null
-     */
-    <T extends Item> void requestPlayerItems(Player player, Plugin plugin, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, List<String> parameters);
-
-    /**
-     * Calls {@link #requestPlayerItems(Player, Plugin, String, int, int, IServiceItemListCallback, List)}
-     * with default page size and null plugin
      */
     <T extends Item> void requestPlayerItems(Player player, String cmd, int start, IServiceItemListCallback<T> callback, String... parameters);
 

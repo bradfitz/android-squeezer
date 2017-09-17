@@ -50,7 +50,7 @@ public class AlarmPlaylist extends Item {
     }
 
     public AlarmPlaylist(Map<String, Object> record) {
-        setId(getString(record, "url"));
+        setId(getStringOrEmpty(record, "url"));
         title = getString(record, "title");
         category = getString(record, "category");
         singleton = getInt(record, "singleton") == 1;

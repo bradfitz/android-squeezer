@@ -580,7 +580,7 @@ class CometClient extends BaseClient {
     private class AlarmPlaylistsListener extends ItemListener<AlarmPlaylist> {
         @Override
         public void onResponse(Player player, String[] cmd, Message message) {
-            parseMessage("playlists_loop", message);
+            parseMessage("item_loop", message);
         }
     }
 
