@@ -9,7 +9,7 @@ allprojects {
 ext {
     compileSdkVersion = 24
     buildToolsVersion = "25.0.2"
-    minSdkVersion = 7
+    minSdkVersion = 9
     targetSdkVersion = 21
 
     assert minSdkVersion <= targetSdkVersion : "minSdkVersion too big"
