@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
@@ -115,13 +116,7 @@ public class ConnectionState {
     }
 
     public void setMediaDirs(Object[] dirs) {
-        String[] value = new String[dirs == null ? 0 : dirs.length];
-        if (dirs != null) {
-            for (int i = 0; i < dirs.length; i++) {
-                value[i] = (String) dirs[i];
-            }
-        }
-        mediaDirs.set(value);
+        mediaDirs.set(Util.getStringArray(dirs));
         maybeSendHandshakeComplete();
     }
 

@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.google.common.base.Splitter;
@@ -23,8 +24,9 @@ import com.google.common.base.Splitter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import de.greenrobot.event.EventBus;
@@ -35,7 +37,6 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -106,53 +107,49 @@ abstract class BaseClient implements SlimClient {
     }
 
 
-    private <T extends Item> void internalRequestItems(Player player, Plugin plugin, String cmd, int start, int pageSize,
-                                                          final IServiceItemListCallback<T> callback, List<String> parameters) {
-        final BrowseRequest<T> browseRequest = new BrowseRequest<>(player, plugin, cmd, start, pageSize, callback, parameters);
+    private <T extends Item> void internalRequestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, final IServiceItemListCallback<T> callback) {
+        final BrowseRequest<T> browseRequest = new BrowseRequest<>(player, cmd, params, start, pageSize, callback);
         internalRequestItems(browseRequest);
     }
 
-    private <T extends Item> void internalRequestItems(Player player, Plugin plugin, String cmd, int start,
-                                                       final IServiceItemListCallback<T> callback, List<String> parameters) {
-        internalRequestItems(player, plugin, cmd, start, (start == 0 ? 1 : mPageSize), callback, parameters);
+    private <T extends Item> void internalRequestItems(Player player, String cmd[], Map<String, Object> params, int start, final IServiceItemListCallback<T> callback) {
+        internalRequestItems(player, cmd, params, start, (start == 0 ? 1 : mPageSize), callback);
     }
 
     @Override
-    public <T extends Item> void requestItems(Player player, Plugin plugin, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters) {
-        internalRequestItems(player, plugin, cmd, start, pageSize, callback, Arrays.asList(parameters));
+    public <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
+        internalRequestItems(player, cmd, params, start, pageSize, callback);
     }
 
     @Override
-    public <T extends Item> void requestItems(Player player, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters) {
-        internalRequestItems(player, null, cmd, start, pageSize, callback, Arrays.asList(parameters));
+    public <T extends Item> void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback<T> callback) {
+        internalRequestItems(null, new String[]{cmd}, null, start, pageSize, callback);
     }
 
     @Override
-    public <T extends Item> void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters) {
-        requestItems(null, cmd, start, pageSize, callback, parameters);
+    public <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
+        internalRequestItems(player, cmd, params, start, callback);
     }
 
     @Override
-    public <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback, String... parameters) {
-        requestItems(cmd, start, callback, Arrays.asList(parameters));
+    public <T extends Item> void requestItems(Player player, String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
+        internalRequestItems(player, new String[]{cmd}, params, start, callback);
     }
 
     @Override
-    public <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback, List<String> parameters) {
-        internalRequestItems(null, null, cmd, start, callback, parameters);
+    public <T extends Item> void requestItems(String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
+        internalRequestItems(null,cmd, params, start, callback);
+
     }
 
     @Override
-    public <T extends Item> void requestPlayerItems(Player player, String cmd, int start, IServiceItemListCallback<T> callback, String... parameters) {
-        requestPlayerItems(player, null, cmd, start, callback, Arrays.asList(parameters));
+    public <T extends Item> void requestItems(String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
+        internalRequestItems(null, new String[]{cmd}, params, start, callback);
     }
 
     @Override
-    public <T extends Item> void requestPlayerItems(Player player, Plugin plugin, String cmd, int start, IServiceItemListCallback<T> callback, List<String> parameters) {
-        if (player == null) {
-            return;
-        }
-        internalRequestItems(player, plugin, cmd, start, callback, parameters);
+    public <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback) {
+        internalRequestItems(null, new String[]{cmd}, null, start, callback);
     }
 
     public void initialize() {
@@ -339,26 +336,50 @@ abstract class BaseClient implements SlimClient {
         }
     }
 
+    /**
+     * Make sure the icon/image tag is an absolute URL.
+     *
+     * @param record The record to modify.
+     */
+    @SuppressWarnings("unchecked")
+    protected void fixImageTag(Map<String, Object> record) {
+        Set<String> iconTags = new HashSet<>(Arrays.asList("icon", "image", "icon-id"));
+        for (Map.Entry<String, Object> entry : record.entrySet()) {
+            if (entry.getValue() instanceof Map) {
+                fixImageTag((Map<String, Object>) entry.getValue());
+            } else if (iconTags.contains(entry.getKey()) && entry.getValue() instanceof String) {
+                String image = (String) entry.getValue();
+                if (image == null) {
+                    continue;
+                }
+
+                if (Uri.parse(image).isAbsolute()) {
+                    continue;
+                }
+
+                entry.setValue(mUrlPrefix + (image.startsWith("/") ? image : "/" + image));
+            }
+        }
+    }
+
 
     static class BrowseRequest<T extends Item> {
         private final Player player;
-        private final Plugin plugin;
-        private final String request;
+        private final String[] cmd;
         private final boolean fullList;
         private int start;
         private int itemsPerResponse;
-        private final List<String> parameters;
+        private final Map<String, Object> params;
         private final IServiceItemListCallback<T> callback;
 
-        BrowseRequest(Player player, Plugin plugin, String cmd, int start, int itemsPerResponse, IServiceItemListCallback<T> callback, List<String> parameters) {
+        BrowseRequest(Player player, String[] cmd, Map<String, Object> params, int start, int itemsPerResponse, IServiceItemListCallback<T> callback) {
             this.player = player;
-            this.plugin = plugin;
-            this.request = cmd;
+            this.cmd = cmd;
             this.fullList = (start < 0);
             this.start = (fullList ? 0 : start);
             this.itemsPerResponse = itemsPerResponse;
             this.callback = callback;
-            this.parameters = parameters;
+            this.params = (params == null ? Collections.<String, Object>emptyMap() : params);
         }
 
         public BrowseRequest update(int start, int itemsPerResponse) {
@@ -371,12 +392,12 @@ abstract class BaseClient implements SlimClient {
             return player;
         }
 
-        public Plugin getPlugin() {
-            return plugin;
+        public String[] getCmd() {
+            return cmd;
         }
 
         public String getRequest() {
-            return request;
+            return cmd[0];
         }
 
         boolean isFullList() {
@@ -391,8 +412,8 @@ abstract class BaseClient implements SlimClient {
             return itemsPerResponse;
         }
 
-        public List<String> getParameters() {
-            return (parameters == null ? Collections.<String>emptyList() : parameters);
+        public Map<String, Object> getParams() {
+            return params;
         }
 
         public IServiceItemListCallback<T> getCallback() {

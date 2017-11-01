@@ -16,13 +16,12 @@
 
 package uk.org.ngo.squeezer.service;
 
-import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Plugin;
 
 /**
  * Interface implemented by all network clients of the server.
@@ -68,6 +67,8 @@ interface SlimClient {
     /** Like {@link #command(Player, String)} but does nothing if player is null */
     void playerCommand(Player player, String command);
 
+    void playerCommand(Player player, String[] cmd, Map<String, Object> params);
+
     //XXX subscriptions ?
 
     /**
@@ -88,49 +89,49 @@ interface SlimClient {
      * <p>
      *
      * @param player if non null this command is for a specific player
-     * @param cmd LMS command
+     * @param cmd Array of command terms, f.e. ['playlist', 'jump']
+     * @param params Hash of parameters, f.e. {sort = new}. Passed to the server in the form "key:value", f.e. 'sort:new'.
      * @param start index of the first item to fetch. -1 means to fetch all items in chunks of pageSize
      * @param pageSize Number of items to fetch in each request.
      * @param callback Received items are returned in this.
-     * @param parameters additional parameters for the command
      */
-    <T extends Item> void requestItems(Player player, Plugin plugin, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters);
+    <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback);
 
     /**
-     * Calls {@link #requestItems(Player, String, int, int, IServiceItemListCallback, String...)}
-     * with null plugin
+     * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
+     * with null player, a single command term and default page size
      */
-    <T extends Item> void requestItems(Player player, String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters);
+    <T extends Item> void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback<T> callback);
 
     /**
-     * Calls {@link #requestItems(Player player, String, int, int, IServiceItemListCallback, String...)}
-     * with null player
+     * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
+     * with a single command term and default page size
      */
-    <T extends Item> void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback<T> callback, String... parameters);
+    <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
 
     /**
-     * Calls {@link #requestItems(String, int, int, IServiceItemListCallback, String...)}
-     * with default page size
+     * Calls {@link #requestItems(Player, String[], Map, int, IServiceItemListCallback)}
+     * with a single command term
      */
-    <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback, String... parameters);
+    <T extends Item> void requestItems(Player player, String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
 
     /**
-     * Calls {@link #requestItems(String, int, int, IServiceItemListCallback, String...)}
-     * with default page size
+     * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
+     * with null player and default page size
      */
-    <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback, List<String> parameters);
+    <T extends Item> void requestItems(String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
 
     /**
-     * Like {@link #requestItems(Player, String, int, int, IServiceItemListCallback, String...)}
-     * but does nothing if player is null
+     * Calls {@link #requestItems(String[], Map, int, IServiceItemListCallback)}
+     * with a single command term and default page size
      */
-    <T extends Item> void requestPlayerItems(Player player, String cmd, int start, IServiceItemListCallback<T> callback, String... parameters);
+    <T extends Item> void requestItems(String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
 
     /**
-     * Calls {@link #requestItems(Player, Plugin, String, int, int, IServiceItemListCallback, String...)}
-     * with default page size
+     * Calls {@link #requestItems(String, Map, int, IServiceItemListCallback)}
+     * without extra parameters
      */
-    <T extends Item> void requestPlayerItems(Player player, Plugin plugin, String cmd, int start, IServiceItemListCallback<T> callback, List<String> parameters);
+    <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback);
 
     /**
      * Notify that the specified client (activity) nno longer wants messages from LMS.

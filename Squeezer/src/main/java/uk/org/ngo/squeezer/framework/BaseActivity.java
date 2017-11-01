@@ -453,6 +453,10 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
     }
 
+    public void action(Item item, Action action) {
+        mService.action(item, action);
+    }
+
     /**
      * Initiate download of songs for the supplied item.
      *

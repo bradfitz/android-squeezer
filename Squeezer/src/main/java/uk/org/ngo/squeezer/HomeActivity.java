@@ -41,13 +41,11 @@ import uk.org.ngo.squeezer.dialog.ChangeLogDialog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
-import uk.org.ngo.squeezer.itemlist.ApplicationListActivity;
 import uk.org.ngo.squeezer.itemlist.ArtistListActivity;
-import uk.org.ngo.squeezer.itemlist.FavoriteListActivity;
 import uk.org.ngo.squeezer.itemlist.GenreListActivity;
 import uk.org.ngo.squeezer.itemlist.MusicFolderListActivity;
 import uk.org.ngo.squeezer.itemlist.PlaylistsActivity;
-import uk.org.ngo.squeezer.itemlist.RadioListActivity;
+import uk.org.ngo.squeezer.itemlist.PluginListActivity;
 import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.itemlist.YearListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
@@ -150,7 +148,7 @@ public class HomeActivity extends BaseActivity {
             mCanRandomplay = event.canRandomPlay;
         }
 
-        List<IconRowAdapter.IconRow> rows = new ArrayList<IconRowAdapter.IconRow>(MY_APPS + 1);
+        List<IconRowAdapter.IconRow> rows = new ArrayList<>(MY_APPS + 1);
         for (int i = ARTISTS; i <= MY_APPS; i++) {
             if (i == MUSIC_FOLDER && !mCanMusicfolder) {
                 continue;
@@ -232,13 +230,13 @@ public class HomeActivity extends BaseActivity {
                     // crash reporting functionality.
                     //String sCrashString = null;
                     //Log.e("MyApp", sCrashString);
-                    RadioListActivity.show(HomeActivity.this);
+                    PluginListActivity.radios(HomeActivity.this);
                     break;
                 case FAVORITES:
-                    FavoriteListActivity.show(HomeActivity.this);
+                    PluginListActivity.favorites(HomeActivity.this);
                     break;
                 case MY_APPS:
-                    ApplicationListActivity.show(HomeActivity.this);
+                    PluginListActivity.apps(HomeActivity.this);
                     break;
             }
         }

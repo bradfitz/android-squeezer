@@ -16,9 +16,11 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
@@ -30,7 +32,6 @@ import uk.org.ngo.squeezer.Util;
  * @author Kurt Aaholst
  */
 public abstract class Item implements Parcelable {
-
     private String id;
 
     public void setId(String id) {
@@ -44,8 +45,50 @@ public abstract class Item implements Parcelable {
     abstract public String getName();
 
     public Item() {
-
     }
+
+    public Window window;
+    public Input input;
+    public Action goAction;
+    public Action playAction;
+    public Action addAction;
+    public Action insertAction;
+
+    public Item(Map<String, Object> record) {
+        Map<String, Object> baseActions = null;
+        Map<String, Object> baseRecord = (Map<String, Object>) record.get("base");
+        if (baseRecord != null) {
+            baseActions = (Map<String, Object>) baseRecord.get("actions");
+        }
+        Map<String, Object> actionsRecord = (Map<String, Object>) record.get("actions");
+        input = extractInput((Map<String, Object>) record.get("input"));
+        goAction = extractAction("go", baseActions, actionsRecord, record);
+        playAction = extractAction("play", baseActions, actionsRecord, record);
+        addAction = extractAction("add", baseActions, actionsRecord, record);
+        insertAction = extractAction("add-hold", baseActions, actionsRecord, record);
+    }
+
+    public Item(Parcel source) {
+        setId(source.readString());
+        window = Window.readFromParcel(source);
+        input = Input.readFromParcel(source);
+        goAction = Action.readFromParcel(source);
+        playAction = Action.readFromParcel(source);
+        addAction = Action.readFromParcel(source);
+        insertAction = Action.readFromParcel(source);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getId());
+        Window.writeToParcel(dest, window);
+        Input.writeToParcel(dest, input);
+        Action.writeToParcel(dest, goAction);
+        Action.writeToParcel(dest, playAction);
+        Action.writeToParcel(dest, addAction);
+        Action.writeToParcel(dest, insertAction);
+    }
+
 
     @Override
     public int describeContents() {
@@ -107,6 +150,53 @@ public abstract class Item implements Parcelable {
     @NonNull
     protected String getStringOrEmpty(Map<String, Object> record, String fieldName) {
         return Util.getStringOrEmpty(record, fieldName);
+    }
+
+
+    private Input extractInput(Map<String, Object> inputRecord) {
+        if (inputRecord == null) return null;
+
+        Input input = new Input();
+        input.len = getInt(inputRecord, "len");
+        input.softbutton1 = getString(inputRecord, "softbutton1");
+        input.softbutton2 = getString(inputRecord, "softbutton2");
+        input.inputStyle = getString(inputRecord, "inputStyle");
+        input.allowedChars = getString(inputRecord, "allowedChars");
+        Map<String, Object> helpRecord = (Map<String, Object>) inputRecord.get("help");
+        if (helpRecord != null) {
+            input.help = new HelpText();
+            input.help.text = getString(helpRecord, "text");
+            input.help.token = getString(helpRecord, "token");
+        }
+        return input;
+    }
+
+    private Action extractAction(String actionName, Map<String, Object> baseActions, Map<String, Object> itemActions, Map<String, Object> record) {
+        Map<String, Object> actionsRecord = (itemActions != null ? (Map<String, Object>) itemActions.get(actionName) : null);
+        Map<String, Object> itemParams = null;
+        if (actionsRecord == null && baseActions != null) {
+            Map<String, Object> baseAction = (Map<String, Object>) baseActions.get(actionName);
+            if (baseAction != null) {
+                String itemsParams = (String) baseAction.get("itemsParams");
+                if (itemsParams != null) {
+                    itemParams = (Map<String, Object>) record.get(itemsParams);
+                    if (itemParams != null) {
+                        actionsRecord = baseAction;
+                    }
+                }
+            }
+        }
+        if (actionsRecord == null) return null;
+
+        Action action = new Action();
+        action.action = new Action.JsonAction();
+        action.action.cmd = Util.getStringArray((Object[]) actionsRecord.get("cmd"));
+        action.action.params =new HashMap<>((Map<String, Object>) actionsRecord.get("params"));
+        if (itemParams != null) {
+            action.action.params.putAll(itemParams);
+        }
+        action.initInputParam();
+        return action;
     }
 
 }

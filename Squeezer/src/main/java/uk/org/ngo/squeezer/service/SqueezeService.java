@@ -51,10 +51,15 @@ import android.widget.RemoteViews;
 
 import com.google.common.io.Files;
 
+import org.eclipse.jetty.util.ajax.JSON;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -70,11 +75,12 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
 import uk.org.ngo.squeezer.download.DownloadStorage;
+import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.FilterItem;
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.itemlist.PluginItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -87,7 +93,6 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
@@ -680,6 +685,45 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     public void onEvent(HandshakeComplete event) {
         mHandshakeComplete = true;
+//        fetchPlugins("radios");
+//        fetchPlugins("apps");
+    }
+
+    protected void fetchPlugins(String cmd) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("menu", "menu");
+        fetchPlugins(new File(getFilesDir(), cmd), new String[]{cmd}, params);
+    }
+
+    protected void fetchPlugins(final File path, String cmd[], Map<String, Object> params) {
+        Log.i(TAG, "fetchPlugins(path:" + path + ", cmd:" + cmd + ", params:" + params + ")");
+        mClient.requestItems(mActivePlayer.get(), cmd, params, -1, new IServiceItemListCallback<Plugin>() {
+            @Override
+            public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+                path.mkdirs();
+                File file = new File(path.getParentFile(), path.getName() + ".json");
+                try {
+                    FileOutputStream output = new FileOutputStream(file);
+                    output.write(JSON.toString(parameters).getBytes());
+                    output.close();
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "Can't create output file: " + file);
+                } catch (IOException e) {
+                    Log.e(TAG, "Can't write output file: " + file);
+                }
+                for (Plugin plugin : items) {
+                    if (plugin.goAction != null) {
+                        Action action = plugin.goAction;
+                        fetchPlugins(new File(path, plugin.getId()), action.action.cmd, action.action.params);
+                    }
+                }
+            }
+
+            @Override
+            public Object getClient() {
+                return SqueezeService.this;
+            }
+        });
     }
 
     public void onEvent(MusicChanged event) {
@@ -721,7 +765,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     /** A download request will be passed to the download manager for each song called back to this */
     private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<Song>() {
         @Override
-        public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
+        public void onItemsReceived(int count, int start, Map<String, Object> params, List<Song> items, Class<Song> dataType) {
             for (Song item : items) {
                 downloadSong(item);
             }
@@ -740,7 +784,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     private final IServiceItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new IServiceItemListCallback<MusicFolderItem>() {
         @Override
-        public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
+        public void onItemsReceived(int count, int start, Map<String, Object> params, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
             for (MusicFolderItem item : items) {
                 squeezeService.downloadItem(item);
             }
@@ -1326,18 +1370,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return true;
         }
 
-        @Override
-        public boolean pluginPlaylistControl(
-                Plugin plugin, @PluginItemListActivity.PluginPlaylistControlCmd String cmd,
-                String itemId) {
-            if (!isConnected()) {
-                return false;
-            }
-            activePlayerCommand(plugin.getId() + " playlist " + cmd + " item_id:" + itemId);
-            return true;
-
-        }
-
         private boolean isPlaying() {
             PlayerState playerState = getActivePlayerState();
             return playerState != null && playerState.isPlaying();
@@ -1451,7 +1483,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return;
             }
-            mClient.requestPlayerItems(mActivePlayer.get(), "alarms", start, callback, "filter:all");
+            Map<String, Object> params = new HashMap<>();
+            params.put("filter", "all");
+            mClient.requestItems(mActivePlayer.get(), "alarms", params, start, callback);
         }
 
         @Override
@@ -1526,16 +1560,22 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            List<String> parameters = new ArrayList<>();
-            parameters.add("tags:" + BaseClient.ALBUMTAGS);
-            parameters.add("sort:" + sortOrder);
+            Map<String, Object> params = new HashMap<>();
+            params.put("tags", BaseClient.ALBUMTAGS);
+            params.put("sort", sortOrder);
             if (searchString != null && searchString.length() > 0) {
-                parameters.add("search:" + searchString);
+                params.put("search", searchString);
             }
+            addFilters(params, filters);
+            mClient.requestItems("albums", params, start, callback);
+        }
+
+        private void addFilters(Map<String, Object> params, FilterItem[] filters) {
             for (FilterItem filter : filters)
-                if (filter != null)
-                    parameters.add(filter.getFilterParameter());
-            mClient.requestItems("albums", start, callback, parameters);
+                if (filter != null) {
+                    Entry<String, Object> filterParameter = filter.getFilterParameter();
+                    params.put(filterParameter.getKey(), filterParameter.getValue());
+                }
         }
 
 
@@ -1545,14 +1585,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            List<String> parameters = new ArrayList<>();
+            Map<String, Object> params = new HashMap<>();
             if (searchString != null && searchString.length() > 0) {
-                parameters.add("search:" + searchString);
+                params.put("search", searchString);
             }
-            for (FilterItem filter : filters)
-                if (filter != null)
-                    parameters.add(filter.getFilterParameter());
-            mClient.requestItems("artists", start, callback, parameters);
+            addFilters(params, filters);
+            mClient.requestItems("artists", params, start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's years */
@@ -1570,11 +1608,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            List<String> parameters = new ArrayList<>();
+            Map<String, Object> params = new HashMap<>();
             if (searchString != null && searchString.length() > 0) {
-                parameters.add("search:" + searchString);
+                params.put("search", searchString);
             }
-            mClient.requestItems("genres", start, callback, parameters);
+            mClient.requestItems("genres", params, start, callback);
         }
 
         /**
@@ -1596,14 +1634,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
 
-            List<String> parameters = new ArrayList<>();
+            Map<String, Object> params = new HashMap<>();
+            params.put("tags", "");//TODO only available from version 7.6 so instead keep track of path
+            addFilters(params, new FilterItem[]{musicFolderItem});
 
-            parameters.add("tags:u");//TODO only available from version 7.6 so instead keep track of path
-            if (musicFolderItem != null) {
-                parameters.add(musicFolderItem.getFilterParameter());
-            }
-
-            mClient.requestItems("musicfolder", start, callback, parameters);
+            mClient.requestItems("musicfolder", params, start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's songs */
@@ -1612,16 +1647,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            List<String> parameters = new ArrayList<>();
-            parameters.add("tags:" + BaseClient.SONGTAGS);
-            parameters.add("sort:" + sortOrder);
+            Map<String, Object> params = new HashMap<>();
+            params.put("tags", BaseClient.SONGTAGS);
+            params.put("sort", sortOrder);
             if (searchString != null && searchString.length() > 0) {
-                parameters.add("search:" + searchString);
+                params.put("search", searchString);
             }
-            for (FilterItem filter : filters)
-                if (filter != null)
-                    parameters.add(filter.getFilterParameter());
-            mClient.requestItems("songs", start, callback, parameters);
+            addFilters(params, filters);
+            mClient.requestItems("songs", params, start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's current playlist */
@@ -1630,7 +1663,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            mClient.requestPlayerItems(mActivePlayer.get(), "status", start, callback, "tags:" + BaseClient.SONGTAGS);
+            Map<String, Object> params = new HashMap<>();
+            params.put("tags", BaseClient.SONGTAGS);
+            mClient.requestItems(mActivePlayer.get(), "status", params, start, callback);
         }
 
         /* Start an async fetch of the songs of the supplied playlist */
@@ -1639,8 +1674,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            mClient.requestItems("playlists tracks", start, callback,
-                    playlist.getFilterParameter(), "tags:" + BaseClient.SONGTAGS);
+            Map<String, Object> params = new HashMap<>();
+            params.put("tags", BaseClient.SONGTAGS);
+            addFilters(params, new FilterItem[]{playlist});
+            mClient.requestItems(new String[]{"playlists", "tracks"}, params, start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's playlists */
@@ -1717,40 +1754,37 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             songs(itemListCallback, start, SongViewDialog.SongsSortOrder.title.name(), searchString);
         }
 
-        /* Start an asynchronous fetch of the squeezeservers radio type plugins */
+
+        /* Start an asynchronous fetch of the squeezeservers generic menu items */
         @Override
-        public void radios(int start, IServiceItemListCallback<Plugin> callback) throws HandshakeNotCompleteException {
+        public void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            mClient.requestItems("radios", start, callback);
+            Map<String, Object> params = new HashMap<>();
+            params.put("menu", "menu");
+            mClient.requestItems(mActivePlayer.get(), cmd, params, start, callback);
         }
 
-        /* Start an asynchronous fetch of the squeezeservers radio application plugins */
+        /* Start an asynchronous fetch of the squeezeservers generic menu items */
         @Override
-        public void apps(int start, IServiceItemListCallback<Plugin> callback) throws HandshakeNotCompleteException {
+        public void pluginItems(int start, Plugin plugin, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            mClient.requestItems("apps", start, callback);
+            Action action = plugin.goAction;
+            mClient.requestItems(mActivePlayer.get(), action.action.cmd, action.action.params, start, callback);
         }
 
-
-        /* Start an asynchronous fetch of the squeezeservers items of the given type */
         @Override
-        public void pluginItems(int start, Plugin plugin, PluginItem parent, String search, IServiceItemListCallback<PluginItem> callback) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+        public boolean action(Item item, Action action) {
+            if (!isConnected()) {
+                return false;
             }
-            List<String> parameters = new ArrayList<>();
-            if (parent != null) {
-                parameters.add("item_id:" + parent.getId());
-            }
-            if (search != null && search.length() > 0) {
-                parameters.add("search:" + search);
-            }
-            mClient.requestPlayerItems(mActivePlayer.get(), plugin, "items", start, callback, parameters);
+            mClient.playerCommand(getActivePlayer(), action.action.cmd, action.action.params);
+            return true;
         }
+
 
         @Override
         public void downloadItem(FilterItem item) throws HandshakeNotCompleteException {

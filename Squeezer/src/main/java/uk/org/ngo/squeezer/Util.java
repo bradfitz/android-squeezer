@@ -39,13 +39,18 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 public class Util {
     private static final String TAG = Util.class.getSimpleName();
+
+    /** {@link java.util.regex.Pattern} that splits strings on colon. */
+    private static final Pattern mColonSplitPattern = Pattern.compile(":");
 
     private Util() {
     }
@@ -121,6 +126,24 @@ public class Util {
         return (value instanceof String) ? (String)value : value.toString();
     }
 
+    public static String[] getStringArray(Object[] objects) {
+        String[] result = new String[objects == null ? 0 : objects.length];
+        if (objects != null) {
+            for (int i = 0; i < objects.length; i++) {
+                result[i] = getString(objects[i], null);
+            }
+        }
+        return result;
+    }
+
+    public static Map<String, Object > mapify(String[] tokens) {
+        Map<String, Object> tokenMap = new HashMap<>();
+        for (String token : tokens) {
+            String[] split = mColonSplitPattern.split(token, 2);
+            tokenMap.put(split[0], split.length > 1 ? split[1] : null);
+        }
+        return tokenMap;
+    }
 
     private static final StringBuilder sFormatBuilder = new StringBuilder();
 

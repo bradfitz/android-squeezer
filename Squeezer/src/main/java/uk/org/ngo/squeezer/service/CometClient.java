@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -64,7 +63,6 @@ import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -77,9 +75,6 @@ class CometClient extends BaseClient {
 
     /** The maximum number of milliseconds to wait before considering a request to the LMS failed */
     private static final int LONG_POLLING_TIMEOUT = 120_000;
-
-    /** {@link java.util.regex.Pattern} that splits strings on colon. */
-    private static final Pattern mColonSplitPattern = Pattern.compile(":");
 
     /** {@link java.util.regex.Pattern} that splits strings on spaces. */
     private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
@@ -151,12 +146,9 @@ class CometClient extends BaseClient {
                 .put("playlists", new PlaylistsListener())
                 .put("playlists tracks", new SongsListener())
                 .put("musicfolder", new MusicFolderListener())
-                .put("radios", new PluginListener("radioss_loop"))
-                .put("apps", new PluginListener("appss_loop"))
                 .put("alarms", new AlarmsListener())
                 .put("alarm playlists", new AlarmPlaylistsListener())
                 .put("status", new SongsListener("playlist_tracks", "playlist_loop"))
-                .put("items", new PluginItemListener())
                 .build();
 
         mRequestMap = ImmutableMap.<String, ResponseHandler>builder()
@@ -309,7 +301,8 @@ class CometClient extends BaseClient {
                 });
 
                 // Request server status
-                publishMessage(null, CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null, "serverstatus", "0", "255");
+                publishMessage(null, CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null, "serverstatus", "0", "255"
+                );
 
                 // Subscribe to server changes
                 publishMessage(null, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null, "serverstatus", "0", "255",
@@ -416,14 +409,9 @@ class CometClient extends BaseClient {
             }
             parseStatus(player, song, messageData);
         } else {
-            Map<String, Object> tokenMap = new HashMap<>();
-            Object[] tokens = (Object[]) data;
+            String[] tokens = Util.getStringArray((Object[]) data);
             if (Util.arraysStartsWith(tokens, new String[]{"status", "-", "subscribe:1", "1"})) {
-                for (Object token : tokens) {
-                    String[] split = mColonSplitPattern.split((String) token, 2);
-                    tokenMap.put(split[0], split.length > 1 ? split[1] : null);
-                }
-                parseStatus(player, null, tokenMap);
+                parseStatus(player, null, Util.mapify(tokens));
             }
         }
 
@@ -456,11 +444,15 @@ class CometClient extends BaseClient {
             clear();
             Map<String, Object> data = message.getDataAsMap();
             int count = getInt(data.get(countName));
+            Object baseRecord = data.get("base");
             Object[] item_data = (Object[]) data.get(itemLoopName);
             if (item_data != null) {
                 for (Object item_d : item_data) {
                     Map<String, Object> record = (Map<String, Object>) item_d;
+                    record.put("base", baseRecord);
+                    fixImageTag(record);
                     add(record);
+                    record.remove("base");
                 }
             }
 
@@ -585,53 +577,10 @@ class CometClient extends BaseClient {
     }
 
     private class PluginListener extends ItemListener<Plugin> {
-        private String itemLoopName;
-
-        PluginListener(String itemLoopName) {
-            this.itemLoopName = itemLoopName;
-        }
-
         @Override
         public void onResponse(Player player, String[] cmd, Message message) {
-            parseMessage(itemLoopName, message);
+            parseMessage("item_loop", message);
         }
-
-        @Override
-        public void add(Map<String, Object> record) {
-            fixImageTag("icon", record);
-            super.add(record);
-        }
-    }
-
-    private class PluginItemListener extends ItemListener<PluginItem> {
-        @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
-            parseMessage("loop_loop", message);
-        }
-
-        @Override
-        public void add(Map<String, Object> record) {
-            fixImageTag("image", record);
-            super.add(record);
-        }
-    }
-
-    /**
-     * Make sure the icon/image tag is an absolute URL.
-     *
-     * @param record The record to modify.
-     */
-    private void fixImageTag(String imageTag, Map<String, Object> record) {
-        String image = Util.getString(record, imageTag);
-        if (image == null) {
-            return;
-        }
-
-        if (Uri.parse(image).isAbsolute()) {
-            return;
-        }
-
-        record.put(imageTag, mUrlPrefix + (image.startsWith("/") ? image : "/" + image));
     }
 
     public void onEvent(HandshakeComplete event) {
@@ -719,19 +668,30 @@ class CometClient extends BaseClient {
 
     @Override
     protected  <T extends Item> void internalRequestItems(final BrowseRequest<T> browseRequest) {
-        final ItemListener listener = mItemRequestMap.get(browseRequest.getRequest());
+        ItemListener listener = mItemRequestMap.get(browseRequest.getRequest());
+        if (listener == null) listener = new PluginListener();
 
-        final List<String> request = new ArrayList<>(browseRequest.getParameters().size() + 3);
-        if (browseRequest.getPlugin() != null) request.add(browseRequest.getPlugin().getId());
-        request.addAll(Arrays.asList(mSpaceSplitPattern.split(browseRequest.getRequest())));
+        final List<String> request = new ArrayList<>();
+        request.addAll(Arrays.asList(browseRequest.getCmd()));
         request.add(String.valueOf(browseRequest.getStart()));
         request.add(String.valueOf(browseRequest.getItemsPerResponse()));
-        for (String parameter : browseRequest.getParameters()) {
-            request.add(parameter);
+        for (Map.Entry<String, Object> parameter : browseRequest.getParams().entrySet()) {
+            request.add(parameter.getKey() + ":" + parameter.getValue());
         }
 
-        final String[] cmd = request.toArray(new String[request.size()]);
-        mPendingBrowseRequests.put(request(browseRequest.getPlayer(), listener, cmd), browseRequest);
+        String responseChannel = request(browseRequest.getPlayer(), listener, request.toArray(new String[request.size()]));
+        mPendingBrowseRequests.put(responseChannel, browseRequest);
+    }
+
+    @Override
+    public void playerCommand(Player player, String[] cmd, Map<String, Object> params) {
+        final List<String> request = new ArrayList<>();
+        request.addAll(Arrays.asList(cmd));
+        for (Map.Entry<String, Object> parameter : params.entrySet()) {
+            request.add(parameter.getKey() + ":" + parameter.getValue());
+        }
+
+        request(player, null, request.toArray(new String[request.size()]));
     }
 
     @Override

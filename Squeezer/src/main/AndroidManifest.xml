@@ -208,34 +208,7 @@
         </activity>
 
         <activity
-            android:name=".itemlist.RadioListActivity"
-            android:label="@string/app_name"
-            android:parentActivityName=".HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.HomeActivity"/>
-        </activity>
-
-        <activity
-            android:name=".itemlist.ApplicationListActivity"
-            android:label="@string/app_name"
-            android:parentActivityName=".HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.HomeActivity"/>
-        </activity>
-
-        <activity
-            android:name=".itemlist.PluginItemListActivity"
-            android:label="@string/app_name"
-            android:parentActivityName=".HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.HomeActivity"/>
-        </activity>
-
-        <activity
-            android:name=".itemlist.FavoriteListActivity"
+            android:name=".itemlist.PluginListActivity"
             android:label="@string/app_name"
             android:parentActivityName=".HomeActivity">
             <meta-data

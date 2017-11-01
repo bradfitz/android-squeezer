@@ -16,6 +16,9 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import java.util.AbstractMap;
+import java.util.Map;
+
 /**
  * Items that can be added to Squeezeserver playlists (anything that can be passed to the
  * <code>playlistcontrol</code> command) should derive from this class and implement {@link
@@ -42,7 +45,7 @@ public abstract class PlaylistItem extends Item implements FilterItem {
     }
 
     @Override
-    public String getFilterParameter() {
-        return getFilterTag() + ":" + getId();
+    public Map.Entry<String, Object> getFilterParameter() {
+        return new AbstractMap.SimpleEntry<>(getFilterTag(), (Object)getId());
     }
 }

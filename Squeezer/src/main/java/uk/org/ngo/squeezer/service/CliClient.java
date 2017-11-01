@@ -23,8 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.common.base.Joiner;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -67,7 +65,6 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -330,7 +327,7 @@ class CliClient extends BaseClient {
                         "items",
                         new HashSet<>(
                                 Arrays.asList("item_id", "search", "want_url", "charset")),
-                        new SqueezeParserInfo<>(new PluginItemListHandler()))
+                        new SqueezeParserInfo<>(new PluginListHandler()))
         );
 
         return list.toArray(new ExtendedQueryFormatCmd[list.size()]);
@@ -436,18 +433,24 @@ class CliClient extends BaseClient {
     protected <T extends Item> void internalRequestItems(BrowseRequest<T> request) {
         mPendingRequests.put(mCorrelationId, request);
         final StringBuilder sb = new StringBuilder();
-        if (request.getPlugin() != null) {
-            sb.append(request.getPlugin().getId()).append(" ");
+        for (String term : request.getCmd()) sb.append(" ").append(term);
+        sb.append(" ").append(request.getStart());
+        sb.append(" ").append(request.getItemsPerResponse());
+        for (Map.Entry<String, Object> parameter : request.getParams().entrySet()) {
+            sb.append(" ").append(parameter.getKey()).append(":").append(encode(Util.getStringOrEmpty(parameter.getValue())));
         }
-        Joiner.on(' ').appendTo(sb, request.getRequest(), request.getStart(), request.getItemsPerResponse());
-        if (request.getParameters() != null) {
-            for (String parameter : request.getParameters()) {
-                sb.append(" ").append(encode(parameter));
-            }
-        }
-        sb.append(" correlationid:");
-        sb.append(mCorrelationId++);
+        sb.append(" correlationid:").append(mCorrelationId++);
         command(request.getPlayer(), sb.toString());
+    }
+
+    @Override
+    public void playerCommand(Player player, String[] cmd, Map<String, Object> params) {
+        final StringBuilder sb = new StringBuilder();
+        for (String term : cmd) sb.append(" ").append(term);
+        for (Map.Entry<String, Object> parameter : params.entrySet()) {
+            sb.append(" ").append(parameter.getKey()).append(":").append(encode(Util.getStringOrEmpty(parameter.getValue())));
+        }
+        command(player, sb.toString());
     }
 
     @Override
@@ -680,35 +683,9 @@ class CliClient extends BaseClient {
     private class PluginListHandler extends BaseListHandler<Plugin> {
         @Override
         public void add(Map<String, Object> record) {
-            fixImageTag("icon", record);
+            fixImageTag(record);
             super.add(record);
         }
-    }
-
-    private class PluginItemListHandler extends BaseListHandler<PluginItem> {
-        @Override
-        public void add(Map<String, Object> record) {
-            fixImageTag("image", record);
-            super.add(record);
-        }
-    }
-
-    /**
-     * Make sure the icon/image tag is an absolute URL.
-     *
-     * @param record The record to modify.
-     */
-    private void fixImageTag(String imageTag, Map<String, Object> record) {
-        String image = Util.getString(record, imageTag);
-        if (image == null) {
-            return;
-        }
-
-        if (Uri.parse(image).isAbsolute()) {
-            return;
-        }
-
-        record.put(imageTag, mUrlPrefix + (image.startsWith("/") ? image : "/" + image));
     }
 
     // Shims around ConnectionState methods.

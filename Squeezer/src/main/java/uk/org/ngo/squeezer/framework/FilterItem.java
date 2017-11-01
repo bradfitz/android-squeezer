@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import java.util.Map;
+
 /**
  * Items which can be used as a filter in lists of another item
  *
@@ -30,6 +32,6 @@ public interface FilterItem {
     String getFilterTag();
 
     /** @return Tagged parameter to filter by this item. */
-    String getFilterParameter();
+    Map.Entry<String, Object> getFilterParameter();
 
 }

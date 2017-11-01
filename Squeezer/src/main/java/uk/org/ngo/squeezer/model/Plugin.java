@@ -20,16 +20,10 @@ import android.os.Parcel;
 
 import java.util.Map;
 
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 
 
 public class Plugin extends Item {
-
-    public static final Plugin FAVORITE = new Plugin("favorites", R.drawable.ic_favorites);
-    public static final Plugin MY_APPS = new Plugin("myapps", R.drawable.ic_my_apps);
-
     private String name;
 
     @Override
@@ -65,18 +59,10 @@ public class Plugin extends Item {
         return iconResource;
     }
 
-    public void setIconResource(int iconResource) {
-        this.iconResource = iconResource;
-    }
-
     private int weight;
 
     public int getWeight() {
         return weight;
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
     }
 
     private String type;
@@ -90,20 +76,24 @@ public class Plugin extends Item {
     }
 
     public boolean isSearchable() {
-        return "xmlbrowser_search".equals(type);
+        return (input != null);
     }
 
-    private Plugin(String cmd, int iconResource) {
-        setId(cmd);
-        setIconResource(iconResource);
-    }
 
     public Plugin(Map<String, Object> record) {
+        super(record);
+
         setId(getString(record, "cmd"));
         name = getString(record, "name");
         type = getString(record, "type");
         icon = getString(record, "icon");
         weight = getInt(record, "weight");
+
+        if (name == null) name = getString(record, "text");
+        if (icon == null) icon = getString(record, "icon-id");
+        if (getId() == null) {
+            setId(name.split("\n", 1)[0]);
+        }
     }
 
     public static final Creator<Plugin> CREATOR = new Creator<Plugin>() {
@@ -119,7 +109,7 @@ public class Plugin extends Item {
     };
 
     private Plugin(Parcel source) {
-        setId(source.readString());
+        super(source);
         name = source.readString();
         type = source.readString();
         icon = source.readString();
@@ -129,7 +119,7 @@ public class Plugin extends Item {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getId());
+        super.writeToParcel(dest, flags);
         dest.writeString(name);
         dest.writeString(type);
         dest.writeString(icon);
@@ -139,7 +129,16 @@ public class Plugin extends Item {
 
     @Override
     public String toStringOpen() {
-        return super.toStringOpen() + "type: " + getType() + ", weight: " + getWeight();
+        return super.toStringOpen()
+                + ", type: " + getType()
+                + ", weight: " + getWeight()
+                + ", go: " + goAction
+                + ", play: " + playAction
+                + ", add: " + addAction
+                + ", insert: " + insertAction;
     }
 
+    public boolean isPlayable() {
+        return (playAction != null);
+    }
 }

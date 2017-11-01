@@ -16,19 +16,29 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
+import uk.org.ngo.squeezer.framework.FilterItem;
+import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.framework.ItemView;
+import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-public abstract class PluginView extends BaseItemView<Plugin> {
+public class PluginView extends BaseItemView<Plugin> {
 
     public PluginView(BaseListActivity<Plugin> activity) {
         super(activity);
 
-        setViewParams(VIEW_PARAM_ICON);
+        setViewParams(VIEW_PARAM_ICON | VIEW_PARAM_CONTEXT_BUTTON);
+        setLoadingViewParams(VIEW_PARAM_ICON);
     }
 
     @Override
@@ -36,7 +46,65 @@ public abstract class PluginView extends BaseItemView<Plugin> {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
-        ImageFetcher.getInstance(getActivity()).loadImage(item.getIcon(), viewHolder.icon,
-                mIconWidth, mIconHeight);
+        // If the item has an image, then fetch and display it
+        if (item.getIcon() != null) {
+            ImageFetcher.getInstance(getActivity()).loadImage(item.getIcon(), viewHolder.icon,
+                    mIconWidth, mIconHeight);
+        } else {
+            // Otherwise we will revert to some other icon. This is not an exact approach, more
+            // like a best effort.
+            if (item.isPlayable()) {
+                viewHolder.icon.setImageResource(R.drawable.ic_songs);
+            } else {
+                viewHolder.icon.setVisibility(View.GONE);
+            }
+        }
+
+    }
+
+    @Override
+    public String getQuantityString(int quantity) {
+        throw new UnsupportedOperationException("quantities are not supported for plugins");
+    }
+
+    @Override
+    public boolean isSelectable(Plugin item) {
+        return super.isSelectable(item) && (item.goAction != null);
+    }
+
+    @Override
+    public void onItemSelected(int index, Plugin item) {
+        PluginListActivity.show(getActivity(), item);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ItemView.ContextMenuInfo menuInfo) {
+        Item item = menuInfo.item;
+        if (item.playAction != null) {
+            menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
+        }
+        if (item.addAction != null) {
+            menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
+        }
+        if (item.insertAction != null) {
+            menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
+        }
+    }
+
+    @Override
+    public boolean doItemContext(MenuItem menuItem, int index, Plugin selectedItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.play_now:
+                getActivity().action(selectedItem, selectedItem.playAction);
+                return true;
+            case R.id.add_to_playlist:
+                getActivity().action(selectedItem, selectedItem.addAction);
+                return true;
+            case R.id.play_next:
+                getActivity().action(selectedItem, selectedItem.insertAction);
+                return true;
+        }
+        return false;
     }
 }

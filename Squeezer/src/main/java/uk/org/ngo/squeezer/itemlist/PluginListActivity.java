@@ -16,11 +16,14 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringDef;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,6 +34,7 @@ import android.widget.TextView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +44,6 @@ import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /*
@@ -50,13 +53,12 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 public class PluginListActivity extends BaseListActivity<Plugin>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
 
+    private String cmd;
     private Plugin plugin;
-
-    private String search;
 
     @Override
     public ItemView<Plugin> createItemView() {
-        return new RadioView(this);
+        return new PluginView(this);
     }
 
     @Override
@@ -65,33 +67,35 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            cmd = extras.getString("cmd");
             plugin = extras.getParcelable(Plugin.class.getName());
-            findViewById(R.id.search_view).setVisibility(
-                    plugin.isSearchable() ? View.VISIBLE : View.GONE);
+            findViewById(R.id.search_view).setVisibility((isSearchable()) ? View.VISIBLE : View.GONE);
+            if (isSearchable()) {
+                ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+                final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
 
-            ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
-            final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
-
-            searchCriteriaText.setOnKeyListener(new OnKeyListener() {
-                @Override
-                public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if ((event.getAction() == KeyEvent.ACTION_DOWN)
-                            && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                        clearAndReOrderItems(searchCriteriaText.getText().toString());
-                        return true;
+                searchCriteriaText.setText(plugin.goAction.getInputValue());
+                searchCriteriaText.setOnKeyListener(new OnKeyListener() {
+                    @Override
+                    public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        if ((event.getAction() == KeyEvent.ACTION_DOWN)
+                                && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                            clearAndReOrderItems(searchCriteriaText.getText().toString());
+                            return true;
+                        }
+                        return false;
                     }
-                    return false;
-                }
-            });
+                });
 
-            searchButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (getService() != null) {
-                        clearAndReOrderItems(searchCriteriaText.getText().toString());
+                searchButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (getService() != null) {
+                            clearAndReOrderItems(searchCriteriaText.getText().toString());
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
@@ -101,21 +105,30 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         header.setVisibility(View.VISIBLE);
     }
 
-    public Plugin getPlugin() {
-        return plugin;
-    }
 
     private void clearAndReOrderItems(String searchString) {
-        if (getService() != null && !(plugin.isSearchable() && (searchString == null
-                || searchString.length() == 0))) {
-            search = searchString;
-            super.clearAndReOrderItems();
+        if (getService() != null && !TextUtils.isEmpty(searchString)) {
+            plugin.goAction.action.params.put(plugin.goAction.action.inputParam, searchString);
+            clearAndReOrderItems();
         }
+    }
+
+    private boolean isSearchable() {
+        return plugin != null && plugin.isSearchable();
+    }
+
+    private boolean isSearchReady() {
+        return (!isSearchable() || plugin.goAction.isSearchReady());
     }
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
-        service.apps(start, this);
+        if (plugin != null) {
+            if (isSearchReady())
+                service.pluginItems(start, plugin, this);
+        } else {
+            service.pluginItems(start, cmd, this);
+        }
     }
 
 
@@ -170,14 +183,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         });
     }
 
-    private boolean pluginPlaylistControl(@PluginPlaylistControlCmd String cmd, PluginItem item) {
-        if (getService() == null) {
-            return false;
-        }
-        getService().pluginPlaylistControl(plugin, cmd, item.getId());
-        return true;
-    }
-
     @StringDef({PLUGIN_PLAYLIST_PLAY, PLUGIN_PLAYLIST_PLAY_NOW, PLUGIN_PLAYLIST_ADD_TO_END,
             PLUGIN_PLAYLIST_PLAY_AFTER_CURRENT})
     @Retention(RetentionPolicy.SOURCE)
@@ -186,5 +191,29 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     public static final String PLUGIN_PLAYLIST_PLAY_NOW = "load";
     public static final String PLUGIN_PLAYLIST_ADD_TO_END = "add";
     public static final String PLUGIN_PLAYLIST_PLAY_AFTER_CURRENT = "insert";
+
+    public static void apps(Activity activity) {
+        show(activity, "apps");
+    }
+
+    public static void radios(Activity activity) {
+        show(activity, "radios");
+    }
+
+    public static void favorites(Activity activity) {
+        show(activity, "favorites");
+    }
+
+    private static void show(Activity activity, String plugin) {
+        final Intent intent = new Intent(activity, PluginListActivity.class);
+        intent.putExtra("cmd", plugin);
+        activity.startActivity(intent);
+    }
+
+    public static void show(Activity activity, Plugin plugin) {
+        final Intent intent = new Intent(activity, PluginListActivity.class);
+        intent.putExtra(Plugin.class.getName(), plugin);
+        activity.startActivity(intent);
+    }
 
 }

@@ -20,9 +20,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 import de.greenrobot.event.EventBus;
+import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.FilterItem;
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -35,7 +38,6 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 
@@ -131,7 +133,6 @@ public interface ISqueezeService {
     boolean playlistMove(int fromIndex, int toIndex);
     boolean playlistClear();
     boolean playlistSave(String name);
-    boolean pluginPlaylistControl(Plugin plugin, String cmd, String id);
 
     boolean setSecondsElapsed(int seconds);
 
@@ -211,11 +212,11 @@ public interface ISqueezeService {
     // Search
     void search(int start, String searchString, IServiceItemListCallback itemListCallback) throws SqueezeService.HandshakeNotCompleteException;
 
-    // Radios/plugins
-    void radios(int start, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
-    void apps(int start, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+    // Plugins (Radios/Apps (music services)/Favorites)
+    void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, Plugin plugin, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
+    boolean action(Item item, Action action);
 
-    void pluginItems(int start, Plugin plugin, PluginItem parent, String search, IServiceItemListCallback<PluginItem> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
      * Initiate download of songs for the supplied item.
@@ -223,5 +224,4 @@ public interface ISqueezeService {
      * @param item Song or item with songs to download
      */
     void downloadItem(FilterItem item) throws SqueezeService.HandshakeNotCompleteException;
-
 }
