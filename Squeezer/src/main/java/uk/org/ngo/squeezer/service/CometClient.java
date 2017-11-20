@@ -610,7 +610,7 @@ class CometClient extends BaseClient {
 
     @Override
     public void disconnect(boolean loginFailed) {
-        mBackgroundHandler.sendEmptyMessage(MSG_DISCONNECT);
+        if (mBayeuxClient != null) mBackgroundHandler.sendEmptyMessage(MSG_DISCONNECT);
         mConnectionState.disconnect(loginFailed);
         mPlayers.clear();
     }
