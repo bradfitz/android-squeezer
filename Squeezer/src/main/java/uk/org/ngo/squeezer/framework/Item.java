@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.framework;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,8 @@ import uk.org.ngo.squeezer.Util;
  * @author Kurt Aaholst
  */
 public abstract class Item implements Parcelable {
+    private static final String TAG = Item.class.getSimpleName();
+
     private String id;
 
     public void setId(String id) {
@@ -62,10 +65,29 @@ public abstract class Item implements Parcelable {
         }
         Map<String, Object> actionsRecord = (Map<String, Object>) record.get("actions");
         input = extractInput((Map<String, Object>) record.get("input"));
-        goAction = extractAction("go", baseActions, actionsRecord, record);
-        playAction = extractAction("play", baseActions, actionsRecord, record);
-        addAction = extractAction("add", baseActions, actionsRecord, record);
-        insertAction = extractAction("add-hold", baseActions, actionsRecord, record);
+        goAction = extractAction("go", baseActions, actionsRecord, record, baseRecord);
+        playAction = extractAction("play", baseActions, actionsRecord, record, baseRecord);
+        addAction = extractAction("add", baseActions, actionsRecord, record, baseRecord);
+        insertAction = extractAction("add-hold", baseActions, actionsRecord, record, baseRecord);
+
+        // If we have a goAction, and nextWindow is nowPlaying, attempt to disable goAction, as we
+        // preferably won't play when item is selected.
+        // Note: We won't actually go to the nowPlaying screen as it is always accessible from the
+        // nowPlaying fragment
+        if (goAction != null && goAction.nextWindow != null && Action.NextWindowEnum.nowPlaying == goAction.nextWindow.nextWindow) {
+            if (goAction.equals(playAction)) {
+                // Remove identical goAction
+                goAction = null;
+            } else if (playAction == null) {
+                // Switch to playAction
+                playAction = goAction;
+                goAction = null;
+            }
+
+            if (goAction != null) {
+                Log.w(TAG, "warning, go: " + goAction);
+            }
+        }
     }
 
     public Item(Parcel source) {
@@ -171,7 +193,7 @@ public abstract class Item implements Parcelable {
         return input;
     }
 
-    private Action extractAction(String actionName, Map<String, Object> baseActions, Map<String, Object> itemActions, Map<String, Object> record) {
+    private Action extractAction(String actionName, Map<String, Object> baseActions, Map<String, Object> itemActions, Map<String, Object> record, Map<String, Object> baseRecord) {
         Map<String, Object> actionsRecord = (itemActions != null ? (Map<String, Object>) itemActions.get(actionName) : null);
         Map<String, Object> itemParams = null;
         if (actionsRecord == null && baseActions != null) {
@@ -189,6 +211,11 @@ public abstract class Item implements Parcelable {
         if (actionsRecord == null) return null;
 
         Action action = new Action();
+
+        action.nextWindow = Action.NextWindow.fromString(getString(actionsRecord, "nextWindow"));
+        if (action.nextWindow == null) action.nextWindow = Action.NextWindow.fromString(getString(record, "nextWindow"));
+        if (action.nextWindow == null && baseRecord != null) action.nextWindow = Action.NextWindow.fromString(getString(baseRecord, "nextWindow"));
+
         action.action = new Action.JsonAction();
         action.action.cmd = Util.getStringArray((Object[]) actionsRecord.get("cmd"));
         action.action.params =new HashMap<>((Map<String, Object>) actionsRecord.get("params"));

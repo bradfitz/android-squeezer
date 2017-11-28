@@ -685,13 +685,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     public void onEvent(HandshakeComplete event) {
         mHandshakeComplete = true;
-//        fetchPlugins("radios");
-//        fetchPlugins("apps");
+        //fetchPlugins("menu");
     }
 
     protected void fetchPlugins(String cmd) {
         HashMap<String, Object> params = new HashMap<>();
-        params.put("menu", "menu");
+        params.put("direct", "1");
         fetchPlugins(new File(getFilesDir(), cmd), new String[]{cmd}, params);
     }
 
@@ -700,7 +699,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         mClient.requestItems(mActivePlayer.get(), cmd, params, -1, new IServiceItemListCallback<Plugin>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
-                path.mkdirs();
+                path.getParentFile().mkdirs();
                 File file = new File(path.getParentFile(), path.getName() + ".json");
                 try {
                     FileOutputStream output = new FileOutputStream(file);

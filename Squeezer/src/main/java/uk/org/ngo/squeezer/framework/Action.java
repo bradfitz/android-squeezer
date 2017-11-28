@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcel;
-import android.text.TextUtils;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -31,8 +30,8 @@ import uk.org.ngo.squeezer.Util;
 public class Action {
     private static final String INPUT_PLACEHOLDER = "__TAGGEDINPUT__";
 
-    public String name;
     public String urlCommand;
+    public NextWindow nextWindow;
     public JsonAction action;
 
     public void initInputParam() {
@@ -62,11 +61,10 @@ public class Action {
         if (source.readInt() == 0) return null;
 
         Action action = new Action();
-        action.name = source.readString();
         action.urlCommand = source.readString();
+        action.nextWindow = NextWindow.fromString(source.readString());
         if (action.urlCommand == null) {
             action.action = new JsonAction();
-            action.action.action = source.readString();
             action.action.cmd = source.createStringArray();
             action.action.inputParam = source.readString();
             action.action.params = Util.mapify(source.createStringArray());
@@ -79,10 +77,9 @@ public class Action {
         dest.writeInt(action == null ? 0 : 1);
         if (action == null) return;
 
-        dest.writeString(action.name);
         dest.writeString(action.urlCommand);
+        dest.writeString(action.nextWindow == null ? null : action.nextWindow.toString());
         if (action.urlCommand == null) {
-            dest.writeString(action.action.action);
             dest.writeStringArray(action.action.cmd);
             dest.writeString(action.action.inputParam);
             String[] tokens = new String[action.action.params.size()];
@@ -94,8 +91,38 @@ public class Action {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Action{" +
+                "urlCommand='" + urlCommand + '\'' +
+                ", action=" + action +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Action action1 = (Action) o;
+
+        if (urlCommand != null ? !urlCommand.equals(action1.urlCommand) : action1.urlCommand != null)
+            return false;
+        if (nextWindow != null ? !nextWindow.equals(action1.nextWindow) : action1.nextWindow != null)
+            return false;
+        return action != null ? action.equals(action1.action) : action1.action == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = urlCommand != null ? urlCommand.hashCode() : 0;
+        result = 31 * result + (nextWindow != null ? nextWindow.hashCode() : 0);
+        result = 31 * result + (action != null ? action.hashCode() : 0);
+        return result;
+    }
+
     public static class JsonAction {
-        public String action;
         public String[] cmd;
         public String inputParam;
         public Map<String, Object> params;
@@ -103,19 +130,87 @@ public class Action {
         @Override
         public String toString() {
             return "JsonAction{" +
-                    "action='" + action + '\'' +
-                    ", cmd=" + Arrays.toString(cmd) +
+                    "cmd=" + Arrays.toString(cmd) +
                     ", params=" + params +
                     '}';
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            JsonAction that = (JsonAction) o;
+
+            // Probably incorrect - comparing Object[] arrays with Arrays.equals
+            if (!Arrays.equals(cmd, that.cmd)) return false;
+            if (inputParam != null ? !inputParam.equals(that.inputParam) : that.inputParam != null)
+                return false;
+            return params != null ? params.equals(that.params) : that.params == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Arrays.hashCode(cmd);
+            result = 31 * result + (inputParam != null ? inputParam.hashCode() : 0);
+            result = 31 * result + (params != null ? params.hashCode() : 0);
+            return result;
+        }
     }
 
-    @Override
-    public String toString() {
-        return "Action{" +
-                "name='" + name + '\'' +
-                ", urlCommand='" + urlCommand + '\'' +
-                ", action=" + action +
-                '}';
+    public static class NextWindow {
+        public NextWindowEnum nextWindow;
+        public String windowId;
+
+        public static NextWindow fromString(String s) {
+            return (s == null ? null : new NextWindow(s));
+        }
+
+        public NextWindow(String nextWindow) {
+            try {
+                this.nextWindow = NextWindowEnum.valueOf(nextWindow);
+            } catch (IllegalArgumentException e) {
+                this.nextWindow = NextWindowEnum.windowId;
+                windowId = nextWindow;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return (nextWindow == NextWindowEnum.windowId ? windowId : nextWindow.name());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            NextWindow that = (NextWindow) o;
+
+            if (nextWindow != that.nextWindow) return false;
+            return windowId != null ? windowId.equals(that.windowId) : that.windowId == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = nextWindow != null ? nextWindow.hashCode() : 0;
+            result = 31 * result + (windowId != null ? windowId.hashCode() : 0);
+            return result;
+        }
     }
+
+    public enum NextWindowEnum {
+        nowPlaying, // push to the Now Playing browse window
+        playlist, // push to the current playlist window
+        home, // push to the top level "home" window
+        parent, // push back to the previous window in the stack and refresh that window with the json that created it
+        parentNoRefresh, // same as parent but do not refresh the window
+        grandparent, // push back two windows in the stack
+        refresh, // stay on this window, but resend the cli command that was used to construct it and refresh the window with the freshly returned data
+        refreshOrigin, // push to the previous window in the stack, but resend the cli command that was used to construct it and refresh the window with the freshly returned data
+        windowId, // (7.4+)any other value of a window that is present on the window stack and has a "windowId" in it's window fields. Search the window stack backwards until a window with this windowId is found and pop all windows above it.
+    }
+
 }
