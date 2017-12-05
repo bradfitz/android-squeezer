@@ -38,9 +38,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.HomeActivity;
+import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
+import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -141,6 +144,22 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                     updateHeader(Util.getString(parameters, "title"));
                 }
             });
+        }
+
+        if (parameters.containsKey("goNow")) {
+            Action.NextWindow nextWindow = Action.NextWindow.fromString(Util.getString(parameters, "goNow"));
+            switch (nextWindow.nextWindow) {
+                case nowPlaying:
+                    NowPlayingActivity.show(this);
+                    break;
+                case playlist:
+                    CurrentPlaylistActivity.show(this);
+                    break;
+                case home:
+                    HomeActivity.show(this);
+                    break;
+            }
+            finish();
         }
 
         // The documentation says "Returned with value 1 if there was a network error accessing
