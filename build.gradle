@@ -6,9 +6,18 @@ allprojects {
     }
 }
 
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+    }
+}
+
 ext {
     compileSdkVersion = 24
-    buildToolsVersion = "25.0.2"
     minSdkVersion = 9
     targetSdkVersion = 21
 
