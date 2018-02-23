@@ -700,7 +700,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
                 path.getParentFile().mkdirs();
-                File file = new File(path.getParentFile(), path.getName() + ".json");
+                File file = new File(path.getParentFile(), path.getName() + "." + start + ".json");
                 try {
                     FileOutputStream output = new FileOutputStream(file);
                     output.write(JSON.toString(parameters).getBytes());

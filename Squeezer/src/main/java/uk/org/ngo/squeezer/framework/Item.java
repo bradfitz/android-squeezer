@@ -218,7 +218,11 @@ public abstract class Item implements Parcelable {
 
         action.action = new Action.JsonAction();
         action.action.cmd = Util.getStringArray((Object[]) actionsRecord.get("cmd"));
-        action.action.params =new HashMap<>((Map<String, Object>) actionsRecord.get("params"));
+        action.action.params = new HashMap<>();
+        Map<String, Object> params = (Map<String, Object>) actionsRecord.get("params");
+        if (params != null) {
+            action.action.params.putAll(params);
+        }
         if (itemParams != null) {
             action.action.params.putAll(itemParams);
         }
