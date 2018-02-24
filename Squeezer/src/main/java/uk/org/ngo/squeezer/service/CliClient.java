@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.net.Uri;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
@@ -47,7 +46,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.R;
@@ -79,9 +77,6 @@ import uk.org.ngo.squeezer.service.event.PlaylistTracksDeleted;
 class CliClient extends BaseClient {
 
     private static final String TAG = "CliClient";
-
-    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
-    private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
 
 
     /** Executor for off-main-thread work. */

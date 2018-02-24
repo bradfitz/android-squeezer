@@ -76,9 +76,6 @@ class CometClient extends BaseClient {
     /** The maximum number of milliseconds to wait before considering a request to the LMS failed */
     private static final int LONG_POLLING_TIMEOUT = 120_000;
 
-    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
-    private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
-
     /** {@link java.util.regex.Pattern} that splits strings on forward slash. */
     private static final Pattern mSlashSplitPattern = Pattern.compile("/");
 
@@ -144,7 +141,7 @@ class CometClient extends BaseClient {
                 .put("genres", new GenresListener())
                 .put("years", new YearsListener())
                 .put("playlists", new PlaylistsListener())
-                .put("playlists tracks", new SongsListener())
+                .put("playlists tracks", new SongsListener("count", "playlisttracks_loop"))
                 .put("musicfolder", new MusicFolderListener())
                 .put("alarms", new AlarmsListener())
                 .put("alarm playlists", new AlarmPlaylistsListener())

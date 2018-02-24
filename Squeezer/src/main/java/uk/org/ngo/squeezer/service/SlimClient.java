@@ -99,19 +99,19 @@ interface SlimClient {
 
     /**
      * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
-     * with null player, a single command term and default page size
+     * with null player, command terms from cmd and default page size
      */
     <T extends Item> void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback<T> callback);
 
     /**
      * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
-     * with a single command term and default page size
+     * with default page size
      */
     <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
 
     /**
      * Calls {@link #requestItems(Player, String[], Map, int, IServiceItemListCallback)}
-     * with a single command term
+     * with command terms from <code>cmd</code>
      */
     <T extends Item> void requestItems(Player player, String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
 
@@ -123,7 +123,7 @@ interface SlimClient {
 
     /**
      * Calls {@link #requestItems(String[], Map, int, IServiceItemListCallback)}
-     * with a single command term and default page size
+     * with command terms from <code>cmd</code> and default page size
      */
     <T extends Item> void requestItems(String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
 

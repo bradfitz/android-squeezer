@@ -1676,7 +1676,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             Map<String, Object> params = new HashMap<>();
             params.put("tags", BaseClient.SONGTAGS);
             addFilters(params, new FilterItem[]{playlist});
-            mClient.requestItems(new String[]{"playlists", "tracks"}, params, start, callback);
+            mClient.requestItems("playlists tracks", params, start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's playlists */

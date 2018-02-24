@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.service;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.R;
@@ -69,6 +71,9 @@ abstract class BaseClient implements SlimClient {
      */
     // This should probably be a field in Song.
     static final String SONGTAGS = "aCdejJKlstxyu";
+
+    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
+    static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
 
     // Where we connected (or are connecting) to:
     final AtomicReference<String> currentHost = new AtomicReference<>();
@@ -123,7 +128,7 @@ abstract class BaseClient implements SlimClient {
 
     @Override
     public <T extends Item> void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, new String[]{cmd}, null, start, pageSize, callback);
+        internalRequestItems(null, mSpaceSplitPattern.split(cmd), null, start, pageSize, callback);
     }
 
     @Override
@@ -133,7 +138,7 @@ abstract class BaseClient implements SlimClient {
 
     @Override
     public <T extends Item> void requestItems(Player player, String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(player, new String[]{cmd}, params, start, callback);
+        internalRequestItems(player, mSpaceSplitPattern.split(cmd), params, start, callback);
     }
 
     @Override
@@ -144,12 +149,12 @@ abstract class BaseClient implements SlimClient {
 
     @Override
     public <T extends Item> void requestItems(String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, new String[]{cmd}, params, start, callback);
+        internalRequestItems(null, mSpaceSplitPattern.split(cmd), params, start, callback);
     }
 
     @Override
     public <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, new String[]{cmd}, null, start, callback);
+        internalRequestItems(null, mSpaceSplitPattern.split(cmd), null, start, callback);
     }
 
     public void initialize() {
@@ -342,7 +347,7 @@ abstract class BaseClient implements SlimClient {
      * @param record The record to modify.
      */
     @SuppressWarnings("unchecked")
-    protected void fixImageTag(Map<String, Object> record) {
+    void fixImageTag(Map<String, Object> record) {
         Set<String> iconTags = new HashSet<>(Arrays.asList("icon", "image", "icon-id"));
         for (Map.Entry<String, Object> entry : record.entrySet()) {
             if (entry.getValue() instanceof Map) {
@@ -363,6 +368,7 @@ abstract class BaseClient implements SlimClient {
     }
 
 
+    private static Joiner joiner = Joiner.on(" ");
     static class BrowseRequest<T extends Item> {
         private final Player player;
         private final String[] cmd;
@@ -397,7 +403,7 @@ abstract class BaseClient implements SlimClient {
         }
 
         public String getRequest() {
-            return cmd[0];
+            return joiner.join(cmd);
         }
 
         boolean isFullList() {
