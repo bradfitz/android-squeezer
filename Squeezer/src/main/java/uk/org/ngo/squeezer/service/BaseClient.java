@@ -39,7 +39,6 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
@@ -71,6 +70,8 @@ abstract class BaseClient implements SlimClient {
     // This should probably be a field in Song.
     static final String SONGTAGS = "aCdejJKlstxyu";
 
+    final static int mPageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
+
     // Where we connected (or are connecting) to:
     final AtomicReference<String> currentHost = new AtomicReference<>();
     final AtomicReference<Integer> httpPort = new AtomicReference<>();
@@ -86,106 +87,31 @@ abstract class BaseClient implements SlimClient {
     /** The prefix for URLs for downloads and cover art. */
     String mUrlPrefix;
 
-    final int mPageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
-
     BaseClient(@NonNull EventBus eventBus) {
         mEventBus = eventBus;
         mConnectionState = new ConnectionState(eventBus);
     }
 
-    protected abstract <T extends Item> void internalRequestItems(BrowseRequest<T> browseRequest);
-
-
-    @Override
-    public void command(final Player player, final String[] command) {
-        command(player, command, Collections.<String, Object>emptyMap());
-    }
-
-    @Override
-    public void command(final String[] command) {
-        command(null, command);
-    }
-
-    @Override
-    public void command(String[] command, Map<String, Object> params) {
-        command(null, command, params);
-    }
-
-    private <T extends Item> void internalRequestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, final IServiceItemListCallback<T> callback) {
-        final BrowseRequest<T> browseRequest = new BrowseRequest<>(player, cmd, params, start, pageSize, callback);
-        internalRequestItems(browseRequest);
-    }
-
-    private <T extends Item> void internalRequestItems(Player player, String cmd[], Map<String, Object> params, int start, final IServiceItemListCallback<T> callback) {
-        internalRequestItems(player, cmd, params, start, (start == 0 ? 1 : mPageSize), callback);
+    ConnectionState getConnectionState() {
+        return mConnectionState;
     }
 
     @Override
     public <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
-        internalRequestItems(player, cmd, params, start, pageSize, callback);
+        final BaseClient.BrowseRequest<T> browseRequest = new BaseClient.BrowseRequest<>(player, cmd, params, start, pageSize, callback);
+        internalRequestItems(browseRequest);
     }
 
-    @Override
-    public <T extends Item> void requestItems(String[] cmd, int start, int pageSize, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, cmd, null, start, pageSize, callback);
+    protected abstract <T extends Item> void internalRequestItems(BrowseRequest<T> browseRequest);
+
+    <T extends Item> void internalRequestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, final IServiceItemListCallback<T> callback) {
+        requestItems(player, cmd, params, start, pageSize, callback);
     }
 
-    @Override
-    public <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(player, cmd, params, start, callback);
+    <T extends Item> void internalRequestItems(Player player, String cmd[], Map<String, Object> params, int start, final IServiceItemListCallback<T> callback) {
+        internalRequestItems(player, cmd, params, start, (start == 0 ? 1 : mPageSize), callback);
     }
 
-    @Override
-    public <T extends Item> void requestItems(Player player, String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(player, new String[]{cmd}, params, start, callback);
-
-    }
-
-    @Override
-    public <T extends Item> void requestItems(String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null,cmd, params, start, callback);
-
-    }
-
-    @Override
-    public <T extends Item> void requestItems(String[] cmd, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, cmd, null, start, callback);
-    }
-
-    @Override
-    public <T extends Item> void requestItems(String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, new String[]{cmd}, params, start, callback);
-    }
-
-    @Override
-    public <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, new String[]{cmd}, null, start, callback);
-    }
-
-    public void initialize() {
-        mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
-    }
-
-    public boolean isConnected() {
-        return mConnectionState.isConnected();
-    }
-
-    public boolean isConnectInProgress() {
-        return mConnectionState.isConnectInProgress();
-    }
-
-    @Override
-    public String getServerVersion() {
-        return mConnectionState.getServerVersion();
-    }
-
-    public String[] getMediaDirs() {
-        return mConnectionState.getMediaDirs();
-    }
-
-    public String getPreferredAlbumSort() {
-        return mConnectionState.getPreferredAlbumSort();
-    }
 
     int getHttpPort() {
         return httpPort.get();
@@ -372,9 +298,9 @@ abstract class BaseClient implements SlimClient {
         }
     }
 
+    protected static class BrowseRequest<T extends Item> {
+        private static Joiner joiner = Joiner.on(" ");
 
-    private static Joiner joiner = Joiner.on(" ");
-    static class BrowseRequest<T extends Item> {
         private final Player player;
         private final String[] cmd;
         private final boolean fullList;
@@ -431,5 +357,4 @@ abstract class BaseClient implements SlimClient {
             return callback;
         }
     }
-
 }

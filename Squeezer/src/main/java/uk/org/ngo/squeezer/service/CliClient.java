@@ -81,7 +81,7 @@ class CliClient extends BaseClient {
 
 
     /** {@link java.util.regex.Pattern} that splits strings on spaces. */
-    static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
+    private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
 
     /** Executor for off-main-thread work. */
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
@@ -1238,7 +1238,7 @@ class CliClient extends BaseClient {
      * Posts a PlayersChanged message if the list of players has changed.
      */
     private void fetchPlayers() {
-        requestItems("players", -1, new IServiceItemListCallback<Player>() {
+        requestItems(null, new String[]{"players"}, Collections.<String, Object>emptyMap(), -1, mPageSize, new IServiceItemListCallback<Player>() {
             private final HashMap<String, Player> players = new HashMap<>();
 
             @Override

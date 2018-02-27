@@ -170,7 +170,7 @@ class CometClient extends BaseClient {
                                 player.getPlayerState().setCurrentVolume(newVolume);
                                 mEventBus.post(new PlayerVolume(newVolume, player));
                             } else {
-                                command(player, new String[]{"mixer", "volume", "?"});
+                                command(player, new String[]{"mixer", "volume", "?"}, Collections.<String, Object>emptyMap());
                             }
                         }
                     }
@@ -186,7 +186,7 @@ class CometClient extends BaseClient {
                                 } else {
                                     Map<String, Object> params = new HashMap<>(request.params);
                                     params.remove("dry_run");
-                                    command(request.cmd, params);
+                                    command(null, request.cmd, params);
                                 }
                             }
                         }

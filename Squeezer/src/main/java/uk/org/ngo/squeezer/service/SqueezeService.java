@@ -143,7 +143,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         callbacks.remove(item);
     }
 
-    final SlimClient mClient = new CometClient(mEventBus);
+    private final SlimDelegate mDelegate = new SlimDelegate(mEventBus);
 
     /**
      * Is scrobbling enabled?
@@ -232,7 +232,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
 
         mEventBus.register(this, 1);  // Get events before other subscribers
-        mClient.initialize();
+        mDelegate.initialize();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             registerReceiver(deviceIdleModeReceiver, new IntentFilter(
@@ -316,12 +316,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     void disconnect(boolean isServerDisconnect) {
-        mClient.disconnect(isServerDisconnect && !mHandshakeComplete);
+        mDelegate.disconnect(isServerDisconnect && !mHandshakeComplete);
     }
 
     public void activePlayerCommand(final String[] command, Map<String, Object> params) {
         if (mActivePlayer.get() != null) {
-            mClient.command(mActivePlayer.get(), command, params);
+            mDelegate.command(mActivePlayer.get(), command, params);
         }
     }
 
@@ -379,7 +379,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         // If this is a new player then start an async fetch of its status.
         if (newActivePlayer != null) {
-            mClient.requestPlayerStatus(newActivePlayer);
+            mDelegate.requestPlayerStatus(newActivePlayer);
         }
 
         // NOTE: this involves a write and can block (sqlite lookup via binder call), so
@@ -462,7 +462,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             return;
         }
 
-        mClient.subscribePlayerStatus(player, playerSubscriptionType);
+        mDelegate.subscribePlayerStatus(player, playerSubscriptionType);
     }
 
     /**
@@ -698,7 +698,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     protected void fetchPlugins(final File path, String cmd[], Map<String, Object> params) {
         Log.i(TAG, "fetchPlugins(path:" + path + ", cmd:" + cmd + ", params:" + params + ")");
-        mClient.requestItems(mActivePlayer.get(), cmd, params, -1, new IServiceItemListCallback<Plugin>() {
+        mDelegate.requestItems(mActivePlayer.get(), cmd, params, -1, new IServiceItemListCallback<Plugin>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
                 path.getParentFile().mkdirs();
@@ -912,7 +912,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         String serverPath = serverUrl.getPath();
         String mediaDir = null;
         String path;
-        for (String dir : mClient.getMediaDirs()) {
+        for (String dir : mDelegate.getMediaDirs()) {
             if (serverPath.startsWith(dir)) {
                 mediaDir = dir;
                 break;
@@ -1026,7 +1026,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void adjustVolumeTo(Player player, int newVolume) {
-            mClient.command(player, new String[]{"mixer", "volume", String.valueOf(Math.min(100, Math.max(0, newVolume)))});
+            mDelegate.command(player, new String[]{"mixer", "volume", String.valueOf(Math.min(100, Math.max(0, newVolume)))});
         }
 
         @Override
@@ -1045,19 +1045,19 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public boolean isConnected() {
-            return mClient.isConnected();
+            return mDelegate.isConnected();
         }
 
         @Override
         public boolean isConnectInProgress() {
-            return mClient.isConnectInProgress();
+            return mDelegate.isConnectInProgress();
         }
 
         @Override
         public void startConnect(String host, int cliPort, int httpPort, String userName, String password) {
             mUsername = userName;
             mPassword = password;
-            mClient.startConnect(SqueezeService.this, host, cliPort, httpPort, userName, password);
+            mDelegate.startConnect(SqueezeService.this, host, cliPort, httpPort, userName, password);
         }
 
         @Override
@@ -1080,28 +1080,28 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void togglePower(Player player) {
-            mClient.command(player, new String[]{"power"});
+            mDelegate.command(player, new String[]{"power"});
         }
 
         @Override
         public void playerRename(Player player, String newName) {
-            mClient.command(player, new String[]{"name", newName});
+            mDelegate.command(player, new String[]{"name", newName});
         }
 
         @Override
         public void sleep(Player player, int duration) {
-            mClient.command(player, new String[]{"sleep", String.valueOf(duration)});
+            mDelegate.command(player, new String[]{"sleep", String.valueOf(duration)});
         }
 
         @Override
         public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
             Player master = mPlayers.get(masterId);
-            mClient.command(master, new String[]{"sync", slave.getId()});
+            mDelegate.command(master, new String[]{"sync", slave.getId()});
         }
 
         @Override
         public void unsyncPlayer(@NonNull Player player) {
-            mClient.command(player, new String[]{"sync", "-"});
+            mDelegate.command(player, new String[]{"sync", "-"});
         }
 
 
@@ -1164,7 +1164,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         private boolean canPower() {
             Player player = mActivePlayer.get();
-            return mClient.isConnected() && player != null && player.isCanpoweroff();
+            return mDelegate.isConnected() && player != null && player.isCanpoweroff();
         }
 
         @Override
@@ -1172,7 +1172,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            return mClient.getServerVersion();
+            return mDelegate.getServerVersion();
         }
 
         @Override
@@ -1180,13 +1180,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            return mClient.getPreferredAlbumSort();
+            return mDelegate.getPreferredAlbumSort();
         }
 
         @Override
         public void setPreferredAlbumSort(String preferredAlbumSort) {
             if (isConnected()) {
-                mClient.command(new String[]{"pref", "jivealbumsort", preferredAlbumSort});
+                mDelegate.command(new String[]{"pref", "jivealbumsort", preferredAlbumSort});
             }
         }
 
@@ -1460,7 +1460,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void cancelItemListRequests(Object client) {
-            mClient.cancelClientRequests(client);
+            mDelegate.cancelClientRequests(client);
         }
 
         @Override
@@ -1489,7 +1489,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
             Map<String, Object> params = new HashMap<>();
             params.put("filter", "all");
-            mClient.requestItems(mActivePlayer.get(), "alarms", params, start, callback);
+            mDelegate.requestItems(mActivePlayer.get(), "alarms", params, start, callback);
         }
 
         @Override
@@ -1505,7 +1505,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             // categories (eg. Favorites, Natural Sounds etc.), but the returned list is flattened,
             // i.e. contains all items of the requested categories.
             // So we order all playlists like below, hoping there are no more than 99 categories.
-            mClient.requestItems(new String[]{"alarm", "playlists"}, 0, 99, callback);
+            mDelegate.requestItems(new String[]{"alarm", "playlists"}, 0, 99, callback);
         }
 
         @Override
@@ -1588,7 +1588,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 params.put("search", searchString);
             }
             addFilters(params, filters);
-            mClient.requestItems("albums", params, start, callback);
+            mDelegate.requestItems("albums", params, start, callback);
         }
 
         private void addFilters(Map<String, Object> params, FilterItem[] filters) {
@@ -1610,7 +1610,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 params.put("search", searchString);
             }
             addFilters(params, filters);
-            mClient.requestItems("artists", params, start, callback);
+            mDelegate.requestItems("artists", params, start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's years */
@@ -1619,7 +1619,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            mClient.requestItems("years", start, callback);
+            mDelegate.requestItems("years", start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's genres */
@@ -1632,7 +1632,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (searchString != null && searchString.length() > 0) {
                 params.put("search", searchString);
             }
-            mClient.requestItems("genres", params, start, callback);
+            mDelegate.requestItems("genres", params, start, callback);
         }
 
         /**
@@ -1658,7 +1658,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             params.put("tags", "");//TODO only available from version 7.6 so instead keep track of path
             addFilters(params, new FilterItem[]{musicFolderItem});
 
-            mClient.requestItems("musicfolder", params, start, callback);
+            mDelegate.requestItems("musicfolder", params, start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's songs */
@@ -1674,7 +1674,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 params.put("search", searchString);
             }
             addFilters(params, filters);
-            mClient.requestItems("songs", params, start, callback);
+            mDelegate.requestItems("songs", params, start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's current playlist */
@@ -1685,7 +1685,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
             Map<String, Object> params = new HashMap<>();
             params.put("tags", BaseClient.SONGTAGS);
-            mClient.requestItems(mActivePlayer.get(), "status", params, start, callback);
+            mDelegate.requestItems(mActivePlayer.get(), "status", params, start, callback);
         }
 
         /* Start an async fetch of the songs of the supplied playlist */
@@ -1697,7 +1697,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             Map<String, Object> params = new HashMap<>();
             params.put("tags", BaseClient.SONGTAGS);
             addFilters(params, new FilterItem[]{playlist});
-            mClient.requestItems(new String[]{"playlists", "tracks"}, params, start, callback);
+            mDelegate.requestItems(new String[]{"playlists", "tracks"}, params, start, callback);
         }
 
         /* Start an async fetch of the SqueezeboxServer's playlists */
@@ -1706,7 +1706,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            mClient.requestItems("playlists", start, callback);
+            mDelegate.requestItems("playlists", start, callback);
         }
 
         @Override
@@ -1714,7 +1714,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mClient.command(new String[]{"playlists", "delete"}, Collections.singletonMap(playlist.getFilterTag(), (Object) playlist.getId()));
+            mDelegate.command(new String[]{"playlists", "delete"}, Collections.singletonMap(playlist.getFilterTag(), (Object) playlist.getId()));
             return true;
         }
 
@@ -1728,7 +1728,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             params.put(playlist.getFilterTag(), playlist.getId());
             params.put("index", index);
             params.put("toindex", toindex);
-            mClient.command(new String[]{"playlists", "edit"}, params);
+            mDelegate.command(new String[]{"playlists", "edit"}, params);
             return true;
         }
 
@@ -1739,7 +1739,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
             Map<String, Object> params = new HashMap<>();
             params.put("name", name);
-            mClient.command(new String[]{"playlists", "new"}, params);
+            mDelegate.command(new String[]{"playlists", "new"}, params);
             return true;
         }
 
@@ -1752,7 +1752,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             params.put("cmd", "delete");
             params.put(playlist.getFilterTag(), playlist.getId());
             params.put("index", index);
-            mClient.command(new String[]{"playlists", "edit"}, params);
+            mDelegate.command(new String[]{"playlists", "edit"}, params);
             return true;
         }
 
@@ -1765,7 +1765,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             params.put(playlist.getFilterTag(), playlist.getId());
             params.put("dry_run", "1");
             params.put("newname", newname);
-            mClient.command(new String[]{"playlists", "rename"}, params);
+            mDelegate.command(new String[]{"playlists", "rename"}, params);
             return true;
         }
 
@@ -1794,7 +1794,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             }
             Map<String, Object> params = new HashMap<>();
             params.put("menu", "menu");
-            mClient.requestItems(mActivePlayer.get(), cmd, params, start, callback);
+            mDelegate.requestItems(mActivePlayer.get(), cmd, params, start, callback);
         }
 
         /* Start an asynchronous fetch of the squeezeservers generic menu items */
@@ -1804,7 +1804,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
             Action action = plugin.goAction;
-            mClient.requestItems(mActivePlayer.get(), action.action.cmd, action.action.params, start, callback);
+            mDelegate.requestItems(mActivePlayer.get(), action.action.cmd, action.action.params, start, callback);
         }
 
         @Override
@@ -1812,7 +1812,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mClient.command(getActivePlayer(), action.action.cmd, action.action.params);
+            mDelegate.command(getActivePlayer(), action.action.cmd, action.action.params);
             return true;
         }
 

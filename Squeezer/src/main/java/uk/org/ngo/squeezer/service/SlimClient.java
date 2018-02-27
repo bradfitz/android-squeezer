@@ -28,8 +28,6 @@ import uk.org.ngo.squeezer.model.PlayerState;
  */
 interface SlimClient {
 
-    void initialize();  // XXX Call this onCreate()?
-
     /**
      * Start a connection LMS. Connection progress/status will be reported via
      * {@link de.greenrobot.event.EventBus}.
@@ -47,12 +45,6 @@ interface SlimClient {
     // XXX: Document
     void disconnect(boolean loginFailed);
 
-    // XXX: Document
-    boolean isConnected();
-
-    // XXX: Document
-    boolean isConnectInProgress();
-
     /**
      * Execute the supplied command.
      *
@@ -61,17 +53,6 @@ interface SlimClient {
      * @param params Hash of parameters, f.e. {sort = new}. Passed to the server in the form "key:value", f.e. 'sort:new'.
      */
     void command(Player player, String[] cmd, Map<String, Object> params);
-
-    /** Calls {@link #command(Player, String[], Map)} with no parameters */
-    void command(Player player, String[] command);
-
-    /** Calls {@link #command(Player, String[])} with a null player */
-    void command(String[] command);
-
-    /** Calls {@link #command(Player, String[], Map)} with a null player */
-    void command(String[] command, Map<String, Object> params);
-
-    //XXX subscriptions ?
 
     /**
      * Send an asynchronous request to the SqueezeboxServer for the specified items.
@@ -100,48 +81,6 @@ interface SlimClient {
     <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback);
 
     /**
-     * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
-     * with null player, command terms from cmd and default page size
-     */
-    <T extends Item> void requestItems(String[] cmd, int start, int pageSize, IServiceItemListCallback<T> callback);
-
-    /**
-     * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
-     * with default page size
-     */
-    <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
-
-    /**
-     * Calls {@link #requestItems(Player, String[], Map, int, IServiceItemListCallback)}
-     * with single term command <code>cmd</code>
-     */
-    <T extends Item> void requestItems(Player player, String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
-
-    /**
-     * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
-     * with null player and default page size
-     */
-    <T extends Item> void requestItems(String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
-
-    /**
-     * Calls {@link #requestItems(String[], Map, int, IServiceItemListCallback)}
-     * with single term command <code>cmd</code>
-     */
-    <T extends Item> void requestItems(String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
-
-    /**
-     * Calls {@link #requestItems(String[], Map, int, IServiceItemListCallback)}
-     * without extra parameters
-     */
-    <T extends Item> void requestItems(String cmd[], int start, IServiceItemListCallback<T> callback);
-
-    /**
-     * Calls {@link #requestItems(String[], int, IServiceItemListCallback)}
-     * with single term command <code>cmd</code>
-     */
-    <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback);
-
-    /**
      * Notify that the specified client (activity) nno longer wants messages from LMS.
      * @param object messages receiver to remove
      */
@@ -151,12 +90,6 @@ interface SlimClient {
 
     void subscribePlayerStatus(Player newActivePlayer,
                                @PlayerState.PlayerSubscriptionType String subscriptionType);
-
-    String[] getMediaDirs();
-
-    String getPreferredAlbumSort();
-
-    String getServerVersion();
 
     String encode(String s);
 }
