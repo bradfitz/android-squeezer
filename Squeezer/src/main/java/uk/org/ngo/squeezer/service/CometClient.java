@@ -52,6 +52,8 @@ import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -69,6 +71,7 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
+import uk.org.ngo.squeezer.service.event.PlaylistRenameFailed;
 
 class CometClient extends BaseClient {
     private static final String TAG = CometClient.class.getSimpleName();
@@ -151,23 +154,40 @@ class CometClient extends BaseClient {
         mRequestMap = ImmutableMap.<String, ResponseHandler>builder()
                 .put("playerpref", new ResponseHandler() {
                     @Override
-                    public void onResponse(Player player, String[] cmd, Message message) {
+                    public void onResponse(Player player, Request request, Message message) {
                         //noinspection WrongConstant
                         String p2 = (String) message.getDataAsMap().get("_p2");
-                        mEventBus.post(new PlayerPrefReceived(player, cmd[1], p2 != null ? p2 : cmd[2]));
+                        mEventBus.post(new PlayerPrefReceived(player, request.cmd[1], p2 != null ? p2 : request.cmd[2]));
                     }
                 })
                 .put("mixer", new ResponseHandler() {
                     @Override
-                    public void onResponse(Player player, String[] cmd, Message message) {
-                        if (cmd[1].equals("volume")) {
+                    public void onResponse(Player player, Request request, Message message) {
+                        if (request.cmd[1].equals("volume")) {
                             String volume = (String) message.getDataAsMap().get("_volume");
                             if (volume != null) {
                                 int newVolume = Integer.valueOf(volume);
                                 player.getPlayerState().setCurrentVolume(newVolume);
                                 mEventBus.post(new PlayerVolume(newVolume, player));
                             } else {
-                                command(player, "mixer volume ?");
+                                command(player, new String[]{"mixer", "volume", "?"});
+                            }
+                        }
+                    }
+                })
+                .put("playlists", new ResponseHandler() {
+                    @Override
+                    public void onResponse(Player player, Request request, Message message) {
+                        if (request.cmd.length >= 2 && "rename".equals(request.cmd[1])) {
+                            if (request.params.containsKey("dry_run")) {
+                                if (message.getDataAsMap().get("overwritten_playlist_id") != null) {
+                                    mEventBus.post(new PlaylistRenameFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
+                                              request.params.get("newname"))));
+                                } else {
+                                    Map<String, Object> params = new HashMap<>(request.params);
+                                    params.remove("dry_run");
+                                    command(request.cmd, params);
+                                }
                             }
                         }
                     }
@@ -277,7 +297,7 @@ class CometClient extends BaseClient {
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         Request request = mPendingRequests.get(message.getChannel());
                         if (request != null) {
-                            request.callback.onResponse(request.player, request.cmd, message);
+                            request.callback.onResponse(request.player, request, message);
                             mPendingRequests.remove(message.getChannel());
                         }
                     }
@@ -298,13 +318,13 @@ class CometClient extends BaseClient {
                 });
 
                 // Request server status
-                publishMessage(null, CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null, "serverstatus", "0", "255"
-                );
+                publishMessage(new Request("serverstatus", "0", "255"), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
 
                 // Subscribe to server changes
-                publishMessage(null, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null, "serverstatus", "0", "255",
-                        "subscribe:0"
-                );
+                {
+                    Request request = new Request(null, new String[]{"serverstatus", "0", "255"}, Collections.singletonMap("subscribe", (Object) "0"));
+                    publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
+                }
 
                 // Set a timeout for the handshake
                 mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
@@ -313,49 +333,49 @@ class CometClient extends BaseClient {
                 // Learn server capabilites.
                 request(new ResponseHandler() {
                     @Override
-                    public void onResponse(Player player, String[] cmd, Message message) {
+                    public void onResponse(Player player, Request request, Message message) {
                         mConnectionState.setCanMusicfolder(getInt(message.getDataAsMap().get("_can"))== 1);
                     }
                 }, "can", "musicfolder", "?");
 
                 request(new ResponseHandler() {
                     @Override
-                    public void onResponse(Player player, String[] cmd, Message message) {
+                    public void onResponse(Player player, Request request, Message message) {
                         mConnectionState.setCanRandomplay(getInt(message.getDataAsMap().get("_can")) == 1);
                     }
                 }, "can", "randomplay", "?");
 
                 request(new ResponseHandler() {
                     @Override
-                    public void onResponse(Player player, String[] cmd, Message message) {
+                    public void onResponse(Player player, Request request, Message message) {
                         mConnectionState.setCanFavorites(getInt(message.getDataAsMap().get("_can")) == 1);
                     }
                 }, "can", "favorites", "items", "?");
 
                 request(new ResponseHandler() {
                     @Override
-                    public void onResponse(Player player, String[] cmd, Message message) {
+                    public void onResponse(Player player, Request request, Message message) {
                         mConnectionState.setCanMyApps(getInt(message.getDataAsMap().get("_can")) == 1);
                     }
                 }, "can", "myapps", "items", "?");
 
                 request(new ResponseHandler() {
                     @Override
-                    public void onResponse(Player player, String[] cmd, Message message) {
+                    public void onResponse(Player player, Request request, Message message) {
                         mConnectionState.setMediaDirs((Object[]) message.getDataAsMap().get("_p2"));
                     }
                 }, "pref", "mediadirs", "?");
 
                 request(new ResponseHandler() {
                     @Override
-                    public void onResponse(Player player, String[] cmd, Message message) {
+                    public void onResponse(Player player, Request request, Message message) {
                         mConnectionState.setPreferedAlbumSort((String) message.getDataAsMap().get("_p2"));
                     }
                 }, "pref", "jivealbumsort", "?");
 
                 request(new ResponseHandler() {
                     @Override
-                    public void onResponse(Player player, String[] cmd, Message message) {
+                    public void onResponse(Player player, Request request, Message message) {
                         mConnectionState.setServerVersion((String) message.getDataAsMap().get("_version"));
                     }
                 }, "version", "?");
@@ -415,7 +435,7 @@ class CometClient extends BaseClient {
     }
 
     private interface ResponseHandler {
-        void onResponse(Player player, String[] cmd, Message message);
+        void onResponse(Player player, Request request, Message message);
     }
 
     private class PublishListener implements ClientSessionChannel.MessageListener {
@@ -482,14 +502,14 @@ class CometClient extends BaseClient {
 
     private class ArtistsListener extends ItemListener<Artist> {
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage("artists_loop", message);
         }
     }
 
     private class AlbumsListener extends ItemListener<Album> {
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage("albums_loop", message);
         }
 
@@ -513,7 +533,7 @@ class CometClient extends BaseClient {
         }
 
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage(countName, itemLoopName, message);
         }
 
@@ -527,28 +547,28 @@ class CometClient extends BaseClient {
 
     private class GenresListener extends ItemListener<Genre> {
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage("genres_loop", message);
         }
     }
 
     private class YearsListener extends ItemListener<Year> {
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage("years_loop", message);
         }
     }
 
     private class PlaylistsListener extends ItemListener<Playlist> {
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage("playlists_loop", message);
         }
     }
 
     private class MusicFolderListener extends ItemListener<MusicFolderItem> {
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage("folder_loop", message);
         }
 
@@ -561,21 +581,21 @@ class CometClient extends BaseClient {
 
     private class AlarmsListener extends ItemListener<Alarm> {
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage("alarms_loop", message);
         }
     }
 
     private class AlarmPlaylistsListener extends ItemListener<AlarmPlaylist> {
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage("item_loop", message);
         }
     }
 
     private class PluginListener extends ItemListener<Plugin> {
         @Override
-        public void onResponse(Player player, String[] cmd, Message message) {
+        public void onResponse(Player player, Request request, Message message) {
             parseMessage("item_loop", message);
         }
     }
@@ -584,7 +604,7 @@ class CometClient extends BaseClient {
         mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
         request(new ResponseHandler() {
             @Override
-            public void onResponse(Player player, String[] cmd, Message message) {
+            public void onResponse(Player player, Request request, Message message) {
                 int maxOrdinal = 0;
                 Map<String, Object> tokenMap = message.getDataAsMap();
                 for (Map.Entry<String, Object> entry : tokenMap.entrySet()) {
@@ -613,34 +633,27 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    public void command(final Player player, String command) {
-        final String[] cmd = mSpaceSplitPattern.split(command);
-        ResponseHandler callback = mRequestMap.get(cmd[0]);
-        request(player, callback, cmd);
-    }
-
-    @Override
     public void cancelClientRequests(Object object) {
-
+        //TODO see CliClient
     }
 
     private String request(ResponseHandler callback, String... cmd) {
-        return request(null, callback, cmd);
+        return request(new Request(null, cmd, callback));
     }
 
-    private String request(Player player, ResponseHandler callback, String... cmd) {
+    private String request(Request request) {
         String responseChannel = String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, mBayeuxClient.getId(), mCorrelationId++);
-        if (callback != null) mPendingRequests.put(responseChannel, new Request(player, callback, cmd));
-        publishMessage(player, CHANNEL_SLIM_REQUEST, responseChannel, null, cmd);
+        if (request.callback != null) mPendingRequests.put(responseChannel, request);
+        publishMessage(request, CHANNEL_SLIM_REQUEST, responseChannel, null);
         return responseChannel;
     }
 
-    private void publishMessage(final Player player, final String channel, final String responseChannel, final PublishListener publishListener, final String... cmd) {
+    private void publishMessage(final Request request, final String channel, final String responseChannel, final PublishListener publishListener) {
         // Make sure all requests are done in the handler thread
         if (mBackgroundHandler.getLooper() == Looper.myLooper()) {
-            _publishMessage(player, channel, responseChannel, publishListener, cmd);
+            _publishMessage(request, channel, responseChannel, publishListener);
         } else {
-            PublishMessage publishMessage = new PublishMessage(player, channel, responseChannel, publishListener, cmd);
+            PublishMessage publishMessage = new PublishMessage(request, channel, responseChannel, publishListener);
             android.os.Message message = mBackgroundHandler.obtainMessage(MSG_PUBLISH, publishMessage);
             mBackgroundHandler.sendMessage(message);
         }
@@ -648,19 +661,24 @@ class CometClient extends BaseClient {
     }
 
     /** This may only be called from the handler thread */
-    private void _publishMessage(Player player, String channel, String responseChannel, PublishListener publishListener, String... cmd) {
+    private void _publishMessage(Request request, String channel, String responseChannel, PublishListener publishListener) {
         if (!mCurrentCommand) {
             mCurrentCommand = true;
-            List<Object> request = new ArrayList<>();
-            request.add(player == null ? "" : player.getId());
-            request.add(cmd);
+            List<Object> ttt = new ArrayList<>();
+            ttt.add(request.player == null ? "" : request.player.getId());
+            List<String> inner = new ArrayList<>();
+            ttt.add(inner);
+            inner.addAll(Arrays.asList(request.cmd));
+            for (Map.Entry<String, Object> parameter : request.params.entrySet()) {
+                inner.add(parameter.getKey() + ":" + parameter.getValue());
+            }
 
             Map<String, Object> data = new HashMap<>();
-            data.put("request", request);
+            data.put("request", ttt);
             data.put("response", responseChannel);
             mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.publishListener);
         } else
-            mCommandQueue.add(new PublishMessage(player, channel, responseChannel, publishListener, cmd));
+            mCommandQueue.add(new PublishMessage(request, channel, responseChannel, publishListener));
     }
 
     @Override
@@ -672,33 +690,30 @@ class CometClient extends BaseClient {
         request.addAll(Arrays.asList(browseRequest.getCmd()));
         request.add(String.valueOf(browseRequest.getStart()));
         request.add(String.valueOf(browseRequest.getItemsPerResponse()));
-        for (Map.Entry<String, Object> parameter : browseRequest.getParams().entrySet()) {
-            request.add(parameter.getKey() + ":" + parameter.getValue());
-        }
 
-        String responseChannel = request(browseRequest.getPlayer(), listener, request.toArray(new String[request.size()]));
+        String responseChannel = request(new Request(browseRequest.getPlayer(), request, browseRequest.getParams(), listener));
         mPendingBrowseRequests.put(responseChannel, browseRequest);
     }
 
     @Override
-    public void playerCommand(Player player, String[] cmd, Map<String, Object> params) {
-        final List<String> request = new ArrayList<>();
-        request.addAll(Arrays.asList(cmd));
-        for (Map.Entry<String, Object> parameter : params.entrySet()) {
-            request.add(parameter.getKey() + ":" + parameter.getValue());
-        }
-
-        request(player, null, request.toArray(new String[request.size()]));
+    public void command(Player player, String[] cmd, Map<String, Object> params) {
+        ResponseHandler callback = mRequestMap.get(cmd[0]);
+        request(new Request(player, cmd, params, callback));
     }
 
     @Override
     public void requestPlayerStatus(Player player) {
-        publishMessage(player, CHANNEL_SLIM_REQUEST, playerStatusResponseChannel(player), null, "status", "-", "1", "tags:" + SONGTAGS);
+        Request request = new Request(player, new String[]{"status", "-", "1"}, Collections.singletonMap("tags", (Object) SONGTAGS));
+        publishMessage(request, CHANNEL_SLIM_REQUEST, playerStatusResponseChannel(player), null);
     }
 
     @Override
     public void subscribePlayerStatus(final Player player, final String subscriptionType) {
-        publishMessage(player, CHANNEL_SLIM_SUBSCRIBE, playerStatusResponseChannel(player), new PublishListener() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("subscribe:", subscriptionType);
+        params.put("tags:", SONGTAGS);
+        Request request = new Request(player, new String[]{"status", "-", "1"}, params);
+        publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, playerStatusResponseChannel(player), new PublishListener() {
             @Override
             public void onMessage(ClientSessionChannel channel, Message message) {
                 super.onMessage(channel, message);
@@ -706,7 +721,7 @@ class CometClient extends BaseClient {
                     player.getPlayerState().setSubscriptionType(subscriptionType);
                 }
             }
-        }, "status", "-", "1", "subscribe:" + subscriptionType, "tags:" + SONGTAGS);
+        });
     }
 
     private String playerStatusResponseChannel(Player player) {
@@ -732,7 +747,7 @@ class CometClient extends BaseClient {
             switch (msg.what) {
                 case MSG_PUBLISH: {
                     PublishMessage message = (PublishMessage) msg.obj;
-                    _publishMessage(message.player, message.channel, message.responseChannel, message.publishListener, message.cmd);
+                    _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
                     break;
                 }
                 case MSG_DISCONNECT:
@@ -746,7 +761,7 @@ class CometClient extends BaseClient {
                     mCurrentCommand = false;
                     PublishMessage message = mCommandQueue.poll();
                     if (message != null)
-                        _publishMessage(message.player, message.channel, message.responseChannel, message.publishListener, message.cmd);
+                        _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
                     break;
                 }
             }
@@ -755,30 +770,50 @@ class CometClient extends BaseClient {
 
 
     private static class Request {
-        final private Player player;
         final private ResponseHandler callback;
+        final private Player player;
         final private String[] cmd;
+        final private Map<String, Object> params;
 
-        private Request(Player player, ResponseHandler callback, String[] cmd) {
+        private Request(Player player, String[] cmd, Map<String, Object> params, ResponseHandler callback) {
             this.player = player;
-            this.callback = callback;
             this.cmd = cmd;
+            this.params = params;
+            this.callback = callback;
+        }
+
+        private Request(Player player, List<String> cmd, Map<String, Object> params, ResponseHandler callback) {
+            this(player, cmd.toArray(new String[cmd.size()]), params, callback);
+        }
+
+        private Request(Player player, String[] cmd, Map<String, Object> params) {
+            this(player, cmd, params, null);
+        }
+
+        private Request(Player player, String[] cmd, ResponseHandler callback) {
+            this(player, cmd, Collections.<String, Object>emptyMap(), callback);
+        }
+
+        private Request(Player player, String... cmd) {
+            this(player, cmd, Collections.<String, Object>emptyMap());
+        }
+
+        private Request(String... cmd) {
+            this(null, cmd);
         }
     }
 
     private static class PublishMessage {
-        final Player player;
+        final Request request;
         final String channel;
         final String responseChannel;
         final PublishListener publishListener;
-        final String[] cmd;
 
-        private PublishMessage(Player player, String channel, String responseChannel, PublishListener publishListener, String... cmd) {
-            this.player = player;
+        private PublishMessage(Request request, String channel, String responseChannel, PublishListener publishListener) {
+            this.request = request;
             this.channel = channel;
             this.responseChannel = responseChannel;
             this.publishListener = publishListener;
-            this.cmd = cmd;
         }
     }
 }

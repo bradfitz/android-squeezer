@@ -36,16 +36,4 @@ public abstract class PlaylistItem extends Item implements FilterItem {
      * @return the tag, e.g., "album_id".
      */
     abstract public String getPlaylistTag();
-
-
-    /** @return The parameter to use in the <code>playlistcontrol</code> command for this item.
-     */
-    public String getPlaylistParameter() {
-        return getPlaylistTag() + ":" + getId();
-    }
-
-    @Override
-    public Map.Entry<String, Object> getFilterParameter() {
-        return new AbstractMap.SimpleEntry<>(getFilterTag(), (Object)getId());
-    }
 }

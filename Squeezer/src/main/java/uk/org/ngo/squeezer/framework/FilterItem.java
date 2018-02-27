@@ -31,7 +31,4 @@ public interface FilterItem {
     /** @return The tag to filters by this item in a CLI query. */
     String getFilterTag();
 
-    /** @return Tagged parameter to filter by this item. */
-    Map.Entry<String, Object> getFilterParameter();
-
 }

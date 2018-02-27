@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.R;
@@ -72,9 +71,6 @@ abstract class BaseClient implements SlimClient {
     // This should probably be a field in Song.
     static final String SONGTAGS = "aCdejJKlstxyu";
 
-    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
-    static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
-
     // Where we connected (or are connecting) to:
     final AtomicReference<String> currentHost = new AtomicReference<>();
     final AtomicReference<Integer> httpPort = new AtomicReference<>();
@@ -101,16 +97,19 @@ abstract class BaseClient implements SlimClient {
 
 
     @Override
-    public void command(final String command) {
+    public void command(final Player player, final String[] command) {
+        command(player, command, Collections.<String, Object>emptyMap());
+    }
+
+    @Override
+    public void command(final String[] command) {
         command(null, command);
     }
 
     @Override
-    public void playerCommand(Player player, String cmd) {
-        if (player == null) return;
-        command(player, cmd);
+    public void command(String[] command, Map<String, Object> params) {
+        command(null, command, params);
     }
-
 
     private <T extends Item> void internalRequestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, final IServiceItemListCallback<T> callback) {
         final BrowseRequest<T> browseRequest = new BrowseRequest<>(player, cmd, params, start, pageSize, callback);
@@ -127,8 +126,8 @@ abstract class BaseClient implements SlimClient {
     }
 
     @Override
-    public <T extends Item> void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, mSpaceSplitPattern.split(cmd), null, start, pageSize, callback);
+    public <T extends Item> void requestItems(String[] cmd, int start, int pageSize, IServiceItemListCallback<T> callback) {
+        internalRequestItems(null, cmd, null, start, pageSize, callback);
     }
 
     @Override
@@ -138,7 +137,8 @@ abstract class BaseClient implements SlimClient {
 
     @Override
     public <T extends Item> void requestItems(Player player, String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(player, mSpaceSplitPattern.split(cmd), params, start, callback);
+        internalRequestItems(player, new String[]{cmd}, params, start, callback);
+
     }
 
     @Override
@@ -148,13 +148,18 @@ abstract class BaseClient implements SlimClient {
     }
 
     @Override
+    public <T extends Item> void requestItems(String[] cmd, int start, IServiceItemListCallback<T> callback) {
+        internalRequestItems(null, cmd, null, start, callback);
+    }
+
+    @Override
     public <T extends Item> void requestItems(String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, mSpaceSplitPattern.split(cmd), params, start, callback);
+        internalRequestItems(null, new String[]{cmd}, params, start, callback);
     }
 
     @Override
     public <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback) {
-        internalRequestItems(null, mSpaceSplitPattern.split(cmd), null, start, callback);
+        internalRequestItems(null, new String[]{cmd}, null, start, callback);
     }
 
     public void initialize() {

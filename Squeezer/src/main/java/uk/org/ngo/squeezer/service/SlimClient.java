@@ -57,17 +57,19 @@ interface SlimClient {
      * Execute the supplied command.
      *
      * @param player if non null this command is for a specific player
-     * @param command LMS command
+     * @param cmd Array of command terms
+     * @param params Hash of parameters, f.e. {sort = new}. Passed to the server in the form "key:value", f.e. 'sort:new'.
      */
-    void command(Player player, String command);
+    void command(Player player, String[] cmd, Map<String, Object> params);
 
-    /** Calls {@link #command(Player, String)} with a null player */
-    void command(String command);
+    /** Calls {@link #command(Player, String[], Map)} with no parameters */
+    void command(Player player, String[] command);
 
-    /** Like {@link #command(Player, String)} but does nothing if player is null */
-    void playerCommand(Player player, String command);
+    /** Calls {@link #command(Player, String[])} with a null player */
+    void command(String[] command);
 
-    void playerCommand(Player player, String[] cmd, Map<String, Object> params);
+    /** Calls {@link #command(Player, String[], Map)} with a null player */
+    void command(String[] command, Map<String, Object> params);
 
     //XXX subscriptions ?
 
@@ -101,7 +103,7 @@ interface SlimClient {
      * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
      * with null player, command terms from cmd and default page size
      */
-    <T extends Item> void requestItems(String cmd, int start, int pageSize, IServiceItemListCallback<T> callback);
+    <T extends Item> void requestItems(String[] cmd, int start, int pageSize, IServiceItemListCallback<T> callback);
 
     /**
      * Calls {@link #requestItems(Player, String[], Map, int, int, IServiceItemListCallback)}
@@ -111,7 +113,7 @@ interface SlimClient {
 
     /**
      * Calls {@link #requestItems(Player, String[], Map, int, IServiceItemListCallback)}
-     * with command terms from <code>cmd</code>
+     * with single term command <code>cmd</code>
      */
     <T extends Item> void requestItems(Player player, String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
 
@@ -123,13 +125,19 @@ interface SlimClient {
 
     /**
      * Calls {@link #requestItems(String[], Map, int, IServiceItemListCallback)}
-     * with command terms from <code>cmd</code> and default page size
+     * with single term command <code>cmd</code>
      */
     <T extends Item> void requestItems(String cmd, Map<String, Object> params, int start, IServiceItemListCallback<T> callback);
 
     /**
-     * Calls {@link #requestItems(String, Map, int, IServiceItemListCallback)}
+     * Calls {@link #requestItems(String[], Map, int, IServiceItemListCallback)}
      * without extra parameters
+     */
+    <T extends Item> void requestItems(String cmd[], int start, IServiceItemListCallback<T> callback);
+
+    /**
+     * Calls {@link #requestItems(String[], int, IServiceItemListCallback)}
+     * with single term command <code>cmd</code>
      */
     <T extends Item> void requestItems(String cmd, int start, IServiceItemListCallback<T> callback);
 

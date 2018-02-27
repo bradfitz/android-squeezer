@@ -24,12 +24,11 @@ import java.util.Map;
 import uk.org.ngo.squeezer.Util;
 
 /**
- * Implements <action_fields> of the LMS SqueezePlay interface.
+ * Implements <code>action_fields</code> of the LMS SqueezePlay interface.
  * http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#.3Cactions_fields.3E
  */
 public class Action {
     private static final String INPUT_PLACEHOLDER = "__TAGGEDINPUT__";
-
     public String urlCommand;
     public NextWindow nextWindow;
     public JsonAction action;
@@ -122,9 +121,16 @@ public class Action {
         return result;
     }
 
+    /**
+     * Action which can be sent to the server.
+     * <p>
+     * It is either received from the server or constructed from the CLI specification
+     */
     public static class JsonAction {
+        /** Array of command terms, f.e. ['playlist', 'jump'] */
         public String[] cmd;
         public String inputParam;
+        /** Hash of parameters, f.e. {sort = new}. Passed to the server in the form "key:value", f.e. 'sort:new'. */
         public Map<String, Object> params;
 
         @Override
@@ -139,7 +145,6 @@ public class Action {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             JsonAction that = (JsonAction) o;
 
             // Probably incorrect - comparing Object[] arrays with Arrays.equals

@@ -46,6 +46,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.R;
@@ -78,6 +79,9 @@ class CliClient extends BaseClient {
 
     private static final String TAG = "CliClient";
 
+
+    /** {@link java.util.regex.Pattern} that splits strings on spaces. */
+    static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
 
     /** Executor for off-main-thread work. */
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
@@ -363,20 +367,6 @@ class CliClient extends BaseClient {
     // asynchronous responses are received.
     private int mCorrelationId = 0;
 
-    @Override
-    public void command(final Player player, final String command) {
-        if (Looper.getMainLooper() == Looper.myLooper()) {
-            sendCommandImmediately(player, command);
-        } else {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    sendCommandImmediately(player, command);
-                }
-            });
-        }
-    }
-
     private void sendCommandImmediately(Player player, String command) {
         String formattedCommand = (player!= null ? encode(player.getId()) + " " + command : command);
 
@@ -425,37 +415,50 @@ class CliClient extends BaseClient {
     }
 
     @Override
-    protected <T extends Item> void internalRequestItems(BrowseRequest<T> request) {
-        mPendingRequests.put(mCorrelationId, request);
-        final StringBuilder sb = new StringBuilder();
-        for (String term : request.getCmd()) sb.append(" ").append(term);
-        sb.append(" ").append(request.getStart());
-        sb.append(" ").append(request.getItemsPerResponse());
-        for (Map.Entry<String, Object> parameter : request.getParams().entrySet()) {
-            sb.append(" ").append(parameter.getKey()).append(":").append(encode(Util.getStringOrEmpty(parameter.getValue())));
-        }
-        sb.append(" correlationid:").append(mCorrelationId++);
-        command(request.getPlayer(), sb.toString());
+    protected <T extends Item> void internalRequestItems(BrowseRequest<T> browseRequest) {
+        mPendingRequests.put(mCorrelationId, browseRequest);
+
+        final List<String> request = new ArrayList<>();
+        request.addAll(Arrays.asList(browseRequest.getCmd()));
+        request.add(String.valueOf(browseRequest.getStart()));
+        request.add(String.valueOf(browseRequest.getItemsPerResponse()));
+
+        Map<String, Object> params = new HashMap<>(browseRequest.getParams());
+        params.put("correlationid", mCorrelationId++);
+
+        command(browseRequest.getPlayer(), request.toArray(new String[request.size()]), params);
     }
 
     @Override
-    public void playerCommand(Player player, String[] cmd, Map<String, Object> params) {
+    public void command(final Player player, String[] cmd, Map<String, Object> params) {
         final StringBuilder sb = new StringBuilder();
         for (String term : cmd) sb.append(" ").append(term);
         for (Map.Entry<String, Object> parameter : params.entrySet()) {
             sb.append(" ").append(parameter.getKey()).append(":").append(encode(Util.getStringOrEmpty(parameter.getValue())));
         }
-        command(player, sb.toString());
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            sendCommandImmediately(player, sb.toString());
+        } else {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    sendCommandImmediately(player, sb.toString());
+                }
+            });
+        }
     }
 
     @Override
     public void requestPlayerStatus(Player player) {
-        playerCommand(player, "status - 1 tags:" + SONGTAGS);
+        command(player, new String[]{"status", "-", "1"}, Collections.singletonMap("tags", (Object) SONGTAGS));
     }
 
     @Override
     public void subscribePlayerStatus(Player player, String subscriptionType) {
-        playerCommand(player, "status - 1 subscribe:" + subscriptionType + " tags:" + SONGTAGS);
+        Map<String, Object> params = new HashMap<>();
+        params.put("subscribe", subscriptionType);
+        params.put("tags", SONGTAGS);
+        command(player, new String[]{"status", "-", "1"},  params);
     }
 
     @Override
