@@ -71,6 +71,7 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
+import uk.org.ngo.squeezer.service.event.PlaylistCreateFailed;
 import uk.org.ngo.squeezer.service.event.PlaylistRenameFailed;
 
 class CometClient extends BaseClient {
@@ -178,11 +179,16 @@ class CometClient extends BaseClient {
                 .put("playlists", new ResponseHandler() {
                     @Override
                     public void onResponse(Player player, Request request, Message message) {
-                        if (request.cmd.length >= 2 && "rename".equals(request.cmd[1])) {
+                        if (request.cmd.length >= 2 && "new".equals(request.cmd[1])) {
+                            if (message.getDataAsMap().containsKey("overwritten_playlist_id")) {
+                                mEventBus.post(new PlaylistCreateFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
+                                        request.params.get("name"))));
+                            }
+                        } else if (request.cmd.length >= 2 && "rename".equals(request.cmd[1])) {
                             if (request.params.containsKey("dry_run")) {
-                                if (message.getDataAsMap().get("overwritten_playlist_id") != null) {
+                                if (message.getDataAsMap().containsKey("overwritten_playlist_id")) {
                                     mEventBus.post(new PlaylistRenameFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                              request.params.get("newname"))));
+                                            request.params.get("newname"))));
                                 } else {
                                     Map<String, Object> params = new HashMap<>(request.params);
                                     params.remove("dry_run");
@@ -726,11 +732,6 @@ class CometClient extends BaseClient {
 
     private String playerStatusResponseChannel(Player player) {
         return String.format(CHANNEL_PLAYER_STATUS_FORMAT, mBayeuxClient.getId(), player.getId());
-    }
-
-    @Override
-    public String encode(String s) {
-        return s;
     }
 
     private static final int MSG_PUBLISH = 1;

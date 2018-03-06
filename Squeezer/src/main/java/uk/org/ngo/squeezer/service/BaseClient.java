@@ -104,14 +104,6 @@ abstract class BaseClient implements SlimClient {
 
     protected abstract <T extends Item> void internalRequestItems(BrowseRequest<T> browseRequest);
 
-    <T extends Item> void internalRequestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, final IServiceItemListCallback<T> callback) {
-        requestItems(player, cmd, params, start, pageSize, callback);
-    }
-
-    <T extends Item> void internalRequestItems(Player player, String cmd[], Map<String, Object> params, int start, final IServiceItemListCallback<T> callback) {
-        internalRequestItems(player, cmd, params, start, (start == 0 ? 1 : mPageSize), callback);
-    }
-
 
     int getHttpPort() {
         return httpPort.get();

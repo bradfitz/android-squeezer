@@ -90,6 +90,4 @@ interface SlimClient {
 
     void subscribePlayerStatus(Player newActivePlayer,
                                @PlayerState.PlayerSubscriptionType String subscriptionType);
-
-    String encode(String s);
 }

@@ -436,7 +436,7 @@ class CliClient extends BaseClient {
         for (Map.Entry<String, Object> parameter : params.entrySet()) {
             sb.append(" ").append(parameter.getKey()).append(":").append(encode(Util.getStringOrEmpty(parameter.getValue())));
         }
-        if (Looper.getMainLooper() == Looper.myLooper()) {
+        if (Looper.getMainLooper() != Looper.myLooper()) {
             sendCommandImmediately(player, sb.toString());
         } else {
             mExecutor.execute(new Runnable() {
@@ -461,7 +461,6 @@ class CliClient extends BaseClient {
         command(player, new String[]{"status", "-", "1"},  params);
     }
 
-    @Override
     public String encode(String s) {
         return Util.encode(s);
     }
@@ -580,8 +579,8 @@ class CliClient extends BaseClient {
             } else {
                 SqueezeParserInfo newParserInfo = itemDelimeterMap.get(key);
                 if (newParserInfo != null && parserInfo != null && parserInfo.isComplete(record)) {
-                    parserInfo.handler.add(record);
                     Log.v(TAG, "record=" + record);
+                    parserInfo.handler.add(record);
                     record.clear();
                 }
                 if (newParserInfo != null) parserInfo = newParserInfo;
@@ -596,8 +595,8 @@ class CliClient extends BaseClient {
         }
 
         if (parserInfo != null && !record.isEmpty()) {
-            parserInfo.handler.add(record);
             Log.v(TAG, "record=" + record);
+            parserInfo.handler.add(record);
         }
 
         // Process the lists for all the registered handlers
@@ -772,10 +771,9 @@ class CliClient extends BaseClient {
         handlers.put("playlists", new CmdHandler() {
             @Override
             public void handle(List<String> tokens) {
-//                if ("delete".equals(tokens.get(1))) {
-//                } else if ("edit".equals(tokens.get(1))) {
-//                } else
-                if ("new".equals(tokens.get(1))) {
+                if ("delete".equals(tokens.get(1))) {
+                } else if ("edit".equals(tokens.get(1))) {
+                } else if ("new".equals(tokens.get(1))) {
                     HashMap<String, Object> tokenMap = parseTokens(tokens);
                     if (tokenMap.get("overwritten_playlist_id") != null) {
                         mEventBus.post(new PlaylistCreateFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
