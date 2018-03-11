@@ -291,7 +291,7 @@ abstract class BaseClient implements SlimClient {
     }
 
     protected static class BrowseRequest<T extends Item> {
-        private static Joiner joiner = Joiner.on(" ");
+        private static final Joiner joiner = Joiner.on(" ");
 
         private final Player player;
         private final String[] cmd;

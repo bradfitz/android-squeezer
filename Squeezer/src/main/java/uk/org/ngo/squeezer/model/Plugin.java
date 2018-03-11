@@ -83,17 +83,11 @@ public class Plugin extends Item {
     public Plugin(Map<String, Object> record) {
         super(record);
 
-        setId(getString(record, "cmd"));
-        name = getString(record, "name");
+        setId(getString(record, record.containsKey("cmd") ? "cmd" : "id"));
+        name = getString(record, record.containsKey("name") ? "name" : "text");
         type = getString(record, "type");
-        icon = getString(record, "icon");
+        icon = getString(record, record.containsKey("icon") ? "icon" : "icon-id");
         weight = getInt(record, "weight");
-
-        if (name == null) name = getString(record, "text");
-        if (icon == null) icon = getString(record, "icon-id");
-        if (getId() == null) {
-            setId(name.split("\n", 1)[0]);
-        }
     }
 
     public static final Creator<Plugin> CREATOR = new Creator<Plugin>() {

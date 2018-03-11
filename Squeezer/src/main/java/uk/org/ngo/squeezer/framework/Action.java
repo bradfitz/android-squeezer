@@ -18,6 +18,8 @@ package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcel;
 
+import com.google.common.base.Joiner;
+
 import java.util.Arrays;
 import java.util.Map;
 
@@ -29,15 +31,17 @@ import uk.org.ngo.squeezer.Util;
  */
 public class Action {
     private static final String INPUT_PLACEHOLDER = "__TAGGEDINPUT__";
+    private static final Joiner joiner = Joiner.on(" ");
+
     public String urlCommand;
-    public NextWindow nextWindow;
     public JsonAction action;
+    public String inputParam;
 
     public void initInputParam() {
         if (action.params.containsValue(INPUT_PLACEHOLDER)) {
             for (Map.Entry<String, Object> entry : action.params.entrySet()) {
                 if ("__TAGGEDINPUT__".equals(entry.getValue())) {
-                    action.inputParam = entry.getKey();
+                    inputParam = entry.getKey();
                     break;
                 }
             }
@@ -45,7 +49,7 @@ public class Action {
     }
 
     public boolean isSearchReady() {
-        return (action.inputParam != null && !INPUT_PLACEHOLDER.equals(_getInputValue()));
+        return (inputParam != null && !INPUT_PLACEHOLDER.equals(_getInputValue()));
     }
 
     public String getInputValue() {
@@ -53,7 +57,7 @@ public class Action {
     }
 
     private String _getInputValue() {
-        return (action.inputParam != null ? (String) action.params.get(action.inputParam) : null);
+        return (inputParam != null ? (String) action.params.get(inputParam) : null);
     }
 
     public static Action readFromParcel(Parcel source) {
@@ -61,12 +65,12 @@ public class Action {
 
         Action action = new Action();
         action.urlCommand = source.readString();
-        action.nextWindow = NextWindow.fromString(source.readString());
         if (action.urlCommand == null) {
             action.action = new JsonAction();
             action.action.cmd = source.createStringArray();
-            action.action.inputParam = source.readString();
             action.action.params = Util.mapify(source.createStringArray());
+            action.action.nextWindow = NextWindow.fromString(source.readString());
+            action.inputParam = source.readString();
         }
 
         return action;
@@ -77,16 +81,16 @@ public class Action {
         if (action == null) return;
 
         dest.writeString(action.urlCommand);
-        dest.writeString(action.nextWindow == null ? null : action.nextWindow.toString());
         if (action.urlCommand == null) {
             dest.writeStringArray(action.action.cmd);
-            dest.writeString(action.action.inputParam);
             String[] tokens = new String[action.action.params.size()];
             int i = 0;
             for (Map.Entry entry : action.action.params.entrySet()) {
                 tokens[i++] = entry.getKey() + ":" + entry.getValue();
             }
             dest.writeStringArray(tokens);
+            dest.writeString(action.action.nextWindow == null ? null : action.action.nextWindow.toString());
+            dest.writeString(action.inputParam);
         }
     }
 
@@ -95,30 +99,8 @@ public class Action {
         return "Action{" +
                 "urlCommand='" + urlCommand + '\'' +
                 ", action=" + action +
+                ", inputParam='" + inputParam + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Action action1 = (Action) o;
-
-        if (urlCommand != null ? !urlCommand.equals(action1.urlCommand) : action1.urlCommand != null)
-            return false;
-        if (nextWindow != null ? !nextWindow.equals(action1.nextWindow) : action1.nextWindow != null)
-            return false;
-        return action != null ? action.equals(action1.action) : action1.action == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = urlCommand != null ? urlCommand.hashCode() : 0;
-        result = 31 * result + (nextWindow != null ? nextWindow.hashCode() : 0);
-        result = 31 * result + (action != null ? action.hashCode() : 0);
-        return result;
     }
 
     /**
@@ -129,38 +111,26 @@ public class Action {
     public static class JsonAction {
         /** Array of command terms, f.e. ['playlist', 'jump'] */
         public String[] cmd;
-        public String inputParam;
+
         /** Hash of parameters, f.e. {sort = new}. Passed to the server in the form "key:value", f.e. 'sort:new'. */
         public Map<String, Object> params;
+
+        /** If a nextWindow param is given at the json command level, it takes precedence over a nextWindow param at the item level,
+         * which in turn takes precendence over a nextWindow param at the base level.
+         * See <item_fields> section for more detail on this parameter. */
+        public NextWindow nextWindow;
+
+        public String cmd() {
+            return joiner.join(cmd);
+        }
 
         @Override
         public String toString() {
             return "JsonAction{" +
                     "cmd=" + Arrays.toString(cmd) +
                     ", params=" + params +
+                    ", nextWindow=" + nextWindow +
                     '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            JsonAction that = (JsonAction) o;
-
-            // Probably incorrect - comparing Object[] arrays with Arrays.equals
-            if (!Arrays.equals(cmd, that.cmd)) return false;
-            if (inputParam != null ? !inputParam.equals(that.inputParam) : that.inputParam != null)
-                return false;
-            return params != null ? params.equals(that.params) : that.params == null;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = Arrays.hashCode(cmd);
-            result = 31 * result + (inputParam != null ? inputParam.hashCode() : 0);
-            result = 31 * result + (params != null ? params.hashCode() : 0);
-            return result;
         }
     }
 
@@ -172,7 +142,7 @@ public class Action {
             return (s == null ? null : new NextWindow(s));
         }
 
-        public NextWindow(String nextWindow) {
+        private NextWindow(String nextWindow) {
             try {
                 this.nextWindow = NextWindowEnum.valueOf(nextWindow);
             } catch (IllegalArgumentException e) {
@@ -184,25 +154,6 @@ public class Action {
         @Override
         public String toString() {
             return (nextWindow == NextWindowEnum.windowId ? windowId : nextWindow.name());
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            NextWindow that = (NextWindow) o;
-
-            if (nextWindow != that.nextWindow) return false;
-            return windowId != null ? windowId.equals(that.windowId) : that.windowId == null;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = nextWindow != null ? nextWindow.hashCode() : 0;
-            result = 31 * result + (windowId != null ? windowId.hashCode() : 0);
-            return result;
         }
     }
 

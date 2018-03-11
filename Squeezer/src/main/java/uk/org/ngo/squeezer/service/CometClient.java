@@ -108,6 +108,7 @@ class CometClient extends BaseClient {
 
     /** Map from an item request command ("players") to the listener class for responses. */
     private  final Map<String, ItemListener> mItemRequestMap;
+    private final ItemListener<Plugin> mPluginListener = new PluginListener();
 
     /** Map from a request to the listener class for responses. */
     private  final Map<String, ResponseHandler> mRequestMap;
@@ -125,7 +126,7 @@ class CometClient extends BaseClient {
     private final Queue<PublishMessage> mCommandQueue = new LinkedList<>();
     private boolean mCurrentCommand = false;
 
-    private final PublishListener publishListener = new PublishListener();
+    private final PublishListener mPublishListener = new PublishListener();
 
     // All requests are tagged with a correlation id, which can be used when
     // asynchronous responses are received.
@@ -682,7 +683,7 @@ class CometClient extends BaseClient {
             Map<String, Object> data = new HashMap<>();
             data.put("request", ttt);
             data.put("response", responseChannel);
-            mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.publishListener);
+            mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.mPublishListener);
         } else
             mCommandQueue.add(new PublishMessage(request, channel, responseChannel, publishListener));
     }
@@ -690,7 +691,7 @@ class CometClient extends BaseClient {
     @Override
     protected  <T extends Item> void internalRequestItems(final BrowseRequest<T> browseRequest) {
         ItemListener listener = mItemRequestMap.get(browseRequest.getRequest());
-        if (listener == null) listener = new PluginListener();
+        if (listener == null) listener = mPluginListener;
 
         final List<String> request = new ArrayList<>();
         request.addAll(Arrays.asList(browseRequest.getCmd()));

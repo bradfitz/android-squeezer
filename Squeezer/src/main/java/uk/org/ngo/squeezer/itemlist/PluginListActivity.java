@@ -111,7 +111,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     private void clearAndReOrderItems(String searchString) {
         if (getService() != null && !TextUtils.isEmpty(searchString)) {
-            plugin.goAction.action.params.put(plugin.goAction.action.inputParam, searchString);
+            plugin.goAction.action.params.put(plugin.goAction.inputParam, searchString);
             clearAndReOrderItems();
         }
     }

@@ -58,6 +58,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -679,14 +680,18 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         //fetchPlugins("menu");
     }
 
-    protected void fetchPlugins(String cmd) {
+    private void fetchPlugins(String cmd) {
         HashMap<String, Object> params = new HashMap<>();
-        params.put("direct", "1");
+        if ("menu".equals(cmd)) {
+            params.put("direct", "1");
+        } else {
+            params.put("menu", "menu");
+        }
         fetchPlugins(new File(getFilesDir(), cmd), new String[]{cmd}, params);
     }
 
-    protected void fetchPlugins(final File path, String cmd[], Map<String, Object> params) {
-        Log.i(TAG, "fetchPlugins(path:" + path + ", cmd:" + cmd + ", params:" + params + ")");
+    private void fetchPlugins(final File path, String cmd[], Map<String, Object> params) {
+        Log.i(TAG, "fetchPlugins(path:" + path + ", cmd:" + Arrays.toString(cmd) + ", params:" + params + ")");
         mDelegate.requestItems(mActivePlayer.get(), cmd, params, -1, new IServiceItemListCallback<Plugin>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
@@ -702,10 +707,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     Log.e(TAG, "Can't write output file: " + file);
                 }
                 for (Plugin plugin : items) {
-                    if (plugin.goAction != null) {
-                        Action action = plugin.goAction;
-                        fetchPlugins(new File(path, plugin.getId()), action.action.cmd, action.action.params);
-                    }
+                    if (plugin.goAction != null) fetchPlugins(path, plugin.goAction.action);
+                    if (plugin.moreAction != null) fetchPlugins(path, plugin.moreAction.action);
                 }
             }
 
@@ -714,6 +717,16 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return SqueezeService.this;
             }
         });
+    }
+
+    private void fetchPlugins(final File path, Action.JsonAction action) {
+        if (action.cmd[0].equals("playlistcontrol")) {
+            Log.e(TAG, "Oops calling playlistcontrol command: " + action);
+        }
+        if (action.cmd.length > 1 && action.cmd[1].equals("playlist")) {
+            Log.e(TAG, "Oops calling playlist command");
+        }
+        fetchPlugins(new File(path, action.cmd()), action.cmd, action.params);
     }
 
     public void onEvent(MusicChanged event) {
