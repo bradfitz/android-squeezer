@@ -148,9 +148,6 @@ public interface ISqueezeService {
     /** Cancel any pending callbacks for client */
     void cancelItemListRequests(Object client);
 
-    /** Cancel any subscriptions for client */
-    void cancelSubscriptions(Object client);
-
     /** Start an async fetch of the SqueezeboxServer's players */
     void players() throws SqueezeService.HandshakeNotCompleteException;
 

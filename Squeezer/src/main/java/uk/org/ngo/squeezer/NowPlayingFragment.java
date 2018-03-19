@@ -790,7 +790,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
 
         if (mRegisteredCallbacks) {
-            mService.cancelSubscriptions(this);
             mService.getEventBus().unregister(this);
             mRegisteredCallbacks = false;
         }

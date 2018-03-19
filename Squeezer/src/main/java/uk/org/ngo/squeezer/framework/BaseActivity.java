@@ -197,7 +197,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
             if (mService != null) {
                 mService.getEventBus().unregister(this);
                 mService.cancelItemListRequests(this);
-                mService.cancelSubscriptions(this);
             }
             mRegisteredOnEventBus = false;
         }

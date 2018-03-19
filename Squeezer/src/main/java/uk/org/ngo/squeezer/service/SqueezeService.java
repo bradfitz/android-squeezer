@@ -62,9 +62,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
@@ -107,7 +105,7 @@ import uk.org.ngo.squeezer.util.ImageWorker;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
-public class SqueezeService extends Service implements ServiceCallbackList.ServicePublisher {
+public class SqueezeService extends Service {
 
     private static final String TAG = "SqueezeService";
 
@@ -125,21 +123,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     /** The player state that the most recent notifcation was for. */
     private PlayerState mNotifiedPlayerState;
-
-    /**
-     * Keeps track of all subscriptions, so we can cancel all subscriptions for a client at once
-     */
-    final Map<ServiceCallback, ServiceCallbackList> callbacks = new ConcurrentHashMap<>();
-
-    @Override
-    public void addClient(ServiceCallbackList callbackList, ServiceCallback item) {
-        callbacks.put(item, callbackList);
-    }
-
-    @Override
-    public void removeClient(ServiceCallback item) {
-        callbacks.remove(item);
-    }
 
     private final SlimDelegate mDelegate = new SlimDelegate(mEventBus);
 
@@ -1437,16 +1420,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         public void cancelItemListRequests(Object client) {
             mDelegate.cancelClientRequests(client);
-        }
-
-        @Override
-        public void cancelSubscriptions(Object client) {
-            for (Entry<ServiceCallback, ServiceCallbackList> entry : callbacks.entrySet()) {
-                if (entry.getKey().getClient() == client) {
-                    entry.getValue().unregister(entry.getKey());
-                }
-            }
-            updateAllPlayerSubscriptionStates();
         }
 
         // XXX: Is this method needed? What calls it?
