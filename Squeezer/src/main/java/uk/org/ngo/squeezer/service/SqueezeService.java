@@ -57,7 +57,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -66,7 +65,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
@@ -164,12 +162,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     @Nullable String mUsername;
 
     @Nullable String mPassword;
-
-    /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
-    private final Map<String, Player> mPlayers = new ConcurrentHashMap<>();
-
-    /** The active player (the player to which commands are sent by default). */
-    private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
 
     private static final String ACTION_NEXT_TRACK = "uk.org.ngo.squeezer.service.ACTION_NEXT_TRACK";
     private static final String ACTION_PREV_TRACK = "uk.org.ngo.squeezer.service.ACTION_PREV_TRACK";
@@ -320,10 +312,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     @Nullable public PlayerState getActivePlayerState() {
-        if (mActivePlayer.get() == null)
-            return null;
+        Player activePlayer = mDelegate.getActivePlayer();
+        return activePlayer == null ? null : activePlayer.getPlayerState();
 
-        return mActivePlayer.get().getPlayerState();
     }
 
     /**
@@ -340,7 +331,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Updates the Wi-Fi lock and ongoing status notification as necessary.
      */
     public void onEvent(PlayStatusChanged event) {
-        if (event.player.equals(mActivePlayer.get())) {
+        if (event.player.equals(mDelegate.getActivePlayer())) {
             updateWifiLock(event.player.getPlayerState().isPlaying());
             updateOngoingNotification();
         }
@@ -355,14 +346,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      *     are controlled.
      */
     void changeActivePlayer(@Nullable final Player newActivePlayer) {
-        Player prevActivePlayer = mActivePlayer.get();
+        Player prevActivePlayer = mDelegate.getActivePlayer();
 
         // Do nothing if they player hasn't actually changed.
         if (prevActivePlayer == newActivePlayer) {
             return;
         }
 
-        mActivePlayer.set(newActivePlayer);
+        mDelegate.setActivePlayer(newActivePlayer);
         updateAllPlayerSubscriptionStates();
 
         Log.i(TAG, "Active player now: " + newActivePlayer);
@@ -400,7 +391,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * Adjusts the subscription to players' status updates.
      */
     private void updateAllPlayerSubscriptionStates() {
-        for (Player player : mPlayers.values()) {
+        for (Player player : mDelegate.getPlayers().values()) {
             updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
         }
     }
@@ -410,7 +401,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      * how frequently we need to know its status.
      */
     private @PlayerState.PlayerSubscriptionType String calculateSubscriptionTypeFor(Player player) {
-        Player activePlayer = mActivePlayer.get();
+        Player activePlayer = mDelegate.getActivePlayer();
 
         if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class) ||
                 (mEventBus.hasSubscriberForEvent(SongTimeChanged.class) && player.equals(activePlayer))) {
@@ -460,7 +451,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
      */
     @TargetApi(21)
     private void updateOngoingNotification() {
-        Player activePlayer = mActivePlayer.get();
+        Player activePlayer = mDelegate.getActivePlayer();
         PlayerState activePlayerState = getActivePlayerState();
 
         // Update scrobble state, if either we're currently scrobbling, or we
@@ -667,9 +658,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     public void onEvent(ConnectionChanged event) {
         if (event.connectionState == ConnectionState.DISCONNECTED) {
-            mPlayers.clear();
             mEventBus.removeAllStickyEvents();
-            mActivePlayer.set(null);
             mHandshakeComplete = false;
             clearOngoingNotification();
         }
@@ -692,7 +681,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     private void fetchPlugins(final File path, String cmd[], Map<String, Object> params) {
         Log.i(TAG, "fetchPlugins(path:" + path + ", cmd:" + Arrays.toString(cmd) + ", params:" + params + ")");
-        mDelegate.requestItems(mActivePlayer.get(), cmd, params, -1, new IServiceItemListCallback<Plugin>() {
+        mDelegate.requestItems(mDelegate.getActivePlayer(), cmd, params, -1, new IServiceItemListCallback<Plugin>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
                 path.getParentFile().mkdirs();
@@ -730,15 +719,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     }
 
     public void onEvent(MusicChanged event) {
-        if (event.player.equals(mActivePlayer.get())) {
+        if (event.player.equals(mDelegate.getActivePlayer())) {
             updateOngoingNotification();
         }
     }
 
     public void onEvent(PlayersChanged event) {
-        mPlayers.clear();
-        mPlayers.putAll(event.players);
-
         // Figure out the new active player, let everyone know.
         changeActivePlayer(getPreferredPlayer());
     }
@@ -755,8 +741,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 null);
         Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
-        Collection<Player> players = mPlayers.values();
-        Log.i(TAG, "mPlayers empty?: " + mPlayers.isEmpty());
+        Collection<Player> players = mDelegate.getPlayers().values();
+        Log.i(TAG, "mPlayers empty?: " + players.isEmpty());
         for (Player player : players) {
             if (player.getId().equals(lastConnectedPlayer)) {
                 return player;
@@ -1033,15 +1019,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void adjustVolumeTo(int newVolume) {
-            mDelegate.playerCommand(getActivePlayer()).cmd("mixer", "volume", String.valueOf(Math.min(100, Math.max(0, newVolume)))).exec();
+            mDelegate.activePlayerCommand().cmd("mixer", "volume", String.valueOf(Math.min(100, Math.max(0, newVolume)))).exec();
         }
 
         @Override
         public void adjustVolumeBy(int delta) {
             if (delta > 0) {
-                mDelegate.playerCommand(getActivePlayer()).cmd("mixer", "volume", "+" + delta).exec();
+                mDelegate.activePlayerCommand().cmd("mixer", "volume", "+" + delta).exec();
             } else if (delta < 0) {
-                mDelegate.playerCommand(getActivePlayer()).cmd("mixer", "volume", String.valueOf(delta)).exec();
+                mDelegate.activePlayerCommand().cmd("mixer", "volume", String.valueOf(delta)).exec();
             }
         }
 
@@ -1072,12 +1058,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void powerOn() {
-            mDelegate.playerCommand(getActivePlayer()).cmd("power", "1").exec();
+            mDelegate.activePlayerCommand().cmd("power", "1").exec();
         }
 
         @Override
         public void powerOff() {
-            mDelegate.playerCommand(getActivePlayer()).cmd("power", "0").exec();
+            mDelegate.activePlayerCommand().cmd("power", "0").exec();
         }
 
         @Override
@@ -1097,7 +1083,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void syncPlayerToPlayer(@NonNull Player slave, @NonNull String masterId) {
-            Player master = mPlayers.get(masterId);
+            Player master = mDelegate.getPlayer(masterId);
             mDelegate.command(master).cmd("sync", slave.getId()).exec();
         }
 
@@ -1121,12 +1107,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         @Nullable
         public PlayerState getPlayerState(String playerId) {
-            Player player = mPlayers.get(playerId);
-            if (player == null) {
-                return null;
-            }
-
-            return player.getPlayerState();
+            Player player = mDelegate.getPlayer(playerId);
+            return player == null ? null : player.getPlayerState();
         }
 
         /**
@@ -1139,7 +1121,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
         @Override
         public void playerPref(@Player.Pref.Name String playerPref, String value) {
-            mDelegate.playerCommand(getActivePlayer()).cmd("playerpref", playerPref, value).exec();
+            mDelegate.activePlayerCommand().cmd("playerpref", playerPref, value).exec();
         }
 
         @Override
@@ -1246,7 +1228,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("play", fadeInSecs()).exec();
+            mDelegate.activePlayerCommand().cmd("play", fadeInSecs()).exec();
             return true;
         }
 
@@ -1255,7 +1237,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if(!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("pause", "1", fadeInSecs()).exec();
+            mDelegate.activePlayerCommand().cmd("pause", "1", fadeInSecs()).exec();
             return true;
         }
 
@@ -1264,7 +1246,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("stop").exec();
+            mDelegate.activePlayerCommand().cmd("stop").exec();
             return true;
         }
 
@@ -1273,7 +1255,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("button", "jump_fwd").exec();
+            mDelegate.activePlayerCommand().cmd("button", "jump_fwd").exec();
             return true;
         }
 
@@ -1282,7 +1264,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("button", "jump_rew").exec();
+            mDelegate.activePlayerCommand().cmd("button", "jump_rew").exec();
             return true;
         }
 
@@ -1291,7 +1273,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("playlist", "shuffle").exec();
+            mDelegate.activePlayerCommand().cmd("playlist", "shuffle").exec();
             return true;
         }
 
@@ -1300,7 +1282,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("playlist", "repeat").exec();
+            mDelegate.activePlayerCommand().cmd("playlist", "repeat").exec();
             return true;
         }
 
@@ -1310,7 +1292,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return false;
             }
 
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("playlistcontrol")
+            mDelegate.activePlayerCommand().cmd("playlistcontrol")
                     .param("cmd", cmd).playlistParam(playlistItem).param("play_index", index).exec();
             return true;
         }
@@ -1320,7 +1302,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("randomplay", type).exec();
+            mDelegate.activePlayerCommand().cmd("randomplay", type).exec();
             return true;
         }
 
@@ -1334,7 +1316,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("playlist", "index", String.valueOf(index), fadeInSecs()).exec();
+            mDelegate.activePlayerCommand().cmd("playlist", "index", String.valueOf(index), fadeInSecs()).exec();
             return true;
         }
 
@@ -1343,7 +1325,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("playlist", "delete", String.valueOf(index)).exec();
+            mDelegate.activePlayerCommand().cmd("playlist", "delete", String.valueOf(index)).exec();
             return true;
         }
 
@@ -1352,7 +1334,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("playlist", "move", String.valueOf(fromIndex), String.valueOf(toIndex)).exec();
+            mDelegate.activePlayerCommand().cmd("playlist", "move", String.valueOf(fromIndex), String.valueOf(toIndex)).exec();
             return true;
         }
 
@@ -1361,7 +1343,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("playlist", "clear").exec();
+            mDelegate.activePlayerCommand().cmd("playlist", "clear").exec();
             return true;
         }
 
@@ -1370,7 +1352,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("playlist", "save", name).exec();
+            mDelegate.activePlayerCommand().cmd("playlist", "save", name).exec();
             return true;
         }
 
@@ -1392,18 +1374,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         @Override
         @Nullable
         public Player getActivePlayer() {
-            return mActivePlayer.get();
+            return mDelegate.getActivePlayer();
         }
 
         @Override
-        public List<Player> getPlayers() {
-            // TODO: return an ImmutableList?
-            return new ArrayList<>(mPlayers.values());
-        }
-
-        @Override
-        public java.util.Collection<Player> getConnectedPlayers() {
-            return mPlayers.values();
+        public Collection<Player> getPlayers() {
+            return mDelegate.getPlayers().values();
         }
 
         @Override
@@ -1435,7 +1411,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 return false;
             }
 
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("time", String.valueOf(seconds)).exec();
+            mDelegate.activePlayerCommand().cmd("time", String.valueOf(seconds)).exec();
 
             return true;
         }
@@ -1511,7 +1487,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("alarm", "add").param("time", time).exec();
+            mDelegate.activePlayerCommand().cmd("alarm", "add").param("time", time).exec();
         }
 
         @Override
@@ -1519,7 +1495,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("alarm", "delete").param("id", id).exec();
+            mDelegate.activePlayerCommand().cmd("alarm", "delete").param("id", id).exec();
         }
 
         @Override
@@ -1527,32 +1503,32 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             if (!isConnected()) {
                 return;
             }
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("alarm", "update").param("id", id).param("time", time).exec();
+            mDelegate.activePlayerCommand().cmd("alarm", "update").param("id", id).param("time", time).exec();
         }
 
         @Override
         public void alarmAddDay(String id, int day) {
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("alarm", "update").param("id", id).param("dowAdd", day).exec();
+            mDelegate.activePlayerCommand().cmd("alarm", "update").param("id", id).param("dowAdd", day).exec();
         }
 
         @Override
         public void alarmRemoveDay(String id, int day) {
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("alarm", "update").param("id", id).param("dowDel", day).exec();
+            mDelegate.activePlayerCommand().cmd("alarm", "update").param("id", id).param("dowDel", day).exec();
         }
 
         @Override
         public void alarmEnable(String id, boolean enabled) {
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("alarm", "update").param("id", id).param("enabled", enabled ? "1" : "0").exec();
+            mDelegate.activePlayerCommand().cmd("alarm", "update").param("id", id).param("enabled", enabled ? "1" : "0").exec();
         }
 
         @Override
         public void alarmRepeat(String id, boolean repeat) {
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("alarm", "update").param("id", id).param("repeat", repeat ? "1" : "0").exec();
+            mDelegate.activePlayerCommand().cmd("alarm", "update").param("id", id).param("repeat", repeat ? "1" : "0").exec();
         }
 
         @Override
         public void alarmSetPlaylist(String id, AlarmPlaylist playlist) {
-            mDelegate.playerCommand(mActivePlayer.get()).cmd("alarm", "update").param("id", id)
+            mDelegate.activePlayerCommand().cmd("alarm", "update").param("id", id)
                     .param("url", "".equals(playlist.getId()) ? "0" : playlist.getId()).exec();
         }
 

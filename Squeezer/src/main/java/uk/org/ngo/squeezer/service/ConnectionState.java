@@ -22,11 +22,14 @@ import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
@@ -66,6 +69,12 @@ public class ConnectionState {
     @ConnectionStates
     private volatile int mConnectionState = DISCONNECTED;
 
+    /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
+    private final Map<String, Player> mPlayers = new ConcurrentHashMap<>();
+
+    /** The active player (the player to which commands are sent by default). */
+    private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
+
     /** Does the server support "favorites items" queries? */
     private final AtomicReference<Boolean> mCanFavorites = new AtomicReference<>();
 
@@ -96,6 +105,8 @@ public class ConnectionState {
         serverVersion.set(null);
         preferredAlbumSort.set(null);
         mediaDirs.set(null);
+        mPlayers.clear();
+        mActivePlayer.set(null);
     }
 
     /**
@@ -108,6 +119,26 @@ public class ConnectionState {
         Log.i(TAG, "Setting connection state to: " + connectionState);
         mConnectionState = connectionState;
         mEventBus.postSticky(new ConnectionChanged(mConnectionState));
+    }
+
+    public void setPlayers(Map<String, Player> players) {
+        mPlayers.clear();
+        mPlayers.putAll(players);
+    }
+    public Player getPlayer(String playerId) {
+        return mPlayers.get(playerId);
+    }
+
+    public Map<String, Player> getPlayers() {
+        return mPlayers;
+    }
+
+    public Player getActivePlayer() {
+        return mActivePlayer.get();
+    }
+
+    public void setActivePlayer(Player player) {
+        mActivePlayer.set(player);
     }
 
     public String[] getMediaDirs() {

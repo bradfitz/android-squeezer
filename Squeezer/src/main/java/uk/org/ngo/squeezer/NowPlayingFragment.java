@@ -918,7 +918,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             // Set visibility and enabled state of menu items that are player-specific and
             // require a connection to the server.
             boolean haveConnectedPlayers = connected && mService != null
-                    && !mService.getConnectedPlayers().isEmpty();
+                    && !mService.getPlayers().isEmpty();
 
             menu_item_players.setVisible(haveConnectedPlayers);
             menu_item_playlist.setVisible(haveConnectedPlayers);

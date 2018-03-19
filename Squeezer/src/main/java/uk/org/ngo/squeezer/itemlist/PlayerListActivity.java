@@ -27,8 +27,8 @@ import android.widget.ExpandableListView;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
@@ -173,7 +173,7 @@ public class PlayerListActivity extends ItemListActivity implements
      * @param players List of players.
      * @param activePlayer The currently active player.
      */
-    public void updateSyncGroups(List<Player> players, Player activePlayer) {
+    public void updateSyncGroups(Collection<Player> players, Player activePlayer) {
         Map<String, Player> connectedPlayers = new HashMap<String, Player>();
 
         // Make a copy of the players we know about, ignoring unconnected ones.

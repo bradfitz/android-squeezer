@@ -78,9 +78,6 @@ abstract class BaseClient implements SlimClient {
 
     final ConnectionState mConnectionState;
 
-    /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
-    final Map<String, Player> mPlayers = new HashMap<>();
-
     /** Shared event bus for status changes. */
     @NonNull final EventBus mEventBus;
 

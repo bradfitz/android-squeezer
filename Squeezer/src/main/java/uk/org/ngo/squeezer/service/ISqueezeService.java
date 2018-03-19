@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.service;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -68,12 +69,7 @@ public interface ISqueezeService {
      * @return players that the server knows about (irrespective of power, connection, or
      * other status).
      */
-    List<Player> getPlayers();
-
-    /**
-     * @return players that are connected to the server.
-     */
-    java.util.Collection<Player> getConnectedPlayers();
+    Collection<Player> getPlayers();
 
     // XXX: Delete, now that PlayerState is tracked in the player?
     PlayerState getActivePlayerState();

@@ -300,7 +300,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     @CallSuper
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean haveConnectedPlayers = isConnected() && mService != null
-                && !mService.getConnectedPlayers().isEmpty();
+                && !mService.getPlayers().isEmpty();
 
         if (mMenuItemVolume != null) {
             mMenuItemVolume.setVisible(haveConnectedPlayers);

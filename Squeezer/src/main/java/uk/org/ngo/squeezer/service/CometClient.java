@@ -401,12 +401,11 @@ class CometClient extends BaseClient {
                 Player player = new Player(record);
                 players.put(player.getId(), player);
             }
-            if (!players.equals(mPlayers)) {
-                mPlayers.clear();
-                mPlayers.putAll(players);
+            if (!players.equals(mConnectionState.getPlayers())) {
+                mConnectionState.setPlayers(players);
 
                 // XXX: postSticky?
-                mEventBus.postSticky(new PlayersChanged(mPlayers));
+                mEventBus.postSticky(new PlayersChanged(mConnectionState.getPlayers()));
             }
         }
     }
@@ -414,7 +413,7 @@ class CometClient extends BaseClient {
     private void parseStatus(Message message) {
         String[] channelParts = mSlashSplitPattern.split(message.getChannel());
         String playerId = channelParts[channelParts.length - 1];
-        Player player = mPlayers.get(playerId);
+        Player player = mConnectionState.getPlayer(playerId);
 
         // XXX: Can we ever see a status for a player we don't know about?
         // XXX: Maybe the better thing to do is to add it.
@@ -636,7 +635,6 @@ class CometClient extends BaseClient {
     public void disconnect(boolean loginFailed) {
         if (mBayeuxClient != null) mBackgroundHandler.sendEmptyMessage(MSG_DISCONNECT);
         mConnectionState.disconnect(loginFailed);
-        mPlayers.clear();
     }
 
     @Override

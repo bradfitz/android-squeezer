@@ -107,9 +107,9 @@ class SlimDelegate {
         return new Command(mClient);
     }
 
-    /** Like #command({@link Player} but does nothing if player is null */
-    Command playerCommand(Player player) {
-        return new PlayerCommand(mClient, player);
+    /** If there is an active player call {@link #command(Player)} with the active player */
+    Command activePlayerCommand() {
+        return new PlayerCommand(mClient, mClient.getConnectionState().getActivePlayer());
     }
 
     <T extends Item> Request requestItems(Player player, int start, IServiceItemListCallback<T> callback) {
@@ -122,6 +122,22 @@ class SlimDelegate {
 
     <T extends Item> Request requestItems(int start, IServiceItemListCallback<T> callback) {
         return new Request<>(mClient, start, callback);
+    }
+
+    public Player getActivePlayer() {
+        return mClient.getConnectionState().getActivePlayer();
+    }
+
+    public void setActivePlayer(Player player) {
+        mClient.getConnectionState().setActivePlayer(player);
+    }
+
+    public Player getPlayer(String playerId) {
+        return mClient.getConnectionState().getPlayer(playerId);
+    }
+
+    public Map<String, Player> getPlayers() {
+        return mClient.getConnectionState().getPlayers();
     }
 
     static class Command {

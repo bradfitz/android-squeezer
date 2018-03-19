@@ -360,7 +360,6 @@ class CliClient extends BaseClient {
         socketRef.set(null);
         socketWriter.set(null);
         httpPort.set(null);
-        mPlayers.clear();
     }
 
     // All requests are tagged with a correlation id, which can be used when
@@ -964,7 +963,7 @@ class CliClient extends BaseClient {
             public void handle(List<String> tokens) {
                 Log.i(TAG, "Player preference received: " + tokens);
                 if (tokens.size() == 4) {
-                    Player player = mPlayers.get(Util.decode(tokens.get(0)));
+                    Player player = mConnectionState.getPlayer(Util.decode(tokens.get(0)));
                     if (player != null) {
                         String pref = Util.decode(tokens.get(2));
                         if (Player.Pref.VALID_PLAYER_PREFS.contains(pref)) {
@@ -1014,7 +1013,7 @@ class CliClient extends BaseClient {
             @Override
             public void handle(List<String> tokens) {
                 if (tokens.size() >= 3 && "-".equals(tokens.get(2))) {
-                    Player player = mPlayers.get(Util.decode(tokens.get(0)));
+                    Player player = mConnectionState.getPlayer(Util.decode(tokens.get(0)));
 
                     // XXX: Can we ever see a status for a player we don't know about?
                     // XXX: Maybe the better thing to do is to add it.
@@ -1035,7 +1034,7 @@ class CliClient extends BaseClient {
                 Log.v(TAG, "Prefset received: " + tokens);
                 if (tokens.size() == 5 && tokens.get(2).equals("server")) {
                     String playerId = Util.decode(tokens.get(0));
-                    Player player = mPlayers.get(playerId);
+                    Player player = mConnectionState.getPlayer(playerId);
                     if (player != null) {
                         if (tokens.get(3).equals("volume")) {
                             updatePlayerVolume(playerId, Util.parseDecimalIntOrZero(tokens.get(4)));
@@ -1170,7 +1169,7 @@ class CliClient extends BaseClient {
         Log.v(TAG, "Playlist notification received: " + tokens);
         String notification = tokens.get(2);
         if ("newsong".equals(notification)) {
-            Player player = mPlayers.get(tokens.get(0));
+            Player player = mConnectionState.getPlayer(tokens.get(0));
             if (player != null) {
                 requestPlayerStatus(player);
             }
@@ -1187,7 +1186,7 @@ class CliClient extends BaseClient {
     }
 
     private void updatePlayerVolume(String playerId, int newVolume) {
-        Player player = mPlayers.get(playerId);
+        Player player = mConnectionState.getPlayer(playerId);
         if (player != null) {
             player.getPlayerState().setCurrentVolume(newVolume);
             mEventBus.post(new PlayerVolume(newVolume, player));
@@ -1195,7 +1194,7 @@ class CliClient extends BaseClient {
     }
 
     private void updatePlayStatus(@NonNull String playerId, String playStatus) {
-        Player player = mPlayers.get(playerId);
+        Player player = mConnectionState.getPlayer(playerId);
         if (player != null) {
             updatePlayStatus(player, playStatus);
         }
@@ -1248,15 +1247,14 @@ class CliClient extends BaseClient {
 
                 // If all players have been received then determine the new active player.
                 if (start + items.size() >= count) {
-                    if (players.equals(mPlayers)) {
+                    if (players.equals(mConnectionState.getPlayers())) {
                         return;
                     }
 
-                    mPlayers.clear();
-                    mPlayers.putAll(players);
+                    mConnectionState.setPlayers(players);
 
                     // XXX: postSticky?
-                    mEventBus.postSticky(new PlayersChanged(mPlayers));
+                    mEventBus.postSticky(new PlayersChanged(mConnectionState.getPlayers()));
                 }
             }
 
