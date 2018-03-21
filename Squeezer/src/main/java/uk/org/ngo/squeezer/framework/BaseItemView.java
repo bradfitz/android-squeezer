@@ -326,7 +326,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
     @Override
     public boolean isSelectable(T item) {
-        return true;
+        return (item.getId() != null);
     }
 
     @Override

@@ -134,7 +134,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
 
     public void onItemSelected(int position) {
         T item = getItem(position);
-        if (item != null && item.getId() != null) {
+        if (item != null) {
             mItemView.onItemSelected(position, item);
         }
     }
@@ -158,7 +158,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
         ItemView.ContextMenuInfo c = new ItemView.ContextMenuInfo(position, selectedItem, this,
                 getActivity().getMenuInflater());
 
-        if (selectedItem != null && selectedItem.getId() != null) {
+        if (selectedItem != null) {
             mItemView.onCreateContextMenu(menu, v, c);
         }
     }
@@ -230,7 +230,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     @Override
     public boolean isEnabled(int position) {
         T item = getItem(position);
-        return item != null && item.getId() != null && mItemView.isSelectable(item);
+        return item != null && mItemView.isSelectable(item);
     }
 
     /**

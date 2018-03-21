@@ -69,7 +69,7 @@ public class PluginView extends BaseItemView<Plugin> {
 
     @Override
     public boolean isSelectable(Plugin item) {
-        return super.isSelectable(item) && (item.goAction != null);
+        return (item.goAction != null);
     }
 
     @Override
