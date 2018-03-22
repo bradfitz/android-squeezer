@@ -1604,7 +1604,11 @@ public class SqueezeService extends Service {
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.command().cmd("playlists", "delete").filter(playlist).exec();
+            // According to The LMS documentation the "playlists delete" does not need a player.
+            // However when connected via the comet protocol a attempt to notify the current player
+            // ($request->client->showBriefly) is made, causing the command to fail.
+            // See Slim/Control/Commands.pm line 2272.
+            mDelegate.activePlayerCommand().cmd("playlists", "delete").filter(playlist).exec();
             return true;
         }
 
