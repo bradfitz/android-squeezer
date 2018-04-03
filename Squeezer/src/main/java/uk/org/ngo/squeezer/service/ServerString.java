@@ -45,6 +45,7 @@ public enum ServerString {
     SETUP_ALARM_TIMEOUT_DESC,
     SETUP_SNOOZE_MINUTES,
     SETUP_SNOOZE_MINUTES_DESC,
+    MORE,
     ;
 
     private String localizedString;

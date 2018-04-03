@@ -482,7 +482,7 @@ class CometClient extends BaseClient {
             // Process the lists for all the registered handlers
             final boolean fullList = browseRequest.isFullList();
             final int start = browseRequest.getStart();
-            final int end = start + browseRequest.getItemsPerResponse();
+            final int end = start + getItems().size();
             int max = 0;
             browseRequest.getCallback().onItemsReceived(count, start, data, getItems(), getDataType());
             if (count > max) {

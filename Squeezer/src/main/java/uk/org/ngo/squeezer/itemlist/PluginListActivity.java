@@ -58,6 +58,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     private String cmd;
     private Plugin plugin;
+    private Action action;
 
     @Override
     public ItemView<Plugin> createItemView() {
@@ -69,36 +70,36 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         super.onCreate(savedInstanceState);
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            cmd = extras.getString("cmd");
-            plugin = extras.getParcelable(Plugin.class.getName());
-            findViewById(R.id.search_view).setVisibility((isSearchable()) ? View.VISIBLE : View.GONE);
-            if (isSearchable()) {
-                ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
-                final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
+        assert extras != null;
+        cmd = extras.getString("cmd");
+        plugin = extras.getParcelable(Plugin.class.getName());
+        action = extras.getParcelable(Action.class.getName());
+        findViewById(R.id.search_view).setVisibility((isSearchable()) ? View.VISIBLE : View.GONE);
+        if (isSearchable()) {
+            ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+            final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
 
-                searchCriteriaText.setText(plugin.goAction.getInputValue());
-                searchCriteriaText.setOnKeyListener(new OnKeyListener() {
-                    @Override
-                    public boolean onKey(View v, int keyCode, KeyEvent event) {
-                        if ((event.getAction() == KeyEvent.ACTION_DOWN)
-                                && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                            clearAndReOrderItems(searchCriteriaText.getText().toString());
-                            return true;
-                        }
-                        return false;
+            searchCriteriaText.setText(plugin.goAction.getInputValue());
+            searchCriteriaText.setOnKeyListener(new OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if ((event.getAction() == KeyEvent.ACTION_DOWN)
+                            && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                        clearAndReOrderItems(searchCriteriaText.getText().toString());
+                        return true;
                     }
-                });
+                    return false;
+                }
+            });
 
-                searchButton.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (getService() != null) {
-                            clearAndReOrderItems(searchCriteriaText.getText().toString());
-                        }
+            searchButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (getService() != null) {
+                        clearAndReOrderItems(searchCriteriaText.getText().toString());
                     }
-                });
-            }
+                }
+            });
         }
     }
 
@@ -128,7 +129,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         if (plugin != null) {
             if (isSearchReady())
-                service.pluginItems(start, plugin, this);
+                service.pluginItems(start, plugin, action, this);
         } else {
             service.pluginItems(start, cmd, this);
         }
@@ -229,10 +230,15 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         activity.startActivity(intent);
     }
 
-    public static void show(Activity activity, Plugin plugin) {
+    public static void show(Activity activity, Plugin plugin, Action action) {
         final Intent intent = new Intent(activity, PluginListActivity.class);
         intent.putExtra(Plugin.class.getName(), plugin);
+        intent.putExtra(Action.class.getName(), action);
         activity.startActivity(intent);
+    }
+
+    public static void show(Activity activity, Plugin plugin) {
+        show(activity, plugin, plugin.goAction);
     }
 
 }

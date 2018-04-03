@@ -30,6 +30,7 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class PluginView extends BaseItemView<Plugin> {
@@ -90,6 +91,9 @@ public class PluginView extends BaseItemView<Plugin> {
         if (item.insertAction != null) {
             menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
         }
+        if (item.moreAction != null) {
+            menu.add(Menu.NONE, R.id.more, Menu.NONE, getActivity().getServerString(ServerString.MORE));
+        }
     }
 
     @Override
@@ -103,6 +107,9 @@ public class PluginView extends BaseItemView<Plugin> {
                 return true;
             case R.id.play_next:
                 getActivity().action(selectedItem, selectedItem.insertAction);
+                return true;
+            case R.id.more:
+                PluginListActivity.show(getActivity(), selectedItem, selectedItem.moreAction);
                 return true;
         }
         return false;

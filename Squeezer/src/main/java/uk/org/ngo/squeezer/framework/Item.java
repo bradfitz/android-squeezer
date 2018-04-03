@@ -72,6 +72,9 @@ public abstract class Item implements Parcelable {
         addAction = extractAction("add", baseActions, actionsRecord, record, baseRecord);
         insertAction = extractAction("add-hold", baseActions, actionsRecord, record, baseRecord);
         moreAction = extractAction("more", baseActions, actionsRecord, record, baseRecord);
+        if (moreAction != null) {
+            moreAction.action.params.put("xmlBrowseInterimCM", 1);
+        }
 
         // We preferably won't play when item is selected, so attempt to aviod that
         if (goAction != null) {
@@ -95,10 +98,11 @@ public abstract class Item implements Parcelable {
         setId(source.readString());
         window = Window.readFromParcel(source);
         input = Input.readFromParcel(source);
-        goAction = Action.readFromParcel(source);
-        playAction = Action.readFromParcel(source);
-        addAction = Action.readFromParcel(source);
-        insertAction = Action.readFromParcel(source);
+        goAction = source.readParcelable(Item.class.getClassLoader());
+        playAction = source.readParcelable(Item.class.getClassLoader());
+        addAction = source.readParcelable(Item.class.getClassLoader());
+        insertAction = source.readParcelable(Item.class.getClassLoader());
+        moreAction = source.readParcelable(Item.class.getClassLoader());
     }
 
     @Override
@@ -106,10 +110,11 @@ public abstract class Item implements Parcelable {
         dest.writeString(getId());
         Window.writeToParcel(dest, window);
         Input.writeToParcel(dest, input);
-        Action.writeToParcel(dest, goAction);
-        Action.writeToParcel(dest, playAction);
-        Action.writeToParcel(dest, addAction);
-        Action.writeToParcel(dest, insertAction);
+        dest.writeParcelable(goAction, flags);
+        dest.writeParcelable(playAction, flags);
+        dest.writeParcelable(addAction, flags);
+        dest.writeParcelable(insertAction, flags);
+        dest.writeParcelable(moreAction, flags);
     }
 
 
@@ -237,6 +242,7 @@ public abstract class Item implements Parcelable {
         if (itemParams != null) {
             action.params.putAll(itemParams);
         }
+        action.params.put("useContextMenu", "1");
         actionHolder.initInputParam();
 
         return actionHolder;

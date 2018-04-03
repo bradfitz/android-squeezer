@@ -79,6 +79,10 @@ public class Plugin extends Item {
         return (input != null);
     }
 
+    public boolean isPlayable() {
+        return (playAction != null);
+    }
+
 
     public Plugin(Map<String, Object> record) {
         super(record);
@@ -130,9 +134,5 @@ public class Plugin extends Item {
                 + ", play: " + playAction
                 + ", add: " + addAction
                 + ", insert: " + insertAction;
-    }
-
-    public boolean isPlayable() {
-        return (playAction != null);
     }
 }

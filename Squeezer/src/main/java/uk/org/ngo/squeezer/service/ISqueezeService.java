@@ -207,7 +207,7 @@ public interface ISqueezeService {
 
     // Plugins (Radios/Apps (music services)/Favorites)
     void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
-    void pluginItems(int start, Plugin plugin, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, Plugin plugin, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
     boolean action(Item item, Action action);
 
 

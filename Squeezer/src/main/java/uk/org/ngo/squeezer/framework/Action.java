@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.common.base.Joiner;
 
@@ -29,13 +30,61 @@ import uk.org.ngo.squeezer.Util;
  * Implements <code>action_fields</code> of the LMS SqueezePlay interface.
  * http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#.3Cactions_fields.3E
  */
-public class Action {
+public class Action implements Parcelable {
     private static final String INPUT_PLACEHOLDER = "__TAGGEDINPUT__";
     private static final Joiner joiner = Joiner.on(" ");
 
     public String urlCommand;
     public JsonAction action;
     public String inputParam;
+
+    public Action() {
+    }
+
+    public static final Creator<Action> CREATOR = new Creator<Action>() {
+        @Override
+        public Action[] newArray(int size) {
+            return new Action[size];
+        }
+
+        @Override
+        public Action createFromParcel(Parcel source) {
+            return new Action(source);
+        }
+    };
+
+    public Action(Parcel source) {
+        urlCommand = source.readString();
+        if (urlCommand == null) {
+            action = new JsonAction();
+            action.cmd = source.createStringArray();
+            action.params = Util.mapify(source.createStringArray());
+            action.nextWindow = NextWindow.fromString(source.readString());
+            inputParam = source.readString();
+        }
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(urlCommand);
+        if (urlCommand == null) {
+            dest.writeStringArray(action.cmd);
+            String[] tokens = new String[action.params.size()];
+            int i = 0;
+            for (Map.Entry entry : action.params.entrySet()) {
+                tokens[i++] = entry.getKey() + ":" + entry.getValue();
+            }
+            dest.writeStringArray(tokens);
+            dest.writeString(action.nextWindow == null ? null : action.nextWindow.toString());
+            dest.writeString(inputParam);
+        }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
 
     public void initInputParam() {
         if (action.params.containsValue(INPUT_PLACEHOLDER)) {
@@ -58,40 +107,6 @@ public class Action {
 
     private String _getInputValue() {
         return (inputParam != null ? (String) action.params.get(inputParam) : null);
-    }
-
-    public static Action readFromParcel(Parcel source) {
-        if (source.readInt() == 0) return null;
-
-        Action action = new Action();
-        action.urlCommand = source.readString();
-        if (action.urlCommand == null) {
-            action.action = new JsonAction();
-            action.action.cmd = source.createStringArray();
-            action.action.params = Util.mapify(source.createStringArray());
-            action.action.nextWindow = NextWindow.fromString(source.readString());
-            action.inputParam = source.readString();
-        }
-
-        return action;
-    }
-
-    public static void writeToParcel(Parcel dest, Action action) {
-        dest.writeInt(action == null ? 0 : 1);
-        if (action == null) return;
-
-        dest.writeString(action.urlCommand);
-        if (action.urlCommand == null) {
-            dest.writeStringArray(action.action.cmd);
-            String[] tokens = new String[action.action.params.size()];
-            int i = 0;
-            for (Map.Entry entry : action.action.params.entrySet()) {
-                tokens[i++] = entry.getKey() + ":" + entry.getValue();
-            }
-            dest.writeStringArray(tokens);
-            dest.writeString(action.action.nextWindow == null ? null : action.action.nextWindow.toString());
-            dest.writeString(action.inputParam);
-        }
     }
 
     @Override
