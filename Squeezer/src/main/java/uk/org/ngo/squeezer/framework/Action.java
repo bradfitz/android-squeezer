@@ -89,7 +89,7 @@ public class Action implements Parcelable {
     public void initInputParam() {
         if (action.params.containsValue(INPUT_PLACEHOLDER)) {
             for (Map.Entry<String, Object> entry : action.params.entrySet()) {
-                if ("__TAGGEDINPUT__".equals(entry.getValue())) {
+                if (INPUT_PLACEHOLDER.equals(entry.getValue())) {
                     inputParam = entry.getKey();
                     break;
                 }
@@ -107,6 +107,10 @@ public class Action implements Parcelable {
 
     private String _getInputValue() {
         return (inputParam != null ? (String) action.params.get(inputParam) : null);
+    }
+
+    public boolean isContextMenu() {
+        return (action != null && action.params.containsKey("isContextMenu"));
     }
 
     @Override

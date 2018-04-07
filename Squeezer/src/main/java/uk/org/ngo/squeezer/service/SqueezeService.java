@@ -664,7 +664,7 @@ public class SqueezeService extends Service {
 
     private void fetchPlugins(final File path, String cmd[], Map<String, Object> params) {
         Log.i(TAG, "fetchPlugins(path:" + path + ", cmd:" + Arrays.toString(cmd) + ", params:" + params + ")");
-        mDelegate.requestItems(mDelegate.getActivePlayer(), cmd, params, -1, new IServiceItemListCallback<Plugin>() {
+        mDelegate.requestItems(mDelegate.getActivePlayer(), -1, new IServiceItemListCallback<Plugin>() {
             @Override
             public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
                 path.getParentFile().mkdirs();
@@ -688,7 +688,7 @@ public class SqueezeService extends Service {
             public Object getClient() {
                 return SqueezeService.this;
             }
-        });
+        }).cmd(cmd).params(params).exec();
     }
 
     private void fetchPlugins(final File path, Action.JsonAction action) {
@@ -1451,8 +1451,8 @@ public class SqueezeService extends Service {
             // customary <start> and <itemsPerResponse> parameters, but these are interpreted as
             // categories (eg. Favorites, Natural Sounds etc.), but the returned list is flattened,
             // i.e. contains all items of the requested categories.
-            // So we order all playlists like below, hoping there are no more than 99 categories.
-            mDelegate.requestItems(0, 99, callback).cmd("alarm", "playlists").exec();
+            // So we order all playlists without paging.
+            mDelegate.requestItems(callback).cmd("alarm", "playlists").exec();
         }
 
         @Override
@@ -1681,7 +1681,14 @@ public class SqueezeService extends Service {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
-            mDelegate.requestItems(getActivePlayer(), action.action.cmd, action.action.params, start, callback);
+            mDelegate.requestItems(getActivePlayer(), start, callback).cmd(action.action.cmd).params(action.action.params).exec();
+        }
+
+        @Override
+        public void pluginItems(Plugin plugin, Action action, IServiceItemListCallback<Plugin> callback) throws HandshakeNotCompleteException {
+            // We cant use paging for context menu items as LMS does some "magic"
+            // See XMLBrowser.pm ("xmlBrowseInterimCM" and  "# Cannot do this if we might screw up paging")
+            mDelegate.requestItems(getActivePlayer(), callback).cmd(action.action.cmd).params(action.action.params).exec();
         }
 
         @Override

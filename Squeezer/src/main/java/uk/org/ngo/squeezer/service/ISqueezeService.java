@@ -20,8 +20,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.framework.Action;
@@ -208,6 +206,7 @@ public interface ISqueezeService {
     // Plugins (Radios/Apps (music services)/Favorites)
     void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
     void pluginItems(int start, Plugin plugin, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(Plugin plugin, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
     boolean action(Item item, Action action);
 
 

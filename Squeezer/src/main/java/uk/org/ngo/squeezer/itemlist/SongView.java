@@ -105,7 +105,7 @@ public class SongView extends PlaylistItemView<Song> {
     }
 
     /**
-     * Binds the label to {@link ViewHolder#text1}. Hides the {@link ViewHolder#btnContextMenu} and
+     * Binds the label to {@link ViewHolder#text1}. Hides the {@link ViewHolder#contextMenuButtonHolder} and
      * clears {@link ViewHolder#text2}.
      *
      * @param view The view that contains the {@link ViewHolder}

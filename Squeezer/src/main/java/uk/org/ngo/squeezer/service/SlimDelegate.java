@@ -30,7 +30,6 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 class SlimDelegate {
@@ -91,10 +90,6 @@ class SlimDelegate {
         return mClient.getConnectionState().getPreferredAlbumSort();
     }
 
-    void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, IServiceItemListCallback<Plugin> callback) {
-        mClient.requestItems(player, cmd, params, start, (start == 0 ? 1 : BaseClient.mPageSize), callback);
-    }
-
     void command(Player player, String[] cmd, Map<String, Object> params) {
         mClient.command(player, cmd, params);
     }
@@ -116,8 +111,12 @@ class SlimDelegate {
         return new Request<>(mClient, player, start, callback);
     }
 
-    <T extends Item> Request requestItems(int start, int pageSize, IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, start, pageSize, callback);
+    <T extends Item> Request requestItems(Player player, IServiceItemListCallback<T> callback) {
+        return new Request<>(mClient, player, 0, 200, callback);
+    }
+
+    <T extends Item> Request requestItems(IServiceItemListCallback<T> callback) {
+        return new Request<>(mClient, 0, 200, callback);
     }
 
     <T extends Item> Request requestItems(int start, IServiceItemListCallback<T> callback) {
@@ -157,6 +156,11 @@ class SlimDelegate {
 
         Command cmd(String... commandTerms) {
             cmd.addAll(Arrays.asList(commandTerms));
+            return this;
+        }
+
+        public Command params(Map<String, Object> params) {
+            this.params.putAll(params);
             return this;
         }
 

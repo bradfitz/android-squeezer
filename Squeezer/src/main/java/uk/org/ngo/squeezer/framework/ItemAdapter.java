@@ -57,7 +57,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
      */
     private int count;
 
-    private final SparseArray<T[]> pages = new SparseArray<T[]>();
+    private final SparseArray<T[]> pages = new SparseArray<>();
 
     /**
      * This is set if the list shall start with an empty item.
@@ -73,10 +73,6 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
      * Number of elements to by fetched at a time
      */
     private final int pageSize;
-
-    public int getPageSize() {
-        return pageSize;
-    }
 
     /**
      * Creates a new adapter. Initially the item list is populated with items displaying the
@@ -150,7 +146,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenu.ContextMenuInfo menuInfo) {
         AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
-        createContextMenu(menu, v, adapterMenuInfo.position);
+        createContextMenu(menu, adapterMenuInfo.targetView, adapterMenuInfo.position);
     }
 
     public void createContextMenu(ContextMenu menu, View v, int position) {

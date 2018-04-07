@@ -26,6 +26,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.common.base.Joiner;
@@ -121,7 +122,9 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
         public TextView text2;
 
-        public ImageButton btnContextMenu;
+        public View contextMenuButtonHolder;
+        public ImageButton contextMenuButton;
+        public ProgressBar contextMenuLoading;
 
         public @ViewParam int viewParams;
     }
@@ -213,7 +216,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Binds the item's name to {@link ViewHolder#text1}.
      * <p>
-     * OVerride this instead of {@link #getAdapterView(View, ViewGroup, Item)} if the
+     * OVerride this instead of {@link #getAdapterView(View, ViewGroup, int, Item)} if the
      * default layouts are sufficient.
      *
      * @param view The view that contains the {@link ViewHolder}
@@ -228,7 +231,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Returns a view suitable for displaying the "Loading..." text.
      * <p>
-     * Override this method and {@link #getAdapterView(View, ViewGroup, Item)} if your
+     * Override this method and {@link #getAdapterView(View, ViewGroup, int, Item)} if your
      * extension uses a different layout.
      */
     @Override
@@ -290,7 +293,9 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
             viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
+            viewHolder.contextMenuButtonHolder = convertView.findViewById(R.id.context_menu);
+            viewHolder.contextMenuButton = (ImageButton) viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
+            viewHolder.contextMenuLoading = (ProgressBar) viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
             convertView.setTag(viewHolder);
         }
 
@@ -303,15 +308,15 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
                     (viewParams & VIEW_PARAM_TWO_LINE) != 0 ? View.VISIBLE : View.GONE);
 
             if ((viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0) {
-                viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
-                viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
+                viewHolder.contextMenuButtonHolder.setVisibility(View.VISIBLE);
+                viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         v.showContextMenu();
                     }
                 });
             } else {
-                viewHolder.btnContextMenu.setVisibility(View.GONE);
+                viewHolder.contextMenuButtonHolder.setVisibility(View.GONE);
             }
 
             viewHolder.viewParams = viewParams;

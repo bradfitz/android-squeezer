@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringDef;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -32,9 +31,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +75,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
             final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
 
-            searchCriteriaText.setText(plugin.goAction.getInputValue());
+            searchCriteriaText.setText(action.getInputValue());
             searchCriteriaText.setOnKeyListener(new OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -112,7 +108,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     private void clearAndReOrderItems(String searchString) {
         if (getService() != null && !TextUtils.isEmpty(searchString)) {
-            plugin.goAction.action.params.put(plugin.goAction.inputParam, searchString);
+            action.action.params.put(action.inputParam, searchString);
             clearAndReOrderItems();
         }
     }
@@ -122,7 +118,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     private boolean isSearchReady() {
-        return (!isSearchable() || plugin.goAction.isSearchReady());
+        return (!isSearchable() || action.isSearchReady());
     }
 
     @Override
@@ -202,15 +198,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             }
         });
     }
-
-    @StringDef({PLUGIN_PLAYLIST_PLAY, PLUGIN_PLAYLIST_PLAY_NOW, PLUGIN_PLAYLIST_ADD_TO_END,
-            PLUGIN_PLAYLIST_PLAY_AFTER_CURRENT})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface PluginPlaylistControlCmd {}
-    public static final String PLUGIN_PLAYLIST_PLAY = "play";
-    public static final String PLUGIN_PLAYLIST_PLAY_NOW = "load";
-    public static final String PLUGIN_PLAYLIST_ADD_TO_END = "add";
-    public static final String PLUGIN_PLAYLIST_PLAY_AFTER_CURRENT = "insert";
 
     public static void apps(Activity activity) {
         show(activity, "apps");
