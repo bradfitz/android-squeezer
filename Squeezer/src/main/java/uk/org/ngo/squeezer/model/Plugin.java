@@ -86,6 +86,10 @@ public class Plugin extends Item {
         return (playAction != null);
     }
 
+    public boolean hasContextMenu() {
+        return (playAction != null || addAction != null || insertAction != null || moreAction != null);
+    }
+
     public boolean hasSlimContextMenu() {
         return (moreAction != null && moreAction.isContextMenu());
     }

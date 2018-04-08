@@ -20,6 +20,7 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.List;
 import java.util.Map;
@@ -42,8 +43,15 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
         super(activity);
         this.activity = activity;
 
-        setViewParams(VIEW_PARAM_ICON | VIEW_PARAM_CONTEXT_BUTTON);
         setLoadingViewParams(VIEW_PARAM_ICON);
+    }
+
+    @Override
+    public View getAdapterView(View convertView, ViewGroup parent, int position, Plugin item) {
+        @ViewParam int viewParams = (VIEW_PARAM_ICON | (item.hasContextMenu() ? VIEW_PARAM_CONTEXT_BUTTON : 0));
+        View view = getAdapterView(convertView, parent, viewParams);
+        bindView(view, item);
+        return view;
     }
 
     @Override
