@@ -5,7 +5,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
 }
 
 android {
@@ -17,6 +17,6 @@ android {
     }
 }
 dependencies {
-    compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
-    compile 'com.nineoldandroids:library:2.4.0'
+    implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
+    api 'com.nineoldandroids:library:2.4.0'
 }
