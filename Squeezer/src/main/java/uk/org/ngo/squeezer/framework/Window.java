@@ -64,4 +64,20 @@ public class Window {
         HelpText.writeToParcel(dest, window.help);
         dest.writeString(window.windowId);
     }
+
+    @Override
+    public String toString() {
+        return "Window{" +
+                "text='" + text + '\'' +
+                ", textarea='" + textarea + '\'' +
+                ", textareaToken='" + textareaToken + '\'' +
+                ", iconId='" + iconId + '\'' +
+                ", icon='" + icon + '\'' +
+                ", titleStyle='" + titleStyle + '\'' +
+                ", menuStyle='" + menuStyle + '\'' +
+                ", help=" + help +
+                ", windowId='" + windowId + '\'' +
+                '}';
+    }
+
 }

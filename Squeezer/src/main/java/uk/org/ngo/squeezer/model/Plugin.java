@@ -144,6 +144,8 @@ public class Plugin extends Item {
                 + ", go: " + goAction
                 + ", play: " + playAction
                 + ", add: " + addAction
-                + ", insert: " + insertAction;
+                + ", insert: " + insertAction
+                + ", more: " + moreAction
+                + ", window: " + window;
     }
 }

@@ -25,8 +25,10 @@ import android.view.ViewGroup;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.HomeActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
@@ -93,25 +95,22 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
     // Only touch these from the main thread
     private boolean contextMenuReady = false;
     private boolean contextMenuWaiting = false;
-    private ViewHolder contextViewHolder;
-    private Map<String, Object> contextParameters;
+    private View contextMenuView;
+    private Plugin contextItem;
+    private String contextMenuTitle;
     private List<Plugin> contextItems;
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, final View v, ItemView.ContextMenuInfo menuInfo) {
         final Plugin item = (Plugin) menuInfo.item;
         if (!contextMenuReady && !contextMenuWaiting) {
-            contextParameters = null;
+            contextMenuTitle = null;
+            contextItem = null;
             contextItems = null;
             if (item.hasSlimContextMenu()) {
-                ISqueezeService service = activity.getService();
-                if (service != null) {
-                    contextMenuWaiting = true;
-                    contextViewHolder = (ViewHolder) v.getTag();
-                    contextViewHolder.contextMenuButton.setVisibility(View.INVISIBLE);
-                    contextViewHolder.contextMenuLoading.setVisibility(View.VISIBLE);
-                    service.pluginItems(item, item.moreAction, this);
-                }
+                contextMenuView = v;
+                contextItem = item;
+                orderContextMenu(item, item.moreAction);
             } else {
                 if (item.playAction != null) {
                     menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
@@ -128,10 +127,11 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
             }
         } else if (contextMenuReady) {
             contextMenuReady = false;
-            contextViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
-            contextViewHolder.contextMenuLoading.setVisibility(View.INVISIBLE);
-            if (contextParameters.containsKey("title")) {
-                menu.setHeaderTitle(Util.getString(contextParameters, "title"));
+            ViewHolder viewHolder = (ViewHolder) contextMenuView.getTag();
+            viewHolder.contextMenuButton.setVisibility(View.VISIBLE);
+            viewHolder.contextMenuLoading.setVisibility(View.INVISIBLE);
+            if (contextMenuTitle != null) {
+                menu.setHeaderTitle(contextMenuTitle);
             }
             int index = 0;
             for (Plugin plugin : contextItems) {
@@ -140,11 +140,49 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
         }
     }
 
+    private void orderContextMenu(Plugin item, Action action) {
+        ISqueezeService service = activity.getService();
+        if (service != null) {
+            contextMenuWaiting = true;
+            ViewHolder viewHolder = (ViewHolder) contextMenuView.getTag();
+            viewHolder.contextMenuButton.setVisibility(View.INVISIBLE);
+            viewHolder.contextMenuLoading.setVisibility(View.VISIBLE);
+            service.pluginItems(item, action, this);
+        }
+    }
+
     @Override
     public boolean doItemContext(MenuItem menuItem, int index, Plugin selectedItem) {
         if (contextItems != null) {
-            Plugin plugin = contextItems.get(menuItem.getItemId());
-            PluginListActivity.show(getActivity(), plugin, plugin.goAction);
+            selectedItem = contextItems.get(menuItem.getItemId());
+            if (selectedItem.goAction.action.nextWindow != null) {
+                getActivity().action(contextMenuTitle, contextItem, selectedItem.goAction);
+                switch (selectedItem.goAction.action.nextWindow.nextWindow) {
+                    case playlist:
+                        CurrentPlaylistActivity.show(getActivity());
+                        break;
+                    case home:
+                        HomeActivity.show(getActivity());
+                        break;
+                    case refreshOrigin:
+                    case refresh:
+                    case parent: // For centext menus parent and grandparent hide the context menu(s) and reload items
+                    case grandparent:
+                        // TODO reload
+                        break;
+                    case parentNoRefresh:
+                        break;
+                    case windowId:
+                        //TODO implement
+                        break;
+                }
+            } else {
+                if (selectedItem.goAction.isContextMenu()) {
+                    orderContextMenu(contextItem, selectedItem.goAction);
+                } else {
+                    PluginListActivity.show(getActivity(), contextItem, selectedItem.goAction);
+                }
+            }
             return true;
         } else {
         switch (menuItem.getItemId()) {
@@ -177,7 +215,9 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
             public void run() {
                 contextMenuReady = true;
                 contextMenuWaiting = false;
-                contextParameters = parameters;
+                if (parameters.containsKey("title")) {
+                    contextMenuTitle = Util.getString(parameters, "title");
+                }
                 contextItems = items;
                 activity.getListView().showContextMenu();
             }

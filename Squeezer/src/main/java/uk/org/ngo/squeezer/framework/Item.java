@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.framework;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -184,6 +183,14 @@ public abstract class Item implements Parcelable {
     private boolean sameAction(Action.JsonAction action1, Action.JsonAction action2) {
         if (!Arrays.equals(action1.cmd, action2.cmd)) return false;
         return action1.params.equals(action2.params);
+    }
+
+    public boolean isAction(Action action1, Action action2) {
+        if (action2 == null || action2.action == null) {
+            return false;
+        }
+        if (!Arrays.equals(action1.action.cmd, action2.action.cmd)) return false;
+        return action1.action.params.get("item_id").equals(action2.action.params.get("item_id"));
     }
 
     private Input extractInput(Map<String, Object> inputRecord) {

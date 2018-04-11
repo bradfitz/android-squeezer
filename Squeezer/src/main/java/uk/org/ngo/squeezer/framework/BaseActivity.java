@@ -453,7 +453,22 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     public void action(Item item, Action action) {
+        action(item.getName(), item, action);
+    }
+
+    public void action(String title, Item item, Action action) {
+        if (mService == null) {
+            return;
+        }
+
         mService.action(item, action);
+        int toastId = -1;
+        if (item.isAction(action, item.playAction)) toastId = R.string.ITEM_PLAYING;
+        else if (item.isAction(action, item.addAction)) toastId = R.string.ITEM_ADDED;
+        else if (item.isAction(action, item.insertAction)) toastId = R.string.ITEM_INSERTED;
+        if (toastId != -1) {
+            Toast.makeText(this, getString(toastId, title != null ? title : item.getName()), Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
