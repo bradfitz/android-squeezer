@@ -112,7 +112,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
                 contextItem = item;
                 orderContextMenu(item, item.moreAction);
             } else {
-                if (item.playAction != null) {
+                if (item.playAction() != null) {
                     menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
                 }
                 if (item.addAction != null) {
@@ -135,7 +135,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
             }
             int index = 0;
             for (Plugin plugin : contextItems) {
-                menu.add(Menu.NONE, index++, Menu.NONE, plugin.getName()).setEnabled(plugin.isSelectable());
+                menu.add(Menu.NONE, index++, Menu.NONE, plugin.getName()).setEnabled(plugin.goAction != null);
             }
         }
     }
@@ -187,7 +187,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
         } else {
         switch (menuItem.getItemId()) {
             case R.id.play_now:
-                getActivity().action(selectedItem, selectedItem.playAction);
+                getActivity().action(selectedItem, selectedItem.playAction());
                 return true;
             case R.id.add_to_playlist:
                 getActivity().action(selectedItem, selectedItem.addAction);

@@ -113,6 +113,14 @@ public class Action implements Parcelable {
         return (action != null && action.params.containsKey("isContextMenu"));
     }
 
+    public boolean isAction(Action action2) {
+        if (action2 == null || action2.action == null) {
+            return false;
+        }
+        if (!Arrays.equals(action.cmd, action2.action.cmd)) return false;
+        return action.params.get("item_id").equals(action2.action.params.get("item_id"));
+    }
+
     @Override
     public String toString() {
         return "Action{" +

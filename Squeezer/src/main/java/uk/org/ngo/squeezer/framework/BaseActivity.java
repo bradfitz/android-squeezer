@@ -463,9 +463,9 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
 
         mService.action(item, action);
         int toastId = -1;
-        if (item.isAction(action, item.playAction)) toastId = R.string.ITEM_PLAYING;
-        else if (item.isAction(action, item.addAction)) toastId = R.string.ITEM_ADDED;
-        else if (item.isAction(action, item.insertAction)) toastId = R.string.ITEM_INSERTED;
+        if (action.isAction(item.playAction)) toastId = R.string.ITEM_PLAYING;
+        else if (action.isAction(item.addAction)) toastId = R.string.ITEM_ADDED;
+        else if (action.isAction(item.insertAction)) toastId = R.string.ITEM_INSERTED;
         if (toastId != -1) {
             Toast.makeText(this, getString(toastId, title != null ? title : item.getName()), Toast.LENGTH_SHORT).show();
         }

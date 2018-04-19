@@ -18,8 +18,10 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 
+import java.util.Arrays;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.Item;
 
 
@@ -80,20 +82,47 @@ public class Plugin extends Item {
     }
 
     public boolean isSelectable() {
-        return (goAction != null);
+        return (goAction != null && !isGoActionPlayAction());
     }
+
     public boolean isPlayable() {
-        return (playAction != null);
+        return (playAction != null || isGoActionPlayAction());
+    }
+
+    public Action playAction() {
+        if (playAction != null) {
+            return playAction;
+        }
+        return (isGoActionPlayAction() ? goAction : null);
     }
 
     public boolean hasContextMenu() {
-        return (playAction != null || addAction != null || insertAction != null || moreAction != null);
+        return (playAction() != null || addAction != null || insertAction != null || moreAction != null);
     }
 
     public boolean hasSlimContextMenu() {
         return (moreAction != null && moreAction.isContextMenu());
     }
 
+    /** We preferably won't play when item is selected, so attempt to avoid that */
+    private boolean isGoActionPlayAction() {
+        if (goAction == null) {
+            return false;
+        }
+        if (playAction != null) {
+            // goAction and playAction performs the same action
+            return sameAction(goAction.action, playAction.action);
+        } else {
+            // goAction plays
+            return "playlistcontrol".equals(goAction.action.cmd[0]) ||
+                    (goAction.action.nextWindow != null && Action.NextWindowEnum.nowPlaying == goAction.action.nextWindow.nextWindow);
+        }
+    }
+
+    private boolean sameAction(Action.JsonAction action1, Action.JsonAction action2) {
+        if (!Arrays.equals(action1.cmd, action2.cmd)) return false;
+        return action1.params.equals(action2.params);
+    }
 
     public Plugin(Map<String, Object> record) {
         super(record);
