@@ -1,4 +1,8 @@
 allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
     tasks.withType(Javadoc) {
         // Disable lint, due to issues in the EventBus code comments.
         options.addStringOption('Xdoclint:none', '-quiet')
@@ -8,8 +12,8 @@ allprojects {
 
 buildscript {
     repositories {
-        jcenter()
         google()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.1'
