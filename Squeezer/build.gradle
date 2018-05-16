@@ -82,6 +82,8 @@ android {
     lintOptions {
         // Downgrade missing translations to non-fatal severity.
         warning 'MissingTranslation'
+
+        lintConfig file("lint.xml")
     }
 
     signingConfigs {
