@@ -21,10 +21,6 @@
     package="uk.org.ngo.squeezer"
     android:versionCode="13" android:versionName="0.9.1">
 
-    <!-- Crashlytics is for API 8+. Override that here, as Squeezer checks for
-         the API level before invoking it. -->
-    <uses-sdk android:targetSdkVersion="21" android:minSdkVersion="9"/>
-
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>

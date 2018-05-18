@@ -219,9 +219,22 @@ public class Util {
     public static boolean arraysStartsWith(Object[] a, Object[] b) {
         int n = (a.length < b.length ? a.length : b.length);
         for (int i = 0; i < n; i++) {
-            if (!Objects.equals(a[i], b[i])) return false;
+            if (!equals(a[i], b[i])) return false;
         }
         return true;
+    }
+
+    /**
+     * Returns {@code true} if the arguments are equal to each other
+     * and {@code false} otherwise.
+     * Consequently, if both arguments are {@code null}, {@code true}
+     * is returned and if exactly one argument is {@code null}, {@code
+     * false} is returned.  Otherwise, equality is determined by using
+     * the {@link Object#equals equals} method of the first
+     * argument.
+     */
+    public static boolean equals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
     }
 
     /**
