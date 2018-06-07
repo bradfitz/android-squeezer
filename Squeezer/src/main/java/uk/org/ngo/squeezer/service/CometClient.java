@@ -99,7 +99,7 @@ class CometClient extends BaseClient {
     private static final String CHANNEL_SERVER_STATUS_FORMAT = "/%s/slim/serverstatus";
 
     // Maximum time for wait replies for server capabilities
-    private static final long HANDSHAKE_TIMEOUT = 2000;
+    private static final long HANDSHAKE_TIMEOUT = 8000;
 
 
     /** Handler for off-main-thread work. */

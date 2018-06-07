@@ -212,7 +212,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
 
         final Request request = _httpClient.newRequest(url).method(HttpMethod.POST);
-        request.header(HttpHeader.CONTENT_TYPE.asString(), "application/json;charset=UTF-8");
+        request.header(HttpHeader.CONTENT_TYPE.asString(), "text/json;charset=UTF-8");
 
         StringBuilder builder = new StringBuilder();
         for (HttpCookie cookie : getCookieStore().get(uri)) {
@@ -221,7 +221,9 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             request.header(HttpHeader.COOKIE.asString(), builder.toString());
         }
 
-        request.content(new StringContentProvider(generateJSON(messages)));
+        String content = generateJSON(messages);
+        Log.v(TAG,"Sending messages " + content);
+        request.content(new StringContentProvider(content));
 
         for (HttpField httpField : customHeaders()) {
             request.header(httpField.getHeader(), httpField.getValue());
@@ -318,7 +320,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
     private static void sendText(PrintWriter writer, String json, List<HttpField> customHeaders) {
         StringBuilder msg = new StringBuilder("POST /cometd HTTP/1.1\r\n" +
-                "Content-Type: application/json;charset=UTF-8\r\n" +
+                "Content-Type: text/json;charset=UTF-8\r\n" +
                 "Content-Length: " + json.length() + "\r\n");
 
         for (HttpField httpField : customHeaders) {
