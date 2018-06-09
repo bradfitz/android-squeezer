@@ -340,6 +340,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
         private final Map<String, Exchange> _exchanges = new ConcurrentHashMap<>();
         private Map<String, Object> _advice;
+        private long interval;
 
         public Delegate() {
             socket = new Socket();
@@ -368,7 +369,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 if (advice == null)
                     advice = _advice;
                 if (advice != null) {
-                    Object timeout = advice.get("timeout");
+                    Object timeout = advice.get(Message.TIMEOUT_FIELD);
                     if (timeout instanceof Number)
                         maxNetworkDelay += ((Number) timeout).intValue();
                     else if (timeout != null)
@@ -457,6 +458,20 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         protected void onMessages(List<Message.Mutable> messages) {
             for (Message.Mutable message : messages) {
                 if (isReply(message)) {
+                    // If the server sends an interval with the handshake response, set it to zero
+                    // so we can send the connect message immediately.
+                    // But store the interval so we can use for subsequent connect messages, if
+                    // the server does not supply an interval in the connect response.
+                    if (Channel.META_HANDSHAKE.equals(message.getChannel()) && message.isSuccessful()) {
+                        Map<String, Object> advice = message.getAdvice();
+                        if (advice != null && advice.containsKey(Message.INTERVAL_FIELD)) {
+                            interval = ((Number)advice.get(Message.INTERVAL_FIELD)).longValue();
+                            if (interval > 0) {
+                                advice.put(Message.INTERVAL_FIELD, 0);
+                            }
+                        }
+                    }
+
                     // Remembering the advice must be done before we notify listeners
                     // otherwise we risk that listeners send a connect message that does
                     // not take into account the timeout to calculate the maxNetworkDelay
@@ -466,6 +481,13 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                             // Remember the advice so that we can properly calculate the max network delay
                             if (advice.get(Message.TIMEOUT_FIELD) != null)
                                 _advice = advice;
+                        } else {
+                            // If the server doesn't send an interval with the connect response, but
+                            // we have one from the handshake response, then use that to avoid sending
+                            // connect messages continuously.
+                            if (interval > 0) {
+                                message.put(Message.ADVICE_FIELD, Collections.singletonMap(Message.INTERVAL_FIELD, interval));
+                            }
                         }
                     }
 
