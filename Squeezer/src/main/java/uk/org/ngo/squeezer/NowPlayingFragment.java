@@ -72,6 +72,7 @@ import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
+import uk.org.ngo.squeezer.itemlist.PluginListActivity;
 import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Player;
@@ -89,6 +90,7 @@ import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
+import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
@@ -481,7 +483,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
 
         // Only include players that are connected to the server.
-        ArrayList<Player> connectedPlayers = new ArrayList<Player>();
+        ArrayList<Player> connectedPlayers = new ArrayList<>();
         for (Player player : players) {
             if (player.getConnected()) {
                 connectedPlayers.add(player);
@@ -1043,8 +1045,8 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
         mService.startConnect(serverAddress.host, serverAddress.cliPort,
                 preferences.getHttpPort(serverAddress),
-                preferences.getUserName(serverAddress, "test"),
-                preferences.getPassword(serverAddress, "test1"));
+                preferences.getUserName(serverAddress),
+                preferences.getPassword(serverAddress));
     }
 
     @MainThread
@@ -1140,6 +1142,12 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             return;
 
         updateUiFromPlayerState(playerState);
+    }
+
+    @MainThread
+    public void onEventMainThread(@SuppressWarnings("unused") RegisterSqueezeNetwork event) {
+        // We're connected but the controller needs to register with the server
+        PluginListActivity.register(mActivity);
     }
 
     @MainThread

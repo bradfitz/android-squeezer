@@ -52,6 +52,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 public class PluginListActivity extends BaseListActivity<Plugin>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
 
+    private boolean register;
     private String cmd;
     private Plugin plugin;
     private Action action;
@@ -67,6 +68,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         Bundle extras = getIntent().getExtras();
         assert extras != null;
+        register = extras.getBoolean("register");
         cmd = extras.getString("cmd");
         plugin = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
@@ -123,7 +125,9 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
-        if (plugin != null) {
+        if (register) {
+            service.register(this);
+        } else if (plugin != null) {
             if (isSearchReady())
                 service.pluginItems(start, plugin, action, this);
         } else {
@@ -209,6 +213,12 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     public static void favorites(Activity activity) {
         show(activity, "favorites");
+    }
+
+    public static void register(Activity activity) {
+        final Intent intent = new Intent(activity, PluginListActivity.class);
+        intent.putExtra("register", true);
+        activity.startActivity(intent);
     }
 
     private static void show(Activity activity, String plugin) {

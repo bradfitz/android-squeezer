@@ -161,7 +161,7 @@ public class ConnectionState {
         maybeSendHandshakeComplete();
     }
 
-    boolean canFavorites() {
+    private boolean canFavorites() {
         Boolean b = mCanFavorites.get();
         return (b == null ? false : b);
     }
@@ -171,7 +171,7 @@ public class ConnectionState {
         maybeSendHandshakeComplete();
     }
 
-    boolean canMusicfolder() {
+    private boolean canMusicfolder() {
         Boolean b = mCanMusicfolder.get();
         return (b == null ? false : b);
     }
@@ -181,7 +181,7 @@ public class ConnectionState {
         maybeSendHandshakeComplete();
     }
 
-    boolean canMyApps() {
+    private boolean canMyApps() {
         Boolean b = mCanMyApps.get();
         return (b == null ? false : b);
     }
@@ -191,14 +191,15 @@ public class ConnectionState {
         maybeSendHandshakeComplete();
     }
 
-    boolean canRandomplay() {
+    private boolean canRandomplay() {
         Boolean b = canRandomplay.get();
         return  (b == null ? false : b);
     }
 
     public void setServerVersion(String version) {
-        serverVersion.set(version);
-        maybeSendHandshakeComplete();
+        if (Util.atomicReferenceUpdated(serverVersion, version)) {
+            maybeSendHandshakeComplete();
+        }
     }
 
     public String getServerVersion() {
@@ -217,10 +218,11 @@ public class ConnectionState {
 
     private void maybeSendHandshakeComplete() {
         if (isHandshakeComplete()) {
-            mEventBus.postSticky(new HandshakeComplete(
-                    canFavorites(), canMusicfolder(),
-                    canMyApps(), canRandomplay(),
-                    getServerVersion()));
+            HandshakeComplete event = new HandshakeComplete(
+                    canFavorites(), canMusicfolder(), canMyApps(), canRandomplay(),
+                    getServerVersion());
+            Log.i(TAG, "Handshake complete: " + event);
+            mEventBus.postSticky(event);
         }
     }
     private boolean isHandshakeComplete() {

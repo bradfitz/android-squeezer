@@ -73,6 +73,7 @@ import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistCreateFailed;
 import uk.org.ngo.squeezer.service.event.PlaylistRenameFailed;
+import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
 
 class CometClient extends BaseClient {
     private static final String TAG = CometClient.class.getSimpleName();
@@ -92,7 +93,7 @@ class CometClient extends BaseClient {
     /** The channel to publish subscription requests to. */
     private static final String CHANNEL_SLIM_SUBSCRIBE = "/slim/subscribe";
 
-    /** The format string for the channel to listen to for playerstatus evcents. */
+    /** The format string for the channel to listen to for playerstatus events. */
     private static final String CHANNEL_PLAYER_STATUS_FORMAT = "/%s/slim/playerstatus/%s";
 
     /** The format string for the channel to listen to for serverstatus events. */
@@ -124,7 +125,7 @@ class CometClient extends BaseClient {
             = new ConcurrentHashMap<>();
 
     private final Queue<PublishMessage> mCommandQueue = new LinkedList<>();
-    private boolean mCurrentCommand = false;
+    private boolean mCurrentCommand;
 
     private final PublishListener mPublishListener = new PublishListener();
 
@@ -211,8 +212,10 @@ class CometClient extends BaseClient {
             mEventBus.register(this);
         }
         mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
+        final boolean isSqueezeNetwork = "mysqueezebox.com".equals(host);
 
         final HttpClient httpClient = new HttpClient();
+        httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Squeezer"));
         try {
             httpClient.start();
         } catch (Exception e) {
@@ -231,7 +234,10 @@ class CometClient extends BaseClient {
             @Override
             public void run() {
                 Log.i(TAG, "Background connect to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
-                if (httpPort != 0) {
+                if (isSqueezeNetwork) {
+                    CometClient.this.httpPort.set(9000);
+                    new Preferences(service).saveHttpPort(9000);
+                } else if (httpPort != 0) {
                     CometClient.this.httpPort.set(httpPort);
                 } else {
                     try {
@@ -250,7 +256,7 @@ class CometClient extends BaseClient {
                 }
 
                 mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
-                String url = mUrlPrefix + "/cometd";
+                final String url = mUrlPrefix + "/cometd";
 
                 // Set the VM-wide authentication handler (needed by image fetcher and other using
                 // the standard java http API)
@@ -266,11 +272,15 @@ class CometClient extends BaseClient {
                 ClientTransport httpTransport = new HttpStreamingTransport(options, httpClient) {
                     @Override
                     protected List<HttpField> customHeaders() {
-                        String authorization = B64Code.encode(userName + ":" + password);
-                        return Collections.singletonList(new HttpField(HttpHeader.AUTHORIZATION, "Basic " + authorization));
+                        if (!isSqueezeNetwork && userName != null && password != null) {
+                            String authorization = B64Code.encode(userName + ":" + password);
+                            return Collections.singletonList(new HttpField(HttpHeader.AUTHORIZATION, "Basic " + authorization));
+                        } else
+                            return Collections.emptyList();
                     }
                 };
                 mBayeuxClient = new SqueezerBayeuxClient(url, httpTransport);
+                mBayeuxClient.addExtension(new SqueezerBayeuxExtension());
                 mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         if (message.isSuccessful()) {
@@ -279,7 +289,7 @@ class CometClient extends BaseClient {
                             Log.w(TAG, channel + ": " + message.getJSON());
 
                             Map<String, Object> failure = (Map<String, Object>) message.get("failure");
-                            Object httpCodeValue = failure.get("httpCode");
+                            Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
                             int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
 
                             mBayeuxClient.disconnect();
@@ -293,6 +303,7 @@ class CometClient extends BaseClient {
 
             private void onConnected() {
                 Log.i(TAG, "Connected, start learning server capabilities");
+                mCurrentCommand = false;
                 mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
                 mConnectionState.setConnectionState(ConnectionState.LOGIN_STARTED);
                 mConnectionState.setConnectionState(ConnectionState.LOGIN_COMPLETED);
@@ -341,7 +352,7 @@ class CometClient extends BaseClient {
                 request(new ResponseHandler() {
                     @Override
                     public void onResponse(Player player, Request request, Message message) {
-                        mConnectionState.setCanMusicfolder(getInt(message.getDataAsMap().get("_can"))== 1);
+                        mConnectionState.setCanMusicfolder(getInt(message.getDataAsMap().get("_can")) == 1);
                     }
                 }, "can", "musicfolder", "?");
 
@@ -366,33 +377,37 @@ class CometClient extends BaseClient {
                     }
                 }, "can", "myapps", "items", "?");
 
-                request(new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        mConnectionState.setMediaDirs((Object[]) message.getDataAsMap().get("_p2"));
-                    }
-                }, "pref", "mediadirs", "?");
+                if (isSqueezeNetwork && needRegister()) {
+                    mConnectionState.setPreferedAlbumSort("album");
+                    mConnectionState.setMediaDirs(new String[0]);
+                    mEventBus.post(new RegisterSqueezeNetwork());
+                } else {
+                    request(new ResponseHandler() {
+                        @Override
+                        public void onResponse(Player player, Request request, Message message) {
+                            mConnectionState.setMediaDirs((Object[]) message.getDataAsMap().get("_p2"));
+                        }
+                    }, "pref", "mediadirs", "?");
 
-                request(new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        mConnectionState.setPreferedAlbumSort((String) message.getDataAsMap().get("_p2"));
-                    }
-                }, "pref", "jivealbumsort", "?");
-
-                request(new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        mConnectionState.setServerVersion((String) message.getDataAsMap().get("_version"));
-                    }
-                }, "version", "?");
+                    request(new ResponseHandler() {
+                        @Override
+                        public void onResponse(Player player, Request request, Message message) {
+                            mConnectionState.setPreferedAlbumSort((String) message.getDataAsMap().get("_p2"));
+                        }
+                    }, "pref", "jivealbumsort", "?");
+                }
             }
         });
+    }
+
+    private boolean needRegister() {
+        return mBayeuxClient.getId().startsWith("1X");
     }
 
 
     private void parseServerStatus(Message message) {
         Map<String, Object> data = message.getDataAsMap();
+        getConnectionState().setServerVersion((String) data.get("version"));
         Object[] item_data = (Object[]) data.get("players_loop");
         final HashMap<String, Player> players = new HashMap<>();
         if (item_data != null) {
@@ -606,7 +621,7 @@ class CometClient extends BaseClient {
         }
     }
 
-    public void onEvent(HandshakeComplete event) {
+    public void onEvent(@SuppressWarnings("unused") HandshakeComplete event) {
         mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
         request(new ResponseHandler() {
             @Override

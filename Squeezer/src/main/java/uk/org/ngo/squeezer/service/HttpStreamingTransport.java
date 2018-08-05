@@ -60,7 +60,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
     private ScheduledExecutorService _scheduler;
     private boolean _shutdownScheduler;
 
-    private Delegate _delegate = new Delegate();
+    private final Delegate _delegate;
     private TransportListener _listener;
 
     private final HttpClient _httpClient;
@@ -77,6 +77,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
     public HttpStreamingTransport(String url, Map<String, Object> options, HttpClient httpClient) {
         super(NAME, url, options);
         _httpClient = httpClient;
+        _delegate = new Delegate();
         setOptionPrefix(PREFIX);
     }
 
@@ -162,6 +163,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         if (!_delegate.connected) return;
 
         if (Channel.META_CONNECT.equals(messages.get(0).getChannel()) ||
+                Channel.META_SUBSCRIBE.equals(messages.get(0).getChannel()) ||
                 Channel.META_HANDSHAKE.equals(messages.get(0).getChannel())) {
             delegateSend(listener, messages);
         } else {
@@ -188,7 +190,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             // The onSending() callback must be invoked before the actual send
             // otherwise we may have a race condition where the response is so
             // fast that it arrives before the onSending() is called.
-            Log.v(TAG,"Sending messages " + content);
+            //Log.v(TAG,"Sending messages " + content);
             listener.onSending(messages);
 
             _delegate.send(content);
@@ -222,7 +224,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
 
         String content = generateJSON(messages);
-        Log.v(TAG,"Sending messages " + content);
+        //Log.v(TAG,"Sending messages " + content);
         request.content(new StringContentProvider(content));
 
         for (HttpField httpField : customHeaders()) {
@@ -290,7 +292,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     if (content != null && content.length() > 0) {
                         try {
                             List<Message.Mutable> messages = parseMessages(content);
-                            Log.v(TAG, "Received messages " + messages);
+                            //Log.v(TAG, "Received messages " + messages);
                             for (Message.Mutable message : messages) {
                                 if (message.isSuccessful() && Channel.META_DISCONNECT.equals(message.getChannel())) {
                                     _delegate.disconnect("Disconnect");
@@ -317,11 +319,10 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         });
     }
 
-
     private static void sendText(PrintWriter writer, String json, List<HttpField> customHeaders) {
         StringBuilder msg = new StringBuilder("POST /cometd HTTP/1.1\r\n" +
-                "Content-Type: text/json;charset=UTF-8\r\n" +
-                "Content-Length: " + json.length() + "\r\n");
+                HttpHeader.CONTENT_TYPE.asString() + ": text/json;charset=UTF-8\r\n" +
+                HttpHeader.CONTENT_LENGTH.asString() + ": " + json.length() + "\r\n");
 
         for (HttpField httpField : customHeaders) {
             msg.append(httpField.getName()).append(": ").append(httpField.getValue()).append("\r\n");
@@ -334,7 +335,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
     private class Delegate {
         private final Socket socket;
-        private final List<HttpField> customHeaders;
+        private final List<HttpField> headers;
         private PrintWriter writer;
         private boolean connected;
 
@@ -344,7 +345,8 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
         public Delegate() {
             socket = new Socket();
-            customHeaders = customHeaders();
+            headers = new ArrayList<>(customHeaders());
+            headers.add(_httpClient.getUserAgentField());
         }
 
         public void connect(String host, int port) throws IOException {
@@ -386,7 +388,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     long delay = now - expiration;
                     if (delay > 5000) // TODO: make the max delay a parameter ?
                         Log.d(TAG, "Message " + message + " expired " + delay + " ms too late");
-                    Log.d(TAG,"Expiring message " + message);
+                    //Log.d(TAG,"Expiring message " + message);
                     fail(new TimeoutException(), "Expired");
                 }
             }, maxNetworkDelay, TimeUnit.MILLISECONDS);
@@ -395,24 +397,24 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             // Message responses must have the same messageId as the requests
 
             Exchange exchange = new Exchange(message, listener, task);
-            Log.d(TAG, "Registering " + exchange);
+            //Log.d(TAG, "Registering " + exchange);
             Object existing = _exchanges.put(message.getId(), exchange);
             // Paranoid check
             if (existing != null)
                 throw new IllegalStateException();
         }
 
-        private Exchange deregisterMessage(Message message) {
+        private Exchange deregisterMessage(Message.Mutable message) {
             Exchange exchange = null;
             if (message.getId() != null) {
                 exchange = _exchanges.remove(message.getId());
             } else {
                 // LMS does not put ID on all replies, so we have to find another way to recognise
                 // them.
-                // For messages with channel META_CONNECT or META_HANDSHAKE we assume that there is
+                // For messages with channel META_CONNECT, META_HANDSHAKE or META_SUBSCRIBE we assume that there is
                 // only one message in _exchanges.
                 String channel = message.getChannel();
-                if (Channel.META_CONNECT.equals(channel) || Channel.META_HANDSHAKE.equals(channel)) {
+                if (Channel.META_CONNECT.equals(channel) || Channel.META_HANDSHAKE.equals(channel) || Channel.META_SUBSCRIBE.equals(channel)) {
                     for (Exchange e : _exchanges.values()) {
                         if (channel.equals(e.message.getChannel())) {
                             exchange = _exchanges.remove(e.message.getId());
@@ -422,7 +424,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 }
             }
 
-            Log.d(TAG, "Deregistering " + exchange + " for message " + message);
+            //Log.d(TAG, "Deregistering " + exchange + " for message " + message);
 
             if (exchange != null)
                 exchange.task.cancel(false);
@@ -439,7 +441,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 if (session == null)
                     throw new IOException("Unconnected");
 
-                sendText(session, content, customHeaders);
+                sendText(session, content, headers);
             } catch (Throwable x) {
                 fail(x, "Exception");
             }
@@ -448,7 +450,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         protected void onData(String data) {
             try {
                 List<Message.Mutable> messages = parseMessages (data);
-                Log.v(TAG,"Received messages " + data);
+                //Log.v(TAG,"Received messages " + data);
                 onMessages(messages);
             } catch (ParseException x) {
                 fail(x, "Exception");
@@ -460,7 +462,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 if (isReply(message)) {
                     // If the server sends an interval with the handshake response, set it to zero
                     // so we can send the connect message immediately.
-                    // But store the interval so we can use for subsequent connect messages, if
+                    // But store the interval so we can use it for subsequent connect messages, if
                     // the server does not supply an interval in the connect response.
                     if (Channel.META_HANDSHAKE.equals(message.getChannel()) && message.isSuccessful()) {
                         Map<String, Object> advice = message.getAdvice();
@@ -495,11 +497,11 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     if (exchange != null) {
                         exchange.listener.onMessages(Collections.singletonList(message));
                     } else if (message.containsKey("error")) {
-                        Log.d(TAG, "Received error: " +  message);
+                        //Log.d(TAG, "Received error: " +  message);
                         fail(null, "Received error: " +  message);
                     } else {
                         // If the exchange is missing, then the message has expired, and we do not notify
-                        Log.d(TAG, "Could not find request for reply " +  message);
+                        //Log.d(TAG, "Could not find request for reply " +  message);
                     }
                 } else {
                     _listener.onMessages(Collections.singletonList(message));
@@ -625,7 +627,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             }
         }
 
-        Pattern httpStatusLinePattern = Pattern.compile("HTTP/1.1 (\\d{3}) \\p{Alpha}+");
+        Pattern httpStatusLinePattern = Pattern.compile("HTTP/1.1 (\\d{3}) \\p{all}+");
         private int parseHttpStatus(String statusLine) {
             Matcher m = httpStatusLinePattern.matcher(statusLine);
             try {

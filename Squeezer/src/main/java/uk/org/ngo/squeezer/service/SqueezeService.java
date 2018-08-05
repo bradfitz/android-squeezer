@@ -1040,6 +1040,14 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public void register(IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+            mDelegate.requestItems(callback).cmd("register").param("service", "SN").exec();
+        }
+
+        @Override
         public void powerOn() {
             mDelegate.activePlayerCommand().cmd("power", "1").exec();
         }

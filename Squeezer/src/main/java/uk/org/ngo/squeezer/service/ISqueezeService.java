@@ -53,6 +53,9 @@ public interface ISqueezeService {
     boolean isConnected();
     boolean isConnectInProgress();
 
+    // Initiate the flow to register the controller with the server
+    void register(IServiceItemListCallback<Plugin> callback);
+
     // For the SettingsActivity to notify the Service that a setting changed.
     void preferenceChanged(String key);
 
