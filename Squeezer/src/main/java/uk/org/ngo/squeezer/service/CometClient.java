@@ -269,17 +269,16 @@ class CometClient extends BaseClient {
 
                 Map<String, Object> options = new HashMap<>();
                 options.put(HttpClientTransport.MAX_NETWORK_DELAY_OPTION, LONG_POLLING_TIMEOUT);
-                ClientTransport httpTransport = new HttpStreamingTransport(options, httpClient) {
+                ClientTransport clientTransport = new HttpStreamingTransport(url, options, httpClient) {
                     @Override
-                    protected List<HttpField> customHeaders() {
+                    protected void customize(org.eclipse.jetty.client.api.Request request) {
                         if (!isSqueezeNetwork && userName != null && password != null) {
                             String authorization = B64Code.encode(userName + ":" + password);
-                            return Collections.singletonList(new HttpField(HttpHeader.AUTHORIZATION, "Basic " + authorization));
-                        } else
-                            return Collections.emptyList();
+                            request.header(HttpHeader.AUTHORIZATION, "Basic " + authorization);
+                        }
                     }
                 };
-                mBayeuxClient = new SqueezerBayeuxClient(url, httpTransport);
+                mBayeuxClient = new SqueezerBayeuxClient(url, clientTransport);
                 mBayeuxClient.addExtension(new SqueezerBayeuxExtension());
                 mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
                     public void onMessage(ClientSessionChannel channel, Message message) {

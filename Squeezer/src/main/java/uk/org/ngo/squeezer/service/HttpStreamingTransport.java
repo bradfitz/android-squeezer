@@ -17,6 +17,7 @@ import org.eclipse.jetty.client.api.Result;
 import org.eclipse.jetty.client.util.BufferingResponseListener;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
@@ -227,9 +228,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         //Log.v(TAG,"Sending messages " + content);
         request.content(new StringContentProvider(content));
 
-        for (HttpField httpField : customHeaders()) {
-            request.header(httpField.getHeader(), httpField.getValue());
-        }
+        customize(request);
 
         synchronized (this) {
             if (_aborted)
@@ -319,23 +318,25 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         });
     }
 
-    private static void sendText(PrintWriter writer, String json, List<HttpField> customHeaders) {
+    private static void sendText(PrintWriter writer, String json, HttpFields customHeaders) {
         StringBuilder msg = new StringBuilder("POST /cometd HTTP/1.1\r\n" +
                 HttpHeader.CONTENT_TYPE.asString() + ": text/json;charset=UTF-8\r\n" +
                 HttpHeader.CONTENT_LENGTH.asString() + ": " + json.length() + "\r\n");
 
         for (HttpField httpField : customHeaders) {
-            msg.append(httpField.getName()).append(": ").append(httpField.getValue()).append("\r\n");
+            if (httpField.getHeader() != HttpHeader.ACCEPT_ENCODING) {
+                msg.append(httpField.getName()).append(": ").append(httpField.getValue()).append("\r\n");
+            }
         }
-
         msg.append("\r\n").append(json);
+        //Log.v(TAG,"sendtext: " + msg);
         writer.print(msg.toString());
         writer.flush();
     }
 
     private class Delegate {
         private final Socket socket;
-        private final List<HttpField> headers;
+        private final HttpFields headers;
         private PrintWriter writer;
         private boolean connected;
 
@@ -345,8 +346,9 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
 
         public Delegate() {
             socket = new Socket();
-            headers = new ArrayList<>(customHeaders());
-            headers.add(_httpClient.getUserAgentField());
+            Request request = _httpClient.newRequest(getURL());
+            customize(request);
+            headers = request.getHeaders();
         }
 
         public void connect(String host, int port) throws IOException {
@@ -651,7 +653,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             char[] buffer = new char[size];
             int length = reader.read(buffer);
             if (length != size) {
-                throw new EOFException("Excepted " + size + " characters, but got " + length);
+                throw new EOFException("Expected " + size + " characters, but got " + length);
             }
             return new String(buffer);
         }
@@ -662,8 +664,8 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
     }
 
 
-    protected List<HttpField> customHeaders() {
-        return Collections.emptyList();
+    protected void customize(Request request)
+    {
     }
 
 }
