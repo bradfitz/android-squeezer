@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -35,7 +36,6 @@ import java.util.TreeMap;
 
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.util.ScanNetworkTask;
 
 /**
@@ -46,8 +46,10 @@ import uk.org.ngo.squeezer.util.ScanNetworkTask;
  */
 public class ServerAddressView extends LinearLayout implements ScanNetworkTask.ScanNetworkCallback {
     private Preferences mPreferences;
-    private String mBssId;
+    private Preferences.ServerAddress mServerAddress;
 
+    private RadioButton mSqueezeNetworkButton;
+    private RadioButton mLocalServerButton;
     private EditText mServerAddressEditText;
     private TextView mServerName;
     private Spinner mServersSpinner;
@@ -77,14 +79,31 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
         inflate(context, R.layout.server_address_view, this);
         if (!isInEditMode()) {
             mPreferences = new Preferences(context);
-            Preferences.ServerAddress serverAddress = mPreferences.getServerAddress();
-            mBssId = serverAddress.bssId;
+            mServerAddress = mPreferences.getServerAddress();
+            if (mServerAddress.localAddress() == null) {
+                Preferences.ServerAddress cliServerAddress = mPreferences.getCliServerAddress();
+                if (cliServerAddress.localAddress() != null) {
+                    mServerAddress.setAddress(cliServerAddress.localHost());
+                }
+            }
 
+            mSqueezeNetworkButton = (RadioButton) findViewById(R.id.squeezeNetwork);
+            mLocalServerButton = (RadioButton) findViewById(R.id.squeezeServer);
 
             mServerAddressEditText = (EditText) findViewById(R.id.server_address);
             mUserNameEditText = (EditText) findViewById(R.id.username);
             mPasswordEditText = (EditText) findViewById(R.id.password);
-            setServerAddress(serverAddress.address());
+            setSqueezeNetwork(mServerAddress.squeezeNetwork);
+            setServerAddress(mServerAddress.localAddress());
+
+            final OnClickListener onNetworkSelected = new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    setSqueezeNetwork(view.getId() == R.id.squeezeNetwork);
+                }
+            };
+            mSqueezeNetworkButton.setOnClickListener(onNetworkSelected);
+            mLocalServerButton.setOnClickListener(onNetworkSelected);
 
             // Set up the servers spinner.
             mServersAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
@@ -92,7 +111,6 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             mServerName = (TextView) findViewById(R.id.server_name);
             mServersSpinner = (Spinner) findViewById(R.id.found_servers);
             mServersSpinner.setAdapter(mServersAdapter);
-            mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
 
             mScanResults = findViewById(R.id.scan_results);
             mScanProgress = findViewById(R.id.scan_progress);
@@ -119,24 +137,26 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     }
 
     public void savePreferences() {
+        mServerAddress.squeezeNetwork = mSqueezeNetworkButton.isChecked();
         String address = mServerAddressEditText.getText().toString();
-        Preferences.ServerAddress serverAddress = mPreferences.saveServerAddress(Util.parseHost(address), Util.parsePort(address));
+        mServerAddress.setAddress(address);
+        mPreferences.saveServerAddress(mServerAddress);
 
-        final String serverName = getServerName(address);
-        if (serverName != null) {
-            mPreferences.saveServerName(serverAddress, serverName);
-        }
+        mPreferences.saveServerName(mServerAddress, getServerName(address));
 
-        final String userName = mUserNameEditText.getText().toString();
-        final String password = mPasswordEditText.getText().toString();
-        mPreferences.saveUserCredentials(serverAddress, userName, password);
+        String username = mUserNameEditText.getText().toString();
+        String password = mPasswordEditText.getText().toString();
+        mPreferences.saveUserCredentials(mServerAddress, username, password);
     }
 
-    public void onDismiss() {
+    @Override
+    protected void onDetachedFromWindow() {
         // Stop scanning
         if (mScanNetworkTask != null) {
             mScanNetworkTask.cancel(true);
         }
+
+        super.onDetachedFromWindow();
     }
 
     /**
@@ -180,37 +200,38 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
 
             default:
                 // Show the spinner so the user can choose a server.
+                // Don't fire onItemSelected by calling notifyDataSetChanged and
+                // setSelection(pos, false) before setting OnItemSelectedListener
+                mServersSpinner.setOnItemSelectedListener(null);
+
                 mServersAdapter.clear();
                 for (Entry<String, String> e : mDiscoveredServers.entrySet()) {
                     mServersAdapter.add(e.getKey());
                 }
-                int position = getServerPosition(mServerAddressEditText.getText().toString());
-                if (position >= 0) mServersSpinner.setSelection(position);
-                mServersSpinner.setVisibility(VISIBLE);
                 mServersAdapter.notifyDataSetChanged();
+
+                int position = getServerPosition(mServerAddress.localHost());
+                mServersSpinner.setSelection((position < 0 ? 0 : position), false);
+
+                mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
+                mServersSpinner.setVisibility(VISIBLE);
         }
     }
 
+    private void setSqueezeNetwork(boolean isSqueezeNetwork) {
+        mSqueezeNetworkButton.setChecked(isSqueezeNetwork);
+        mLocalServerButton.setChecked(!isSqueezeNetwork);
+        mServerAddressEditText.setEnabled(!isSqueezeNetwork);
+        mUserNameEditText.setEnabled(!isSqueezeNetwork);
+        mPasswordEditText.setEnabled(!isSqueezeNetwork);
+    }
+
     private void setServerAddress(String address) {
-        String currentHostPort = mServerAddressEditText.getText().toString();
-        String currentHost = Util.parseHost(currentHostPort);
-        int currentPort = Util.parsePort(currentHostPort);
+        mServerAddress.setAddress(address);
 
-        String host = Util.parseHost(address);
-        int port = Util.parsePort(address);
-
-        if (host.equals(currentHost)) {
-            port = currentPort;
-        }
-
-        Preferences.ServerAddress serverAddress = new Preferences.ServerAddress();
-        serverAddress.bssId = mBssId;
-        serverAddress.host = host;
-        serverAddress.cliPort = port;
-
-        mServerAddressEditText.setText(serverAddress.address());
-        mUserNameEditText.setText(mPreferences.getUserName(serverAddress));
-        mPasswordEditText.setText(mPreferences.getPassword(serverAddress));
+        mServerAddressEditText.setText(mServerAddress.localAddress());
+        mUserNameEditText.setText(mPreferences.getUsername(mServerAddress));
+        mPasswordEditText.setText(mPreferences.getPassword(mServerAddress));
     }
 
     private String getServerName(String ipPort) {
@@ -221,9 +242,8 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
         return null;
     }
 
-    private int getServerPosition(String ipPort) {
+    private int getServerPosition(String host) {
         if (mDiscoveredServers != null) {
-            String host = Util.parseHost(ipPort);
             int position = 0;
             for (Entry<String, String> entry : mDiscoveredServers.entrySet()) {
                 if (host.equals(entry.getValue()))
@@ -240,6 +260,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     private class MyOnItemSelectedListener implements OnItemSelectedListener {
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
             String serverAddress = mDiscoveredServers.get(parent.getItemAtPosition(pos).toString());
+            setSqueezeNetwork(false);
             setServerAddress(serverAddress);
         }
 

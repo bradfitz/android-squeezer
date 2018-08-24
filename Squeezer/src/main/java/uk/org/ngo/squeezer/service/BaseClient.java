@@ -24,7 +24,6 @@ import com.google.common.base.Splitter;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -75,6 +74,8 @@ abstract class BaseClient implements SlimClient {
     // Where we connected (or are connecting) to:
     final AtomicReference<String> currentHost = new AtomicReference<>();
     final AtomicReference<Integer> httpPort = new AtomicReference<>();
+    final AtomicReference<String> username = new AtomicReference<>();
+    final AtomicReference<String> password = new AtomicReference<>();
 
     final ConnectionState mConnectionState;
 
@@ -89,7 +90,8 @@ abstract class BaseClient implements SlimClient {
         mConnectionState = new ConnectionState(eventBus);
     }
 
-    ConnectionState getConnectionState() {
+    @Override
+    public ConnectionState getConnectionState() {
         return mConnectionState;
     }
 
@@ -108,6 +110,16 @@ abstract class BaseClient implements SlimClient {
 
     String getCurrentHost() {
         return currentHost.get();
+    }
+
+    @Override
+    public String getUsername() {
+        return username.get();
+    }
+
+    @Override
+    public String getPassword() {
+        return password.get();
     }
 
 
@@ -233,7 +245,7 @@ abstract class BaseClient implements SlimClient {
         // If coverart exists but artwork_track_id is missing then use the item's ID.
         if ("1".equals(record.get("coverart"))) {
             record.put("artwork_url", mUrlPrefix + "/music/" + record.get("id") + "/cover.jpg");
-            return;
+            //return;
         }
     }
 

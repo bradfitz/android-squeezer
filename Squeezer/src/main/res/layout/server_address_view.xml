@@ -20,13 +20,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
     android:orientation="vertical"
+    style=""
     android:padding="16dp">
+
+    <RadioButton
+        android:id="@+id/squeezeServer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Local server" />
 
     <uk.org.ngo.squeezer.widget.FloatLabelLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
+        android:paddingLeft="8dp"
         app:floatLabelTextAppearance="@style/SqueezerTextAppearance.FloatLabel"
         app:floatLabelTrigger="text">
 
@@ -44,6 +53,7 @@
     <uk.org.ngo.squeezer.widget.FloatLabelLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="8dp"
         android:layout_marginTop="16dp"
         app:floatLabelTextAppearance="@style/SqueezerTextAppearance.FloatLabel"
         app:floatLabelTrigger="text">
@@ -62,6 +72,7 @@
     <uk.org.ngo.squeezer.widget.FloatLabelLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="8dp"
         android:layout_marginTop="16dp"
         app:floatLabelTextAppearance="@style/SqueezerTextAppearance.FloatLabel"
         app:floatLabelTrigger="text">
@@ -77,11 +88,18 @@
             android:paddingTop="4dp"/>
     </uk.org.ngo.squeezer.widget.FloatLabelLayout>
 
+    <RadioButton
+        android:id="@+id/squeezeNetwork"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="mysqueezebox.com" />
+
     <LinearLayout
         android:id="@+id/scan_progress"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="4dp"
+        android:paddingTop="16dp"
         android:orientation="horizontal">
 
         <ProgressBar
@@ -103,7 +121,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="4dp"
-        android:paddingTop="4dp"
+        android:paddingTop="16dp"
         android:text="@string/settings_server_scanning_disabled_msg"
         android:textAppearance="@style/SqueezerTextAppearance.Medium"/>
 
@@ -111,7 +129,7 @@
         android:id="@+id/scan_results"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="4dp"
+        android:paddingTop="16dp"
         android:orientation="horizontal">
 
         <Button
@@ -138,4 +156,5 @@
             android:layout_gravity="center"
             android:prompt="@string/settings_server_prompt"/>
     </LinearLayout>
+
 </LinearLayout>

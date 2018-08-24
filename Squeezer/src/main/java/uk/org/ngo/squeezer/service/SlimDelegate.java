@@ -36,7 +36,7 @@ class SlimDelegate {
 
     /** Shared event bus for status changes. */
     @NonNull private final EventBus mEventBus;
-    @NonNull private final BaseClient mClient;
+    @NonNull private final SlimClient mClient;
 
 
     SlimDelegate(@NonNull EventBus eventBus) {
@@ -44,8 +44,8 @@ class SlimDelegate {
         mClient = new CometClient(eventBus);
     }
 
-    void startConnect(SqueezeService service, String host, int cliPort, int httpPort, String userName, String password) {
-        mClient.startConnect(service, host, cliPort, httpPort, userName, password);
+    void startConnect(SqueezeService service) {
+        mClient.startConnect(service);
     }
 
     void disconnect(boolean loginFailed) {
@@ -137,6 +137,14 @@ class SlimDelegate {
 
     public Map<String, Player> getPlayers() {
         return mClient.getConnectionState().getPlayers();
+    }
+
+    public String getUsername() {
+        return mClient.getUsername();
+    }
+
+    public String getPassword() {
+        return mClient.getPassword();
     }
 
     static class Command {

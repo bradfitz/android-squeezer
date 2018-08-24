@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
@@ -686,15 +687,20 @@ class CliClient extends BaseClient {
 
     // Shims around ConnectionState methods.
     @Override
-    public void startConnect(final SqueezeService service,
-                             final String host, final int cliPort, int httpPort,
-                             final String userName, final String password) {
-        Log.i(TAG, "Connecting to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
-        final String cleanHostPort = host + ":" + cliPort;
+    public void startConnect(final SqueezeService service) {
+        Preferences preferences = new Preferences(service);
+        Preferences.ServerAddress serverAddress = preferences.getCliServerAddress();
+        final String host = serverAddress.host();
+        final int cliPort = serverAddress.port();
+        final String username = preferences.getUsername(serverAddress);
+        final String password = preferences.getPassword(serverAddress);
+
+        final String server = username + '@' + host + ':' + cliPort;
+        Log.i(TAG, "Start connect to: " + server);
 
         currentHost.set(host);
-        this.httpPort.set(null);  // not known until later, after connect.
-        this.userName.set(userName);
+        httpPort.set(null);  // not known until later, after connect.
+        this.username.set(username);
         this.password.set(password);
 
         // Start the off-thread connect.
@@ -705,27 +711,26 @@ class CliClient extends BaseClient {
                 service.disconnect();
                 Socket socket = new Socket();
                 try {
-                    Log.d(TAG, "Connecting to: " + cleanHostPort);
+                    Log.d(TAG, "Connecting to: " + server);
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
-                    socket.connect(new InetSocketAddress(host, cliPort),
-                            4000 /* ms timeout */);
+                    socket.connect(new InetSocketAddress(host, cliPort), 4000 /* ms timeout */);
                     socketRef.set(socket);
-                    Log.d(TAG, "Connected to: " + cleanHostPort);
+                    Log.d(TAG, "Connected to: " + server);
                     socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
                     startListeningThread(mExecutor);
-                    onCliPortConnectionEstablished(userName, password);
+                    onCliPortConnectionEstablished(username, password);
                     Authenticator.setDefault(new Authenticator() {
                         @Override
                         public PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication(userName, password.toCharArray());
+                            return new PasswordAuthentication(username, password.toCharArray());
                         }
                     });
                 } catch (SocketTimeoutException e) {
-                    Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
+                    Log.e(TAG, "Socket timeout connecting to: " + server);
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                 } catch (IOException e) {
-                    Log.e(TAG, "IOException connecting to: " + cleanHostPort);
+                    Log.e(TAG, "IOException connecting to: " + server);
                     mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
                 }
             }
@@ -1275,11 +1280,6 @@ class CliClient extends BaseClient {
     private final AtomicReference<Socket> socketRef = new AtomicReference<>();
 
     private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<>();
-
-    // Where we connected (or are connecting) to:
-    private final AtomicReference<String> userName = new AtomicReference<>();
-
-    private final AtomicReference<String> password = new AtomicReference<>();
 
     private void startListeningThread(@NonNull Executor executor) {
         Thread listeningThread = new ListeningThread(executor, this, socketRef.get(),

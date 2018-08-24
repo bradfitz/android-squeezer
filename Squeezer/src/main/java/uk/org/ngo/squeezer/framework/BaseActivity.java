@@ -45,7 +45,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import uk.org.ngo.squeezer.HomeActivity;
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.model.Player;
@@ -167,10 +166,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         mVolumePanel = new VolumePanel(this);
 
         // If SqueezePlayer is installed, start it
-        // TODO Only when connected (or at least serveraddress is saved)
-        if (SqueezePlayer.hasSqueezePlayer(this) && new Preferences(this).controlSqueezePlayer()) {
-            squeezePlayer = new SqueezePlayer(this);
-        }
+        squeezePlayer = SqueezePlayer.maybeStartControllingSqueezePlayer(this);
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
         ImageFetcher.getInstance(this).setExitTasksEarly(false);

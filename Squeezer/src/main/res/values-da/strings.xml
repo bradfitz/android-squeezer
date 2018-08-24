@@ -30,10 +30,6 @@
     <string name="menu_item_settings_label">Indstillinger</string>
     <string name="menu_item_about_label">Om</string>
     <string name="activity_settings_name">Indstillinger</string>
-    <string name="pref_cat_server">Server indstillinger</string>
-    <string name="settings_serveraddr_title">Server adresse</string>
-    <string name="settings_serveraddr_summary">IP addresse på SqueezeBox Server, f.eks. 10.0.0.5.
-    </string>
     <string name="settings_serveraddr_hint">Navn eller IP addresse på server</string>
     <string name="settings_server_prompt">Vælg en server</string>
     <string name="settings_server_rescan">Opdatér</string>
@@ -92,7 +88,7 @@
     <string name="menu_item_volume">Indstil lydstyrke</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connect_to_text">Forbind til %s</string>
-    <string name="connecting_to_text">Forbinder til SqueezeBox CLI på %s</string>
+    <string name="connecting_to_text">Forbinder til Logitech Media Server på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes. Kontrollér indstillingerne.
     </string>
     <string name="not_connected">Squeezer er ikke forbundet til nogen SqueezeBoxServer.</string>

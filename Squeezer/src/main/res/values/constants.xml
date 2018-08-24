@@ -18,5 +18,6 @@
 
 <resources>
     <integer name="PageSize">20</integer>
-    <integer name="DefaultPort">9090</integer>
+    <integer name="DefaultCliPort">9090</integer>
+    <integer name="DefaultHttpPort">9000</integer>
 </resources>

@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -28,7 +27,6 @@ import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.common.base.Strings;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,12 +40,10 @@ import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 public class Util {
-    private static final String TAG = Util.class.getSimpleName();
 
     /** {@link java.util.regex.Pattern} that splits strings on colon. */
     private static final Pattern mColonSplitPattern = Pattern.compile(":");
@@ -186,33 +182,6 @@ public class Util {
             return URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             return "";
-        }
-    }
-
-    public static String parseHost(String hostPort) {
-        if (hostPort == null) {
-            return "";
-        }
-        int colonPos = hostPort.indexOf(":");
-        if (colonPos == -1) {
-            return hostPort;
-        }
-        return hostPort.substring(0, colonPos);
-    }
-
-    public static int parsePort(String hostPort) {
-        if (hostPort == null) {
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
-        int colonPos = hostPort.indexOf(":");
-        if (colonPos == -1) {
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
-        try {
-            return Integer.parseInt(hostPort.substring(colonPos + 1));
-        } catch (NumberFormatException unused) {
-            Log.d(TAG, "Can't parse port out of " + hostPort);
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
         }
     }
 

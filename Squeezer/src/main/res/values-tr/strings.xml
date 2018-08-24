@@ -7,11 +7,6 @@
   <string name="menu_item_settings_label">Ayarlar</string>
   <string name="menu_item_about_label">Hakkında</string>
   <string name="activity_settings_name">Ayarlar</string>
-  <string name="pref_cat_server">Sunucu ayarları</string>
-  <string name="settings_serveraddr_title">Sunucu Adresi</string>
-  <string name="settings_serveraddr_summary">Squeezebox Sunucu adı veya IP adresi, ör:
-        10.0.0.5.
-    </string>
   <string name="settings_serveraddr_hint">Sunucu adı veya IP adresi</string>
   <string name="settings_server_prompt">Bir sunucu seçin</string>
   <string name="settings_username_hint">Kullanıcı adı (isteğe bağlı)</string>

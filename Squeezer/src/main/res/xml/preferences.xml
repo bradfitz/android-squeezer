@@ -18,18 +18,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="first_preferencescreen">
 
-    <PreferenceCategory
-        android:title="@string/pref_cat_server">
-
-        <uk.org.ngo.squeezer.dialog.ServerAddressPreference
-            android:key="squeezer.serveraddr"
-            android:dialogLayout="@layout/server_address_dialog"
-            android:title="@string/settings_serveraddr_title"
-            android:summary="@string/settings_serveraddr_summary"
-            android:dialogMessage="@string/settings_serveraddr_summary"
-            android:persistent="false"/>
-    </PreferenceCategory>
-
     <uk.org.ngo.squeezer.IntEditTextPreference
         android:key="squeezer.fadeInSecs"
         android:title="@string/settings_fadeinsecs_title"

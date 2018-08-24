@@ -64,8 +64,6 @@ public class SettingsActivity extends PreferenceActivity implements
 
     private ISqueezeService service = null;
 
-    private Preference addressPref;
-
     private IntEditTextPreference fadeInPref;
 
     private final ThemeManager mThemeManager = new ThemeManager();
@@ -97,9 +95,6 @@ public class SettingsActivity extends PreferenceActivity implements
         SharedPreferences sharedPreferences = getPreferenceManager().getSharedPreferences();
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         Preferences preferences = new Preferences(this, sharedPreferences);
-
-        addressPref = findPreference(Preferences.KEY_SERVER_ADDRESS);
-        updateAddressSummary(preferences);
 
         fadeInPref = (IntEditTextPreference) findPreference(Preferences.KEY_FADE_IN_SECS);
         fadeInPref.setOnPreferenceChangeListener(this);
@@ -147,7 +142,7 @@ public class SettingsActivity extends PreferenceActivity implements
                 Editor editor = preferences.edit();
                 editor.putBoolean(Preferences.KEY_SCROBBLE_ENABLED, enabled);
                 editor.remove(Preferences.KEY_SCROBBLE);
-                editor.commit();
+                editor.apply();
             }
         }
     }
@@ -163,7 +158,7 @@ public class SettingsActivity extends PreferenceActivity implements
             Editor editor = preferences.edit();
             editor.putString(Preferences.KEY_NOTIFICATION_TYPE, notificationTypePref.getValue());
             editor.remove(Preferences.KEY_NOTIFY_OF_CONNECTION);
-            editor.commit();
+            editor.apply();
         }
 
         notificationTypePref.setDefaultValue(Preferences.NOTIFICATION_TYPE_NONE);
@@ -280,15 +275,6 @@ public class SettingsActivity extends PreferenceActivity implements
         unbindService(serviceConnection);
     }
 
-    private void updateAddressSummary(Preferences preferences) {
-        String serverName = preferences.getServerName();
-        if (serverName != null && serverName.length() > 0) {
-            addressPref.setSummary(serverName);
-        } else {
-            addressPref.setSummary(R.string.settings_serveraddr_summary);
-        }
-    }
-
     private void updateFadeInSecondsSummary(int fadeInSeconds) {
         if (fadeInSeconds == 0) {
             fadeInPref.setSummary(R.string.disabled);
@@ -359,10 +345,6 @@ public class SettingsActivity extends PreferenceActivity implements
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.v(TAG, "Preference changed: " + key);
-
-        if (key.startsWith(Preferences.KEY_SERVER_ADDRESS)) {
-            updateAddressSummary(new Preferences(this, sharedPreferences));
-        }
 
         if (key.startsWith(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH) ||
                 key.startsWith(Preferences.KEY_DOWNLOAD_USE_SD_CARD)) {

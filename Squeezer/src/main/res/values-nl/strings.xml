@@ -25,11 +25,6 @@
     <string name="menu_item_settings_label">Instellingen</string>
     <string name="menu_item_about_label">Over</string>
     <string name="activity_settings_name">Instellingen</string>
-    <string name="pref_cat_server">Server instellingen</string>
-    <string name="settings_serveraddr_title">Server Adres</string>
-    <string name="settings_serveraddr_summary">IP adres of naam van de Squeezebox Server, bv.
-      10.0.0.5.
-    </string>
     <string name="settings_serveraddr_hint">Naam of IP adres van server</string>
     <string name="settings_server_prompt">Kies een server</string>
     <string name="settings_server_scanning_disabled_msg">Scannen is uitgeschakeld, omdat Wi-Fi
@@ -74,7 +69,7 @@
     <string name="menu_item_volume">Volume</string>
     <string name="connecting_text">Verbinden</string>
     <string name="connect_to_text">Verbind met %s</string>
-    <string name="connecting_to_text">Verbinden met SqueezeBox CLI met %s</string>
+    <string name="connecting_to_text">Verbinden met Logitech Media Server met %s</string>
     <string name="connection_failed_text">Verbinden mislukt. Bekijk settings.</string>
     <string name="not_connected">Squeezer is niet verbonden met enige Squeezeserver</string>
     <string name="disconnected_text">Contact verbroken.</string>

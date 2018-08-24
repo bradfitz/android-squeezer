@@ -33,17 +33,15 @@ interface SlimClient {
      * {@link de.greenrobot.event.EventBus}.
      *
      * @param service The service hosting this connection.
-     * @param host server running LMS
-     * @param cliPort socket listening for CLI request
-     * @param httpPort socket listening for http requests (if known)
-     * @param userName username if LMS is password protected
-     * @param password password if LMS is password protected
      */
-    void startConnect(final SqueezeService service, String host, int cliPort, int httpPort,
-                      final String userName, final String password);
+    void startConnect(final SqueezeService service);
 
     // XXX: Document
     void disconnect(boolean loginFailed);
+
+    ConnectionState getConnectionState();
+    String getUsername();
+    String getPassword();
 
     /**
      * Execute the supplied command.

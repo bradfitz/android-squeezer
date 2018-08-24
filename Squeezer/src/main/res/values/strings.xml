@@ -30,11 +30,6 @@
     <string name="menu_item_settings_label">Settings</string>
     <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
-    <string name="pref_cat_server">Server settings</string>
-    <string name="settings_serveraddr_title">Server Address</string>
-    <string name="settings_serveraddr_summary">IP address or name of Squeezebox Server, e.g.
-        10.0.0.5.
-    </string>
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
     <string name="settings_server_prompt">Choose a server</string>
     <string name="settings_server_rescan">Rescan</string>
@@ -95,7 +90,7 @@
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
     <string name="connect_to_text">Connect to %s</string>
-    <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
+    <string name="connecting_to_text">Connecting to Logitech Media Server at %s</string>
     <string name="connection_failed_text">Connection failed. Check settings.</string>
     <string name="not_connected">Squeezer is not connected to any Squeezeservers.</string>
     <string name="select_server">Or select one the servers below.</string>

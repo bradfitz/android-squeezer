@@ -204,46 +204,30 @@ class CometClient extends BaseClient {
     }
 
     // Shims around ConnectionState methods.
-    public void startConnect(final SqueezeService service,
-                             final String host, final int cliPort, final int httpPort,
-                             final String userName, final String password) {
-        Log.i(TAG, "Connecting to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
-        if (!mEventBus.isRegistered(this)) {
-            mEventBus.register(this);
-        }
-        mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
-        final boolean isSqueezeNetwork = "mysqueezebox.com".equals(host);
-
-        final HttpClient httpClient = new HttpClient();
-        httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Squeezer"));
-        try {
-            httpClient.start();
-        } catch (Exception e) {
-            // XXX: Handle this properly. Maybe startConnect() should throw exceptions if the
-            // connection fails?
-            Log.e(TAG, "Can't start HttpClient", e);
-            mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
-            return;
-        }
-
-        // XXX: Need to deal with HTTPS
-        currentHost.set(host);
-
+    @Override
+    public void startConnect(final SqueezeService service) {
+        Log.i(TAG, "startConnect()");
         // Start the background connect
         mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "Background connect to: " + userName + "@" + host + ":" + cliPort + "," + httpPort);
-                if (isSqueezeNetwork) {
-                    CometClient.this.httpPort.set(9000);
-                    new Preferences(service).saveHttpPort(9000);
-                } else if (httpPort != 0) {
-                    CometClient.this.httpPort.set(httpPort);
-                } else {
+                Preferences preferences = new Preferences(service);
+                Preferences.ServerAddress serverAddress = preferences.getServerAddress();
+
+                if (serverAddress.address() == null) {
+                    Preferences.ServerAddress cliServerAddress = preferences.getCliServerAddress();
+                    if (cliServerAddress.address() == null) {
+                        Log.e(TAG, "Server address not configured, can't connect");
+                        mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
+                        return;
+                    }
                     try {
-                        int port = new HttpPortLearner().learnHttpPort(host, cliPort, userName, password);
-                        CometClient.this.httpPort.set(port);
-                        new Preferences(service).saveHttpPort(port);
+                        HttpPortLearner httpPortLearner = new HttpPortLearner();
+                        String username = preferences.getUsername(cliServerAddress);
+                        String password = preferences.getPassword(cliServerAddress);
+                        int port = httpPortLearner.learnHttpPort(cliServerAddress.host(), cliServerAddress.port(), username, password);
+                        serverAddress.setAddress(cliServerAddress.host() + ":" + port);
+                        preferences.saveServerAddress(serverAddress);
                     } catch (IOException e) {
                         Log.e(TAG, "Can't learn http port", e);
                         mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
@@ -255,7 +239,34 @@ class CometClient extends BaseClient {
                     }
                 }
 
-                mUrlPrefix = "http://" + getCurrentHost() + ":" + getHttpPort();
+                final String username = preferences.getUsername(serverAddress);
+                final String password = preferences.getPassword(serverAddress);
+                Log.i(TAG, "Connecting to: " + username + "@" + serverAddress.address());
+                if (!mEventBus.isRegistered(CometClient.this)) {
+                    mEventBus.register(CometClient.this);
+                }
+                mConnectionState.setConnectionState(ConnectionState.CONNECTION_STARTED);
+                final boolean isSqueezeNetwork = serverAddress.squeezeNetwork;
+
+                final HttpClient httpClient = new HttpClient();
+                httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Squeezer"));
+                try {
+                    httpClient.start();
+                } catch (Exception e) {
+                    // XXX: Handle this properly. Maybe startConnect() should throw exceptions if the
+                    // connection fails?
+                    Log.e(TAG, "Can't start HttpClient", e);
+                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
+                    return;
+                }
+
+                // XXX: Need to deal with HTTPS
+                currentHost.set(serverAddress.host());
+                httpPort.set(serverAddress.port());
+                CometClient.this.username.set(username);
+                CometClient.this.password.set(password);
+
+                mUrlPrefix = "http://" + serverAddress.address();
                 final String url = mUrlPrefix + "/cometd";
 
                 // Set the VM-wide authentication handler (needed by image fetcher and other using
@@ -263,7 +274,7 @@ class CometClient extends BaseClient {
                 Authenticator.setDefault(new Authenticator() {
                     @Override
                     public PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(userName, password.toCharArray());
+                        return new PasswordAuthentication(username, password.toCharArray());
                     }
                 });
 
@@ -272,8 +283,8 @@ class CometClient extends BaseClient {
                 ClientTransport clientTransport = new HttpStreamingTransport(url, options, httpClient) {
                     @Override
                     protected void customize(org.eclipse.jetty.client.api.Request request) {
-                        if (!isSqueezeNetwork && userName != null && password != null) {
-                            String authorization = B64Code.encode(userName + ":" + password);
+                        if (!isSqueezeNetwork && username != null && password != null) {
+                            String authorization = B64Code.encode(username + ":" + password);
                             request.header(HttpHeader.AUTHORIZATION, "Basic " + authorization);
                         }
                     }
@@ -283,7 +294,7 @@ class CometClient extends BaseClient {
                 mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         if (message.isSuccessful()) {
-                            onConnected();
+                            onConnected(isSqueezeNetwork);
                         } else {
                             Log.w(TAG, channel + ": " + message.getJSON());
 
@@ -300,7 +311,7 @@ class CometClient extends BaseClient {
                 mBayeuxClient.handshake();
             }
 
-            private void onConnected() {
+            private void onConnected(boolean isSqueezeNetwork) {
                 Log.i(TAG, "Connected, start learning server capabilities");
                 mCurrentCommand = false;
                 mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);

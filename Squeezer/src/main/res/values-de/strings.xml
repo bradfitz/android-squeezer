@@ -25,11 +25,6 @@
     <string name="menu_item_settings_label">Einstellungen</string>
     <string name="menu_item_about_label">Über</string>
     <string name="activity_settings_name">Einstellungen</string>
-    <string name="pref_cat_server">Server-Einstellungen</string>
-    <string name="settings_serveraddr_title">Server-Adresse</string>
-    <string name="settings_serveraddr_summary">IP-Adresse oder Name des Squeezebox-Servers, z.B..
-        10.0.0.5.
-    </string>
     <string name="settings_serveraddr_hint">Name oder IP-Adresse des Servers</string>
     <string name="settings_server_prompt">Wählen Sie einen Server</string>
     <string name="settings_server_scanning_disabled_msg">Serversuche ist nur bei aktiviertem WLAN
@@ -71,7 +66,7 @@
     <string name="menu_item_playlist_show_current_song">Aktuelles Lied</string>
     <string name="menu_item_volume">Lautstärke</string>
     <string name="connecting_text">Verbinde</string>
-    <string name="connecting_to_text">Verbinde mit SqueezeBox CLI %s</string>
+    <string name="connecting_to_text">Verbinde mit Logitech Media Server %s</string>
     <string name="connection_failed_text">Verbindung fehlgeschlagen. Prüfen Sie die Einstellungen.
     </string>
     <string name="disconnected_text">Verbindung getrennt</string>

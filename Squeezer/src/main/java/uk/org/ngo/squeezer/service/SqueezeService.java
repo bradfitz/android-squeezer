@@ -142,10 +142,6 @@ public class SqueezeService extends Service {
 
     int mFadeInSecs;
 
-    @Nullable String mUsername;
-
-    @Nullable String mPassword;
-
     private static final String ACTION_NEXT_TRACK = "uk.org.ngo.squeezer.service.ACTION_NEXT_TRACK";
     private static final String ACTION_PREV_TRACK = "uk.org.ngo.squeezer.service.ACTION_PREV_TRACK";
     private static final String ACTION_PLAY = "uk.org.ngo.squeezer.service.ACTION_PLAY";
@@ -364,7 +360,7 @@ public class SqueezeService extends Service {
                     editor.putString(Preferences.KEY_LAST_PLAYER, newActivePlayer.getId());
                 }
 
-                editor.commit();
+                editor.apply();
                 return null;
             }
         }.execute();
@@ -802,7 +798,7 @@ public class SqueezeService extends Service {
             DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
             DownloadDatabase downloadDatabase = new DownloadDatabase(this);
             String tempFile = UUID.randomUUID().toString();
-            String credentials = mUsername + ":" + mPassword;
+            String credentials = mDelegate.getUsername() + ":" + mDelegate.getPassword();
             String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
             DownloadManager.Request request = new DownloadManager.Request(url)
                     .setTitle(title)
@@ -1025,10 +1021,8 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void startConnect(String host, int cliPort, int httpPort, String userName, String password) {
-            mUsername = userName;
-            mPassword = password;
-            mDelegate.startConnect(SqueezeService.this, host, cliPort, httpPort, userName, password);
+        public void startConnect() {
+            mDelegate.startConnect(SqueezeService.this);
         }
 
         @Override
@@ -1415,12 +1409,6 @@ public class SqueezeService extends Service {
             if (Preferences.KEY_NOTIFICATION_TYPE.equals(key)) {
                 updateOngoingNotification();
                 return;
-            }
-
-            // If the server address changed then disconnect.
-            if (key.startsWith(Preferences.KEY_SERVER_ADDRESS)) {
-                disconnect();
-                //return;
             }
         }
 
