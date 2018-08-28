@@ -66,4 +66,6 @@
         <attr name="floatLabelSidePadding" format="reference|dimension" />
         <attr name="floatLabelColor" format="reference|color"/>
     </declare-styleable>
+
+    <attr name="sub_header_background" format="reference"/>
 </resources>

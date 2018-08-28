@@ -110,7 +110,6 @@
     <string name="notification_playing_text">%s spiller</string>
     <string name="notification_connected_text">%s forbundet</string>
     <string name="filter_text_hint">Søg efter %s</string>
-    <string name="search_text_hint">Angiv søgetekst</string>
     <string name="search_music_library_hint">Søg efter kunster, album, genre eller sang titel.
     </string>
     <string name="move_to_dialog_title">Flyt sang nr %d</string>

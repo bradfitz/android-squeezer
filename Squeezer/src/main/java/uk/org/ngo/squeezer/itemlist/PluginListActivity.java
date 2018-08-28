@@ -40,8 +40,10 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
 import uk.org.ngo.squeezer.framework.Action;
+import uk.org.ngo.squeezer.framework.BaseItem;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
+import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
@@ -72,11 +74,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         cmd = extras.getString("cmd");
         plugin = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
-        findViewById(R.id.search_view).setVisibility((isSearchable()) ? View.VISIBLE : View.GONE);
-        if (isSearchable()) {
-            ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
-            final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
 
+        findViewById(R.id.input_view).setVisibility((hasInput()) ? View.VISIBLE : View.GONE);
+        if (hasInput()) {
+            ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
+            final EditText searchCriteriaText = (EditText) findViewById(R.id.plugin_input);
+
+            searchCriteriaText.setHint(plugin.input.title);
             searchCriteriaText.setText(action.getInputValue());
             searchCriteriaText.setOnKeyListener(new OnKeyListener() {
                 @Override
@@ -107,6 +111,19 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         header.setVisibility(View.VISIBLE);
     }
 
+    private void updateSubHeader(String headerText) {
+        TextView header = (TextView) findViewById(R.id.sub_header);
+        header.setText(headerText);
+        header.setVisibility(View.VISIBLE);
+    }
+
+    private void updateHeader(Window window) {
+        updateHeader(window.text);
+        if (!TextUtils.isEmpty(window.textarea)) {
+            updateSubHeader(window.textarea);
+        }
+    }
+
 
     private void clearAndReOrderItems(String searchString) {
         if (getService() != null && !TextUtils.isEmpty(searchString)) {
@@ -115,12 +132,12 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
     }
 
-    private boolean isSearchable() {
-        return plugin != null && plugin.isSearchable();
+    private boolean hasInput() {
+        return plugin != null && plugin.hasInput();
     }
 
-    private boolean isSearchReady() {
-        return (!isSearchable() || action.isSearchReady());
+    private boolean isInputReady() {
+        return (!hasInput() || action.isInputReady());
     }
 
     @Override
@@ -128,7 +145,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         if (register) {
             service.register(this);
         } else if (plugin != null) {
-            if (isSearchReady())
+            if (isInputReady())
                 service.pluginItems(start, plugin, action, this);
         } else {
             service.pluginItems(start, cmd, this);
@@ -138,6 +155,18 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     public void onItemsReceived(int count, int start, final Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+        Object baseRecord = parameters.get("base");
+        if (baseRecord != null) {
+            final BaseItem baseItem = new BaseItem((Map<String, Object>) baseRecord);
+            if (baseItem.window != null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateHeader(baseItem.window);
+                    }
+                });
+            }
+        }
         if (parameters.containsKey("title")) {
             runOnUiThread(new Runnable() {
                 @Override

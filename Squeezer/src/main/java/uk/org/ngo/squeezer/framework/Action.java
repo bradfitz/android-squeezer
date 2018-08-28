@@ -97,7 +97,7 @@ public class Action implements Parcelable {
         }
     }
 
-    public boolean isSearchReady() {
+    public boolean isInputReady() {
         return (inputParam != null && !INPUT_PLACEHOLDER.equals(_getInputValue()));
     }
 

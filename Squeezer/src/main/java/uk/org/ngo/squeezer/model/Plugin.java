@@ -77,7 +77,7 @@ public class Plugin extends Item {
         this.type = type;
     }
 
-    public boolean isSearchable() {
+    public boolean hasInput() {
         return (input != null);
     }
 

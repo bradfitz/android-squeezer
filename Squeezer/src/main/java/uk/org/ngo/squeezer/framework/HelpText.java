@@ -22,7 +22,7 @@ import android.os.Parcel;
  * Implements the <help> of the LMS SqueezePlay interface.
  * http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#.3Cinput_fields.3E
  */
-class HelpText {
+public class HelpText {
     public String text;
     public String token;
 

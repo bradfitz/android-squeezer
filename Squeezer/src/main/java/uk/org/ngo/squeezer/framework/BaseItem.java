@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2018 Kurt Aaholst <kaaholst@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,67 +25,57 @@ import java.util.Map;
 import uk.org.ngo.squeezer.Util;
 
 /**
- * Base class for SqueezeServer data. Specializations must implement all the necessary boilerplate
- * code. This is okay for now, because we only have few data types.
+ * Represents base fields as defined in:
+ * http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#.3Cbase_fields.3E
  *
  * @author Kurt Aaholst
  */
-public abstract class Item implements Parcelable {
-    private String id;
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    abstract public String getName();
-
-    public Item() {
-    }
+public class BaseItem implements Parcelable {
 
     public Window window;
-    public Input input;
     public Action goAction;
     public Action playAction;
     public Action addAction;
     public Action insertAction;
     public Action moreAction;
 
-    public Item(Map<String, Object> record) {
-        Map<String, Object> baseRecord = getRecord(record, "base");
-        Map<String, Object> baseActions = (baseRecord != null ? getRecord(baseRecord, "actions") : null);
-        Map<String, Object> actionsRecord = getRecord(record, "actions");
-        input = extractInput(getRecord(record, "input"));
+    public BaseItem(Map<String, Object> record) {
         window = extractWindow(getRecord(record, "window"));
-        goAction = extractAction("go", baseActions, actionsRecord, record, baseRecord);
-        playAction = extractAction("play", baseActions, actionsRecord, record, baseRecord);
-        addAction = extractAction("add", baseActions, actionsRecord, record, baseRecord);
-        insertAction = extractAction("add-hold", baseActions, actionsRecord, record, baseRecord);
-        moreAction = extractAction("more", baseActions, actionsRecord, record, baseRecord);
+        Map<String, Object> actionsRecord = getRecord(record, "actions");
+        goAction = extractAction("go", null, actionsRecord, record, null);
+        playAction = extractAction("play", null, actionsRecord, record, null);
+        addAction = extractAction("add", null, actionsRecord, record, null);
+        insertAction = extractAction("add-hold", null, actionsRecord, record, null);
+        moreAction = extractAction("more", null, actionsRecord, record, null);
         if (moreAction != null) {
             moreAction.action.params.put("xmlBrowseInterimCM", 1);
         }
     }
 
-    public Item(Parcel source) {
-        setId(source.readString());
+    public BaseItem(Parcel source) {
         window = Window.readFromParcel(source);
-        input = Input.readFromParcel(source);
-        goAction = source.readParcelable(Item.class.getClassLoader());
-        playAction = source.readParcelable(Item.class.getClassLoader());
-        addAction = source.readParcelable(Item.class.getClassLoader());
-        insertAction = source.readParcelable(Item.class.getClassLoader());
-        moreAction = source.readParcelable(Item.class.getClassLoader());
+        goAction = source.readParcelable(BaseItem.class.getClassLoader());
+        playAction = source.readParcelable(BaseItem.class.getClassLoader());
+        addAction = source.readParcelable(BaseItem.class.getClassLoader());
+        insertAction = source.readParcelable(BaseItem.class.getClassLoader());
+        moreAction = source.readParcelable(BaseItem.class.getClassLoader());
     }
+
+    public static final Creator<BaseItem> CREATOR = new Creator<BaseItem>() {
+        @Override
+        public BaseItem createFromParcel(Parcel in) {
+            return new BaseItem(in);
+        }
+
+        @Override
+        public BaseItem[] newArray(int size) {
+            return new BaseItem[size];
+        }
+    };
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getId());
         Window.writeToParcel(dest, window);
-        Input.writeToParcel(dest, input);
         dest.writeParcelable(goAction, flags);
         dest.writeParcelable(playAction, flags);
         dest.writeParcelable(addAction, flags);
@@ -101,43 +90,16 @@ public abstract class Item implements Parcelable {
     }
 
     @Override
-    public int hashCode() {
-        return (getId() != null ? getId().hashCode() : 0);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-
-        if (o == null) {
-            return false;
-        }
-
-        if (o.getClass() != getClass()) {
-            // There is no guarantee that SqueezeServer items have globally unique IDs.
-            return false;
-        }
-
-        // Both might be empty items. For example a Song initialised
-        // with an empty token map, because no song is currently playing.
-        if (getId() == null && ((Item) o).getId() == null) {
-            return true;
-        }
-
-        return getId() != null && getId().equals(((Item) o).getId());
-    }
-
-    protected String toStringOpen() {
-        return getClass().getSimpleName() + " { id: " + getId() + ", name: " + getName();
-    }
-
-    @Override
     public String toString() {
-        return toStringOpen() + " }";
+        return "BaseItem{" +
+                "window=" + window +
+                ", goAction=" + goAction +
+                ", playAction=" + playAction +
+                ", addAction=" + addAction +
+                ", insertAction=" + insertAction +
+                ", moreAction=" + moreAction +
+                '}';
     }
-
 
     private Map<String, Object> getRecord(Map<String, Object> record, String recordName) {
         return (Map<String, Object>) record.get(recordName);
@@ -156,11 +118,6 @@ public abstract class Item implements Parcelable {
         return Util.getString(record, fieldName);
     }
 
-    @NonNull
-    protected String getStringOrEmpty(Map<String, Object> record, String fieldName) {
-        return Util.getStringOrEmpty(record, fieldName);
-    }
-
 
     private Window extractWindow(Map<String, Object> record) {
         if (record == null) return null;
@@ -176,25 +133,6 @@ public abstract class Item implements Parcelable {
         window.titleStyle = getString(record, "titleStyle");
 
         return window;
-    }
-
-    private Input extractInput(Map<String, Object> record) {
-        if (record == null) return null;
-
-        Input input = new Input();
-        input.len = getInt(record, "len");
-        input.softbutton1 = getString(record, "softbutton1");
-        input.softbutton2 = getString(record, "softbutton2");
-        input.inputStyle = getString(record, "inputStyle");
-        input.title = getString(record, "title");
-        input.allowedChars = getString(record, "allowedChars");
-        Map<String, Object> helpRecord = getRecord(record, "help");
-        if (helpRecord != null) {
-            input.help = new HelpText();
-            input.help.text = getString(helpRecord, "text");
-            input.help.token = getString(helpRecord, "token");
-        }
-        return input;
     }
 
     private Action extractAction(String actionName, Map<String, Object> baseActions, Map<String, Object> itemActions, Map<String, Object> record, Map<String, Object> baseRecord) {

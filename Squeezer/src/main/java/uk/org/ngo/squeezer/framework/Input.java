@@ -26,6 +26,7 @@ public class Input {
     public int len;
     public String allowedChars;
     public String inputStyle;
+    public String title;
     public HelpText help;
     public String softbutton1;
     public String softbutton2;
@@ -37,6 +38,7 @@ public class Input {
         input.len = source.readInt();
         input.allowedChars = source.readString();
         input.inputStyle = source.readString();
+        input.title = source.readString();
         input.help = HelpText.readFromParcel(source);
         input.softbutton1 = source.readString();
         input.softbutton2 = source.readString();
@@ -51,6 +53,7 @@ public class Input {
         dest.writeInt(input.len);
         dest.writeString(input.allowedChars);
         dest.writeString(input.inputStyle);
+        dest.writeString(input.title);
         HelpText.writeToParcel(dest, input.help);
         dest.writeString(input.softbutton1);
         dest.writeString(input.softbutton2);

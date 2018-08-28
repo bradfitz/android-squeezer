@@ -26,11 +26,10 @@ public class Window {
     public String text;
     public String textarea;
     public String textareaToken;
-    public String iconId;
     public String icon;
     public String titleStyle;
     public String menuStyle;
-    public HelpText help;
+    public String help;
     public String windowId;
 
     public static Window readFromParcel(Parcel source) {
@@ -40,11 +39,10 @@ public class Window {
         window.text = source.readString();
         window.textarea = source.readString();
         window.textareaToken = source.readString();
-        window.iconId = source.readString();
         window.icon = source.readString();
         window.titleStyle = source.readString();
         window.menuStyle = source.readString();
-        window.help = HelpText.readFromParcel(source);
+        window.help = source.readString();
         window.windowId = source.readString();
 
         return window;
@@ -57,11 +55,10 @@ public class Window {
         dest.writeString(window.text);
         dest.writeString(window.textarea);
         dest.writeString(window.textareaToken);
-        dest.writeString(window.iconId);
         dest.writeString(window.icon);
         dest.writeString(window.titleStyle);
         dest.writeString(window.menuStyle);
-        HelpText.writeToParcel(dest, window.help);
+        dest.writeString(window.help);
         dest.writeString(window.windowId);
     }
 
@@ -71,7 +68,6 @@ public class Window {
                 "text='" + text + '\'' +
                 ", textarea='" + textarea + '\'' +
                 ", textareaToken='" + textareaToken + '\'' +
-                ", iconId='" + iconId + '\'' +
                 ", icon='" + icon + '\'' +
                 ", titleStyle='" + titleStyle + '\'' +
                 ", menuStyle='" + menuStyle + '\'' +

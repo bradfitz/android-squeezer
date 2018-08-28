@@ -81,7 +81,6 @@
     <string name="notification_playing_text">Spiele %s</string>
     <string name="notification_connected_text">Verbunden mit %s</string>
     <string name="filter_text_hint">Suchen nach %s</string>
-    <string name="search_text_hint">Suchtext</string>
     <string name="search_music_library_hint">Suche nach Künstler, Album, Genre oder Titel.</string>
     <string name="move_to_dialog_title">Verschiebe Lied Nummer %d</string>
     <string name="move_to_index_hint">Bitte neue Position für das Lied eingeben</string>

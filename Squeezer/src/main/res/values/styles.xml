@@ -51,6 +51,8 @@
 
         <item name="dialogTheme">@style/Theme.AppCompat.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Dialog.Alert</item>
+
+        <item name="sub_header_background">@color/sub_header_background</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -86,6 +88,8 @@
 
         <item name="dialogTheme">@style/Theme.AppCompat.Light.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
+
+        <item name="sub_header_background">@color/sub_header_background_light</item>
     </style>
 
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
@@ -97,6 +101,10 @@
     <style name="SqueezerTextAppearance.Large" parent="@android:style/TextAppearance.Large"/>
     <style name="SqueezerTextAppearance.Medium" parent="@android:style/TextAppearance.Medium"/>
     <style name="SqueezerTextAppearance.Small" parent="@android:style/TextAppearance.Small"/>
+
+    <!-- List headers -->
+    <style name="SqueezerTextAppearance.ItemList.Header" parent="SqueezerTextAppearance.Medium"/>
+    <style name="SqueezerTextAppearance.ItemList.SubHeader" parent="SqueezerTextAppearance.Small"/>
 
     <!-- Text in list items -->
     <style name="SqueezerTextAppearance.ListItem.Primary" parent="SqueezerTextAppearance.Medium"/>
