@@ -307,6 +307,14 @@ class CometClient extends BaseClient {
                         }
                     }
                 });
+                mBayeuxClient.getChannel(Channel.META_CONNECT).addListener(new ClientSessionChannel.MessageListener() {
+                    public void onMessage(ClientSessionChannel channel, Message message) {
+                        if (!message.isSuccessful()) {
+                            Log.w(TAG, channel + ": " + message.getJSON());
+                            disconnect(false);
+                        }
+                    }
+                });
 
                 mBayeuxClient.handshake();
             }

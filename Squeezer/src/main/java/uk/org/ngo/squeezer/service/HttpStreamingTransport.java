@@ -620,9 +620,8 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                         delegate.fail(x, "Unexpected HTTP status code");
                     }
                 } catch (IOException e) {
-                    Log.v(TAG, "Server disconnected; exception=" + e);
                     if (delegate.connected) {
-                        delegate.failMessages(e);
+                        delegate.fail(e, "Server disconnected");
                     }
                     return;
                 }
