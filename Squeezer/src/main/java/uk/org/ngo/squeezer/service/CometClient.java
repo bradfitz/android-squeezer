@@ -748,8 +748,8 @@ class CometClient extends BaseClient {
     @Override
     public void subscribePlayerStatus(final Player player, final String subscriptionType) {
         Map<String, Object> params = new HashMap<>();
-        params.put("subscribe:", subscriptionType);
-        params.put("tags:", SONGTAGS);
+        params.put("subscribe", subscriptionType);
+        params.put("tags", SONGTAGS);
         Request request = new Request(player, new String[]{"status", "-", "1"}, params);
         publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, playerStatusResponseChannel(player), new PublishListener() {
             @Override
