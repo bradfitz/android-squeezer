@@ -407,31 +407,49 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
 
         private Exchange deregisterMessage(Message.Mutable message) {
-            Exchange exchange = null;
-            if (message.getId() != null) {
-                exchange = _exchanges.remove(message.getId());
-            } else {
-                // LMS does not put ID on all replies, so we have to find another way to recognise
-                // them.
-                // For messages with channel META_CONNECT, META_HANDSHAKE or META_SUBSCRIBE we assume that there is
-                // only one message in _exchanges.
-                String channel = message.getChannel();
-                if (Channel.META_CONNECT.equals(channel) || Channel.META_HANDSHAKE.equals(channel) || Channel.META_SUBSCRIBE.equals(channel)) {
-                    for (Exchange e : _exchanges.values()) {
-                        if (channel.equals(e.message.getChannel())) {
-                            exchange = _exchanges.remove(e.message.getId());
-                            break;
-                        }
-                    }
-                }
-            }
-
+            Exchange exchange = _exchanges.remove(message.getId());
             //Log.d(TAG, "Deregistering " + exchange + " for message " + message);
-
             if (exchange != null)
                 exchange.task.cancel(false);
 
             return exchange;
+        }
+
+        /**
+         * Workaround missing fields in replies from LMS
+         * LMS does not put ID on all replies. For such a message, this method tries to find the
+         * message in _exchanges which this message is a reply to.
+         * <ol>
+         *     <li>For messages with channel META_CONNECT, META_HANDSHAKE or META_SUBSCRIBE we
+         *     look for a message with that channel (assuming that there is only one such message.
+         *     </li>
+         *     <li>For messages without channel we check if it has advice action, in which case we look for
+         *     META_CONNECT and META_HANDSHAKE</li>
+         * </ol>
+         */
+        private void fixMessage(Message.Mutable message) {
+            String channel = message.getChannel();
+
+            if (Channel.META_CONNECT.equals(channel) || Channel.META_HANDSHAKE.equals(channel) || Channel.META_SUBSCRIBE.equals(channel)) {
+                for (Exchange exchange : _exchanges.values()) {
+                    if (channel.equals(exchange.message.getChannel())) {
+                        Log.v(TAG, "Add id to: " + message);
+                        message.setId(exchange.message.getId());
+                        break;
+                    }
+                }
+            } else
+            if (channel == null && (getAdviceAction(message.getAdvice()) != null)) {
+                for (Exchange exchange : _exchanges.values()) {
+                    channel = exchange.message.getChannel();
+                    if (Channel.META_CONNECT.equals(channel) || Channel.META_HANDSHAKE.equals(channel)) {
+                        Log.v(TAG, "Add id and  channel to: " + message);
+                        message.setId(exchange.message.getId());
+                        message.setChannel(channel);
+                        break;
+                    }
+                }
+            }
         }
 
         public void send(String content) {
@@ -449,7 +467,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             }
         }
 
-        protected void onData(String data) {
+        private void onData(String data) {
             try {
                 List<Message.Mutable> messages = parseMessages (data);
                 //Log.v(TAG,"Received messages " + data);
@@ -459,9 +477,13 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             }
         }
 
-        protected void onMessages(List<Message.Mutable> messages) {
+        private void onMessages(List<Message.Mutable> messages) {
             for (Message.Mutable message : messages) {
                 if (isReply(message)) {
+                    if (message.getId() == null) {
+                        fixMessage(message);
+                    }
+
                     // If the server sends an interval with the handshake response, set it to zero
                     // so we can send the connect message immediately.
                     // But store the interval so we can use it for subsequent connect messages, if
@@ -499,11 +521,10 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     if (exchange != null) {
                         exchange.listener.onMessages(Collections.singletonList(message));
                     } else if (message.containsKey("error")) {
-                        //Log.d(TAG, "Received error: " +  message);
                         fail(null, "Received error: " +  message);
                     } else {
                         // If the exchange is missing, then the message has expired, and we do not notify
-                        //Log.d(TAG, "Could not find request for reply " +  message);
+                        Log.d(TAG, "Could not find request for reply " +  message);
                     }
                 } else {
                     _listener.onMessages(Collections.singletonList(message));
@@ -511,12 +532,12 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             }
         }
 
-        protected void fail(Throwable failure, String reason) {
+        private void fail(Throwable failure, String reason) {
             disconnect(reason);
             failMessages(failure);
         }
 
-        protected void failMessages(Throwable cause) {
+        private void failMessages(Throwable cause) {
             List<Message.Mutable> messages = new ArrayList<>(1);
             for (Exchange exchange : new ArrayList<>(_exchanges.values())) {
                 Message.Mutable message = exchange.message;
@@ -533,7 +554,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 shutdown(reason);
         }
 
-        protected void shutdown(String reason) {
+        private void shutdown(String reason) {
             connected = false;
             writer = null;
             Log.v(TAG, "Closing socket, reason: " + reason);
@@ -562,7 +583,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
     }
 
-    private class ListeningThread extends Thread {
+    private static class ListeningThread extends Thread {
         private Delegate delegate;
         private final BufferedReader reader;
 
@@ -658,7 +679,16 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
     }
 
-    private boolean isReply(Message message) {
+
+    private static String getAdviceAction(Map<String, Object> advice)
+    {
+        String action = null;
+        if (advice != null && advice.containsKey(Message.RECONNECT_FIELD))
+            action = (String)advice.get(Message.RECONNECT_FIELD);
+        return action;
+    }
+
+    private static boolean isReply(Message message) {
         return message.isMeta() || message.isPublishReply();
     }
 

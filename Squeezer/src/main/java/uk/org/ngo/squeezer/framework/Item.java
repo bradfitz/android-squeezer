@@ -47,8 +47,9 @@ public abstract class Item implements Parcelable {
     public Item() {
     }
 
-    public Window window;
+    public Action.NextWindow nextWindow;
     public Input input;
+    public Window window;
     public Action goAction;
     public Action playAction;
     public Action addAction;
@@ -59,6 +60,7 @@ public abstract class Item implements Parcelable {
         Map<String, Object> baseRecord = getRecord(record, "base");
         Map<String, Object> baseActions = (baseRecord != null ? getRecord(baseRecord, "actions") : null);
         Map<String, Object> actionsRecord = getRecord(record, "actions");
+        nextWindow = Action.NextWindow.fromString(getString(record, "nextWindow"));
         input = extractInput(getRecord(record, "input"));
         window = extractWindow(getRecord(record, "window"));
         goAction = extractAction("go", baseActions, actionsRecord, record, baseRecord);
@@ -73,8 +75,9 @@ public abstract class Item implements Parcelable {
 
     public Item(Parcel source) {
         setId(source.readString());
-        window = Window.readFromParcel(source);
+        nextWindow = Action.NextWindow.fromString(source.readString());
         input = Input.readFromParcel(source);
+        window = Window.readFromParcel(source);
         goAction = source.readParcelable(Item.class.getClassLoader());
         playAction = source.readParcelable(Item.class.getClassLoader());
         addAction = source.readParcelable(Item.class.getClassLoader());
@@ -84,9 +87,10 @@ public abstract class Item implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(nextWindow == null ? null : nextWindow.toString());
         dest.writeString(getId());
-        Window.writeToParcel(dest, window);
         Input.writeToParcel(dest, input);
+        Window.writeToParcel(dest, window);
         dest.writeParcelable(goAction, flags);
         dest.writeParcelable(playAction, flags);
         dest.writeParcelable(addAction, flags);
@@ -223,7 +227,7 @@ public abstract class Item implements Parcelable {
         Action.JsonAction action = actionHolder.action = new Action.JsonAction();
 
         action.nextWindow = Action.NextWindow.fromString(getString(actionsRecord, "nextWindow"));
-        if (action.nextWindow == null) action.nextWindow = Action.NextWindow.fromString(getString(record, "nextWindow"));
+        if (action.nextWindow == null) action.nextWindow = nextWindow;
         if (action.nextWindow == null && baseRecord != null) action.nextWindow = Action.NextWindow.fromString(getString(baseRecord, "nextWindow"));
 
         action.cmd = Util.getStringArray((Object[]) actionsRecord.get("cmd"));

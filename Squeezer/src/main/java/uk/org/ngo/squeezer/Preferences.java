@@ -26,6 +26,8 @@ import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Random;
+import java.util.UUID;
 
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
@@ -129,6 +131,12 @@ public final class Preferences {
     // Use SD-card (getExternalMediaDirs)
     static final String KEY_DOWNLOAD_USE_SD_CARD_SCREEN = "squeezer.download.use_sd_card.screen";
     static final String KEY_DOWNLOAD_USE_SD_CARD = "squeezer.download.use_sd_card";
+
+    // Store a "mac id" for this app instance.
+    private static final String KEY_MAC_ID = "squeezer.mac_id";
+
+    // Store a unique id for this app instance.
+    private static final String KEY_UUID = "squeezer.uuid";
 
     private final Context context;
     private final SharedPreferences sharedPreferences;
@@ -422,5 +430,55 @@ public final class Preferences {
 
     public boolean isDownloadUseSdCard() {
         return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SD_CARD, false);
+    }
+
+    /**
+     * Retrieve a "mac id" for this app instance.
+     * <p>
+     * If a mac id is previously stored, then use it, otherwise create a new mac id
+     * store it and return it.
+     */
+    public String getMacId() {
+        String macId = sharedPreferences.getString(KEY_MAC_ID, null);
+        if (macId == null) {
+            macId = generateMacLikeId();
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(Preferences.KEY_MAC_ID, macId);
+            editor.apply();
+        }
+        return macId;
+    }
+
+    /**
+     * As Android (6.0 and above) does not allow acces to the mac id, and mysqueezebox.com requires
+     * it, this is the best I can think of.
+     */
+    private String generateMacLikeId() {
+        StringBuilder sb = new StringBuilder(18);
+        byte[] b = new byte[6];
+        new Random().nextBytes(b);
+        for (int i = 0; i < b.length; i++) {
+            sb.append(String.format("%02X:", b[i]));
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    /**
+     * Retrieve a unique id (uuid) for this app instance.
+     * <p>
+     * If a uuid is previously stored, then use it, otherwise create a new uuid,
+     * store it and return it.
+     */
+    public String getUuid() {
+        String uuid = sharedPreferences.getString(KEY_UUID, null);
+        if (uuid == null) {
+            //NOTE mysqueezebox.com doesn't accept dash in the uuid
+            uuid = UUID.randomUUID().toString().replaceAll("-", "");
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(Preferences.KEY_UUID, uuid);
+            editor.apply();
+        }
+        return uuid;
     }
 }

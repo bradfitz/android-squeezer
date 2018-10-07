@@ -27,6 +27,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -77,28 +78,45 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         findViewById(R.id.input_view).setVisibility((hasInput()) ? View.VISIBLE : View.GONE);
         if (hasInput()) {
-            ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
-            final EditText searchCriteriaText = (EditText) findViewById(R.id.plugin_input);
+            ImageButton inputButton = (ImageButton) findViewById(R.id.input_button);
+            final EditText inputText = (EditText) findViewById(R.id.plugin_input);
+            int inputType = EditorInfo.TYPE_CLASS_TEXT;
+            int inputImage = R.drawable.ic_keyboard_return;
 
-            searchCriteriaText.setHint(plugin.input.title);
-            searchCriteriaText.setText(action.getInputValue());
-            searchCriteriaText.setOnKeyListener(new OnKeyListener() {
+            switch (action.getInputType()) {
+                case TEXT:
+                    break;
+                case SEARCH:
+                    inputImage = R.drawable.ic_search;
+                    break;
+                case EMAIL:
+                    inputType |= EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+                    break;
+                case PASSWORD:
+                    inputType |= EditorInfo.TYPE_TEXT_VARIATION_PASSWORD;
+                    break;
+            }
+            inputText.setInputType(inputType);
+            inputButton.setImageResource(inputImage);
+            inputText.setHint(plugin.input.title);
+            inputText.setText(action.getInputValue());
+            inputText.setOnKeyListener(new OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if ((event.getAction() == KeyEvent.ACTION_DOWN)
                             && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                        clearAndReOrderItems(searchCriteriaText.getText().toString());
+                        clearAndReOrderItems(inputText.getText().toString());
                         return true;
                     }
                     return false;
                 }
             });
 
-            searchButton.setOnClickListener(new OnClickListener() {
+            inputButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (getService() != null) {
-                        clearAndReOrderItems(searchCriteriaText.getText().toString());
+                        clearAndReOrderItems(inputText.getText().toString());
                     }
                 }
             });
@@ -125,9 +143,9 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
 
-    private void clearAndReOrderItems(String searchString) {
-        if (getService() != null && !TextUtils.isEmpty(searchString)) {
-            action.action.params.put(action.inputParam, searchString);
+    private void clearAndReOrderItems(String inputString) {
+        if (getService() != null && !TextUtils.isEmpty(inputString)) {
+            action.action.params.put(action.inputParam, inputString);
             clearAndReOrderItems();
         }
     }
@@ -146,7 +164,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             service.register(this);
         } else if (plugin != null) {
             if (isInputReady())
-                service.pluginItems(start, plugin, action, this);
+                service.pluginItems(start, action, this);
         } else {
             service.pluginItems(start, cmd, this);
         }
@@ -261,10 +279,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         intent.putExtra(Plugin.class.getName(), plugin);
         intent.putExtra(Action.class.getName(), action);
         activity.startActivity(intent);
-    }
-
-    public static void show(Activity activity, Plugin plugin) {
-        show(activity, plugin, plugin.goAction);
     }
 
 }

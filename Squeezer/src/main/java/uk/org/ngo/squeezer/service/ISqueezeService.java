@@ -53,7 +53,7 @@ public interface ISqueezeService {
     boolean isConnected();
     boolean isConnectInProgress();
 
-    // Initiate the flow to register the controller with the server
+    /** Initiate the flow to register the controller with the server */
     void register(IServiceItemListCallback<Plugin> callback);
 
     // For the SettingsActivity to notify the Service that a setting changed.
@@ -208,8 +208,8 @@ public interface ISqueezeService {
 
     // Plugins (Radios/Apps (music services)/Favorites)
     void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
-    void pluginItems(int start, Plugin plugin, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
-    void pluginItems(Plugin plugin, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
     boolean action(Item item, Action action);
 
 

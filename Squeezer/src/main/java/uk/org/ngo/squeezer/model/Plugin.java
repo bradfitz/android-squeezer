@@ -82,11 +82,15 @@ public class Plugin extends Item {
     }
 
     public boolean isSelectable() {
+        return (isSelectAction() || nextWindow != null);
+    }
+
+    public boolean isSelectAction() {
         return (goAction != null && !isGoActionPlayAction());
     }
 
     public boolean isPlayable() {
-        return (playAction != null || isGoActionPlayAction());
+        return (playAction() != null);
     }
 
     public Action playAction() {
@@ -177,4 +181,5 @@ public class Plugin extends Item {
                 + ", more: " + moreAction
                 + ", window: " + window;
     }
+
 }

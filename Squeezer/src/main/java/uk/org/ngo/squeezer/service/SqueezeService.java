@@ -1034,10 +1034,21 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void register(IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
+        public void register(IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
+            // We register ourselves as a player. This will come back in serverstatus, so we get an
+            // active player, which is required for the register_sn command:
+            // [ "playerid", [ "register_sn", 0, 100, "login_password", "email:...", "password:..." ] ]
+            // We then start register flow with the command:
+            // [ "", [ "register", 0, 100, "login_password", "service:SN" ] ]
+            // This is same command squeezeplay uses, and allows connect to an existing account or
+            // create a new.
+            // This way we can use server side logic and we don't have to store account credentials
+            // locally.
+            String macId = new Preferences(SqueezeService.this).getMacId();
+            mDelegate.command().cmd("playerRegister", null, macId, "Squeezer").exec();
             mDelegate.requestItems(callback).cmd("register").param("service", "SN").exec();
         }
 
@@ -1673,7 +1684,7 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous fetch of the squeezeservers generic menu items */
         @Override
-        public void pluginItems(int start, Plugin plugin, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
+        public void pluginItems(int start, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
@@ -1681,7 +1692,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void pluginItems(Plugin plugin, Action action, IServiceItemListCallback<Plugin> callback) throws HandshakeNotCompleteException {
+        public void pluginItems(Action action, IServiceItemListCallback<Plugin> callback) throws HandshakeNotCompleteException {
             // We cant use paging for context menu items as LMS does some "magic"
             // See XMLBrowser.pm ("xmlBrowseInterimCM" and  "# Cannot do this if we might screw up paging")
             mDelegate.requestItems(getActivePlayer(), callback).cmd(action.action.cmd).params(action.action.params).exec();

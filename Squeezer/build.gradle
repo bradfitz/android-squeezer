@@ -51,9 +51,9 @@ dependencies {
 
     // Comet client
     implementation 'org.cometd.java:cometd-java-client:3.0.5'
-    //compile 'org.cometd.java:cometd-java-websocket-javax-client:3.0.5'
-    //compile "org.glassfish.tyrus.bundles:tyrus-standalone-client:1.5"
-    //compile 'org.slf4j:slf4j-log4j12'
+    //implementation 'org.cometd.java:cometd-java-websocket-javax-client:3.0.5'
+    //implementation "org.glassfish.tyrus.bundles:tyrus-standalone-client:1.5"
+    //implementation 'org.slf4j:slf4j-log4j12'
     implementation 'org.slf4j:slf4j-android:1.7.12'
 
     // JVM tests

@@ -89,8 +89,30 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
 
     @Override
     public void onItemSelected(int index, Plugin item) {
-        PluginListActivity.show(getActivity(), item);
-    }
+        if ((item.isSelectAction())) {
+            PluginListActivity.show(getActivity(), item, item.goAction);
+        } else if (item.nextWindow != null) {
+            switch (item.nextWindow.nextWindow) {
+                case playlist:
+                    CurrentPlaylistActivity.show(getActivity());
+                    break;
+                case home:
+                    HomeActivity.show(getActivity());
+                    break;
+                case refreshOrigin:
+                case refresh:
+                case parent: // For centext menus parent and grandparent hide the context menu(s) and reload items
+                case grandparent:
+                    // TODO reload
+                    break;
+                case parentNoRefresh:
+                    break;
+                case windowId:
+                    //TODO implement
+                    break;
+            }
+        }
+   }
 
     // Only touch these from the main thread
     private boolean contextMenuReady = false;
@@ -110,7 +132,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
             if (item.hasSlimContextMenu()) {
                 contextMenuView = v;
                 contextItem = item;
-                orderContextMenu(item, item.moreAction);
+                orderContextMenu(item.moreAction);
             } else {
                 if (item.playAction() != null) {
                     menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
@@ -140,14 +162,14 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
         }
     }
 
-    private void orderContextMenu(Plugin item, Action action) {
+    private void orderContextMenu(Action action) {
         ISqueezeService service = activity.getService();
         if (service != null) {
             contextMenuWaiting = true;
             ViewHolder viewHolder = (ViewHolder) contextMenuView.getTag();
             viewHolder.contextMenuButton.setVisibility(View.INVISIBLE);
             viewHolder.contextMenuLoading.setVisibility(View.VISIBLE);
-            service.pluginItems(item, action, this);
+            service.pluginItems(action, this);
         }
     }
 
@@ -178,7 +200,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
                 }
             } else {
                 if (selectedItem.goAction.isContextMenu()) {
-                    orderContextMenu(contextItem, selectedItem.goAction);
+                    orderContextMenu(selectedItem.goAction);
                 } else {
                     PluginListActivity.show(getActivity(), contextItem, selectedItem.goAction);
                 }

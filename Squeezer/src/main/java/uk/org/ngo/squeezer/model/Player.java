@@ -34,7 +34,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 
 
@@ -91,8 +90,12 @@ public class Player extends Item implements Comparable {
         mCanPowerOff = true;
         mConnected = true;
 
+        mHashCode = calcHashCode();
+    }
+
+    private HashCode calcHashCode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            mHashCode = mHashFunction.hashString(getId(), Charsets.UTF_8);
+            return mHashFunction.hashString(getId(), Charsets.UTF_8);
         } else {
             // API versions < GINGERBREAD do not have String.getBytes(Charset charset),
             // which hashString() ends up calling. This will trigger an exception.
@@ -104,7 +107,7 @@ public class Player extends Item implements Comparable {
                 // we're running on something wacky, fallback to the un-parsed bytes.
                 bytes = getId().getBytes();
             }
-            mHashCode = mHashFunction.hashBytes(bytes);
+            return mHashFunction.hashBytes(bytes);
         }
     }
 

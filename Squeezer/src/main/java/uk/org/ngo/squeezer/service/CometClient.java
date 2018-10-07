@@ -100,7 +100,7 @@ class CometClient extends BaseClient {
     private static final String CHANNEL_SERVER_STATUS_FORMAT = "/%s/slim/serverstatus";
 
     // Maximum time for wait replies for server capabilities
-    private static final long HANDSHAKE_TIMEOUT = 2000;
+    private static final long HANDSHAKE_TIMEOUT = 4000;
 
 
     /** Handler for off-main-thread work. */
@@ -249,7 +249,7 @@ class CometClient extends BaseClient {
                 final boolean isSqueezeNetwork = serverAddress.squeezeNetwork;
 
                 final HttpClient httpClient = new HttpClient();
-                httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Squeezer"));
+                httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Squeezer-squeezer/" + SqueezerBayeuxExtension.getRevision()));
                 try {
                     httpClient.start();
                 } catch (Exception e) {
@@ -295,7 +295,8 @@ class CometClient extends BaseClient {
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         if (message.isSuccessful()) {
                             onConnected(isSqueezeNetwork);
-                        } else {
+                        } else if (getAdviceAction(message.getAdvice()) == null) {
+                            // Advices are handled internally by the bayeux protocol, so skip these here
                             Log.w(TAG, channel + ": " + message.getJSON());
 
                             Map<String, Object> failure = (Map<String, Object>) message.get("failure");
@@ -309,7 +310,8 @@ class CometClient extends BaseClient {
                 });
                 mBayeuxClient.getChannel(Channel.META_CONNECT).addListener(new ClientSessionChannel.MessageListener() {
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        if (!message.isSuccessful()) {
+                        if (!message.isSuccessful() && (getAdviceAction(message.getAdvice()) == null)) {
+                            // Advices are handled internally by the bayeux protocol, so skip these here
                             Log.w(TAG, channel + ": " + message.getJSON());
                             disconnect(false);
                         }
@@ -848,5 +850,13 @@ class CometClient extends BaseClient {
             this.responseChannel = responseChannel;
             this.publishListener = publishListener;
         }
+    }
+
+    private static String getAdviceAction(Map<String, Object> advice)
+    {
+        String action = null;
+        if (advice != null && advice.containsKey(Message.RECONNECT_FIELD))
+            action = (String)advice.get(Message.RECONNECT_FIELD);
+        return action;
     }
 }

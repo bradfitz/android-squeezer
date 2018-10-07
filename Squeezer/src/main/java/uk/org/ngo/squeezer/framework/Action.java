@@ -97,6 +97,14 @@ public class Action implements Parcelable {
         }
     }
 
+    public InputType getInputType() {
+        if (inputParam == null) return InputType.TEXT;
+        if ("search".equals(inputParam)) return InputType.SEARCH;
+        if ("email".equals(inputParam)) return InputType.EMAIL;
+        if ("password".equals(inputParam)) return InputType.PASSWORD;
+        return InputType.TEXT;
+    }
+
     public boolean isInputReady() {
         return (inputParam != null && !INPUT_PLACEHOLDER.equals(_getInputValue()));
     }
@@ -194,6 +202,10 @@ public class Action implements Parcelable {
         refresh, // stay on this window, but resend the cli command that was used to construct it and refresh the window with the freshly returned data
         refreshOrigin, // push to the previous window in the stack, but resend the cli command that was used to construct it and refresh the window with the freshly returned data
         windowId, // (7.4+)any other value of a window that is present on the window stack and has a "windowId" in it's window fields. Search the window stack backwards until a window with this windowId is found and pop all windows above it.
+    }
+
+    public enum InputType {
+        TEXT, SEARCH, EMAIL, PASSWORD;
     }
 
 }

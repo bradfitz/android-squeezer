@@ -18,15 +18,11 @@ package uk.org.ngo.squeezer.service;
 
 import android.util.Log;
 
-import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
-import org.cometd.common.HashMapMessage;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import uk.org.ngo.squeezer.BuildConfig;
 
@@ -45,8 +41,6 @@ import uk.org.ngo.squeezer.BuildConfig;
 class SqueezerBayeuxClient extends BayeuxClient {
     private static final String TAG = SqueezerBayeuxClient.class.getSimpleName();
 
-    private Map<Object, String> subscriptionIds = new HashMap<>();
-
     SqueezerBayeuxClient(String url, ClientTransport transport, ClientTransport... transports) {
         super(url, transport, transports);
     }
@@ -55,9 +49,6 @@ class SqueezerBayeuxClient extends BayeuxClient {
     public void onSending(List<? extends Message> messages) {
         super.onSending(messages);
         for (Message message : messages) {
-            if (Channel.META_SUBSCRIBE.equals(message.getChannel())) {
-                subscriptionIds.put(message.get(Message.SUBSCRIPTION_FIELD), message.getId());
-            }
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "SEND: " + message.getJSON());
             }
@@ -68,13 +59,6 @@ class SqueezerBayeuxClient extends BayeuxClient {
     public void onMessages(List<Message.Mutable> messages) {
         super.onMessages(messages);
         for (Message message : messages) {
-            if (message.getId() == null && message instanceof HashMapMessage) {
-                if (Channel.META_SUBSCRIBE.equals(message.getChannel())) {
-                    Object key = message.get(Message.SUBSCRIPTION_FIELD);
-                    ((HashMapMessage) message).setId(subscriptionIds.get(key));
-                    subscriptionIds.remove(key);
-                }
-            }
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "RECV: " + message.getJSON());
             }
