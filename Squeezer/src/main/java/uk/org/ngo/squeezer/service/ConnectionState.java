@@ -262,4 +262,17 @@ public class ConnectionState {
         return mConnectionState == LOGIN_STARTED;
     }
 
+    @Override
+    public String toString() {
+        return "ConnectionState{" +
+                "mConnectionState=" + mConnectionState +
+                ", mCanFavorites=" + mCanFavorites +
+                ", mCanMusicfolder=" + mCanMusicfolder +
+                ", mCanMyApps=" + mCanMyApps +
+                ", canRandomplay=" + canRandomplay +
+                ", serverVersion=" + serverVersion +
+                ", preferredAlbumSort=" + preferredAlbumSort +
+                ", mediaDirs=" + mediaDirs +
+                '}';
+    }
 }

@@ -397,10 +397,12 @@ class CometClient extends BaseClient {
                     }
                 }, "can", "myapps", "items", "?");
 
-                if (isSqueezeNetwork && needRegister()) {
+                if (isSqueezeNetwork) {
                     mConnectionState.setPreferedAlbumSort("album");
                     mConnectionState.setMediaDirs(new String[0]);
-                    mEventBus.post(new RegisterSqueezeNetwork());
+                    if (needRegister()) {
+                        mEventBus.post(new RegisterSqueezeNetwork());
+                    }
                 } else {
                     request(new ResponseHandler() {
                         @Override
@@ -789,7 +791,7 @@ class CometClient extends BaseClient {
                     mBayeuxClient.disconnect();
                     break;
                 case MSG_HANDSHAKE_TIMEOUT:
-                    Log.w(TAG, "LMS handshake timeout");
+                    Log.w(TAG, "LMS handshake timeout: " + mConnectionState);
                     disconnect(false);
                     break;
                 case MSG_PUBLISH_RESPONSE_RECIEVED: {

@@ -407,7 +407,7 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
 
         private Exchange deregisterMessage(Message.Mutable message) {
-            Exchange exchange = _exchanges.remove(message.getId());
+            Exchange exchange = (message.getId() != null) ? _exchanges.remove(message.getId()) : null;
             //Log.d(TAG, "Deregistering " + exchange + " for message " + message);
             if (exchange != null)
                 exchange.task.cancel(false);
@@ -433,7 +433,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             if (Channel.META_CONNECT.equals(channel) || Channel.META_HANDSHAKE.equals(channel) || Channel.META_SUBSCRIBE.equals(channel)) {
                 for (Exchange exchange : _exchanges.values()) {
                     if (channel.equals(exchange.message.getChannel())) {
-                        Log.v(TAG, "Add id to: " + message);
                         message.setId(exchange.message.getId());
                         break;
                     }
@@ -443,7 +442,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                 for (Exchange exchange : _exchanges.values()) {
                     channel = exchange.message.getChannel();
                     if (Channel.META_CONNECT.equals(channel) || Channel.META_HANDSHAKE.equals(channel)) {
-                        Log.v(TAG, "Add id and  channel to: " + message);
                         message.setId(exchange.message.getId());
                         message.setChannel(channel);
                         break;
