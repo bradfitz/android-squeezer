@@ -17,16 +17,16 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item name="circle_radius_multiplier" format="float" type="string">0.82</item>
-    <item name="circle_radius_multiplier_24HourMode" format="float" type="string">0.85</item>
-    <item name="selection_radius_multiplier" format="float" type="string">0.16</item>
-    <item name="ampm_circle_radius_multiplier" format="float" type="string">0.19</item>
-    <item name="numbers_radius_multiplier_normal" format="float" type="string">0.81</item>
-    <item name="numbers_radius_multiplier_inner" format="float" type="string">0.60</item>
-    <item name="numbers_radius_multiplier_outer" format="float" type="string">0.83</item>
-    <item name="text_size_multiplier_normal" format="float" type="string">0.17</item>
-    <item name="text_size_multiplier_inner" format="float" type="string">0.14</item>
-    <item name="text_size_multiplier_outer" format="float" type="string">0.11</item>
+    <item name="circle_radius_multiplier" format="float" type="string" translatable="false">0.82</item>
+    <item name="circle_radius_multiplier_24HourMode" format="float" type="string" translatable="false">0.85</item>
+    <item name="selection_radius_multiplier" format="float" type="string" translatable="false">0.16</item>
+    <item name="ampm_circle_radius_multiplier" format="float" type="string" translatable="false">0.19</item>
+    <item name="numbers_radius_multiplier_normal" format="float" type="string" translatable="false">0.81</item>
+    <item name="numbers_radius_multiplier_inner" format="float" type="string" translatable="false">0.60</item>
+    <item name="numbers_radius_multiplier_outer" format="float" type="string" translatable="false">0.83</item>
+    <item name="text_size_multiplier_normal" format="float" type="string" translatable="false">0.17</item>
+    <item name="text_size_multiplier_inner" format="float" type="string" translatable="false">0.14</item>
+    <item name="text_size_multiplier_outer" format="float" type="string" translatable="false">0.11</item>
 
 
     <dimen name="time_label_size">60sp</dimen>
@@ -59,4 +59,11 @@
     <dimen name="day_number_size">16sp</dimen>
     <dimen name="year_label_height">64dp</dimen>
     <dimen name="year_label_text_size">22dp</dimen>
+
+    <!-- Default values to stop lint from complaining about -->
+    <dimen name="dialog_height">200dip</dimen>
+    <dimen name="left_side_width">250dip</dimen>
+    <dimen name="month_list_item_padding">24dp</dimen>
+    <dimen name="month_list_item_size">24sp</dimen>
+    <dimen name="time_label_right_padding">16sp</dimen>
 </resources>
