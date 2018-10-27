@@ -38,7 +38,7 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
  * Provide a UI for connecting to the configured server, launch HomeActivity when the user
  * connects.
  */
-public class DisconnectedActivity extends BaseActivity {
+public class ConnectActivity extends BaseActivity {
 
     @IntDef({MANUAL_DISCONNECT, CONNECTION_FAILED, LOGIN_FAILED})
     @Retention(RetentionPolicy.SOURCE)
@@ -91,12 +91,12 @@ public class DisconnectedActivity extends BaseActivity {
     private static void show(Activity activity, @DisconnectionReasons int disconnectionReason) {
         // If the activity is already running then make sure the header message is appropriate
         // and stop, as there's no need to start another instance of the activity.
-        if (activity instanceof DisconnectedActivity) {
-            ((DisconnectedActivity) activity).setHeaderMessageFromReason(disconnectionReason);
+        if (activity instanceof ConnectActivity) {
+            ((ConnectActivity) activity).setHeaderMessageFromReason(disconnectionReason);
             return;
         }
 
-        final Intent intent = new Intent(activity, DisconnectedActivity.class)
+        final Intent intent = new Intent(activity, ConnectActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -162,13 +162,6 @@ public class DisconnectedActivity extends BaseActivity {
     }
 
     public void onEventMainThread(HandshakeComplete event) {
-        // The user requested a connection to the server, which succeeded.  There's
-        // no prior activity to go to, so launch HomeActivity, with flags to
-        // clear other activities so hitting "back" won't show this activity again.
-        final Intent intent = new Intent(this, HomeActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        this.startActivity(intent);
-        this.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        HomeActivity.show(this);
     }
 }

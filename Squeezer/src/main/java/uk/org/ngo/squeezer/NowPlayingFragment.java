@@ -984,7 +984,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
      * @return true if they have, false otherwise.
      */
     private boolean isManualDisconnect() {
-        return getActivity() instanceof DisconnectedActivity;
+        return getActivity() instanceof ConnectActivity;
     }
 
     private void onUserInitiatesConnect() {
@@ -1033,7 +1033,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
         if (!preferences.hasServerConfig()) {
             // Set up a server connection, if it is not present
-            DisconnectedActivity.show(mActivity);
+            ConnectActivity.show(mActivity);
             return;
         }
 
@@ -1054,22 +1054,22 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
 
         // Handle any of the reasons for disconnection, clear the dialog and show the
-        // DisconnectedActivity.
+        // ConnectActivity.
         if (event.connectionState == ConnectionState.DISCONNECTED) {
             dismissConnectingDialog();
-            DisconnectedActivity.show(mActivity);
+            ConnectActivity.show(mActivity);
             return;
         }
 
         if (event.connectionState == ConnectionState.CONNECTION_FAILED) {
             dismissConnectingDialog();
-            DisconnectedActivity.showConnectionFailed(mActivity);
+            ConnectActivity.showConnectionFailed(mActivity);
             return;
         }
 
         if (event.connectionState == ConnectionState.LOGIN_FAILED) {
             dismissConnectingDialog();
-            DisconnectedActivity.showLoginFailed(mActivity);
+            ConnectActivity.showLoginFailed(mActivity);
             return;
         }
 

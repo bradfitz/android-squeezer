@@ -69,8 +69,8 @@
         </activity>
 
         <activity
-            android:name=".DisconnectedActivity"
-            android:label="Disconnected"
+            android:name=".ConnectActivity"
+            android:label="@string/disconnected_text"
             android:parentActivityName=".HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
