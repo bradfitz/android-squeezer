@@ -29,7 +29,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -77,11 +76,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     private ItemAdapter<T> itemAdapter;
 
     /**
-     * Progress bar (spinning) while items are loading.
-     */
-    private ProgressBar loadingProgress;
-
-    /**
      * Fragment to retain information across the activity lifecycle.
      */
     private RetainFragment mRetainFragment;
@@ -95,9 +89,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         setContentView(getContentView());
         mListView = checkNotNull((AbsListView) findViewById(R.id.item_list),
                 "getContentView() did not return a view containing R.id.item_list");
-
-        loadingProgress = checkNotNull((ProgressBar) findViewById(R.id.loading_progress),
-                "getContentView() did not return a view containing R.id.loading_progress");
 
         mListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -131,8 +122,8 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     /**
      * Returns the ID of a content view to be used by this list activity.
      * <p>
-     * The content view must contain a {@link AbsListView} with the id {@literal item_list} and a
-     * {@link ProgressBar} with the id {@literal loading_progress} in order to be valid.
+     * The content view must contain a {@link AbsListView} with the id {@literal item_list} in order
+     * to be valid.
      *
      * @return The ID
      */
@@ -218,6 +209,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
             //noinspection unchecked
             itemAdapter = (ItemAdapter<T>) mRetainFragment.get(TAG_ADAPTER);
             if (itemAdapter == null) {
+                showLoading();
                 itemAdapter = createItemListAdapter(createItemView());
                 mRetainFragment.put(TAG_ADAPTER, itemAdapter);
             } else {
@@ -234,10 +226,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
 
     @Override
     protected void clearItemAdapter() {
-        // TODO: This should be removed in favour of showing a progress spinner in the actionbar.
-        mListView.setVisibility(View.GONE);
-        loadingProgress.setVisibility(View.VISIBLE);
-
+        showLoading();
         getItemAdapter().clear();
     }
 
@@ -258,8 +247,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         getUIThreadHandler().post(new Runnable() {
             @Override
             public void run() {
-                mListView.setVisibility(View.VISIBLE);
-                loadingProgress.setVisibility(View.GONE);
+                hideLoading();
                 getItemAdapter().update(count, start, items);
             }
         });

@@ -37,12 +37,10 @@ import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
-import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
-import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksDeleted;
 
@@ -52,8 +50,6 @@ import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
  * Activity that shows the songs in the current playlist.
  */
 public class CurrentPlaylistActivity extends BaseListActivity<Song> {
-
-    private Player player;
 
     public static void show(Context context) {
         final Intent intent = new Intent(context, CurrentPlaylistActivity.class)
@@ -257,12 +253,6 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         return getService().getCurrentPlaylist();
     }
 
-    @Override
-    public void onEvent(HandshakeComplete event) {
-        super.onEvent(event);
-        player = getService().getActivePlayer();
-    }
-
     public void onEventMainThread(MusicChanged event) {
         if (event.player.equals(getService().getActivePlayer())) {
             Log.d(getTag(), "onMusicChanged " + event.playerState.getCurrentSong());
@@ -271,19 +261,12 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
         }
     }
 
-    public void onEventMainThread(PlayersChanged event) {
+    public void onEventMainThread(ActivePlayerChanged event) {
         supportInvalidateOptionsMenu();
 
-        Player activePlayer = getService().getActivePlayer();
-
-        if (activePlayer == null) {
-            player = null;
+        if (event.player == null) {
             clearItems();
-            return;
-        }
-
-        if (!activePlayer.equals(player)) {
-            player = activePlayer;
+        } else {
             clearAndReOrderItems();
         }
     }

@@ -124,7 +124,6 @@ public interface ISqueezeService {
     boolean toggleShuffle();
     boolean toggleRepeat();
     boolean playlistControl(String cmd, PlaylistItem playlistItem, int index);
-    boolean randomPlay(String type) throws SqueezeService.HandshakeNotCompleteException;
     boolean playlistIndex(int index);
     boolean playlistRemove(int index);
     boolean playlistMove(int fromIndex, int toIndex);
@@ -205,6 +204,13 @@ public interface ISqueezeService {
 
     // Search
     void search(int start, String searchString, IServiceItemListCallback itemListCallback) throws SqueezeService.HandshakeNotCompleteException;
+
+    /**
+     * "home menu" items
+     * <p>
+     * See http://wiki.slimdevices.com/index.php/SqueezePlayAndSqueezeCenterPlugins
+      */
+    void homeItems(int start, IServiceItemListCallback<Plugin>  callback);
 
     // Plugins (Radios/Apps (music services)/Favorites)
     void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;

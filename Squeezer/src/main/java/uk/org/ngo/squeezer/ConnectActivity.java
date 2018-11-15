@@ -30,12 +30,13 @@ import java.lang.annotation.RetentionPolicy;
 import uk.org.ngo.squeezer.dialog.InfoDialog;
 import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.itemlist.HomeMenuActivity;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 /**
  * An activity for when the user is not connected to a Squeezeserver.
  * <p>
- * Provide a UI for connecting to the configured server, launch HomeActivity when the user
+ * Provide a UI for connecting to the configured server, launch HomeMenuActivity when the user
  * connects.
  */
 public class ConnectActivity extends BaseActivity {
@@ -162,6 +163,6 @@ public class ConnectActivity extends BaseActivity {
     }
 
     public void onEventMainThread(HandshakeComplete event) {
-        HomeActivity.show(this);
+        HomeMenuActivity.show(this);
     }
 }

@@ -47,8 +47,8 @@ import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
-import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
@@ -230,29 +230,15 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         }
     }
 
-    public void onEventMainThread(PlayersChanged event) {
-        // Only include players that are connected to the server.
-        ArrayList<Player> connectedPlayers = new ArrayList<>();
-        for (Player player : event.players.values()) {
-            if (player.getConnected()) {
-                connectedPlayers.add(player);
-            }
-        }
-
-        if (connectedPlayers.isEmpty()) {
+    public void onEventMainThread(ActivePlayerChanged event) {
+        if (event.player == null) {
             mEmptyView.setVisibility(View.VISIBLE);
             mNonEmptyView.setVisibility(View.GONE);
             mActivePlayer = null;
             return;
         }
 
-        Player newActivePlayer = getService().getActivePlayer();
-        if (newActivePlayer != null && newActivePlayer.equals(mActivePlayer)
-                && mActivePlayer.getConnected() == newActivePlayer.getConnected()) {
-            return;
-        }
-
-        mActivePlayer = newActivePlayer;
+        mActivePlayer = event.player;
         mEmptyView.setVisibility(View.GONE);
         mNonEmptyView.setVisibility(View.VISIBLE);
         clearAndReOrderItems();

@@ -67,7 +67,6 @@ import java.util.UUID;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.RandomplayActivity;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
@@ -92,6 +91,7 @@ import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -327,13 +327,19 @@ public class SqueezeService extends Service {
     void changeActivePlayer(@Nullable final Player newActivePlayer) {
         Player prevActivePlayer = mDelegate.getActivePlayer();
 
-        // Do nothing if they player hasn't actually changed.
+        // Do nothing if the player hasn't actually changed.
         if (prevActivePlayer == newActivePlayer) {
+            // Initially previous player is null. If the new active player is null, we can't
+            // detect a change, so post the event anyway.
+            if (newActivePlayer == null) {
+                mEventBus.postSticky(new ActivePlayerChanged(newActivePlayer));
+            }
             return;
         }
 
         mDelegate.setActivePlayer(newActivePlayer);
         updateAllPlayerSubscriptionStates();
+        mEventBus.postSticky(new ActivePlayerChanged(newActivePlayer));
 
         Log.i(TAG, "Active player now: " + newActivePlayer);
 
@@ -1293,15 +1299,6 @@ public class SqueezeService extends Service {
             return true;
         }
 
-        @Override
-        public boolean randomPlay(@RandomplayActivity.RandomplayType String type) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.activePlayerCommand().cmd("randomplay", type).exec();
-            return true;
-        }
-
         /**
          * Start playing the song in the current playlist at the given index.
          *
@@ -1672,6 +1669,15 @@ public class SqueezeService extends Service {
             songs(itemListCallback, start, SongViewDialog.SongsSortOrder.title.name(), searchString);
         }
 
+
+        /* Start an asynchronous fetch of the players home menu items */
+        @Override
+        public void homeItems(int start, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+            mDelegate.requestItems(getActivePlayer(), start, callback).cmd("menu").param("direct", "1").exec();
+        }
 
         /* Start an asynchronous fetch of the squeezeservers generic menu items */
         @Override

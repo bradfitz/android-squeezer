@@ -25,7 +25,6 @@ import android.view.ViewGroup;
 import java.util.List;
 import java.util.Map;
 
-import uk.org.ngo.squeezer.HomeActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Action;
@@ -97,7 +96,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
                     CurrentPlaylistActivity.show(getActivity());
                     break;
                 case home:
-                    HomeActivity.show(getActivity());
+                    HomeMenuActivity.show(getActivity());
                     break;
                 case refreshOrigin:
                 case refresh:
@@ -111,6 +110,9 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
                     //TODO implement
                     break;
             }
+        } else if (item.getNode() != null) {
+            HomeMenuActivity.show(getActivity(), item.getId());
+
         }
    }
 
@@ -184,7 +186,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
                         CurrentPlaylistActivity.show(getActivity());
                         break;
                     case home:
-                        HomeActivity.show(getActivity());
+                        HomeMenuActivity.show(getActivity());
                         break;
                     case refreshOrigin:
                     case refresh:

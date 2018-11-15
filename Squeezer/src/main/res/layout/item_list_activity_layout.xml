@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
  Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
 
@@ -22,30 +21,38 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/header"
+    <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:minHeight="48dp"
-        android:paddingBottom="4dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="4dp"
-        android:textAppearance="@style/SqueezerTextAppearance.Medium"
-        android:visibility="gone"/>
+        android:layout_height="fill_parent"
+        android:layout_weight="1"/>
 
-    <GridView
-        android:id="@+id/item_list"
+    <LinearLayout
+        android:id="@+id/loading_label"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
-        android:columnWidth="@dimen/grid_column_width"
-        android:fastScrollEnabled="true"
-        android:numColumns="auto_fit"
-        android:paddingBottom="4dp"
-        android:paddingTop="4dp"/>
+        android:background="#90909090"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="9dp"
+            android:text="@string/loading_text"
+            android:textAppearance="@style/SqueezerTextAppearance.Medium"/>
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/now_playing_fragment"
+        android:name="uk.org.ngo.squeezer.NowPlayingFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        tools:layout="@layout/now_playing_fragment_mini"/>
 
 </LinearLayout>

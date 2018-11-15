@@ -44,7 +44,7 @@ import android.widget.Toast;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import uk.org.ngo.squeezer.HomeActivity;
+import uk.org.ngo.squeezer.itemlist.HomeMenuActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.model.Player;
@@ -320,7 +320,7 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
                         NavUtils.navigateUpTo(this, upIntent);
                     }
                 } else {
-                    HomeActivity.show(this);
+                    HomeMenuActivity.show(this);
                 }
                 return true;
             case R.id.menu_item_volume:

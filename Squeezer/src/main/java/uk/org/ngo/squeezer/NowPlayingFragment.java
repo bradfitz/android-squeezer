@@ -83,6 +83,7 @@ import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -1155,7 +1156,13 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     @MainThread
     public void onEventMainThread(PlayersChanged event) {
         updatePlayerDropDown(event.players.values(), mService.getActivePlayer());
-        updateUiFromPlayerState(mService.getActivePlayerState());
+    }
+
+    @MainThread
+    public void onEventMainThread(ActivePlayerChanged event) {
+        if (event.player != null) {
+            updateUiFromPlayerState(event.player.getPlayerState());
+        }
     }
 
     @MainThread

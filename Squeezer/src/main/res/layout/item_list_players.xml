@@ -16,45 +16,9 @@
  limitations under the License.
 -->
 
-<LinearLayout
+<ExpandableListView android:id="@+id/expandable_list"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/header"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:minHeight="48dp"
-        android:paddingBottom="4dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="4dp"
-        android:textAppearance="@style/SqueezerTextAppearance.Medium"
-        android:visibility="gone"/>
-
-    <ExpandableListView android:id="@+id/expandable_list"
-        android:layout_width="fill_parent"
-        android:layout_height="0dip"
-        android:fastScrollEnabled="true"
-        android:layout_weight="1"/>
-
-    <ProgressBar
-        android:id="@+id/loading_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
-
-    <fragment android:name="uk.org.ngo.squeezer.NowPlayingFragment"
-        android:id="@+id/now_playing_fragment"
-        android:layout_width="fill_parent"
-        android:layout_height="50dp"
-        tools:layout="@layout/now_playing_fragment_mini"/>
-</LinearLayout>
+    android:fastScrollEnabled="true"
+    android:layout_weight="1"/>

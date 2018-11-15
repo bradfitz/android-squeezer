@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.framework;
 
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -25,6 +24,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +36,8 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.RetainFragment;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This class defines the common minimum, which any activity browsing the SqueezeServer's database
@@ -59,7 +62,7 @@ public abstract class ItemListActivity extends BaseActivity {
     /**
      * The pages that have been requested from the server.
      */
-    private final Set<Integer> mOrderedPages = new HashSet<Integer>();
+    private final Set<Integer> mOrderedPages = new HashSet<>();
 
     /**
      * The pages that have been received from the server
@@ -71,7 +74,17 @@ public abstract class ItemListActivity extends BaseActivity {
      * that once the service is bound the most recently requested pages should be ordered
      * first.
      */
-    private final Stack<Integer> mOrderedPagesBeforeHandshake = new Stack<Integer>();
+    private final Stack<Integer> mOrderedPagesBeforeHandshake = new Stack<>();
+
+    /**
+     * Layout hosting the sub activity content
+     */
+    private FrameLayout subActivityContent;
+
+    /**
+     * Progress bar (spinning) while items are loading.
+     */
+    private View loadingProgress;
 
     /**
      * Tag for mReceivedPages in mRetainFragment.
@@ -80,6 +93,17 @@ public abstract class ItemListActivity extends BaseActivity {
 
     /* Fragment to retain information across orientation changes. */
     private RetainFragment mRetainFragment;
+
+    @Override
+    public void setContentView(int layoutResID) {
+        LinearLayout fullLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.item_list_activity_layout, null);
+        subActivityContent = (FrameLayout) fullLayout.findViewById(R.id.content_frame);
+        getLayoutInflater().inflate(layoutResID, subActivityContent, true); // Places the activity layout inside the activity content frame.
+        super.setContentView(fullLayout);
+
+        loadingProgress = checkNotNull(findViewById(R.id.loading_label),
+                "getContentView() did not return a view containing R.id.loading_label");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +116,7 @@ public abstract class ItemListActivity extends BaseActivity {
         //noinspection unchecked
         mReceivedPages = (Set<Integer>) mRetainFragment.get(TAG_RECEIVED_PAGES);
         if (mReceivedPages == null) {
-            mReceivedPages = new HashSet<Integer>();
+            mReceivedPages = new HashSet<>();
             mRetainFragment.put(TAG_RECEIVED_PAGES, mReceivedPages);
         }
     }
@@ -105,6 +129,16 @@ public abstract class ItemListActivity extends BaseActivity {
         // We cancel any outstanding orders, so items can be reordered after the
         // activity resumes.
         cancelOrders();
+    }
+
+    protected void showLoading() {
+        subActivityContent.setVisibility(View.GONE);
+        loadingProgress.setVisibility(View.VISIBLE);
+    }
+
+    protected void hideLoading() {
+        subActivityContent.setVisibility(View.VISIBLE);
+        loadingProgress.setVisibility(View.GONE);
     }
 
     /**
@@ -241,7 +275,7 @@ public abstract class ItemListActivity extends BaseActivity {
      */
     protected class ScrollListener implements AbsListView.OnScrollListener {
 
-        private TouchListener mTouchListener = null;
+        private TouchListener mTouchListener;
 
         private boolean mAttachedTouchListener = false;
 
@@ -253,10 +287,7 @@ public abstract class ItemListActivity extends BaseActivity {
          * Subclasses must call this.
          */
         public ScrollListener() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR &&
-                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO) {
-                mTouchListener = new TouchListener(this);
-            }
+            mTouchListener = new TouchListener(this);
         }
 
         @Override

@@ -429,6 +429,11 @@ class CometClient extends BaseClient {
 
     private void parseServerStatus(Message message) {
         Map<String, Object> data = message.getDataAsMap();
+
+        // We can't distinguise betwween no copnnected players and players not received
+        // so we check the server version which is also set from server status
+        boolean firstTimePlayersReceived = (getConnectionState().getServerVersion() == null);
+
         getConnectionState().setServerVersion((String) data.get("version"));
         Object[] item_data = (Object[]) data.get("players_loop");
         final HashMap<String, Player> players = new HashMap<>();
@@ -438,12 +443,12 @@ class CometClient extends BaseClient {
                 Player player = new Player(record);
                 players.put(player.getId(), player);
             }
-            if (!players.equals(mConnectionState.getPlayers())) {
-                mConnectionState.setPlayers(players);
+        }
+        if (firstTimePlayersReceived || !players.equals(mConnectionState.getPlayers())) {
+            mConnectionState.setPlayers(players);
 
-                // XXX: postSticky?
-                mEventBus.postSticky(new PlayersChanged(mConnectionState.getPlayers()));
-            }
+            // XXX: postSticky?
+            mEventBus.postSticky(new PlayersChanged(mConnectionState.getPlayers()));
         }
     }
 

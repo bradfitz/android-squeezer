@@ -46,17 +46,4 @@
         android:layout_weight="1"
         android:fastScrollEnabled="true"/>
 
-    <ProgressBar
-        android:id="@+id/loading_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
-
-    <fragment
-        android:id="@+id/now_playing_fragment"
-        android:name="uk.org.ngo.squeezer.NowPlayingFragment"
-        android:layout_width="fill_parent"
-        android:layout_height="48dp"
-        tools:layout="@layout/now_playing_fragment_mini"/>
 </LinearLayout>

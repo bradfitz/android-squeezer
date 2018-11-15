@@ -61,6 +61,12 @@ public class Plugin extends Item {
         return iconResource;
     }
 
+    private String node;
+
+    public String getNode() {
+        return node;
+    }
+
     private int weight;
 
     public int getWeight() {
@@ -82,7 +88,7 @@ public class Plugin extends Item {
     }
 
     public boolean isSelectable() {
-        return (isSelectAction() || nextWindow != null);
+        return (isSelectAction() || nextWindow != null || node != null);
     }
 
     public boolean isSelectAction() {
@@ -135,6 +141,7 @@ public class Plugin extends Item {
         name = getString(record, record.containsKey("name") ? "name" : "text");
         type = getString(record, "type");
         icon = getString(record, record.containsKey("icon") ? "icon" : "icon-id");
+        node = getString(record, "node");
         weight = getInt(record, "weight");
     }
 
@@ -155,6 +162,7 @@ public class Plugin extends Item {
         name = source.readString();
         type = source.readString();
         icon = source.readString();
+        node = source.readString();
         iconResource = source.readInt();
         weight = source.readInt();
     }
@@ -165,6 +173,7 @@ public class Plugin extends Item {
         dest.writeString(name);
         dest.writeString(type);
         dest.writeString(icon);
+        dest.writeString(node);
         dest.writeInt(iconResource);
         dest.writeInt(weight);
     }
@@ -173,6 +182,7 @@ public class Plugin extends Item {
     public String toStringOpen() {
         return super.toStringOpen()
                 + ", type: " + getType()
+                + ", node: " + node
                 + ", weight: " + getWeight()
                 + ", go: " + goAction
                 + ", play: " + playAction

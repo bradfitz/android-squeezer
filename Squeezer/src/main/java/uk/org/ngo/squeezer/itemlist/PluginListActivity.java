@@ -35,7 +35,6 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.Map;
 
-import uk.org.ngo.squeezer.HomeActivity;
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -204,7 +203,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                     CurrentPlaylistActivity.show(this);
                     break;
                 case home:
-                    HomeActivity.show(this);
+                    HomeMenuActivity.show(this);
                     break;
             }
             finish();
