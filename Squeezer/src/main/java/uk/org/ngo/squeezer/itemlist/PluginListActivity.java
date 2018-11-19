@@ -164,6 +164,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         } else if (plugin != null) {
             if (isInputReady())
                 service.pluginItems(start, action, this);
+            else
+                hideLoading();
         } else {
             service.pluginItems(start, cmd, this);
         }

@@ -74,13 +74,7 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
         super.onCreate(savedInstanceState);
         emptyView = findViewById(android.R.id.empty);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            node = extras.getString("node");
-        }
-        if (node == null) {
-            node = "home";
-        }
+        handleIntent(getIntent());
 
         // Turn off the home icon.
         ActionBar actionBar = getSupportActionBar();
@@ -110,6 +104,24 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
                 changeLog.getThemedLogDialog().show();
             }
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        Bundle extras = intent.getExtras();
+        String node = null;
+        if (extras != null) {
+            node = extras.getString("node");
+        }
+        if (node == null) {
+            node = "home";
+        }
+        this.node = node;
     }
 
     @Override
