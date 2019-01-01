@@ -97,6 +97,11 @@ public class ArtistListActivity extends BaseListActivity<Artist> implements
     }
 
     @Override
+    protected boolean needPlayer() {
+        return false;
+    }
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.artists(this, start, getSearchString(), album, genre);
     }

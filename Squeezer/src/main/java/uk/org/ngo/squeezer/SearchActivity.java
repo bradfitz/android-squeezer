@@ -21,21 +21,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class SearchActivity extends ItemListActivity {
-
-    private View loadingLabel;
 
     private ExpandableListView resultsExpandableListView;
 
@@ -46,15 +44,17 @@ public class SearchActivity extends ItemListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        searchResultsAdapter = new SearchAdapter(this);
         setContentView(R.layout.search_layout);
 
-        loadingLabel = findViewById(R.id.loading_label);
-
-        searchResultsAdapter = new SearchAdapter(this);
-        resultsExpandableListView = (ExpandableListView) findViewById(R.id.search_expandable_list);
-        resultsExpandableListView.setOnScrollListener(new ScrollListener());
-
         handleIntent(getIntent());
+    }
+
+    @Override
+    protected void setListView(AbsListView listView) {
+        resultsExpandableListView = (ExpandableListView) listView;
+        resultsExpandableListView.setOnScrollListener(new ScrollListener());
+        resultsExpandableListView.setAdapter(searchResultsAdapter);
     }
 
     @Override
@@ -93,8 +93,12 @@ public class SearchActivity extends ItemListActivity {
      * search.
      */
     public void onEventMainThread(HandshakeComplete event) {
-        resultsExpandableListView.setAdapter(searchResultsAdapter);
         doSearch();
+    }
+
+    @Override
+    protected boolean needPlayer() {
+        return true;
     }
 
     @Override
@@ -136,9 +140,12 @@ public class SearchActivity extends ItemListActivity {
 
     @Override
     protected void clearItemAdapter() {
-        resultsExpandableListView.setVisibility(View.GONE);
-        loadingLabel.setVisibility(View.VISIBLE);
         searchResultsAdapter.clear();
+    }
+
+    @Override
+    protected <T extends Item> void updateAdapter(int count, int start, List<T> items, Class<T> dataType) {
+        searchResultsAdapter.updateItems(count, start, items, dataType);
     }
 
     /**
@@ -151,16 +158,7 @@ public class SearchActivity extends ItemListActivity {
     private final IServiceItemListCallback itemListCallback = new IServiceItemListCallback() {
         @Override
         public void onItemsReceived(final int count, final int start, Map parameters, final List items, final Class dataType) {
-            SearchActivity.super.onItemsReceived(count, start, items.size());
-
-            getUIThreadHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    searchResultsAdapter.updateItems(count, start, items, dataType);
-                    loadingLabel.setVisibility(View.GONE);
-                    resultsExpandableListView.setVisibility(View.VISIBLE);
-                }
-            });
+            SearchActivity.super.onItemsReceived(count, start, items, dataType);
         }
 
         @Override

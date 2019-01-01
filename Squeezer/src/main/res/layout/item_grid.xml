@@ -46,6 +46,7 @@
         android:fastScrollEnabled="true"
         android:numColumns="auto_fit"
         android:paddingBottom="4dp"
-        android:paddingTop="4dp"/>
+        android:paddingTop="4dp"
+        tools:listitem="@layout/grid_item"/>
 
 </LinearLayout>

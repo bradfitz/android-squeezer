@@ -40,7 +40,6 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.RetainFragment;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A generic base class for an activity to list items of a particular SqueezeServer data type. The
@@ -71,8 +70,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      */
     public static final String TAG_ADAPTER = "adapter";
 
-    private AbsListView mListView;
-
     private ItemAdapter<T> itemAdapter;
 
     /**
@@ -80,6 +77,13 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      */
     private RetainFragment mRetainFragment;
 
+    /**
+     * Can't do much here, as content is based on settings, and which data to display, which is controlled by data
+     * returned from server.
+     * <p>
+     * See {@link #setListView(AbsListView)} and {@link #onItemsReceived(int, int, Map, List, Class)} for the actual setup of
+     * views and adapter
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,19 +91,20 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
 
         setContentView(getContentView());
-        mListView = checkNotNull((AbsListView) findViewById(R.id.item_list),
-                "getContentView() did not return a view containing R.id.item_list");
+    }
 
-        mListView.setOnItemClickListener(new OnItemClickListener() {
+    @Override
+    protected void setListView(AbsListView listView) {
+        listView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 getItemAdapter().onItemSelected(position);
             }
         });
 
-        mListView.setOnScrollListener(new ScrollListener());
+        listView.setOnScrollListener(new ScrollListener());
 
-        mListView.setRecyclerListener(new RecyclerListener() {
+        listView.setRecyclerListener(new RecyclerListener() {
             @Override
             public void onMovedToScrapHeap(View view) {
                 // Release strong reference when a view is recycled
@@ -111,12 +116,17 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         });
 
         // Delegate context menu creation to the adapter.
-        mListView.setOnCreateContextMenuListener(getItemAdapter());
+        listView.setOnCreateContextMenuListener(getItemAdapter());
+
+        setAdapter(listView);
     }
 
     public void onEventMainThread(HandshakeComplete event) {
-        maybeOrderVisiblePages(mListView);
-        setAdapter();
+        if (!needPlayer() || getService().getActivePlayer() != null) {
+            maybeOrderVisiblePages(getListView());
+        } else {
+            showEmptyView();
+        }
     }
 
     /**
@@ -158,22 +168,22 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * <p>
      * Call this method after the handshake is complete.
      */
-    private void setAdapter() {
+    private void setAdapter(AbsListView listView) {
         // setAdapter is not defined for AbsListView before API level 11, but
         // it is for concrete implementations, so we call it by reflection
         try {
-            Method method = mListView.getClass().getMethod("setAdapter", ListAdapter.class);
-            method.invoke(mListView, getItemAdapter());
+            Method method = listView.getClass().getMethod("setAdapter", ListAdapter.class);
+            method.invoke(listView, getItemAdapter());
         } catch (Exception e) {
             Log.e(getTag(), "Error calling 'setAdapter'", e);
         }
 
         Integer position = (Integer) mRetainFragment.get(TAG_POSITION);
         if (position != null) {
-            if (mListView instanceof ListView) {
-                ((ListView) mListView).setSelectionFromTop(position, 0);
+            if (listView instanceof ListView) {
+                ((ListView) listView).setSelectionFromTop(position, 0);
             } else {
-                mListView.setSelection(position);
+                listView.setSelection(position);
             }
         }
     }
@@ -191,7 +201,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * @see android.widget.AbsListView#getFirstVisiblePosition()
      */
     private void saveVisiblePosition() {
-        mRetainFragment.put(TAG_POSITION, mListView.getFirstVisiblePosition());
+        mRetainFragment.put(TAG_POSITION, getListView().getFirstVisiblePosition());
     }
 
     /**
@@ -209,7 +219,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
             //noinspection unchecked
             itemAdapter = (ItemAdapter<T>) mRetainFragment.get(TAG_ADAPTER);
             if (itemAdapter == null) {
-                showLoading();
                 itemAdapter = createItemListAdapter(createItemView());
                 mRetainFragment.put(TAG_ADAPTER, itemAdapter);
             } else {
@@ -226,36 +235,22 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
 
     @Override
     protected void clearItemAdapter() {
-        showLoading();
         getItemAdapter().clear();
     }
 
-    /**
-     * @return The {@link AbsListView} used by this activity
-     */
-    public AbsListView getListView() {
-        return mListView;
-    }
-
     protected ItemAdapter<T> createItemListAdapter(ItemView<T> itemView) {
-        return new ItemAdapter<T>(itemView);
+        return new ItemAdapter<>(itemView);
     }
 
-    public void onItemsReceived(final int count, final int start, final List<T> items) {
-        super.onItemsReceived(count, start, items.size());
-
-        getUIThreadHandler().post(new Runnable() {
-            @Override
-            public void run() {
-                hideLoading();
-                getItemAdapter().update(count, start, items);
-            }
-        });
+    @Override
+    @SuppressWarnings("unchecked")
+    protected <IT extends Item> void updateAdapter(int count, int start, List<IT> items, Class<IT> dataType) {
+        getItemAdapter().update(count, start, (List<T>) items);
     }
 
     @Override
     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<T> items, Class<T> dataType) {
-        onItemsReceived(count, start, items);
+        super.onItemsReceived(count, start, items, dataType);
     }
 
     @Override

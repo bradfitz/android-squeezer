@@ -329,17 +329,12 @@ public class SqueezeService extends Service {
 
         // Do nothing if the player hasn't actually changed.
         if (prevActivePlayer == newActivePlayer) {
-            // Initially previous player is null. If the new active player is null, we can't
-            // detect a change, so post the event anyway.
-            if (newActivePlayer == null) {
-                mEventBus.postSticky(new ActivePlayerChanged(newActivePlayer));
-            }
             return;
         }
 
         mDelegate.setActivePlayer(newActivePlayer);
         updateAllPlayerSubscriptionStates();
-        mEventBus.postSticky(new ActivePlayerChanged(newActivePlayer));
+        mEventBus.post(new ActivePlayerChanged(newActivePlayer));
 
         Log.i(TAG, "Active player now: " + newActivePlayer);
 

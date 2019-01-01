@@ -458,6 +458,8 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         }
 
         mService.action(item, action);
+        // TODO this is just attempt to guess the type of action and show some predefind toasts
+        // consider using showBriefly instead
         int toastId = -1;
         if (action.isAction(item.playAction)) toastId = R.string.ITEM_PLAYING;
         else if (action.isAction(item.addAction)) toastId = R.string.ITEM_ADDED;

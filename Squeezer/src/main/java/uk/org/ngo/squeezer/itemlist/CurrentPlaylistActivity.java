@@ -39,7 +39,6 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksDeleted;
@@ -198,6 +197,11 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
+    protected boolean needPlayer() {
+        return true;
+    }
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.currentPlaylist(start, this);
     }
@@ -258,16 +262,6 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
             Log.d(getTag(), "onMusicChanged " + event.playerState.getCurrentSong());
             currentPlaylistIndex = event.playerState.getCurrentPlaylistIndex();
             getItemAdapter().notifyDataSetChanged();
-        }
-    }
-
-    public void onEventMainThread(ActivePlayerChanged event) {
-        supportInvalidateOptionsMenu();
-
-        if (event.player == null) {
-            clearItems();
-        } else {
-            clearAndReOrderItems();
         }
     }
 

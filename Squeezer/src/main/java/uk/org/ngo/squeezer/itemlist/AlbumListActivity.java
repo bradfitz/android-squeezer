@@ -172,6 +172,11 @@ public class AlbumListActivity extends BaseListActivity<Album>
     }
 
     @Override
+    protected boolean needPlayer() {
+        return false;
+    }
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         if (sortOrder == null) {
             try {

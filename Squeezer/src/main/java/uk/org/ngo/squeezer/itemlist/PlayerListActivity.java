@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 
 import com.google.common.collect.HashMultimap;
@@ -29,9 +30,11 @@ import com.google.common.collect.Multimap;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
@@ -86,7 +89,13 @@ public class PlayerListActivity extends ItemListActivity implements
             currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
 
         mResultsAdapter = new PlayerListAdapter(this);
-        mResultsExpandableListView = (ExpandableListView) findViewById(R.id.expandable_list);
+
+        setIgnoreVolumeChange(true);
+    }
+
+    @Override
+    protected void setListView(AbsListView listView) {
+        mResultsExpandableListView = (ExpandableListView) listView;
 
         mResultsExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
@@ -107,9 +116,7 @@ public class PlayerListActivity extends ItemListActivity implements
         });
 
         mResultsExpandableListView.setOnCreateContextMenuListener(mResultsAdapter);
-        mResultsExpandableListView.setOnScrollListener(new ItemListActivity.ScrollListener());
-
-        setIgnoreVolumeChange(true);
+        mResultsExpandableListView.setOnScrollListener(new ScrollListener());
     }
 
     @Override
@@ -139,6 +146,16 @@ public class PlayerListActivity extends ItemListActivity implements
             }
         }
         return false;
+    }
+
+    @Override
+    protected boolean needPlayer() {
+        return false;
+    }
+
+    @Override
+    protected <T extends Item> void updateAdapter(int count, int start, List<T> items, Class<T> dataType) {
+        // Do nothing -- we get the synchronously from the service
     }
 
     @Override

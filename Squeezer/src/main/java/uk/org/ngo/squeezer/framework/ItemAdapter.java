@@ -107,6 +107,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     public void clear() {
         this.count = (mEmptyItem ? 1 : 0);
         pages.clear();
+        notifyDataSetChanged();
     }
 
     @Override

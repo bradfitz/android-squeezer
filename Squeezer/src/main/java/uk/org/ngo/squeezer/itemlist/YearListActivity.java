@@ -33,6 +33,11 @@ public class YearListActivity extends BaseListActivity<Year> {
     }
 
     @Override
+    protected boolean needPlayer() {
+        return false;
+    }
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.years(start, this);
     }

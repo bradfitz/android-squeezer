@@ -158,6 +158,11 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     @Override
+    protected boolean needPlayer() {
+        return true;
+    }
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         if (register) {
             service.register(this);
@@ -165,7 +170,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             if (isInputReady())
                 service.pluginItems(start, action, this);
             else
-                hideLoading();
+                showContent();
         } else {
             service.pluginItems(start, cmd, this);
         }

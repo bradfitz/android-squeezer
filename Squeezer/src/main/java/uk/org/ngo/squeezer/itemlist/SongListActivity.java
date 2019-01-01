@@ -271,6 +271,11 @@ public class SongListActivity extends BaseListActivity<Song>
     }
 
     @Override
+    protected boolean needPlayer() {
+        return false;
+    }
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.songs(this, start, sortOrder.name(), searchString, album, artist, year, genre);
 

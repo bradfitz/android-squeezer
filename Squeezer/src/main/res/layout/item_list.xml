@@ -89,20 +89,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dip"
         android:fastScrollEnabled="true"
-        android:layout_weight="1"/>
-
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center"
-        android:drawableLeft="@drawable/ic_squeezeplay"
-        android:drawablePadding="16dp"
-        android:gravity="center"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:text="@string/no_players_connected"
-        android:textAppearance="@style/SqueezerTextAppearance.Medium"
-        android:visibility="gone" />
+        android:layout_weight="1"
+        tools:listitem="@layout/list_item"/>
 
 </LinearLayout>

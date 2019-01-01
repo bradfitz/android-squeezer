@@ -111,6 +111,11 @@ public class MusicFolderListActivity extends BaseListActivity<MusicFolderItem> {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected boolean needPlayer() {
+        return false;
+    }
+
     /**
      * Fetch the contents of a folder. Fetches the contents of <code>mFolder</code> if non-null, the
      * root folder otherwise.

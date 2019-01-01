@@ -171,6 +171,11 @@ public class PlaylistSongsActivity extends BaseListActivity<Song> {
     }
 
     @Override
+    protected boolean needPlayer() {
+        return false;
+    }
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.playlistSongs(start, playlist, this);
     }

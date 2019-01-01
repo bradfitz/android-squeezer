@@ -33,6 +33,11 @@ public class GenreListActivity extends BaseListActivity<Genre> {
     }
 
     @Override
+    protected boolean needPlayer() {
+        return false;
+    }
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.genres(start, null, this);
     }

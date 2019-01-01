@@ -126,7 +126,7 @@ public class Action implements Parcelable {
             return false;
         }
         if (!Arrays.equals(action.cmd, action2.action.cmd)) return false;
-        return action.params.get("item_id").equals(action2.action.params.get("item_id"));
+        return action.params.equals(action2.action.params);
     }
 
     @Override

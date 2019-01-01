@@ -16,7 +16,7 @@
 -->
 
 <ExpandableListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/search_expandable_list"
+    android:id="@+id/item_list"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_weight="1"
