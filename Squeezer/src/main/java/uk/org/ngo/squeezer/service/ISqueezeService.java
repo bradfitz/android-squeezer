@@ -202,9 +202,6 @@ public interface ISqueezeService {
     boolean playlistsMove(Playlist playlist, int index, int toindex);
     boolean playlistsRemove(Playlist playlist, int index);
 
-    // Search
-    void search(int start, String searchString, IServiceItemListCallback itemListCallback) throws SqueezeService.HandshakeNotCompleteException;
-
     /**
      * "home menu" items
      * <p>

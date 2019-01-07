@@ -342,17 +342,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
 
-    /**
-     * Block searches, when we are not connected.
-     */
-    @Override
-    public boolean onSearchRequested() {
-        if (!isConnected()) {
-            return false;
-        }
-        return super.onSearchRequested();
-    }
-
     /*
      * Intercept hardware volume control keys to control Squeezeserver
      * volume.

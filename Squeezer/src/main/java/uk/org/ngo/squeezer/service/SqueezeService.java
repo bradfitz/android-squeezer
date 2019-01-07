@@ -77,7 +77,6 @@ import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
@@ -1646,22 +1645,6 @@ public class SqueezeService extends Service {
             }
             mDelegate.command().cmd("playlists", "rename").filter(playlist).param("dry_run", "1").param("newname", newname).exec();
             return true;
-        }
-
-        /* Start an asynchronous search of the SqueezeboxServer's library */
-        @Override
-        public void search(int start, String searchString, IServiceItemListCallback itemListCallback) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-
-            AlbumViewDialog.AlbumsSortOrder albumSortOrder = AlbumViewDialog.AlbumsSortOrder
-                    .valueOf(preferredAlbumSort());
-
-            artists(itemListCallback, start, searchString);
-            albums(itemListCallback, start, albumSortOrder.name().replace("__", ""), searchString);
-            genres(start, searchString, itemListCallback);
-            songs(itemListCallback, start, SongViewDialog.SongsSortOrder.title.name(), searchString);
         }
 
 

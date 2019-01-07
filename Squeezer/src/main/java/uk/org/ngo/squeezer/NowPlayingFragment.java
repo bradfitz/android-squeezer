@@ -134,8 +134,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     private MenuItem menu_item_alarm;
 
-    private MenuItem menu_item_search;
-
     private ImageButton playPauseButton;
 
     @Nullable
@@ -895,7 +893,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         menu_item_players = menu.findItem(R.id.menu_item_players);
         menu_item_playlist = menu.findItem(R.id.menu_item_playlist);
         menu_item_alarm = menu.findItem(R.id.menu_item_alarm);
-        menu_item_search = menu.findItem(R.id.menu_item_search);
     }
 
     /**
@@ -926,7 +923,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             menu_item_alarm.setVisible(haveConnectedPlayers);
             if (connected)
                 menu_item_alarm.setTitle(ServerString.ALARM.getLocalizedString());
-            menu_item_search.setEnabled(connected);
         }
 
         // Don't show the item to go to CurrentPlaylistActivity if in CurrentPlaylistActivity.
@@ -946,9 +942,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         switch (item.getItemId()) {
             case R.id.menu_item_settings:
                 SettingsActivity.show(mActivity);
-                return true;
-            case R.id.menu_item_search:
-                mActivity.onSearchRequested();
                 return true;
             case R.id.menu_item_connect:
                 onUserInitiatesConnect();
