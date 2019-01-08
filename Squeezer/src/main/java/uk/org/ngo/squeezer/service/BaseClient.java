@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.service;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
 import java.util.Arrays;
@@ -300,8 +299,6 @@ abstract class BaseClient implements SlimClient {
     }
 
     protected static class BrowseRequest<T extends Item> {
-        private static final Joiner joiner = Joiner.on(" ");
-
         private final Player player;
         private final String[] cmd;
         private final boolean fullList;
@@ -332,10 +329,6 @@ abstract class BaseClient implements SlimClient {
 
         public String[] getCmd() {
             return cmd;
-        }
-
-        public String getRequest() {
-            return joiner.join(cmd);
         }
 
         boolean isFullList() {
