@@ -21,9 +21,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -119,13 +122,14 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
     // Only touch these from the main thread
     private boolean contextMenuReady = false;
     private boolean contextMenuWaiting = false;
+    private Stack<Action> contextStack;
     private View contextMenuView;
     private Plugin contextItem;
     private String contextMenuTitle;
     private List<Plugin> contextItems;
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, final View v, ItemView.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(final ContextMenu menu, final View v, ItemView.ContextMenuInfo menuInfo) {
         final Plugin item = (Plugin) menuInfo.item;
         if (!contextMenuReady && !contextMenuWaiting) {
             contextMenuTitle = null;
@@ -134,6 +138,8 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
             if (item.hasSlimContextMenu()) {
                 contextMenuView = v;
                 contextItem = item;
+                contextStack = new Stack<>();
+                contextStack.push(item.moreAction);
                 orderContextMenu(item.moreAction);
             } else {
                 if (item.playAction() != null) {
@@ -154,7 +160,27 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
             ViewHolder viewHolder = (ViewHolder) contextMenuView.getTag();
             viewHolder.contextMenuButton.setVisibility(View.VISIBLE);
             viewHolder.contextMenuLoading.setVisibility(View.INVISIBLE);
-            if (contextMenuTitle != null) {
+            if (contextStack.size() > 1) {
+                View headerVew = getLayoutInflater().inflate(R.layout.context_menu_header, (ViewGroup) v, false);
+                menu.setHeaderView(headerVew);
+                ImageView backButton = (ImageView) headerVew.findViewById(R.id.back);
+                if (contextStack.size() > 1) {
+                    backButton.setVisibility(View.VISIBLE);
+                    backButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            menu.close();
+                            contextStack.pop();
+                            orderContextMenu(contextStack.peek());
+                        }
+                    });
+                } else {
+                    backButton.setVisibility(View.GONE);
+                }
+                if (contextMenuTitle != null) {
+                    ((TextView) headerVew.findViewById(R.id.title)).setText(contextMenuTitle);
+                }
+            } else if (contextMenuTitle != null) {
                 menu.setHeaderTitle(contextMenuTitle);
             }
             int index = 0;
@@ -202,6 +228,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
                 }
             } else {
                 if (selectedItem.goAction.isContextMenu()) {
+                    contextStack.push(selectedItem.goAction);
                     orderContextMenu(selectedItem.goAction);
                 } else {
                     PluginListActivity.show(getActivity(), contextItem, selectedItem.goAction);

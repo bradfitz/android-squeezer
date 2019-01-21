@@ -111,7 +111,7 @@ public class Plugin extends Item {
     }
 
     public boolean hasSlimContextMenu() {
-        return (moreAction != null && moreAction.isContextMenu());
+        return (moreAction != null);
     }
 
     /** We preferably won't play when item is selected, so attempt to avoid that */
