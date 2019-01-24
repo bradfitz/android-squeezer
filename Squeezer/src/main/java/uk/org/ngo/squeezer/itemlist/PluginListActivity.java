@@ -53,6 +53,10 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
  */
 public class PluginListActivity extends BaseListActivity<Plugin>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
+    private static final int GO = 1;
+    private static final String NOOP = "NOOP";
+    static final String FINISH = "FINISH";
+    static final String RELOAD = "RELOAD";
 
     private boolean register;
     private String cmd;
@@ -210,7 +214,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                     CurrentPlaylistActivity.show(this);
                     break;
                 case home:
-                    HomeMenuActivity.show(this);
+                    HomeActivity.show(this);
                     break;
             }
             finish();
@@ -240,6 +244,20 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
 
         super.onItemsReceived(count, start, parameters, items, dataType);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == GO) {
+            if (resultCode == RESULT_OK) {
+                if (FINISH.equals(data.getAction())) {
+                    finish();
+                }
+                else if (RELOAD.equals(data.getAction())) {
+                    clearAndReOrderItems();
+                }
+            }
+        }
     }
 
     /**
@@ -284,7 +302,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         final Intent intent = new Intent(activity, PluginListActivity.class);
         intent.putExtra(Plugin.class.getName(), plugin);
         intent.putExtra(Action.class.getName(), action);
-        activity.startActivity(intent);
+        activity.startActivityForResult(intent, GO);
     }
 
 }

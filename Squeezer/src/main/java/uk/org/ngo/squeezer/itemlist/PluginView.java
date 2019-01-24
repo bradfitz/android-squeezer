@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -91,31 +93,42 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
 
     @Override
     public void onItemSelected(int index, Plugin item) {
-        if ((item.isSelectAction())) {
-            PluginListActivity.show(getActivity(), item, item.goAction);
+        if (item.nextWindow == null) {
+            if (item.goAction != null)
+                PluginListActivity.show(getActivity(), item, item.goAction);
+            else if (item.getNode() != null)
+                HomeMenuActivity.show(getActivity(), item.getId());
         } else if (item.nextWindow != null) {
+            getActivity().action(item, item.goAction);
             switch (item.nextWindow.nextWindow) {
+                case nowPlaying:
+                    // Do nothing as now playing is always available in Squeezer (maybe toast the action)
+                    break;
                 case playlist:
                     CurrentPlaylistActivity.show(getActivity());
                     break;
                 case home:
-                    HomeMenuActivity.show(getActivity());
+                    HomeActivity.show(getActivity());
+                    break;
+                case parent:
+                case parentNoRefresh:
+                    getActivity().finish();
+                    break;
+                case grandparent:
+                    getActivity().setResult(Activity.RESULT_OK, new Intent(PluginListActivity.FINISH));
+                    getActivity().finish();
+                    break;
+                case refresh:
+                    getActivity().clearAndReOrderItems();
                     break;
                 case refreshOrigin:
-                case refresh:
-                case parent: // For centext menus parent and grandparent hide the context menu(s) and reload items
-                case grandparent:
-                    // TODO reload
-                    break;
-                case parentNoRefresh:
+                    getActivity().setResult(Activity.RESULT_OK, new Intent(PluginListActivity.RELOAD));
+                    getActivity().finish();
                     break;
                 case windowId:
                     //TODO implement
                     break;
             }
-        } else if (item.getNode() != null) {
-            HomeMenuActivity.show(getActivity(), item.getId());
-
         }
    }
 
@@ -212,15 +225,13 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
                         CurrentPlaylistActivity.show(getActivity());
                         break;
                     case home:
-                        HomeMenuActivity.show(getActivity());
+                        HomeActivity.show(getActivity());
                         break;
-                    case refreshOrigin:
-                    case refresh:
                     case parent: // For centext menus parent and grandparent hide the context menu(s) and reload items
                     case grandparent:
-                        // TODO reload
-                        break;
                     case parentNoRefresh:
+                    case refresh:
+                    case refreshOrigin:
                         break;
                     case windowId:
                         //TODO implement

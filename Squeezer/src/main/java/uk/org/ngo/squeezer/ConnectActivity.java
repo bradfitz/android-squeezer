@@ -30,7 +30,7 @@ import java.lang.annotation.RetentionPolicy;
 import uk.org.ngo.squeezer.dialog.InfoDialog;
 import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.itemlist.HomeMenuActivity;
+import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 /**
@@ -163,6 +163,9 @@ public class ConnectActivity extends BaseActivity {
     }
 
     public void onEventMainThread(HandshakeComplete event) {
-        HomeMenuActivity.show(this);
+        final Intent intent = new Intent(this, HomeActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }

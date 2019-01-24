@@ -36,7 +36,7 @@
         android:name=".Squeezer"
         android:allowBackup="true">
 
-        <activity android:name=".itemlist.HomeMenuActivity"
+        <activity android:name=".itemlist.HomeActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -45,140 +45,149 @@
         </activity>
 
         <activity
+            android:name=".itemlist.HomeMenuActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".itemlist.HomeActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
+        </activity>
+
+        <activity
             android:name=".NowPlayingActivity"
             android:label="@string/app_name"
             android:exported="true"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".SettingsActivity"
             android:label="@string/activity_settings_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".ConnectActivity"
             android:label="@string/disconnected_text"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.PlayerListActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.AlarmsActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.ArtistListActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.AlbumListActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.YearListActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.GenreListActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.MusicFolderListActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.SongListActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.CurrentPlaylistActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.PlaylistsActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.PlaylistSongsActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.PluginListActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeMenuActivity">
+            android:parentActivityName=".itemlist.HomeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeMenuActivity"/>
+                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
