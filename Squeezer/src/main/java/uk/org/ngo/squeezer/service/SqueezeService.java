@@ -1570,15 +1570,6 @@ public class SqueezeService extends Service {
             mDelegate.requestItems(start, callback).cmd("songs").songTags().sort(sortOrder).search(searchString).filter(filters).exec();
         }
 
-        /* Start an async fetch of the SqueezeboxServer's current playlist */
-        @Override
-        public void currentPlaylist(int start, IServiceItemListCallback<Song> callback) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(getActivePlayer(), start, callback).cmd("status").songTags().exec();
-        }
-
         /* Start an async fetch of the songs of the supplied playlist */
         @Override
         public void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) throws HandshakeNotCompleteException {

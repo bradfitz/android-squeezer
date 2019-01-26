@@ -18,10 +18,7 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,15 +26,14 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import java.util.List;
+import android.os.Handler;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
-import uk.org.ngo.squeezer.itemlist.dialog.PlaylistItemMoveDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
-import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
@@ -48,11 +44,12 @@ import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
 /**
  * Activity that shows the songs in the current playlist.
  */
-public class CurrentPlaylistActivity extends BaseListActivity<Song> {
+public class CurrentPlaylistActivity extends PluginListActivity {
 
     public static void show(Context context) {
         final Intent intent = new Intent(context, CurrentPlaylistActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.putExtra("cmd", "status");
         context.startActivity(intent);
     }
 
@@ -69,9 +66,9 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     /**
      * A list adapter that highlights the view that's currently playing.
      */
-    private class HighlightingListAdapter extends ItemAdapter<Song> {
+    private class HighlightingListAdapter extends ItemAdapter<Plugin> {
 
-        public HighlightingListAdapter(ItemView<Song> itemView) {
+        public HighlightingListAdapter(ItemView<Plugin> itemView) {
             super(itemView);
         }
 
@@ -109,101 +106,9 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    protected ItemAdapter<Song> createItemListAdapter(
-            ItemView<Song> itemView) {
+    protected ItemAdapter<Plugin> createItemListAdapter(
+            ItemView<Plugin> itemView) {
         return new HighlightingListAdapter(itemView);
-    }
-
-    @Override
-    public ItemView<Song> createItemView() {
-        SongViewWithArt view = new SongViewWithArt(this) {
-            /**
-             * Jumps to whichever song the user chose.
-             */
-            @Override
-            public void onItemSelected(int index, Song item) {
-                ISqueezeService service = getActivity().getService();
-                if (service == null) {
-                    return;
-                }
-
-                service.playlistIndex(index);
-            }
-
-            @Override
-            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-                super.onCreateContextMenu(menu, v, menuInfo);
-
-                menu.setGroupVisible(R.id.group_playlist, true);
-                menu.findItem(R.id.add_to_playlist).setVisible(false);
-                menu.findItem(R.id.play_next).setVisible(false);
-
-                // First item? Disable "move up" menu entry.
-                if (menuInfo.position == 0) {
-                    menu.findItem(R.id.playlist_move_up).setVisible(false);
-                }
-
-                // Last item? Disable "move down" menu entry.
-                if (menuInfo.position == menuInfo.adapter.getCount() - 1) {
-                    menu.findItem(R.id.playlist_move_down).setVisible(false);
-                }
-
-                // Only item? Disable "move" menu entry.
-                if (menuInfo.adapter.getCount() == 1) {
-                    menu.findItem(R.id.playlist_move).setVisible(false);
-                }
-            }
-
-            @Override
-            public boolean doItemContext(MenuItem menuItem, int index, Song selectedItem) {
-                ISqueezeService service = getService();
-                if (service == null) {
-                    return true;
-                }
-
-                switch (menuItem.getItemId()) {
-                    case R.id.play_now:
-                        service.playlistIndex(index);
-                        return true;
-
-                    case R.id.remove_from_playlist:
-                        service.playlistRemove(index);
-                        clearAndReOrderItems();
-                        return true;
-
-                    case R.id.playlist_move_up:
-                        service.playlistMove(index, index - 1);
-                        clearAndReOrderItems();
-                        return true;
-
-                    case R.id.playlist_move_down:
-                        service.playlistMove(index, index + 1);
-                        clearAndReOrderItems();
-                        return true;
-
-                    case R.id.playlist_move:
-                        PlaylistItemMoveDialog.addTo(CurrentPlaylistActivity.this,
-                                index);
-                        return true;
-                }
-
-                return super.doItemContext(menuItem, index, selectedItem);
-            }
-        };
-
-        view.setDetails(SongView.DETAILS_DURATION | SongView.DETAILS_ALBUM | SongView.DETAILS_ARTIST);
-
-        return view;
-    }
-
-    @Override
-    protected boolean needPlayer() {
-        return true;
-    }
-
-    @Override
-    protected void orderPage(@NonNull ISqueezeService service, int start) {
-        service.currentPlaylist(start, this);
     }
 
     @Override
@@ -277,7 +182,7 @@ public class CurrentPlaylistActivity extends BaseListActivity<Song> {
     }
 
     @Override
-    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
         super.onItemsReceived(count, start, parameters, items, dataType);
         ISqueezeService service = getService();
         if (service == null) {

@@ -189,7 +189,6 @@ public interface ISqueezeService {
 
     // Song list
     void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
-    void currentPlaylist(int start, IServiceItemListCallback<Song> callback) throws SqueezeService.HandshakeNotCompleteException;
     void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     // Playlists
