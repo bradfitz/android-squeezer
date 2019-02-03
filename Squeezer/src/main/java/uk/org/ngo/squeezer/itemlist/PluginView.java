@@ -93,14 +93,17 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
 
     @Override
     public void onItemSelected(int index, Plugin item) {
-        if (item.nextWindow == null) {
+        Action.NextWindow nextWindow = (item.goAction != null ? item.goAction.action.nextWindow : item.nextWindow);
+        if (nextWindow == null) {
             if (item.goAction != null)
                 PluginListActivity.show(getActivity(), item, item.goAction);
+            else if (item.subItems != null)
+                PluginListActivity.show(getActivity(), item);
             else if (item.getNode() != null)
                 HomeMenuActivity.show(getActivity(), item.getId());
-        } else if (item.nextWindow != null) {
+        } else {
             getActivity().action(item, item.goAction);
-            switch (item.nextWindow.nextWindow) {
+            switch (nextWindow.nextWindow) {
                 case nowPlaying:
                     // Do nothing as now playing is always available in Squeezer (maybe toast the action)
                     break;

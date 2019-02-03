@@ -122,6 +122,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     }
 
     public void onEventMainThread(HandshakeComplete event) {
+        super.onEventMainThread(event);
         if (!needPlayer() || getService().getActivePlayer() != null) {
             maybeOrderVisiblePages(getListView());
         } else {

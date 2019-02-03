@@ -90,10 +90,6 @@ class SlimDelegate {
         return mClient.getConnectionState().getPreferredAlbumSort();
     }
 
-    void command(Player player, String[] cmd, Map<String, Object> params) {
-        mClient.command(player, cmd, params);
-    }
-
     Command command(Player player) {
         return new Command(mClient, player);
     }

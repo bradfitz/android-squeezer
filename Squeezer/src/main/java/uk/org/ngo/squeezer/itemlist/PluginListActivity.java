@@ -46,6 +46,7 @@ import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 /*
  * The activity's content view scrolls in from the right, and disappear to the left, to provide a
@@ -54,7 +55,6 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 public class PluginListActivity extends BaseListActivity<Plugin>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
     private static final int GO = 1;
-    private static final String NOOP = "NOOP";
     static final String FINISH = "FINISH";
     static final String RELOAD = "RELOAD";
 
@@ -102,7 +102,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             inputText.setInputType(inputType);
             inputButton.setImageResource(inputImage);
             inputText.setHint(plugin.input.title);
-            inputText.setText(action.getInputValue());
+            inputText.setText(plugin.inputValue);
             inputText.setOnKeyListener(new OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -148,17 +148,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     private void clearAndReOrderItems(String inputString) {
         if (getService() != null && !TextUtils.isEmpty(inputString)) {
-            action.action.params.put(action.inputParam, inputString);
+            plugin.inputValue = inputString;
             clearAndReOrderItems();
         }
     }
 
     private boolean hasInput() {
         return plugin != null && plugin.hasInput();
-    }
-
-    private boolean isInputReady() {
-        return (!hasInput() || action.isInputReady());
     }
 
     @Override
@@ -171,12 +167,22 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         if (register) {
             service.register(this);
         } else if (plugin != null) {
-            if (isInputReady())
-                service.pluginItems(start, action, this);
-            else
+            if (action == null || (plugin.hasInput() && !plugin.isInputReady())) {
                 showContent();
+            } else if (plugin.doAction) {
+                action(plugin, plugin.goAction);
+                finish(); // TODO nextWindow trumps???
+            } else
+                service.pluginItems(start, plugin, action, this);
         } else {
             service.pluginItems(start, cmd, this);
+        }
+    }
+
+    public void onEventMainThread(HandshakeComplete event) {
+        super.onEventMainThread(event);
+        if (plugin != null && plugin.subItems != null) {
+            getItemAdapter().update(plugin.subItems.size(), 0, plugin.subItems);
         }
     }
 
@@ -302,6 +308,12 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         final Intent intent = new Intent(activity, PluginListActivity.class);
         intent.putExtra(Plugin.class.getName(), plugin);
         intent.putExtra(Action.class.getName(), action);
+        activity.startActivityForResult(intent, GO);
+    }
+
+    public static void show(Activity activity, Plugin plugin) {
+        final Intent intent = new Intent(activity, PluginListActivity.class);
+        intent.putExtra(Plugin.class.getName(), plugin);
         activity.startActivityForResult(intent, GO);
     }
 

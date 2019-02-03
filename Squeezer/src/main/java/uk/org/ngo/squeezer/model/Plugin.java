@@ -83,12 +83,8 @@ public class Plugin extends Item {
         this.type = type;
     }
 
-    public boolean hasInput() {
-        return (input != null);
-    }
-
     public boolean isSelectable() {
-        return (isSelectAction() || nextWindow != null || node != null);
+        return (isSelectAction() || subItems != null || (goAction != null && goAction.action.nextWindow != null) || node != null);
     }
 
     public boolean isSelectAction() {

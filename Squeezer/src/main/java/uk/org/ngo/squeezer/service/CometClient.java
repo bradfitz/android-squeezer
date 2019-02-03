@@ -886,7 +886,7 @@ class CometClient extends BaseClient {
                 inner.add(page.page);
             }
             for (Map.Entry<String, Object> parameter : params.entrySet()) {
-                inner.add(parameter.getKey() + ":" + parameter.getValue());
+                inner.add(parameter.getValue() != null ? parameter.getKey() + ":" + parameter.getValue() : parameter.getKey());
             }
 
             return slimRequest;

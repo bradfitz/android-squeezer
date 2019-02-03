@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import com.google.common.base.Joiner;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
@@ -31,12 +32,12 @@ import uk.org.ngo.squeezer.Util;
  * http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#.3Cactions_fields.3E
  */
 public class Action implements Parcelable {
-    private static final String INPUT_PLACEHOLDER = "__TAGGEDINPUT__";
+    private static final String INPUT_PLACEHOLDER = "__INPUT__";
+    private static final String TAGGEDINPUT_PLACEHOLDER = "__TAGGEDINPUT__";
     private static final Joiner joiner = Joiner.on(" ");
 
     public String urlCommand;
     public JsonAction action;
-    public String inputParam;
 
     public Action() {
     }
@@ -60,7 +61,7 @@ public class Action implements Parcelable {
             action.cmd = source.createStringArray();
             action.params = Util.mapify(source.createStringArray());
             action.nextWindow = NextWindow.fromString(source.readString());
-            inputParam = source.readString();
+            action.inputParam = source.readString();
         }
     }
 
@@ -76,7 +77,7 @@ public class Action implements Parcelable {
             }
             dest.writeStringArray(tokens);
             dest.writeString(action.nextWindow == null ? null : action.nextWindow.toString());
-            dest.writeString(inputParam);
+            dest.writeString(action.inputParam);
         }
     }
 
@@ -87,10 +88,10 @@ public class Action implements Parcelable {
 
 
     public void initInputParam() {
-        if (action.params.containsValue(INPUT_PLACEHOLDER)) {
+        if (action.params.containsValue(TAGGEDINPUT_PLACEHOLDER)) {
             for (Map.Entry<String, Object> entry : action.params.entrySet()) {
-                if (INPUT_PLACEHOLDER.equals(entry.getValue())) {
-                    inputParam = entry.getKey();
+                if (TAGGEDINPUT_PLACEHOLDER.equals(entry.getValue())) {
+                    action.inputParam = entry.getKey();
                     break;
                 }
             }
@@ -98,23 +99,11 @@ public class Action implements Parcelable {
     }
 
     public InputType getInputType() {
-        if (inputParam == null) return InputType.TEXT;
-        if ("search".equals(inputParam)) return InputType.SEARCH;
-        if ("email".equals(inputParam)) return InputType.EMAIL;
-        if ("password".equals(inputParam)) return InputType.PASSWORD;
+        if (action.inputParam == null) return InputType.TEXT;
+        if ("search".equals(action.inputParam)) return InputType.SEARCH;
+        if ("email".equals(action.inputParam)) return InputType.EMAIL;
+        if ("password".equals(action.inputParam)) return InputType.PASSWORD;
         return InputType.TEXT;
-    }
-
-    public boolean isInputReady() {
-        return (inputParam != null && !INPUT_PLACEHOLDER.equals(_getInputValue()));
-    }
-
-    public String getInputValue() {
-        return (INPUT_PLACEHOLDER.equals(_getInputValue()) ? "" : _getInputValue());
-    }
-
-    private String _getInputValue() {
-        return (inputParam != null ? (String) action.params.get(inputParam) : null);
     }
 
     public boolean isContextMenu() {
@@ -134,7 +123,7 @@ public class Action implements Parcelable {
         return "Action{" +
                 "urlCommand='" + urlCommand + '\'' +
                 ", action=" + action +
-                ", inputParam='" + inputParam + '\'' +
+                ", inputParam='" + action.inputParam + '\'' +
                 '}';
     }
 
@@ -155,8 +144,28 @@ public class Action implements Parcelable {
          * See <item_fields> section for more detail on this parameter. */
         public NextWindow nextWindow;
 
+        private String inputParam;
+
         public String cmd() {
             return joiner.join(cmd);
+        }
+
+        public Map<String, Object> params(String input) {
+            if (input == null) {
+                return params;
+            }
+            Map<String, Object> out = new HashMap<>();
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                String value = entry.getValue().toString();
+                if (INPUT_PLACEHOLDER.equals(value)) {
+                    out.put(input, null);
+                } else
+                    out.put(entry.getKey(), value);
+            }
+            if (inputParam != null) {
+                out.put(inputParam, input);
+            }
+            return out;
         }
 
         @Override
@@ -205,7 +214,7 @@ public class Action implements Parcelable {
     }
 
     public enum InputType {
-        TEXT, SEARCH, EMAIL, PASSWORD;
+        TEXT, SEARCH, EMAIL, PASSWORD
     }
 
 }

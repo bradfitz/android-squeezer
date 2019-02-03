@@ -19,11 +19,15 @@ package uk.org.ngo.squeezer.framework;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.model.Plugin;
 
 /**
  * Base class for SqueezeServer data. Specializations must implement all the necessary boilerplate
@@ -49,12 +53,15 @@ public abstract class Item implements Parcelable {
 
     public Action.NextWindow nextWindow;
     public Input input;
+    public String inputValue;
     public Window window;
+    public boolean doAction;
     public Action goAction;
     public Action playAction;
     public Action addAction;
     public Action insertAction;
     public Action moreAction;
+    public List<Plugin> subItems;
 
     public Item(Map<String, Object> record) {
         Map<String, Object> baseRecord = getRecord(record, "base");
@@ -64,6 +71,10 @@ public abstract class Item implements Parcelable {
         input = extractInput(getRecord(record, "input"));
         window = extractWindow(getRecord(record, "window"));
         goAction = extractAction("go", baseActions, actionsRecord, record, baseRecord);
+        if (goAction == null) {
+            goAction = extractAction("do", baseActions, actionsRecord, record, baseRecord);
+            doAction = (goAction != null);
+        }
         playAction = extractAction("play", baseActions, actionsRecord, record, baseRecord);
         addAction = extractAction("add", baseActions, actionsRecord, record, baseRecord);
         insertAction = extractAction("add-hold", baseActions, actionsRecord, record, baseRecord);
@@ -71,6 +82,7 @@ public abstract class Item implements Parcelable {
         if (moreAction != null) {
             moreAction.action.params.put("xmlBrowseInterimCM", 1);
         }
+        subItems = extractSubItems((Object[]) record.get("item_loop"));
     }
 
     public Item(Parcel source) {
@@ -83,6 +95,8 @@ public abstract class Item implements Parcelable {
         addAction = source.readParcelable(Item.class.getClassLoader());
         insertAction = source.readParcelable(Item.class.getClassLoader());
         moreAction = source.readParcelable(Item.class.getClassLoader());
+        subItems = source.createTypedArrayList(Plugin.CREATOR);
+        doAction = (source.readByte() != 0);
     }
 
     @Override
@@ -96,6 +110,17 @@ public abstract class Item implements Parcelable {
         dest.writeParcelable(addAction, flags);
         dest.writeParcelable(insertAction, flags);
         dest.writeParcelable(moreAction, flags);
+        dest.writeTypedList(subItems);
+        dest.writeByte((byte) (doAction ? 1 : 0));
+    }
+
+
+    public boolean hasInput() {
+        return (input != null);
+    }
+
+    public boolean isInputReady() {
+        return !TextUtils.isEmpty(inputValue);
     }
 
 
@@ -243,6 +268,19 @@ public abstract class Item implements Parcelable {
         actionHolder.initInputParam();
 
         return actionHolder;
+    }
+
+    private List<Plugin> extractSubItems(Object[] item_loop) {
+        if (item_loop != null) {
+            List<Plugin> items = new ArrayList<>();
+            for (Object item_d : item_loop) {
+                Map<String, Object> record = (Map<String, Object>) item_d;
+                items.add(new Plugin(record));
+            }
+            return items;
+        }
+
+        return null;
     }
 
 }
