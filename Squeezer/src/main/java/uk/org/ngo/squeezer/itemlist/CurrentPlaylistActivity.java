@@ -112,6 +112,34 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     }
 
     @Override
+    public ItemView<Plugin> createItemView() {
+        return new PluginView(CurrentPlaylistActivity.this) {
+
+            @Override
+            public boolean isSelectable(Plugin item) {
+                return true;
+            }
+
+            /**
+             * Jumps to whichever song the user chose.
+             */
+            @Override
+            public void onItemSelected(int index, Plugin item) {
+
+                // check first for a hierarchical menu or a input to perform
+                if (item.hasSubItems() || item.hasInput()) {
+                    super.onItemSelected(index, item);
+                } else {
+                    ISqueezeService service = getActivity().getService();
+                    if (service != null) {
+                        getActivity().getService().playlistIndex(index);
+                    }
+                }
+            }
+        };
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.currentplaylistmenu, menu);
         return super.onCreateOptionsMenu(menu);
@@ -163,6 +191,9 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     }
 
     public void onEventMainThread(MusicChanged event) {
+        if (getService() == null) {
+            return;
+        }
         if (event.player.equals(getService().getActivePlayer())) {
             Log.d(getTag(), "onMusicChanged " + event.playerState.getCurrentSong());
             currentPlaylistIndex = event.playerState.getCurrentPlaylistIndex();
@@ -183,7 +214,17 @@ public class CurrentPlaylistActivity extends PluginListActivity {
 
     @Override
     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+        for (Plugin item : items) {
+            // check for a hierarchical menu or a input to perform
+            if (!(item.hasSubItems() || item.hasInput())) {
+                if (item.moreAction == null) {
+                    item.moreAction = item.goAction;
+                    item.goAction = null;
+                }
+            }
+        }
         super.onItemsReceived(count, start, parameters, items, dataType);
+
         ISqueezeService service = getService();
         if (service == null) {
             return;

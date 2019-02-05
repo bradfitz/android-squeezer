@@ -123,6 +123,10 @@ public abstract class Item implements Parcelable {
         return !TextUtils.isEmpty(inputValue);
     }
 
+    public boolean hasSubItems() {
+        return (subItems != null);
+    }
+
 
     @Override
     public int describeContents() {

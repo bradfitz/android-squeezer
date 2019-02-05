@@ -181,7 +181,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     public void onEventMainThread(HandshakeComplete event) {
         super.onEventMainThread(event);
-        if (plugin != null && plugin.subItems != null) {
+        if (plugin != null && plugin.hasSubItems()) {
             getItemAdapter().update(plugin.subItems.size(), 0, plugin.subItems);
         }
     }

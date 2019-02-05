@@ -97,7 +97,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
         if (nextWindow == null) {
             if (item.goAction != null)
                 PluginListActivity.show(getActivity(), item, item.goAction);
-            else if (item.subItems != null)
+            else if (item.hasSubItems())
                 PluginListActivity.show(getActivity(), item);
             else if (item.getNode() != null)
                 HomeMenuActivity.show(getActivity(), item.getId());

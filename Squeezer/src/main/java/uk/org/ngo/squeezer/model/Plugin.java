@@ -84,7 +84,7 @@ public class Plugin extends Item {
     }
 
     public boolean isSelectable() {
-        return (isSelectAction() || subItems != null || (goAction != null && goAction.action.nextWindow != null) || node != null);
+        return (isSelectAction() || hasSubItems() || (goAction != null && goAction.action.nextWindow != null) || node != null);
     }
 
     public boolean isSelectAction() {

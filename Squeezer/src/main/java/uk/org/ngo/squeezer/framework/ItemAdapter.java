@@ -152,10 +152,10 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
 
     public void createContextMenu(ContextMenu menu, View v, int position) {
         final T selectedItem = getItem(position);
-        ItemView.ContextMenuInfo c = new ItemView.ContextMenuInfo(position, selectedItem, this,
-                getActivity().getMenuInflater());
 
         if (selectedItem != null) {
+            ItemView.ContextMenuInfo c = new ItemView.ContextMenuInfo(position, selectedItem, this,
+                    getActivity().getMenuInflater());
             mItemView.onCreateContextMenu(menu, v, c);
         }
     }
