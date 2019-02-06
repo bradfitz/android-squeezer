@@ -64,8 +64,6 @@
     <string name="menu_item_rename">Hernoem</string>
     <string name="menu_item_playlist">Playlist</string>
     <string name="menu_item_playlists_new">Nieuwe playlist</string>
-    <string name="menu_item_playlist_clear">Wis huidige playlist</string>
-    <string name="menu_item_playlist_save">Bewaar huidige playlist</string>
     <string name="menu_item_volume">Volume</string>
     <string name="connecting_text">Verbinden</string>
     <string name="connect_to_text">Verbind met %s</string>

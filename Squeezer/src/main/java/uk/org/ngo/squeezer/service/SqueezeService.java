@@ -1325,24 +1325,6 @@ public class SqueezeService extends Service {
             return true;
         }
 
-        @Override
-        public boolean playlistClear() {
-            if (!isConnected()) {
-                return false;
-            }
-            mDelegate.activePlayerCommand().cmd("playlist", "clear").exec();
-            return true;
-        }
-
-        @Override
-        public boolean playlistSave(String name) {
-            if (!isConnected()) {
-                return false;
-            }
-            mDelegate.activePlayerCommand().cmd("playlist", "save", name).exec();
-            return true;
-        }
-
         private boolean isPlaying() {
             PlayerState playerState = getActivePlayerState();
             return playerState != null && playerState.isPlaying();

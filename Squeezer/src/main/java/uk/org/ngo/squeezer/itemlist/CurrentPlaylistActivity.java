@@ -32,7 +32,6 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
-import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -150,8 +149,7 @@ public class CurrentPlaylistActivity extends PluginListActivity {
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save,
-                R.id.menu_item_playlist_show_current_song};
+        final int[] ids = { R.id.menu_item_playlist_show_current_song };
 
         final boolean knowCurrentPlaylist = getCurrentPlaylist() != null;
 
@@ -166,15 +164,6 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_item_playlist_clear:
-                if (getService() != null) {
-                    getService().playlistClear();
-                    finish();
-                }
-                return true;
-            case R.id.menu_item_playlist_save:
-                PlaylistSaveDialog.addTo(this, getCurrentPlaylist());
-                return true;
             case R.id.menu_item_playlist_show_current_song:
                 selectCurrentSong(currentPlaylistIndex, 0);
                 return true;

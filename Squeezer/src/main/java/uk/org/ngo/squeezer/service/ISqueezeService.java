@@ -127,8 +127,6 @@ public interface ISqueezeService {
     boolean playlistIndex(int index);
     boolean playlistRemove(int index);
     boolean playlistMove(int fromIndex, int toIndex);
-    boolean playlistClear();
-    boolean playlistSave(String name);
 
     boolean setSecondsElapsed(int seconds);
 

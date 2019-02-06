@@ -61,8 +61,6 @@
     <string name="menu_item_rename">Umbenennen</string>
     <string name="menu_item_playlist">Wiedergabeliste</string>
     <string name="menu_item_playlists_new">Neu</string>
-    <string name="menu_item_playlist_clear">Löschen</string>
-    <string name="menu_item_playlist_save">Speichern</string>
     <string name="menu_item_playlist_show_current_song">Aktuelles Lied</string>
     <string name="menu_item_volume">Lautstärke</string>
     <string name="connecting_text">Verbinde</string>
