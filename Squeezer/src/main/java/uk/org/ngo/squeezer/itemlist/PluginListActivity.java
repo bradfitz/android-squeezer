@@ -59,6 +59,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     static final String RELOAD = "RELOAD";
 
     private boolean register;
+    private String cmd;
     private Plugin plugin;
     private Action action;
 
@@ -74,6 +75,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         Bundle extras = getIntent().getExtras();
         assert extras != null;
         register = extras.getBoolean("register");
+        cmd = extras.getString("cmd");
         plugin = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
 
@@ -172,6 +174,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                 finish(); // TODO nextWindow trumps???
             } else
                 service.pluginItems(start, plugin, action, this);
+        } else {
+            service.pluginItems(start, cmd, this);
         }
     }
 

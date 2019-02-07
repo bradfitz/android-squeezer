@@ -1632,6 +1632,15 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous fetch of the squeezeservers generic menu items */
         @Override
+        public void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+            mDelegate.requestItems(getActivePlayer(), start, callback).cmd(cmd).param("menu", "menu").exec();
+        }
+
+        /* Start an asynchronous fetch of the squeezeservers generic menu items */
+        @Override
         public void pluginItems(int start, Item item, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
