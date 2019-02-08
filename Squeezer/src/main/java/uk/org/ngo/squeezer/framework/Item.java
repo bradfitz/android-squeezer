@@ -22,6 +22,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,19 +38,10 @@ import uk.org.ngo.squeezer.model.Plugin;
  */
 public abstract class Item implements Parcelable {
     private String id;
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    abstract public String getName();
-
-    public Item() {
-    }
+    private String icon;
+    private int iconResource;
+    private String node;
+    private int weight;
 
     public Action.NextWindow nextWindow;
     public Input input;
@@ -63,7 +55,101 @@ public abstract class Item implements Parcelable {
     public Action moreAction;
     public List<Plugin> subItems;
 
+    public Item() {
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    abstract public String getName();
+
+    /**
+     * @return Relative URL path to an icon for this radio or music service, for example
+     * "plugins/Picks/html/images/icon.png"
+     */
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    /**
+     * @return Icon resource for this plugin if it is embedded in the Squeezer app, or null.
+     */
+    public int getIconResource() {
+        return iconResource;
+    }
+
+
+    public String getNode() {
+        return node;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+
+    public boolean isSelectable() {
+        return (isSelectAction() || hasSubItems() || (goAction != null && goAction.action.nextWindow != null) || node != null);
+    }
+
+    public boolean isSelectAction() {
+        return (goAction != null && !isGoActionPlayAction());
+    }
+
+    public boolean isPlayable() {
+        return (playAction() != null);
+    }
+
+    public Action playAction() {
+        if (playAction != null) {
+            return playAction;
+        }
+        return (isGoActionPlayAction() ? goAction : null);
+    }
+
+    public boolean hasContextMenu() {
+        return (playAction() != null || addAction != null || insertAction != null || moreAction != null);
+    }
+
+    public boolean hasSlimContextMenu() {
+        return (moreAction != null);
+    }
+
+    /** We preferably won't play when item is selected, so attempt to avoid that */
+    private boolean isGoActionPlayAction() {
+        if (goAction == null) {
+            return false;
+        }
+        if (playAction != null) {
+            // goAction and playAction performs the same action
+            return sameAction(goAction.action, playAction.action);
+        } else {
+            // goAction plays
+            return "playlistcontrol".equals(goAction.action.cmd[0]) ||
+                    (goAction.action.nextWindow != null && Action.NextWindowEnum.nowPlaying == goAction.action.nextWindow.nextWindow);
+        }
+    }
+
+    private boolean sameAction(Action.JsonAction action1, Action.JsonAction action2) {
+        if (!Arrays.equals(action1.cmd, action2.cmd)) return false;
+        return action1.params.equals(action2.params);
+    }
+
+
     public Item(Map<String, Object> record) {
+        setId(getString(record, record.containsKey("cmd") ? "cmd" : "id"));
+        icon = getString(record, record.containsKey("icon") ? "icon" : "icon-id");
+        node = getString(record, "node");
+        weight = getInt(record, "weight");
         Map<String, Object> baseRecord = getRecord(record, "base");
         Map<String, Object> baseActions = (baseRecord != null ? getRecord(baseRecord, "actions") : null);
         Map<String, Object> actionsRecord = getRecord(record, "actions");
@@ -87,6 +173,10 @@ public abstract class Item implements Parcelable {
 
     public Item(Parcel source) {
         setId(source.readString());
+        icon = source.readString();
+        node = source.readString();
+        iconResource = source.readInt();
+        weight = source.readInt();
         nextWindow = Action.NextWindow.fromString(source.readString());
         input = Input.readFromParcel(source);
         window = Window.readFromParcel(source);
@@ -101,8 +191,12 @@ public abstract class Item implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(nextWindow == null ? null : nextWindow.toString());
         dest.writeString(getId());
+        dest.writeString(icon);
+        dest.writeString(node);
+        dest.writeInt(iconResource);
+        dest.writeInt(weight);
+        dest.writeString(nextWindow == null ? null : nextWindow.toString());
         Input.writeToParcel(dest, input);
         Window.writeToParcel(dest, window);
         dest.writeParcelable(goAction, flags);
@@ -163,7 +257,17 @@ public abstract class Item implements Parcelable {
     }
 
     protected String toStringOpen() {
-        return getClass().getSimpleName() + " { id: " + getId() + ", name: " + getName();
+        return getClass().getSimpleName() + " { id: " + getId()
+                + ", name: " + getName()
+                + ", node: " + node
+                + ", weight: " + getWeight()
+                + ", go: " + goAction
+                + ", play: " + playAction
+                + ", add: " + addAction
+                + ", insert: " + insertAction
+                + ", more: " + moreAction
+                + ", window: " + window;
+
     }
 
     @Override
