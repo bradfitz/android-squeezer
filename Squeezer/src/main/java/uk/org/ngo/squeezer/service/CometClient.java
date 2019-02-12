@@ -57,6 +57,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.framework.DisplayMessage;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
@@ -65,10 +66,12 @@ import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
+import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
@@ -96,11 +99,14 @@ class CometClient extends BaseClient {
     /** The channel to publish subscription requests to. */
     private static final String CHANNEL_SLIM_SUBSCRIBE = "/slim/subscribe";
 
+    /** The format string for the channel to listen to for serverstatus events. */
+    private static final String CHANNEL_SERVER_STATUS_FORMAT = "/%s/slim/serverstatus";
+
     /** The format string for the channel to listen to for playerstatus events. */
     private static final String CHANNEL_PLAYER_STATUS_FORMAT = "/%s/slim/playerstatus/%s";
 
-    /** The format string for the channel to listen to for serverstatus events. */
-    private static final String CHANNEL_SERVER_STATUS_FORMAT = "/%s/slim/serverstatus";
+    /** The format string for the channel to listen to for displaystatus events. */
+    private static final String CHANNEL_DISPLAY_STATUS_FORMAT = "/%s/slim/displaystatus/%s";
 
     // Maximum time for wait replies for server capabilities
     private static final long HANDSHAKE_TIMEOUT = 4000;
@@ -347,6 +353,13 @@ class CometClient extends BaseClient {
                     }
                 });
 
+                mBayeuxClient.getChannel(String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId)).subscribe(new ClientSessionChannel.MessageListener() {
+                    @Override
+                    public void onMessage(ClientSessionChannel channel, Message message) {
+                        parseServerStatus(message);
+                    }
+                });
+
                 mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
@@ -354,10 +367,10 @@ class CometClient extends BaseClient {
                     }
                 });
 
-                mBayeuxClient.getChannel(String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId)).subscribe(new ClientSessionChannel.MessageListener() {
+                mBayeuxClient.getChannel(String.format(CHANNEL_DISPLAY_STATUS_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        parseServerStatus(message);
+                        parseDisplayStatus(message);
                     }
                 });
 
@@ -486,6 +499,14 @@ class CometClient extends BaseClient {
             }
         }
 
+    }
+
+    private void parseDisplayStatus(Message message) {
+        Map<String, Object> display = (Map<String, Object>) message.getDataAsMap().get("display");
+        if (display != null) {
+            DisplayMessage displayMessage = new DisplayMessage(display);
+            mEventBus.post(new DisplayEvent(displayMessage));
+        }
     }
 
     private interface ResponseHandler {
@@ -748,16 +769,16 @@ class CometClient extends BaseClient {
     @Override
     public void requestPlayerStatus(Player player) {
         Request request = request(player, "status").currentSong().param("tags", SONGTAGS);
-        publishMessage(request, CHANNEL_SLIM_REQUEST, playerStatusResponseChannel(player), null);
+        publishMessage(request, CHANNEL_SLIM_REQUEST, subscribeResponseChannel(player, CHANNEL_PLAYER_STATUS_FORMAT), null);
     }
 
     @Override
-    public void subscribePlayerStatus(final Player player, final String subscriptionType) {
+    public void subscribePlayerStatus(final Player player, final PlayerState.PlayerSubscriptionType subscriptionType) {
         Request request = request(player, "status")
                 .currentSong()
-                .param("subscribe", subscriptionType)
+                .param("subscribe", subscriptionType.getStatus())
                 .param("tags", SONGTAGS);
-        publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, playerStatusResponseChannel(player), new PublishListener() {
+        publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_PLAYER_STATUS_FORMAT), new PublishListener() {
             @Override
             public void onMessage(ClientSessionChannel channel, Message message) {
                 super.onMessage(channel, message);
@@ -768,8 +789,15 @@ class CometClient extends BaseClient {
         });
     }
 
-    private String playerStatusResponseChannel(Player player) {
-        return String.format(CHANNEL_PLAYER_STATUS_FORMAT, mBayeuxClient.getId(), player.getId());
+    @Override
+    public void subscribeDisplayStatus(Player player, boolean subscribe) {
+        Log.w(TAG, "displaystatus[" + player.getId() + "]: " + subscribe);
+        Request request = request(player, "displaystatus").param("subscribe", subscribe ? "showbriefly" : "");
+        publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_DISPLAY_STATUS_FORMAT), mPublishListener);
+    }
+
+    private String subscribeResponseChannel(Player player, String format) {
+        return String.format(format, mBayeuxClient.getId(), player.getId());
     }
 
     private static String getAdviceAction(Map<String, Object> advice) {

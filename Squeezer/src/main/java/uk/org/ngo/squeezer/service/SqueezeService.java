@@ -332,6 +332,10 @@ public class SqueezeService extends Service {
         }
 
         mDelegate.setActivePlayer(newActivePlayer);
+        if (prevActivePlayer != null) {
+            mDelegate.subscribeDisplayStatus(prevActivePlayer, false);
+        }
+        mDelegate.subscribeDisplayStatus(newActivePlayer, true);
         updateAllPlayerSubscriptionStates();
         mEventBus.post(new ActivePlayerChanged(newActivePlayer));
 
@@ -379,28 +383,28 @@ public class SqueezeService extends Service {
      * Determine the correct status subscription type for the given player, based on
      * how frequently we need to know its status.
      */
-    private @PlayerState.PlayerSubscriptionType String calculateSubscriptionTypeFor(Player player) {
+    private PlayerState.PlayerSubscriptionType calculateSubscriptionTypeFor(Player player) {
         Player activePlayer = mDelegate.getActivePlayer();
 
         if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class) ||
                 (mEventBus.hasSubscriberForEvent(SongTimeChanged.class) && player.equals(activePlayer))) {
             if (player.equals(activePlayer)) {
                 // If it's the active player then get second-to-second updates.
-                return PlayerState.NOTIFY_REAL_TIME;
+                return PlayerState.PlayerSubscriptionType.NOTIFY_REAL_TIME;
             } else {
                 // For other players get updates only when the player status changes...
                 // ... unless the player has a sleep duration set. In that case we need
                 // real_time updates, as on_change events are not fired as the will_sleep_in
                 // timer counts down.
                 if (player.getPlayerState().getSleep() > 0) {
-                    return PlayerState.NOTIFY_REAL_TIME;
+                    return PlayerState.PlayerSubscriptionType.NOTIFY_REAL_TIME;
                 } else {
-                    return PlayerState.NOTIFY_ON_CHANGE;
+                    return PlayerState.PlayerSubscriptionType.NOTIFY_ON_CHANGE;
                 }
             }
         } else {
             // Disable subscription for this player's status updates.
-            return PlayerState.NOTIFY_NONE;
+            return PlayerState.PlayerSubscriptionType.NOTIFY_NONE;
         }
     }
 
@@ -412,7 +416,7 @@ public class SqueezeService extends Service {
      */
     private void updatePlayerSubscription(
             Player player,
-            @NonNull @PlayerState.PlayerSubscriptionType String playerSubscriptionType) {
+            @NonNull PlayerState.PlayerSubscriptionType playerSubscriptionType) {
         PlayerState playerState = player.getPlayerState();
 
         // Do nothing if the player subscription type hasn't changed. This prevents sending a

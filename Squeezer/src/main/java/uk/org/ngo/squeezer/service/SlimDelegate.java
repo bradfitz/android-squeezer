@@ -30,6 +30,7 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 class SlimDelegate {
@@ -65,8 +66,12 @@ class SlimDelegate {
         mClient.requestPlayerStatus(player);
     }
 
-    void subscribePlayerStatus(Player player, String subscriptionType) {
+    void subscribePlayerStatus(Player player, PlayerState.PlayerSubscriptionType subscriptionType) {
         mClient.subscribePlayerStatus(player, subscriptionType);
+    }
+
+    void subscribeDisplayStatus(Player player, boolean subscribe) {
+        mClient.subscribeDisplayStatus(player, subscribe);
     }
 
 

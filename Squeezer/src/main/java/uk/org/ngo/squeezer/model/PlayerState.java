@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 import java.lang.annotation.Retention;
@@ -38,13 +37,6 @@ import uk.org.ngo.squeezer.service.ServerString;
 
 
 public class PlayerState implements Parcelable {
-
-    @StringDef({NOTIFY_NONE, NOTIFY_ON_CHANGE, NOTIFY_REAL_TIME})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface PlayerSubscriptionType {}
-    public static final String NOTIFY_NONE = "-";
-    public static final String NOTIFY_ON_CHANGE = "0";
-    public static final String NOTIFY_REAL_TIME = "1";
 
     public PlayerState() {
     }
@@ -77,7 +69,7 @@ public class PlayerState implements Parcelable {
         sleep = source.readInt();
         mSyncMaster = source.readString();
         source.readStringList(mSyncSlaves);
-        mPlayerSubscriptionType = source.readString();
+        mPlayerSubscriptionType = PlayerSubscriptionType.valueOf(source.readString());
     }
 
     @Override
@@ -97,7 +89,7 @@ public class PlayerState implements Parcelable {
         dest.writeInt(sleep);
         dest.writeString(mSyncMaster);
         dest.writeStringList(mSyncSlaves);
-        dest.writeString(mPlayerSubscriptionType);
+        dest.writeString(mPlayerSubscriptionType.name());
     }
 
     @Override
@@ -144,7 +136,7 @@ public class PlayerState implements Parcelable {
 
     /** How the server is subscribed to the player's status changes. */
     @NonNull
-    @PlayerSubscriptionType private String mPlayerSubscriptionType = NOTIFY_NONE;
+    private PlayerSubscriptionType mPlayerSubscriptionType = PlayerSubscriptionType.NOTIFY_NONE;
 
     public boolean isPlaying() {
         return PLAY_STATE_PLAY.equals(playStatus);
@@ -383,16 +375,12 @@ public class PlayerState implements Parcelable {
         return mSyncSlaves;
     }
 
-    @PlayerSubscriptionType public String getSubscriptionType() {
+    public PlayerSubscriptionType getSubscriptionType() {
         return mPlayerSubscriptionType;
     }
 
-    public boolean setSubscriptionType(@Nullable @PlayerSubscriptionType String type) {
-        if (Strings.isNullOrEmpty(type))
-            return setSubscriptionType(NOTIFY_NONE);
-
+    public void setSubscriptionType(PlayerSubscriptionType type) {
         mPlayerSubscriptionType = type;
-        return true;
     }
 
     @StringDef({PLAY_STATE_PLAY, PLAY_STATE_PAUSE, PLAY_STATE_STOP})
@@ -422,6 +410,22 @@ public class PlayerState implements Parcelable {
                 ", mSyncSlaves=" + mSyncSlaves +
                 ", mPlayerSubscriptionType='" + mPlayerSubscriptionType + '\'' +
                 '}';
+    }
+
+    public enum PlayerSubscriptionType {
+        NOTIFY_NONE("-"),
+        NOTIFY_ON_CHANGE("0"),
+        NOTIFY_REAL_TIME("1");
+
+        private final String status;
+
+        PlayerSubscriptionType(String status) {
+            this.status = status;
+        }
+
+        public String getStatus() {
+            return status;
+        }
     }
 
     public enum ShuffleStatus implements EnumWithId {

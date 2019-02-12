@@ -52,6 +52,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
@@ -395,6 +396,12 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         mIgnoreVolumeChange = ignoreVolumeChange;
     }
 
+    public void onEventMainThread(DisplayEvent displayEvent) {
+        // TODO types and duration
+        Toast.makeText(this, displayEvent.message.text, Toast.LENGTH_SHORT).show();
+
+    }
+
     // Safe accessors
 
     public boolean canDownload() {
@@ -447,15 +454,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         }
 
         mService.action(item, action);
-        // TODO this is just attempt to guess the type of action and show some predefind toasts
-        // consider using showBriefly instead
-        int toastId = -1;
-        if (action.isAction(item.playAction)) toastId = R.string.ITEM_PLAYING;
-        else if (action.isAction(item.addAction)) toastId = R.string.ITEM_ADDED;
-        else if (action.isAction(item.insertAction)) toastId = R.string.ITEM_INSERTED;
-        if (toastId != -1) {
-            Toast.makeText(this, getString(toastId, title != null ? title : item.getName()), Toast.LENGTH_SHORT).show();
-        }
     }
 
     /**
