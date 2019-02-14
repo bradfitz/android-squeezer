@@ -1,0 +1,340 @@
+{
+  "ext": {
+    "priority": ""
+  },
+  "data": {
+    "offset": 0,
+    "count": 55,
+    "item_loop": [
+      {
+        "node": "home",
+        "weight": 11,
+        "text": "Musik",
+        "id": "myMusic",
+        "isANode": 1
+      },
+      {
+        "node": "home",
+        "weight": 100,
+        "text": "Favoritter",
+        "id": "favorites",
+        "actions": {
+          "go": {
+            "cmd": [
+              "favorites",
+              "items"
+            ],
+            "params": {
+              "menu": "favorites"
+            }
+          }
+        }
+      },
+      {
+        "node": "home",
+        "weight": 90,
+        "text": "Programgalleri",
+        "id": "opmlappgallery",
+        "window": {
+          "icon-id": "plugins/AppGallery/html/images/icon.png",
+          "titleStyle": "album"
+        },
+        "actions": {
+          "go": {
+            "cmd": [
+              "appgallery",
+              "items"
+            ],
+            "params": {
+              "menu": "appgallery"
+            },
+            "player": 0
+          }
+        },
+        "uuid": "855EC660-D604-4B08-B06C-E6991DA83D34",
+        "displayWhenOff": 0
+      },
+      {
+        "node": "settings",
+        "weight": 1,
+        "text": "Don't Stop The Music",
+        "id": "settingsDontStopTheMusic",
+        "window": {
+          "icon-id": "plugins/DontStopTheMusic/html/images/icon.png"
+        },
+        "actions": {
+          "go": {
+            "cmd": [
+              "dontstopthemusicsetting"
+            ],
+            "player": 0
+          }
+        }
+      },
+      {
+        "node": "myMusic",
+        "weight": 100,
+        "text": "Library Views",
+        "id": "opmlselectVirtualLibrary",
+        "window": {
+          "icon-id": "plugins/ExtendedBrowseModes/html/icon.png",
+          "titleStyle": "album"
+        },
+        "actions": {
+          "go": {
+            "cmd": [
+              "selectVirtualLibrary",
+              "items"
+            ],
+            "params": {
+              "menu": "selectVirtualLibrary"
+            },
+            "player": 0
+          }
+        },
+        "uuid": "6e5e0a00-e18a-11e3-8b68-0800200c9a66",
+        "displayWhenOff": 0
+      },
+      {
+        "node": "extras",
+        "weight": 1000,
+        "text": "Billedaflæser",
+        "window": {
+          "icon-id": "plugins/ImageBrowser/html/images/icon.png",
+          "titleStyle": "album"
+        },
+        "id": "opmlimagebrowser",
+        "uuid": "e102b4d0-b86a-11e0-aff2-0800200c9a66",
+        "actions": {
+          "go": {
+            "cmd": [
+              "imagebrowser",
+              "items"
+            ],
+            "params": {
+              "menu": "imagebrowser"
+            },
+            "player": 0
+          }
+        },
+        "displayWhenOff": 0
+      },
+      {
+        "node": "home",
+        "weight": 80,
+        "text": "Mine programmer",
+        "id": "opmlmyapps",
+        "window": {
+          "icon-id": "plugins/MyApps/html/images/icon.png",
+          "titleStyle": "album"
+        },
+        "actions": {
+          "go": {
+            "cmd": [
+              "myapps",
+              "items"
+            ],
+            "params": {
+              "menu": "myapps"
+            },
+            "player": 0
+          }
+        },
+        "uuid": "2E3ACD53-B9A8-4440-9C5B-517B1EB28E34",
+        "displayWhenOff": 0
+      },
+      {
+        "node": "myMusic",
+        "weight": 110,
+        "id": "opmlselectRemoteLibrary",
+        "window": {
+          "icon-id": "plugins/RemoteLibrary/html/icon.png",
+          "titleStyle": "album"
+        },
+        "text": "Remote Music Libraries",
+        "actions": {
+          "go": {
+            "cmd": [
+              "selectRemoteLibrary",
+              "items"
+            ],
+            "params": {
+              "menu": "selectRemoteLibrary"
+            },
+            "player": 0
+          }
+        },
+        "uuid": "21865f76-C204-475C-B46E-50370DAC7EDE",
+        "displayWhenOff": 0
+      },
+      {
+        "node": "advancedSettings",
+        "id": "settingsRescan",
+        "text": "Gennemsøg musikbibliotek igen",
+        "actions": {
+          "go": {
+            "cmd": [
+              "rescanplugin",
+              "menu"
+            ],
+            "player": 0
+          }
+        }
+      },
+      {
+        "node": "radios",
+        "weight": 5,
+        "text": "Mine forvalg",
+        "window": {
+          "icon-id": "/plugins/TuneIn/html/images/radiopresets.png",
+          "titleStyle": "album"
+        },
+        "id": "opmlpresets",
+        "uuid": null,
+        "actions": {
+          "go": {
+            "cmd": [
+              "presets",
+              "items"
+            ],
+            "params": {
+              "menu": "presets"
+            },
+            "player": 0
+          }
+        },
+        "displayWhenOff": 0
+      },
+      {
+        "node": "radios",
+        "weight": 20,
+        "text": "Lokale",
+        "id": "opmllocal",
+        "window": {
+          "icon-id": "/plugins/TuneIn/html/images/radiolocal.png",
+          "titleStyle": "album"
+        },
+        "actions": {
+          "go": {
+            "cmd": [
+              "local",
+              "items"
+            ],
+            "params": {
+              "menu": "local"
+            },
+            "player": 0
+          }
+        },
+        "uuid": null,
+        "displayWhenOff": 0
+      },
+      {
+        "node": "radios",
+        "weight": 30,
+        "text": "Musik",
+        "window": {
+          "icon-id": "/plugins/TuneIn/html/images/radiomusic.png",
+          "titleStyle": "album"
+        },
+        "id": "opmlmusic",
+        "uuid": null,
+        "actions": {
+          "go": {
+            "cmd": [
+              "music",
+              "items"
+            ],
+            "params": {
+              "menu": "music"
+            },
+            "player": 0
+          }
+        },
+        "displayWhenOff": 0
+      },
+      {
+        "node": "radios",
+        "weight": 45,
+        "text": "Nyheder",
+        "window": {
+          "icon-id": "/plugins/TuneIn/html/images/radionews.png",
+          "titleStyle": "album"
+        },
+        "id": "opmlnews",
+        "uuid": null,
+        "actions": {
+          "go": {
+            "cmd": [
+              "news",
+              "items"
+            ],
+            "params": {
+              "menu": "news"
+            },
+            "player": 0
+          }
+        },
+        "displayWhenOff": 0
+      },
+      {
+        "node": "radios",
+        "weight": 40,
+        "id": "opmlsports",
+        "window": {
+          "icon-id": "/plugins/TuneIn/html/images/radiosports.png",
+          "titleStyle": "album"
+        },
+        "text": "Sport",
+        "actions": {
+          "go": {
+            "cmd": [
+              "sports",
+              "items"
+            ],
+            "params": {
+              "menu": "sports"
+            },
+            "player": 0
+          }
+        },
+        "uuid": null,
+        "displayWhenOff": 0
+      },
+      {
+        "node": "radios",
+        "weight": 50,
+        "text": "Tale",
+        "window": {
+          "icon-id": "/plugins/TuneIn/html/images/radiotalk.png",
+          "titleStyle": "album"
+        },
+        "id": "opmltalk",
+        "uuid": null,
+        "actions": {
+          "go": {
+            "cmd": [
+              "talk",
+              "items"
+            ],
+            "params": {
+              "menu": "talk"
+            },
+            "player": 0
+          }
+        },
+        "displayWhenOff": 0
+      },
+      {
+        "node": "radios",
+        "weight": 60,
+        "text": "World",
+        "id": "opmlworld",
+        "window": {
+          "icon-id": "/plugins/TuneIn/html/images/radioworld.png",
+          "titleStyle": "album"
+        },
+        "actions": {
+          "go": {
+            "cmd": [
+              "world",

@@ -44,12 +44,6 @@ public class HomeActivity extends HomeMenuActivity {
 
     private GoogleAnalyticsTracker tracker;
 
-
-    @Override
-    protected ItemView<Plugin> createItemView() {
-        return new PluginView(this);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -311,7 +311,7 @@ class CometClient extends BaseClient {
                             // Advices are handled internally by the bayeux protocol, so skip these here
                             Log.w(TAG, channel + ": " + message.getJSON());
 
-                            Map<String, Object> failure = (Map<String, Object>) message.get("failure");
+                            Map<String, Object> failure = Util.getRecord(message, "failure");
                             Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
                             int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
 
@@ -502,7 +502,7 @@ class CometClient extends BaseClient {
     }
 
     private void parseDisplayStatus(Message message) {
-        Map<String, Object> display = (Map<String, Object>) message.getDataAsMap().get("display");
+        Map<String, Object> display = Util.getRecord(message.getDataAsMap(), "display");
         if (display != null) {
             DisplayMessage displayMessage = new DisplayMessage(display);
             mEventBus.post(new DisplayEvent(displayMessage));

@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.Plugin;
 
@@ -39,7 +40,6 @@ import uk.org.ngo.squeezer.model.Plugin;
 public abstract class Item implements Parcelable {
     private String id;
     private String icon;
-    private int iconResource;
     private String node;
     private int weight;
 
@@ -81,10 +81,73 @@ public abstract class Item implements Parcelable {
     }
 
     /**
-     * @return Icon resource for this plugin if it is embedded in the Squeezer app, or null.
+     * @return Icon resource for this plugin if it is embedded in the Squeezer app, or an empty icon.
      */
     public int getIconResource() {
-        return iconResource;
+        if ("myMusic".equals(id)) {
+            return R.drawable.ic_my_music;
+        }
+        if ("radio".equals(id)) {
+            return R.drawable.ic_internet_radio;
+        }
+        if ("radios".equals(id)) {
+            return R.drawable.ic_internet_radio;
+        }
+        if ("favorites".equals(id)) {
+            return R.drawable.ic_favorites;
+        }
+        if ("globalSearch".equals(id)) {
+            return R.drawable.ic_search;
+        }
+        if ("homeSearchRecent".equals(id)) {
+            return R.drawable.ic_search;
+        }
+        if ("myApps".equals(id)) {
+            return R.drawable.ic_my_apps;
+        }
+        if ("opmlmyapps".equals(id)) {
+            return R.drawable.ic_my_apps;
+        }
+        if ("opmlappgallery".equals(id)) {
+            return R.drawable.ic_app_gallery;
+        }
+        if ("playerpower".equals(id)) {
+            return R.drawable.ic_power;
+        }
+        if ("myMusicArtists".equals(id)) {
+            return R.drawable.ic_artists;
+        }
+        if ("myMusicAlbums".equals(id)) {
+            return R.drawable.ic_albums;
+        }
+        if ("myMusicGenres".equals(id)) {
+            return R.drawable.ic_genres;
+        }
+        if ("myMusicYears".equals(id)) {
+            return R.drawable.ic_years;
+        }
+        if ("myMusicNewMusic".equals(id)) {
+            return R.drawable.ic_new_music;
+        }
+        if ("myMusicPlaylists".equals(id)) {
+            return R.drawable.ic_playlists;
+        }
+        if (id != null && id.startsWith("myMusicSearch")) {
+            return R.drawable.ic_search;
+        }
+        if ("myMusicMusicFolder".equals(id)) {
+            return R.drawable.ic_music_folder;
+        }
+        if ("randomplay".equals(id)) {
+            return R.drawable.ic_random;
+        }
+        if ("opmlselectVirtualLibrary".equals(id)) {
+            return R.drawable.ic_ml_other_library;
+        }
+        if ("opmlselectRemoteLibrary".equals(id)) {
+            return R.drawable.ic_my_music;
+        }
+        return R.drawable.icon_pending_artwork;
     }
 
 
@@ -103,10 +166,6 @@ public abstract class Item implements Parcelable {
 
     public boolean isSelectAction() {
         return (goAction != null && !isGoActionPlayAction());
-    }
-
-    public boolean isPlayable() {
-        return (playAction() != null);
     }
 
     public Action playAction() {
@@ -175,7 +234,6 @@ public abstract class Item implements Parcelable {
         setId(source.readString());
         icon = source.readString();
         node = source.readString();
-        iconResource = source.readInt();
         weight = source.readInt();
         nextWindow = Action.NextWindow.fromString(source.readString());
         input = Input.readFromParcel(source);
@@ -194,7 +252,6 @@ public abstract class Item implements Parcelable {
         dest.writeString(getId());
         dest.writeString(icon);
         dest.writeString(node);
-        dest.writeInt(iconResource);
         dest.writeInt(weight);
         dest.writeString(nextWindow == null ? null : nextWindow.toString());
         Input.writeToParcel(dest, input);
@@ -277,7 +334,7 @@ public abstract class Item implements Parcelable {
 
 
     private Map<String, Object> getRecord(Map<String, Object> record, String recordName) {
-        return (Map<String, Object>) record.get(recordName);
+        return Util.getRecord(record, recordName);
     }
 
     protected int getInt(Map<String, Object> record, String fieldName) {

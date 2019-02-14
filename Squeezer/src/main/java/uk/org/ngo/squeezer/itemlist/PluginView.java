@@ -70,13 +70,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
             ImageFetcher.getInstance(getActivity()).loadImage(item.getIcon(), viewHolder.icon,
                     mIconWidth, mIconHeight);
         } else {
-            // Otherwise we will revert to some other icon. This is not an exact approach, more
-            // like a best effort.
-            if (item.isPlayable()) {
-                viewHolder.icon.setImageResource(R.drawable.ic_songs);
-            } else {
-                viewHolder.icon.setVisibility(View.GONE);
-            }
+            viewHolder.icon.setImageResource(item.getIconResource());
         }
 
     }

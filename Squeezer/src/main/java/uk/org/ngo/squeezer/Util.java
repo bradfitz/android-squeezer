@@ -91,6 +91,11 @@ public class Util {
         return parseDecimalInt(value, 0);
     }
 
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> getRecord(Map<String, Object> record, String recordName) {
+        return (Map<String, Object>) record.get(recordName);
+    }
+
     public static int getInt(Map<String, Object> record, String fieldName) {
         return getInt(record, fieldName, 0);
     }
