@@ -211,10 +211,11 @@ public abstract class Item implements Parcelable {
         weight = getInt(record, "weight");
         Map<String, Object> baseRecord = getRecord(record, "base");
         Map<String, Object> baseActions = (baseRecord != null ? getRecord(baseRecord, "actions") : null);
+        Map<String, Object> baseWindow = (baseRecord != null ? getRecord(baseRecord, "window") : null);
         Map<String, Object> actionsRecord = getRecord(record, "actions");
         nextWindow = Action.NextWindow.fromString(getString(record, "nextWindow"));
         input = extractInput(getRecord(record, "input"));
-        window = extractWindow(getRecord(record, "window"));
+        window = extractWindow(getRecord(record, "window"), baseWindow);
         goAction = extractAction("go", baseActions, actionsRecord, record, baseRecord);
         if (goAction == null) {
             goAction = extractAction("do", baseActions, actionsRecord, record, baseRecord);
@@ -346,7 +347,7 @@ public abstract class Item implements Parcelable {
     }
 
 
-    protected String getString(Map<String, Object> record, String fieldName) {
+    protected static String getString(Map<String, Object> record, String fieldName) {
         return Util.getString(record, fieldName);
     }
 
@@ -356,18 +357,23 @@ public abstract class Item implements Parcelable {
     }
 
 
-    private Window extractWindow(Map<String, Object> record) {
-        if (record == null) return null;
+    public static Window extractWindow(Map<String, Object> itemWindow, Map<String, Object> baseWindow) {
+        if (itemWindow == null && baseWindow == null) return null;
+
+        Map<String, Object> params = new HashMap<>();
+        if (baseWindow != null) params.putAll(baseWindow);
+        if (itemWindow != null) params.putAll(itemWindow);
 
         Window window = new Window();
-        window.windowId = getString(record, "windowId");
-        window.text = getString(record, "text");
-        window.textarea = getString(record, "textarea");
-        window.textareaToken = getString(record, "textAreaToken");
-        window.help = getString(record, "help");
-        window.icon = getString(record, record.containsKey("icon") ? "icon" : "icon-id");
-        window.menuStyle = getString(record, "menuStyle");
-        window.titleStyle = getString(record, "titleStyle");
+        window.windowId = getString(params, "windowId");
+        window.text = getString(params, "text");
+        window.textarea = getString(params, "textarea");
+        window.textareaToken = getString(params, "textAreaToken");
+        window.help = getString(params, "help");
+        window.icon = getString(params, params.containsKey("icon") ? "icon" : "icon-id");
+        window.titleStyle = getString(params, "titleStyle");
+        window.menuStyle = getString(params, "menuStyle");
+        window.windowStyle = getString(params, "windowStyle");
 
         return window;
     }

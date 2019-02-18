@@ -36,6 +36,7 @@ import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
+import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
@@ -44,20 +45,38 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 public class PluginView extends BaseItemView<Plugin> implements IServiceItemListCallback<Plugin> {
 
     private final BaseListActivity<Plugin> activity;
+    private Window.WindowStyle windowStyle;
 
-    public PluginView(BaseListActivity<Plugin> activity) {
+    public PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle) {
         super(activity);
         this.activity = activity;
+        this.windowStyle = windowStyle;
 
-        setLoadingViewParams(VIEW_PARAM_ICON);
+        setLoadingViewParams(viewParamIcon());
+    }
+
+    public Window.WindowStyle getWindowStyle() {
+        return windowStyle;
+    }
+
+    public void setWindowStyle(Window.WindowStyle windowStyle) {
+        this.windowStyle = windowStyle;
     }
 
     @Override
     public View getAdapterView(View convertView, ViewGroup parent, int position, Plugin item) {
-        @ViewParam int viewParams = (VIEW_PARAM_ICON | (item.hasContextMenu() ? VIEW_PARAM_CONTEXT_BUTTON : 0));
+        @ViewParam int viewParams = (viewParamIcon() | viewParamContext(item));
         View view = getAdapterView(convertView, parent, viewParams);
         bindView(view, item);
         return view;
+    }
+
+    private int viewParamIcon() {
+        return windowStyle == Window.WindowStyle.TEXT_ONLY ? 0 : VIEW_PARAM_ICON;
+    }
+
+    private int viewParamContext(Plugin item) {
+        return item.hasContextMenu() ? VIEW_PARAM_CONTEXT_BUTTON : 0;
     }
 
     @Override

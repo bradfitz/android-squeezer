@@ -296,33 +296,38 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             viewHolder.contextMenuButtonHolder = convertView.findViewById(R.id.context_menu);
             viewHolder.contextMenuButton = (ImageButton) viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
             viewHolder.contextMenuLoading = (ProgressBar) viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+            setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }
 
         // If the view parameters are different then reset the visibility of child views and hook
         // up any standard behaviours.
         if (viewParams != viewHolder.viewParams) {
-            viewHolder.icon.setVisibility(
-                    (viewParams & VIEW_PARAM_ICON) != 0 ? View.VISIBLE : View.GONE);
-            viewHolder.text2.setVisibility(
-                    (viewParams & VIEW_PARAM_TWO_LINE) != 0 ? View.VISIBLE : View.GONE);
-
-            if ((viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0) {
-                viewHolder.contextMenuButtonHolder.setVisibility(View.VISIBLE);
-                viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        v.showContextMenu();
-                    }
-                });
-            } else {
-                viewHolder.contextMenuButtonHolder.setVisibility(View.GONE);
-            }
-
-            viewHolder.viewParams = viewParams;
+            setViewParams(viewParams, viewHolder);
         }
 
         return convertView;
+    }
+
+    private void setViewParams(@ViewParam int viewParams, ViewHolder viewHolder) {
+        viewHolder.icon.setVisibility(
+                (viewParams & VIEW_PARAM_ICON) != 0 ? View.VISIBLE : View.GONE);
+        viewHolder.text2.setVisibility(
+                (viewParams & VIEW_PARAM_TWO_LINE) != 0 ? View.VISIBLE : View.GONE);
+
+        if ((viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0) {
+            viewHolder.contextMenuButtonHolder.setVisibility(View.VISIBLE);
+            viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    v.showContextMenu();
+                }
+            });
+        } else {
+            viewHolder.contextMenuButtonHolder.setVisibility(View.GONE);
+        }
+
+        viewHolder.viewParams = viewParams;
     }
 
     public ViewHolder createViewHolder() {

@@ -40,8 +40,8 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
 import uk.org.ngo.squeezer.framework.Action;
-import uk.org.ngo.squeezer.framework.BaseItem;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -62,10 +62,11 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     private String cmd;
     private Plugin plugin;
     private Action action;
+    private Window.WindowStyle windowStyle = Window.WindowStyle.ICON_TEXT;
 
     @Override
     public ItemView<Plugin> createItemView() {
-        return new PluginView(this);
+        return new PluginView(this, windowStyle);
     }
 
     @Override
@@ -78,6 +79,10 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         cmd = extras.getString("cmd");
         plugin = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
+
+        if (plugin != null && plugin.window != null) {
+            applyWindow(plugin.window);
+        }
 
         findViewById(R.id.input_view).setVisibility((hasInput()) ? View.VISIBLE : View.GONE);
         if (hasInput()) {
@@ -139,10 +144,21 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     private void updateHeader(Window window) {
-        updateHeader(window.text);
+        if (!TextUtils.isEmpty(window.text)) {
+            updateHeader(window.text);
+        }
         if (!TextUtils.isEmpty(window.textarea)) {
             updateSubHeader(window.textarea);
         }
+    }
+
+    private void applyWindow(Window window) {
+        windowStyle = window.windowStyle();
+        if (windowStyle != ((PluginView)getItemView()).getWindowStyle()) {
+            ((PluginView) getItemView()).setWindowStyle(windowStyle);
+            getItemAdapter().notifyDataSetChanged();
+        }
+        updateHeader(window);
     }
 
 
@@ -189,17 +205,14 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     public void onItemsReceived(int count, int start, final Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
-        Object baseRecord = parameters.get("base");
-        if (baseRecord != null) {
-            final BaseItem baseItem = new BaseItem((Map<String, Object>) baseRecord);
-            if (baseItem.window != null) {
-                runOnUiThread(new Runnable() {
+        final Window window = Item.extractWindow(Util.getRecord(parameters, "window"), null);
+        if (window != null) {
+            runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        updateHeader(baseItem.window);
+                        applyWindow(window);
                     }
                 });
-            }
         }
         if (parameters.containsKey("title")) {
             runOnUiThread(new Runnable() {
