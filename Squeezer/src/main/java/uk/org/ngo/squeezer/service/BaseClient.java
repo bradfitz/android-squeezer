@@ -68,9 +68,6 @@ abstract class BaseClient implements SlimClient {
 
     final static int mPageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
 
-    // Where we connected (or are connecting) to:
-    final AtomicReference<String> currentHost = new AtomicReference<>();
-    final AtomicReference<Integer> httpPort = new AtomicReference<>();
     final AtomicReference<String> username = new AtomicReference<>();
     final AtomicReference<String> password = new AtomicReference<>();
 
@@ -99,15 +96,6 @@ abstract class BaseClient implements SlimClient {
     }
 
     protected abstract <T extends Item> void internalRequestItems(BrowseRequest<T> browseRequest);
-
-
-    int getHttpPort() {
-        return httpPort.get();
-    }
-
-    String getCurrentHost() {
-        return currentHost.get();
-    }
 
     @Override
     public String getUsername() {
@@ -255,7 +243,7 @@ abstract class BaseClient implements SlimClient {
         record.put("download_url", mUrlPrefix + "/music/" + record.get("id") + "/download");
     }
 
-    void updatePlayStatus(Player player, String playStatus) {
+    private void updatePlayStatus(Player player, String playStatus) {
         // Handle unknown states.
         if (!playStatus.equals(PlayerState.PLAY_STATE_PLAY) &&
                 !playStatus.equals(PlayerState.PLAY_STATE_PAUSE) &&

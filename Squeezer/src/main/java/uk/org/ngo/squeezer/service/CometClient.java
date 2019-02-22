@@ -272,9 +272,6 @@ class CometClient extends BaseClient {
                     return;
                 }
 
-                // XXX: Need to deal with HTTPS
-                currentHost.set(serverAddress.host());
-                httpPort.set(serverAddress.port());
                 CometClient.this.username.set(username);
                 CometClient.this.password.set(password);
 
