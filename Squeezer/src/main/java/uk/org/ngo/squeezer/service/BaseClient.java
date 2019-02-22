@@ -21,12 +21,10 @@ import android.support.annotation.NonNull;
 
 import com.google.common.base.Splitter;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.R;
@@ -272,30 +270,32 @@ abstract class BaseClient implements SlimClient {
         }
     }
 
-    /**
-     * Make sure the icon/image tag is an absolute URL.
-     *
-     * @param record The record to modify.
-     */
+    /** Make sure the icon/image tag is an absolute URL. */
     @SuppressWarnings("unchecked")
     void fixImageTag(Map<String, Object> record) {
-        Set<String> iconTags = new HashSet<>(Arrays.asList("icon", "image", "icon-id"));
-        for (Map.Entry<String, Object> entry : record.entrySet()) {
-            if (entry.getValue() instanceof Map) {
-                fixImageTag((Map<String, Object>) entry.getValue());
-            } else if (iconTags.contains(entry.getKey()) && entry.getValue() instanceof String) {
-                String image = (String) entry.getValue();
-                if (image == null) {
-                    continue;
-                }
+        fixImageTag("icon", record);
+        fixImageTag("icon-id", record);
+    }
 
-                if (Uri.parse(image).isAbsolute()) {
-                    continue;
-                }
-
-                entry.setValue(mUrlPrefix + (image.startsWith("/") ? image : "/" + image));
-            }
+    /** Make sure the icon/image tag is an absolute URL. */
+    private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
+    private void fixImageTag(String imageTag, Map<String, Object> record) {
+        Object data = record.get(imageTag);
+        if (data == null) {
+            return;
         }
+
+        String image = data.toString();
+        if (HEX_PATTERN.matcher(image).matches()) {
+            // if the iconId is a hex digit, this is a coverid or remote track id(a negative id)
+            image = "/music/" + image + "/cover";
+        }
+
+        if (Uri.parse(image).isAbsolute()) {
+            return;
+        }
+
+        record.put(imageTag, mUrlPrefix + (image.startsWith("/") ? image : "/" + image));
     }
 
     protected static class BrowseRequest<T extends Item> {

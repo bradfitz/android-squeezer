@@ -206,7 +206,7 @@ public abstract class Item implements Parcelable {
 
     public Item(Map<String, Object> record) {
         setId(getString(record, record.containsKey("cmd") ? "cmd" : "id"));
-        icon = getString(record, record.containsKey("icon") ? "icon" : "icon-id");
+        icon = getString(record, record.containsKey("icon-id") ? "icon-id" : "icon");
         node = getString(record, "node");
         weight = getInt(record, "weight");
         Map<String, Object> baseRecord = getRecord(record, "base");
