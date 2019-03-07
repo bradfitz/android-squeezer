@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
@@ -40,7 +41,7 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
     private String node;
 
     /** Home menu tree as received from slimserver */
-    private List<Plugin> homeMenu = new ArrayList<>();
+    private List<Plugin> homeMenu = new Vector<>();
 
 
     @Override
