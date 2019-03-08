@@ -35,8 +35,6 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.dialog.ChangeLogDialog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
-import uk.org.ngo.squeezer.framework.ItemView;
-import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class HomeActivity extends HomeMenuActivity {

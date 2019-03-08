@@ -20,6 +20,7 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -32,15 +33,30 @@ import java.util.Vector;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
+import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class HomeMenuActivity extends BaseListActivity<Plugin> {
 
-    /** Home menu node this activity instance shows */
-    private String node;
+    /** Tag in retain fragment for home menu node this activity instance shows */
+    private static final String TAG_HOME_MENU_NODE = "HomeMenuNode";
 
-    /** Home menu tree as received from slimserver */
+    /**
+     * Tag in retain fragment for the player for the home menu.
+     * <p>
+     * This is retained, so we can reorder the home menu, if the player has changed when the
+     * activity is resumed
+     * */
+    private static final String TAG_HOME_MENU_PLAYER = "HomeMenuPlayer";
+
+    /**
+     * Home menu tree as received from slimserver
+     * <p>
+     * This is not retained. We receive the home menu from the server, then setup the item list,
+     * which is retained by superclasses.
+     * */
     private List<Plugin> homeMenu = new Vector<>();
 
 
@@ -53,17 +69,7 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        handleIntent(getIntent());
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        handleIntent(intent);
-    }
-
-    private void handleIntent(Intent intent) {
-        Bundle extras = intent.getExtras();
+        Bundle extras = getIntent().getExtras();
         String node = null;
         if (extras != null) {
             node = extras.getString("node");
@@ -71,12 +77,37 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
         if (node == null) {
             node = "home";
         }
-        this.node = node;
+        putRetainedValue(TAG_HOME_MENU_NODE, node);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        putRetainedValue(TAG_HOME_MENU_PLAYER, getActivePlayerId());
+    }
+
+    private String getActivePlayerId() {
+        ISqueezeService service = getService();
+        if (service != null) {
+            Player activePlayer = service.getActivePlayer();
+            return (activePlayer != null ? activePlayer.getId() : null);
+        }
+        return null;
     }
 
     @Override
     protected boolean needPlayer() {
         return true;
+    }
+
+    @Override
+    @MainThread
+    public void onEventMainThread(HandshakeComplete event) {
+        super.onEventMainThread(event);
+        String homeMenuPlayerId = (String) getRetainedValue(TAG_HOME_MENU_PLAYER);
+        if (homeMenuPlayerId != null && (!homeMenuPlayerId.equals(getActivePlayerId()))) {
+            clearAndReOrderItems();
+        }
     }
 
     @Override
@@ -105,6 +136,7 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
     private List<Plugin> getMenuNode() {
         ArrayList<Plugin> menu = new ArrayList<>();
         for (Plugin item : homeMenu) {
+            String node = (String) getRetainedValue(TAG_HOME_MENU_NODE);
             if (node.equals(item.getNode())) {
                 menu.add(item);
             }

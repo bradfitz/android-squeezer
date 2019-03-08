@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.framework;
 
 
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -110,6 +111,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         setAdapter(listView);
     }
 
+    @MainThread
     public void onEventMainThread(HandshakeComplete event) {
         super.onEventMainThread(event);
         if (!needPlayer() || getService().getActivePlayer() != null) {
