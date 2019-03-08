@@ -104,7 +104,9 @@ public abstract class ItemListActivity extends BaseActivity {
      */
     private static final String TAG_RECEIVED_PAGES = "mReceivedPages";
 
-    /* Fragment to retain information across orientation changes. */
+    /**
+     * Fragment to retain information across the activity lifecycle.
+     */
     private RetainFragment mRetainFragment;
 
     @Override
@@ -137,11 +139,19 @@ public abstract class ItemListActivity extends BaseActivity {
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
 
         //noinspection unchecked
-        mReceivedPages = (Set<Integer>) mRetainFragment.get(TAG_RECEIVED_PAGES);
+        mReceivedPages = (Set<Integer>) getRetainedValue(TAG_RECEIVED_PAGES);
         if (mReceivedPages == null) {
             mReceivedPages = new HashSet<>();
-            mRetainFragment.put(TAG_RECEIVED_PAGES, mReceivedPages);
+            putRetainedValue(TAG_RECEIVED_PAGES, mReceivedPages);
         }
+    }
+
+    protected Object getRetainedValue(String key) {
+        return mRetainFragment.get(key);
+    }
+
+    protected Object putRetainedValue(String key, Object value) {
+        return mRetainFragment.put(key, value);
     }
 
     @Override

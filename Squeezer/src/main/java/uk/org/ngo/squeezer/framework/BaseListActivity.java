@@ -38,7 +38,6 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.util.RetainFragment;
 
 
 /**
@@ -57,8 +56,6 @@ import uk.org.ngo.squeezer.util.RetainFragment;
  */
 public abstract class BaseListActivity<T extends Item> extends ItemListActivity implements IServiceItemListCallback<T> {
 
-    private static final String TAG = BaseListActivity.class.getName();
-
     /**
      * Tag for first visible position in mRetainFragment.
      */
@@ -73,11 +70,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     private ItemAdapter<T> itemAdapter;
 
     /**
-     * Fragment to retain information across the activity lifecycle.
-     */
-    private RetainFragment mRetainFragment;
-
-    /**
      * Can't do much here, as content is based on settings, and which data to display, which is controlled by data
      * returned from server.
      * <p>
@@ -87,9 +79,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
-
         setContentView(getContentView());
     }
 
@@ -179,7 +168,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
             Log.e(getTag(), "Error calling 'setAdapter'", e);
         }
 
-        Integer position = (Integer) mRetainFragment.get(TAG_POSITION);
+        Integer position = (Integer) getRetainedValue(TAG_POSITION);
         if (position != null) {
             if (listView instanceof ListView) {
                 ((ListView) listView).setSelectionFromTop(position, 0);
@@ -202,7 +191,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * @see android.widget.AbsListView#getFirstVisiblePosition()
      */
     private void saveVisiblePosition() {
-        mRetainFragment.put(TAG_POSITION, getListView().getFirstVisiblePosition());
+        putRetainedValue(TAG_POSITION, getListView().getFirstVisiblePosition());
     }
 
     /**
@@ -218,10 +207,10 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     public ItemAdapter<T> getItemAdapter() {
         if (itemAdapter == null) {
             //noinspection unchecked
-            itemAdapter = (ItemAdapter<T>) mRetainFragment.get(TAG_ADAPTER);
+            itemAdapter = (ItemAdapter<T>) getRetainedValue(TAG_ADAPTER);
             if (itemAdapter == null) {
                 itemAdapter = createItemListAdapter(createItemView());
-                mRetainFragment.put(TAG_ADAPTER, itemAdapter);
+                putRetainedValue(TAG_ADAPTER, itemAdapter);
             } else {
                 // We have just retained the item adapter, we need to create a new
                 // item view logic, cause it holds a reference to the old activity
