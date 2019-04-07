@@ -21,7 +21,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,7 +36,7 @@ public class RetainFragment extends Fragment {
 
     private static final String TAG = RetainFragment.class.getName();
 
-    private final Map<String, Object> mHash = new Hashtable<>();
+    private final Map<String, Object> mHash = Collections.synchronizedMap(new HashMap<String, Object>());
 
     /**
      * Empty constructor as per the Fragment documentation
