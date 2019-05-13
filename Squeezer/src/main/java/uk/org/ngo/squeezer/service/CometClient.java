@@ -32,6 +32,7 @@ import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.client.BayeuxClient;
 import org.cometd.client.transport.ClientTransport;
 import org.cometd.client.transport.HttpClientTransport;
+import org.cometd.client.transport.TransportListener;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
@@ -289,15 +290,34 @@ class CometClient extends BaseClient {
 
                 Map<String, Object> options = new HashMap<>();
                 options.put(HttpClientTransport.MAX_NETWORK_DELAY_OPTION, LONG_POLLING_TIMEOUT);
-                ClientTransport clientTransport = new HttpStreamingTransport(url, options, httpClient) {
-                    @Override
-                    protected void customize(org.eclipse.jetty.client.api.Request request) {
-                        if (!isSqueezeNetwork && username != null && password != null) {
-                            String authorization = B64Code.encode(username + ":" + password);
-                            request.header(HttpHeader.AUTHORIZATION, "Basic " + authorization);
+                ClientTransport clientTransport;
+                if (!isSqueezeNetwork) {
+                    clientTransport = new HttpStreamingTransport(url, options, httpClient) {
+                        @Override
+                        protected void customize(org.eclipse.jetty.client.api.Request request) {
+                            if (username != null && password != null) {
+                                String authorization = B64Code.encode(username + ":" + password);
+                                request.header(HttpHeader.AUTHORIZATION, "Basic " + authorization);
+                            }
                         }
-                    }
-                };
+                    };
+                } else {
+                    clientTransport = new HttpStreamingTransport(url, options, httpClient) {
+                        // SN only replies the first connect message
+                        private boolean hasSendConnect;
+
+                        @Override
+                        public void send(TransportListener listener, List<Message.Mutable> messages) {
+                            boolean isConnect = Channel.META_CONNECT.equals(messages.get(0).getChannel());
+                            if (!(isConnect && hasSendConnect)) {
+                                super.send(listener, messages);
+                                if (isConnect) {
+                                    hasSendConnect = true;
+                                }
+                            }
+                        }
+                    };
+                }
                 mBayeuxClient = new SqueezerBayeuxClient(url, clientTransport);
                 mBayeuxClient.addExtension(new SqueezerBayeuxExtension());
                 mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
@@ -376,7 +396,7 @@ class CometClient extends BaseClient {
 
                 // Subscribe to server changes
                 {
-                    Request request = request("serverstatus").defaultPage().param("subscribe", "0");
+                    Request request = request("serverstatus").defaultPage().param("subscribe", "60");
                     publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
                 }
 
