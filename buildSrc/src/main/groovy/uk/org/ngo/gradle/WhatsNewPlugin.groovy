@@ -40,43 +40,47 @@ class WhatsNewPlugin implements Plugin<Project> {
          * Generates the whatsnew file from scratch from the contents of the changelog.
          */
         project.extensions.create('whatsnew', WhatsNewPluginExtension)
-        project.task('generateWhatsNew') << {
-            def changelog = new XmlSlurper().parseText(
-                    new File(project.whatsnew.changelogPath).getText('UTF-8'))
+        project.task('generateWhatsNew') {
+            doLast {
+                def changelog = new XmlSlurper().parseText(
+                        new File(project.whatsnew.changelogPath).getText('UTF-8'))
 
-            String content = ''
-            changelog.release[0].change.each { change ->
-                content += '&bull; ' + change.text().replaceAll('\n', ' ').replaceAll(' +', ' ').trim() + '\n\n'
+                String content = ''
+                changelog.release[0].change.each { change ->
+                    content += '&bull; ' + change.text().replaceAll('\n', ' ').replaceAll(' +', ' ').trim() + '\n\n'
+                }
+
+                new File(project.whatsnew.whatsnewPath).setText(content.trim(), 'UTF-8')
             }
-
-            new File(project.whatsnew.whatsnewPath).setText(content.trim(), 'UTF-8')
         }
 
         /**
          * Generates the NEWS file from scratch from the contents of the changelog.
          */
-        project.task('generateNews') << {
-            def changeLog = new XmlSlurper().parseText(
-                    new File(project.whatsnew.changelogPath).getText('UTF-8'))
+        project.task('generateNews') {
+            doLast {
+                def changeLog = new XmlSlurper().parseText(
+                        new File(project.whatsnew.changelogPath).getText('UTF-8'))
 
-            String content = ''
-            changeLog.release.each { release ->
-                content += release.@version.text() + '\n'
-                content += ('=' * release.@version.text().size()) + '\n\n'
-                release.change.each { change ->
-                    String filledText = fill(
-                            change.text()
-                                    .replaceAll('\n', ' ')
-                                    .replaceAll(' +', ' ')
-                                    .replaceAll('\u200B', '')  // Collapse zero-width space
-                                    .trim(),
-                            78, '    ').trim()
-                    content += '*   ' + filledText + '\n\n'
+                String content = ''
+                changeLog.release.each { release ->
+                    content += release.@version.text() + '\n'
+                    content += ('=' * release.@version.text().size()) + '\n\n'
+                    release.change.each { change ->
+                        String filledText = fill(
+                                change.text()
+                                        .replaceAll('\n', ' ')
+                                        .replaceAll(' +', ' ')
+                                        .replaceAll('\u200B', '')  // Collapse zero-width space
+                                        .trim(),
+                                78, '    ').trim()
+                        content += '*   ' + filledText + '\n\n'
+                    }
+                    content += '\n'
                 }
-                content += '\n'
-            }
 
-            new File(project.whatsnew.newsPath).setText(content.trim(), 'UTF-8')
+                new File(project.whatsnew.newsPath).setText(content.trim(), 'UTF-8')
+            }
         }
     }
 
