@@ -693,10 +693,12 @@ public class SqueezeService extends Service {
 
     private void fetchPlugins(final File path, Action.JsonAction action) {
         if (action.cmd[0].equals("playlistcontrol")) {
-            Log.e(TAG, "Oops calling playlistcontrol command: " + action);
+            Log.w(TAG, "Skip to avoid calling playlistcontrol command: " + action);
+            return;
         }
         if (action.cmd.length > 1 && action.cmd[1].equals("playlist")) {
-            Log.e(TAG, "Oops calling playlist command");
+            Log.w(TAG, "Skip to avoid calling playlist command: " + action);
+            return;
         }
         fetchPlugins(new File(path, action.cmd()), action.cmd, action.params);
     }

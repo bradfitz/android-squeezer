@@ -22,7 +22,6 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,46 +160,11 @@ public abstract class Item implements Parcelable {
 
 
     public boolean isSelectable() {
-        return (isSelectAction() || hasSubItems() || (goAction != null && goAction.action.nextWindow != null) || node != null);
-    }
-
-    public boolean isSelectAction() {
-        return (goAction != null && !isGoActionPlayAction());
-    }
-
-    public Action playAction() {
-        if (playAction != null) {
-            return playAction;
-        }
-        return (isGoActionPlayAction() ? goAction : null);
+        return (goAction != null || hasSubItems()|| node != null);
     }
 
     public boolean hasContextMenu() {
-        return (playAction() != null || addAction != null || insertAction != null || moreAction != null);
-    }
-
-    public boolean hasSlimContextMenu() {
-        return (moreAction != null);
-    }
-
-    /** We preferably won't play when item is selected, so attempt to avoid that */
-    private boolean isGoActionPlayAction() {
-        if (goAction == null) {
-            return false;
-        }
-        if (playAction != null) {
-            // goAction and playAction performs the same action
-            return sameAction(goAction.action, playAction.action);
-        } else {
-            // goAction plays
-            return "playlistcontrol".equals(goAction.action.cmd[0]) ||
-                    (goAction.action.nextWindow != null && Action.NextWindowEnum.nowPlaying == goAction.action.nextWindow.nextWindow);
-        }
-    }
-
-    private boolean sameAction(Action.JsonAction action1, Action.JsonAction action2) {
-        if (!Arrays.equals(action1.cmd, action2.cmd)) return false;
-        return action1.params.equals(action2.params);
+        return (playAction != null || addAction != null || insertAction != null || moreAction != null);
     }
 
 
