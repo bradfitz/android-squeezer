@@ -140,7 +140,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     private void updateSubHeader(String headerText) {
         TextView header = (TextView) findViewById(R.id.sub_header);
         header.setText(headerText);
-        header.setVisibility(View.VISIBLE);
+        findViewById(R.id.sub_header_container).setVisibility(View.VISIBLE);
     }
 
     private void updateHeader(Window window) {

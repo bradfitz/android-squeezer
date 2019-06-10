@@ -39,21 +39,23 @@
         android:textAppearance="@style/SqueezerTextAppearance.ItemList.Header"
         android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/sub_header"
+    <ScrollView
+        android:id="@+id/sub_header_container"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:minHeight="48dp"
-        android:paddingBottom="4dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="4dp"
-        android:textAppearance="@style/SqueezerTextAppearance.ItemList.SubHeader"
-        android:background="?sub_header_background"
-        android:visibility="gone"/>
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/sub_header"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="4dp"
+            android:textAppearance="@style/SqueezerTextAppearance.ItemList.SubHeader"
+            android:background="?sub_header_background"/>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/input_view"
