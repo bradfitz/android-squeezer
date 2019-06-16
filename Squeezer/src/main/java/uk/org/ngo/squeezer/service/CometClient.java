@@ -570,6 +570,8 @@ class CometClient extends BaseClient {
             final int start = browseRequest.getStart();
             final int end = start + getItems().size();
             int max = 0;
+            fixImageTag("artworkId", data);
+            fixImageTag("artworkUrl", data);
             browseRequest.getCallback().onItemsReceived(count, start, data, getItems(), getDataType());
             if (count > max) {
                 max = count;

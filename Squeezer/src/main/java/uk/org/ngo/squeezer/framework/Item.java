@@ -53,6 +53,7 @@ public abstract class Item implements Parcelable {
     public Action insertAction;
     public Action moreAction;
     public List<Plugin> subItems;
+    public boolean showBigArtwork;
 
     public Item() {
     }
@@ -180,11 +181,14 @@ public abstract class Item implements Parcelable {
         nextWindow = Action.NextWindow.fromString(getString(record, "nextWindow"));
         input = extractInput(getRecord(record, "input"));
         window = extractWindow(getRecord(record, "window"), baseWindow);
-        goAction = extractAction("go", baseActions, actionsRecord, record, baseRecord);
+
+        // do takes precedence over go
+        goAction = extractAction("do", baseActions, actionsRecord, record, baseRecord);
+        doAction = (goAction != null);
         if (goAction == null) {
-            goAction = extractAction("do", baseActions, actionsRecord, record, baseRecord);
-            doAction = (goAction != null);
+            goAction = extractAction("go", baseActions, actionsRecord, record, baseRecord);
         }
+
         playAction = extractAction("play", baseActions, actionsRecord, record, baseRecord);
         addAction = extractAction("add", baseActions, actionsRecord, record, baseRecord);
         insertAction = extractAction("add-hold", baseActions, actionsRecord, record, baseRecord);
@@ -193,6 +197,7 @@ public abstract class Item implements Parcelable {
             moreAction.action.params.put("xmlBrowseInterimCM", 1);
         }
         subItems = extractSubItems((Object[]) record.get("item_loop"));
+        showBigArtwork = record.containsKey("showBigArtwork");
     }
 
     public Item(Parcel source) {
@@ -210,6 +215,7 @@ public abstract class Item implements Parcelable {
         moreAction = source.readParcelable(Item.class.getClassLoader());
         subItems = source.createTypedArrayList(Plugin.CREATOR);
         doAction = (source.readByte() != 0);
+        showBigArtwork = (source.readByte() != 0);
     }
 
     @Override
@@ -228,6 +234,7 @@ public abstract class Item implements Parcelable {
         dest.writeParcelable(moreAction, flags);
         dest.writeTypedList(subItems);
         dest.writeByte((byte) (doAction ? 1 : 0));
+        dest.writeByte((byte) (showBigArtwork ? 1 : 0));
     }
 
 

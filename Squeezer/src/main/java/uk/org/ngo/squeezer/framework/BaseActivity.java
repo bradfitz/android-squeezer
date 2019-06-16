@@ -445,10 +445,6 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     public void action(Item item, Action action) {
-        action(item.getName(), item, action);
-    }
-
-    public void action(String title, Item item, Action action) {
         if (mService == null) {
             return;
         }

@@ -37,6 +37,7 @@ import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
@@ -47,7 +48,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
     private final BaseListActivity<Plugin> activity;
     private Window.WindowStyle windowStyle;
 
-    public PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle) {
+    PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle) {
         super(activity);
         this.activity = activity;
         this.windowStyle = windowStyle;
@@ -55,11 +56,11 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
         setLoadingViewParams(viewParamIcon());
     }
 
-    public Window.WindowStyle getWindowStyle() {
+    Window.WindowStyle getWindowStyle() {
         return windowStyle;
     }
 
-    public void setWindowStyle(Window.WindowStyle windowStyle) {
+    void setWindowStyle(Window.WindowStyle windowStyle) {
         this.windowStyle = windowStyle;
     }
 
@@ -107,14 +108,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
     @Override
     public void onItemSelected(int index, Plugin item) {
         Action.NextWindow nextWindow = (item.goAction != null ? item.goAction.action.nextWindow : item.nextWindow);
-        if (nextWindow == null) {
-            if (item.goAction != null)
-                PluginListActivity.show(getActivity(), item, item.goAction);
-            else if (item.hasSubItems())
-                PluginListActivity.show(getActivity(), item);
-            else if (item.getNode() != null)
-                HomeMenuActivity.show(getActivity(), item.getId());
-        } else {
+        if (nextWindow != null) {
             getActivity().action(item, item.goAction);
             switch (nextWindow.nextWindow) {
                 case nowPlaying:
@@ -145,15 +139,31 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
                     //TODO implement
                     break;
             }
+        } else {
+            if (item.goAction != null)
+                execGoAction(item);
+            else if (item.hasSubItems())
+                PluginListActivity.show(getActivity(), item);
+            else if (item.getNode() != null)
+                HomeMenuActivity.show(getActivity(), item.getId());
         }
    }
+
+    private void execGoAction(Plugin item) {
+        if (item.showBigArtwork) {
+            ArtworkDialog.show(getActivity().getSupportFragmentManager(), item.goAction);
+        } else if (item.doAction) {
+            getActivity().action(item, item.goAction);
+        } else {
+            PluginListActivity.show(getActivity(), item, item.goAction);
+        }
+    }
 
     // Only touch these from the main thread
     private boolean contextMenuReady = false;
     private boolean contextMenuWaiting = false;
     private Stack<Action> contextStack;
     private View contextMenuView;
-    private Plugin contextItem;
     private String contextMenuTitle;
     private List<Plugin> contextItems;
 
@@ -162,11 +172,9 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
         final Plugin item = (Plugin) menuInfo.item;
         if (!contextMenuReady && !contextMenuWaiting) {
             contextMenuTitle = null;
-            contextItem = null;
             contextItems = null;
             if (item.moreAction != null) {
                 contextMenuView = v;
-                contextItem = item;
                 contextStack = new Stack<>();
                 contextStack.push(item.moreAction);
                 orderContextMenu(item.moreAction);
@@ -234,9 +242,10 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
     public boolean doItemContext(MenuItem menuItem, int index, Plugin selectedItem) {
         if (contextItems != null) {
             selectedItem = contextItems.get(menuItem.getItemId());
-            if (selectedItem.goAction.action.nextWindow != null) {
-                getActivity().action(contextMenuTitle, contextItem, selectedItem.goAction);
-                switch (selectedItem.goAction.action.nextWindow.nextWindow) {
+            Action.NextWindow nextWindow = (selectedItem.goAction != null ? selectedItem.goAction.action.nextWindow : selectedItem.nextWindow);
+            if (nextWindow != null) {
+                getActivity().action(selectedItem, selectedItem.goAction);
+                switch (nextWindow.nextWindow) {
                     case playlist:
                         CurrentPlaylistActivity.show(getActivity());
                         break;
@@ -258,7 +267,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
                     contextStack.push(selectedItem.goAction);
                     orderContextMenu(selectedItem.goAction);
                 } else {
-                    PluginListActivity.show(getActivity(), contextItem, selectedItem.goAction);
+                    execGoAction(selectedItem);
                 }
             }
             return true;

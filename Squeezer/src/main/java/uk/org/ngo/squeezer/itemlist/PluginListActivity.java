@@ -187,9 +187,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         } else if (plugin != null) {
             if (action == null || (plugin.hasInput() && !plugin.isInputReady())) {
                 showContent();
-            } else if (plugin.doAction) {
-                action(plugin, plugin.goAction);
-                finish(); // TODO nextWindow trumps???
             } else
                 service.pluginItems(start, plugin, action, this);
         } else {

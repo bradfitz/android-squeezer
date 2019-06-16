@@ -267,7 +267,7 @@ abstract class BaseClient implements SlimClient {
 
     /** Make sure the icon/image tag is an absolute URL. */
     private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
-    private void fixImageTag(String imageTag, Map<String, Object> record) {
+    void fixImageTag(String imageTag, Map<String, Object> record) {
         Object data = record.get(imageTag);
         if (data == null) {
             return;
