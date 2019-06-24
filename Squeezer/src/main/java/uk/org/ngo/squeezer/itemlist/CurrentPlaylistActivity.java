@@ -106,6 +106,11 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     }
 
     @Override
+    protected boolean needPlayer() {
+        return true;
+    }
+
+    @Override
     protected ItemAdapter<Plugin> createItemListAdapter(
             ItemView<Plugin> itemView) {
         return new HighlightingListAdapter(itemView);
