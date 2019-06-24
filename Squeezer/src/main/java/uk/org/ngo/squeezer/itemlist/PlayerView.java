@@ -31,9 +31,9 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
+import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 
@@ -116,9 +116,9 @@ public class PlayerView extends BaseItemView<Player> {
                 cancelSleepItem.setVisible(true);
             }
 
-            Song currentSong = playerState.getCurrentSong();
+            CurrentPlaylistItem currentSong = playerState.getCurrentSong();
             boolean isPlaying = (playerState.isPlaying() && currentSong != null);
-            if (isPlaying && !currentSong.isRemote()) {
+            if (isPlaying && !playerState.isRemote()) {
                 MenuItem sleepAtEndOfSongItem = menu.findItem(R.id.end_of_song);
                 sleepAtEndOfSongItem.setTitle(activity.getServerString(ServerString.SLEEP_AT_END_OF_SONG));
                 sleepAtEndOfSongItem.setVisible(true);
@@ -175,9 +175,9 @@ public class PlayerView extends BaseItemView<Player> {
             case R.id.end_of_song:
                 PlayerState playerState = activity.getPlayerState(currentPlayer.getId());
                 if (playerState != null) {
-                    Song currentSong = playerState.getCurrentSong();
+                    CurrentPlaylistItem currentSong = playerState.getCurrentSong();
                     boolean isPlaying = (playerState.isPlaying() && currentSong != null);
-                    if (isPlaying && !currentSong.isRemote()) {
+                    if (isPlaying && !playerState.isRemote()) {
                         int sleep = playerState.getCurrentSongDuration() - playerState.getCurrentTimeSecond() + 1;
                         if (sleep >= 0)
                             service.sleep(currentPlayer, sleep);
@@ -210,7 +210,7 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     private static Map<String, Integer> initializeModelIcons() {
-        Map<String, Integer> modelIcons = new HashMap<String, Integer>();
+        Map<String, Integer> modelIcons = new HashMap<>();
         modelIcons.put("baby", R.drawable.ic_baby);
         modelIcons.put("boom", R.drawable.ic_boom);
         modelIcons.put("fab4", R.drawable.ic_fab4);

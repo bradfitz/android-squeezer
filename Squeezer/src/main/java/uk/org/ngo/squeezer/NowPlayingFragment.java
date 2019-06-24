@@ -67,23 +67,21 @@ import java.util.Collections;
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
-import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.PluginListActivity;
-import uk.org.ngo.squeezer.itemlist.SongListActivity;
-import uk.org.ngo.squeezer.model.Artist;
+import uk.org.ngo.squeezer.itemlist.PluginViewLogic;
+import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
-import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
-import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -101,6 +99,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     private final String TAG = "NowPlayingFragment";
 
     private BaseActivity mActivity;
+    private PluginViewLogic pluginViewDelegate;
 
     @Nullable
     private ISqueezeService mService = null;
@@ -114,7 +113,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     private TextView trackText;
 
     @Nullable
-    private ImageView btnContextMenu;
+    private View btnContextMenu;
 
     private TextView currentTime;
 
@@ -241,6 +240,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (BaseActivity) activity;
+        pluginViewDelegate = new PluginViewLogic(mActivity);
     }
 
     @Override
@@ -269,14 +269,19 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             totalTime = (TextView) v.findViewById(R.id.totaltime);
             seekBar = (SeekBar) v.findViewById(R.id.seekbar);
 
-            btnContextMenu = (ImageView) v.findViewById(R.id.context_menu);
-            btnContextMenu.setOnCreateContextMenuListener(this);
-            btnContextMenu.setOnClickListener(new OnClickListener() {
+            BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
+            viewHolder.contextMenuButtonHolder = v.findViewById(R.id.context_menu);
+            viewHolder.contextMenuButton = (ImageButton) viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
+            viewHolder.contextMenuLoading = (ProgressBar) viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+            viewHolder.contextMenuButtonHolder.setOnCreateContextMenuListener(this);
+            viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     v.showContextMenu();
                 }
             });
+            btnContextMenu = viewHolder.contextMenuButtonHolder;
+            btnContextMenu.setTag(viewHolder);
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
 
@@ -365,7 +370,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             });
 
             seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-                Song seekingSong;
+                CurrentPlaylistItem seekingSong;
 
                 // Update the time indicator to reflect the dragged thumb
                 // position.
@@ -388,7 +393,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                 // otherwise ignore the seek.
                 @Override
                 public void onStopTrackingTouch(SeekBar s) {
-                    Song thisSong = getCurrentSong();
+                    CurrentPlaylistItem thisSong = getCurrentSong();
 
                     updateSeekBar = true;
 
@@ -646,18 +651,16 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
                 playerState.getCurrentSongDuration());
 
-        Song song = playerState.getCurrentSong();
+        CurrentPlaylistItem song = playerState.getCurrentSong();
 
-        if (song != null) {
-            trackText.setText(song.getName());
+        // TODO handle button remapping (buttons in status response)
+        if (!song.getTrack().isEmpty()) {
+            trackText.setText(song.getTrack());
 
-            // If remote and number of tracks in playlist is not 1, it's spotify
-            // or another streaming service. Then make prev- en nextbutton available
-            if ((song.isRemote()) && (playerState.getCurrentPlaylistTracksNum() == 1)) {
-                // TODO: figure out how to parse the buttons HASH;
-                // for now just assume the next button is enabled if there was a
-                // "buttons" response.
-                setButtonState(nextButton, song.getButtons().length() == 0);
+            // don't remove rew and fwd for remote tracks, because a single track playlist
+            // is not an indication that fwd and rwd are invalid actions
+            if ((playerState.getCurrentPlaylistTracksNum() == 1) && !playerState.isRemote()) {
+                disableButton(nextButton);
                 disableButton(prevButton);
                 if (btnContextMenu != null) {
                     btnContextMenu.setVisibility(View.GONE);
@@ -672,12 +675,12 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
             if (mFullHeightLayout) {
                 artistText.setText(song.getArtist());
-                albumText.setText(song.getAlbumName());
-                totalTime.setText(Util.formatElapsedTime(song.getDuration()));
+                albumText.setText(song.getAlbum());
+                totalTime.setText(Util.formatElapsedTime(playerState.getCurrentSongDuration()));
             } else {
                 artistAlbumText.setText(mJoiner.join(
                         Strings.emptyToNull(song.getArtist()),
-                        Strings.emptyToNull(song.getAlbumName())));
+                        Strings.emptyToNull(song.getAlbum())));
             }
         } else {
             trackText.setText("");
@@ -690,18 +693,10 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             }
         }
 
-        if (song == null || !song.hasArtwork()) {
-            if (mFullHeightLayout) {
-                albumArt.setImageResource(song != null && song.isRemote()
-                        ? R.drawable.icon_iradio_noart_fullscreen
-                        : R.drawable.icon_album_noart_fullscreen);
-            } else {
-                albumArt.setImageResource(song != null && song.isRemote()
-                        ? R.drawable.icon_iradio_noart
-                        : R.drawable.icon_album_noart);
-            }
+        if (!song.hasArtwork()) {
+            albumArt.setImageResource(song.getIconResource());
         } else {
-            ImageFetcher.getInstance(mActivity).loadImage(song.getArtworkUrl(), albumArt);
+            ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
         }
     }
 
@@ -758,7 +753,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         return mService.getActivePlayer();
     }
 
-    private Song getCurrentSong() {
+    private CurrentPlaylistItem getCurrentSong() {
         PlayerState playerState = getPlayerState();
         return playerState != null ? playerState.getCurrentSong() : null;
     }
@@ -820,17 +815,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.songcontextmenu, menu);
-
-        menu.findItem(R.id.play_now).setVisible(false);
-        menu.findItem(R.id.play_next).setVisible(false);
-        menu.findItem(R.id.add_to_playlist).setVisible(false);
-
-        menu.findItem(R.id.view_this_album).setVisible(true);
-        menu.findItem(R.id.view_albums_by_song).setVisible(true);
-        menu.findItem(R.id.view_songs_by_artist).setVisible(true);
+        pluginViewDelegate.onCreateContextMenu(menu, v, getCurrentSong());
     }
 
     /**
@@ -844,34 +829,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        Song song = getCurrentSong();
-        if (song == null || song.isRemote()) {
-            return false;
-        }
-
-        // Note: Very similar to code in SongView:doItemContext().  Refactor?
-        switch (item.getItemId()) {
-            case R.id.download:
-                mActivity.downloadItem(song);
-                return true;
-
-            case R.id.view_this_album:
-                SongListActivity.show(getActivity(), song.getAlbum());
-                return true;
-
-            case R.id.view_albums_by_song:
-                AlbumListActivity.show(getActivity(),
-                        new Artist(song.getArtistId(), song.getArtist()));
-                return true;
-
-            case R.id.view_songs_by_artist:
-                SongListActivity.show(getActivity(),
-                        new Artist(song.getArtistId(), song.getArtist()));
-                return true;
-
-            default:
-                throw new IllegalStateException("Unknown menu ID.");
-        }
+        return pluginViewDelegate.doItemContext(item, getCurrentSong());
     }
 
     /**
@@ -1149,13 +1107,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     @MainThread
     public void onEventMainThread(PlayersChanged event) {
         updatePlayerDropDown(event.players.values(), mService.getActivePlayer());
-    }
-
-    @MainThread
-    public void onEventMainThread(ActivePlayerChanged event) {
-        if (event.player != null) {
-            updateUiFromPlayerState(event.player.getPlayerState());
-        }
     }
 
     @MainThread

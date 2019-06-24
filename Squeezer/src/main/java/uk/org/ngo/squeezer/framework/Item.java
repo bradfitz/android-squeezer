@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -38,7 +39,8 @@ import uk.org.ngo.squeezer.model.Plugin;
  */
 public abstract class Item implements Parcelable {
     private String id;
-    private String icon;
+    @NonNull private String name;
+    @NonNull private Uri icon;
     private String node;
     private int weight;
 
@@ -56,6 +58,8 @@ public abstract class Item implements Parcelable {
     public boolean showBigArtwork;
 
     public Item() {
+        name = "";
+        icon = Uri.EMPTY;
     }
 
     public void setId(String id) {
@@ -66,18 +70,30 @@ public abstract class Item implements Parcelable {
         return id;
     }
 
-    abstract public String getName();
+    @NonNull
+    public String getName() {
+        return name;
+    }
+
+    public Item setName(@NonNull String name) {
+        this.name = name;
+        return this;
+    }
 
     /**
      * @return Relative URL path to an icon for this radio or music service, for example
      * "plugins/Picks/html/images/icon.png"
      */
-    public String getIcon() {
+    @NonNull
+    public Uri getIcon() {
         return icon;
     }
 
-    public void setIcon(String icon) {
-        this.icon = icon;
+    /**
+     * @return Whether the song has artwork associated with it.
+     */
+    public boolean hasArtwork() {
+        return ! (getIcon().equals(Uri.EMPTY));
     }
 
     /**
@@ -171,7 +187,8 @@ public abstract class Item implements Parcelable {
 
     public Item(Map<String, Object> record) {
         setId(getString(record, record.containsKey("cmd") ? "cmd" : "id"));
-        icon = getString(record, record.containsKey("icon-id") ? "icon-id" : "icon");
+        name = getStringOrEmpty(record, record.containsKey("name") ? "name" : "text");
+        icon = getImageUrl(record, record.containsKey("icon-id") ? "icon-id" : "icon");
         node = getString(record, "node");
         weight = getInt(record, "weight");
         Map<String, Object> baseRecord = getRecord(record, "base");
@@ -202,7 +219,8 @@ public abstract class Item implements Parcelable {
 
     public Item(Parcel source) {
         setId(source.readString());
-        icon = source.readString();
+        name = source.readString();
+        icon = Uri.parse(source.readString());
         node = source.readString();
         weight = source.readInt();
         nextWindow = Action.NextWindow.fromString(source.readString());
@@ -221,7 +239,8 @@ public abstract class Item implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
-        dest.writeString(icon);
+        dest.writeString(name);
+        dest.writeString(icon.toString());
         dest.writeString(node);
         dest.writeInt(weight);
         dest.writeString(nextWindow == null ? null : nextWindow.toString());
@@ -317,7 +336,6 @@ public abstract class Item implements Parcelable {
         return Util.getInt(record, fieldName, defaultValue);
     }
 
-
     protected static String getString(Map<String, Object> record, String fieldName) {
         return Util.getString(record, fieldName);
     }
@@ -327,6 +345,10 @@ public abstract class Item implements Parcelable {
         return Util.getStringOrEmpty(record, fieldName);
     }
 
+    @NonNull
+    private static Uri getImageUrl(Map<String, Object> record, String fieldName) {
+        return Util.getImageUrl(record, fieldName);
+    }
 
     public static Window extractWindow(Map<String, Object> itemWindow, Map<String, Object> baseWindow) {
         if (itemWindow == null && baseWindow == null) return null;

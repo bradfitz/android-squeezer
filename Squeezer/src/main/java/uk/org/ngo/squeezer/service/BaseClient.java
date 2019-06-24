@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.google.common.base.Splitter;
@@ -24,7 +23,6 @@ import com.google.common.base.Splitter;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.R;
@@ -32,9 +30,9 @@ import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
@@ -109,10 +107,9 @@ abstract class BaseClient implements SlimClient {
 
 
 
-    void parseStatus(final Player player, Song song, Map<String, Object> tokenMap) {
+    void parseStatus(final Player player, CurrentPlaylistItem currentSong, Map<String, Object> tokenMap) {
         PlayerState playerState = player.getPlayerState();
 
-        addArtworkUrlTag(tokenMap);
         addDownloadUrlTag(tokenMap);
 
         boolean unknownRepeatStatus = playerState.getRepeatStatus() == null;
@@ -126,8 +123,9 @@ abstract class BaseClient implements SlimClient {
         playerState.setCurrentPlaylist(Util.getString(tokenMap, "playlist_name"));
         boolean changedSleep = playerState.setSleep(Util.getInt(tokenMap, "will_sleep_in"));
         boolean changedSleepDuration = playerState.setSleepDuration(Util.getInt(tokenMap, "sleep"));
-        if (song == null) song = new Song(tokenMap);
-        boolean changedSong = playerState.setCurrentSong(song);
+        if (currentSong == null) currentSong = new CurrentPlaylistItem(tokenMap);
+        boolean changedSong = playerState.setCurrentSong(currentSong);
+        playerState.setRemote(Util.getInt(tokenMap, "remote") == 1);
         boolean changedSongDuration = playerState.setCurrentSongDuration(Util.getInt(tokenMap, "duration"));
         boolean changedSongTime = playerState.setCurrentTimeSecond(Util.getInt(tokenMap, "time"));
         boolean changedVolume = playerState.setCurrentVolume(Util.getInt(tokenMap, "mixer volume"));
@@ -195,46 +193,6 @@ abstract class BaseClient implements SlimClient {
     }
 
     /**
-     * Adds a <code>artwork_url</code> entry for the item passed in.
-     * <p>
-     * If an <code>artwork_url</code> entry already exists and is absolute it is preserved.
-     * If it exists but is relative it is canonicalised.  Otherwise it is synthesised from
-     * the <code>artwork_track_id</code> tag (if it exists) otherwise the item's <code>id</code>.
-     *
-     * @param record The record to modify.
-     */
-    void addArtworkUrlTag(Map<String, Object> record) {
-        String artworkUrl = Util.getString(record, "artwork_url");
-
-        // Nothing to do if the artwork_url tag already exists and is absolute.
-        if (artworkUrl != null && artworkUrl.startsWith("http")) {
-            return;
-        }
-
-        // If artworkUrl is non-null it must be relative. Canonicalise it and return.
-        if (artworkUrl != null) {
-            record.put("artwork_url", mUrlPrefix + "/" + artworkUrl);
-            return;
-        }
-
-        // Need to generate an artwork_url value.
-
-        // Prefer using the artwork_track_id entry to generate the URL
-        String artworkTrackId = Util.getString(record, "artwork_track_id");
-
-        if (artworkTrackId != null) {
-            record.put("artwork_url", mUrlPrefix + "/music/" + artworkTrackId + "/cover.jpg");
-            return;
-        }
-
-        // If coverart exists but artwork_track_id is missing then use the item's ID.
-        if ("1".equals(record.get("coverart"))) {
-            record.put("artwork_url", mUrlPrefix + "/music/" + record.get("id") + "/cover.jpg");
-            //return;
-        }
-    }
-
-    /**
      * Adds a <code>download_url</code> entry for the item passed in.
      *
      * @param record The record to modify.
@@ -256,34 +214,6 @@ abstract class BaseClient implements SlimClient {
         if (playerState.setPlayStatus(playStatus)) {
             mEventBus.post(new PlayStatusChanged(playStatus, player));
         }
-    }
-
-    /** Make sure the icon/image tag is an absolute URL. */
-    @SuppressWarnings("unchecked")
-    void fixImageTag(Map<String, Object> record) {
-        fixImageTag("icon", record);
-        fixImageTag("icon-id", record);
-    }
-
-    /** Make sure the icon/image tag is an absolute URL. */
-    private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
-    void fixImageTag(String imageTag, Map<String, Object> record) {
-        Object data = record.get(imageTag);
-        if (data == null) {
-            return;
-        }
-
-        String image = data.toString();
-        if (HEX_PATTERN.matcher(image).matches()) {
-            // if the iconId is a hex digit, this is a coverid or remote track id(a negative id)
-            image = "/music/" + image + "/cover";
-        }
-
-        if (Uri.parse(image).isAbsolute()) {
-            return;
-        }
-
-        record.put(imageTag, mUrlPrefix + (image.startsWith("/") ? image : "/" + image));
     }
 
     protected static class BrowseRequest<T extends Item> {

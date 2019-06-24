@@ -107,7 +107,7 @@ public class PlayerState implements Parcelable {
 
     private RepeatStatus repeatStatus;
 
-    private Song currentSong;
+    private CurrentPlaylistItem currentSong;
 
     /** The name of the current playlist, which may be the empty string. */
     @NonNull
@@ -116,6 +116,8 @@ public class PlayerState implements Parcelable {
     private int currentPlaylistTracksNum;
 
     private int currentPlaylistIndex;
+
+    private boolean remote;
 
     private int currentTimeSecond;
 
@@ -219,7 +221,7 @@ public class PlayerState implements Parcelable {
         return setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
     }
 
-    public Song getCurrentSong() {
+    public CurrentPlaylistItem getCurrentSong() {
         return currentSong;
     }
 
@@ -228,7 +230,7 @@ public class PlayerState implements Parcelable {
         return (currentSong != null) ? currentSong.getName() : "";
     }
 
-    public boolean setCurrentSong(Song song) {
+    public boolean setCurrentSong(CurrentPlaylistItem song) {
         if (song.equals(currentSong))
             return false;
 
@@ -276,6 +278,18 @@ public class PlayerState implements Parcelable {
             return false;
 
         currentPlaylistIndex = value;
+        return true;
+    }
+
+    public boolean isRemote() {
+        return remote;
+    }
+
+    public boolean setRemote(boolean remote) {
+        if (remote == this.remote)
+            return false;
+
+        this.remote = remote;
         return true;
     }
 
@@ -439,7 +453,7 @@ public class PlayerState implements Parcelable {
 
         private final ServerString text;
 
-        private static final EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<ShuffleStatus>(
+        private static final EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<>(
                 ShuffleStatus.class);
 
         ShuffleStatus(int id, int icon, ServerString text) {
@@ -477,7 +491,7 @@ public class PlayerState implements Parcelable {
 
         private final ServerString text;
 
-        private static final EnumIdLookup<RepeatStatus> lookup = new EnumIdLookup<RepeatStatus>(
+        private static final EnumIdLookup<RepeatStatus> lookup = new EnumIdLookup<>(
                 RepeatStatus.class);
 
         RepeatStatus(int id, int icon, ServerString text) {

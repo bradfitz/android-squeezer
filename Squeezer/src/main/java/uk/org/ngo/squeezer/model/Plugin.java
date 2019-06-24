@@ -24,21 +24,9 @@ import uk.org.ngo.squeezer.framework.Item;
 
 
 public class Plugin extends Item {
-    private String name;
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public Plugin setName(String name) {
-        this.name = name;
-        return this;
-    }
 
     public Plugin(Map<String, Object> record) {
         super(record);
-        name = getString(record, record.containsKey("name") ? "name" : "text");
     }
 
     public static final Creator<Plugin> CREATOR = new Creator<Plugin>() {
@@ -55,13 +43,7 @@ public class Plugin extends Item {
 
     private Plugin(Parcel source) {
         super(source);
-        name = source.readString();
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-        dest.writeString(name);
-    }
 
 }

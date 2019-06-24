@@ -19,40 +19,26 @@ package uk.org.ngo.squeezer.itemlist;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.ArtworkDialog;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-public class PluginView extends BaseItemView<Plugin> implements IServiceItemListCallback<Plugin> {
-
-    private final BaseListActivity<Plugin> activity;
+public class PluginView extends BaseItemView<Plugin> {
+    private final PluginViewLogic logicDelegate;
     private Window.WindowStyle windowStyle;
 
     PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle) {
         super(activity);
-        this.activity = activity;
         this.windowStyle = windowStyle;
-
+        this.logicDelegate = new PluginViewLogic(activity);
         setLoadingViewParams(viewParamIcon());
     }
 
@@ -86,7 +72,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
 
         viewHolder.text1.setText(item.getName());
         // If the item has an image, then fetch and display it
-        if (item.getIcon() != null) {
+        if (item.hasArtwork()) {
             ImageFetcher.getInstance(getActivity()).loadImage(item.getIcon(), viewHolder.icon,
                     mIconWidth, mIconHeight);
         } else {
@@ -141,7 +127,7 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
             }
         } else {
             if (item.goAction != null)
-                execGoAction(item);
+                logicDelegate.execGoAction(item);
             else if (item.hasSubItems())
                 PluginListActivity.show(getActivity(), item);
             else if (item.getNode() != null)
@@ -149,165 +135,13 @@ public class PluginView extends BaseItemView<Plugin> implements IServiceItemList
         }
    }
 
-    private void execGoAction(Plugin item) {
-        if (item.showBigArtwork) {
-            ArtworkDialog.show(getActivity().getSupportFragmentManager(), item.goAction);
-        } else if (item.doAction) {
-            getActivity().action(item, item.goAction);
-        } else {
-            PluginListActivity.show(getActivity(), item, item.goAction);
-        }
-    }
-
-    // Only touch these from the main thread
-    private boolean contextMenuReady = false;
-    private boolean contextMenuWaiting = false;
-    private Stack<Action> contextStack;
-    private View contextMenuView;
-    private String contextMenuTitle;
-    private List<Plugin> contextItems;
-
     @Override
     public void onCreateContextMenu(final ContextMenu menu, final View v, ItemView.ContextMenuInfo menuInfo) {
-        final Plugin item = (Plugin) menuInfo.item;
-        if (!contextMenuReady && !contextMenuWaiting) {
-            contextMenuTitle = null;
-            contextItems = null;
-            if (item.moreAction != null) {
-                contextMenuView = v;
-                contextStack = new Stack<>();
-                contextStack.push(item.moreAction);
-                orderContextMenu(item.moreAction);
-            } else {
-                if (item.playAction != null) {
-                    menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
-                }
-                if (item.addAction != null) {
-                    menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
-                }
-                if (item.insertAction != null) {
-                    menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
-                }
-                if (item.moreAction != null) {
-                    menu.add(Menu.NONE, R.id.more, Menu.NONE, getActivity().getServerString(ServerString.MORE));
-                }
-            }
-        } else if (contextMenuReady) {
-            contextMenuReady = false;
-            ViewHolder viewHolder = (ViewHolder) contextMenuView.getTag();
-            viewHolder.contextMenuButton.setVisibility(View.VISIBLE);
-            viewHolder.contextMenuLoading.setVisibility(View.INVISIBLE);
-            if (contextStack.size() > 1) {
-                View headerVew = getLayoutInflater().inflate(R.layout.context_menu_header, (ViewGroup) v, false);
-                menu.setHeaderView(headerVew);
-                ImageView backButton = (ImageView) headerVew.findViewById(R.id.back);
-                if (contextStack.size() > 1) {
-                    backButton.setVisibility(View.VISIBLE);
-                    backButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            menu.close();
-                            contextStack.pop();
-                            orderContextMenu(contextStack.peek());
-                        }
-                    });
-                } else {
-                    backButton.setVisibility(View.GONE);
-                }
-                if (contextMenuTitle != null) {
-                    ((TextView) headerVew.findViewById(R.id.title)).setText(contextMenuTitle);
-                }
-            } else if (contextMenuTitle != null) {
-                menu.setHeaderTitle(contextMenuTitle);
-            }
-            int index = 0;
-            for (Plugin plugin : contextItems) {
-                menu.add(Menu.NONE, index++, Menu.NONE, plugin.getName()).setEnabled(plugin.goAction != null);
-            }
-        }
-    }
-
-    private void orderContextMenu(Action action) {
-        ISqueezeService service = activity.getService();
-        if (service != null) {
-            contextMenuWaiting = true;
-            ViewHolder viewHolder = (ViewHolder) contextMenuView.getTag();
-            viewHolder.contextMenuButton.setVisibility(View.INVISIBLE);
-            viewHolder.contextMenuLoading.setVisibility(View.VISIBLE);
-            service.pluginItems(action, this);
-        }
+        logicDelegate.onCreateContextMenu(menu, v, menuInfo.item);
     }
 
     @Override
     public boolean doItemContext(MenuItem menuItem, int index, Plugin selectedItem) {
-        if (contextItems != null) {
-            selectedItem = contextItems.get(menuItem.getItemId());
-            Action.NextWindow nextWindow = (selectedItem.goAction != null ? selectedItem.goAction.action.nextWindow : selectedItem.nextWindow);
-            if (nextWindow != null) {
-                getActivity().action(selectedItem, selectedItem.goAction);
-                switch (nextWindow.nextWindow) {
-                    case playlist:
-                        CurrentPlaylistActivity.show(getActivity());
-                        break;
-                    case home:
-                        HomeActivity.show(getActivity());
-                        break;
-                    case parent: // For centext menus parent and grandparent hide the context menu(s) and reload items
-                    case grandparent:
-                    case parentNoRefresh:
-                    case refresh:
-                    case refreshOrigin:
-                        break;
-                    case windowId:
-                        //TODO implement
-                        break;
-                }
-            } else {
-                if (selectedItem.goAction.isContextMenu()) {
-                    contextStack.push(selectedItem.goAction);
-                    orderContextMenu(selectedItem.goAction);
-                } else {
-                    execGoAction(selectedItem);
-                }
-            }
-            return true;
-        } else {
-        switch (menuItem.getItemId()) {
-            case R.id.play_now:
-                getActivity().action(selectedItem, selectedItem.playAction);
-                return true;
-            case R.id.add_to_playlist:
-                getActivity().action(selectedItem, selectedItem.addAction);
-                return true;
-            case R.id.play_next:
-                getActivity().action(selectedItem, selectedItem.insertAction);
-                return true;
-            case R.id.more:
-                PluginListActivity.show(getActivity(), selectedItem, selectedItem.moreAction);
-                return true;
-        }
-        return false;
-    }
-    }
-
-    @Override
-    public Object getClient() {
-        return getActivity();
-    }
-
-    @Override
-    public void onItemsReceived(int count, int start, final Map<String, Object> parameters, final List<Plugin> items, Class<Plugin> dataType) {
-        getActivity().getUIThreadHandler().post(new Runnable() {
-            @Override
-            public void run() {
-                contextMenuReady = true;
-                contextMenuWaiting = false;
-                if (parameters.containsKey("title")) {
-                    contextMenuTitle = Util.getString(parameters, "title");
-                }
-                contextItems = items;
-                activity.getListView().showContextMenu();
-            }
-        });
+        return logicDelegate.doItemContext(menuItem, selectedItem);
     }
 }

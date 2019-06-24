@@ -37,13 +37,13 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.Song;
 
 class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCreateContextMenuListener {
     private final PlayerListActivity mActivity;
 
-    private final List<SyncGroup> mChildAdapters = new ArrayList();
+    private final List<SyncGroup> mChildAdapters = new ArrayList<>();
 
     /**
      * A list adapter for a synchronization group, containing players.
@@ -71,7 +71,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
             super.update(count, start, syncedPlayersList);
 
             // determine and set synchronization group name (player names divided by commas)
-            List<String> playerNames = new ArrayList<String>();
+            List<String> playerNames = new ArrayList<>();
             for (int i = 0; i < this.getCount(); i++) {
                 Player p = this.getItem(i);
                 playerNames.add(p.getName());
@@ -115,7 +115,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      *
      * @param playerSyncGroups Multimap, mapping from the player ID of the syncmaster to the
      *     Players synced to that master. See
-     *     {@link PlayerListActivity#updateSyncGroups(List, Player)} for how this map is
+     *     {@link PlayerListActivity#updateSyncGroups(Collection, Player)} for how this map is
      *     generated.
      */
     public void setSyncGroups(Multimap<String, Player> playerSyncGroups) {
@@ -256,11 +256,11 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
         String header = syncGroup.syncGroupName;
         text1.setText(mActivity.getString(R.string.player_group_header, header));
 
-        Song groupSong = syncGroup.getItem(0).getPlayerState().getCurrentSong();
+        CurrentPlaylistItem groupSong = syncGroup.getItem(0).getPlayerState().getCurrentSong();
 
         if (groupSong != null) {
             text2.setText(mJoiner.join(groupSong.getName(), groupSong.getArtist(),
-                    groupSong.getAlbumName()));
+                    groupSong.getAlbum()));
         }
         return row;
     }

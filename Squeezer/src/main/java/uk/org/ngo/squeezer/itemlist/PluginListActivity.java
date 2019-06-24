@@ -60,7 +60,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     private boolean register;
     private String cmd;
-    private Plugin plugin;
+    private Item plugin;
     private Action action;
     private Window.WindowStyle windowStyle = Window.WindowStyle.ICON_TEXT;
 
@@ -298,14 +298,14 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         activity.startActivity(intent);
     }
 
-    public static void show(Activity activity, Plugin plugin, Action action) {
+    public static void show(Activity activity, Item plugin, Action action) {
         final Intent intent = new Intent(activity, PluginListActivity.class);
         intent.putExtra(Plugin.class.getName(), plugin);
         intent.putExtra(Action.class.getName(), action);
         activity.startActivityForResult(intent, GO);
     }
 
-    public static void show(Activity activity, Plugin plugin) {
+    public static void show(Activity activity, Item plugin) {
         final Intent intent = new Intent(activity, PluginListActivity.class);
         intent.putExtra(Plugin.class.getName(), plugin);
         activity.startActivityForResult(intent, GO);

@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -146,6 +147,29 @@ public class Util {
         return tokenMap;
     }
 
+    /** Make sure the icon/image tag is an absolute URL. */
+    private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
+    @NonNull
+    private static Uri getImageUrl(String urlPrefix, String imageId) {
+        if (imageId != null) {
+            if (HEX_PATTERN.matcher(imageId).matches()) {
+                // if the iconId is a hex digit, this is a coverid or remote track id(a negative id)
+                imageId = "/music/" + imageId + "/cover";
+            }
+
+            // Make sure the url is absolute
+            if (!Uri.parse(imageId).isAbsolute()) {
+                imageId = urlPrefix + (imageId.startsWith("/") ? imageId : "/" + imageId);
+            }
+        }
+        return Uri.parse(imageId != null ? imageId : "");
+    }
+
+    @NonNull
+    public static Uri getImageUrl(Map<String, Object> record, String fieldName) {
+        return getImageUrl(getString(record, "urlPrefix"), getString(record, fieldName));
+    }
+
     private static final StringBuilder sFormatBuilder = new StringBuilder();
 
     private static final Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
@@ -188,14 +212,6 @@ public class Util {
         } catch (UnsupportedEncodingException e) {
             return "";
         }
-    }
-
-    public static boolean arraysStartsWith(Object[] a, Object[] b) {
-        int n = (a.length < b.length ? a.length : b.length);
-        for (int i = 0; i < n; i++) {
-            if (!equals(a[i], b[i])) return false;
-        }
-        return true;
     }
 
     /**

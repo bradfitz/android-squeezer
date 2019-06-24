@@ -91,7 +91,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     }
 
     /**
-     * Calls {@link #ItemAdapter(ItemView, boolean)}, with emptyItem = false
+     * Calls {@link #(ItemView, boolean)}, with emptyItem = false
      */
     public ItemAdapter(ItemView<T> itemView) {
         this(itemView, false);

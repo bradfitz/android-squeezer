@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.app.Dialog;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -67,7 +68,7 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
 
     @Override
     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
-        String artworkId = Util.getString(parameters, parameters.containsKey("artworkId") ? "artworkId" : "artworkUrl");
+        Uri artworkId = Util.getImageUrl(parameters, parameters.containsKey("artworkId") ? "artworkId" : "artworkUrl");
         ImageFetcher.getInstance(getContext()).loadImage(artworkId, artwork);
     }
 

@@ -82,6 +82,7 @@ import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
+import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
@@ -335,7 +336,9 @@ public class SqueezeService extends Service {
         if (prevActivePlayer != null) {
             mDelegate.subscribeDisplayStatus(prevActivePlayer, false);
         }
-        mDelegate.subscribeDisplayStatus(newActivePlayer, true);
+        if (newActivePlayer != null) {
+            mDelegate.subscribeDisplayStatus(newActivePlayer, true);
+        }
         updateAllPlayerSubscriptionStates();
         mEventBus.post(new ActivePlayerChanged(newActivePlayer));
 
@@ -469,7 +472,7 @@ public class SqueezeService extends Service {
 
         // If there's no current song then kill the notification and get out.
         // TODO: Have a "There's nothing playing" notification text.
-        final Song currentSong = activePlayerState.getCurrentSong();
+        final CurrentPlaylistItem currentSong = activePlayerState.getCurrentSong();
         if (currentSong == null) {
             clearOngoingNotification();
             return;
@@ -478,16 +481,16 @@ public class SqueezeService extends Service {
         // Compare the current state with the state when the notification was last updated.
         // If there are no changes (same song, same playing state) then there's nothing to do.
         String songName = currentSong.getName();
-        String albumName = currentSong.getAlbumName();
+        String albumName = currentSong.getAlbum();
         String artistName = currentSong.getArtist();
-        Uri url = currentSong.getArtworkUrl();
+        Uri url = currentSong.getIcon();
         String playerName = activePlayer.getName();
 
         if (mNotifiedPlayerState == null) {
             mNotifiedPlayerState = new PlayerState();
         } else {
             boolean lastPlaying = mNotifiedPlayerState.isPlaying();
-            Song lastNotifiedSong = mNotifiedPlayerState.getCurrentSong();
+            CurrentPlaylistItem lastNotifiedSong = mNotifiedPlayerState.getCurrentSong();
 
             // No change in state
             if (playing == lastPlaying && currentSong.equals(lastNotifiedSong)) {

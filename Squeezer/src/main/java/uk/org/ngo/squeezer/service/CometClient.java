@@ -64,6 +64,7 @@ import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Album;
 import uk.org.ngo.squeezer.model.Artist;
+import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Genre;
 import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
@@ -498,24 +499,19 @@ class CometClient extends BaseClient {
         if (player == null)
             return;
 
-        Object data = message.getData();
-        if (data instanceof Map) {
-            Map<String, Object> messageData = message.getDataAsMap();
+        Map<String, Object> messageData = message.getDataAsMap();
 
-            Song song = null;
-            Object[] item_data = (Object[]) messageData.get("playlist_loop");
-            if (item_data != null && item_data.length > 0) {
-                Map<String, Object> record = (Map<String, Object>) item_data[0];
-                song = new Song(record);
-            }
-            parseStatus(player, song, messageData);
-        } else {
-            String[] tokens = Util.getStringArray((Object[]) data);
-            if (Util.arraysStartsWith(tokens, new String[]{"status", "-", "subscribe:1", "1"})) {
-                parseStatus(player, null, Util.mapify(tokens));
-            }
+        CurrentPlaylistItem currentSong = null;
+        Object[] item_data = (Object[]) messageData.get("item_loop");
+        if (item_data != null && item_data.length > 0) {
+            Map<String, Object> record = (Map<String, Object>) item_data[0];
+
+            record.put("urlPrefix", mUrlPrefix);
+            record.put("base", messageData.get("base"));
+            currentSong = new CurrentPlaylistItem(record);
+            record.remove("base");
         }
-
+        parseStatus(player, currentSong, messageData);
     }
 
     private void parseDisplayStatus(Message message) {
@@ -558,8 +554,8 @@ class CometClient extends BaseClient {
             if (item_data != null) {
                 for (Object item_d : item_data) {
                     Map<String, Object> record = (Map<String, Object>) item_d;
+                    record.put("urlPrefix", mUrlPrefix);
                     record.put("base", baseRecord);
-                    fixImageTag(record);
                     add(record);
                     record.remove("base");
                 }
@@ -570,8 +566,7 @@ class CometClient extends BaseClient {
             final int start = browseRequest.getStart();
             final int end = start + getItems().size();
             int max = 0;
-            fixImageTag("artworkId", data);
-            fixImageTag("artworkUrl", data);
+            data.put("urlPrefix", mUrlPrefix);
             browseRequest.getCallback().onItemsReceived(count, start, data, getItems(), getDataType());
             if (count > max) {
                 max = count;
@@ -606,12 +601,6 @@ class CometClient extends BaseClient {
         public void onResponse(Player player, Request request, Message message) {
             parseMessage("albums_loop", message);
         }
-
-        @Override
-        public void add(Map<String, Object> record) {
-            addArtworkUrlTag(record);
-            super.add(record);
-        }
     }
 
     private class SongsListener extends ItemListener<Song> {
@@ -632,7 +621,6 @@ class CometClient extends BaseClient {
 
         @Override
         public void add(Map<String, Object> record) {
-            addArtworkUrlTag(record);
             addDownloadUrlTag(record);
             super.add(record);
         }
@@ -787,14 +775,13 @@ class CometClient extends BaseClient {
 
     @Override
     public void requestPlayerStatus(Player player) {
-        Request request = request(player, "status").currentSong().param("tags", SONGTAGS);
+        Request request = statusRequest(player).param("tags", SONGTAGS);
         publishMessage(request, CHANNEL_SLIM_REQUEST, subscribeResponseChannel(player, CHANNEL_PLAYER_STATUS_FORMAT), null);
     }
 
     @Override
     public void subscribePlayerStatus(final Player player, final PlayerState.PlayerSubscriptionType subscriptionType) {
-        Request request = request(player, "status")
-                .currentSong()
+        Request request = statusRequest(player)
                 .param("subscribe", subscriptionType.getStatus())
                 .param("tags", SONGTAGS);
         publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_PLAYER_STATUS_FORMAT), new PublishListener() {
@@ -810,7 +797,7 @@ class CometClient extends BaseClient {
 
     @Override
     public void subscribeDisplayStatus(Player player, boolean subscribe) {
-        Log.w(TAG, "displaystatus[" + player.getId() + "]: " + subscribe);
+        Log.i(TAG, "displaystatus[" + player.getId() + "]: " + subscribe);
         Request request = request(player, "displaystatus").param("subscribe", subscribe ? "showbriefly" : "");
         publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_DISPLAY_STATUS_FORMAT), mPublishListener);
     }
@@ -859,6 +846,14 @@ class CometClient extends BaseClient {
                 }
             }
         }
+    }
+
+    @NonNull
+    private Request statusRequest(Player player) {
+        return request(player, "status")
+                .currentSong()
+                .param("menu", "menu")
+                .param("useContextMenu", "1");
     }
 
     private Request request(Player player, ResponseHandler callback, String... cmd) {
