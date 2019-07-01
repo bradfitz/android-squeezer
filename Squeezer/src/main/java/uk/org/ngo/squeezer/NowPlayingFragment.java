@@ -63,6 +63,7 @@ import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
@@ -652,6 +653,10 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                 playerState.getCurrentSongDuration());
 
         CurrentPlaylistItem song = playerState.getCurrentSong();
+        if (song == null) {
+            // Create empty song if this is called (via _HandshakeComplete) before status is received
+            song = new CurrentPlaylistItem(new HashMap<String, Object>());
+        }
 
         // TODO handle button remapping (buttons in status response)
         if (!song.getTrack().isEmpty()) {
