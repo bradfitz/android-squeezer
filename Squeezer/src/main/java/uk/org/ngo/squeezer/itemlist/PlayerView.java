@@ -178,7 +178,7 @@ public class PlayerView extends BaseItemView<Player> {
                     CurrentPlaylistItem currentSong = playerState.getCurrentSong();
                     boolean isPlaying = (playerState.isPlaying() && currentSong != null);
                     if (isPlaying && !playerState.isRemote()) {
-                        int sleep = playerState.getCurrentSongDuration() - playerState.getCurrentTimeSecond() + 1;
+                        int sleep = playerState.getCurrentSongDuration() - (int)playerState.getCurrentTimeSecond() + 1;
                         if (sleep >= 0)
                             service.sleep(currentPlayer, sleep);
                     }

@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Build;
 import android.os.Parcel;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringDef;
 
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 
 public class Player extends Item implements Comparable {
@@ -121,12 +123,13 @@ public class Player extends Item implements Comparable {
         mHashCode = HashCode.fromString(source.readString());
     }
 
+    @NonNull
     @Override
     public String getName() {
         return mName;
     }
 
-    public Player setName(String name) {
+    public Player setName(@NonNull String name) {
         this.mName = name;
         return this;
     }
@@ -209,5 +212,13 @@ public class Player extends Item implements Comparable {
     public String toStringOpen() {
         return super.toStringOpen() + ", model: " + mModel + ", canpoweroff: " + mCanPowerOff
                 + ", ip: " + mIp + ", connected: " + mConnected;
+    }
+
+    public SongTimeChanged getTrackElapsed() {
+        double now = SystemClock.elapsedRealtime() / 1000.0;
+        double trackCorrection = mPlayerState.rate * (now - mPlayerState.trackSeen);
+        double trackElapsed = (trackCorrection <= 0 ? mPlayerState.getCurrentTimeSecond() : mPlayerState.getCurrentTimeSecond() + trackCorrection);
+
+        return new SongTimeChanged(this, (int) trackElapsed, mPlayerState.getCurrentSongDuration());
     }
 }

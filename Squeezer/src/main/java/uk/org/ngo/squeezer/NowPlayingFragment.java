@@ -507,13 +507,13 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                     actionBarContext, android.R.layout.simple_spinner_dropdown_item,
                     connectedPlayers) {
                 @Override
-                public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
                     return Util.getActionBarSpinnerItemView(actionBarContext, convertView, parent,
                             getItem(position).getName());
                 }
 
                 @Override
-                public View getView(int position, View convertView, ViewGroup parent) {
+                public @NonNull View getView(int position, View convertView, @NonNull ViewGroup parent) {
                     return Util.getActionBarSpinnerItemView(actionBarContext, convertView, parent,
                             getItem(position).getName());
                 }
@@ -649,7 +649,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
      */
     @UiThread
     private void updateSongInfo(@NonNull PlayerState playerState) {
-        updateTimeDisplayTo(playerState.getCurrentTimeSecond(),
+        updateTimeDisplayTo((int)playerState.getCurrentTimeSecond(),
                 playerState.getCurrentSongDuration());
 
         CurrentPlaylistItem song = playerState.getCurrentSong();

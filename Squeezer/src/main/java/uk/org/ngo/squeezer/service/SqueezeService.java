@@ -391,22 +391,8 @@ public class SqueezeService extends Service {
 
         if (mEventBus.hasSubscriberForEvent(PlayerStateChanged.class) ||
                 (mEventBus.hasSubscriberForEvent(SongTimeChanged.class) && player.equals(activePlayer))) {
-            if (player.equals(activePlayer)) {
-                // If it's the active player then get second-to-second updates.
-                return PlayerState.PlayerSubscriptionType.NOTIFY_REAL_TIME;
-            } else {
-                // For other players get updates only when the player status changes...
-                // ... unless the player has a sleep duration set. In that case we need
-                // real_time updates, as on_change events are not fired as the will_sleep_in
-                // timer counts down.
-                if (player.getPlayerState().getSleep() > 0) {
-                    return PlayerState.PlayerSubscriptionType.NOTIFY_REAL_TIME;
-                } else {
-                    return PlayerState.PlayerSubscriptionType.NOTIFY_ON_CHANGE;
-                }
-            }
+            return PlayerState.PlayerSubscriptionType.NOTIFY_ON_CHANGE;
         } else {
-            // Disable subscription for this player's status updates.
             return PlayerState.PlayerSubscriptionType.NOTIFY_NONE;
         }
     }
@@ -665,7 +651,7 @@ public class SqueezeService extends Service {
         fetchPlugins(new File(getFilesDir(), cmd), new String[]{cmd}, params);
     }
 
-    private void fetchPlugins(final File path, String cmd[], Map<String, Object> params) {
+    private void fetchPlugins(final File path, String[] cmd, Map<String, Object> params) {
         Log.i(TAG, "fetchPlugins(path:" + path + ", cmd:" + Arrays.toString(cmd) + ", params:" + params + ")");
         mDelegate.requestItems(mDelegate.getActivePlayer(), -1, new IServiceItemListCallback<Plugin>() {
             @Override
@@ -895,7 +881,7 @@ public class SqueezeService extends Service {
             }
         }
         if (mediaDir != null) {
-            path = serverPath.substring(mediaDir.length(), serverPath.length());
+            path = serverPath.substring(mediaDir.length());
         } else {
             // Note: if serverUrl is the empty string this can return null.
             path = serverUrl.getLastPathSegment();

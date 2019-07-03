@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
@@ -54,7 +55,6 @@ public class PlayerState implements Parcelable {
     };
 
     private PlayerState(Parcel source) {
-        playerId = source.readString();
         playStatus = source.readString();
         poweredOn = (source.readByte() == 1);
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
@@ -62,7 +62,7 @@ public class PlayerState implements Parcelable {
         currentSong = source.readParcelable(Song.class.getClassLoader());
         currentPlaylist = source.readString();
         currentPlaylistIndex = source.readInt();
-        currentTimeSecond = source.readInt();
+        currentTimeSecond = source.readDouble();
         currentSongDuration = source.readInt();
         currentVolume = source.readInt();
         sleepDuration = source.readInt();
@@ -74,7 +74,6 @@ public class PlayerState implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(playerId);
         dest.writeString(playStatus);
         dest.writeByte(poweredOn ? (byte) 1 : (byte) 0);
         dest.writeInt(shuffleStatus.getId());
@@ -82,7 +81,7 @@ public class PlayerState implements Parcelable {
         dest.writeParcelable(currentSong, 0);
         dest.writeString(currentPlaylist);
         dest.writeInt(currentPlaylistIndex);
-        dest.writeInt(currentTimeSecond);
+        dest.writeDouble(currentTimeSecond);
         dest.writeInt(currentSongDuration);
         dest.writeInt(currentVolume);
         dest.writeInt(sleepDuration);
@@ -96,8 +95,6 @@ public class PlayerState implements Parcelable {
     public int describeContents() {
         return 0;
     }
-
-    private String playerId;
 
     private boolean poweredOn;
 
@@ -119,9 +116,15 @@ public class PlayerState implements Parcelable {
 
     private boolean remote;
 
-    private int currentTimeSecond;
+    public boolean waitingToPlay;
+
+    public double rate;
+
+    private double currentTimeSecond;
 
     private int currentSongDuration;
+
+    public double trackSeen;
 
     private int currentVolume;
 
@@ -163,18 +166,6 @@ public class PlayerState implements Parcelable {
         playStatus = s;
 
         return true;
-    }
-
-    public String getPlayerId() {
-        return playerId;
-    }
-
-    public void setPlayerId(String playerId) {
-        this.playerId = playerId;
-    }
-
-    public boolean getPoweredOn() {
-        return poweredOn;
     }
 
     public boolean isPoweredOn() {
@@ -225,11 +216,6 @@ public class PlayerState implements Parcelable {
         return currentSong;
     }
 
-    @NonNull
-    public String getCurrentSongName() {
-        return (currentSong != null) ? currentSong.getName() : "";
-    }
-
     public boolean setCurrentSong(CurrentPlaylistItem song) {
         if (song.equals(currentSong))
             return false;
@@ -253,54 +239,38 @@ public class PlayerState implements Parcelable {
         return currentPlaylistIndex;
     }
 
-    public boolean setCurrentPlaylist(@Nullable String playlist) {
+    public void setCurrentPlaylist(@Nullable String playlist) {
         if (playlist == null)
             playlist = "";
-
-        if (playlist.equals(currentPlaylist))
-            return false;
-
         currentPlaylist = playlist;
-        return true;
     }
 
     // set the number of tracks in the current playlist
-    public boolean setCurrentPlaylistTracksNum(int value) {
-        if (value == currentPlaylistTracksNum)
-            return false;
-
+    public void setCurrentPlaylistTracksNum(int value) {
         currentPlaylistTracksNum = value;
-        return true;
     }
 
-    public boolean setCurrentPlaylistIndex(int value) {
-        if (value == currentPlaylistIndex)
-            return false;
-
+    public void setCurrentPlaylistIndex(int value) {
         currentPlaylistIndex = value;
-        return true;
     }
 
     public boolean isRemote() {
         return remote;
     }
 
-    public boolean setRemote(boolean remote) {
-        if (remote == this.remote)
-            return false;
-
+    public void setRemote(boolean remote) {
         this.remote = remote;
-        return true;
     }
 
-    public int getCurrentTimeSecond() {
+    public double getCurrentTimeSecond() {
         return currentTimeSecond;
     }
 
-    public boolean setCurrentTimeSecond(int value) {
+    public boolean setCurrentTimeSecond(double value) {
         if (value == currentTimeSecond)
             return false;
 
+        trackSeen = SystemClock.elapsedRealtime() / 1000.0;
         currentTimeSecond = value;
         return true;
     }
@@ -407,8 +377,7 @@ public class PlayerState implements Parcelable {
     @Override
     public String toString() {
         return "PlayerState{" +
-                "playerId='" + playerId + '\'' +
-                ", poweredOn=" + poweredOn +
+                "poweredOn=" + poweredOn +
                 ", playStatus='" + playStatus + '\'' +
                 ", shuffleStatus=" + shuffleStatus +
                 ", repeatStatus=" + repeatStatus +
@@ -428,8 +397,7 @@ public class PlayerState implements Parcelable {
 
     public enum PlayerSubscriptionType {
         NOTIFY_NONE("-"),
-        NOTIFY_ON_CHANGE("0"),
-        NOTIFY_REAL_TIME("1");
+        NOTIFY_ON_CHANGE("600");
 
         private final String status;
 

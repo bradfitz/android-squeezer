@@ -70,6 +70,20 @@ public class Util {
         return false;
     }
 
+    public static double parseDouble(String value, double defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value.length() == 0) {
+            return defaultValue;
+        }
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
     public static int parseDecimalInt(String value, int defaultValue) {
         if (value == null) {
             return defaultValue;
@@ -97,6 +111,18 @@ public class Util {
         return (Map<String, Object>) record.get(recordName);
     }
 
+    public static double getDouble(Map<String, Object> record, String fieldName) {
+        return getDouble(record, fieldName, 0);
+    }
+
+    public static double getDouble(Map<String, Object> record, String fieldName, double defaultValue) {
+        return getDouble(record.get(fieldName), defaultValue);
+    }
+
+    public static double getDouble(Object value, double defaultValue) {
+        return (value instanceof Number) ? ((Number)value).doubleValue() : parseDouble((String)value, defaultValue);
+    }
+
     public static int getInt(Map<String, Object> record, String fieldName) {
         return getInt(record, fieldName, 0);
     }
@@ -106,7 +132,7 @@ public class Util {
     }
 
     public static int getInt(Object value, int defaultValue) {
-        return (value instanceof Number) ? ((Number)value).intValue() : Util.parseDecimalInt((String)value, defaultValue);
+        return (value instanceof Number) ? ((Number)value).intValue() : parseDecimalInt((String)value, defaultValue);
     }
 
     public static String getString(Map<String, Object> record, String fieldName) {
@@ -228,11 +254,6 @@ public class Util {
     }
 
     /**
-     *
-     * @param context
-     * @param convertView
-     * @param parent
-     * @param label
      * @return a view suitable for use as a spinner view.
      */
     public static View getSpinnerItemView(Context context, View convertView, ViewGroup parent,
@@ -242,11 +263,6 @@ public class Util {
     }
 
     /**
-     *
-     * @param context
-     * @param convertView
-     * @param parent
-     * @param label
      * @return a view suitable for use in a spinner's dropdown menu.
      */
     public static View getSpinnerDropDownView(Context context, View convertView, ViewGroup parent,
@@ -318,9 +334,6 @@ public class Util {
     /**
      * Calls {@link Crashlytics#setString(String, String)} if Crashlytics is
      * enabled in this build, otherwise does nothing.
-     *
-     * @param key
-     * @param value
      */
     public static void crashlyticsSetString(String key, String value) {
         if (supportCrashlytics()) {
@@ -331,9 +344,6 @@ public class Util {
     /**
      * Calls {@link Crashlytics#setLong(String, long)} if Crashlytics is
      * enabled in this build, otherwise does nothing.
-     *
-     * @param key
-     * @param value
      */
     public static void crashlyticsSetLong(String key, long value) {
         if (supportCrashlytics()) {
@@ -344,8 +354,6 @@ public class Util {
     /**
      * Calls {@link Crashlytics#log(String)} if Crashlytics is enabled in
      * this build, otherwise log to .
-     *
-     * @param msg
      */
     public static void crashlyticsLog(String msg) {
         if (supportCrashlytics()) {
@@ -358,10 +366,6 @@ public class Util {
     /**
      * Calls {@link Crashlytics#log(int, String, String)} if Crashlytics is
      * enabled in this build, otherwise does nothing.
-     *
-     * @param priority
-     * @param tag
-     * @param msg
      */
     public static void crashlyticsLog(int priority, String tag, String msg) {
         if (supportCrashlytics()) {
@@ -374,8 +378,6 @@ public class Util {
     /**
      * Calls {@link Crashlytics#logException(Throwable)} if Crashlytics is
      * enabled in this build, otherwise does nothing.
-     *
-     * @param throwable
      */
     public static void crashlyticsLogException(java.lang.Throwable throwable) {
         if (supportCrashlytics()) {

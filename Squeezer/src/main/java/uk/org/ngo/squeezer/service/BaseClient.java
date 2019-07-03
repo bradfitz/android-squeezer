@@ -39,7 +39,6 @@ import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
-import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 abstract class BaseClient implements SlimClient {
     static final String ALBUMTAGS = "alyj";
@@ -126,8 +125,10 @@ abstract class BaseClient implements SlimClient {
         if (currentSong == null) currentSong = new CurrentPlaylistItem(tokenMap);
         boolean changedSong = playerState.setCurrentSong(currentSong);
         playerState.setRemote(Util.getInt(tokenMap, "remote") == 1);
+        playerState.waitingToPlay = Util.getInt(tokenMap, "waitingToPlay") == 1;
+        playerState.rate = Util.getDouble(tokenMap, "rate");
         boolean changedSongDuration = playerState.setCurrentSongDuration(Util.getInt(tokenMap, "duration"));
-        boolean changedSongTime = playerState.setCurrentTimeSecond(Util.getInt(tokenMap, "time"));
+        boolean changedSongTime = playerState.setCurrentTimeSecond(Util.getDouble(tokenMap, "time"));
         boolean changedVolume = playerState.setCurrentVolume(Util.getInt(tokenMap, "mixer volume"));
         boolean changedSyncMaster = playerState.setSyncMaster(Util.getString(tokenMap, "sync_master"));
         boolean changedSyncSlaves = playerState.setSyncSlaves(Splitter.on(",").omitEmptyStrings().splitToList(Util.getStringOrEmpty(tokenMap, "sync_slaves")));
@@ -186,10 +187,12 @@ abstract class BaseClient implements SlimClient {
 
         // Position in song
         if (changedSongDuration || changedSongTime) {
-            mEventBus.post(new SongTimeChanged(player,
-                    playerState.getCurrentTimeSecond(),
-                    playerState.getCurrentSongDuration()));
+            postSongTimeChanged(player);
         }
+    }
+
+    protected void postSongTimeChanged(Player player) {
+        mEventBus.post(player.getTrackElapsed());
     }
 
     /**

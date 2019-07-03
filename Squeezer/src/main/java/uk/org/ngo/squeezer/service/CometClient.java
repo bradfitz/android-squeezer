@@ -514,6 +514,14 @@ class CometClient extends BaseClient {
         parseStatus(player, currentSong, messageData);
     }
 
+    @Override
+    protected void postSongTimeChanged(Player player) {
+        super.postSongTimeChanged(player);
+        if (player.getPlayerState().isPlaying()) {
+            mBackgroundHandler.sendEmptyMessageDelayed(MSG_UPDATE_ELAPSED, 1000);
+        }
+    }
+
     private void parseDisplayStatus(Message message) {
         Map<String, Object> display = Util.getRecord(message.getDataAsMap(), "display");
         if (display != null) {
@@ -717,8 +725,8 @@ class CometClient extends BaseClient {
         //TODO see CliClient
     }
 
-    private String exec(ResponseHandler callback, String... cmd) {
-        return exec(request(callback, cmd));
+    private void exec(ResponseHandler callback, String... cmd) {
+        exec(request(callback, cmd));
     }
 
     private String exec(Request request) {
@@ -775,15 +783,14 @@ class CometClient extends BaseClient {
 
     @Override
     public void requestPlayerStatus(Player player) {
-        Request request = statusRequest(player).param("tags", SONGTAGS);
+        Request request = statusRequest(player);
         publishMessage(request, CHANNEL_SLIM_REQUEST, subscribeResponseChannel(player, CHANNEL_PLAYER_STATUS_FORMAT), null);
     }
 
     @Override
     public void subscribePlayerStatus(final Player player, final PlayerState.PlayerSubscriptionType subscriptionType) {
         Request request = statusRequest(player)
-                .param("subscribe", subscriptionType.getStatus())
-                .param("tags", SONGTAGS);
+                .param("subscribe", subscriptionType.getStatus());
         publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_PLAYER_STATUS_FORMAT), new PublishListener() {
             @Override
             public void onMessage(ClientSessionChannel channel, Message message) {
@@ -817,6 +824,7 @@ class CometClient extends BaseClient {
     private static final int MSG_DISCONNECT = 2;
     private static final int MSG_HANDSHAKE_TIMEOUT = 3;
     private static final int MSG_PUBLISH_RESPONSE_RECIEVED = 4;
+    private static final int MSG_UPDATE_ELAPSED = 5;
     private class CliHandler extends Handler {
         CliHandler(Looper looper) {
             super(looper);
@@ -842,6 +850,13 @@ class CometClient extends BaseClient {
                     PublishMessage message = mCommandQueue.poll();
                     if (message != null)
                         _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
+                    break;
+                }
+                case MSG_UPDATE_ELAPSED: {
+                    Player activePlayer = mConnectionState.getActivePlayer();
+                    if (activePlayer != null) {
+                        postSongTimeChanged(activePlayer);
+                    }
                     break;
                 }
             }
