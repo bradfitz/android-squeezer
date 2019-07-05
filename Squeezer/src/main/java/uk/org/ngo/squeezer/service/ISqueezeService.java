@@ -74,7 +74,6 @@ public interface ISqueezeService {
 
     // XXX: Delete, now that PlayerState is tracked in the player?
     PlayerState getActivePlayerState();
-    PlayerState getPlayerState(String playerId);
 
     // Player control
     void togglePower(Player player);

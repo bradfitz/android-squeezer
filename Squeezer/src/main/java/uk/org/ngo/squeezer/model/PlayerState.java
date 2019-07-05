@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
@@ -85,7 +84,7 @@ public class PlayerState implements Parcelable {
         dest.writeInt(currentSongDuration);
         dest.writeInt(currentVolume);
         dest.writeInt(sleepDuration);
-        dest.writeInt(sleep);
+        dest.writeDouble(sleep);
         dest.writeString(mSyncMaster);
         dest.writeStringList(mSyncSlaves);
         dest.writeString(mPlayerSubscriptionType.name());
@@ -124,13 +123,13 @@ public class PlayerState implements Parcelable {
 
     private int currentSongDuration;
 
-    public double trackSeen;
+    public double statusSeen;
 
     private int currentVolume;
 
     private int sleepDuration;
 
-    private int sleep;
+    private double sleep;
 
     /** The player this player is synced to (null if none). */
     @Nullable
@@ -270,7 +269,6 @@ public class PlayerState implements Parcelable {
         if (value == currentTimeSecond)
             return false;
 
-        trackSeen = SystemClock.elapsedRealtime() / 1000.0;
         currentTimeSecond = value;
         return true;
     }
@@ -312,7 +310,7 @@ public class PlayerState implements Parcelable {
     }
 
     /** @return seconds left until the player sleeps. */
-    public int getSleep() {
+    public double getSleep() {
         return sleep;
     }
 
@@ -321,7 +319,7 @@ public class PlayerState implements Parcelable {
      * @param sleep seconds left until the player sleeps.
      * @return True if the sleep value was changed, false otherwise.
      */
-    public boolean setSleep(int sleep) {
+    public boolean setSleep(double sleep) {
         if (sleep == this.sleep)
             return false;
 

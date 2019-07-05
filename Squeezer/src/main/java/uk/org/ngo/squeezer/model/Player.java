@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringDef;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Sets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -33,7 +32,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
 
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
@@ -61,7 +59,7 @@ public class Player extends Item implements Comparable {
     private boolean mConnected;
 
     @Override
-    public int compareTo(Object otherPlayer) {
+    public int compareTo(@NonNull Object otherPlayer) {
         return this.mName.compareToIgnoreCase(((Player)otherPlayer).mName);
     }
 
@@ -76,9 +74,6 @@ public class Player extends Item implements Comparable {
         public static final String ALARM_SNOOZE_SECONDS = "alarmSnoozeSeconds";
         public static final String ALARM_TIMEOUT_SECONDS = "alarmTimeoutSeconds";
         public static final String ALARMS_ENABLED = "alarmsEnabled";
-        public static final Set<String> VALID_PLAYER_PREFS = Sets.newHashSet(
-                ALARM_DEFAULT_VOLUME, ALARM_FADE_SECONDS, ALARM_SNOOZE_SECONDS, ALARM_TIMEOUT_SECONDS,
-                ALARMS_ENABLED);
     }
 
     public Player(Map<String, Object> record) {
@@ -86,12 +81,8 @@ public class Player extends Item implements Comparable {
         mIp = getString(record, "ip");
         mName = getString(record, "name");
         mModel = getString(record, "model");
-        // XXX; Fix this, this comes through as a long when converted from JSON.
-        //mCanPowerOff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
-        //mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;
-        mCanPowerOff = true;
-        mConnected = true;
-
+        mCanPowerOff = getInt(record, "canpoweroff") == 1;
+        mConnected = getInt(record, "connected") == 1;
         mHashCode = calcHashCode();
     }
 
@@ -216,9 +207,17 @@ public class Player extends Item implements Comparable {
 
     public SongTimeChanged getTrackElapsed() {
         double now = SystemClock.elapsedRealtime() / 1000.0;
-        double trackCorrection = mPlayerState.rate * (now - mPlayerState.trackSeen);
+        double trackCorrection = mPlayerState.rate * (now - mPlayerState.statusSeen);
         double trackElapsed = (trackCorrection <= 0 ? mPlayerState.getCurrentTimeSecond() : mPlayerState.getCurrentTimeSecond() + trackCorrection);
 
         return new SongTimeChanged(this, (int) trackElapsed, mPlayerState.getCurrentSongDuration());
+    }
+
+    public int getSleepingIn() {
+        double now = SystemClock.elapsedRealtime() / 1000.0;
+        double correction = now - mPlayerState.statusSeen;
+        double remaining = (correction <= 0 ? mPlayerState.getSleep() : mPlayerState.getSleep() - correction);
+
+        return (int) remaining;
     }
 }

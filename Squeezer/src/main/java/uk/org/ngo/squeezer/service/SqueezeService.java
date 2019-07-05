@@ -1095,13 +1095,6 @@ public class SqueezeService extends Service {
             return activePlayer.getPlayerState();
         }
 
-        @Override
-        @Nullable
-        public PlayerState getPlayerState(String playerId) {
-            Player player = mDelegate.getPlayer(playerId);
-            return player == null ? null : player.getPlayerState();
-        }
-
         /**
          * Issues a query for given player preference.
          */

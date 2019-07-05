@@ -72,7 +72,7 @@ public class PlayerListActivity extends ItemListActivity implements
             return;
         }
 
-        updateSyncGroups(getService().getPlayers(), getService().getActivePlayer());
+        updateSyncGroups(getService().getPlayers());
         mResultsAdapter.setSyncGroups(mPlayerSyncGroups);
 
         for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
@@ -84,11 +84,10 @@ public class PlayerListActivity extends ItemListActivity implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mResultsAdapter = new PlayerListAdapter(this);
         setContentView(R.layout.item_list_players);
         if (savedInstanceState != null)
             currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
-
-        mResultsAdapter = new PlayerListAdapter(this);
 
         setIgnoreVolumeChange(true);
     }
@@ -188,10 +187,9 @@ public class PlayerListActivity extends ItemListActivity implements
      * Builds the list of lists that is a sync group.
      *
      * @param players List of players.
-     * @param activePlayer The currently active player.
      */
-    public void updateSyncGroups(Collection<Player> players, Player activePlayer) {
-        Map<String, Player> connectedPlayers = new HashMap<String, Player>();
+    public void updateSyncGroups(Collection<Player> players) {
+        Map<String, Player> connectedPlayers = new HashMap<>();
 
         // Make a copy of the players we know about, ignoring unconnected ones.
         for (Player player : players) {
@@ -232,10 +230,6 @@ public class PlayerListActivity extends ItemListActivity implements
     @NonNull
     public Multimap<String, Player> getPlayerSyncGroups() {
         return mPlayerSyncGroups;
-    }
-
-    public PlayerState getPlayerState(String id) {
-        return getService().getPlayerState(id);
     }
 
     @Override

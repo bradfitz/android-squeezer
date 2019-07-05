@@ -31,11 +31,11 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
-import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
+import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 public class PlayerView extends BaseItemView<Player> {
     private static final Map<String, Integer> modelIcons = initializeModelIcons();
@@ -62,8 +62,7 @@ public class PlayerView extends BaseItemView<Player> {
 
     @Override
     public void bindView(View view, Player item) {
-        final PlayerListActivity activity = (PlayerListActivity) getActivity();
-        PlayerState playerState = activity.getPlayerState(item.getId());
+        PlayerState playerState = item.getPlayerState();
         PlayerViewHolder viewHolder = (PlayerViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
@@ -74,20 +73,20 @@ public class PlayerView extends BaseItemView<Player> {
             viewHolder.volumeBar.setOnSeekBarChangeListener(new VolumeSeekBarChangeListener(item, viewHolder.volumeValue));
         }
 
-        viewHolder.volumeBar.setVisibility(playerState != null ? View.VISIBLE : View.GONE);
+        viewHolder.volumeBar.setVisibility(View.VISIBLE);
 
-        if (playerState != null) {
-            if (playerState.isPoweredOn()) {
-                Util.setAlpha(viewHolder.text1, 1.0f);
-            } else {
-                Util.setAlpha(viewHolder.text1, 0.25f);
-            }
+        if (playerState.isPoweredOn()) {
+            Util.setAlpha(viewHolder.text1, 1.0f);
+        } else {
+            Util.setAlpha(viewHolder.text1, 0.25f);
+        }
 
-            viewHolder.volumeBar.setProgress(playerState.getCurrentVolume());
+        viewHolder.volumeBar.setProgress(playerState.getCurrentVolume());
 
-            viewHolder.text2.setVisibility(playerState.getSleepDuration() > 0 ? View.VISIBLE : View.INVISIBLE);
+        viewHolder.text2.setVisibility(playerState.getSleepDuration() > 0 ? View.VISIBLE : View.INVISIBLE);
+        if (playerState.getSleepDuration() > 0) {
             viewHolder.text2.setText(activity.getServerString(ServerString.SLEEPING_IN)
-                    + " " + Util.formatElapsedTime(playerState.getSleep()));
+                    + " " + Util.formatElapsedTime(item.getSleepingIn()));
         }
     }
 
@@ -108,28 +107,24 @@ public class PlayerView extends BaseItemView<Player> {
         menu.findItem(R.id.in_60_minutes).setTitle(String.format(xMinutes, "60"));
         menu.findItem(R.id.in_90_minutes).setTitle(String.format(xMinutes, "90"));
 
-        PlayerState playerState = activity.getPlayerState(menuInfo.item.getId());
-        if (playerState != null) {
-            if (playerState.getSleepDuration() != 0) {
-                MenuItem cancelSleepItem = menu.findItem(R.id.cancel_sleep);
-                cancelSleepItem.setTitle(activity.getServerString(ServerString.SLEEP_CANCEL));
-                cancelSleepItem.setVisible(true);
-            }
-
-            CurrentPlaylistItem currentSong = playerState.getCurrentSong();
-            boolean isPlaying = (playerState.isPlaying() && currentSong != null);
-            if (isPlaying && !playerState.isRemote()) {
-                MenuItem sleepAtEndOfSongItem = menu.findItem(R.id.end_of_song);
-                sleepAtEndOfSongItem.setTitle(activity.getServerString(ServerString.SLEEP_AT_END_OF_SONG));
-                sleepAtEndOfSongItem.setVisible(true);
-            }
-
-            MenuItem togglePowerItem = menu.findItem(R.id.toggle_power);
-            togglePowerItem.setTitle(
-                    activity.getString(playerState.isPoweredOn() ? R.string.menu_item_power_off
-                            : R.string.menu_item_power_on));
-            togglePowerItem.setVisible(true);
+        PlayerState playerState = ((Player)menuInfo.item).getPlayerState();
+        if (playerState.getSleepDuration() != 0) {
+            MenuItem cancelSleepItem = menu.findItem(R.id.cancel_sleep);
+            cancelSleepItem.setTitle(activity.getServerString(ServerString.SLEEP_CANCEL));
+            cancelSleepItem.setVisible(true);
         }
+
+        if (playerState.isPlaying()) {
+            MenuItem sleepAtEndOfSongItem = menu.findItem(R.id.end_of_song);
+            sleepAtEndOfSongItem.setTitle(activity.getServerString(ServerString.SLEEP_AT_END_OF_SONG));
+            sleepAtEndOfSongItem.setVisible(true);
+        }
+
+        MenuItem togglePowerItem = menu.findItem(R.id.toggle_power);
+        togglePowerItem.setTitle(
+                activity.getString(playerState.isPoweredOn() ? R.string.menu_item_power_off
+                        : R.string.menu_item_power_on));
+        togglePowerItem.setVisible(true);
     }
 
     @Override
@@ -172,19 +167,16 @@ public class PlayerView extends BaseItemView<Player> {
 
         Player currentPlayer = activity.getCurrentPlayer();
         switch (menuItem.getItemId()) {
-            case R.id.end_of_song:
-                PlayerState playerState = activity.getPlayerState(currentPlayer.getId());
-                if (playerState != null) {
-                    CurrentPlaylistItem currentSong = playerState.getCurrentSong();
-                    boolean isPlaying = (playerState.isPlaying() && currentSong != null);
-                    if (isPlaying && !playerState.isRemote()) {
-                        int sleep = playerState.getCurrentSongDuration() - (int)playerState.getCurrentTimeSecond() + 1;
-                        if (sleep >= 0)
-                            service.sleep(currentPlayer, sleep);
-                    }
-
+            case R.id.end_of_song: {
+                PlayerState playerState = currentPlayer.getPlayerState();
+                if (playerState.isPlaying()) {
+                    SongTimeChanged trackElapsed = currentPlayer.getTrackElapsed();
+                    int sleep = trackElapsed.duration - trackElapsed.currentPosition + 1;
+                    if (sleep >= 0)
+                        service.sleep(currentPlayer, sleep);
                 }
                 return true;
+            }
             case R.id.in_15_minutes:
                 service.sleep(currentPlayer, 15*60);
                 return true;

@@ -115,10 +115,10 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      *
      * @param playerSyncGroups Multimap, mapping from the player ID of the syncmaster to the
      *     Players synced to that master. See
-     *     {@link PlayerListActivity#updateSyncGroups(Collection, Player)} for how this map is
+     *     {@link PlayerListActivity#updateSyncGroups(Collection)} for how this map is
      *     generated.
      */
-    public void setSyncGroups(Multimap<String, Player> playerSyncGroups) {
+    void setSyncGroups(Multimap<String, Player> playerSyncGroups) {
         // The players might not have changed (so there's no need to reset the contents of the
         // adapter) but information about an individual player might have done.
         if (prevPlayerSyncGroups != null && prevPlayerSyncGroups.equals(playerSyncGroups)) {
@@ -179,9 +179,6 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
 
     /**
      * Handle sub menu items of context menus.
-     *
-     * @param menuItem
-     * @return
      */
     public boolean doItemContext(MenuItem menuItem) {
         if (mPlayersChanged) {

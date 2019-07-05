@@ -518,7 +518,16 @@ class CometClient extends BaseClient {
     protected void postSongTimeChanged(Player player) {
         super.postSongTimeChanged(player);
         if (player.getPlayerState().isPlaying()) {
-            mBackgroundHandler.sendEmptyMessageDelayed(MSG_UPDATE_ELAPSED, 1000);
+            mBackgroundHandler.sendEmptyMessageDelayed(MSG_TIME_UPDATE, 1000);
+        }
+    }
+
+    @Override
+    protected void postPlayerStateChanged(Player player) {
+        super.postPlayerStateChanged(player);
+        if (player.getPlayerState().getSleepDuration() > 0) {
+            android.os.Message message = mBackgroundHandler.obtainMessage(MSG_STATE_UPDATE, player);
+            mBackgroundHandler.sendMessageDelayed(message, 1000);
         }
     }
 
@@ -824,7 +833,8 @@ class CometClient extends BaseClient {
     private static final int MSG_DISCONNECT = 2;
     private static final int MSG_HANDSHAKE_TIMEOUT = 3;
     private static final int MSG_PUBLISH_RESPONSE_RECIEVED = 4;
-    private static final int MSG_UPDATE_ELAPSED = 5;
+    private static final int MSG_TIME_UPDATE = 5;
+    private static final int MSG_STATE_UPDATE = 6;
     private class CliHandler extends Handler {
         CliHandler(Looper looper) {
             super(looper);
@@ -852,11 +862,16 @@ class CometClient extends BaseClient {
                         _publishMessage(message.request, message.channel, message.responseChannel, message.publishListener);
                     break;
                 }
-                case MSG_UPDATE_ELAPSED: {
+                case MSG_TIME_UPDATE: {
                     Player activePlayer = mConnectionState.getActivePlayer();
                     if (activePlayer != null) {
                         postSongTimeChanged(activePlayer);
                     }
+                    break;
+                }
+                case MSG_STATE_UPDATE: {
+                    Player player = (Player) msg.obj;
+                    postPlayerStateChanged(player);
                     break;
                 }
             }

@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 
 import com.google.common.base.Splitter;
@@ -108,6 +109,7 @@ abstract class BaseClient implements SlimClient {
 
     void parseStatus(final Player player, CurrentPlaylistItem currentSong, Map<String, Object> tokenMap) {
         PlayerState playerState = player.getPlayerState();
+        playerState.statusSeen = SystemClock.elapsedRealtime() / 1000.0;
 
         addDownloadUrlTag(tokenMap);
 
@@ -157,7 +159,7 @@ abstract class BaseClient implements SlimClient {
 
         if (changedPower || changedSleep || changedSleepDuration || changedVolume
                 || changedSong || changedSyncMaster || changedSyncSlaves) {
-            mEventBus.post(new PlayerStateChanged(player, playerState));
+            postPlayerStateChanged(player);
         }
 
         // Power status
@@ -193,6 +195,10 @@ abstract class BaseClient implements SlimClient {
 
     protected void postSongTimeChanged(Player player) {
         mEventBus.post(player.getTrackElapsed());
+    }
+
+    protected void postPlayerStateChanged(Player player) {
+        mEventBus.post(new PlayerStateChanged(player));
     }
 
     /**
