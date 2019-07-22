@@ -55,7 +55,6 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -1132,10 +1131,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     public void onEventMainThread(RepeatStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updateRepeatStatus(event.repeatStatus);
-            if (!event.initial) {
-                Toast.makeText(mActivity, mActivity.getServerString(event.repeatStatus.getText()),
-                        Toast.LENGTH_SHORT).show();
-            }
         }
     }
 
@@ -1143,11 +1138,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     public void onEventMainThread(ShuffleStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updateShuffleStatus(event.shuffleStatus);
-            if (!event.initial) {
-                Toast.makeText(mActivity,
-                        mActivity.getServerString(event.shuffleStatus.getText()),
-                        Toast.LENGTH_SHORT).show();
-            }
         }
     }
 

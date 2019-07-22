@@ -1257,7 +1257,7 @@ public class SqueezeService extends Service {
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.activePlayerCommand().cmd("playlist", "shuffle").exec();
+            mDelegate.activePlayerCommand().cmd("button", "shuffle").exec();
             return true;
         }
 
@@ -1266,7 +1266,7 @@ public class SqueezeService extends Service {
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.activePlayerCommand().cmd("playlist", "repeat").exec();
+            mDelegate.activePlayerCommand().cmd("button", "repeat").exec();
             return true;
         }
 

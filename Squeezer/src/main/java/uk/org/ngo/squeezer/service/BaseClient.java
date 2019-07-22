@@ -113,9 +113,6 @@ abstract class BaseClient implements SlimClient {
 
         addDownloadUrlTag(tokenMap);
 
-        boolean unknownRepeatStatus = playerState.getRepeatStatus() == null;
-        boolean unknownShuffleStatus = playerState.getShuffleStatus() == null;
-
         boolean changedPower = playerState.setPoweredOn(Util.getInt(tokenMap, "power") == 1);
         boolean changedShuffleStatus = playerState.setShuffleStatus(Util.getString(tokenMap, "playlist shuffle"));
         boolean changedRepeatStatus = playerState.setRepeatStatus(Util.getString(tokenMap, "playlist repeat"));
@@ -177,14 +174,12 @@ abstract class BaseClient implements SlimClient {
 
         // Shuffle status.
         if (changedShuffleStatus) {
-            mEventBus.post(new ShuffleStatusChanged(player,
-                    unknownShuffleStatus, playerState.getShuffleStatus()));
+            mEventBus.post(new ShuffleStatusChanged(player, playerState.getShuffleStatus()));
         }
 
         // Repeat status.
         if (changedRepeatStatus) {
-            mEventBus.post(new RepeatStatusChanged(player,
-                    unknownRepeatStatus, playerState.getRepeatStatus()));
+            mEventBus.post(new RepeatStatusChanged(player, playerState.getRepeatStatus()));
         }
 
         // Position in song

@@ -139,6 +139,10 @@ public class Util {
         return getString(record.get(fieldName), null);
     }
 
+    public static String getString(Map<String, Object> record, String fieldName, String defaultValue) {
+        return getString(record.get(fieldName), defaultValue);
+    }
+
     @NonNull
     public static String getStringOrEmpty(Map<String, Object> record, String fieldName) {
         return getStringOrEmpty(record.get(fieldName));

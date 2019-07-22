@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Google Inc.  All Rights Reserved.
+ * Copyright (c) 2019 Kurt Aaholst <kaaholst@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,28 +18,22 @@ package uk.org.ngo.squeezer.service.event;
 
 import android.support.annotation.NonNull;
 
-import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.framework.AlertWindow;
 
-/** Event sent when the shuffle status of the player has changed. */
-public class ShuffleStatusChanged {
-    /** The player with changed state. */
-    @NonNull public final Player player;
-
-    /** The new shuffle status. */
+/** Event sent when a alert window message is received. */
+public class AlertEvent {
+    /** The message to show. */
     @NonNull
-    public final PlayerState.ShuffleStatus shuffleStatus;
+    public final AlertWindow message;
 
-    public ShuffleStatusChanged(@NonNull Player player, @NonNull PlayerState.ShuffleStatus shuffleStatus) {
-        this.player = player;
-        this.shuffleStatus = shuffleStatus;
+    public AlertEvent(@NonNull AlertWindow message) {
+        this.message = message;
     }
 
     @Override
     public String toString() {
-        return "ShuffleStatusChanged{" +
-                "player=" + player +
-                ", shuffleStatus=" + shuffleStatus +
+        return "AlertEvent{" +
+                "message=" + message +
                 '}';
     }
 }

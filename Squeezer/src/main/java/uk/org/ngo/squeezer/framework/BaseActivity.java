@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.CallSuper;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
@@ -33,17 +34,23 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
@@ -52,6 +59,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -397,9 +405,49 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
     }
 
     public void onEventMainThread(DisplayEvent displayEvent) {
-        // TODO types and duration
-        Toast.makeText(this, displayEvent.message.text, Toast.LENGTH_SHORT).show();
+        boolean showMe = true;
+        DisplayMessage display = displayEvent.message;
+        View layout = getLayoutInflater().inflate(R.layout.display_message,
+                (ViewGroup) findViewById(R.id.display_message_container));
+        ImageView artwork = (ImageView) layout.findViewById(R.id.artwork);
+        artwork.setVisibility(View.GONE);
+        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+        icon.setVisibility(View.GONE);
+        TextView text = (TextView) layout.findViewById(R.id.text);
+        text.setVisibility(TextUtils.isEmpty(display.text) ? View.GONE : View.VISIBLE);
+        text.setText(display.text);
 
+        if (display.isIcon() || display.isMixed() || display.isPopupAlbum()) {
+            @DrawableRes int iconResource = display.getIconResource();
+            if (iconResource != 0) {
+                icon.setVisibility(View.VISIBLE);
+                icon.setImageResource(iconResource);
+            }
+            if (display.hasIcon()) {
+                artwork.setVisibility(View.VISIBLE);
+                ImageFetcher.getInstance(this).loadImage(display.icon, artwork);
+            }
+        } else if (display.isSong()) {
+            //These are for the NowPlaying screen, which we update via player status messages
+            showMe = false;
+        }
+
+        if (showMe) {
+            if (!(icon.getVisibility() == View.VISIBLE &&text.getVisibility() == View.VISIBLE)) {
+                layout.findViewById(R.id.divider).setVisibility(View.GONE);
+            }
+            int duration = (display.duration >=0 && display.duration <= 3000 ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
+            Toast toast = new Toast(getApplicationContext());
+            //TODO handle duration == -1 => LENGTH.INDEFINITE and custom (server side) duration,
+            // once we have material design and BaseTransientBottomBar
+            toast.setDuration(duration);
+            toast.setView(layout);
+            toast.show();
+        }
+    }
+
+    public void onEventMainThread(AlertEvent alert) {
+        AlertEventDialog.show(getSupportFragmentManager(), alert.message.title, alert.message.text);
     }
 
     // Safe accessors

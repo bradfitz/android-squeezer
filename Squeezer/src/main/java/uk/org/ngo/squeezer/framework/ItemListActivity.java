@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.FrameLayout;
@@ -111,7 +112,8 @@ public abstract class ItemListActivity extends BaseActivity {
 
     @Override
     public void setContentView(int layoutResID) {
-        LinearLayout fullLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.item_list_activity_layout, null);
+        LinearLayout fullLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.item_list_activity_layout,
+                (ViewGroup) findViewById(R.id.activity_layout));
         subActivityContent = (FrameLayout) fullLayout.findViewById(R.id.content_frame);
         getLayoutInflater().inflate(layoutResID, subActivityContent, true); // Places the activity layout inside the activity content frame.
         super.setContentView(fullLayout);
@@ -125,9 +127,6 @@ public abstract class ItemListActivity extends BaseActivity {
         mListView = checkNotNull((AbsListView) subActivityContent.findViewById(R.id.item_list),
                 "getContentView() did not return a view containing R.id.item_list");
         setListView(mListView);
-
-
-        super.setContentView(fullLayout);
     }
 
     @Override
@@ -390,7 +389,7 @@ public abstract class ItemListActivity extends BaseActivity {
                 return;
             }
 
-            if (mAttachedTouchListener == false) {
+            if (!mAttachedTouchListener) {
                 if (mTouchListener != null) {
                     listView.setOnTouchListener(mTouchListener);
                 }
@@ -439,7 +438,7 @@ public abstract class ItemListActivity extends BaseActivity {
 
             private final OnScrollListener mOnScrollListener;
 
-            public TouchListener(OnScrollListener onScrollListener) {
+            TouchListener(OnScrollListener onScrollListener) {
                 mOnScrollListener = onScrollListener;
             }
 

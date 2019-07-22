@@ -291,4 +291,45 @@
         <item name="android:textColor">#fff</item>
         <item name="android:text">@string/undo</item>
     </style>
+
+    <!-- Toast -->
+    <style name="DisplayMessage">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:background">@android:drawable/toast_frame</item>
+    </style>
+
+    <style name="DisplayMessageArtwork">
+        <item name="android:layout_width">@dimen/album_art_icon_grid_width</item>
+        <item name="android:layout_height">@dimen/album_art_icon_grid_height</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxHeight">@dimen/album_art_icon_grid_height</item>
+        <item name="android:maxWidth">@dimen/album_art_icon_grid_width</item>
+        <item name="android:minHeight">@dimen/album_art_icon_grid_height</item>
+        <item name="android:minWidth">@dimen/album_art_icon_grid_width</item>
+    </style>
+
+    <style name="DisplayMessageIcon">
+        <item name="android:layout_width">@dimen/album_art_icon_width</item>
+        <item name="android:layout_height">@dimen/album_art_icon_height</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxHeight">@dimen/album_art_icon_height</item>
+        <item name="android:maxWidth">@dimen/album_art_icon_width</item>
+        <item name="android:minHeight">@dimen/album_art_icon_height</item>
+        <item name="android:minWidth">@dimen/album_art_icon_width</item>
+    </style>
+
+    <style name="DisplayMessageText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+    </style>
 </resources>

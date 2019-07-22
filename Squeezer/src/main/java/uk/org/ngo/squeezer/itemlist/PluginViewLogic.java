@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+ * Copyright (c) 2019 Kurt Aaholst <kaaholst@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 
 /**
- * Delegate with view logic {@link Plugin} which can be used from any {@link BaseActivity}
+ * Delegate with view logic for {@link Plugin} which can be used from any {@link BaseActivity}
  */
 public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
     private final BaseActivity activity;
@@ -132,7 +132,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
             contextMenuWaiting = true;
             // TODO some callback or other way to handle button visibility
             BaseItemView.ViewHolder viewHolder = (BaseItemView.ViewHolder) contextMenuView.getTag();
-            viewHolder.contextMenuButton.setVisibility(View.INVISIBLE);
+            viewHolder.contextMenuButton.setVisibility(View.GONE);
             viewHolder.contextMenuLoading.setVisibility(View.VISIBLE);
             service.pluginItems(action, this);
         }
