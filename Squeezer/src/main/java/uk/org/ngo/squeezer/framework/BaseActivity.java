@@ -32,7 +32,7 @@ import android.support.annotation.StringDef;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -63,7 +63,7 @@ import uk.org.ngo.squeezer.util.ThemeManager;
  *
  * @author Kurt Aaholst
  */
-public abstract class BaseActivity extends ActionBarActivity implements HasUiThread {
+public abstract class BaseActivity extends AppCompatActivity implements HasUiThread {
 
     @Nullable
     private ISqueezeService mService = null;

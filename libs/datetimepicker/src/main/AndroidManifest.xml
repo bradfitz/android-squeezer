@@ -15,8 +15,22 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.datetimepicker"
+    xmlns:tools="http://schemas.android.com/tools"
     android:versionCode="1"
     android:versionName="1.0" >
+
+    <uses-sdk
+        tools:overrideLibrary="
+        android.support.v7.appcompat,
+        android.support.v4,
+        android.support.mediacompat,
+        android.support.fragment,
+        android.support.coreutils,
+        android.support.coreui,
+        android.support.graphics.drawable,
+        android.support.compat,
+        android.arch.lifecycle"
+        />
 
     <uses-permission android:name="android.permission.VIBRATE" />
 </manifest>

@@ -21,7 +21,7 @@ buildscript {
 }
 
 ext {
-    compileSdkVersion = 25
+    compileSdkVersion = 26
     minSdkVersion = 7
     targetSdkVersion = 21
 
@@ -30,5 +30,5 @@ ext {
 
     // All support libraries must use the same version. The major version must be
     // the same as the compileSdkVersion
-    supportLibraryVersion = "${compileSdkVersion}.1.1"
+    supportLibraryVersion = "${compileSdkVersion}.1.0"
 }
