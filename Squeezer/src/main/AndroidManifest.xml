@@ -34,6 +34,7 @@
         android:theme="@style/AppTheme"
         android:label="@string/app_name"
         android:name=".Squeezer"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true">
 
         <!-- enable the search dialog to send searches to SearchActivity -->
