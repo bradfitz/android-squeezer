@@ -20,21 +20,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="uk.org.ngo.squeezer">
 
-    <!-- Crashlytics is for API 8+. Override that here, as Squeezer checks for
-         the API level before invoking it. -->
-    <uses-sdk
-        tools:overrideLibrary="com.crashlytics.android,com.crashlytics.android.answers,io.fabric.sdk.android,com.crashlytics.android.core,com.crashlytics.android.beta,
-        android.support.v7.appcompat,
-        android.support.v4,
-        android.support.mediacompat,
-        android.support.fragment,
-        android.support.coreutils,
-        android.support.coreui,
-        android.support.graphics.drawable,
-        android.support.compat,
-        android.arch.lifecycle"
-        />
-
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
