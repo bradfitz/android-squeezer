@@ -39,7 +39,6 @@ public class DownloadStorage {
         prefs = new Preferences(context);
     }
 
-    @TargetApi(Build.VERSION_CODES.FROYO)
     public File getDownloadDir() throws IOException {
         if (prefs.isDownloadUseSdCard()) {
             return getRemovableMediaStorage();

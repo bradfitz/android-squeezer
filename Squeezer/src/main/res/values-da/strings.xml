@@ -190,7 +190,7 @@
     <string name="ADD_ITEM_TO_END">Tilføj \"%s\" til afspilningsliste</string>
     <string name="PLAY_NEXT">Afspil efter den sang der spilles nu</string>
     <string name="DOWNLOAD">Hent</string>
-    <string name="DOWNLOAD_MANAGER_NEEDED">Hent kræver Android 2.3 eller nyere</string>
+    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Hent afbrudt, da vi ikke har tilladelse til at gemme de valgte filer</string>
 
     <string name="PLAYLIST_REMOVE">Fjern fra afspilningsliste</string>
     <string name="PLAYLIST_MOVE_UP">Flyt op</string>
