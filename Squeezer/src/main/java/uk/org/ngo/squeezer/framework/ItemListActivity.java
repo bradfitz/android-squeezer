@@ -98,7 +98,7 @@ public abstract class ItemListActivity extends BaseActivity {
     /**
      * List view to show the received items
      */
-    private AbsListView mListView;
+    private AbsListView listView;
 
     /**
      * Tag for mReceivedPages in mRetainFragment.
@@ -124,9 +124,9 @@ public abstract class ItemListActivity extends BaseActivity {
         emptyView = checkNotNull(findViewById(R.id.empty_view),
                 "activity layout did not return a view containing R.id.empty_view");
 
-        mListView = checkNotNull((AbsListView) subActivityContent.findViewById(R.id.item_list),
+        AbsListView listView = checkNotNull((AbsListView) subActivityContent.findViewById(R.id.item_list),
                 "getContentView() did not return a view containing R.id.item_list");
-        setListView(mListView);
+        setListView(setupListView(listView));
     }
 
     @Override
@@ -199,13 +199,17 @@ public abstract class ItemListActivity extends BaseActivity {
     /**
      * Set the list view to host received items
      */
-    protected abstract void setListView(AbsListView listView);
+    protected abstract AbsListView setupListView(AbsListView listView);
 
     /**
      * @return The view listing the items for this acitvity
      */
     public final AbsListView getListView() {
-        return mListView;
+        return listView;
+    }
+
+    public void setListView(AbsListView mListView) {
+        this.listView = mListView;
     }
 
     /**

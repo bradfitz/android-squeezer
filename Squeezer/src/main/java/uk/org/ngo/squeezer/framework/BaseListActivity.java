@@ -74,7 +74,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * Can't do much here, as content is based on settings, and which data to display, which is controlled by data
      * returned from server.
      * <p>
-     * See {@link #setListView(AbsListView)} and {@link #onItemsReceived(int, int, Map, List, Class)} for the actual setup of
+     * See {@link #setupListView(AbsListView)} and {@link #onItemsReceived(int, int, Map, List, Class)} for the actual setup of
      * views and adapter
      */
     @Override
@@ -84,7 +84,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     }
 
     @Override
-    protected void setListView(AbsListView listView) {
+    protected AbsListView setupListView(AbsListView listView) {
         listView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -108,7 +108,9 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         // Delegate context menu creation to the adapter.
         listView.setOnCreateContextMenuListener(getItemAdapter());
 
-        setAdapter(listView);
+        setupAdapter(listView);
+
+        return listView;
     }
 
     @MainThread
@@ -130,7 +132,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * @return The ID
      */
     protected int getContentView() {
-        return R.layout.item_list;
+        return R.layout.slim_browser_layout;
     }
 
     /**
@@ -160,7 +162,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * <p>
      * Call this method after the handshake is complete.
      */
-    private void setAdapter(AbsListView listView) {
+    private void setupAdapter(AbsListView listView) {
         // setAdapter is not defined for AbsListView before API level 11, but
         // it is for concrete implementations, so we call it by reflection
         try {
@@ -187,7 +189,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     }
 
     /**
-     * Store the first visible position of {@link #mListView}, in the {@link #mRetainFragment}, so
+     * Store the first visible position of {@link #getListView()}, in the retain fragment, so
      * we can later retrieve it.
      *
      * @see android.widget.AbsListView#getFirstVisiblePosition()

@@ -23,31 +23,38 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
+import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class PluginView extends BaseItemView<Plugin> {
     private final PluginViewLogic logicDelegate;
     private Window.WindowStyle windowStyle;
+    private AlbumViewDialog.AlbumListLayout listLayout;
 
-    PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle) {
+    PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle, AlbumViewDialog.AlbumListLayout listLayout) {
         super(activity);
-        this.windowStyle = windowStyle;
+        setWindowStyle(windowStyle, listLayout);
         this.logicDelegate = new PluginViewLogic(activity);
         setLoadingViewParams(viewParamIcon());
     }
 
-    Window.WindowStyle getWindowStyle() {
-        return windowStyle;
-    }
-
-    void setWindowStyle(Window.WindowStyle windowStyle) {
+    void setWindowStyle(Window.WindowStyle windowStyle, AlbumViewDialog.AlbumListLayout listLayout) {
         this.windowStyle = windowStyle;
+        this.listLayout = listLayout;
+        if (listLayout == AlbumViewDialog.AlbumListLayout.grid) {
+            mIconWidth = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_width);
+            mIconHeight = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_height);
+        } else {
+            mIconWidth = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_width);
+            mIconHeight = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_height);
+        }
     }
 
     @Override
@@ -56,6 +63,13 @@ public class PluginView extends BaseItemView<Plugin> {
         View view = getAdapterView(convertView, parent, viewParams);
         bindView(view, item);
         return view;
+    }
+
+    @Override
+    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
+        return listLayout == AlbumViewDialog.AlbumListLayout.grid
+                ? getAdapterView(convertView, parent, viewParams, R.layout.grid_item)
+                : super.getAdapterView(convertView, parent, viewParams);
     }
 
     private int viewParamIcon() {
@@ -83,7 +97,8 @@ public class PluginView extends BaseItemView<Plugin> {
 
     @Override
     public String getQuantityString(int quantity) {
-        throw new UnsupportedOperationException("quantities are not supported for plugins");
+        return "plugins";
+        //throw new UnsupportedOperationException("quantities are not supported for plugins");
     }
 
     @Override

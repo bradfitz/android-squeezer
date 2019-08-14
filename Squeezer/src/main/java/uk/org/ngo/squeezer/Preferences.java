@@ -382,6 +382,12 @@ public final class Preferences {
         return key;
     }
 
+    /**
+     * Get the preferred album list layout.
+     * <p>
+     * If the list layout is not selected, a default one is chosen, based on the current screen
+     * size, on the assumption that the artwork grid is preferred on larger screens.
+     */
     public AlbumViewDialog.AlbumListLayout getAlbumListLayout() {
         String listLayoutString = sharedPreferences.getString(Preferences.KEY_ALBUM_LIST_LAYOUT, null);
         if (listLayoutString == null) {

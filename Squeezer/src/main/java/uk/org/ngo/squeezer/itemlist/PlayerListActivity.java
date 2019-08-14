@@ -93,7 +93,7 @@ public class PlayerListActivity extends ItemListActivity implements
     }
 
     @Override
-    protected void setListView(AbsListView listView) {
+    protected AbsListView setupListView(AbsListView listView) {
         mResultsExpandableListView = (ExpandableListView) listView;
 
         mResultsExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -116,6 +116,8 @@ public class PlayerListActivity extends ItemListActivity implements
 
         mResultsExpandableListView.setOnCreateContextMenuListener(mResultsAdapter);
         mResultsExpandableListView.setOnScrollListener(new ScrollListener());
+
+        return listView;
     }
 
     @Override

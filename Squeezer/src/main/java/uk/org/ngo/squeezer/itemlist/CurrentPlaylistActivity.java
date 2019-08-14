@@ -32,7 +32,6 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
-import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -118,7 +117,7 @@ public class CurrentPlaylistActivity extends PluginListActivity {
 
     @Override
     public ItemView<Plugin> createItemView() {
-        return new PluginView(CurrentPlaylistActivity.this, Window.WindowStyle.ICON_TEXT) {
+        return new PluginView(CurrentPlaylistActivity.this, windowStyle, listLayout) {
 
             @Override
             public boolean isSelectable(Plugin item) {

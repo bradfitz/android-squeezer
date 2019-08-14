@@ -8,7 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 
 /**
  * A base class to be extended by fragments which would like to participate in populating the action
- * bar, and which are used in an {@link ActionBarActivity} .
+ * bar, and which are used in an {@link FragmentActivity} .
  * <p>
  * This class takes care of removing action bar items from the options menu. It also contains a few
  * convenience methods to ease using a menu fragment.
