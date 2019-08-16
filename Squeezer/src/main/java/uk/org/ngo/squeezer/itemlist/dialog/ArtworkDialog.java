@@ -35,6 +35,7 @@ import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class ArtworkDialog extends DialogFragment implements IServiceItemListCallback<Plugin> {
@@ -46,7 +47,6 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         BaseActivity activity = (BaseActivity)getActivity();
         Action action = getArguments().getParcelable(Action.class.getName());
-        // TODO order artwork_id and build url
 
         Dialog dialog = new Dialog(getContext());
         dialog.setContentView(R.layout.show_artwork);
@@ -77,6 +77,15 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
         return getActivity();
     }
 
+    /**
+     * Create a dialog to show artwork.
+     * <p>
+     * We call {@link ISqueezeService#pluginItems(Action, IServiceItemListCallback)} with the
+     * supplied <code>action</code> to asynchronously order an artwork id or URL. When the response
+     * arrives we load the artwork into the dialog.
+     * <p>
+     * See Slim/Control/Queries.pm in the slimserver code
+     */
     public static ArtworkDialog show(FragmentManager fragmentManager, Action action) {
         // Create and show the dialog
         ArtworkDialog dialog = new ArtworkDialog();

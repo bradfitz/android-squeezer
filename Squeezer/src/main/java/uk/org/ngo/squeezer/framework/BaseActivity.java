@@ -492,6 +492,10 @@ public abstract class BaseActivity extends ActionBarActivity implements HasUiThr
         Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Perform the supplied <code>action</code> using parameters in <code>item</code> via
+     * {@link ISqueezeService#action(Item, Action)}
+     */
     public void action(Item item, Action action) {
         if (mService == null) {
             return;

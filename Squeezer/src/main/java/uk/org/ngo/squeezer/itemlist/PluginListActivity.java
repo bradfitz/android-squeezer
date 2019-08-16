@@ -233,6 +233,9 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         } else if (plugin != null) {
             if (action == null || (plugin.hasInput() && !plugin.isInputReady())) {
                 showContent();
+            } else if (plugin.doAction) {
+                action(plugin, plugin.goAction);
+                finish();
             } else
                 service.pluginItems(start, plugin, action, this);
         } else {
@@ -367,6 +370,20 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         activity.startActivity(intent);
     }
 
+    /**
+     * Start a new {@link PluginListActivity} to perform the supplied <code>action</code>.
+     * <p>
+     * If the action requires input, we initially get the input.
+     * <p>
+     * When input is ready or the actyion does not require input, the action is performed. If it
+     * is a <code>do</code> action it is performed via {@link #action(Item, Action)}i, and the
+     * activity is finished.
+     * <p>
+     * Otherwise it is a <code>go</code> action, and items are ordered asynchronously via
+     * {@link ISqueezeService#pluginItems(int, Item, Action, IServiceItemListCallback)}
+     *
+     * @see #orderPage(ISqueezeService, int)
+     */
     public static void show(Activity activity, Item plugin, Action action) {
         final Intent intent = new Intent(activity, PluginListActivity.class);
         intent.putExtra(Plugin.class.getName(), plugin);

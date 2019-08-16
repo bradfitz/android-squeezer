@@ -16,6 +16,8 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.app.Activity;
+import android.support.v4.app.FragmentManager;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,10 +51,23 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
         this.activity = activity;
     }
 
+    /**
+     * Perform the <code>go</code> action of the supplied item.
+     * <p>
+     * If this is a <code>do</code> action and it doesn't require input, it is performed immediately
+     * by calling {@link BaseActivity#action(Item, Action) }.
+     * <p>
+     * Otherwise we pass the action to a sub <code>activity</code> (window in slim terminology) which
+     * collects the input if required and performs the action. See {@link PluginListActivity#show(Activity, Item, Action)}
+     * <p>
+     * Finally if the (unsupported) "showBigArtwork" flag is present in an item the <code>do</code>
+     * action will return an artwork id or URL, which can be used the fetch an image to display in a
+     * popup. See {@link ArtworkDialog#show(FragmentManager, Action)}
+     */
     void execGoAction(Item item) {
         if (item.showBigArtwork) {
             ArtworkDialog.show(activity.getSupportFragmentManager(), item.goAction);
-        } else if (item.doAction) {
+        } else if (item.doAction && !item.hasInput()) {
             activity.action(item, item.goAction);
         } else {
             PluginListActivity.show(activity, item, item.goAction);

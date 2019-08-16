@@ -199,7 +199,7 @@ public interface ISqueezeService {
     boolean playlistsRemove(Playlist playlist, int index);
 
     /**
-     * "home menu" items
+     * Start an asynchronous fetch of the squeezeservers "home menu" items
      * <p>
      * See http://wiki.slimdevices.com/index.php/SqueezePlayAndSqueezeCenterPlugins
       */
@@ -207,8 +207,40 @@ public interface ISqueezeService {
 
     // Plugins (Radios/Apps (music services)/Favorites)
     void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
-    void pluginItems(int start, Item item, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
-    void pluginItems(Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
+
+    /**
+     * Start an asynchronous fetch of the squeezeservers generic menu items.
+     * <p>
+     * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
+     *
+     * @param start Offset of the first item to fetch. Paging parameters are added automatically.
+     * @param item Current SBS item with the <code>action</code>, and which may contain parameters for the action.
+     * @param action <code>go</code> action from SBS. "go" refers to a command that opens a new window (i.e. returns results to browse)
+     * @param callback This will be called as the items arrive.
+     * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
+     */
+    void pluginItems(int start, Item item, Action action, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+
+    /**
+     * Start an asynchronous fetch of the squeezeservers generic menu items with no paging nor extra parameters.
+     * <p>
+     * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
+     *
+     * @param action <code>go</code> action from SBS. "go" refers to a command that opens a new window (i.e. returns results to browse)
+     * @param callback This will be called as the items arrive.
+     * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
+     */
+    void pluginItems(Action action, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+
+    /**
+     * Perform the supplied SBS <code>do</code> <code>action</code> using parameters in <code>item</code>.
+     * <p>
+     * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
+     *
+     * @param item Current SBS item with the <code>action</code>, and which may contain parameters for the action.
+     * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
+     * @return
+     */
     boolean action(Item item, Action action);
 
 
