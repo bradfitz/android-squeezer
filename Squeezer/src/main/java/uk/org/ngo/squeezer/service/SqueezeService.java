@@ -45,6 +45,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -102,6 +104,7 @@ import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.AsyncTask;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.ImageWorker;
+import uk.org.ngo.squeezer.util.NotificationUtil;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
@@ -109,6 +112,7 @@ public class SqueezeService extends Service {
 
     private static final String TAG = "SqueezeService";
 
+    private static final String NOTIFICATION_CHANNEL_ID = "channel_squeezer_1";
     private static final int PLAYBACKSERVICE_STATUS = 1;
     private static final int DOWNLOAD_ERROR = 2;
 
@@ -119,7 +123,7 @@ public class SqueezeService extends Service {
     private volatile boolean mHandshakeComplete = false;
 
     /** Media session to associate with ongoing notifications. */
-    private MediaSession mMediaSession;
+    private MediaSessionCompat mMediaSession;
 
     /** The player state that the most recent notifcation was for. */
     private PlayerState mNotifiedPlayerState;
@@ -251,7 +255,7 @@ public class SqueezeService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mMediaSession = new MediaSession(getApplicationContext(), "squeezer");
+            mMediaSession = new MediaSessionCompat(getApplicationContext(), "squeezer");
         }
         return (IBinder) squeezeService;
     }
@@ -497,10 +501,15 @@ public class SqueezeService extends Service {
         Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
-        Notification notification;
+
+
+        NotificationUtil.createNotificationChannel(this, NOTIFICATION_CHANNEL_ID,
+                "Squeezer ongoing notification",
+                "Notifications of player and connection state",
+                NotificationManager.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final Notification.Builder builder = new Notification.Builder(this);
+            final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
             builder.setContentIntent(pIntent);
             builder.setSmallIcon(R.drawable.squeezer_notification);
             builder.setVisibility(Notification.VISIBILITY_PUBLIC);
@@ -508,11 +517,11 @@ public class SqueezeService extends Service {
             builder.setContentTitle(songName);
             builder.setContentText(albumName);
             builder.setSubText(playerName);
-            builder.setStyle(new Notification.MediaStyle()
+            builder.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
                     .setShowActionsInCompactView(1, 2)
                     .setMediaSession(mMediaSession.getSessionToken()));
 
-            final MediaMetadata.Builder metaBuilder = new MediaMetadata.Builder();
+            final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, artistName);
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, albumName);
             metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, songName);
@@ -523,13 +532,13 @@ public class SqueezeService extends Service {
 
             builder.setDeleteIntent(closePendingIntent);
             if (playing) {
-                builder.addAction(new Notification.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                        .addAction(new Notification.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent))
-                        .addAction(new Notification.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
+                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent))
+                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
             } else {
-                builder.addAction(new Notification.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                        .addAction(new Notification.Action(R.drawable.ic_action_play, "Play", playPendingIntent))
-                        .addAction(new Notification.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
+                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_play, "Play", playPendingIntent))
+                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
             }
 
             ImageFetcher.getInstance(this).loadImage(url,
@@ -551,7 +560,7 @@ public class SqueezeService extends Service {
                         }
                     });
         } else {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
 
             builder.setOngoing(true);
             builder.setCategory(NotificationCompat.CATEGORY_SERVICE);
@@ -592,7 +601,7 @@ public class SqueezeService extends Service {
             builder.setContentText(getString(R.string.notification_playing_text, playerName));
             builder.setContentIntent(pIntent);
 
-            notification = builder.build();
+            Notification notification = builder.build();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 notification.bigContentView = expandedView;
             }

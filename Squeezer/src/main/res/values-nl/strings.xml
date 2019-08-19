@@ -133,7 +133,6 @@
     <string name="ADD_TO_END">Voeg toe aan Playlist</string>
     <string name="PLAY_NEXT">Speel af na huidige liedje</string>
     <string name="DOWNLOAD">Download</string>
-    <string name="DOWNLOAD_MANAGER_NEEDED">Download vereist Android 2.3 of later</string>
     <string name="PLAYLIST_REMOVE">Verwijder van playlist</string>
     <string name="PLAYLIST_MOVE_UP">Verplaats naar boven</string>
     <string name="PLAYLIST_MOVE_DOWN">Verplaats naar beneden</string>
