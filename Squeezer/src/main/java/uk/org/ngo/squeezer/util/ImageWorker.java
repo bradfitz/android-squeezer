@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.util;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
 import android.content.Context;
@@ -493,7 +492,6 @@ public abstract class ImageWorker {
         /**
          * Background processing.
          */
-        @TargetApi(11)
         @Override
         protected Bitmap doInBackground(BitmapWorkerTaskParams... params) {
             if (BuildConfig.DEBUG) {
@@ -552,17 +550,9 @@ public abstract class ImageWorker {
                     // Not a debug build, just need the scaled bitmap.
                     scaledBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
                 } else {
-                    // Debug build, need a mutable bitmap to add the debug swatch later. API 11
-                    // and above can set an option, earlier APIs need to make a copy of the bitmap.
-                    if (UIUtils.hasHoneycomb()) {
-                        options.inMutable = true;
-                        scaledBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-                    } else {
-                        Bitmap immutableBitmap = BitmapFactory.decodeByteArray(
-                                bytes, 0, bytes.length, options);
-                        scaledBitmap = immutableBitmap.copy(Bitmap.Config.ARGB_8888, true);
-                        immutableBitmap.recycle();
-                    }
+                    // Debug build, need a mutable bitmap to add the debug swatch later.
+                    options.inMutable = true;
+                    scaledBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
                 }
             }
 

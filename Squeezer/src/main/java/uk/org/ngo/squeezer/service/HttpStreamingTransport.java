@@ -92,7 +92,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         return true;
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     @Override
     public void init() {
         super.init();
@@ -157,7 +156,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     @Override
     public void send(final TransportListener listener, final List<Message.Mutable> messages) {
         if (!_delegate.connected) connect(getURL(), listener, messages);
@@ -200,7 +198,6 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private void transportSend(final TransportListener listener, final List<Message.Mutable> messages) {
         String url = getURL();
         final URI uri = URI.create(url);

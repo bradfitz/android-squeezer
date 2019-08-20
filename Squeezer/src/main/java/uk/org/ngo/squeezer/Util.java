@@ -282,11 +282,6 @@ public class Util {
             return false;
         }
 
-        // Don't include in <= API 7 (only works on API 8 and above).
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ECLAIR_MR1) {
-            return false;
-        }
-
         return true;
     }
 

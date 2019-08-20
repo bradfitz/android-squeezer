@@ -87,21 +87,7 @@ public class Player extends Item implements Comparable {
     }
 
     private HashCode calcHashCode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            return mHashFunction.hashString(getId(), Charsets.UTF_8);
-        } else {
-            // API versions < GINGERBREAD do not have String.getBytes(Charset charset),
-            // which hashString() ends up calling. This will trigger an exception.
-            byte[] bytes;
-            try {
-                bytes = getId().getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                // Can't happen, Android's native charset is UTF-8. But just in case
-                // we're running on something wacky, fallback to the un-parsed bytes.
-                bytes = getId().getBytes();
-            }
-            return mHashFunction.hashBytes(bytes);
-        }
+        return mHashFunction.hashString(getId(), Charsets.UTF_8);
     }
 
     private Player(Parcel source) {

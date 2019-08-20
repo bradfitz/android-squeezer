@@ -16,12 +16,10 @@
 
 package uk.org.ngo.squeezer.download;
 
-import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -37,17 +35,14 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            if (DownloadManager.ACTION_NOTIFICATION_CLICKED.equals(intent.getAction())) {
-                handleUserRequest(context);
-            }
-            if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) {
-                SqueezeService.onDownloadComplete(context, intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0));
-            }
+        if (DownloadManager.ACTION_NOTIFICATION_CLICKED.equals(intent.getAction())) {
+            handleUserRequest(context);
+        }
+        if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) {
+            SqueezeService.onDownloadComplete(context, intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0));
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private void handleUserRequest(Context context) {
         Log.i(TAG, "Download notification clicked");
         Intent intent = new Intent(context, CancelDownloadsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

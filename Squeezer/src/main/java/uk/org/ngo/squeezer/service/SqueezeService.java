@@ -61,7 +61,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
@@ -411,7 +410,7 @@ public class SqueezeService extends Service {
     /**
      * Manages the state of any ongoing notification based on the player and connection state.
      */
-    @TargetApi(21)
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void updateOngoingNotification() {
         Player activePlayer = mDelegate.getActivePlayer();
         PlayerState activePlayerState = getActivePlayerState();
@@ -720,7 +719,6 @@ public class SqueezeService extends Service {
         return !players.isEmpty() ? players.iterator().next() : null;
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private void handleDownloadComplete(long id) {
         final DownloadStorage downloadStorage = new DownloadStorage(this);
         final DownloadDatabase downloadDatabase = new DownloadDatabase(this);
