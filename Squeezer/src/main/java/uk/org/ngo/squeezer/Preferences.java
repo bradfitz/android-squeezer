@@ -91,10 +91,10 @@ public final class Preferences {
     public static final String KEY_FADE_IN_SECS = "squeezer.fadeInSecs";
 
     // What do to when an album is selected in the list view
-    protected static final String KEY_ON_SELECT_ALBUM_ACTION = "squeezer.action.onselect.album";
+    private static final String KEY_ON_SELECT_ALBUM_ACTION = "squeezer.action.onselect.album";
 
     // What do to when a song is selected in the list view
-    protected static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
+    private static final String KEY_ON_SELECT_SONG_ACTION = "squeezer.action.onselect.song";
 
     // Preferred album list layout.
     private static final String KEY_ALBUM_LIST_LAYOUT = "squeezer.album.list.layout";
@@ -109,20 +109,20 @@ public final class Preferences {
     static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
 
     // Download category
-    static final String KEY_DOWNLOAD_CATEGORY = "squeezer.download.category";
+    private static final String KEY_DOWNLOAD_CATEGORY = "squeezer.download.category";
 
     // Download folder
-    static final String KEY_DOWNLOAD_USE_SERVER_PATH = "squeezer.download.use_server_path";
+    private static final String KEY_DOWNLOAD_USE_SERVER_PATH = "squeezer.download.use_server_path";
 
     // Download path structure
-    static final String KEY_DOWNLOAD_PATH_STRUCTURE = "squeezer.download.path_structure";
+    private static final String KEY_DOWNLOAD_PATH_STRUCTURE = "squeezer.download.path_structure";
 
     // Download filename structure
-    static final String KEY_DOWNLOAD_FILENAME_STRUCTURE = "squeezer.download.filename_structure";
+    private static final String KEY_DOWNLOAD_FILENAME_STRUCTURE = "squeezer.download.filename_structure";
 
     // Use SD-card (getExternalMediaDirs)
-    static final String KEY_DOWNLOAD_USE_SD_CARD_SCREEN = "squeezer.download.use_sd_card.screen";
-    static final String KEY_DOWNLOAD_USE_SD_CARD = "squeezer.download.use_sd_card";
+    private static final String KEY_DOWNLOAD_USE_SD_CARD_SCREEN = "squeezer.download.use_sd_card.screen";
+    private static final String KEY_DOWNLOAD_USE_SD_CARD = "squeezer.download.use_sd_card";
 
     // Store a "mac id" for this app instance.
     private static final String KEY_MAC_ID = "squeezer.mac_id";
@@ -152,10 +152,6 @@ public final class Preferences {
             return null;
         }
         return pref;
-    }
-
-    public void registerOnSharedPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
-        sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
     }
 
     public boolean hasServerConfig() {
@@ -366,14 +362,6 @@ public final class Preferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Preferences.KEY_ALBUM_LIST_LAYOUT, artworkListLayout.name());
         editor.apply();
-    }
-
-    public boolean isDownloadUseServerPath() {
-        return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SERVER_PATH, true);
-    }
-
-    public boolean isDownloadUseSdCard() {
-        return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SD_CARD, false);
     }
 
     /**

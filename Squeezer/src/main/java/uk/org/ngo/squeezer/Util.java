@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,11 +28,6 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
@@ -338,46 +332,6 @@ public class Util {
             Crashlytics.logException(throwable);
         } else {
             Log.i("Util.crashlyticsLog", "", throwable);
-        }
-    }
-
-    @NonNull
-    public static String getBaseName(String fileName) {
-        String name = new File(fileName).getName();
-        int pos = name.lastIndexOf(".");
-        return (pos > 0) ? name.substring(0, pos) : name;
-    }
-
-    public static void moveFile(File sourceFile, File destinationFile) throws IOException {
-        File destFolder = destinationFile.getParentFile();
-        if (!destFolder.exists()) {
-            if (!destFolder.mkdirs()) {
-                throw new IOException("Cant create folder for '" + destinationFile + "'");
-            }
-        }
-        if (!sourceFile.renameTo(destinationFile)) {
-            // We could not rename. This may be because source and destination are on different
-            // mount points, so we attempt to copy and delete instead.
-            FileChannel sourceChannel = null;
-            FileChannel destinationChannel = null;
-            try {
-                sourceChannel = new FileInputStream(sourceFile).getChannel();
-                destinationChannel = new FileOutputStream(destinationFile).getChannel();
-                // Transfer the file in chunks to avoid out of memory issues
-                final long blockSize = Math.min(268435456, sourceChannel.size());
-                long position = 0;
-                while (destinationChannel.transferFrom(sourceChannel, position, blockSize) > 0) {
-                    position += blockSize;
-                }
-            } finally {
-                if (sourceChannel != null)
-                    sourceChannel.close();
-                if (destinationChannel != null)
-                    destinationChannel.close();
-            }
-            if (!sourceFile.delete()) {
-                throw new IOException("failed to delete " + sourceFile);
-            }
         }
     }
 }

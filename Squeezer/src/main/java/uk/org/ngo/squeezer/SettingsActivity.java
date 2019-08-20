@@ -235,11 +235,7 @@ public class SettingsActivity extends PreferenceActivity implements
         }
 
         if (Preferences.KEY_NOTIFICATION_TYPE.equals(key) ||
-                Preferences.KEY_ON_SELECT_ALBUM_ACTION.equals(key) ||
-                Preferences.KEY_ON_SELECT_SONG_ACTION.equals(key) ||
-                Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key) ||
-                Preferences.KEY_DOWNLOAD_PATH_STRUCTURE.equals(key) ||
-                Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE.equals(key)) {
+                Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
             updateListPreferenceSummary((ListPreference) preference, (String) newValue);
         }
 
