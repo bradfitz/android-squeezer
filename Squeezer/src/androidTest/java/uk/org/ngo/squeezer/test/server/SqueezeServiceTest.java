@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -121,7 +121,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
         assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
         assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
-        assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
+        assertEquals(ViewDialog.AlbumsSortOrder.album.name(),
                 mService.preferredAlbumSort());
 
         // Check that disconnecting only generates one additional DISCONNECTED event.
@@ -160,7 +160,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
         assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
         assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
-        assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
+        assertEquals(ViewDialog.AlbumsSortOrder.album.name(),
                 mService.preferredAlbumSort());
 
         // Check that disconnecting only generates one additional DISCONNECTED event.

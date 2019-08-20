@@ -32,7 +32,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadata;
 import android.media.MediaScannerConnection;
-import android.media.session.MediaSession;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
@@ -50,8 +49,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.RemoteViews;
-
-import com.google.common.io.Files;
 
 import org.eclipse.jetty.util.ajax.JSON;
 
@@ -74,25 +71,14 @@ import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
 import uk.org.ngo.squeezer.download.DownloadStorage;
 import uk.org.ngo.squeezer.framework.Action;
-import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.Item;
-import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.model.Album;
-import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
-import uk.org.ngo.squeezer.model.Genre;
-import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -734,90 +720,6 @@ public class SqueezeService extends Service {
         return !players.isEmpty() ? players.iterator().next() : null;
     }
 
-    /** A download request will be passed to the download manager for each song called back to this */
-    private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<Song>() {
-        @Override
-        public void onItemsReceived(int count, int start, Map<String, Object> params, List<Song> items, Class<Song> dataType) {
-            for (Song item : items) {
-                downloadSong(item);
-            }
-        }
-
-        @Override
-        public Object getClient() {
-            return this;
-        }
-    };
-
-    /**
-     * For each item called to this:
-     * If it is a folder: recursive lookup items in the folder
-     * If is is a track: Enqueue a download request to the download manager
-     */
-    private final IServiceItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new IServiceItemListCallback<MusicFolderItem>() {
-        @Override
-        public void onItemsReceived(int count, int start, Map<String, Object> params, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
-            for (MusicFolderItem item : items) {
-                squeezeService.downloadItem(item);
-            }
-        }
-
-        @Override
-        public Object getClient() {
-            return this;
-        }
-    };
-
-    private void downloadSong(Song song) {
-        final Preferences preferences = new Preferences(this);
-        if (preferences.isDownloadUseServerPath()) {
-            downloadSong(song.getDownloadUrl(), song.getName(), song.getUrl(), song.getArtworkUrl());
-        } else {
-            final String lastPathSegment = song.getUrl().getLastPathSegment();
-            final String fileExtension = Files.getFileExtension(lastPathSegment);
-            final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
-            downloadSong(song.getDownloadUrl(), song.getName(), localPath+"."+fileExtension, song.getArtworkUrl());
-        }
-    }
-
-    private void downloadSong(@NonNull Uri url, String title, @NonNull Uri serverUrl, @NonNull Uri albumArtUrl) {
-        downloadSong(url, title, getLocalFile(serverUrl), albumArtUrl);
-    }
-
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void downloadSong(@NonNull Uri url, String title, String localPath, @NonNull Uri albumArtUrl) {
-        if (url.equals(Uri.EMPTY)) {
-            return;
-        }
-
-        if (localPath == null) {
-            return;
-        }
-
-        // Convert VFAT-unfriendly characters to "_".
-        localPath =  localPath.replaceAll("[?<>\\\\:*|\"]", "_");
-
-        // If running on Gingerbread or greater use the Download Manager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            DownloadDatabase downloadDatabase = new DownloadDatabase(this);
-            String tempFile = UUID.randomUUID().toString();
-            String credentials = mDelegate.getUsername() + ":" + mDelegate.getPassword();
-            String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-            DownloadManager.Request request = new DownloadManager.Request(url)
-                    .setTitle(title)
-                    .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_MUSIC, tempFile)
-                    .setVisibleInDownloadsUi(false)
-                    .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
-            long downloadId = downloadManager.enqueue(request);
-
-            if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath, albumArtUrl)) {
-                Util.crashlyticsLog(Log.WARN, TAG, "Could not register download entry for: " + downloadId);
-                downloadManager.remove(downloadId);
-            }
-        }
-    }
-
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private void handleDownloadComplete(long id) {
         final DownloadStorage downloadStorage = new DownloadStorage(this);
@@ -871,32 +773,6 @@ public class SqueezeService extends Service {
 
     private String format(int status, int reason, String title, String url, String local_url) {
         return "{status:" + status + ", reason:" + reason + ", title:'" + title + "', url:'" + url + "', local url:'" + local_url + "'}";
-    }
-
-    /**
-     * Tries to get the path relative to the server music library.
-     * <p>
-     * If this is not possible resort to the last path segment of the server path.
-     */
-    @Nullable
-    private String getLocalFile(@NonNull Uri serverUrl) {
-        String serverPath = serverUrl.getPath();
-        String mediaDir = null;
-        String path;
-        for (String dir : mDelegate.getMediaDirs()) {
-            if (serverPath.startsWith(dir)) {
-                mediaDir = dir;
-                break;
-            }
-        }
-        if (mediaDir != null) {
-            path = serverPath.substring(mediaDir.length());
-        } else {
-            // Note: if serverUrl is the empty string this can return null.
-            path = serverUrl.getLastPathSegment();
-        }
-
-        return path;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -1160,13 +1036,6 @@ public class SqueezeService extends Service {
             return mDelegate.getPreferredAlbumSort();
         }
 
-        @Override
-        public void setPreferredAlbumSort(String preferredAlbumSort) {
-            if (isConnected()) {
-                mDelegate.command().cmd("pref", "jivealbumsort", preferredAlbumSort).exec();
-            }
-        }
-
         private String fadeInSecs() {
             return mFadeInSecs > 0 ? " " + mFadeInSecs : "";
         }
@@ -1279,17 +1148,6 @@ public class SqueezeService extends Service {
             return true;
         }
 
-        @Override
-        public boolean playlistControl(@BaseActivity.PlaylistControlCmd String cmd, PlaylistItem playlistItem, int index) {
-            if (!isConnected()) {
-                return false;
-            }
-
-            mDelegate.activePlayerCommand().cmd("playlistcontrol")
-                    .param("cmd", cmd).playlistParam(playlistItem).param("play_index", index).exec();
-            return true;
-        }
-
         /**
          * Start playing the song in the current playlist at the given index.
          *
@@ -1301,24 +1159,6 @@ public class SqueezeService extends Service {
                 return false;
             }
             mDelegate.activePlayerCommand().cmd("playlist", "index", String.valueOf(index), fadeInSecs()).exec();
-            return true;
-        }
-
-        @Override
-        public boolean playlistRemove(int index) {
-            if (!isConnected()) {
-                return false;
-            }
-            mDelegate.activePlayerCommand().cmd("playlist", "delete", String.valueOf(index)).exec();
-            return true;
-        }
-
-        @Override
-        public boolean playlistMove(int fromIndex, int toIndex) {
-            if (!isConnected()) {
-                return false;
-            }
-            mDelegate.activePlayerCommand().cmd("playlist", "move", String.valueOf(fromIndex), String.valueOf(toIndex)).exec();
             return true;
         }
 
@@ -1482,141 +1322,6 @@ public class SqueezeService extends Service {
                     .param("url", "".equals(playlist.getId()) ? "0" : playlist.getId()).exec();
         }
 
-        /* Start an async fetch of the SqueezeboxServer's albums, which are matching the given parameters */
-        @Override
-        public void albums(IServiceItemListCallback<Album> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(start, callback).cmd("albums").albumTags().sort(sortOrder).search(searchString).filter(filters).exec();
-        }
-
-
-        /* Start an async fetch of the SqueezeboxServer's artists */
-        @Override
-        public void artists(IServiceItemListCallback<Artist> callback, int start, String searchString, FilterItem... filters) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(start, callback).cmd("artists").search(searchString).filter(filters).exec();
-        }
-
-        /* Start an async fetch of the SqueezeboxServer's years */
-        @Override
-        public void years(int start, IServiceItemListCallback<Year> callback) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(start, callback).cmd("years").exec();
-        }
-
-        /* Start an async fetch of the SqueezeboxServer's genres */
-        @Override
-        public void genres(int start, String searchString, IServiceItemListCallback<Genre> callback) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(start, callback).cmd("genres").search(searchString).exec();
-        }
-
-        /**
-         * Starts an async fetch of the contents of a SqueezerboxServer's music
-         * folders in the given folderId.
-         * <p>
-         * folderId may be null, in which case the contents of the root music
-         * folder are returned.
-         * <p>
-         * Results are returned through the given callback.
-         *
-         * @param start Where in the list of folders to start.
-         * @param musicFolderItem The folder to view.
-         * @param callback Results will be returned through this
-         */
-        @Override
-        public void musicFolders(int start, MusicFolderItem musicFolderItem, IServiceItemListCallback<MusicFolderItem> callback) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(start, callback).cmd("musicfolder").param("tags", "").filter(musicFolderItem).exec();
-        }
-
-        /* Start an async fetch of the SqueezeboxServer's songs */
-        @Override
-        public void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(start, callback).cmd("songs").songTags().sort(sortOrder).search(searchString).filter(filters).exec();
-        }
-
-        /* Start an async fetch of the songs of the supplied playlist */
-        @Override
-        public void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(start, callback).cmd("playlists", "tracks").songTags().filter(playlist).exec();
-        }
-
-        /* Start an async fetch of the SqueezeboxServer's playlists */
-        @Override
-        public void playlists(int start, IServiceItemListCallback<Playlist> callback) throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(start, callback).cmd("playlists").exec();
-        }
-
-        @Override
-        public boolean playlistsDelete(Playlist playlist) {
-            if (!isConnected()) {
-                return false;
-            }
-            // According to The LMS documentation the "playlists delete" does not need a player.
-            // However when connected via the comet protocol a attempt to notify the current player
-            // ($request->client->showBriefly) is made, causing the command to fail.
-            // See Slim/Control/Commands.pm line 2272.
-            mDelegate.activePlayerCommand().cmd("playlists", "delete").filter(playlist).exec();
-            return true;
-        }
-
-        @Override
-        public boolean playlistsMove(Playlist playlist, int index, int toindex) {
-            if (!isConnected()) {
-                return false;
-            }
-            mDelegate.command().cmd("playlists", "edit").param("cmd", "move").
-                    filter(playlist).param("index", index).param("toindex", toindex).exec();
-            return true;
-        }
-
-        @Override
-        public boolean playlistsNew(String name) {
-            if (!isConnected()) {
-                return false;
-            }
-            mDelegate.command().cmd("playlists", "new").param("name", name).exec();
-            return true;
-        }
-
-        @Override
-        public boolean playlistsRemove(Playlist playlist, int index) {
-            if (!isConnected()) {
-                return false;
-            }
-            mDelegate.command().cmd("playlists", "edit").param("cmd", "delete").filter(playlist).param("index", index).exec();
-            return true;
-        }
-
-        @Override
-        public boolean playlistsRename(Playlist playlist, String newname) {
-            if (!isConnected()) {
-                return false;
-            }
-            mDelegate.command().cmd("playlists", "rename").filter(playlist).param("dry_run", "1").param("newname", newname).exec();
-            return true;
-        }
-
 
         /* Start an asynchronous fetch of the players home menu items */
         @Override
@@ -1659,31 +1364,6 @@ public class SqueezeService extends Service {
             }
             mDelegate.command(getActivePlayer()).cmd(action.action.cmd).params(action.action.params(item.inputValue)).exec();
             return true;
-        }
-
-
-        @Override
-        public void downloadItem(FilterItem item) throws HandshakeNotCompleteException {
-            if (item instanceof Song) {
-                Song song = (Song) item;
-                if (!song.isRemote()) {
-                    downloadSong(song);
-                }
-            } else if (item instanceof Playlist) {
-                playlistSongs(-1, (Playlist) item, songDownloadCallback);
-            } else if (item instanceof MusicFolderItem) {
-                MusicFolderItem musicFolderItem = (MusicFolderItem) item;
-                if ("track".equals(musicFolderItem.getType())) {
-                    Uri url = musicFolderItem.getUrl();
-                    if (! url.equals(Uri.EMPTY)) {
-                        downloadSong(musicFolderItem.getDownloadUrl(), musicFolderItem.getName(), url, Uri.EMPTY);
-                    }
-                } else if ("folder".equals(musicFolderItem.getType())) {
-                    musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);
-                }
-            } else if (item != null) {
-                songs(songDownloadCallback, -1, SongViewDialog.SongsSortOrder.title.name(), null, item);
-            }
         }
     }
 

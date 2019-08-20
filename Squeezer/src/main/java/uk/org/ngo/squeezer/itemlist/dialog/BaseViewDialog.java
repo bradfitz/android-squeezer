@@ -11,34 +11,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckedTextView;
-import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
 import uk.org.ngo.squeezer.framework.Item;
-import uk.org.ngo.squeezer.framework.VersionedEnumWithText;
 import uk.org.ngo.squeezer.menu.ViewMenuItemFragment;
 import uk.org.ngo.squeezer.util.Reflection;
 
 public abstract class BaseViewDialog<
         T extends Item,
-        ListLayout extends Enum<ListLayout> & EnumWithTextAndIcon,
-        SortOrder extends Enum<SortOrder> & VersionedEnumWithText> extends DialogFragment {
+        ListLayout extends Enum<ListLayout> & EnumWithTextAndIcon> extends DialogFragment {
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         @SuppressWarnings("unchecked") final Class<ListLayout> listLayoutClass = (Class<ListLayout>) Reflection.getGenericClass(getClass(), BaseViewDialog.class, 1);
-        @SuppressWarnings("unchecked") final Class<SortOrder> sortOrderClass = (Class<SortOrder>) Reflection.getGenericClass(getClass(), BaseViewDialog.class, 2);
-        @SuppressWarnings("unchecked") final ViewMenuItemFragment.ListActivityWithViewMenu<T, ListLayout, SortOrder> activity = (ViewMenuItemFragment.ListActivityWithViewMenu<T, ListLayout, SortOrder>) getActivity();
-        final int positionSortLabel = listLayoutClass.getEnumConstants().length;
-        final int positionSortStart = positionSortLabel + 1;
-        Bundle args = getArguments();
-        final String serverVersion = (args != null ? args.getString("version") : "");
-        final List<SortOrder> sortOrders = getAvailableSortOrders(sortOrderClass.getEnumConstants(), serverVersion);
+        @SuppressWarnings("unchecked") final ViewMenuItemFragment.ListActivityWithViewMenu<T, ListLayout> activity = (ViewMenuItemFragment.ListActivityWithViewMenu<T, ListLayout>) getActivity();
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -51,12 +38,12 @@ public abstract class BaseViewDialog<
 
                                @Override
                                public boolean isEnabled(int position) {
-                                   return (position != positionSortLabel);
+                                   return true;
                                }
 
                                @Override
                                public int getCount() {
-                                   return listLayoutClass.getEnumConstants().length + 1 + sortOrders.size();
+                                   return listLayoutClass.getEnumConstants().length;
                                }
 
                                @Override
@@ -73,57 +60,26 @@ public abstract class BaseViewDialog<
                                @Override
                                public View getView(int position, View convertView,
                                                    ViewGroup parent) {
-                                   if (position < positionSortLabel) {
-                                       CheckedTextView textView = (CheckedTextView) getActivity()
-                                               .getLayoutInflater()
-                                               .inflate(android.R.layout.select_dialog_singlechoice,
-                                                       parent, false);
-                                       ListLayout listLayout = listLayoutClass.getEnumConstants()[position];
-                                       textView.setCompoundDrawablesWithIntrinsicBounds(
-                                               getIcon(listLayout), 0, 0, 0);
-                                       textView.setText(listLayout.getText(getActivity()));
-                                       textView.setChecked(listLayout == activity.getListLayout());
-                                       return textView;
-                                   } else if (position > positionSortLabel) {
-                                       CheckedTextView textView = (CheckedTextView) getActivity()
-                                               .getLayoutInflater()
-                                               .inflate(android.R.layout.select_dialog_singlechoice,
-                                                       parent, false);
-                                       position -= positionSortStart;
-                                       SortOrder sortOrder = sortOrders.get(position);
-                                       textView.setText(sortOrder.getText(getActivity()));
-                                       textView.setChecked(sortOrder == activity.getSortOrder());
-                                       return textView;
-                                   }
-
-                                   TextView textView = new TextView(getActivity(), null,
-                                           android.R.attr.listSeparatorTextViewStyle);
-                                   textView.setText(getString(R.string.choose_sort_order,
-                                           activity.getItemAdapter().getQuantityString(2)));
+                                   CheckedTextView textView = (CheckedTextView) getActivity()
+                                           .getLayoutInflater()
+                                           .inflate(android.R.layout.select_dialog_singlechoice,
+                                                   parent, false);
+                                   ListLayout listLayout = listLayoutClass.getEnumConstants()[position];
+                                   textView.setCompoundDrawablesWithIntrinsicBounds(
+                                           getIcon(listLayout), 0, 0, 0);
+                                   textView.setText(listLayout.getText(getActivity()));
+                                   textView.setChecked(listLayout == activity.getListLayout());
                                    return textView;
                                }
                            }, new DialogInterface.OnClickListener() {
                                @Override
                                public void onClick(DialogInterface dialog, int position) {
-                                   if (position < positionSortLabel) {
-                                       activity.setListLayout(listLayoutClass.getEnumConstants()[position]);
-                                       dialog.dismiss();
-                                   } else if (position > positionSortLabel) {
-                                       position -= positionSortStart;
-                                       activity.setSortOrder(sortOrders.get(position));
-                                       dialog.dismiss();
-                                   }
+                                   activity.setListLayout(listLayoutClass.getEnumConstants()[position]);
+                                   dialog.dismiss();
                                }
                            }
         );
         return builder.create();
-    }
-
-    private List<SortOrder> getAvailableSortOrders(SortOrder[] sortOrders, String version) {
-        List<SortOrder> availableSortOrders = new ArrayList<SortOrder>();
-        for (SortOrder sortOrder : sortOrders)
-            if (sortOrder.can(version)) availableSortOrders.add(sortOrder);
-        return availableSortOrders;
     }
 
     protected int getIcon(ListLayout listLayout) {

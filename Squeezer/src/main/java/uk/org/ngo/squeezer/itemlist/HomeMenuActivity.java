@@ -33,7 +33,7 @@ import java.util.Vector;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -63,7 +63,7 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
 
     @Override
     protected ItemView<Plugin> createItemView() {
-        return new PluginView(this, Window.WindowStyle.ICON_TEXT, AlbumViewDialog.AlbumListLayout.list);
+        return new PluginView(this, Window.WindowStyle.ICON_TEXT, ViewDialog.ArtworkListLayout.list);
     }
 
     @Override

@@ -25,9 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.Item;
-import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -120,19 +118,15 @@ class SlimDelegate {
         return new Request<>(mClient, 0, 200, callback);
     }
 
-    <T extends Item> Request requestItems(int start, IServiceItemListCallback<T> callback) {
-        return new Request<>(mClient, start, callback);
-    }
-
     public Player getActivePlayer() {
         return mClient.getConnectionState().getActivePlayer();
     }
 
-    public void setActivePlayer(Player player) {
+    void setActivePlayer(Player player) {
         mClient.getConnectionState().setActivePlayer(player);
     }
 
-    public Player getPlayer(String playerId) {
+    Player getPlayer(String playerId) {
         return mClient.getConnectionState().getPlayer(playerId);
     }
 
@@ -178,39 +172,8 @@ class SlimDelegate {
             return this;
         }
 
-        Command songTags() {
-            return param("tags", BaseClient.SONGTAGS);
-        }
-
-        Command albumTags() {
-            return param("tags", BaseClient.ALBUMTAGS);
-        }
-
-        public Command sort(String sortOrder) {
-            return param("sort", sortOrder);
-        }
-
-        public Command search(String searchString) {
-            if (searchString != null && searchString.length() > 0) {
-                params.put("search", searchString);
-            }
-            return this;
-        }
-
-        Command filter(FilterItem... filters) {
-            for (FilterItem filter : filters)
-                if (filter != null) {
-                    params.put(filter.getFilterTag(), filter.getId());
-                }
-            return this;
-        }
-
-        Command playlistParam(PlaylistItem item) {
-            return param(item.getPlaylistTag(), item.getId());
-        }
-
         protected void exec() {
-            slimClient.command(player, cmd.toArray(new String[cmd.size()]), params);
+            slimClient.command(player, cmd.toArray(new String[0]), params);
         }
     }
 
@@ -246,13 +209,9 @@ class SlimDelegate {
             this(slimClient, null, start, pageSize, callback);
         }
 
-        private Request(SlimClient slimClient, int start, IServiceItemListCallback<T> callback) {
-            this(slimClient, null, start, callback);
-        }
-
         @Override
         protected void exec() {
-            slimClient.requestItems(player, cmd.toArray(new String[cmd.size()]), params, start, pageSize, callback);
+            slimClient.requestItems(player, cmd.toArray(new String[0]), params, start, pageSize, callback);
         }
     }
 }

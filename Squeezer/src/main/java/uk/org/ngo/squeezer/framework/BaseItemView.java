@@ -36,9 +36,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
-import uk.org.ngo.squeezer.itemlist.ArtistListActivity;
-import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.widget.ListItemImageButton;
 import uk.org.ngo.squeezer.widget.SquareImageView;
@@ -71,8 +68,6 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  * @param <T> the Item subclass this view represents.
  */
 public abstract class BaseItemView<T extends Item> implements ItemView<T> {
-
-    protected static final int BROWSE_ALBUMS = 1;
 
     private final ItemListActivity mActivity;
 
@@ -343,44 +338,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     public void onCreateContextMenu(ContextMenu menu, View v,
             ItemView.ContextMenuInfo menuInfo) {
         menu.setHeaderTitle(menuInfo.item.getName());
-    }
-
-    /**
-     * The default context menu handler handles some common actions.
-     */
-    @Override
-    public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.browse_songs:
-                SongListActivity.show(mActivity, selectedItem);
-                return true;
-
-            case BROWSE_ALBUMS:
-                AlbumListActivity.show(mActivity, selectedItem);
-                return true;
-
-            case R.id.browse_artists:
-                ArtistListActivity.show(mActivity, selectedItem);
-                return true;
-
-            case R.id.play_now:
-                mActivity.play((PlaylistItem) selectedItem);
-                return true;
-
-            case R.id.add_to_playlist:
-                mActivity.add((PlaylistItem) selectedItem);
-                return true;
-
-            case R.id.play_next:
-                mActivity.insert((PlaylistItem) selectedItem);
-                return true;
-
-            case R.id.download:
-                if (selectedItem instanceof FilterItem)
-                    mActivity.downloadItem((FilterItem) selectedItem);
-                return true;
-        }
-        return false;
     }
 
     /** Empty default context-sub-menu implementation, as most context menus doesn't have subs */

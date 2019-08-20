@@ -29,26 +29,26 @@ import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class PluginView extends BaseItemView<Plugin> {
     private final PluginViewLogic logicDelegate;
     private Window.WindowStyle windowStyle;
-    private AlbumViewDialog.AlbumListLayout listLayout;
+    private ViewDialog.ArtworkListLayout listLayout;
 
-    PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle, AlbumViewDialog.AlbumListLayout listLayout) {
+    PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout listLayout) {
         super(activity);
         setWindowStyle(windowStyle, listLayout);
         this.logicDelegate = new PluginViewLogic(activity);
         setLoadingViewParams(viewParamIcon());
     }
 
-    void setWindowStyle(Window.WindowStyle windowStyle, AlbumViewDialog.AlbumListLayout listLayout) {
+    void setWindowStyle(Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout listLayout) {
         this.windowStyle = windowStyle;
         this.listLayout = listLayout;
-        if (listLayout == AlbumViewDialog.AlbumListLayout.grid) {
+        if (listLayout == ViewDialog.ArtworkListLayout.grid) {
             mIconWidth = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_width);
             mIconHeight = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_height);
         } else {
@@ -67,7 +67,7 @@ public class PluginView extends BaseItemView<Plugin> {
 
     @Override
     public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
-        return listLayout == AlbumViewDialog.AlbumListLayout.grid
+        return listLayout == ViewDialog.ArtworkListLayout.grid
                 ? getAdapterView(convertView, parent, viewParams, R.layout.grid_item)
                 : super.getAdapterView(convertView, parent, viewParams);
     }

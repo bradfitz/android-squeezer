@@ -158,15 +158,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
         boundService = bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
-
-        if (savedInstanceState != null)
-            currentDownloadItem = savedInstanceState.getParcelable(CURRENT_DOWNLOAD_ITEM);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(CURRENT_DOWNLOAD_ITEM, currentDownloadItem);
-        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -473,34 +464,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
         return ServerString.values()[stringToken.ordinal()].getLocalizedString();
     }
 
-    // This section is just an easier way to call squeeze service
-
-    public void play(PlaylistItem item, int index) {
-        playlistControl(PLAYLIST_PLAY_NOW, item, index, R.string.ITEM_PLAYING);
-    }
-
-    public void play(PlaylistItem item) {
-        playlistControl(PLAYLIST_PLAY_NOW, item, 0, R.string.ITEM_PLAYING);
-    }
-
-    public void add(PlaylistItem item) {
-        playlistControl(PLAYLIST_ADD_TO_END, item, 0, R.string.ITEM_ADDED);
-    }
-
-    public void insert(PlaylistItem item) {
-        playlistControl(PLAYLIST_PLAY_AFTER_CURRENT, item, 0, R.string.ITEM_INSERTED);
-    }
-
-    private void playlistControl(@PlaylistControlCmd String cmd, PlaylistItem item, int index, int resId)
-            {
-        if (mService == null) {
-            return;
-        }
-
-        mService.playlistControl(cmd, item, index);
-        Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
-    }
-
     /**
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via
      * {@link ISqueezeService#action(Item, Action)}
@@ -511,39 +474,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
         }
 
         mService.action(item, action);
-    }
-
-    /**
-     * Initiate download of songs for the supplied item.
-     *
-     * @param item Song or item with songs to download
-     * @see ISqueezeService#downloadItem(FilterItem)
-     */
-    public void downloadItem(FilterItem item) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            currentDownloadItem = (Item) item;
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        } else
-            mService.downloadItem(item);
-    }
-
-    private Item currentDownloadItem;
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (currentDownloadItem != null) {
-                        mService.downloadItem((FilterItem) currentDownloadItem);
-                        currentDownloadItem = null;
-                    } else
-                        Toast.makeText(this, "Please select download again now that we have permission to save it", Toast.LENGTH_LONG).show();
-                } else
-                    Toast.makeText(this, R.string.DOWNLOAD_REQUIRES_WRITE_PERMISSION, Toast.LENGTH_LONG).show();
-                break;
-        }
     }
 
     @StringDef({PLAYLIST_PLAY_NOW, PLAYLIST_ADD_TO_END, PLAYLIST_PLAY_AFTER_CURRENT})

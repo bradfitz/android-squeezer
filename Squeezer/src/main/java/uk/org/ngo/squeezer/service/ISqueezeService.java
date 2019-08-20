@@ -23,22 +23,13 @@ import java.util.Collection;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.framework.Action;
-import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.Item;
-import uk.org.ngo.squeezer.framework.PlaylistItem;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.model.Album;
-import uk.org.ngo.squeezer.model.Artist;
-import uk.org.ngo.squeezer.model.Genre;
-import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.model.Year;
 
 public interface ISqueezeService {
     /**
@@ -113,7 +104,6 @@ public interface ISqueezeService {
     void powerOff();
     String getServerVersion() throws SqueezeService.HandshakeNotCompleteException;
     String preferredAlbumSort() throws SqueezeService.HandshakeNotCompleteException;
-    void setPreferredAlbumSort(String preferredAlbumSort);
     boolean togglePausePlay();
     boolean play();
     boolean pause();
@@ -122,10 +112,7 @@ public interface ISqueezeService {
     boolean previousTrack();
     boolean toggleShuffle();
     boolean toggleRepeat();
-    boolean playlistControl(String cmd, PlaylistItem playlistItem, int index);
     boolean playlistIndex(int index);
-    boolean playlistRemove(int index);
-    boolean playlistMove(int fromIndex, int toIndex);
 
     boolean setSecondsElapsed(int seconds);
 
@@ -164,39 +151,6 @@ public interface ISqueezeService {
     void alarmRepeat(String id, boolean repeat);
     void alarmSetPlaylist(String id, AlarmPlaylist playlist);
 
-
-    // Album list
-    /**
-     * Starts an asynchronous fetch of album data from the server. The supplied
-     * will be called when the data is fetched.
-     */
-    void albums(IServiceItemListCallback<Album> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Artist list
-    void artists(IServiceItemListCallback<Artist> callback, int start, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Year list
-    void years(int start, IServiceItemListCallback<Year> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Genre list
-    void genres(int start, String searchString, IServiceItemListCallback<Genre> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // MusicFolder list
-    void musicFolders(int start, MusicFolderItem musicFolderItem, IServiceItemListCallback<MusicFolderItem> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Song list
-    void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
-    void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Playlists
-    void playlists(int start, IServiceItemListCallback<Playlist> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Named playlist maintenance
-    boolean playlistsNew(String name);
-    boolean playlistsRename(Playlist playlist, String newname);
-    boolean playlistsDelete(Playlist playlist);
-    boolean playlistsMove(Playlist playlist, int index, int toindex);
-    boolean playlistsRemove(Playlist playlist, int index);
 
     /**
      * Start an asynchronous fetch of the squeezeservers "home menu" items
@@ -243,11 +197,4 @@ public interface ISqueezeService {
      */
     boolean action(Item item, Action action);
 
-
-    /**
-     * Initiate download of songs for the supplied item.
-     *
-     * @param item Song or item with songs to download
-     */
-    void downloadItem(FilterItem item) throws SqueezeService.HandshakeNotCompleteException;
 }

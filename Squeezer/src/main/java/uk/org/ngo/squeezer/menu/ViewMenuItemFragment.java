@@ -59,8 +59,7 @@ public class ViewMenuItemFragment extends BaseMenuFragment {
      * Interface that activities that host this fragment must implement.
      */
     public interface ListActivityWithViewMenu<T extends Item,
-            ListLayout extends Enum<ListLayout> & EnumWithTextAndIcon,
-    SortOrder extends Enum<SortOrder> & EnumWithText> {
+            ListLayout extends Enum<ListLayout> & EnumWithTextAndIcon> {
 
         /**
          * Show a dialog allowing the user to choose the sort order.
@@ -71,10 +70,6 @@ public class ViewMenuItemFragment extends BaseMenuFragment {
          * Ensure that the activity that hosts this fragment derives from FragmentActivity.
          */
         FragmentManager getSupportFragmentManager();
-
-        SortOrder getSortOrder();
-
-        void setSortOrder(SortOrder sortOrder);
 
         ListLayout getListLayout();
 

@@ -63,17 +63,10 @@ import uk.org.ngo.squeezer.framework.DisplayMessage;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.model.Album;
-import uk.org.ngo.squeezer.model.Artist;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
-import uk.org.ngo.squeezer.model.Genre;
-import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -153,13 +146,6 @@ class CometClient extends BaseClient {
         mBackgroundHandler = new CliHandler(handlerThread.getLooper());
 
         List<ItemListener<? extends Item>> itemListeners = Arrays.asList(
-                new ArtistsListener(),
-                new AlbumsListener(),
-                new SongsListener(),
-                new GenresListener(),
-                new YearsListener(),
-                new PlaylistsListener(),
-                new MusicFolderListener(),
                 new AlarmsListener(),
                 new AlarmPlaylistsListener(),
                 new PluginListener()
@@ -614,77 +600,6 @@ class CometClient extends BaseClient {
 
     private int getInt(Object value) {
         return (value instanceof Number) ? ((Number)value).intValue() : Util.parseDecimalIntOrZero((String)value);
-    }
-
-    private class ArtistsListener extends ItemListener<Artist> {
-        @Override
-        public void onResponse(Player player, Request request, Message message) {
-            parseMessage("artists_loop", message);
-        }
-    }
-
-    private class AlbumsListener extends ItemListener<Album> {
-        @Override
-        public void onResponse(Player player, Request request, Message message) {
-            parseMessage("albums_loop", message);
-        }
-    }
-
-    private class SongsListener extends ItemListener<Song> {
-        @Override
-        public void onResponse(Player player, Request request, Message message) {
-            switch (request.getRequest()) {
-                default:
-                    parseMessage("titles_loop", message);
-                    break;
-                case "playlists tracks":
-                    parseMessage("playlisttracks_loop", message);
-                    break;
-                case "status":
-                    parseMessage("playlist_tracks", "playlist_loop", message);
-                    break;
-            }
-        }
-
-        @Override
-        public void add(Map<String, Object> record) {
-            addDownloadUrlTag(record);
-            super.add(record);
-        }
-    }
-
-    private class GenresListener extends ItemListener<Genre> {
-        @Override
-        public void onResponse(Player player, Request request, Message message) {
-            parseMessage("genres_loop", message);
-        }
-    }
-
-    private class YearsListener extends ItemListener<Year> {
-        @Override
-        public void onResponse(Player player, Request request, Message message) {
-            parseMessage("years_loop", message);
-        }
-    }
-
-    private class PlaylistsListener extends ItemListener<Playlist> {
-        @Override
-        public void onResponse(Player player, Request request, Message message) {
-            parseMessage("playlists_loop", message);
-        }
-    }
-
-    private class MusicFolderListener extends ItemListener<MusicFolderItem> {
-        @Override
-        public void onResponse(Player player, Request request, Message message) {
-            parseMessage("folder_loop", message);
-        }
-
-        @Override
-        public void add(Map<String, Object> record) {
-            addDownloadUrlTag(record);
-            super.add(record);
-        }
     }
 
     private class AlarmsListener extends ItemListener<Alarm> {

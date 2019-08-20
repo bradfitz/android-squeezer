@@ -42,28 +42,6 @@ import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 
 abstract class BaseClient implements SlimClient {
-    static final String ALBUMTAGS = "alyj";
-
-    /**
-     * Information that will be requested about songs.
-     * <p>
-     * a: artist name<br/>
-     * C: compilation (1 if true, missing otherwise)<br/>
-     * d: duration, in seconds<br/>
-     * e: album ID<br/>
-     * j: coverart (1 if available, missing otherwise)<br/>
-     * J: artwork_track_id (if available, missing otherwise)<br/>
-     * K: URL to remote artwork<br/>
-     * l: album name<br/>
-     * s: artist id<br/>
-     * t: tracknum, if known<br/>
-     * x: 1, if this is a remote track<br/>
-     * y: song year<br/>
-     * u: Song file url
-     */
-    // This should probably be a field in Song.
-    static final String SONGTAGS = "aCdejJKlstxyu";
-
     final static int mPageSize = Squeezer.getContext().getResources().getInteger(R.integer.PageSize);
 
     final AtomicReference<String> username = new AtomicReference<>();
@@ -201,7 +179,7 @@ abstract class BaseClient implements SlimClient {
      *
      * @param record The record to modify.
      */
-    void addDownloadUrlTag(Map<String, Object> record) {
+    private void addDownloadUrlTag(Map<String, Object> record) {
         record.put("download_url", mUrlPrefix + "/music/" + record.get("id") + "/download");
     }
 

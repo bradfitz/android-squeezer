@@ -31,6 +31,7 @@ import android.text.format.DateFormat;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -266,6 +267,11 @@ public class AlarmView extends BaseItemView<Alarm> {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    }
+
+    @Override
+    public boolean doItemContext(MenuItem menuItem, int index, Alarm selectedItem) {
+        return false;
     }
 
     // Require an immutable list so that caller's can't modify it when this method iterates

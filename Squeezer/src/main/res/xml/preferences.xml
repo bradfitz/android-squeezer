@@ -57,44 +57,8 @@
             android:entryValues="@array/notification_type_value"/>
 
         <ListPreference
-            android:key="squeezer.action.onselect.album"
-            android:title="@string/settings_album_selectaction"/>
-
-        <ListPreference
-            android:key="squeezer.action.onselect.song"
-            android:title="@string/settings_song_selectaction"/>
-
-        <ListPreference
             android:key="squeezer.theme"
             android:title="@string/settings_theme_title"/>
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:key="squeezer.download.category"
-        android:title="@string/settings_category_download">
-
-        <PreferenceScreen
-            android:key="squeezer.download.use_sd_card.screen"
-            android:title="@string/settings_download_use_sd_card"
-            >
-        <CheckBoxPreference
-            android:key="squeezer.download.use_sd_card"
-            android:summary="@string/settings_download_use_sd_card_desc"
-            />
-        </PreferenceScreen>
-
-        <CheckBoxPreference
-            android:key="squeezer.download.use_server_path"
-            android:title="@string/settings_download_use_server_path"/>
-
-        <ListPreference
-            android:key="squeezer.download.path_structure"
-            android:title="@string/settings_download_path_structure"/>
-
-        <ListPreference
-            android:key="squeezer.download.filename_structure"
-            android:title="@string/settings_download_filename_structure"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory

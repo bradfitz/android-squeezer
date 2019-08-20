@@ -49,7 +49,7 @@ import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.menu.BaseMenuFragment;
 import uk.org.ngo.squeezer.menu.ViewMenuItemFragment;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -62,7 +62,7 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
  */
 public class PluginListActivity extends BaseListActivity<Plugin>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener,
-        ViewMenuItemFragment.ListActivityWithViewMenu<Plugin, AlbumViewDialog.AlbumListLayout, AlbumViewDialog.AlbumsSortOrder>{
+        ViewMenuItemFragment.ListActivityWithViewMenu<Plugin, ViewDialog.ArtworkListLayout>{
     private static final int GO = 1;
     static final String FINISH = "FINISH";
     static final String RELOAD = "RELOAD";
@@ -72,10 +72,10 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     private Item plugin;
     private Action action;
     Window.WindowStyle windowStyle = Window.WindowStyle.ICON_TEXT;
-    AlbumViewDialog.AlbumListLayout listLayout = AlbumViewDialog.AlbumListLayout.list;
+    ViewDialog.ArtworkListLayout listLayout = ViewDialog.ArtworkListLayout.list;
 
     /** The preferred list layout for lists with artwork items */
-    AlbumViewDialog.AlbumListLayout artworkListLayout = null;
+    ViewDialog.ArtworkListLayout artworkListLayout = null;
 
     @Override
     public ItemView<Plugin> createItemView() {
@@ -148,10 +148,10 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     protected AbsListView setupListView(AbsListView listView) {
-        if (listLayout == AlbumViewDialog.AlbumListLayout.grid && !(listView instanceof GridView)) {
+        if (listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView)) {
             listView = switchListView(listView, R.layout.item_grid);
         }
-        if (listLayout != AlbumViewDialog.AlbumListLayout.grid && (listView instanceof GridView)) {
+        if (listLayout != ViewDialog.ArtworkListLayout.grid && (listView instanceof GridView)) {
             listView = switchListView(listView, R.layout.item_list);
         }
         return super.setupListView(listView);
@@ -193,9 +193,9 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     private void applyWindowStyle(Window.WindowStyle windowStyle) {
-        AlbumViewDialog.AlbumListLayout listLayout = (windowStyle == Window.WindowStyle.ICON_TEXT && artworkListLayout == AlbumViewDialog.AlbumListLayout.grid)
-                ? AlbumViewDialog.AlbumListLayout.grid
-                : AlbumViewDialog.AlbumListLayout.list;
+        ViewDialog.ArtworkListLayout listLayout = (windowStyle == Window.WindowStyle.ICON_TEXT && artworkListLayout == ViewDialog.ArtworkListLayout.grid)
+                ? ViewDialog.ArtworkListLayout.grid
+                : ViewDialog.ArtworkListLayout.list;
         if (windowStyle != this.windowStyle || listLayout != this.listLayout) {
             this.windowStyle = windowStyle;
             ((PluginView) getItemView()).setWindowStyle(windowStyle, listLayout);
@@ -329,25 +329,16 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     public void showViewDialog() {
-        new AlbumViewDialog().show(getSupportFragmentManager(), "ViewDialog");
+        new ViewDialog().show(getSupportFragmentManager(), "ViewDialog");
     }
 
-    public AlbumViewDialog.AlbumListLayout getListLayout() {
+    public ViewDialog.ArtworkListLayout getListLayout() {
         return artworkListLayout;
     }
 
-    public void setListLayout(AlbumViewDialog.AlbumListLayout listLayout) {
+    public void setListLayout(ViewDialog.ArtworkListLayout listLayout) {
         new Preferences(this).setAlbumListLayout(artworkListLayout = listLayout);
         applyWindowStyle(windowStyle);
-    }
-
-    @Override
-    public AlbumViewDialog.AlbumsSortOrder getSortOrder() {
-        return AlbumViewDialog.AlbumsSortOrder.album;
-    }
-
-    @Override
-    public void setSortOrder(AlbumViewDialog.AlbumsSortOrder albumsSortOrder) {
     }
 
     /**

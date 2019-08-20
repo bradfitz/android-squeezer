@@ -29,15 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Random;
 import java.util.UUID;
 
-import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
-import uk.org.ngo.squeezer.download.DownloadPathStructure;
-import uk.org.ngo.squeezer.framework.PlaylistItem;
-import uk.org.ngo.squeezer.itemlist.action.PlayableItemAction;
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
-import uk.org.ngo.squeezer.itemlist.dialog.SongViewDialog;
-import uk.org.ngo.squeezer.model.Album;
-import uk.org.ngo.squeezer.model.MusicFolderItem;
-import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 
 public final class Preferences {
     private static final String TAG = Preferences.class.getSimpleName();
@@ -352,86 +344,32 @@ public final class Preferences {
         return  (!serverAddress.squeezeNetwork && sharedPreferences.getBoolean(KEY_SQUEEZEPLAYER_ENABLED, true));
     }
 
-    public PlayableItemAction.Type getOnItemSelectAction(Class<? extends PlaylistItem> clazz) {
-        final String actionName = sharedPreferences.getString(getOnSelectItemActionKey(clazz), PlayableItemAction.Type.NONE.name());
-        try {
-            return PlayableItemAction.Type.valueOf(actionName);
-        } catch (IllegalArgumentException e) {
-            return PlayableItemAction.Type.NONE;
-        }
-    }
-
-    public void setOnSelectItemAction(Class<? extends PlaylistItem> clazz, PlayableItemAction.Type action) {
-        String key = getOnSelectItemActionKey(clazz);
-
-        if (action != null) {
-            sharedPreferences.edit().putString(key, action.name()).apply();
-        } else {
-            sharedPreferences.edit().remove(key).apply();
-        }
-    }
-
-    private String getOnSelectItemActionKey(Class<? extends PlaylistItem> clazz) {
-        String key = null;
-        if (clazz == Song.class) key = KEY_ON_SELECT_SONG_ACTION; else
-        if (clazz == MusicFolderItem.class) key = KEY_ON_SELECT_SONG_ACTION; else
-        if (clazz == Album.class) key = KEY_ON_SELECT_ALBUM_ACTION;
-        if (key == null) {
-            throw new IllegalArgumentException("Default action for class '" + clazz + " is not supported");
-        }
-        return key;
-    }
-
     /**
      * Get the preferred album list layout.
      * <p>
      * If the list layout is not selected, a default one is chosen, based on the current screen
      * size, on the assumption that the artwork grid is preferred on larger screens.
      */
-    public AlbumViewDialog.AlbumListLayout getAlbumListLayout() {
+    public ViewDialog.ArtworkListLayout getAlbumListLayout() {
         String listLayoutString = sharedPreferences.getString(Preferences.KEY_ALBUM_LIST_LAYOUT, null);
         if (listLayoutString == null) {
             int screenSize = context.getResources().getConfiguration().screenLayout
                     & Configuration.SCREENLAYOUT_SIZE_MASK;
             return (screenSize >= Configuration.SCREENLAYOUT_SIZE_LARGE)
-                    ? AlbumViewDialog.AlbumListLayout.grid : AlbumViewDialog.AlbumListLayout.list;
+                    ? ViewDialog.ArtworkListLayout.grid : ViewDialog.ArtworkListLayout.list;
         } else {
-            return AlbumViewDialog.AlbumListLayout.valueOf(listLayoutString);
+            return ViewDialog.ArtworkListLayout.valueOf(listLayoutString);
         }
     }
 
-    public void setAlbumListLayout(AlbumViewDialog.AlbumListLayout albumListLayout) {
+    public void setAlbumListLayout(ViewDialog.ArtworkListLayout artworkListLayout) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Preferences.KEY_ALBUM_LIST_LAYOUT, albumListLayout.name());
-        editor.apply();
-    }
-
-    public SongViewDialog.SongListLayout getSongListLayout() {
-        String listLayoutString = sharedPreferences.getString(Preferences.KEY_SONG_LIST_LAYOUT, null);
-        if (listLayoutString != null) {
-            return SongViewDialog.SongListLayout.valueOf(listLayoutString);
-        }
-        return SongViewDialog.SongListLayout.list;
-    }
-
-    public void setSongListLayout(SongViewDialog.SongListLayout songListLayout) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Preferences.KEY_SONG_LIST_LAYOUT, songListLayout.name());
+        editor.putString(Preferences.KEY_ALBUM_LIST_LAYOUT, artworkListLayout.name());
         editor.apply();
     }
 
     public boolean isDownloadUseServerPath() {
         return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SERVER_PATH, true);
-    }
-
-    public DownloadPathStructure getDownloadPathStructure() {
-        final String string = sharedPreferences.getString(KEY_DOWNLOAD_PATH_STRUCTURE, null);
-        return (string == null ? DownloadPathStructure.ARTIST_ALBUM: DownloadPathStructure.valueOf(string));
-    }
-
-    public DownloadFilenameStructure getDownloadFilenameStructure() {
-        final String string = sharedPreferences.getString(KEY_DOWNLOAD_FILENAME_STRUCTURE, null);
-        return (string == null ? DownloadFilenameStructure.NUMBER_TITLE: DownloadFilenameStructure.valueOf(string));
     }
 
     public boolean isDownloadUseSdCard() {

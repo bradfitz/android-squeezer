@@ -12,7 +12,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog.AlbumsSortOrder;
 
 /**
  * Emulates LMS for testing purposes

@@ -33,9 +33,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -228,22 +225,6 @@ public class Util {
         sTimeArgs[4] = elapsedSeconds % 60;
     }
 
-    public static String encode(String string) {
-        try {
-            return URLEncoder.encode(string, "UTF-8").replace("+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            return "";
-        }
-    }
-
-    public static String decode(String string) {
-        try {
-            return URLDecoder.decode(string, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return "";
-        }
-    }
-
     /**
      * Returns {@code true} if the arguments are equal to each other
      * and {@code false} otherwise.
@@ -266,15 +247,6 @@ public class Util {
                 android.R.layout.simple_spinner_item);
     }
 
-    /**
-     * @return a view suitable for use in a spinner's dropdown menu.
-     */
-    public static View getSpinnerDropDownView(Context context, View convertView, ViewGroup parent,
-                                      String label) {
-        return getSpinnerView(context, convertView, parent, label,
-                android.R.layout.simple_spinner_dropdown_item);
-    }
-
     public static View getActionBarSpinnerItemView(Context context, View convertView,
                                                    ViewGroup parent, String label) {
         return getSpinnerView(context, convertView, parent, label,
@@ -291,23 +263,6 @@ public class Util {
                         layout, parent, false));
         view.setText(label);
         return view;
-    }
-
-    /**
-     * Count how many of the supplied booleans are true.
-     *
-     * @param items Booleans to count
-     *
-     * @return Number of arguments which are true
-     */
-    public static int countBooleans(boolean... items) {
-        int count = 0;
-        for (boolean item : items) {
-            if (item) {
-                count++;
-            }
-        }
-        return count;
     }
 
     /** Helper to set alpha value for a view, since View.setAlpha is API level 11 */

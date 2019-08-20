@@ -11,7 +11,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog.AlbumsSortOrder;
+import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog.AlbumsSortOrder;
 
 /**
  * This is a test of the mock server.

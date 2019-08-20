@@ -132,7 +132,7 @@ public class PlayerView extends BaseItemView<Player> {
         activity.setCurrentPlayer(selectedItem);
         ISqueezeService service = activity.getService();
         if (service == null) {
-            return super.doItemContext(menuItem, index, selectedItem);
+            return true;
         }
 
         switch (menuItem.getItemId()) {
@@ -155,7 +155,7 @@ public class PlayerView extends BaseItemView<Player> {
                         PlayerSyncDialog.class.getName());
                 return true;
         }
-        return super.doItemContext(menuItem, index, selectedItem);
+        return false;
     }
 
     @Override
