@@ -54,8 +54,6 @@ import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
-import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.AlertWindow;
 import uk.org.ngo.squeezer.framework.Item;
@@ -73,8 +71,6 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
-import uk.org.ngo.squeezer.service.event.PlaylistCreateFailed;
-import uk.org.ngo.squeezer.service.event.PlaylistRenameFailed;
 import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
 import uk.org.ngo.squeezer.util.Reflection;
 
@@ -176,28 +172,6 @@ class CometClient extends BaseClient {
                                 mEventBus.post(new PlayerVolume(newVolume, player));
                             } else {
                                 command(player, new String[]{"mixer", "volume", "?"}, Collections.<String, Object>emptyMap());
-                            }
-                        }
-                    }
-                })
-                .put("playlists", new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        if (request.cmd.length >= 2 && "new".equals(request.cmd[1])) {
-                            if (message.getDataAsMap().containsKey("overwritten_playlist_id")) {
-                                mEventBus.post(new PlaylistCreateFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                        request.params.get("name"))));
-                            }
-                        } else if (request.cmd.length >= 2 && "rename".equals(request.cmd[1])) {
-                            if (request.params.containsKey("dry_run")) {
-                                if (message.getDataAsMap().containsKey("overwritten_playlist_id")) {
-                                    mEventBus.post(new PlaylistRenameFailed(Squeezer.getContext().getString(R.string.PLAYLIST_EXISTS_MESSAGE,
-                                            request.params.get("newname"))));
-                                } else {
-                                    Map<String, Object> params = new HashMap<>(request.params);
-                                    params.remove("dry_run");
-                                    command(null, request.cmd, params);
-                                }
                             }
                         }
                     }
