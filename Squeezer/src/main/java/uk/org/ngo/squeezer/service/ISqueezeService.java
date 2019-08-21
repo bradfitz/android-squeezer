@@ -103,7 +103,6 @@ public interface ISqueezeService {
     void powerOn();
     void powerOff();
     String getServerVersion() throws SqueezeService.HandshakeNotCompleteException;
-    String preferredAlbumSort() throws SqueezeService.HandshakeNotCompleteException;
     boolean togglePausePlay();
     boolean play();
     boolean pause();

@@ -905,14 +905,6 @@ public class SqueezeService extends Service {
             return mDelegate.getServerVersion();
         }
 
-        @Override
-        public String preferredAlbumSort() throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            return mDelegate.getPreferredAlbumSort();
-        }
-
         private String fadeInSecs() {
             return mFadeInSecs > 0 ? " " + mFadeInSecs : "";
         }

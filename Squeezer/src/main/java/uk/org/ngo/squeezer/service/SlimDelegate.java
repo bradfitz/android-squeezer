@@ -85,14 +85,6 @@ class SlimDelegate {
         return mClient.getConnectionState().getServerVersion();
     }
 
-    String[] getMediaDirs() {
-        return mClient.getConnectionState().getMediaDirs();
-    }
-
-    String getPreferredAlbumSort() {
-        return mClient.getConnectionState().getPreferredAlbumSort();
-    }
-
     Command command(Player player) {
         return new Command(mClient, player);
     }

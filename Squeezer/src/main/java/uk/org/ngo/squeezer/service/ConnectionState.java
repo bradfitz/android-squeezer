@@ -75,21 +75,7 @@ public class ConnectionState {
     /** The active player (the player to which commands are sent by default). */
     private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
 
-    /** Does the server support "favorites items" queries? */
-    private final AtomicReference<Boolean> mCanFavorites = new AtomicReference<>();
-
-    private final AtomicReference<Boolean> mCanMusicfolder = new AtomicReference<>();
-
-    /** Does the server support "myapps items" queries? */
-    private final AtomicReference<Boolean> mCanMyApps = new AtomicReference<>();
-
-    private final AtomicReference<Boolean> canRandomplay = new AtomicReference<>();
-
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
-
-    private final AtomicReference<String> preferredAlbumSort = new AtomicReference<>();
-
-    private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
 
     void disconnect(boolean loginFailed) {
         Log.i(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
@@ -98,13 +84,7 @@ public class ConnectionState {
         } else {
             setConnectionState(DISCONNECTED);
         }
-        mCanFavorites.set(null);
-        mCanMusicfolder.set(null);
-        mCanMyApps.set(null);
-        canRandomplay.set(null);
         serverVersion.set(null);
-        preferredAlbumSort.set(null);
-        mediaDirs.set(null);
         mPlayers.clear();
         mActivePlayer.set(null);
     }
@@ -141,61 +121,6 @@ public class ConnectionState {
         mActivePlayer.set(player);
     }
 
-    public String[] getMediaDirs() {
-        String[] dirs = mediaDirs.get();
-        return dirs == null ? new String[0] : dirs;
-    }
-
-    public void setMediaDirs(Object[] dirs) {
-        mediaDirs.set(Util.getStringArray(dirs));
-        maybeSendHandshakeComplete();
-    }
-
-    public void setMediaDirs(String dirs) {
-        mediaDirs.set(mSemicolonSplitPattern.split(dirs));
-        maybeSendHandshakeComplete();
-    }
-
-    void setCanFavorites(boolean value) {
-        mCanFavorites.set(value);
-        maybeSendHandshakeComplete();
-    }
-
-    private boolean canFavorites() {
-        Boolean b = mCanFavorites.get();
-        return (b == null ? false : b);
-    }
-
-    void setCanMusicfolder(boolean value) {
-        mCanMusicfolder.set(value);
-        maybeSendHandshakeComplete();
-    }
-
-    private boolean canMusicfolder() {
-        Boolean b = mCanMusicfolder.get();
-        return (b == null ? false : b);
-    }
-
-    void setCanMyApps(boolean value) {
-        mCanMyApps.set(value);
-        maybeSendHandshakeComplete();
-    }
-
-    private boolean canMyApps() {
-        Boolean b = mCanMyApps.get();
-        return (b == null ? false : b);
-    }
-
-    void setCanRandomplay(boolean value) {
-        canRandomplay.set(value);
-        maybeSendHandshakeComplete();
-    }
-
-    private boolean canRandomplay() {
-        Boolean b = canRandomplay.get();
-        return  (b == null ? false : b);
-    }
-
     public void setServerVersion(String version) {
         if (Util.atomicReferenceUpdated(serverVersion, version)) {
             maybeSendHandshakeComplete();
@@ -206,33 +131,15 @@ public class ConnectionState {
         return serverVersion.get();
     }
 
-    public void setPreferedAlbumSort(String value) {
-        preferredAlbumSort.set(value);
-        maybeSendHandshakeComplete();
-    }
-
-    public String getPreferredAlbumSort() {
-        String s = preferredAlbumSort.get();
-        return (s == null ? "album" : s);
-    }
-
     private void maybeSendHandshakeComplete() {
         if (isHandshakeComplete()) {
-            HandshakeComplete event = new HandshakeComplete(
-                    canFavorites(), canMusicfolder(), canMyApps(), canRandomplay(),
-                    getServerVersion());
+            HandshakeComplete event = new HandshakeComplete(getServerVersion());
             Log.i(TAG, "Handshake complete: " + event);
             mEventBus.postSticky(event);
         }
     }
     private boolean isHandshakeComplete() {
-        return mCanMusicfolder.get() != null &&
-                canRandomplay.get() != null &&
-                mCanFavorites.get() != null &&
-                mCanMyApps.get() != null &&
-                preferredAlbumSort.get() != null &&
-                mediaDirs.get() != null &&
-                serverVersion.get() != null;
+        return serverVersion.get() != null;
     }
 
     /**
@@ -266,13 +173,7 @@ public class ConnectionState {
     public String toString() {
         return "ConnectionState{" +
                 "mConnectionState=" + mConnectionState +
-                ", mCanFavorites=" + mCanFavorites +
-                ", mCanMusicfolder=" + mCanMusicfolder +
-                ", mCanMyApps=" + mCanMyApps +
-                ", canRandomplay=" + canRandomplay +
                 ", serverVersion=" + serverVersion +
-                ", preferredAlbumSort=" + preferredAlbumSort +
-                ", mediaDirs=" + mediaDirs +
                 '}';
     }
 }

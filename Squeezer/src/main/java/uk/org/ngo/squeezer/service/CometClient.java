@@ -367,55 +367,10 @@ class CometClient extends BaseClient {
                 mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
                 mBackgroundHandler.sendEmptyMessageDelayed(MSG_HANDSHAKE_TIMEOUT, HANDSHAKE_TIMEOUT);
 
-                // Learn server capabilites.
-                exec(new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        mConnectionState.setCanMusicfolder(getInt(message.getDataAsMap().get("_can")) == 1);
-                    }
-                }, "can", "musicfolder", "?");
-
-                exec(new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        mConnectionState.setCanRandomplay(getInt(message.getDataAsMap().get("_can")) == 1);
-                    }
-                }, "can", "randomplay", "?");
-
-                exec(new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        mConnectionState.setCanFavorites(getInt(message.getDataAsMap().get("_can")) == 1);
-                    }
-                }, "can", "favorites", "items", "?");
-
-                exec(new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        mConnectionState.setCanMyApps(getInt(message.getDataAsMap().get("_can")) == 1);
-                    }
-                }, "can", "myapps", "items", "?");
-
                 if (isSqueezeNetwork) {
-                    mConnectionState.setPreferedAlbumSort("album");
-                    mConnectionState.setMediaDirs(new String[0]);
                     if (needRegister()) {
                         mEventBus.post(new RegisterSqueezeNetwork());
                     }
-                } else {
-                    exec(new ResponseHandler() {
-                        @Override
-                        public void onResponse(Player player, Request request, Message message) {
-                            mConnectionState.setMediaDirs((Object[]) message.getDataAsMap().get("_p2"));
-                        }
-                    }, "pref", "mediadirs", "?");
-
-                    exec(new ResponseHandler() {
-                        @Override
-                        public void onResponse(Player player, Request request, Message message) {
-                            mConnectionState.setPreferedAlbumSort((String) message.getDataAsMap().get("_p2"));
-                        }
-                    }, "pref", "jivealbumsort", "?");
                 }
             }
         });
