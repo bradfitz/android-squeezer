@@ -142,7 +142,7 @@ abstract class BaseClient implements SlimClient {
             mEventBus.post(new PowerStatusChanged(
                     player,
                     !player.getPlayerState().isPoweredOn(),
-                    !player.getPlayerState().isPoweredOn()));
+                    player.getPlayerState().isPoweredOn()));
         }
 
         // Current song
