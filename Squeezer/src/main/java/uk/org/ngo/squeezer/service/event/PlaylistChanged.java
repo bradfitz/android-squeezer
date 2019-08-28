@@ -16,8 +16,24 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-/** Event sent when a track is added to a playlist. */
-public class PlaylistTracksAdded {
-    public PlaylistTracksAdded() {
+import android.support.annotation.NonNull;
+
+import uk.org.ngo.squeezer.model.Player;
+
+/** Event sent when a player's play status changes. */
+public class PlaylistChanged {
+    /** The affected player. */
+    @NonNull
+    public final Player player;
+
+    public PlaylistChanged(@NonNull Player player) {
+        this.player = player;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayStatusChanged{" +
+                "player=" + player +
+                '}';
     }
 }

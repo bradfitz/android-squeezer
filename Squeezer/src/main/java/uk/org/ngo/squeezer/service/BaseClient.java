@@ -37,6 +37,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
+import uk.org.ngo.squeezer.service.event.PlaylistChanged;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
@@ -94,6 +95,7 @@ abstract class BaseClient implements SlimClient {
         boolean changedPower = playerState.setPoweredOn(Util.getInt(tokenMap, "power") == 1);
         boolean changedShuffleStatus = playerState.setShuffleStatus(Util.getString(tokenMap, "playlist shuffle"));
         boolean changedRepeatStatus = playerState.setRepeatStatus(Util.getString(tokenMap, "playlist repeat"));
+        boolean changedPlaylist = playerState.setCurrentPlaylistTimestamp(Util.getLong(tokenMap, "playlist_timestamp"));
         playerState.setCurrentPlaylistTracksNum(Util.getInt(tokenMap, "playlist_tracks"));
         playerState.setCurrentPlaylistIndex(Util.getInt(tokenMap, "playlist_cur_index"));
         playerState.setCurrentPlaylist(Util.getString(tokenMap, "playlist_name"));
@@ -116,8 +118,10 @@ abstract class BaseClient implements SlimClient {
         // calls to the callbacks below.
         updatePlayStatus(player, Util.getString(tokenMap, "mode"));
 
-        // XXX: Handled by onEvent(PlayStatusChanged) in the service.
-        //updatePlayerSubscription(player, calculateSubscriptionTypeFor(player));
+        // Current playlist
+        if (changedPlaylist) {
+            mEventBus.post(new PlaylistChanged(player));
+        }
 
         // Note to self: The problem here is that with second-to-second updates enabled
         // the playerlistactivity callback will be called every second.  Thinking that

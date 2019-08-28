@@ -60,6 +60,7 @@ public class PlayerState implements Parcelable {
         repeatStatus = RepeatStatus.valueOf(source.readInt());
         currentSong = source.readParcelable(CurrentPlaylistItem.class.getClassLoader());
         currentPlaylist = source.readString();
+        currentPlaylistTimestamp = source.readLong();
         currentPlaylistIndex = source.readInt();
         currentTimeSecond = source.readDouble();
         currentSongDuration = source.readInt();
@@ -79,6 +80,7 @@ public class PlayerState implements Parcelable {
         dest.writeInt(repeatStatus.getId());
         dest.writeParcelable(currentSong, 0);
         dest.writeString(currentPlaylist);
+        dest.writeLong(currentPlaylistTimestamp);
         dest.writeInt(currentPlaylistIndex);
         dest.writeDouble(currentTimeSecond);
         dest.writeInt(currentSongDuration);
@@ -108,6 +110,8 @@ public class PlayerState implements Parcelable {
     /** The name of the current playlist, which may be the empty string. */
     @NonNull
     private String currentPlaylist;
+
+    private long currentPlaylistTimestamp;
 
     private int currentPlaylistTracksNum;
 
@@ -192,7 +196,7 @@ public class PlayerState implements Parcelable {
     }
 
     public boolean setShuffleStatus(String s) {
-        return setShuffleStatus(s != null ? ShuffleStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
+        return setShuffleStatus(s != null ? ShuffleStatus.valueOf(Util.getInt(s)) : null);
     }
 
     public RepeatStatus getRepeatStatus() {
@@ -208,7 +212,7 @@ public class PlayerState implements Parcelable {
     }
 
     public boolean setRepeatStatus(String s) {
-        return setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
+        return setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.getInt(s)) : null);
     }
 
     public CurrentPlaylistItem getCurrentSong() {
@@ -227,6 +231,18 @@ public class PlayerState implements Parcelable {
     @NonNull
     public String getCurrentPlaylist() {
         return currentPlaylist;
+    }
+
+    public long getCurrentPlaylistTimestamp() {
+        return currentPlaylistTimestamp;
+    }
+
+    public boolean setCurrentPlaylistTimestamp(long value) {
+        if (value == currentPlaylistTimestamp)
+            return false;
+
+        currentPlaylistTimestamp = value;
+        return true;
     }
 
     /** @return the number of tracks in the current playlist */

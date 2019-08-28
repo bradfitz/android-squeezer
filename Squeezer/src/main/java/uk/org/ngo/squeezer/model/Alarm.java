@@ -81,7 +81,7 @@ public class Alarm extends Item {
         dow.clear();
         String[] days = dowString.split(",");
         for (String day : days) {
-            dow.add(Util.parseDecimalIntOrZero(day));
+            dow.add(Util.getInt(day));
         }
     }
 

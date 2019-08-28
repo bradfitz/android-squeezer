@@ -343,7 +343,7 @@ class CometClient extends BaseClient {
                 mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
                     @Override
                     public void onMessage(ClientSessionChannel channel, Message message) {
-                        parseStatus(message);
+                        parsePlayerStatus(message);
                     }
                 });
 
@@ -406,7 +406,7 @@ class CometClient extends BaseClient {
         }
     }
 
-    private void parseStatus(Message message) {
+    private void parsePlayerStatus(Message message) {
         String[] channelParts = mSlashSplitPattern.split(message.getChannel());
         String playerId = channelParts[channelParts.length - 1];
         Player player = mConnectionState.getPlayer(playerId);
@@ -490,7 +490,7 @@ class CometClient extends BaseClient {
             mPendingBrowseRequests.remove(message.getChannel());
             clear();
             Map<String, Object> data = message.getDataAsMap();
-            int count = getInt(data.get(countName));
+            int count = Util.getInt(data.get(countName));
             Object baseRecord = data.get("base");
             Object[] item_data = (Object[]) data.get(itemLoopName);
             if (item_data != null) {
@@ -525,10 +525,6 @@ class CometClient extends BaseClient {
         void parseMessage(String itemLoopName, Message message) {
             parseMessage("count", itemLoopName, message);
         }
-    }
-
-    private int getInt(Object value) {
-        return (value instanceof Number) ? ((Number)value).intValue() : Util.parseDecimalIntOrZero((String)value);
     }
 
     private class AlarmsListener extends ItemListener<Alarm> {

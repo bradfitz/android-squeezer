@@ -35,8 +35,7 @@ import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
-import uk.org.ngo.squeezer.service.event.PlaylistTracksAdded;
-import uk.org.ngo.squeezer.service.event.PlaylistTracksDeleted;
+import uk.org.ngo.squeezer.service.event.PlaylistChanged;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
 
@@ -189,21 +188,19 @@ public class CurrentPlaylistActivity extends PluginListActivity {
             return;
         }
         if (event.player.equals(getService().getActivePlayer())) {
-            Log.d(getTag(), "onMusicChanged " + event.playerState.getCurrentSong());
             currentPlaylistIndex = event.playerState.getCurrentPlaylistIndex();
             getItemAdapter().notifyDataSetChanged();
         }
     }
 
-    public void onEventMainThread(PlaylistTracksAdded event) {
-        clearAndReOrderItems();
-        getItemAdapter().notifyDataSetChanged();
-    }
-
-    public void onEventMainThread(PlaylistTracksDeleted event) {
-        // TODO: Investigate feasibility of deleting single items from the adapter.
-        clearAndReOrderItems();
-        getItemAdapter().notifyDataSetChanged();
+    public void onEventMainThread(PlaylistChanged event) {
+        if (getService() == null) {
+            return;
+        }
+        if (event.player.equals(getService().getActivePlayer())) {
+            clearAndReOrderItems();
+            getItemAdapter().notifyDataSetChanged();
+        }
     }
 
     @Override

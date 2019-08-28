@@ -75,7 +75,7 @@ public class Util {
         }
     }
 
-    public static int parseDecimalInt(String value, int defaultValue) {
+    public static long parseDecimalInt(String value, long defaultValue) {
         if (value == null) {
             return defaultValue;
         }
@@ -87,14 +87,10 @@ public class Util {
             return defaultValue;
         }
         try {
-            return Integer.parseInt(value);
+            return Long.parseLong(value);
         } catch (NumberFormatException e) {
             return defaultValue;
         }
-    }
-
-    public static int parseDecimalIntOrZero(String value) {
-        return parseDecimalInt(value, 0);
     }
 
     @SuppressWarnings("unchecked")
@@ -114,6 +110,18 @@ public class Util {
         return (value instanceof Number) ? ((Number)value).doubleValue() : parseDouble((String)value, defaultValue);
     }
 
+    public static long getLong(Map<String, Object> record, String fieldName) {
+        return getLong(record, fieldName, 0);
+    }
+
+    public static long getLong(Map<String, Object> record, String fieldName, long defaultValue) {
+        return getLong(record.get(fieldName), defaultValue);
+    }
+
+    public static long getLong(Object value, long defaultValue) {
+        return (value instanceof Number) ? ((Number)value).intValue() : parseDecimalInt((String) value, defaultValue);
+    }
+
     public static int getInt(Map<String, Object> record, String fieldName) {
         return getInt(record, fieldName, 0);
     }
@@ -123,7 +131,11 @@ public class Util {
     }
 
     public static int getInt(Object value, int defaultValue) {
-        return (value instanceof Number) ? ((Number)value).intValue() : parseDecimalInt((String)value, defaultValue);
+        return (value instanceof Number) ? ((Number)value).intValue() : (int) parseDecimalInt((String) value, defaultValue);
+    }
+
+    public static int getInt(Object value) {
+        return getInt(value, 0);
     }
 
     public static String getString(Map<String, Object> record, String fieldName) {

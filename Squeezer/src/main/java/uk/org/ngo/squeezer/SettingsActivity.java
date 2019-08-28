@@ -231,7 +231,7 @@ public class SettingsActivity extends PreferenceActivity implements
         Log.v(TAG, "preference change for: " + key);
 
         if (Preferences.KEY_FADE_IN_SECS.equals(key)) {
-            updateFadeInSecondsSummary(Util.parseDecimalIntOrZero(newValue.toString()));
+            updateFadeInSecondsSummary(Util.getInt(newValue.toString()));
         }
 
         if (Preferences.KEY_NOTIFICATION_TYPE.equals(key) ||
