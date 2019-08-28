@@ -384,7 +384,7 @@ class CometClient extends BaseClient {
     private void parseServerStatus(Message message) {
         Map<String, Object> data = message.getDataAsMap();
 
-        // We can't distinguise betwween no copnnected players and players not received
+        // We can't distinguish betwween no copnnected players and players not received
         // so we check the server version which is also set from server status
         boolean firstTimePlayersReceived = (getConnectionState().getServerVersion() == null);
 
