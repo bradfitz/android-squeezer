@@ -90,8 +90,6 @@ abstract class BaseClient implements SlimClient {
         PlayerState playerState = player.getPlayerState();
         playerState.statusSeen = SystemClock.elapsedRealtime() / 1000.0;
 
-        addDownloadUrlTag(tokenMap);
-
         boolean changedPower = playerState.setPoweredOn(Util.getInt(tokenMap, "power") == 1);
         boolean changedShuffleStatus = playerState.setShuffleStatus(Util.getString(tokenMap, "playlist shuffle"));
         boolean changedRepeatStatus = playerState.setRepeatStatus(Util.getString(tokenMap, "playlist repeat"));
@@ -176,15 +174,6 @@ abstract class BaseClient implements SlimClient {
 
     protected void postPlayerStateChanged(Player player) {
         mEventBus.post(new PlayerStateChanged(player));
-    }
-
-    /**
-     * Adds a <code>download_url</code> entry for the item passed in.
-     *
-     * @param record The record to modify.
-     */
-    private void addDownloadUrlTag(Map<String, Object> record) {
-        record.put("download_url", mUrlPrefix + "/music/" + record.get("id") + "/download");
     }
 
     private void updatePlayStatus(Player player, String playStatus) {
