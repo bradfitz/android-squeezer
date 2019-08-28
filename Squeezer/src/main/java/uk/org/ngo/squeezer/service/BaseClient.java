@@ -37,6 +37,7 @@ import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
+import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlaylistChanged;
 import uk.org.ngo.squeezer.service.event.PowerStatusChanged;
 import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
@@ -139,12 +140,17 @@ abstract class BaseClient implements SlimClient {
             postPlayerStateChanged(player);
         }
 
+        // Volume
+        if (changedVolume) {
+            mEventBus.post(new PlayerVolume(playerState.getCurrentVolume(), player));
+        }
+
         // Power status
         if (changedPower) {
             mEventBus.post(new PowerStatusChanged(
                     player,
-                    !player.getPlayerState().isPoweredOn(),
-                    player.getPlayerState().isPoweredOn()));
+                    !playerState.isPoweredOn(),
+                    playerState.isPoweredOn()));
         }
 
         // Current song
