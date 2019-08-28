@@ -131,9 +131,6 @@ public interface ISqueezeService {
     /** Cancel any pending callbacks for client */
     void cancelItemListRequests(Object client);
 
-    /** Start an async fetch of the SqueezeboxServer's players */
-    void players() throws SqueezeService.HandshakeNotCompleteException;
-
     /** Alarm list */
     void alarms(int start, IServiceItemListCallback<Alarm> callback);
 

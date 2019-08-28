@@ -1108,15 +1108,6 @@ public class SqueezeService extends Service {
             mDelegate.cancelClientRequests(client);
         }
 
-        // XXX: Is this method needed? What calls it?
-        @Override
-        public void players() throws HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            //fetchPlayers();
-        }
-
         @Override
         public void alarms(int start, IServiceItemListCallback<Alarm> callback) {
             if (!isConnected()) {
