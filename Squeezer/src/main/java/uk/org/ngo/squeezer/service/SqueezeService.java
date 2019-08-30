@@ -1705,6 +1705,52 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             cli.requestItems("songs", start, parameters, callback);
         }
 
+        /**
+         * Start an async fetch of the favourite status of the item with the given id. The results
+         * are posted as a FavoritesExists event.
+         * @throws HandshakeNotCompleteException
+         */
+        @Override
+        public void favoritesExists(@NonNull Uri url) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+
+            cli.sendCommand("favorites exists " + Util.encode(url.toString()));
+        }
+
+        /**
+         * Start an async add of the item with the given id to favorites.
+         *
+         * @throws HandshakeNotCompleteException
+         */
+        @Override
+        public void favoritesAdd(@NonNull Uri url, @NonNull String title) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+
+            cli.sendCommand(
+                    String.format("favorites add url:%s title:%s", Util.encode(url.toString()), Util.encode(title)),
+                    "favorites exists " + Util.encode(url.toString()));
+        }
+
+        /**
+         * Start an async delete of the item with the given id from favorites.
+         *
+         * @throws HandshakeNotCompleteException
+         */
+        @Override
+        public void favoritesDelete(@NonNull Uri url, @NonNull String index) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+
+            cli.sendCommand(
+                    "favorites delete item_id:" + index,
+                    "favorites exists " + Util.encode(url.toString()));
+        }
+
         /* Start an async fetch of the SqueezeboxServer's current playlist */
         @Override
         public void currentPlaylist(int start, IServiceItemListCallback<Song> callback) throws HandshakeNotCompleteException {

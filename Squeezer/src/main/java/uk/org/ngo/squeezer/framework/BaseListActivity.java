@@ -66,7 +66,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      */
     private static final String TAG_POSITION = "position";
 
-
     /**
      * Tag for itemAdapter in mRetainFragment.
      */

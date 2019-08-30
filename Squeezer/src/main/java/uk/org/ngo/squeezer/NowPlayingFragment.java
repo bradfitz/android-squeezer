@@ -83,6 +83,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+import uk.org.ngo.squeezer.service.event.FavoritesExists;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
@@ -92,10 +93,15 @@ import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.widget.FavoriteButton;
+
+import static uk.org.ngo.squeezer.widget.FavoriteButton.FAVORITE_FALSE;
+import static uk.org.ngo.squeezer.widget.FavoriteButton.FAVORITE_TRUE;
+import static uk.org.ngo.squeezer.widget.FavoriteButton.FAVORITE_UNKNOWN;
 
 public class NowPlayingFragment extends Fragment implements View.OnCreateContextMenuListener {
 
-    private final String TAG = "NowPlayingFragment";
+    private static final String TAG = "NowPlayingFragment";
 
     private BaseActivity mActivity;
 
@@ -109,6 +115,9 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     private TextView artistText;
 
     private TextView trackText;
+
+    @Nullable
+    private FavoriteButton btnFavorite;
 
     @Nullable
     private ImageView btnContextMenu;
@@ -175,6 +184,9 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             }
         }
     };
+
+    /** Does the server support favorites? */
+    boolean serverCanFavorite = false;
 
     /** Dialog displayed while connecting to the server. */
     private ProgressDialog connectingDialog = null;
@@ -267,6 +279,28 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             currentTime = (TextView) v.findViewById(R.id.currenttime);
             totalTime = (TextView) v.findViewById(R.id.totaltime);
             seekBar = (SeekBar) v.findViewById(R.id.seekbar);
+
+            btnFavorite = (FavoriteButton) v.findViewById(R.id.favorite);
+            btnFavorite.setThemeId(mActivity.getThemeId());
+            btnFavorite.setFavoriteListener(new FavoriteButton.FavoriteListener() {
+                @Override
+                public void addFavorite() {
+                    Song song = getCurrentSong();
+                    if (song == null) {
+                        return;
+                    }
+                    mService.favoritesAdd(song.getUrl(), song.getName());
+                }
+
+                @Override
+                public void removeFavorite(@NonNull String index) {
+                    Song song = getCurrentSong();
+                    if (song == null) {
+                        return;
+                    }
+                    mService.favoritesDelete(song.getUrl(), index);
+                }
+            });
 
             btnContextMenu = (ImageView) v.findViewById(R.id.context_menu);
             btnContextMenu.setOnCreateContextMenuListener(this);
@@ -670,6 +704,12 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             }
 
             if (mFullHeightLayout) {
+                // Query to find out if this song is a favourite.
+                clearFavoriteInfo();
+                if (serverCanFavorite) {
+                    mService.favoritesExists(song.getUrl());
+                }
+
                 artistText.setText(song.getArtist());
                 albumText.setText(song.getAlbumName());
                 totalTime.setText(Util.formatElapsedTime(song.getDuration()));
@@ -1047,6 +1087,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                 preferences.getPassword(serverAddress, "test1"));
     }
 
+
     @MainThread
     public void onEventMainThread(ConnectionChanged event) {
         Log.d(TAG, "ConnectionChanged: " + event);
@@ -1132,6 +1173,11 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             mProgressBar.setEnabled(true);
         }
 
+        serverCanFavorite = event.canFavorites;
+        if (!serverCanFavorite && btnFavorite != null) {
+            btnFavorite.setVisibility(View.GONE);
+        }
+
         PlayerState playerState = getPlayerState();
 
         // May be no players connected.
@@ -1195,5 +1241,33 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         if (event.player.equals(mService.getActivePlayer())) {
             updateTimeDisplayTo(event.currentPosition, event.duration);
         }
+    }
+
+    @MainThread
+    public void onEventMainThread(FavoritesExists event) {
+        if (btnFavorite == null) {
+            return;
+        }
+
+        Song song = getCurrentSong();
+        if (song == null) {
+            return;
+        }
+
+        if (!event.url.equals(song.getUrl())) {
+            return;
+        }
+
+        btnFavorite.setState(event.isFavorite ? FAVORITE_TRUE : FAVORITE_FALSE, event.index);
+    }
+
+    /**
+     * Clear the details of the current song's favorite information.
+     */
+    private void clearFavoriteInfo() {
+        if (btnFavorite == null) {
+            return;
+        }
+        btnFavorite.setState(FAVORITE_UNKNOWN, "");
     }
 }

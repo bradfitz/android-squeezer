@@ -70,6 +70,8 @@ android {
 
         versionCode 61
         versionName "1.5.1"
+
+        vectorDrawables.useSupportLibrary = true
     }
 
     lintOptions {
