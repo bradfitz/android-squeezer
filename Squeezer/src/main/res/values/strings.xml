@@ -18,15 +18,10 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Squeezer</string>
-    <string name="execute_always">Always</string>
-    <string name="execute_just_once">Just once</string>
     <string name="undo">Undo</string>
-    <string name="on">On</string>
-    <string name="off">Off</string>
     <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
     <string name="menu_item_players">Players</string>
-    <string name="menu_item_search_label">Search</string>
     <string name="menu_item_settings_label">Settings</string>
     <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
@@ -74,24 +69,14 @@
     <string name="menu_item_connect">Connect</string>
     <string name="menu_item_poweron">Turn on \"%s\"</string>
     <string name="menu_item_poweroff">Turn off \"%s\"</string>
-    <string name="menu_item_main">Now playing</string>
-    <string name="menu_item_home">Main Menu</string>
-    <string name="menu_item_fetch_all">Fetch remaining</string>
-    <string name="menu_item_filter">Filter</string>
-    <string name="menu_item_sort">Sort order</string>
     <string name="menu_item_view">View</string>
-    <string name="menu_item_delete">Delete</string>
     <string name="menu_item_rename">Rename</string>
     <string name="menu_item_playlist">Playlist</string>
-    <string name="menu_item_playlists_new">New</string>
     <string name="menu_item_playlist_show_current_song">Go to current song</string>
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
-    <string name="connect_to_text">Connect to %s</string>
     <string name="connecting_to_text">Connecting to Logitech Media Server at %s</string>
     <string name="connection_failed_text">Connection failed. Check settings.</string>
-    <string name="not_connected">Squeezer is not connected to any Squeezeservers.</string>
-    <string name="select_server">Or select one the servers below.</string>
     <string name="login_failed_text">Login failed. Make sure the correct port, user name and password is entered.</string>
     <string name="login_failed_info_text">
         &lt;p&gt;You find the correct values in the server\'s web-interface. Select settings and the Advanced tab.&lt;/p&gt;
@@ -107,30 +92,10 @@
     <string name="wifi_enabled_text">Wi-Fi is enabled. Please wait for an active Wi-Fi connection.
     </string>
     <string name="notification_playing_text">%s playing</string>
-    <string name="notification_connected_text">%s connected</string>
-    <string name="filter_text_hint">Search %s</string>
-    <string name="search_music_library_hint">Search artist, album, genre or song title.</string>
-    <string name="move_to_dialog_title">Move song number %d</string>
-    <string name="move_to_index_hint">Enter new position for song</string>
-    <string name="save_playlist_title">Save playlist</string>
-    <string name="save_playlist_hint">Enter name of playlist</string>
-    <string name="new_playlist_title">New playlist</string>
-    <string name="new_playlist_hint">Enter name of playlist</string>
     <string name="rename_title">Rename %s</string>
     <string name="sync_title">Synchronize %s to…</string>
-    <string name="delete_title">Delete %s</string>
-    <string name="delete__message">Are you sure to delete?</string>
     <string name="loading_text">Loading&#8230;</string>
     <string name="browse_items_text">%2$d %1$s</string>
-    <string name="choose_sort_order">Choose ordering of %s</string>
-    <string name="genre_prompt">Choose genre</string>
-    <string name="year_prompt">Choose year</string>
-    <string name="track_label">Track</string>
-    <string name="artist_label">Artist</string>
-    <string name="album_label">Album</string>
-    <string name="genre_label">Genre</string>
-    <string name="year_label">Year</string>
-    <string name="filter_label">Search text</string>
 
     <string name="player_group_header">Group: %s</string>
     <string name="menu_item_player_sync">Synchronize…</string>
@@ -140,17 +105,10 @@
     <string name="player_list_changed">Connected players changed while context menu was open,
         ignoring request</string>
 
-    <string name="albums_by_artist_header">Albums with songs by %s</string>
-    <string name="albums_by_genre_header">Albums with songs in genre \"%s\"</string>
-    <string name="albums_by_year_header">Albums with songs from %s</string>
-
-    <string name="songs_by_header">Songs by %s</string>
-
     <string name="unknown_track">Unknown track</string>
     <string name="unknown_album">Unknown album</string>
     <string name="unknown_artist">Unknown artist</string>
     <string name="unknown_artistalbum">Unknown artist/album</string>
-    <string name="unknown_year">Unknown year</string>
 
     <!-- Alarm management -->
     <string name="all_alarms_on_hint">Individual alarms can be enabled</string>
@@ -371,41 +329,11 @@ defend, and hold each Contributor harmless for any liability
 incurred by, or claims asserted against, such Contributor by reason
 of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
-    <string name="NO_ACTION">None</string>
-    <string name="BROWSE_SONGS">Browse songs</string>
-    <string name="BROWSE_SONGS_BY_ITEM">Browse songs by %s</string>
-    <string name="BROWSE_ALBUMS">Browse albums</string>
-    <string name="BROWSE_ARTISTS">Browse artists</string>
-    <string name="BROWSE_ALBUM_SONGS">Browse songs on album</string>
-    <string name="BROWSE_ARTIST_ALBUMS">Browse albums with songs by artist</string>
-    <string name="BROWSE_ARTIST_SONGS">Browse songs by artist</string>
     <string name="PLAY_NOW">Play</string>
-    <string name="PLAY_ITEM">Play \"%s\"</string>
-    <string name="PLAY_FROM_HERE">Play from here</string>
     <string name="ADD_TO_END">Add to playlist</string>
-    <string name="ADD_ITEM_TO_END">Add \"%s\" to playlist</string>
     <string name="PLAY_NEXT">Play after the current song</string>
-    <string name="DOWNLOAD">Download</string>
-    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Download cancelled, as we don\'t have permission to save the downloaded files</string>
-
-    <string name="PLAYLIST_REMOVE">Remove from playlist</string>
-    <string name="PLAYLIST_MOVE_UP">Move up</string>
-    <string name="PLAYLIST_MOVE_DOWN">Move down</string>
-    <string name="PLAYLIST_MOVE">Move&#8230;</string>
-
-    <string name="ITEM_PLAYING">Now playing %s</string>
-    <string name="ITEM_ADDED">Added %s to the current playlist</string>
-    <string name="ITEM_INSERTED">%s is inserted to be played immediately after the current song in
-        the current playlist
-    </string>
-
-    <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s already exists</string>
 
     <!-- Song display options -->
-    <string name="song_display_options">Songview options</string>
-    <string name="songs_sort_order_title">Title</string>
-    <string name="songs_sort_order_tracknum">Track</string>
-    <string name="songs_sort_order_albumtrack">Album, Track</string>
 
     <!--  Analytics preference strings -->
     <string name="pref_cat_error_reports">Error reports and statistics</string>
@@ -415,63 +343,9 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     </string>
     <string name="pref_analytics_enable_disabled">No usage statistics are collected.</string>
 
-    <string name="home_item_artists">Artists</string>
-    <string name="home_item_albums">Albums</string>
-    <string name="home_item_songs">Songs</string>
-    <string name="home_item_genres">Genres</string>
-    <string name="home_item_years">Years</string>
-    <string name="home_item_new_music">New Music</string>
-    <string name="home_item_music_folder">Music Folder</string>
-    <string name="home_item_random_mix">Random mix</string>
-    <string name="home_item_playlists">Playlists</string>
-    <string name="home_item_radios">Internet Radio</string>
-    <string name="home_item_favorites">Favorites</string>
-    <string name="home_item_my_apps">My Apps</string>
-
-    <string name="randomplay_item_song_mix">Song mix</string>
-    <string name="randomplay_item_album_mix">Album mix</string>
-    <string name="randomplay_item_artist_mix">Artist mix</string>
-    <string name="randomplay_item_year_mix">Year mix</string>
-    <string name="randomplay_item_choose_genres">Choose genres</string>
-
     <plurals name="seconds">
         <item quantity="one">second</item>
         <item quantity="other">seconds</item>
-    </plurals>
-
-    <plurals name="artist">
-        <item quantity="one">artist</item>
-        <item quantity="other">artists</item>
-    </plurals>
-
-    <plurals name="album">
-        <item quantity="one">album</item>
-        <item quantity="other">albums</item>
-    </plurals>
-
-    <plurals name="favorites">
-        <item quantity="one">Favorite</item>
-        <item quantity="other">Favorites</item>
-    </plurals>
-
-    <plurals name="genre">
-        <item quantity="one">genre</item>
-        <item quantity="other">genres</item>
-    </plurals>
-
-    <plurals name="musicfolder">
-        <item quantity="one">music folder</item>
-        <item quantity="other">music folders</item>
-    </plurals>
-
-    <plurals name="year">
-        <item quantity="one">year</item>
-        <item quantity="other">years</item>
-    </plurals>
-
-    <plurals name="song">
-        <item quantity="one">song</item>
-        <item quantity="other">songs</item>
     </plurals>
 
     <plurals name="player">
@@ -479,46 +353,5 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item quantity="other">players</item>
     </plurals>
 
-    <plurals name="playlist">
-        <item quantity="one">playlist</item>
-        <item quantity="other">playlists</item>
-    </plurals>
-
-    <plurals name="radio">
-        <item quantity="one">radio station plugin</item>
-        <item quantity="other">radio station plugins</item>
-    </plurals>
-
-    <plurals name="application">
-        <item quantity="one">application</item>
-        <item quantity="other">applications</item>
-    </plurals>
-
-    <string name="settings_album_selectaction">Album select action</string>
-    <string name="settings_song_selectaction">Song select action</string>
-    <string name="confirm_cancel_downloads">Cancel pending downloads?</string>
-
-    <string name="settings_category_download">Download</string>
-    <string name="settings_download_use_sd_card">Download music to SD-Card</string>
-    <string name="settings_download_use_sd_card_desc">
-        &lt;p&gt;Store downloaded music on SD-Card.&lt;/p&gt;
-        &lt;p&gt;&lt;b&gt;Note&lt;/b&gt; The downloaded music will be deleted when this app is
-        uninstalled.&lt;/p&gt;
-    </string>
-    <string name="settings_download_use_server_path">Use server path and filename</string>
-    <string name="settings_download_path_structure">Folder hierarchy</string>
-    <string name="settings_download_filename_structure">File name</string>
-    <string name="download_path_structure_artist_artistalbum">Artist/Artist - Album</string>
-    <string name="download_path_structure_artist_album">Artist/Album</string>
-    <string name="download_path_structure_artistalbum">Artist - Album</string>
-    <string name="download_path_structure_album">Album</string>
-    <string name="download_path_structure_artist">Artist</string>
-    <string name="download_filename_structure_number_title">Number - Title</string>
-    <string name="download_filename_structure_artist_title">Artist - Title</string>
-    <string name="download_filename_structure_artist_number_title">Artist - Number - Title</string>
-    <string name="download_filename_structure_albumartist_number_title">Artist (Album) - Number - Title</string>
-    <string name="download_filename_structure_title">Title</string>
-    <string name="download_filename_structure_number_dot_artist_title">Number. Artist - Title</string>
-    <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">could not be added to the device\'s media database</string>
     <string name="pref_cat_third_party">Third-party integration</string>
 </resources>

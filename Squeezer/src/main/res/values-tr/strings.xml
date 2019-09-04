@@ -3,8 +3,7 @@
   <string name="app_name">Squeezer</string>
   <string name="disabled">Devre Dışı</string>
   <string name="menu_item_players">Oynatıcılar</string>
-  <string name="menu_item_search_label">Ara</string>
-  <string name="menu_item_settings_label">Ayarlar</string>
+    <string name="menu_item_settings_label">Ayarlar</string>
   <string name="menu_item_about_label">Hakkında</string>
   <string name="activity_settings_name">Ayarlar</string>
   <string name="settings_serveraddr_hint">Sunucu adı veya IP adresi</string>
@@ -21,44 +20,22 @@
   <string name="menu_item_connect">Bağlan</string>
   <string name="menu_item_poweron">\"%s\" aç</string>
   <string name="menu_item_poweroff">\"%s\" kapat</string>
-  <string name="menu_item_main">Şu an çalan</string>
-  <string name="menu_item_home">Ana Menü</string>
-  <string name="menu_item_delete">Sil</string>
-  <string name="menu_item_rename">Yeniden Adlandır</string>
+    <string name="menu_item_rename">Yeniden Adlandır</string>
   <string name="menu_item_playlist">Çalma Listesi</string>
-  <string name="menu_item_playlists_new">Yeni</string>
-  <string name="connecting_text">Bağlanıyor</string>
-  <string name="connect_to_text">%s bağlan</string>
-  <string name="connection_failed_text">Bağlantı başarız. Ayarları kontrol edin.</string>
+    <string name="connecting_text">Bağlanıyor</string>
+    <string name="connection_failed_text">Bağlantı başarız. Ayarları kontrol edin.</string>
   <string name="login_failed_text">Giriş başarısız. Kullanıcı adı ve şifre girin.</string>
   <string name="disconnected_text">Bağlantı kesildi.</string>
   <string name="wifi_disabled_text">Wi-Fi devre dışı</string>
   <string name="notification_playing_text">%s çalıyor</string>
-  <string name="notification_connected_text">%s bağlandı</string>
-  <string name="filter_text_hint">%s ara</string>
-  <string name="save_playlist_title">Çalma listesini kaydet</string>
-  <string name="save_playlist_hint">Çalma listesi adı girin</string>
-  <string name="new_playlist_title">Yeni çalma listesi</string>
-  <string name="new_playlist_hint">Çalma listesi adı girin</string>
-  <string name="rename_title">%s yeniden adlandır</string>
-  <string name="delete_title">%s sil</string>
-  <string name="delete__message">Silmek istediğinizden emin misiniz?</string>
-  <string name="loading_text">Yükleniyor...</string>
+    <string name="rename_title">%s yeniden adlandır</string>
+    <string name="loading_text">Yükleniyor...</string>
   <string name="browse_items_text">%2$d %1$s</string>
-  <string name="genre_prompt">Tür seç</string>
-  <string name="year_prompt">Yıl seç</string>
-  <string name="track_label">Parça</string>
-  <string name="artist_label">Sanatçı</string>
-  <string name="album_label">Albüm</string>
-  <string name="genre_label">Tür</string>
-  <string name="year_label">Yıl</string>
-  <string name="filter_label">Metin ara</string>
-  <string name="unknown_track">Bilinmeyen parça</string>
+    <string name="unknown_track">Bilinmeyen parça</string>
   <string name="unknown_album">Bilinmeyen albüm</string>
   <string name="unknown_artist">Bilinmeyen sanatçı</string>
   <string name="unknown_artistalbum">Bilinmeyen sanatçı/albüm</string>
-  <string name="unknown_year">Bilinmeyen yıl</string>
-  <!--Reporting errors that from the server.-->
+    <!--Reporting errors that from the server.-->
   <string name="server_error">%1$s bir hata bildirdi: \"%2$s\".</string>
   <string name="menu_item_power_off">Kapat</string>
   <string name="menu_item_power_on">Aç</string>
@@ -238,74 +215,18 @@ of any other Contributor, and only if You agree to indemnify,
 defend, and hold each Contributor harmless for any liability
 incurred by, or claims asserted against, such Contributor by reason
 of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
-  <string name="NO_ACTION">Yok</string>
-  <string name="PLAY_NOW">Oynat</string>
+    <string name="PLAY_NOW">Oynat</string>
   <string name="ADD_TO_END">Çalma listesine ekle</string>
-  <string name="DOWNLOAD">İndir</string>
-  <string name="PLAYLIST_REMOVE">Çalma listesinden kaldır</string>
-  <string name="PLAYLIST_MOVE_UP">Yukarı taşı</string>
-  <string name="PLAYLIST_MOVE_DOWN">Aşağı taşı</string>
-  <string name="PLAYLIST_MOVE">Taşı...</string>
-  <string name="ITEM_ADDED">%s geçerli çalma listesine eklendi</string>
-  <string name="PLAYLIST_EXISTS_MESSAGE">%s çalma listesi zaten mevcut</string>
-  <!--Song display options-->
-  <string name="songs_sort_order_title">Başlık</string>
-  <string name="songs_sort_order_tracknum">Parça</string>
-  <!--Analytics preference strings-->
+    <!--Song display options-->
+    <!--Analytics preference strings-->
   <string name="pref_cat_error_reports">Hata raporları ve istatistikler</string>
   <string name="pref_analytics_enable">Kullanım istatistiklerini gönder</string>
-  <string name="home_item_artists">Sanatçılar</string>
-  <string name="home_item_albums">Albümler</string>
-  <string name="home_item_songs">Şarkılar</string>
-  <string name="home_item_genres">Türler</string>
-  <string name="home_item_years">Yıllar</string>
-  <string name="home_item_new_music">Yeni Müzik</string>
-  <string name="home_item_music_folder">Müzik Klasörü</string>
-  <string name="home_item_playlists">Çalma Listeleri</string>
-  <string name="home_item_my_apps">Uygulamalarım</string>
-  <string name="randomplay_item_choose_genres">Türleri seç</string>
-  <plurals name="seconds">
+    <plurals name="seconds">
     <item quantity="one">saniye</item>
     <item quantity="other">saniye</item>
   </plurals>
-  <plurals name="artist">
-    <item quantity="one">sanatçı</item>
-    <item quantity="other">sanatçılar</item>
-  </plurals>
-  <plurals name="album">
-    <item quantity="one">albüm</item>
-    <item quantity="other">albümler</item>
-  </plurals>
-  <plurals name="genre">
-    <item quantity="one">tür</item>
-    <item quantity="other">türler</item>
-  </plurals>
-  <plurals name="musicfolder">
-    <item quantity="one">müzik klasörü</item>
-    <item quantity="other">müzik klasörleri</item>
-  </plurals>
-  <plurals name="year">
-    <item quantity="one">yıl</item>
-    <item quantity="other">yıllar</item>
-  </plurals>
-  <plurals name="song">
-    <item quantity="one">şarkı</item>
-    <item quantity="other">şarkılar</item>
-  </plurals>
-  <plurals name="player">
+    <plurals name="player">
     <item quantity="one">oynatıcı</item>
     <item quantity="other">oynatıcılar</item>
-  </plurals>
-  <plurals name="playlist">
-    <item quantity="one">çalma listesi</item>
-    <item quantity="other">çalma listeleri</item>
-  </plurals>
-  <plurals name="radio">
-    <item quantity="one">Radyo istasyonu eklentisi</item>
-    <item quantity="other">Radyo istasyonu eklentileri</item>
-  </plurals>
-  <plurals name="application">
-    <item quantity="one">uygulama</item>
-    <item quantity="other">uygulamalar</item>
   </plurals>
 </resources>

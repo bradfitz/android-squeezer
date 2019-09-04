@@ -40,19 +40,14 @@
         a selectable grid of days laid out by month.
         [CHAR LIMIT=50]
      -->
-    <string name="day_picker_description">Month grid of days</string>
     <!--
         Content description for the year selector in the date picker, which displays
         a scrolling, vertical list of years.
         [CHAR LIMIT=50]
      -->
-    <string name="year_picker_description">Year list</string>
     <!-- Accessibility announcement for the day picker [CHAR LIMIT=NONE] -->
-    <string name="select_day">Select month and day</string>
     <!-- Accessibility announcement for the year picker [CHAR LIMIT=NONE] -->
-    <string name="select_year">Select year</string>
     <!-- Accessibility description for the item that is currently selected. -->
-    <string name="item_is_selected"><xliff:g id="item" example="2013">%1$s</xliff:g> selected</string>
     <!-- Accessibility announcement when a number that had been typed in is deleted [CHAR_LIMIT=NONE] -->
     <string name="deleted_key"><xliff:g id="key" example="4">%1$s</xliff:g> deleted</string>
 
@@ -62,5 +57,4 @@
     <string name="radial_numbers_typeface" translatable="false">sans-serif</string>
     <string name="sans_serif" translatable="false">sans-serif</string>
 
-    <string name="day_of_week_label_typeface" translatable="false">sans-serif</string>
 </resources>

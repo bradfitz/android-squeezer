@@ -28,7 +28,6 @@ limitations under the License.
         android:padding="8dp">
 
         <TextView
-            android:id="@+id/tips_title"
             style="?android:attr/textAppearanceLarge"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"

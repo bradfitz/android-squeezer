@@ -21,7 +21,6 @@
     <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
     <string name="menu_item_players">Spelers</string>
-    <string name="menu_item_search_label">Zoek</string>
     <string name="menu_item_settings_label">Instellingen</string>
     <string name="menu_item_about_label">Over</string>
     <string name="activity_settings_name">Instellingen</string>
@@ -54,22 +53,13 @@
     <string name="menu_item_connect">Verbind</string>
     <string name="menu_item_poweron">Aanzetten \"%s\"</string>
     <string name="menu_item_poweroff">Schakel uit \"%s\"</string>
-    <string name="menu_item_main">Speelt nu</string>
-    <string name="menu_item_home">Hoofdmenu</string>
-    <string name="menu_item_fetch_all">Download resterend</string>
-    <string name="menu_item_filter">Filter</string>
-    <string name="menu_item_sort">Sorteer volgorde</string>
     <string name="menu_item_view">View</string>
-    <string name="menu_item_delete">Verwijder</string>
     <string name="menu_item_rename">Hernoem</string>
     <string name="menu_item_playlist">Playlist</string>
-    <string name="menu_item_playlists_new">Nieuwe playlist</string>
     <string name="menu_item_volume">Volume</string>
     <string name="connecting_text">Verbinden</string>
-    <string name="connect_to_text">Verbind met %s</string>
     <string name="connecting_to_text">Verbinden met Logitech Media Server met %s</string>
     <string name="connection_failed_text">Verbinden mislukt. Bekijk settings.</string>
-    <string name="not_connected">Squeezer is niet verbonden met enige Squeezeserver</string>
     <string name="disconnected_text">Contact verbroken.</string>
     <string name="wifi_disabled_text">Wi-Fi is uitgeschakeld</string>
     <string name="enable_wifi_text">Dit zet Wi-Fi aan op uw Android. Gelieve wachten voor een
@@ -77,38 +67,13 @@
     </string>
     <string name="wifi_enabled_text">Wi-Fi staat aan. Wacht op actieve Wi-Fi verbinding.</string>
     <string name="notification_playing_text">%s speelt af</string>
-    <string name="notification_connected_text">%s verbonden</string>
-    <string name="filter_text_hint">Zoek naar %s</string>
-    <string name="search_music_library_hint">Zoek artiest, album, genre of titel van nummer.</string>
-    <string name="move_to_dialog_title">Verplaats lied nummer %d</string>
-    <string name="move_to_index_hint">Vul nieuwe positie voor nummer in</string>
-    <string name="save_playlist_title">Bewaar playlist</string>
-    <string name="save_playlist_hint">Voer naam playlist in</string>
-    <string name="new_playlist_title">Nieuwe playlist</string>
-    <string name="new_playlist_hint">Voer naam playlist in</string>
     <string name="rename_title">Hernoem %s</string>
-    <string name="delete_title">Verwijder %s</string>
-    <string name="delete__message">Echt verwijderen?</string>
     <string name="loading_text">Laden …</string>
     <string name="browse_items_text">%2$d %1$s</string>
-    <string name="choose_sort_order">Kies volgorde van %s</string>
-    <string name="genre_prompt">Kies genre</string>
-    <string name="year_prompt">Kies jaar</string>
-    <string name="track_label">Nummer</string>
-    <string name="artist_label">Artiest</string>
-    <string name="album_label">Album</string>
-    <string name="genre_label">Genre</string>
-    <string name="year_label">Jaar</string>
-    <string name="filter_label">Zoek tekst</string>
-    <string name="albums_by_artist_header">Album met nummers van %s</string>
-    <string name="albums_by_genre_header">Album met nummers in genre \"%s\"</string>
-    <string name="albums_by_year_header">Album met nummers van %s</string>
-    <string name="songs_by_header">Nummers van %s</string>
     <string name="unknown_track">Onbekend nummer</string>
     <string name="unknown_album">Onbekend album</string>
     <string name="unknown_artist">Onbekende artiest</string>
     <string name="unknown_artistalbum">Onbekende artiest/album</string>
-    <string name="unknown_year">Onbekend jaar</string>
     <string name="tips_title">Tips</string>
     <string name="tip_volume">Gebruik de volume knoppen van uw apparaat om het afspeel volume te
         veranderen. Probeer het nu uit.
@@ -121,33 +86,10 @@
     <string name="dialog_license">Licentie</string>
     <string name="copyright_text">Copyright © 2009 Google Inc. Alle auteursrechten voorbehouden.\n
         Copyright © 2011 Kurt Aaholst. Alle auteursrechten voorbehouden.</string>
-    <string name="NO_ACTION">Geen</string>
-    <string name="BROWSE_SONGS">Blader door nummers</string>
-    <string name="BROWSE_SONGS_BY_ITEM">Blader door nummers per %s</string>
-    <string name="BROWSE_ALBUMS">Blader albums</string>
-    <string name="BROWSE_ARTISTS">Blader artiesten</string>
-    <string name="BROWSE_ALBUM_SONGS">Blader nummers op album</string>
-    <string name="BROWSE_ARTIST_ALBUMS">Blader albums met nummers van artiest</string>
-    <string name="BROWSE_ARTIST_SONGS">Blader nummers per artiest</string>
     <string name="PLAY_NOW">Speel af</string>
     <string name="ADD_TO_END">Voeg toe aan Playlist</string>
     <string name="PLAY_NEXT">Speel af na huidige liedje</string>
-    <string name="DOWNLOAD">Download</string>
-    <string name="PLAYLIST_REMOVE">Verwijder van playlist</string>
-    <string name="PLAYLIST_MOVE_UP">Verplaats naar boven</string>
-    <string name="PLAYLIST_MOVE_DOWN">Verplaats naar beneden</string>
-    <string name="PLAYLIST_MOVE">Verplaats …</string>
-    <string name="ITEM_PLAYING">Speelt nu %s</string>
-    <string name="ITEM_ADDED">Heb %s aan huidige playlist toegevoegd</string>
-    <string name="ITEM_INSERTED">%s is ingevoegd om direct af te spelen na huidige liedje in huidige
-        playlist
-    </string>
-    <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s bestaat al</string>
     <!--Song display options-->
-    <string name="song_display_options">Opties bij view nummer</string>
-    <string name="songs_sort_order_title">Titel</string>
-    <string name="songs_sort_order_tracknum">Nummer</string>
-    <string name="songs_sort_order_albumtrack">Album, nummer</string>
     <!--Analytics preference strings-->
     <string name="pref_cat_error_reports">Fouten rapporten en statistieken</string>
     <string name="pref_analytics_enable">Verzend gebruiks-statistieken</string>
@@ -155,72 +97,12 @@
         behulp van Google Analytics.
     </string>
     <string name="pref_analytics_enable_disabled">Geen gebruiks-statistieken zijn verzameld.</string>
-    <string name="home_item_artists">Artiesten</string>
-    <string name="home_item_albums">Albums</string>
-    <string name="home_item_songs">Nummers</string>
-    <string name="home_item_genres">Genres</string>
-    <string name="home_item_years">Jaren</string>
-    <string name="home_item_new_music">New music</string>
-    <string name="home_item_music_folder">Muziek Folder</string>
-    <string name="home_item_random_mix">Willekeurige mix</string>
-    <string name="home_item_playlists">Playlists</string>
-    <string name="home_item_radios">Internet Radio</string>
-    <string name="home_item_favorites">Favorieten</string>
-    <string name="home_item_my_apps">Mijn Apps</string>
-    <string name="randomplay_item_song_mix">Nummer mix</string>
-    <string name="randomplay_item_album_mix">Album mix</string>
-    <string name="randomplay_item_artist_mix">Artist mix</string>
-    <string name="randomplay_item_year_mix">Jaar mix</string>
-    <string name="randomplay_item_choose_genres">Kies genres</string>
     <plurals name="seconds">
         <item quantity="one">seconde</item>
         <item quantity="other">seconden</item>
-    </plurals>
-    <plurals name="artist">
-        <item quantity="one">artiest</item>
-        <item quantity="other">artiesten</item>
-    </plurals>
-    <plurals name="album">
-        <item quantity="one">album</item>
-        <item quantity="other">albums</item>
-    </plurals>
-    <plurals name="favorites">
-        <item quantity="one">Favoriet</item>
-        <item quantity="other">Favorieten</item>
-    </plurals>
-    <plurals name="genre">
-        <item quantity="one">genre</item>
-        <item quantity="other">genres</item>
-    </plurals>
-    <plurals name="musicfolder">
-        <item quantity="one">muziek map</item>
-        <item quantity="other">muziek mappen</item>
-    </plurals>
-    <plurals name="year">
-        <item quantity="one">jaar</item>
-        <item quantity="other">jaren</item>
-    </plurals>
-    <plurals name="song">
-        <item quantity="one">nummer</item>
-        <item quantity="other">nummers</item>
     </plurals>
     <plurals name="player">
         <item quantity="one">speler</item>
         <item quantity="other">spelers</item>
     </plurals>
-    <plurals name="playlist">
-        <item quantity="one">playlist</item>
-        <item quantity="other">playlisten</item>
-    </plurals>
-    <plurals name="radio">
-        <item quantity="one">radio station plugin</item>
-        <item quantity="other">radio station plugins</item>
-    </plurals>
-    <plurals name="application">
-        <item quantity="one">applicatie</item>
-        <item quantity="other">applicaties</item>
-    </plurals>
-    <string name="settings_album_selectaction">Selecteer album actie</string>
-    <string name="settings_song_selectaction">Selecteer nummer actie</string>
-    <string name="confirm_cancel_downloads">Downloaden afbreken?</string>
 </resources>

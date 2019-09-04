@@ -28,12 +28,6 @@
     <color name="blue">#33b5e5</color>
     <color name="blue_focused">#c1e8f7</color>
     <color name="neutral_pressed">#33999999</color>
-    <color name="darker_blue">#0099cc</color>
-    <color name="date_picker_text_normal">#ff999999</color>
-
-    <color name="calendar_header">#999999</color>
-    <color name="date_picker_view_animator">#f2f2f2</color>
-    <color name="calendar_selected_date_text">#ffd1d2d4</color>
 
     <!-- Colors for red theme -->
     <color name="red">#ff3333</color>
@@ -43,5 +37,4 @@
     <color name="line_dark">#808080</color>
     <color name="done_text_color_dark_normal">#ffffff</color>
     <color name="done_text_color_dark_disabled">#888888</color>
-    <color name="done_disabled_dark">#bfbfbf</color>
 </resources>
