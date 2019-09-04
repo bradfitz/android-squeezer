@@ -71,8 +71,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     private String cmd;
     private Item plugin;
     private Action action;
-    Window.WindowStyle windowStyle = Window.WindowStyle.ICON_TEXT;
-    ViewDialog.ArtworkListLayout listLayout = ViewDialog.ArtworkListLayout.list;
+    Window.WindowStyle windowStyle;
+    ViewDialog.ArtworkListLayout listLayout;
 
     /** The preferred list layout for lists with artwork items */
     ViewDialog.ArtworkListLayout artworkListLayout = null;
@@ -86,7 +86,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     public void onCreate(Bundle savedInstanceState) {
         artworkListLayout = new Preferences(this).getAlbumListLayout();
         super.onCreate(savedInstanceState);
-        BaseMenuFragment.add(this, ViewMenuItemFragment.class);
 
         Bundle extras = getIntent().getExtras();
         assert extras != null;
@@ -95,9 +94,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         plugin = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
 
+        if (!register) {
+            BaseMenuFragment.add(this, ViewMenuItemFragment.class);
+        }
         if (plugin != null && plugin.window != null) {
             applyWindow(plugin.window);
-        }
+        } else if (register)
+            applyWindowStyle(Window.WindowStyle.TEXT_ONLY);
 
         findViewById(R.id.input_view).setVisibility((hasInput()) ? View.VISIBLE : View.GONE);
         if (hasInput()) {
@@ -188,7 +191,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     private void applyWindow(Window window) {
-        applyWindowStyle(window.windowStyle());
+        applyWindowStyle(register ? Window.WindowStyle.TEXT_ONLY : window.windowStyle());
         updateHeader(window);
     }
 
@@ -228,9 +231,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
-        if (register) {
-            service.register(this);
-        } else if (plugin != null) {
+        if (plugin != null) {
             if (action == null || (plugin.hasInput() && !plugin.isInputReady())) {
                 showContent();
             } else if (plugin.doAction) {
@@ -238,8 +239,10 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                 finish();
             } else
                 service.pluginItems(start, plugin, action, this);
-        } else {
+        } else if (cmd != null) {
             service.pluginItems(start, cmd, this);
+        } else if (register) {
+            service.register(this);
         }
     }
 
@@ -376,16 +379,25 @@ public class PluginListActivity extends BaseListActivity<Plugin>
      * @see #orderPage(ISqueezeService, int)
      */
     public static void show(Activity activity, Item plugin, Action action) {
-        final Intent intent = new Intent(activity, PluginListActivity.class);
+        final Intent intent = getPluginListIntent(activity);
         intent.putExtra(Plugin.class.getName(), plugin);
         intent.putExtra(Action.class.getName(), action);
         activity.startActivityForResult(intent, GO);
     }
 
     public static void show(Activity activity, Item plugin) {
-        final Intent intent = new Intent(activity, PluginListActivity.class);
+        final Intent intent = getPluginListIntent(activity);
         intent.putExtra(Plugin.class.getName(), plugin);
         activity.startActivityForResult(intent, GO);
+    }
+
+    @NonNull
+    private static Intent getPluginListIntent(Activity activity) {
+        Intent intent = new Intent(activity, PluginListActivity.class);
+        if (activity instanceof PluginListActivity && ((PluginListActivity)activity).register) {
+            intent.putExtra("register", true);
+        }
+        return intent;
     }
 
 }
