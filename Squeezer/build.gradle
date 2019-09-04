@@ -114,6 +114,7 @@ android {
 
         release {
             minifyEnabled true
+            shrinkResources true
             signingConfig signingConfigs.release
             // You could use 'proguardFile "proguard.cfg"' here and get the
             // same effect, but this ensures that any changes to
