@@ -36,6 +36,10 @@
         android:usesCleartextTraffic="true"
         android:allowBackup="true">
 
+
+        <!-- Newer Android versions no longer include the Apache HTTP library -->
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
+
         <!-- enable the search dialog to send searches to SearchActivity -->
         <meta-data android:name="android.app.default_searchable"
             android:value=".SearchActivity"/>
