@@ -1,3 +1,13 @@
+1.5.2
+=====
+
+*   Update to support Android Pie.
+
+*   Support notification settings.
+
+*   Ask for permissions at runtime.
+
+
 1.5.1
 =====
 

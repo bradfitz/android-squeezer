@@ -2,6 +2,16 @@
 
 <changelog>
     <release
+        version="1.5.2"
+        versioncode="62">
+        <change>Update to support Android Pie.</change>
+
+        <change>Support notification settings.</change>
+
+        <change>Ask for permissions at runtime.</change>
+    </release>
+
+    <release
         version="1.5.1"
         versioncode="61">
         <change>Fix assorted potential crashes.</change>
