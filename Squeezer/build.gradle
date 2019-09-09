@@ -135,9 +135,9 @@ whatsnew {
     changelogPath = 'Squeezer/src/main/res/xml/changelog_master.xml'
     newsPath = 'NEWS'
     if (publishTrack() == 'beta') {
-        whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew-beta'
+        whatsnewPath = 'Squeezer/src/main/play/release-notes/en-US/beta.txt'
     } else {
-        whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew'
+        whatsnewPath = 'Squeezer/src/main/play/release-notes/en-US/production.txt'
     }
 }
 

@@ -21,7 +21,7 @@ values.
 Edit `Squeezer/src/main/res/xml/changelog_master.xml` with the details.
 Run `git log master..develop` to see what's changed
 
-### Update the `whatsnew` or `whatsnew-beta` files.
+### Update the `produktion.txt` or `beta.txt` release-note files.
 
 Run `./gradlew generateWhatsNew` to update the files.
 
@@ -58,7 +58,7 @@ Take new screenshots for market/screenshots.
 
 - Find the existing entry for Squeezer, and upload the new APK.
 
-- Include the contents of `whatsnew` for this release in the "Recent Changes"
+- Include the contents of `production.txt` for this release in the "Recent Changes"
   section.
 
 ## Post production-release steps
