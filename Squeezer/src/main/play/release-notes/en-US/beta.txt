@@ -1,5 +1,3 @@
-&bull; Update to support Android Pie.
+&bull; Change colour of the action bar icons.
 
-&bull; Support notification settings.
-
-&bull; Ask for permissions at runtime.
+&bull; Fix bug in download of playlist.

@@ -3,7 +3,7 @@
 <changelog>
     <release
         version="1.5.2"
-        versioncode="62">
+        versioncode="63">
         <change>Update to support Android Pie.</change>
 
         <change>Support notification settings.</change>
