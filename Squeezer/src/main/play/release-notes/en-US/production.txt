@@ -1,1 +1,7 @@
-&bull; Fix assorted potential crashes.
+&bull; Update to support Android Pie.
+
+&bull; Support notification settings.
+
+&bull; Ask for permissions at runtime.
+
+&bull; Add/remove music from favorites.
