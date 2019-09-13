@@ -70,6 +70,7 @@ import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
 import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
+import uk.org.ngo.squeezer.itemlist.LyricsActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.model.Artist;
@@ -687,10 +688,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             // If remote and number of tracks in playlist is not 1, it's spotify
             // or another streaming service. Then make prev- en nextbutton available
             if ((song.isRemote()) && (playerState.getCurrentPlaylistTracksNum() == 1)) {
-                // TODO: figure out how to parse the buttons HASH;
-                // for now just assume the next button is enabled if there was a
-                // "buttons" response.
-                setButtonState(nextButton, song.getButtons().length() == 0);
+                disableButton(nextButton);
                 disableButton(prevButton);
                 if (btnContextMenu != null) {
                     btnContextMenu.setVisibility(View.GONE);
@@ -868,6 +866,10 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         menu.findItem(R.id.play_next).setVisible(false);
         menu.findItem(R.id.add_to_playlist).setVisible(false);
 
+        Song song = getCurrentSong();
+        if (song != null && song.hasLyrics()) {
+            menu.findItem(R.id.lyrics).setVisible(true);
+        }
         menu.findItem(R.id.view_this_album).setVisible(true);
         menu.findItem(R.id.view_albums_by_song).setVisible(true);
         menu.findItem(R.id.view_songs_by_artist).setVisible(true);
@@ -893,6 +895,10 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         switch (item.getItemId()) {
             case R.id.download:
                 mActivity.downloadItem(song);
+                return true;
+
+            case R.id.lyrics:
+                LyricsActivity.show(getActivity(), song);
                 return true;
 
             case R.id.view_this_album:

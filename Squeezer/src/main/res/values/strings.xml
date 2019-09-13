@@ -139,6 +139,7 @@
     <string name="genre_label">Genre</string>
     <string name="year_label">Year</string>
     <string name="filter_label">Search text</string>
+    <string name="lyrics_label">Lyrics</string>
 
     <string name="player_group_header">Group: %s</string>
     <string name="menu_item_player_sync">Synchronize…</string>
