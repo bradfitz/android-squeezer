@@ -536,8 +536,7 @@ class CliClient implements IClient {
         boolean full_list = (start < 0);
 
         if (full_list) {
-            if (parameters == null)
-                parameters = new ArrayList<String>();
+            parameters = (parameters == null ? new ArrayList<String>() : new ArrayList<>(parameters));
             parameters.add("full_list:1");
         }
 
