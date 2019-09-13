@@ -1,20 +1,17 @@
 buildscript {
     repositories {
         mavenCentral()
-        jcenter()
         maven { url 'https://maven.fabric.io/public' }
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
-        classpath 'com.github.triplet.gradle:play-publisher:1.2.0'
-        classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'com.github.triplet.gradle:play-publisher:2.3.0'
+        classpath 'io.fabric.tools:gradle:1.29.0'
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.github.triplet.play'
 apply plugin: 'uk.org.ngo.gradle.whatsnew'
 
@@ -24,42 +21,41 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
+    implementation fileTree(dir: 'libs', include: '*.jar')
     // Android support libraries
     // Note: these libraries require the "Google Repository" and "Android
     //       Support Repository" to be installed via the SDK manager.
-    compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
-    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    compile "com.android.support:support-annotations:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:support-annotations:$rootProject.supportLibraryVersion"
 
     // Third party libraries
-    compile 'com.google.guava:guava:18.0'
+    implementation 'com.google.guava:guava:18.0'
 
     // findbugs is required for Proguard to work with Guava.
-    compile 'com.google.code.findbugs:jsr305:2.0.2'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
     // EventBus, https://github.com/greenrobot/EventBus.
-    compile 'de.greenrobot:eventbus:2.4.1'
+    implementation 'de.greenrobot:eventbus:2.4.1'
 
     // Changelogs, see https://github.com/cketti/ckChangeLog.
-    compile 'de.cketti.library.changelog:ckchangelog:1.2.0'
+    implementation 'de.cketti.library.changelog:ckchangelog:1.2.0'
 
     // Crashlytics.
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true
     }
 
     // KitKat time picker
-    compile 'com.nineoldandroids:library:2.4.0'
-    compile project(':libs:datetimepicker')
+    implementation 'com.nineoldandroids:library:2.4.0'
+    implementation project(':libs:datetimepicker')
 
     // JVM tests
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 }
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
 
     def gitHash = "git rev-parse --short HEAD".execute().text.trim()
     def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
@@ -73,8 +69,10 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 61
-        versionName "1.5.1"
+        versionCode 64
+        versionName "1.5.2"
+
+        vectorDrawables.useSupportLibrary = true
     }
 
     lintOptions {
@@ -137,14 +135,13 @@ whatsnew {
     changelogPath = 'Squeezer/src/main/res/xml/changelog_master.xml'
     newsPath = 'NEWS'
     if (publishTrack() == 'beta') {
-        whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew-beta'
+        whatsnewPath = 'Squeezer/src/main/play/release-notes/en-US/beta.txt'
     } else {
-        whatsnewPath = 'Squeezer/src/release/play/en-US/whatsnew'
+        whatsnewPath = 'Squeezer/src/main/play/release-notes/en-US/production.txt'
     }
 }
 
 play {
-    jsonFile = file('key.json')
+    serviceAccountCredentials = file('key.json')
     track = publishTrack()
-    untrackOld = true
 }

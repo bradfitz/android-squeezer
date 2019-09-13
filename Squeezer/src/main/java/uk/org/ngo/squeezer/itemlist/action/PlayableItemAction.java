@@ -30,7 +30,7 @@ public abstract class PlayableItemAction {
          */
         NONE(R.string.NO_ACTION),
         /**
-         * PLay item immediately
+         * Play item immediately
          */
         PLAY(R.string.PLAY_NOW),
         /**

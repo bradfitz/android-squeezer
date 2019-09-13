@@ -4,8 +4,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import uk.org.ngo.squeezer.Preferences;
@@ -30,9 +32,9 @@ public class SqueezePlayer extends Handler {
     private final String serverName;
     private final String userName;
     private final String password;
-    private final Context context;
+    private final AppCompatActivity context;
 
-    public SqueezePlayer(Context context) {
+    public SqueezePlayer(AppCompatActivity context) {
         this.context = context;
 
         Preferences preferences = new Preferences(context);
@@ -53,7 +55,11 @@ public class SqueezePlayer extends Handler {
     }
 
     private void startControllingSqueezePlayer() {
-        context.startService(getSqueezePlayerIntent());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(getSqueezePlayerIntent());
+        } else {
+            context.startService(getSqueezePlayerIntent());
+        }
         sendMessageDelayed(obtainMessage(MSG_TIMEOUT), TIMEOUT_DELAY);
     }
 

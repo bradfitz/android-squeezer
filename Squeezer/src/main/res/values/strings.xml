@@ -394,7 +394,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="ADD_ITEM_TO_END">Add \"%s\" to playlist</string>
     <string name="PLAY_NEXT">Play after the current song</string>
     <string name="DOWNLOAD">Download</string>
-    <string name="DOWNLOAD_MANAGER_NEEDED">Download requires Android 2.3 or later</string>
+    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Download cancelled, as we don\'t have permission to save the downloaded files</string>
 
     <string name="PLAYLIST_REMOVE">Remove from playlist</string>
     <string name="PLAYLIST_MOVE_UP">Move up</string>

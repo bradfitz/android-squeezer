@@ -8,7 +8,7 @@ Features include:
 
 *   Now playing, artwork, seeking within tracks, volume control.
 
-*   Browse the library by artist, album, song title, genre, year, or playlist.
+*   Browse the library by artist, album, song title, genre, year, playlist, favorites, or new music
 
 *   Browse the music folders (if supported by the server).
 
@@ -17,6 +17,10 @@ Features include:
 *   Manage players (names, synchronisation groups, sleep, alarms)
 
 *   Internet radio support (browse, staff picks, search).
+
+*   Alarm Clock management
+
+*   Add/remove music from favorites
 
 *   Scan the local network for compatible Squeezeservers.
 

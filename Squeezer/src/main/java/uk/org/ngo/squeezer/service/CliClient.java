@@ -61,6 +61,7 @@ import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.model.Year;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+import uk.org.ngo.squeezer.service.event.FavoritesExists;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
@@ -176,8 +177,6 @@ class CliClient implements IClient {
          *
          * @param cmd The command to send to the server.
          * @param taggedParameters The keys for any tagged parameters to send.
-         * @param itemDelimiter The identifier of the tagged parameter that marks the start of
-         *    a new block of information.
          * @param handler The handler used to construct new model objects from the response.
          */
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
@@ -185,6 +184,15 @@ class CliClient implements IClient {
             this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(handler, columns));
         }
 
+        /**
+         * A global command to the server where items in the response have a delimiter other than "id:".
+         *
+         * @param cmd The command to send to the server.
+         * @param taggedParameters The keys for any tagged parameters to send.
+         * @param itemDelimiter The identifier of the tagged parameter that marks the start of
+         *    a new block of information.
+         * @param handler The handler used to construct new model objects from the response.
+         */
         public ExtendedQueryFormatCmd(String cmd, Set<String> taggedParameters,
                                       String itemDelimiter, ListHandler<? extends Item> handler) {
             this(HANDLER_LIST_GLOBAL, cmd, taggedParameters, new SqueezeParserInfo(itemDelimiter, handler));
@@ -528,8 +536,7 @@ class CliClient implements IClient {
         boolean full_list = (start < 0);
 
         if (full_list) {
-            if (parameters == null)
-                parameters = new ArrayList<String>();
+            parameters = (parameters == null ? new ArrayList<String>() : new ArrayList<>(parameters));
             parameters.add("full_list:1");
         }
 
@@ -904,6 +911,20 @@ class CliClient implements IClient {
                 });
             }
         }
+        handlers.put("favorites", new CmdHandler() {
+            @Override
+            public void handle(final List<String> tokens) {
+                // Handle "favorites exists" response, posting a FavoritesExists event.
+                if (!"exists".equals(tokens.get(1))) {
+                    return;
+                }
+
+                HashMap<String, String> tokenMap = parseTokens(tokens);
+                mEventBus.post(new FavoritesExists(Uri.parse(Util.decode(tokens.get(2))),
+                        "1".equals(tokenMap.get("exists")),
+                        Strings.nullToEmpty(tokenMap.get("index"))));
+            }
+        });
         handlers.put("playlists", new CmdHandler() {
             @Override
             public void handle(List<String> tokens) {

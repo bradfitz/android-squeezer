@@ -27,12 +27,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadata;
-import android.media.MediaScannerConnection;
-import android.media.session.MediaSession;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
@@ -46,14 +43,14 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.google.common.io.Files;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -73,7 +70,6 @@ import uk.org.ngo.squeezer.RandomplayActivity;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
-import uk.org.ngo.squeezer.download.DownloadStorage;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.FilterItem;
 import uk.org.ngo.squeezer.framework.PlaylistItem;
@@ -103,6 +99,7 @@ import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.ImageWorker;
+import uk.org.ngo.squeezer.util.NotificationUtil;
 import uk.org.ngo.squeezer.util.Scrobble;
 
 
@@ -110,8 +107,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
     private static final String TAG = "SqueezeService";
 
+    private static final String NOTIFICATION_CHANNEL_ID = "channel_squeezer_1";
     private static final int PLAYBACKSERVICE_STATUS = 1;
-    private static final int DOWNLOAD_ERROR = 2;
+    public static final int DOWNLOAD_ERROR = 2;
 
     /** {@link java.util.regex.Pattern} that splits strings on spaces. */
     private static final Pattern mSpaceSplitPattern = Pattern.compile(" ");
@@ -153,7 +151,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private volatile boolean mHandshakeComplete = false;
 
     /** Media session to associate with ongoing notifications. */
-    private MediaSession mMediaSession;
+    private MediaSessionCompat mMediaSession;
 
     /** The player state that the most recent notifcation was for. */
     private PlayerState mNotifiedPlayerState;
@@ -207,9 +205,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private static final String ACTION_PAUSE = "uk.org.ngo.squeezer.service.ACTION_PAUSE";
     private static final String ACTION_CLOSE = "uk.org.ngo.squeezer.service.ACTION_CLOSE";
 
-    private static final String ACTION_DOWNLOAD_COMPLETE = "uk.org.ngo.squeezer.service.ACTION_DOWNLOAD_COMPLETE";
-    private static final String EXTRA_DOWNLOAD_ID = "EXTRA_DOWNLOAD_ID";
-
     private final BroadcastReceiver deviceIdleModeReceiver = new BroadcastReceiver() {
         @Override
         @RequiresApi(api = Build.VERSION_CODES.M)
@@ -239,12 +234,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         public HandshakeNotCompleteException(String message) { super(message); }
         public HandshakeNotCompleteException(String message, Throwable cause) { super(message, cause); }
         public HandshakeNotCompleteException(Throwable cause) { super(cause); }
-    }
-
-    public static void onDownloadComplete(Context context, long downloadId) {
-        context.startService(new Intent(context, SqueezeService.class)
-                .setAction(ACTION_DOWNLOAD_COMPLETE)
-                .putExtra(EXTRA_DOWNLOAD_ID, downloadId));
     }
 
     @Override
@@ -284,8 +273,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                     squeezeService.pause();
                 } else if (intent.getAction().equals(ACTION_CLOSE)) {
                     squeezeService.disconnect();
-                } else if (intent.getAction().equals(ACTION_DOWNLOAD_COMPLETE)) {
-                    handleDownloadComplete(intent.getLongExtra(EXTRA_DOWNLOAD_ID, -1));
                 }
             }
         } catch(Exception e) {
@@ -309,7 +296,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     @Override
     public IBinder onBind(Intent intent) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mMediaSession = new MediaSession(getApplicationContext(), "squeezer");
+            mMediaSession = new MediaSessionCompat(getApplicationContext(), "squeezer");
         }
         return (IBinder) squeezeService;
     }
@@ -592,10 +579,15 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
-        Notification notification;
+
+
+        NotificationUtil.createNotificationChannel(this, NOTIFICATION_CHANNEL_ID,
+                "Squeezer ongoing notification",
+                "Notifications of player and connection state",
+                NotificationManager.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final Notification.Builder builder = new Notification.Builder(this);
+            final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
             builder.setContentIntent(pIntent);
             builder.setSmallIcon(R.drawable.squeezer_notification);
             builder.setVisibility(Notification.VISIBILITY_PUBLIC);
@@ -603,11 +595,11 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             builder.setContentTitle(songName);
             builder.setContentText(albumName);
             builder.setSubText(playerName);
-            builder.setStyle(new Notification.MediaStyle()
+            builder.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
                     .setShowActionsInCompactView(1, 2)
                     .setMediaSession(mMediaSession.getSessionToken()));
 
-            final MediaMetadata.Builder metaBuilder = new MediaMetadata.Builder();
+            final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, artistName);
             metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, albumName);
             metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, songName);
@@ -618,13 +610,13 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
             builder.setDeleteIntent(closePendingIntent);
             if (playing) {
-                builder.addAction(new Notification.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                        .addAction(new Notification.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent))
-                        .addAction(new Notification.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
+                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent))
+                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
             } else {
-                builder.addAction(new Notification.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                        .addAction(new Notification.Action(R.drawable.ic_action_play, "Play", playPendingIntent))
-                        .addAction(new Notification.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
+                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_play, "Play", playPendingIntent))
+                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
             }
 
             ImageFetcher.getInstance(this).loadImage(url,
@@ -646,7 +638,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                         }
                     });
         } else {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
 
             builder.setOngoing(true);
             builder.setCategory(NotificationCompat.CATEGORY_SERVICE);
@@ -687,7 +679,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             builder.setContentText(getString(R.string.notification_playing_text, playerName));
             builder.setContentIntent(pIntent);
 
-            notification = builder.build();
+            Notification notification = builder.build();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 notification.bigContentView = expandedView;
             }
@@ -863,61 +855,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    private void handleDownloadComplete(long id) {
-        final DownloadStorage downloadStorage = new DownloadStorage(this);
-        final DownloadDatabase downloadDatabase = new DownloadDatabase(this);
-        final DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-        final DownloadManager.Query query = new DownloadManager.Query().setFilterById(id);
-
-        final Cursor cursor = downloadManager.query(query);
-        try {
-            if (!cursor.moveToNext()) {
-                // Download complete events may still come in, even after DownloadManager.remove is
-                // called, so don't log this
-                //Logger.logError(TAG, "Download manager does not have an entry for " + id);
-                return;
-            }
-
-            int downloadId = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_ID));
-            int status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-            int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
-            String title = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_TITLE));
-            String url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
-            String local_url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-
-            final DownloadDatabase.DownloadEntry downloadEntry = downloadDatabase.popDownloadEntry(downloadId);
-            if (downloadEntry == null) {
-                Util.crashlyticsLog(Log.ERROR, TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
-                return;
-            }
-            if (status != DownloadManager.STATUS_SUCCESSFUL) {
-                Util.crashlyticsLog(Log.ERROR, TAG, "Unsuccessful download " + format(status, reason, title, url, local_url));
-                return;
-            }
-
-            File tempFile = new File(getExternalFilesDir(Environment.DIRECTORY_MUSIC), downloadEntry.tempName);
-            try {
-                File localFile = new File(downloadStorage.getDownloadDir(), downloadEntry.fileName);
-                Util.moveFile(tempFile, localFile);
-                MediaScannerConnection.scanFile(
-                        getApplicationContext(),
-                        new String[]{localFile.getAbsolutePath()},
-                        null,
-                        new DownloadOnScanCompletedListener(downloadEntry)
-                );
-            } catch (IOException e) {
-                Util.crashlyticsLogException(e);
-            }
-        } finally {
-            cursor.close();
-        }
-    }
-
-    private String format(int status, int reason, String title, String url, String local_url) {
-        return "{status:" + status + ", reason:" + reason + ", title:'" + title + "', url:'" + url + "', local url:'" + local_url + "'}";
-    }
-
     /**
      * Tries to get the path relative to the server music library.
      * <p>
@@ -942,53 +879,6 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
 
         return path;
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private class DownloadOnScanCompletedListener implements MediaScannerConnection.OnScanCompletedListener {
-        private final DownloadDatabase.DownloadEntry downloadEntry;
-
-        public DownloadOnScanCompletedListener(DownloadDatabase.DownloadEntry downloadEntry) {
-            this.downloadEntry = downloadEntry;
-        }
-
-        @Override
-        public void onScanCompleted(String path, final Uri uri) {
-            if (uri == null) {
-                // Scanning failed, probably the file format is not supported.
-                Log.i(TAG, "'" + path + "' could not be added to the media database");
-                if (!new File(path).delete()) {
-                    Util.crashlyticsLog(Log.ERROR, TAG, "Could not delete '" + path + "', which could not be added to the media database");
-                }
-                notifyFailedMediaScan(downloadEntry.fileName);
-            }
-        }
-
-        private void notifyFailedMediaScan(String fileName) {
-            String name = Util.getBaseName(fileName);
-
-            // Content intent is required on some API levels even if
-            // https://developer.android.com/guide/topics/ui/notifiers/notifications.html
-            // says it's optional
-            PendingIntent emptyPendingIntent = PendingIntent.getService(
-                    SqueezeService.this,
-                    0,
-                    new Intent(),  //Dummy Intent do nothing
-                    0);
-
-            final NotificationCompat.Builder builder = new NotificationCompat.Builder(SqueezeService.this);
-            builder.setContentIntent(emptyPendingIntent);
-            builder.setOngoing(false);
-            builder.setOnlyAlertOnce(true);
-            builder.setAutoCancel(true);
-            builder.setSmallIcon(R.drawable.squeezer_notification);
-            builder.setTicker(name + " " + getString(R.string.NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR));
-            builder.setContentTitle(name);
-            builder.setContentText(getString(R.string.NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR));
-
-            final NotificationManagerCompat nm = NotificationManagerCompat.from(SqueezeService.this);
-            nm.notify(DOWNLOAD_ERROR, builder.build());
-        }
     }
 
 
@@ -1694,6 +1584,52 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 if (filter != null)
                     parameters.add(filter.getFilterParameter());
             cli.requestItems("songs", start, parameters, callback);
+        }
+
+        /**
+         * Start an async fetch of the favourite status of the item with the given id. The results
+         * are posted as a FavoritesExists event.
+         * @throws HandshakeNotCompleteException
+         */
+        @Override
+        public void favoritesExists(@NonNull Uri url) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+
+            cli.sendCommand("favorites exists " + Util.encode(url.toString()));
+        }
+
+        /**
+         * Start an async add of the item with the given id to favorites.
+         *
+         * @throws HandshakeNotCompleteException
+         */
+        @Override
+        public void favoritesAdd(@NonNull Uri url, @NonNull String title) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+
+            cli.sendCommand(
+                    String.format("favorites add url:%s title:%s", Util.encode(url.toString()), Util.encode(title)),
+                    "favorites exists " + Util.encode(url.toString()));
+        }
+
+        /**
+         * Start an async delete of the item with the given id from favorites.
+         *
+         * @throws HandshakeNotCompleteException
+         */
+        @Override
+        public void favoritesDelete(@NonNull Uri url, @NonNull String index) throws HandshakeNotCompleteException {
+            if (!mHandshakeComplete) {
+                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
+            }
+
+            cli.sendCommand(
+                    "favorites delete item_id:" + index,
+                    "favorites exists " + Util.encode(url.toString()));
         }
 
         /* Start an async fetch of the SqueezeboxServer's current playlist */

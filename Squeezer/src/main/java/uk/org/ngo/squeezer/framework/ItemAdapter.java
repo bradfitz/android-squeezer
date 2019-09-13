@@ -109,7 +109,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
      * Removes all items from this adapter leaving it empty.
      */
     public void clear() {
-        this.count = (mEmptyItem ? 1 : 0);
+        count = (mEmptyItem ? 1 : 0);
         pages.clear();
     }
 

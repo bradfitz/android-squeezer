@@ -32,13 +32,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.fabric.sdk.android.Fabric;
 import uk.org.ngo.squeezer.dialog.ChangeLogDialog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
 import uk.org.ngo.squeezer.framework.BaseActivity;
@@ -99,10 +97,6 @@ public class HomeActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Util.supportCrashlytics()) {
-            Fabric.with(this, new Crashlytics());
-        }
-
         setContentView(R.layout.item_list);
         listView = (ListView) findViewById(R.id.item_list);
 
@@ -150,7 +144,7 @@ public class HomeActivity extends BaseActivity {
         String[] items = getResources().getStringArray(R.array.home_items);
 
         if (getService() != null) {
-            mCanFavorites = event.canFavourites;
+            mCanFavorites = event.canFavorites;
             mCanMusicfolder = event.canMusicFolders;
             mCanMyApps = event.canMyApps;
             mCanRandomplay = event.canRandomPlay;

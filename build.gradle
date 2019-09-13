@@ -1,4 +1,8 @@
 allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
     tasks.withType(Javadoc) {
         // Disable lint, due to issues in the EventBus code comments.
         options.addStringOption('Xdoclint:none', '-quiet')
@@ -6,16 +10,25 @@ allprojects {
     }
 }
 
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.0'
+    }
+}
+
 ext {
-    compileSdkVersion = 24
-    buildToolsVersion = "25.0.2"
-    minSdkVersion = 7
-    targetSdkVersion = 21
+    compileSdkVersion = 28
+    minSdkVersion = 14
+    targetSdkVersion = 28
 
     assert minSdkVersion <= targetSdkVersion : "minSdkVersion too big"
     assert targetSdkVersion <= compileSdkVersion : "targetSdkVersion too big"
 
     // All support libraries must use the same version. The major version must be
     // the same as the compileSdkVersion
-    supportLibraryVersion = "${compileSdkVersion}.1.1"
+    supportLibraryVersion = "${compileSdkVersion}.0.0"
 }

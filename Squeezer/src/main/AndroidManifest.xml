@@ -17,19 +17,11 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="uk.org.ngo.squeezer"
-    android:versionCode="13" android:versionName="0.9.1">
-
-    <!-- Crashlytics is for API 8+. Override that here, as Squeezer checks for
-         the API level before invoking it. -->
-    <uses-sdk android:targetSdkVersion="21" android:minSdkVersion="7"
-        tools:overrideLibrary="com.crashlytics.android,com.crashlytics.android.answers,io.fabric.sdk.android,com.crashlytics.android.core,com.crashlytics.android.beta"/>
+    package="uk.org.ngo.squeezer">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -41,7 +33,12 @@
         android:theme="@style/AppTheme"
         android:label="@string/app_name"
         android:name=".Squeezer"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true">
+
+
+        <!-- Newer Android versions no longer include the Apache HTTP library -->
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
 
         <!-- enable the search dialog to send searches to SearchActivity -->
         <meta-data android:name="android.app.default_searchable"

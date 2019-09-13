@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.service;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -197,6 +198,11 @@ public interface ISqueezeService {
     void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
     void currentPlaylist(int start, IServiceItemListCallback<Song> callback) throws SqueezeService.HandshakeNotCompleteException;
     void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) throws SqueezeService.HandshakeNotCompleteException;
+
+    // Favourites
+    void favoritesExists(@NonNull Uri url) throws SqueezeService.HandshakeNotCompleteException;
+    void favoritesAdd(@NonNull Uri url, @NonNull String title) throws SqueezeService.HandshakeNotCompleteException;
+    void favoritesDelete(@NonNull Uri url, @NonNull String index) throws SqueezeService.HandshakeNotCompleteException;
 
     // Playlists
     void playlists(int start, IServiceItemListCallback<Playlist> callback) throws SqueezeService.HandshakeNotCompleteException;

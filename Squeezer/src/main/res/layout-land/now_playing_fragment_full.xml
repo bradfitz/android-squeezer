@@ -17,7 +17,8 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:paddingLeft="8dp"
@@ -40,7 +41,9 @@
         android:paddingBottom="4dp"
         android:paddingLeft="8dp"
         android:paddingTop="8dp"
-        style="@style/SqueezerWidget.NowPlaying.SongName"/>
+        style="@style/SqueezerWidget.NowPlaying.SongName"
+        android:layout_toLeftOf="@+id/context_menu_wrapper"
+        android:layout_toStartOf="@+id/context_menu_wrapper"/>
 
     <TextView
         android:id="@+id/albumname"
@@ -66,10 +69,18 @@
         android:paddingTop="4dp"
         style="@style/SqueezerWidget.NowPlaying.ArtistName"/>
 
+    <uk.org.ngo.squeezer.widget.FavoriteButton
+        android:id="@+id/favorite"
+        style="@style/SqueezerWidget.MediaButton.Favorite"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
+
     <!-- Wrap the context menu view in a LinearLayout so that
          a gravity attribute can be applied to force the image
          to the bottom of the container, roughly level with the
          bottom of the artistname view. -->
+
     <LinearLayout
         android:id="@+id/context_menu_wrapper"
         android:layout_alignParentRight="true"
@@ -78,6 +89,7 @@
         android:layout_width="48dp"
         android:gravity="bottom"
         android:layout_height="64dp">
+
         <uk.org.ngo.squeezer.widget.ListItemImageButton
             android:id="@+id/context_menu"
             android:layout_width="fill_parent"
@@ -86,7 +98,6 @@
             android:minWidth="48dp"
             android:src="@drawable/dropdown_ic_arrow_normal_holo_dark"/>
     </LinearLayout>
-
 
     <LinearLayout
         android:id="@+id/media_buttons"
