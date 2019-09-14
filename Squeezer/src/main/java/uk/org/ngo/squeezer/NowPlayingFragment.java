@@ -705,7 +705,11 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                 // Query to find out if this song is a favourite.
                 clearFavoriteInfo();
                 if (serverCanFavorite) {
-                    mService.favoritesExists(song.getUrl());
+                    try {
+                        mService.favoritesExists(song.getUrl());
+                    } catch (SqueezeService.HandshakeNotCompleteException e) {
+                        // This method will be called again when handshake completes, ignore exception
+                    }
                 }
 
                 artistText.setText(song.getArtist());
