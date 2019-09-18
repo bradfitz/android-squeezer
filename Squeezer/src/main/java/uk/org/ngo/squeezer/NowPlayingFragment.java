@@ -27,6 +27,7 @@ import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.MainThread;
@@ -595,13 +596,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume...");
-
-        // Start it and have it run forever (until it shuts itself down).
-        // This is required so swapping out the activity (and unbinding the
-        // service connection in onDestroy) doesn't cause the service to be
-        // killed due to zero refcount.  This is our signal that we want
-        // it running in the background.
-        mActivity.startService(new Intent(mActivity, SqueezeService.class));
 
         if (mService != null) {
             maybeRegisterCallbacks(mService);
