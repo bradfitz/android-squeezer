@@ -8,6 +8,9 @@ out
 local.properties
 build.properties
 squeezer.properties
+crashlytics.properties
+key.json
+key.p12
 .classpath
 /ant.properties
 .settings/

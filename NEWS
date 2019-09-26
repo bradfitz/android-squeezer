@@ -1,3 +1,15 @@
+1.5.2
+=====
+
+*   Update to support Android Pie.
+
+*   Support notification settings.
+
+*   Ask for permissions at runtime.
+
+*   Add/remove music from favorites.
+
+
 1.5.1
 =====
 

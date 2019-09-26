@@ -60,19 +60,8 @@ public final class Preferences {
     // Do we automatically try and connect on WiFi availability?
     public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
 
-    // Do we keep the notification going at top, even when we're not connected?
-    // Deprecated, retained for compatibility when upgrading.
-    public static final String KEY_NOTIFY_OF_CONNECTION = "squeezer.notifyofconnection";
-
-    // Type of notification to show.
-    public static final String KEY_NOTIFICATION_TYPE = "squeezer.notification_type";
-
-    @StringDef({NOTIFICATION_TYPE_NONE, NOTIFICATION_TYPE_PLAYING, NOTIFICATION_TYPE_ALWAYS})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface NotificationType {}
-    public static final String NOTIFICATION_TYPE_NONE = "none";
-    public static final String NOTIFICATION_TYPE_PLAYING = "playing";
-    public static final String NOTIFICATION_TYPE_ALWAYS = "always";
+    // Type of notification to show. NOT USED ANYMORE
+    private static final String KEY_NOTIFICATION_TYPE = "squeezer.notification_type";
 
     // Do we scrobble track information?
     // Deprecated, retained for compatibility when upgrading. Was an int, of

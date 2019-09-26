@@ -97,10 +97,6 @@ public class SettingsActivity extends PreferenceActivity implements
 
         fillScrobblePreferences(sharedPreferences);
 
-        ListPreference notificationTypePref = (ListPreference) findPreference(Preferences.KEY_NOTIFICATION_TYPE);
-        notificationTypePref.setOnPreferenceChangeListener(this);
-        fillNotificationPreferences(sharedPreferences, notificationTypePref);
-
         fillThemeSelectionPreferences();
 
         CheckBoxPreference startSqueezePlayerPref = (CheckBoxPreference) findPreference(
@@ -134,27 +130,6 @@ public class SettingsActivity extends PreferenceActivity implements
                 editor.apply();
             }
         }
-    }
-
-    private void fillNotificationPreferences(SharedPreferences preferences,
-                                             ListPreference notificationTypePref) {
-        // If an old KEY_NOTIFY_OF_CONNECTION preference exists, use it, delete it, and
-        // upgrade it to the new KEY_NOTIFICATION_TYPE preference.
-        if (preferences.contains(Preferences.KEY_NOTIFY_OF_CONNECTION)) {
-            boolean enabled = preferences.getBoolean(Preferences.KEY_NOTIFY_OF_CONNECTION, false);
-            notificationTypePref.setValue(enabled ? Preferences.NOTIFICATION_TYPE_ALWAYS :
-                    Preferences.NOTIFICATION_TYPE_PLAYING);
-            Editor editor = preferences.edit();
-            editor.putString(Preferences.KEY_NOTIFICATION_TYPE, notificationTypePref.getValue());
-            editor.remove(Preferences.KEY_NOTIFY_OF_CONNECTION);
-            editor.apply();
-        }
-
-        notificationTypePref.setDefaultValue(Preferences.NOTIFICATION_TYPE_NONE);
-        if (notificationTypePref.getValue() == null) {
-            notificationTypePref.setValue(Preferences.NOTIFICATION_TYPE_NONE);
-        }
-        updateListPreferenceSummary(notificationTypePref, notificationTypePref.getValue());
     }
 
     private void fillThemeSelectionPreferences() {
@@ -234,8 +209,7 @@ public class SettingsActivity extends PreferenceActivity implements
             updateFadeInSecondsSummary(Util.getInt(newValue.toString()));
         }
 
-        if (Preferences.KEY_NOTIFICATION_TYPE.equals(key) ||
-                Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
+        if (Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
             updateListPreferenceSummary((ListPreference) preference, (String) newValue);
         }
 

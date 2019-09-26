@@ -84,7 +84,21 @@ import uk.org.ngo.squeezer.util.ImageWorker;
 import uk.org.ngo.squeezer.util.NotificationUtil;
 import uk.org.ngo.squeezer.util.Scrobble;
 
-
+/**
+ * Persistent service which acts as an interface to for activities to communicate with LMS.
+ * <p>
+ * The interface is documented here {@link ISqueezeService}
+ * <p>
+ * The service lifecycle is managed as both a bound and a started servic. as follows.
+ * <ul>
+ *     <li>On connect to LMS call Context.start[Foreground]Service and Service.startForeground</li>
+ *     <li>On disconnect from LMS call Service.stopForeground and Service.stopSelf</li>
+ *     <li>bind to the SqueezeService in activities in onCreate</li>
+ *     <li>unbind the SqueezeService in activities  onDestroy</li>
+ * </ul>
+ * This means the service will as long as there is a Squeezer or we are connected to LMS activity.
+ * When we are connected to LMS it runs as a foreground service and a notification is displayed.
+ */
 public class SqueezeService extends Service {
 
     private static final String TAG = "SqueezeService";
@@ -101,8 +115,11 @@ public class SqueezeService extends Service {
     /** Media session to associate with ongoing notifications. */
     private MediaSessionCompat mMediaSession;
 
-    /** The player state that the most recent notifcation was for. */
-    private PlayerState mNotifiedPlayerState;
+    /** Are the service currently in the foregrund */
+    private volatile boolean foreGround;
+
+    /** The most recent notifcation. */
+    private NotificationState ongoingNotification;
 
     private final SlimDelegate mDelegate = new SlimDelegate(mEventBus);
 
@@ -115,10 +132,6 @@ public class SqueezeService extends Service {
      * Was scrobbling enabled?
      */
     private boolean scrobblingPreviouslyEnabled;
-
-    /** User's preferred notification type. */
-    @Preferences.NotificationType
-    private String mNotificationType = Preferences.NOTIFICATION_TYPE_NONE;
 
     int mFadeInSecs;
 
@@ -212,9 +225,6 @@ public class SqueezeService extends Service {
         final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, MODE_PRIVATE);
         scrobblingEnabled = preferences.getBoolean(Preferences.KEY_SCROBBLE_ENABLED, false);
         mFadeInSecs = preferences.getInt(Preferences.KEY_FADE_IN_SECS, 0);
-        //noinspection ResourceType
-        mNotificationType = preferences.getString(Preferences.KEY_NOTIFICATION_TYPE,
-                Preferences.NOTIFICATION_TYPE_PLAYING);
     }
 
     @Override
@@ -392,7 +402,6 @@ public class SqueezeService extends Service {
      */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void updateOngoingNotification() {
-        Player activePlayer = mDelegate.getActivePlayer();
         PlayerState activePlayerState = getActivePlayerState();
 
         // Update scrobble state, if either we're currently scrobbling, or we
@@ -403,110 +412,25 @@ public class SqueezeService extends Service {
             Scrobble.scrobbleFromPlayerState(this, activePlayerState);
         }
 
-        // If there's no active player then kill the notification and get out.
-        // TODO: Have a "There are no connected players" notification text.
-        if (activePlayer == null || activePlayerState == null) {
-            clearOngoingNotification();
-            return;
-        }
-
-        // If the user doesn't want notifications then kill it and get out.
-        if (Preferences.NOTIFICATION_TYPE_NONE.equals(mNotificationType)) {
-            clearOngoingNotification();
-            return;
-        }
-
-        boolean playing = activePlayerState.isPlaying();
-
-        // If the song is not playing and the user wants notifications only when playing then
-        // kill the notification and get out.
-        if (!playing && Preferences.NOTIFICATION_TYPE_PLAYING.equals(mNotificationType)) {
-            clearOngoingNotification();
-            return;
-        }
-
-        // If there's no current song then kill the notification and get out.
-        // TODO: Have a "There's nothing playing" notification text.
-        final CurrentPlaylistItem currentSong = activePlayerState.getCurrentSong();
-        if (currentSong == null) {
-            clearOngoingNotification();
-            return;
-        }
+        NotificationState notificationState = notificationState();
 
         // Compare the current state with the state when the notification was last updated.
         // If there are no changes (same song, same playing state) then there's nothing to do.
-        String songName = currentSong.getName();
-        String albumName = currentSong.getAlbum();
-        String artistName = currentSong.getArtist();
-        Uri url = currentSong.getIcon();
-        String playerName = activePlayer.getName();
-
-        if (mNotifiedPlayerState == null) {
-            mNotifiedPlayerState = new PlayerState();
-        } else {
-            boolean lastPlaying = mNotifiedPlayerState.isPlaying();
-            CurrentPlaylistItem lastNotifiedSong = mNotifiedPlayerState.getCurrentSong();
-
-            // No change in state
-            if (playing == lastPlaying && currentSong.equals(lastNotifiedSong)) {
-                return;
-            }
+        if (notificationState.equals(ongoingNotification)) {
+            return;
         }
+        ongoingNotification = notificationState;
 
-        mNotifiedPlayerState.setCurrentSong(currentSong);
-        mNotifiedPlayerState.setPlayStatus(activePlayerState.getPlayStatus());
         final NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-
-        PendingIntent nextPendingIntent = getPendingIntent(ACTION_NEXT_TRACK);
-        PendingIntent prevPendingIntent = getPendingIntent(ACTION_PREV_TRACK);
-        PendingIntent playPendingIntent = getPendingIntent(ACTION_PLAY);
-        PendingIntent pausePendingIntent = getPendingIntent(ACTION_PAUSE);
-        PendingIntent closePendingIntent = getPendingIntent(ACTION_CLOSE);
-
-        Intent showNowPlaying = new Intent(this, NowPlayingActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, showNowPlaying, 0);
-
-
-        NotificationUtil.createNotificationChannel(this, NOTIFICATION_CHANNEL_ID,
-                "Squeezer ongoing notification",
-                "Notifications of player and connection state",
-                NotificationManager.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
-
+        final NotificationData notificationData = new NotificationData(ongoingNotification);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
-            builder.setContentIntent(pIntent);
-            builder.setSmallIcon(R.drawable.squeezer_notification);
-            builder.setVisibility(Notification.VISIBILITY_PUBLIC);
-            builder.setShowWhen(false);
-            builder.setContentTitle(songName);
-            builder.setContentText(albumName);
-            builder.setSubText(playerName);
-            builder.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
-                    .setShowActionsInCompactView(1, 2)
-                    .setMediaSession(mMediaSession.getSessionToken()));
-
             final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, artistName);
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, albumName);
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, songName);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, ongoingNotification.artistName);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, ongoingNotification.albumName);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, ongoingNotification.songName);
             mMediaSession.setMetadata(metaBuilder.build());
 
-            // Don't set an ongoing notification, otherwise wearable's won't show it.
-            builder.setOngoing(false);
-
-            builder.setDeleteIntent(closePendingIntent);
-            if (playing) {
-                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent))
-                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
-            } else {
-                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_play, "Play", playPendingIntent))
-                        .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
-            }
-
-            ImageFetcher.getInstance(this).loadImage(url,
+            ImageFetcher.getInstance(this).loadImage(ongoingNotification.artworkUrl,
                     getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
                     getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
                     new ImageWorker.ImageWorkerCallback() {
@@ -520,68 +444,150 @@ public class SqueezeService extends Service {
                             metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
                             metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
                             mMediaSession.setMetadata(metaBuilder.build());
-                            builder.setLargeIcon(bitmap);
-                            nm.notify(PLAYBACKSERVICE_STATUS, builder.build());
+                            notificationData.builder.setLargeIcon(bitmap);
+                            nm.notify(PLAYBACKSERVICE_STATUS, notificationData.builder.build());
                         }
                     });
         } else {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
-
-            builder.setOngoing(true);
-            builder.setCategory(NotificationCompat.CATEGORY_SERVICE);
-            builder.setSmallIcon(R.drawable.squeezer_notification);
-
-            RemoteViews normalView = new RemoteViews(this.getPackageName(), R.layout.notification_player_normal);
-            RemoteViews expandedView = new RemoteViews(this.getPackageName(), R.layout.notification_player_expanded);
-
-            normalView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
-
-            expandedView.setOnClickPendingIntent(R.id.previous, prevPendingIntent);
-            expandedView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
-
-            builder.setContent(normalView);
-
-            normalView.setTextViewText(R.id.trackname, songName);
-            normalView.setTextViewText(R.id.albumname, albumName);
-
-            expandedView.setTextViewText(R.id.trackname, songName);
-            expandedView.setTextViewText(R.id.albumname, albumName);
-            expandedView.setTextViewText(R.id.player_name, playerName);
-
-            if (playing) {
-                normalView.setImageViewResource(R.id.pause, R.drawable.ic_action_pause);
-                normalView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
-
-                expandedView.setImageViewResource(R.id.pause, R.drawable.ic_action_pause);
-                expandedView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
-            } else {
-                normalView.setImageViewResource(R.id.pause, R.drawable.ic_action_play);
-                normalView.setOnClickPendingIntent(R.id.pause, playPendingIntent);
-
-                expandedView.setImageViewResource(R.id.pause, R.drawable.ic_action_play);
-                expandedView.setOnClickPendingIntent(R.id.pause, playPendingIntent);
-            }
-
-            builder.setContentTitle(songName);
-            builder.setContentText(getString(R.string.notification_playing_text, playerName));
-            builder.setContentIntent(pIntent);
-
-            Notification notification = builder.build();
+            Notification notification = notificationData.builder.build();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                notification.bigContentView = expandedView;
+                notification.bigContentView = notificationData.expandedView;
             }
 
             nm.notify(PLAYBACKSERVICE_STATUS, notification);
 
-            ImageFetcher.getInstance(this).loadImage(this, url, normalView, R.id.album,
+            ImageFetcher.getInstance(this).loadImage(this, ongoingNotification.artworkUrl, notificationData.normalView, R.id.album,
                     getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_width),
                     getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_height),
                     nm, PLAYBACKSERVICE_STATUS, notification);
-            ImageFetcher.getInstance(this).loadImage(this, url, expandedView, R.id.album,
+            ImageFetcher.getInstance(this).loadImage(this, ongoingNotification.artworkUrl, notificationData.expandedView, R.id.album,
                     getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_width),
                     getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_height),
                     nm, PLAYBACKSERVICE_STATUS, notification);
         }
+    }
+
+    private class NotificationData {
+        private final NotificationCompat.Builder builder;
+        private RemoteViews normalView;
+        private RemoteViews expandedView;
+
+        /**
+         * Prepare a notification builder from the supplied notification state.
+         */
+        @TargetApi(21)
+        private NotificationData(NotificationState notificationState) {
+            PendingIntent nextPendingIntent = getPendingIntent(ACTION_NEXT_TRACK);
+            PendingIntent prevPendingIntent = getPendingIntent(ACTION_PREV_TRACK);
+            PendingIntent playPendingIntent = getPendingIntent(ACTION_PLAY);
+            PendingIntent pausePendingIntent = getPendingIntent(ACTION_PAUSE);
+            PendingIntent closePendingIntent = getPendingIntent(ACTION_CLOSE);
+
+            Intent showNowPlaying = new Intent(SqueezeService.this, NowPlayingActivity.class)
+                    .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            PendingIntent pIntent = PendingIntent.getActivity(SqueezeService.this, 0, showNowPlaying, 0);
+
+
+            NotificationUtil.createNotificationChannel(SqueezeService.this, NOTIFICATION_CHANNEL_ID,
+                    "Squeezer ongoing notification",
+                    "Notifications of player and connection state",
+                    NotificationManager.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
+            builder = new NotificationCompat.Builder(SqueezeService.this, NOTIFICATION_CHANNEL_ID);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                builder.setContentIntent(pIntent);
+                builder.setSmallIcon(R.drawable.squeezer_notification);
+                builder.setVisibility(Notification.VISIBILITY_PUBLIC);
+                builder.setShowWhen(false);
+                builder.setContentTitle(notificationState.songName);
+                builder.setContentText(notificationState.artistName);
+                builder.setSubText(notificationState.playerName);
+                builder.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
+                        .setShowActionsInCompactView(1, 2)
+                        .setMediaSession(mMediaSession.getSessionToken()));
+
+                // Don't set an ongoing notification, otherwise wearable's won't show it.
+                builder.setOngoing(false);
+
+                builder.setDeleteIntent(closePendingIntent);
+                if (notificationState.playing) {
+                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
+                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent))
+                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                } else {
+                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
+                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_play, "Play", playPendingIntent))
+                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                }
+            } else {
+                normalView = new RemoteViews(SqueezeService.this.getPackageName(), R.layout.notification_player_normal);
+                expandedView = new RemoteViews(SqueezeService.this.getPackageName(), R.layout.notification_player_expanded);
+
+                builder.setOngoing(true);
+                builder.setCategory(NotificationCompat.CATEGORY_SERVICE);
+                builder.setSmallIcon(R.drawable.squeezer_notification);
+
+                normalView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
+
+                expandedView.setOnClickPendingIntent(R.id.previous, prevPendingIntent);
+                expandedView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
+
+                builder.setContent(normalView);
+                builder.setCustomBigContentView(expandedView);
+
+                normalView.setTextViewText(R.id.trackname, notificationState.songName);
+                normalView.setTextViewText(R.id.albumname, notificationState.artistName);
+
+                expandedView.setTextViewText(R.id.trackname, notificationState.songName);
+                expandedView.setTextViewText(R.id.albumname, notificationState.artistName);
+                expandedView.setTextViewText(R.id.player_name, notificationState.playerName);
+
+                if (notificationState.playing) {
+                    normalView.setImageViewResource(R.id.pause, R.drawable.ic_action_pause);
+                    normalView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
+
+                    expandedView.setImageViewResource(R.id.pause, R.drawable.ic_action_pause);
+                    expandedView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
+                } else {
+                    normalView.setImageViewResource(R.id.pause, R.drawable.ic_action_play);
+                    normalView.setOnClickPendingIntent(R.id.pause, playPendingIntent);
+
+                    expandedView.setImageViewResource(R.id.pause, R.drawable.ic_action_play);
+                    expandedView.setOnClickPendingIntent(R.id.pause, playPendingIntent);
+                }
+
+                builder.setContentTitle(notificationState.songName);
+                builder.setContentText(getString(R.string.notification_playing_text, notificationState.playerName));
+                builder.setContentIntent(pIntent);
+            }
+        }
+    }
+
+    /**
+     * Build current notification state based on the player and connection state.
+     */
+    private NotificationState notificationState() {
+        NotificationState notificationState = new NotificationState();
+
+        final Player activePlayer = mDelegate.getActivePlayer();
+        notificationState.hasPlayer = (activePlayer != null);
+        if (notificationState.hasPlayer) {
+            final PlayerState activePlayerState = activePlayer.getPlayerState();
+
+            notificationState.playing = activePlayerState.isPlaying();
+
+            final CurrentPlaylistItem currentSong = activePlayerState.getCurrentSong();
+            notificationState.hasSong = (currentSong != null);
+            if (currentSong != null) {
+                notificationState.songName = currentSong.getName();
+                notificationState.albumName = currentSong.getAlbum();
+                notificationState.artistName = currentSong.getArtist();
+                notificationState.artworkUrl = currentSong.getIcon();
+                notificationState.playerName = activePlayer.getName();
+            }
+        }
+
+        return notificationState;
     }
 
     /**
@@ -596,18 +602,60 @@ public class SqueezeService extends Service {
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private void clearOngoingNotification() {
-        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-        nm.cancel(PLAYBACKSERVICE_STATUS);
-        mNotifiedPlayerState = null;
-    }
-
     public void onEvent(ConnectionChanged event) {
         if (event.connectionState == ConnectionState.DISCONNECTED) {
             mEventBus.removeAllStickyEvents();
             mHandshakeComplete = false;
-            clearOngoingNotification();
+            stopForeground();
+        } else {
+            startForeground();
         }
+    }
+
+    private void startForeground() {
+        if (!foreGround) {
+            Log.i(TAG, "startForeground");
+            foreGround = true;
+
+            // Start it and have it run forever (until it shuts itself down).
+            // This is required so swapping out the activity (and unbinding the
+            // service connection in onDestroy) doesn't cause the service to be
+            // killed due to zero refcount.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(new Intent(this, SqueezeService.class));
+            } else {
+                startService(new Intent(this, SqueezeService.class));
+            }
+
+            ongoingNotification = notificationState();
+            NotificationData notificationData = new NotificationData(ongoingNotification);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, ongoingNotification.artistName);
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, ongoingNotification.albumName);
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, ongoingNotification.songName);
+                mMediaSession.setMetadata(metaBuilder.build());
+            } else {
+                Notification notification = notificationData.builder.build();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    notification.bigContentView = notificationData.expandedView;
+                }
+            }
+
+            startForeground(PLAYBACKSERVICE_STATUS, notificationData.builder.build());
+        }
+    }
+
+    private void stopForeground() {
+        Log.i(TAG, "stopForeground");
+        foreGround = false;
+        stopForeground(false);
+        stopSelf();
+
+        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
+        nm.cancel(PLAYBACKSERVICE_STATUS);
+        ongoingNotification = null;
     }
 
     public void onEvent(HandshakeComplete event) {
@@ -1095,11 +1143,6 @@ public class SqueezeService extends Service {
         public void preferenceChanged(String key) {
             Log.i(TAG, "Preference changed: " + key);
             cachePreferences();
-
-            if (Preferences.KEY_NOTIFICATION_TYPE.equals(key)) {
-                updateOngoingNotification();
-                return;
-            }
         }
 
 
@@ -1201,6 +1244,7 @@ public class SqueezeService extends Service {
             mDelegate.requestItems(getActivePlayer(), start, callback).cmd(cmd).param("menu", "menu").exec();
         }
 
+        /* Start an async fetch of the SqueezeboxServer's current playlist */
         /* Start an asynchronous fetch of the squeezeservers generic menu items */
         @Override
         public void pluginItems(int start, Item item, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {

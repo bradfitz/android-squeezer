@@ -113,7 +113,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                 case TEXT:
                     break;
                 case SEARCH:
-                    inputImage = R.drawable.ic_search;
+                    inputImage = R.drawable.ic_menu_search;
                     break;
                 case EMAIL:
                     inputType |= EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;

@@ -80,7 +80,7 @@
     <string name="login_failed_text">Login failed. Make sure the correct port, user name and password is entered.</string>
     <string name="login_failed_info_text">
         &lt;p&gt;You find the correct values in the server\'s web-interface. Select settings and the Advanced tab.&lt;/p&gt;
-        &lt;p&gt;To check the port number select network in the dropdown.&lt;/p&gt;
+        &lt;p&gt;To check the port number select Command Line Interface (CLI) in the dropdown.&lt;/p&gt;
         &lt;p&gt;User name and password is found by selecting security in the dropdown.&lt;/p&gt;
     </string>
     <string name="disconnected_text">Disconnected.</string>

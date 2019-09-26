@@ -96,7 +96,7 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 
 public class NowPlayingFragment extends Fragment implements View.OnCreateContextMenuListener {
 
-    private final String TAG = "NowPlayingFragment";
+    private static final String TAG = "NowPlayingFragment";
 
     private BaseActivity mActivity;
     private PluginViewLogic pluginViewDelegate;
@@ -567,13 +567,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         super.onResume();
         Log.d(TAG, "onResume...");
 
-        // Start it and have it run forever (until it shuts itself down).
-        // This is required so swapping out the activity (and unbinding the
-        // service connection in onDestroy) doesn't cause the service to be
-        // killed due to zero refcount.  This is our signal that we want
-        // it running in the background.
-        mActivity.startService(new Intent(mActivity, SqueezeService.class));
-
         if (mService != null) {
             maybeRegisterCallbacks(mService);
         }
@@ -999,6 +992,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
         mService.startConnect();
     }
+
 
     @MainThread
     public void onEventMainThread(ConnectionChanged event) {
