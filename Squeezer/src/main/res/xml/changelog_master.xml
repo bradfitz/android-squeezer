@@ -2,6 +2,20 @@
 
 <changelog>
     <release
+        version="1.5.3"
+        versioncode="66">
+        <change>Always show a notification while connected to a server. This is a requirement of Android.</change>
+
+        <change>Show lyrics if provided by the server.</change>
+
+        <change>Show artist instead of album in notifications.</change>
+
+        <change>Fix race condition in display of favorite.</change>
+
+        <change>Fix display problems on earlier Android versions.</change>
+    </release>
+
+    <release
         version="1.5.2"
         versioncode="64">
         <change>Update to support Android Pie.</change>

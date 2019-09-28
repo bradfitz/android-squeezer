@@ -13,5 +13,6 @@ Features include:
 &bull; Control playback from your Android Wear device
 &bull; Alarm Clock management
 &bull; Add/remove music from favorites
+&bull; Display lyrics
 
 Squeezer is free, and open source.
