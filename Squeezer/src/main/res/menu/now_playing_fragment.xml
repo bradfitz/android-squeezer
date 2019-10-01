@@ -38,7 +38,7 @@
         android:id="@+id/menu_item_alarm"
         android:title="Alarm Clock"
         android:alphabeticShortcut="z"
-        android:icon="@android:drawable/ic_lock_idle_alarm"
+        android:icon="@drawable/ic_menu_alarm"
         squeezer:showAsAction="ifRoom"/>
 
     <item
