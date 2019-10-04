@@ -1,7 +1,9 @@
-&bull; Update to support Android Pie.
+&bull; Always show a notification while connected to a server. This is a requirement of Android.
 
-&bull; Support notification settings.
+&bull; Show lyrics if provided by the server.
 
-&bull; Ask for permissions at runtime.
+&bull; Show artist instead of album in notifications.
 
-&bull; Add/remove music from favorites.
+&bull; Fix race condition in display of favorite.
+
+&bull; Fix display problems on earlier Android versions.
