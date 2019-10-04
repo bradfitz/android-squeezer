@@ -1,3 +1,18 @@
+1.5.3
+=====
+
+*   Always show a notification while connected to a server. This is a
+    requirement of Android.
+
+*   Show lyrics if provided by the server.
+
+*   Show artist instead of album in notifications.
+
+*   Fix race condition in display of favorite.
+
+*   Fix display problems on earlier Android versions.
+
+
 1.5.2
 =====
 
