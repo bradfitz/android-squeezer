@@ -19,6 +19,7 @@ package uk.org.ngo.squeezer.model;
 import android.net.Uri;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -134,14 +135,18 @@ public class Song extends ArtworkItem {
         return mDownloadUrl;
     }
 
-    @NonNull private final String mButtons;
+    @NonNull private Uri mArtworkUrl = Uri.EMPTY;
+
+    @NonNull private final String mLyrics;
 
     @NonNull
-    public String getButtons() {
-        return mButtons;
+    public String getLyrics() {
+        return mLyrics;
     }
 
-    @NonNull private Uri mArtworkUrl = Uri.EMPTY;
+    public boolean hasLyrics() {
+        return !TextUtils.isEmpty(mLyrics);
+    }
 
     /**
      * @return Whether the song has artwork associated with it.
@@ -179,7 +184,7 @@ public class Song extends ArtworkItem {
         mArtworkUrl = Uri.parse(Strings.nullToEmpty(record.get("artwork_url")));
         mUrl = Uri.parse(Strings.nullToEmpty(record.get("url")));
         mDownloadUrl = Uri.parse(Strings.nullToEmpty(record.get("download_url")));
-        mButtons = Strings.nullToEmpty(record.get("buttons"));
+        mLyrics = Strings.nullToEmpty(record.get("lyrics"));
 
         String artworkTrackId = record.get("artwork_track_id");
 
@@ -216,8 +221,8 @@ public class Song extends ArtworkItem {
         setArtwork_track_id(source.readString());
         mTrackNum = source.readInt();
         mUrl = Uri.parse(source.readString());
-        mButtons = source.readString();
         mDownloadUrl = Uri.parse(source.readString());
+        mLyrics = source.readString();
     }
 
     @Override
@@ -234,8 +239,8 @@ public class Song extends ArtworkItem {
         dest.writeString(getArtwork_track_id());
         dest.writeInt(mTrackNum);
         dest.writeString(mUrl.toString());
-        dest.writeString(mButtons);
         dest.writeString(mDownloadUrl.toString());
+        dest.writeString(mLyrics);
     }
 
     @Override

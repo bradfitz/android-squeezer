@@ -1,3 +1,9 @@
-&bull; Change colour of the action bar icons.
+&bull; Always show a notification while connected to a server. This is a requirement of Android.
 
-&bull; Fix bug in download of playlist.
+&bull; Show lyrics if provided by the server.
+
+&bull; Show artist instead of album in notifications.
+
+&bull; Fix race condition for favorite display.
+
+&bull; Fix display problems on earlier Android versions.
