@@ -17,7 +17,7 @@
 package uk.org.ngo.squeezer.service;
 
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.common.base.Splitter;
 

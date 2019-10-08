@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.util;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;

@@ -17,8 +17,8 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.net.Uri;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.common.base.Joiner;

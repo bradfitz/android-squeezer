@@ -17,7 +17,7 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcelable.Creator;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;

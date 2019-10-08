@@ -40,7 +40,7 @@ import android.view.View;
  * See Cyril Mottier's discussion of this, and code, in http://android.cyrilmottier.com/?p=525.
  */
 @SuppressLint("NewApi")
-public class ListItemImageButton extends android.support.v7.widget.AppCompatImageButton {
+public class ListItemImageButton extends androidx.appcompat.widget.AppCompatImageButton {
 
     @SuppressLint("NewApi")
     public ListItemImageButton(Context context) {

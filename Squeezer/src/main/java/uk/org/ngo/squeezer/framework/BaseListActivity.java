@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.framework;
 
 
 import android.os.Bundle;
-import android.support.annotation.MainThread;
+import androidx.annotation.MainThread;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;

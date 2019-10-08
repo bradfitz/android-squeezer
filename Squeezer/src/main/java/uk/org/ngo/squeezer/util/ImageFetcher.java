@@ -17,8 +17,8 @@
 package uk.org.ngo.squeezer.util;
 
 import android.content.Context;
-import android.os.Build;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.google.common.io.ByteStreams;

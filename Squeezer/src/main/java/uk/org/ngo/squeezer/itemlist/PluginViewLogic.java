@@ -17,7 +17,7 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.FragmentManager;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;

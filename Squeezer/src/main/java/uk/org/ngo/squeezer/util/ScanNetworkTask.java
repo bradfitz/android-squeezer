@@ -2,7 +2,7 @@ package uk.org.ngo.squeezer.util;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.google.common.annotations.VisibleForTesting;

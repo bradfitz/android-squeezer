@@ -20,7 +20,7 @@ package uk.org.ngo.squeezer;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.view.View;
 import android.widget.TextView;
 

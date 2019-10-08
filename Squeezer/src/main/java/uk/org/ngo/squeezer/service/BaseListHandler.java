@@ -1,6 +1,6 @@
 package uk.org.ngo.squeezer.service;
 
-import android.support.v4.app.Fragment.InstantiationException;
+import androidx.fragment.app.Fragment.InstantiationException;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;

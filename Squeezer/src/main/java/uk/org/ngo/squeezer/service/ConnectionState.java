@@ -16,8 +16,8 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.lang.annotation.Retention;

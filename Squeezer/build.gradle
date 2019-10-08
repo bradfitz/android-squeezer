@@ -26,9 +26,9 @@ dependencies {
     // Android support libraries
     // Note: these libraries require the "Google Repository" and "Android
     //       Support Repository" to be installed via the SDK manager.
-    implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:support-annotations:$rootProject.supportLibraryVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.annotation:annotation:1.0.0'
 
     // Third party libraries
     implementation 'com.google.guava:guava:18.0'

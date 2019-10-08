@@ -1,13 +1,12 @@
 package uk.org.ngo.squeezer.menu;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemAdapter;

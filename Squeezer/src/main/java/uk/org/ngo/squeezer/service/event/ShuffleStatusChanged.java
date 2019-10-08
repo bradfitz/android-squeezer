@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;

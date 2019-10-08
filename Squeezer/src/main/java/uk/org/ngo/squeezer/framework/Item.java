@@ -19,7 +19,7 @@ package uk.org.ngo.squeezer.framework;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.util.ArrayList;

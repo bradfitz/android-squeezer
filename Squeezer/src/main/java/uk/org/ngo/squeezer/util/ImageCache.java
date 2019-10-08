@@ -22,9 +22,9 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.util.LruCache;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.collection.LruCache;
 import android.util.Log;
 
 import com.google.common.hash.HashFunction;

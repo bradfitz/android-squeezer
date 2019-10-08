@@ -29,17 +29,17 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadata;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
@@ -497,12 +497,12 @@ public class SqueezeService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 builder.setContentIntent(pIntent);
                 builder.setSmallIcon(R.drawable.squeezer_notification);
-                builder.setVisibility(Notification.VISIBILITY_PUBLIC);
+                builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
                 builder.setShowWhen(false);
                 builder.setContentTitle(notificationState.songName);
                 builder.setContentText(notificationState.artistName);
                 builder.setSubText(notificationState.playerName);
-                builder.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
+                builder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(1, 2)
                         .setMediaSession(mMediaSession.getSessionToken()));
 

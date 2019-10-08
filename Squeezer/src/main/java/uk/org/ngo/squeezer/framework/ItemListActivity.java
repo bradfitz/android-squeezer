@@ -18,9 +18,9 @@ package uk.org.ngo.squeezer.framework;
 
 
 import android.os.Bundle;
-import android.support.annotation.MainThread;
-import android.support.annotation.CallSuper;
-import android.support.annotation.NonNull;
+import androidx.annotation.MainThread;
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;

@@ -24,8 +24,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.MainThread;
-import android.support.v7.app.ActionBar;
+import androidx.annotation.MainThread;
+import androidx.appcompat.app.ActionBar;
 import android.util.Log;
 
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;

@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -256,7 +256,7 @@ public class Util {
     public static View getActionBarSpinnerItemView(Context context, View convertView,
                                                    ViewGroup parent, String label) {
         return getSpinnerView(context, convertView, parent, label,
-                android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item);
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
     }
 
     private static View getSpinnerView(Context context, View convertView, ViewGroup parent,

@@ -19,8 +19,8 @@ package uk.org.ngo.squeezer.util;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
