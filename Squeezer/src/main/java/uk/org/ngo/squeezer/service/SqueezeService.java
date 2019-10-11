@@ -740,6 +740,25 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             Log.i(TAG, "startForeground");
             foreGround = true;
 
+            ongoingNotification = notificationState();
+            NotificationData notificationData = new NotificationData(ongoingNotification);
+            Notification notification;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, ongoingNotification.artistName);
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, ongoingNotification.albumName);
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, ongoingNotification.songName);
+                mMediaSession.setMetadata(metaBuilder.build());
+                notification = notificationData.builder.build();
+            } else {
+                notification = notificationData.builder.build();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    notification.bigContentView = notificationData.expandedView;
+                }
+            }
+
+
             // Start it and have it run forever (until it shuts itself down).
             // This is required so swapping out the activity (and unbinding the
             // service connection in onDestroy) doesn't cause the service to be
@@ -750,23 +769,8 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 startService(new Intent(this, SqueezeService.class));
             }
 
-            ongoingNotification = notificationState();
-            NotificationData notificationData = new NotificationData(ongoingNotification);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-                metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, ongoingNotification.artistName);
-                metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, ongoingNotification.albumName);
-                metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, ongoingNotification.songName);
-                mMediaSession.setMetadata(metaBuilder.build());
-            } else {
-                Notification notification = notificationData.builder.build();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    notification.bigContentView = notificationData.expandedView;
-                }
-            }
-
-            startForeground(PLAYBACKSERVICE_STATUS, notificationData.builder.build());
+            // Call startForeground immediately after startForegroundService
+            startForeground(PLAYBACKSERVICE_STATUS, notification);
         }
     }
 
