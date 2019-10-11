@@ -338,6 +338,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         }
     }
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        disconnect();
+        super.onTaskRemoved(rootIntent);
+    }
+
     void disconnect() {
         disconnect(false);
     }
