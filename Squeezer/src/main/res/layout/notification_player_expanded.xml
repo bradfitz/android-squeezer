@@ -51,12 +51,12 @@
         android:textAppearance="@style/SqueezerNotificationTitle"/>
 
     <TextView
-        android:id="@+id/albumname"
+        android:id="@+id/artist_album"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/trackname"
         android:layout_toRightOf="@id/album"
-        android:hint="@string/unknown_album"
+        android:hint="@string/unknown_artistalbum"
         android:singleLine="true"
         android:textAppearance="@style/SqueezerNotificationText"/>
 
@@ -64,7 +64,7 @@
         android:id="@+id/player_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/albumname"
+        android:layout_below="@id/artist_album"
         android:layout_toRightOf="@id/album"
         android:hint="@string/unknown_album"
         android:singleLine="true"

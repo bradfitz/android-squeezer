@@ -621,7 +621,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 builder.setVisibility(Notification.VISIBILITY_PUBLIC);
                 builder.setShowWhen(false);
                 builder.setContentTitle(notificationState.songName);
-                builder.setContentText(notificationState.artistName);
+                builder.setContentText(notificationState.artistAlbum());
                 builder.setSubText(notificationState.playerName);
                 builder.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(1, 2)
@@ -657,10 +657,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 builder.setCustomBigContentView(expandedView);
 
                 normalView.setTextViewText(R.id.trackname, notificationState.songName);
-                normalView.setTextViewText(R.id.albumname, notificationState.artistName);
+                normalView.setTextViewText(R.id.artist_album, notificationState.artistAlbum());
 
                 expandedView.setTextViewText(R.id.trackname, notificationState.songName);
-                expandedView.setTextViewText(R.id.albumname, notificationState.artistName);
+                expandedView.setTextViewText(R.id.artist_album, notificationState.artistAlbum());
                 expandedView.setTextViewText(R.id.player_name, notificationState.playerName);
 
                 if (notificationState.playing) {
