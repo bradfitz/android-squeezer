@@ -18,6 +18,8 @@ package uk.org.ngo.squeezer.service;
 
 import android.net.Uri;
 
+import com.google.common.base.Joiner;
+
 public class NotificationState {
     public boolean hasPlayer;
     public String playerName;
@@ -28,6 +30,10 @@ public class NotificationState {
     public String artistName;
     public Uri artworkUrl;
     public boolean playing;
+
+    public String artistAlbum() {
+        return Joiner.on(" - ").skipNulls().join(artistName, albumName);
+    }
 
     @Override
     public boolean equals(Object o) {
