@@ -631,15 +631,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 builder.setOngoing(false);
 
                 builder.setDeleteIntent(closePendingIntent);
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_disconnect, "Disconnect", closePendingIntent));
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent));
                 if (notificationState.playing) {
-                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent))
-                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent));
                 } else {
-                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_play, "Play", playPendingIntent))
-                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_play, "Play", playPendingIntent));
                 }
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
             } else {
                 normalView = new RemoteViews(SqueezeService.this.getPackageName(), R.layout.notification_player_normal);
                 expandedView = new RemoteViews(SqueezeService.this.getPackageName(), R.layout.notification_player_expanded);
