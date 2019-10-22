@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.service;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -255,8 +254,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         super.onCreate();
 
         // Clear leftover notification in case this service previously got killed while playing
-        NotificationManager nm = (NotificationManager) getSystemService(
-                Context.NOTIFICATION_SERVICE);
+        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         nm.cancel(PLAYBACKSERVICE_STATUS);
 
         cachePreferences();
@@ -612,7 +610,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             NotificationUtil.createNotificationChannel(SqueezeService.this, NOTIFICATION_CHANNEL_ID,
                     "Squeezer ongoing notification",
                     "Notifications of player and connection state",
-                    NotificationManager.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
+                    NotificationManagerCompat.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
             builder = new NotificationCompat.Builder(SqueezeService.this, NOTIFICATION_CHANNEL_ID);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -649,6 +647,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
                 normalView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
 
+                expandedView.setOnClickPendingIntent(R.id.disconnect, closePendingIntent);
                 expandedView.setOnClickPendingIntent(R.id.previous, prevPendingIntent);
                 expandedView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
 
@@ -776,12 +775,9 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
     private void stopForeground() {
         Log.i(TAG, "stopForeground");
         foreGround = false;
-        stopForeground(false);
-        stopSelf();
-
-        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-        nm.cancel(PLAYBACKSERVICE_STATUS);
         ongoingNotification = null;
+        stopForeground(true);
+        stopSelf();
     }
 
     public void onEvent(HandshakeComplete event) {
