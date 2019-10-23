@@ -1,9 +1,3 @@
-&bull; Always show a notification while connected to a server. This is a requirement of Android.
+&bull; Show a button on the notification to disconnect Squeezer (and remove the notification).
 
-&bull; Show lyrics if provided by the server.
-
-&bull; Show artist instead of album in notifications.
-
-&bull; Fix race condition in display of favorite.
-
-&bull; Fix display problems on earlier Android versions.
+&bull; Disconnect Squeezer when it's swiped from the recent apps list.
