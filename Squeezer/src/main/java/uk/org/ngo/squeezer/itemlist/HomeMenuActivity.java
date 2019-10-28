@@ -129,9 +129,20 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
                     clearItemAdapter();
                 }
             });
+            jiveMainNodes();
             List<Plugin> menu = getMenuNode();
             HomeMenuActivity.super.onItemsReceived(menu.size(), 0, menu, dataType);
         }
+    }
+
+    private void jiveMainNodes() {
+        addNode(Plugin.SETTINGS);
+        addNode(Plugin.ADVANCED_SETTINGS);
+    }
+
+    private void addNode(Plugin plugin) {
+        if (!homeMenu.contains(plugin))
+            homeMenu.add(plugin);
     }
 
     private List<Plugin> getMenuNode() {

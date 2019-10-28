@@ -163,6 +163,42 @@ public abstract class Item implements Parcelable {
         if ("opmlselectRemoteLibrary".equals(id)) {
             return R.drawable.ic_my_music;
         }
+
+/*
+       s.hm_settings = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_settings" .. skinSuffix),
+        })
+        s.hm_advancedSettings = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_settings_adv" .. skinSuffix),
+        })
+        s.hm_settings_pcp = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_settings_pcp" .. skinSuffix),
+        })
+
+        s.hm_settingsAlarm = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_alarm" .. skinSuffix),
+        })
+        s.hm_settingsPlayerNameChange = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_settings_name" .. skinSuffix),
+        })
+        s.hm_settingsBrightness = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_settings_brightness" .. skinSuffix),
+        })
+        s.hm_settingsSync = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_sync" .. skinSuffix),
+        })
+        s.hm_selectPlayer = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_choose_player" .. skinSuffix),
+
+
+        s.hm_quit = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_power_off" .. skinSuffix),
+        })
+        s.hm_playerpower = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_power_off" .. skinSuffix),
+        })
+
+ */
         return R.drawable.icon_pending_artwork;
     }
 
