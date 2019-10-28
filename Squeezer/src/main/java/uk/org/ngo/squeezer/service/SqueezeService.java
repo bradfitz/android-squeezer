@@ -19,7 +19,6 @@ package uk.org.ngo.squeezer.service;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -255,8 +254,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
         super.onCreate();
 
         // Clear leftover notification in case this service previously got killed while playing
-        NotificationManager nm = (NotificationManager) getSystemService(
-                Context.NOTIFICATION_SERVICE);
+        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
         nm.cancel(PLAYBACKSERVICE_STATUS);
 
         cachePreferences();
@@ -336,6 +334,12 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 // receiver is registered.
             }
         }
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        disconnect();
+        super.onTaskRemoved(rootIntent);
     }
 
     void disconnect() {
@@ -606,7 +610,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             NotificationUtil.createNotificationChannel(SqueezeService.this, NOTIFICATION_CHANNEL_ID,
                     "Squeezer ongoing notification",
                     "Notifications of player and connection state",
-                    NotificationManager.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
+                    NotificationManagerCompat.IMPORTANCE_LOW, false, NotificationCompat.VISIBILITY_PUBLIC);
             builder = new NotificationCompat.Builder(SqueezeService.this, NOTIFICATION_CHANNEL_ID);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -615,7 +619,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 builder.setVisibility(Notification.VISIBILITY_PUBLIC);
                 builder.setShowWhen(false);
                 builder.setContentTitle(notificationState.songName);
-                builder.setContentText(notificationState.artistName);
+                builder.setContentText(notificationState.artistAlbum());
                 builder.setSubText(notificationState.playerName);
                 builder.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(1, 2)
@@ -625,15 +629,14 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 builder.setOngoing(false);
 
                 builder.setDeleteIntent(closePendingIntent);
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_disconnect, "Disconnect", closePendingIntent));
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent));
                 if (notificationState.playing) {
-                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent))
-                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_pause, "Pause", pausePendingIntent));
                 } else {
-                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_previous, "Previous", prevPendingIntent))
-                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_play, "Play", playPendingIntent))
-                            .addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
+                    builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_play, "Play", playPendingIntent));
                 }
+                builder.addAction(new NotificationCompat.Action(R.drawable.ic_action_next, "Next", nextPendingIntent));
             } else {
                 normalView = new RemoteViews(SqueezeService.this.getPackageName(), R.layout.notification_player_normal);
                 expandedView = new RemoteViews(SqueezeService.this.getPackageName(), R.layout.notification_player_expanded);
@@ -644,6 +647,7 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
 
                 normalView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
 
+                expandedView.setOnClickPendingIntent(R.id.disconnect, closePendingIntent);
                 expandedView.setOnClickPendingIntent(R.id.previous, prevPendingIntent);
                 expandedView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
 
@@ -651,10 +655,10 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 builder.setCustomBigContentView(expandedView);
 
                 normalView.setTextViewText(R.id.trackname, notificationState.songName);
-                normalView.setTextViewText(R.id.albumname, notificationState.artistName);
+                normalView.setTextViewText(R.id.artist_album, notificationState.artistAlbum());
 
                 expandedView.setTextViewText(R.id.trackname, notificationState.songName);
-                expandedView.setTextViewText(R.id.albumname, notificationState.artistName);
+                expandedView.setTextViewText(R.id.artist_album, notificationState.artistAlbum());
                 expandedView.setTextViewText(R.id.player_name, notificationState.playerName);
 
                 if (notificationState.playing) {
@@ -734,6 +738,25 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
             Log.i(TAG, "startForeground");
             foreGround = true;
 
+            ongoingNotification = notificationState();
+            NotificationData notificationData = new NotificationData(ongoingNotification);
+            Notification notification;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, ongoingNotification.artistName);
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, ongoingNotification.albumName);
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, ongoingNotification.songName);
+                mMediaSession.setMetadata(metaBuilder.build());
+                notification = notificationData.builder.build();
+            } else {
+                notification = notificationData.builder.build();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    notification.bigContentView = notificationData.expandedView;
+                }
+            }
+
+
             // Start it and have it run forever (until it shuts itself down).
             // This is required so swapping out the activity (and unbinding the
             // service connection in onDestroy) doesn't cause the service to be
@@ -744,35 +767,17 @@ public class SqueezeService extends Service implements ServiceCallbackList.Servi
                 startService(new Intent(this, SqueezeService.class));
             }
 
-            ongoingNotification = notificationState();
-            NotificationData notificationData = new NotificationData(ongoingNotification);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-                metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, ongoingNotification.artistName);
-                metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, ongoingNotification.albumName);
-                metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, ongoingNotification.songName);
-                mMediaSession.setMetadata(metaBuilder.build());
-            } else {
-                Notification notification = notificationData.builder.build();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    notification.bigContentView = notificationData.expandedView;
-                }
-            }
-
-            startForeground(PLAYBACKSERVICE_STATUS, notificationData.builder.build());
+            // Call startForeground immediately after startForegroundService
+            startForeground(PLAYBACKSERVICE_STATUS, notification);
         }
     }
 
     private void stopForeground() {
         Log.i(TAG, "stopForeground");
         foreGround = false;
-        stopForeground(false);
-        stopSelf();
-
-        NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-        nm.cancel(PLAYBACKSERVICE_STATUS);
         ongoingNotification = null;
+        stopForeground(true);
+        stopSelf();
     }
 
     public void onEvent(HandshakeComplete event) {

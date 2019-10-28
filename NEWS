@@ -1,3 +1,12 @@
+1.5.4
+=====
+
+*   Show a button on the notification to disconnect Squeezer (and remove the
+    notification).
+
+*   Disconnect Squeezer when it's swiped from the recent apps list.
+
+
 1.5.3
 =====
 
