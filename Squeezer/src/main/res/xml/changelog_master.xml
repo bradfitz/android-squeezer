@@ -2,6 +2,14 @@
 
 <changelog>
     <release
+        version="1.5.4"
+        versioncode="67">
+        <change>Show a button on the notification to disconnect Squeezer (and remove the notification).</change>
+
+        <change>Disconnect Squeezer when it's swiped from the recent apps list.</change>
+    </release>
+
+    <release
         version="1.5.3"
         versioncode="66">
         <change>Always show a notification while connected to a server. This is a requirement of Android.</change>
