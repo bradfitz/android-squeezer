@@ -22,11 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.framework.Window;
 
 
 public class Plugin extends Item {
-    public static final Plugin SETTINGS = new Plugin("settings", "home", "SETTINGS", 1005);
-    public static final Plugin ADVANCED_SETTINGS = new Plugin("advancedSettings", "settings", "ADVANCED_SETTINGS", 105, "text_only");
+    public static final Plugin HOME = new Plugin("home", null, "HOME", 1, Window.WindowStyle.ICON_TEXT);
+    public static final Plugin CURRENT_PLAYLIST = new Plugin("status", null, "PLAYLIST", 1, Window.WindowStyle.CURRENT_PLAYLIST);
+    public static final Plugin SETTINGS = new Plugin("settings", "home", "SETTINGS", 1005, Window.WindowStyle.ICON_TEXT);
+    public static final Plugin ADVANCED_SETTINGS = new Plugin("advancedSettings", "settings", "ADVANCED_SETTINGS", 105, Window.WindowStyle.TEXT_ONLY);
 
     public Plugin(Map<String, Object> record) {
         super(record);
@@ -48,31 +51,22 @@ public class Plugin extends Item {
         super(source);
     }
 
-    private Plugin(String id, String node, String text, int weight) {
-        this(record(id, node, text, weight));
-
-    }
-
-    private Plugin(String id, String node, String text, int weight, String windowStyle) {
+    private Plugin(String id, String node, String text, int weight, Window.WindowStyle windowStyle) {
         this(record(id, node, text, weight, windowStyle));
 
     }
 
-    private static Map<String, Object> record(String id, String node, String text, int weight) {
-        return record(id, node, text, weight, null);
-    }
-
-    private static Map<String, Object> record(String id, String node, String text, int weight, String windowStyle) {
+    private static Map<String, Object> record(String id, String node, String text, int weight, Window.WindowStyle windowStyle) {
         Map<String, Object> record = new HashMap<>();
         record.put("id", id);
         record.put("node", node);
         record.put("name", text);
         record.put("weight", weight);
-        if (windowStyle != null) {
-            Map<String, Object> window = new HashMap<>();
-            window.put("windowStyle", windowStyle);
-            record.put("window", window);
-        }
+
+        Map<String, Object> window = new HashMap<>();
+        window.put("windowStyle", windowStyle.name());
+        record.put("window", window);
+
         return record;
     }
 }

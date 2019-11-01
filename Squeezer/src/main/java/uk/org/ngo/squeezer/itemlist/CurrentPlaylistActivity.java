@@ -27,6 +27,9 @@ import android.widget.ListView;
 
 import java.util.List;
 import android.os.Handler;
+
+import androidx.annotation.NonNull;
+
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
@@ -47,7 +50,7 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     public static void show(Context context) {
         final Intent intent = new Intent(context, CurrentPlaylistActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.putExtra("cmd", "status");
+        intent.putExtra(Plugin.class.getName(), Plugin.CURRENT_PLAYLIST);
         context.startActivity(intent);
     }
 
@@ -104,6 +107,11 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     }
 
     @Override
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        service.pluginItems(start, "status", this);
+    }
+
+    @Override
     protected boolean needPlayer() {
         return true;
     }
@@ -116,7 +124,7 @@ public class CurrentPlaylistActivity extends PluginListActivity {
 
     @Override
     public ItemView<Plugin> createItemView() {
-        return new PluginView(CurrentPlaylistActivity.this, windowStyle, listLayout) {
+        return new PluginView(this, windowStyle) {
 
             @Override
             public boolean isSelectable(Plugin item) {

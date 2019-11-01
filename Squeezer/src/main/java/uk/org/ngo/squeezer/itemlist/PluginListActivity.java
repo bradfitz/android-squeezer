@@ -56,6 +56,8 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /*
  * The activity's content view scrolls in from the right, and disappear to the left, to provide a
  * spatial component to navigation.
@@ -68,29 +70,26 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     static final String RELOAD = "RELOAD";
 
     private boolean register;
-    private String cmd;
-    private Item plugin;
+    protected Item plugin;
     private Action action;
     Window.WindowStyle windowStyle;
-    ViewDialog.ArtworkListLayout listLayout;
-
-    /** The preferred list layout for lists with artwork items */
-    ViewDialog.ArtworkListLayout artworkListLayout = null;
 
     @Override
-    public ItemView<Plugin> createItemView() {
-        return new PluginView(this, windowStyle, listLayout);
+    protected ItemView<Plugin> createItemView() {
+        return new PluginView(this, windowStyle);
+    }
+
+    @Override
+    public PluginView getItemView() {
+        return (PluginView) super.getItemView();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        artworkListLayout = new Preferences(this).getAlbumListLayout();
         super.onCreate(savedInstanceState);
 
-        Bundle extras = getIntent().getExtras();
-        assert extras != null;
+        Bundle extras = checkNotNull(getIntent().getExtras(), "intent did not contain extras");
         register = extras.getBoolean("register");
-        cmd = extras.getString("cmd");
         plugin = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
 
@@ -99,7 +98,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
         if (plugin != null && plugin.window != null) {
             applyWindow(plugin.window);
-        } else if (register)
+        } else
             applyWindowStyle(Window.WindowStyle.TEXT_ONLY);
 
         findViewById(R.id.input_view).setVisibility((hasInput()) ? View.VISIBLE : View.GONE);
@@ -151,6 +150,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     protected AbsListView setupListView(AbsListView listView) {
+        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
         if (listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView)) {
             listView = switchListView(listView, R.layout.item_grid);
         }
@@ -191,21 +191,23 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     private void applyWindow(Window window) {
-        applyWindowStyle(register ? Window.WindowStyle.TEXT_ONLY : window.windowStyle());
+        applyWindowStyle(register ? Window.WindowStyle.TEXT_ONLY : window.windowStyle);
         updateHeader(window);
     }
 
-    private void applyWindowStyle(Window.WindowStyle windowStyle) {
-        ViewDialog.ArtworkListLayout listLayout = (windowStyle == Window.WindowStyle.ICON_TEXT && artworkListLayout == ViewDialog.ArtworkListLayout.grid)
-                ? ViewDialog.ArtworkListLayout.grid
-                : ViewDialog.ArtworkListLayout.list;
-        if (windowStyle != this.windowStyle || listLayout != this.listLayout) {
+
+    void applyWindowStyle(Window.WindowStyle windowStyle) {
+        applyWindowStyle(windowStyle, getItemView().listLayout());
+    }
+
+    void applyWindowStyle(Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout prevListLayout) {
+        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
+        if (windowStyle != this.windowStyle || listLayout != getItemView().listLayout()) {
             this.windowStyle = windowStyle;
-            ((PluginView) getItemView()).setWindowStyle(windowStyle, listLayout);
+            getItemView().setWindowStyle(windowStyle);
             getItemAdapter().notifyDataSetChanged();
         }
-        if (listLayout != this.listLayout) {
-            this.listLayout = listLayout;
+        if (listLayout != prevListLayout) {
             setListView(setupListView(getListView()));
         }
     }
@@ -239,8 +241,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                 finish();
             } else
                 service.pluginItems(start, plugin, action, this);
-        } else if (cmd != null) {
-            service.pluginItems(start, cmd, this);
         } else if (register) {
             service.register(this);
         }
@@ -336,12 +336,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     public ViewDialog.ArtworkListLayout getListLayout() {
-        return artworkListLayout;
+        return PluginView.listLayout(this, Window.WindowStyle.ICON_TEXT);
     }
 
     public void setListLayout(ViewDialog.ArtworkListLayout listLayout) {
-        new Preferences(this).setAlbumListLayout(artworkListLayout = listLayout);
-        applyWindowStyle(windowStyle);
+        ViewDialog.ArtworkListLayout prevListLayout = getItemView().listLayout();
+        new Preferences(this).setAlbumListLayout(listLayout);
+        applyWindowStyle(windowStyle, prevListLayout);
     }
 
     /**

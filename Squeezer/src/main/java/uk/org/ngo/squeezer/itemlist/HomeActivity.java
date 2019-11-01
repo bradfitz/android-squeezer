@@ -35,6 +35,7 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.dialog.ChangeLogDialog;
 import uk.org.ngo.squeezer.dialog.TipsDialog;
+import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class HomeActivity extends HomeMenuActivity {
@@ -44,6 +45,7 @@ public class HomeActivity extends HomeMenuActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        getIntent().putExtra(Plugin.class.getName(), Plugin.HOME);
         super.onCreate(savedInstanceState);
 
         // Turn off the home icon.
@@ -115,7 +117,6 @@ public class HomeActivity extends HomeMenuActivity {
         final Intent intent = new Intent(context, HomeActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra("node", "home");
         context.startActivity(intent);
     }
 

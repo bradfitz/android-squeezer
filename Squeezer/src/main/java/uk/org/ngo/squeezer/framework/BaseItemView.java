@@ -18,6 +18,8 @@ package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcelable.Creator;
 import androidx.annotation.IntDef;
+import androidx.annotation.LayoutRes;
+
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -100,12 +102,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      */
     @ViewParam private int mLoadingViewParams = 0;
 
-    /** Width of the icon, if VIEW_PARAM_ICON is used. */
-    protected int mIconWidth;
-
-    /** Height of the icon, if VIEW_PARAM_ICON is used. */
-    protected int mIconHeight;
-
     /**
      * A ViewHolder for the views that make up a complete list item.
      */
@@ -132,8 +128,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     public BaseItemView(ItemListActivity activity) {
         mActivity = activity;
         mLayoutInflater = activity.getLayoutInflater();
-        mIconWidth = mActivity.getResources().getDimensionPixelSize(R.dimen.album_art_icon_width);
-        mIconHeight = mActivity.getResources().getDimensionPixelSize(R.dimen.album_art_icon_height);
     }
 
     @Override
@@ -275,8 +269,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      *
      * @return convertView if it can be reused, or a new view
      */
-    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams,
-            int layoutResource) {
+    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams, @LayoutRes int layoutResource) {
         ViewHolder viewHolder =
                 (convertView != null && convertView.getTag() instanceof ViewHolder)
                         ? (ViewHolder) convertView.getTag()

@@ -17,7 +17,7 @@
 package uk.org.ngo.squeezer.itemlist;
 
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.MainThread;
@@ -30,19 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import uk.org.ngo.squeezer.framework.BaseListActivity;
-import uk.org.ngo.squeezer.framework.ItemView;
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
-public class HomeMenuActivity extends BaseListActivity<Plugin> {
-
-    /** Tag in retain fragment for home menu node this activity instance shows */
-    private static final String TAG_HOME_MENU_NODE = "HomeMenuNode";
+public class HomeMenuActivity extends PluginListActivity {
 
     /**
      * Tag in retain fragment for the player for the home menu.
@@ -60,26 +55,6 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
      * */
     private List<Plugin> homeMenu = new Vector<>();
 
-
-    @Override
-    protected ItemView<Plugin> createItemView() {
-        return new PluginView(this, Window.WindowStyle.ICON_TEXT, ViewDialog.ArtworkListLayout.list);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Bundle extras = getIntent().getExtras();
-        String node = null;
-        if (extras != null) {
-            node = extras.getString("node");
-        }
-        if (node == null) {
-            node = "home";
-        }
-        putRetainedValue(TAG_HOME_MENU_NODE, node);
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -126,12 +101,15 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (plugin.window == null) {
+                        applyWindowStyle(Window.WindowStyle.ICON_TEXT);
+                    }
                     clearItemAdapter();
                 }
             });
             jiveMainNodes();
-            List<Plugin> menu = getMenuNode();
-            HomeMenuActivity.super.onItemsReceived(menu.size(), 0, menu, dataType);
+            List<Plugin> menu = getMenuNode(plugin.getId());
+            super.onItemsReceived(menu.size(), 0, menu, dataType);
         }
     }
 
@@ -145,10 +123,9 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
             homeMenu.add(plugin);
     }
 
-    private List<Plugin> getMenuNode() {
+    private List<Plugin> getMenuNode(String node) {
         ArrayList<Plugin> menu = new ArrayList<>();
         for (Plugin item : homeMenu) {
-            String node = (String) getRetainedValue(TAG_HOME_MENU_NODE);
             if (node.equals(item.getNode())) {
                 menu.add(item);
             }
@@ -165,10 +142,10 @@ public class HomeMenuActivity extends BaseListActivity<Plugin> {
         return menu;
     }
 
-    public static void show(Context context, String node) {
-        final Intent intent = new Intent(context, HomeMenuActivity.class);
-        intent.putExtra("node", node);
-        context.startActivity(intent);
+    public static void show(Activity activity, Item plugin) {
+        final Intent intent = new Intent(activity, HomeMenuActivity.class);
+        intent.putExtra(Plugin.class.getName(), plugin);
+        activity.startActivity(intent);
     }
 
 }

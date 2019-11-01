@@ -401,8 +401,15 @@ public abstract class Item implements Parcelable {
         window.help = getString(params, "help");
         window.icon = getString(params, params.containsKey("icon") ? "icon" : "icon-id");
         window.titleStyle = getString(params, "titleStyle");
-        window.menuStyle = getString(params, "menuStyle");
-        window.windowStyle = getString(params, "windowStyle");
+
+        String menuStyle = getString(params, "menuStyle");
+        String windowStyle = getString(params, "windowStyle");
+        window.windowStyle = Window.WindowStyle.get(windowStyle);
+        if (window.windowStyle == null) {
+            window.windowStyle = ("album".equals(menuStyle) || "icon_list".equals(windowStyle) || "home_menu".equals(windowStyle))
+                    ? Window.WindowStyle.ICON_TEXT
+                    : Window.WindowStyle.TEXT_ONLY;
+        }
 
         return window;
     }

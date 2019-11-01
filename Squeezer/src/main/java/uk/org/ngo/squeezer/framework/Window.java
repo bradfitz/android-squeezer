@@ -18,6 +18,10 @@ package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcel;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Implements <window_fields> of the LMS SqueezePlay interface.
  * http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#.3Cwindow_fields.3E
@@ -28,14 +32,9 @@ public class Window {
     public String textareaToken;
     public String icon;
     public String titleStyle;
-    public String menuStyle;
-    public String windowStyle;
+    public WindowStyle windowStyle;
     public String help;
     public String windowId;
-
-    public WindowStyle windowStyle() {
-        return "text_list".equals(windowStyle) ? WindowStyle.TEXT_ONLY : WindowStyle.ICON_TEXT;
-    }
 
     public static Window readFromParcel(Parcel source) {
         if (source.readInt() == 0) return null;
@@ -46,8 +45,7 @@ public class Window {
         window.textareaToken = source.readString();
         window.icon = source.readString();
         window.titleStyle = source.readString();
-        window.menuStyle = source.readString();
-        window.windowStyle = source.readString();
+        window.windowStyle = WindowStyle.valueOf(source.readString());
         window.help = source.readString();
         window.windowId = source.readString();
 
@@ -63,8 +61,7 @@ public class Window {
         dest.writeString(window.textareaToken);
         dest.writeString(window.icon);
         dest.writeString(window.titleStyle);
-        dest.writeString(window.menuStyle);
-        dest.writeString(window.windowStyle);
+        dest.writeString(window.windowStyle.name());
         dest.writeString(window.help);
         dest.writeString(window.windowId);
     }
@@ -77,7 +74,6 @@ public class Window {
                 ", textareaToken='" + textareaToken + '\'' +
                 ", icon='" + icon + '\'' +
                 ", titleStyle='" + titleStyle + '\'' +
-                ", menuStyle='" + menuStyle + '\'' +
                 ", windowStyle='" + windowStyle + '\'' +
                 ", help=" + help +
                 ", windowId='" + windowId + '\'' +
@@ -85,7 +81,22 @@ public class Window {
     }
 
     public enum WindowStyle {
+        CURRENT_PLAYLIST,
         ICON_TEXT,
         TEXT_ONLY;
+
+        private static Map<String, WindowStyle> ENUM_MAP = initEnumMap();
+
+        private static Map<String, WindowStyle> initEnumMap() {
+            Map<String, WindowStyle> map = new HashMap<>();
+            for (WindowStyle windowStyle : WindowStyle.values()) {
+                map.put(windowStyle.name(), windowStyle);
+            }
+            return Collections.unmodifiableMap(map);
+        }
+
+        public static WindowStyle get(String name) {
+            return ENUM_MAP.get(name);
+        }
     }
 }

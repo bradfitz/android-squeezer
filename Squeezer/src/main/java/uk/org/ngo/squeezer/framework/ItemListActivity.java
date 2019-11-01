@@ -209,8 +209,8 @@ public abstract class ItemListActivity extends BaseActivity {
         return listView;
     }
 
-    public void setListView(AbsListView mListView) {
-        this.listView = mListView;
+    public void setListView(AbsListView listView) {
+        this.listView = listView;
     }
 
     /**

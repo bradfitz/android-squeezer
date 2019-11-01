@@ -23,6 +23,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.LayoutRes;
+
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
@@ -36,19 +39,23 @@ import uk.org.ngo.squeezer.util.ImageFetcher;
 public class PluginView extends BaseItemView<Plugin> {
     private final PluginViewLogic logicDelegate;
     private Window.WindowStyle windowStyle;
-    private ViewDialog.ArtworkListLayout listLayout;
 
-    PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout listLayout) {
+    /** Width of the icon, if VIEW_PARAM_ICON is used. */
+    protected int mIconWidth;
+
+    /** Height of the icon, if VIEW_PARAM_ICON is used. */
+    protected int mIconHeight;
+
+    PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle) {
         super(activity);
-        setWindowStyle(windowStyle, listLayout);
+        setWindowStyle(windowStyle);
         this.logicDelegate = new PluginViewLogic(activity);
         setLoadingViewParams(viewParamIcon());
     }
 
-    void setWindowStyle(Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout listLayout) {
+    void setWindowStyle(Window.WindowStyle windowStyle) {
         this.windowStyle = windowStyle;
-        this.listLayout = listLayout;
-        if (listLayout == ViewDialog.ArtworkListLayout.grid) {
+        if (listLayout() == ViewDialog.ArtworkListLayout.grid) {
             mIconWidth = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_width);
             mIconHeight = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_height);
         } else {
@@ -67,9 +74,22 @@ public class PluginView extends BaseItemView<Plugin> {
 
     @Override
     public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
-        return listLayout == ViewDialog.ArtworkListLayout.grid
-                ? getAdapterView(convertView, parent, viewParams, R.layout.grid_item)
-                : super.getAdapterView(convertView, parent, viewParams);
+        return getAdapterView(convertView, parent, viewParams, layoutResource());
+    }
+
+    @LayoutRes private int layoutResource() {
+        return (listLayout() == ViewDialog.ArtworkListLayout.grid) ? R.layout.grid_item : R.layout.list_item;
+    }
+
+    ViewDialog.ArtworkListLayout listLayout() {
+        return listLayout(getActivity(), windowStyle);
+    }
+
+    static ViewDialog.ArtworkListLayout listLayout(Activity activity, Window.WindowStyle windowStyle) {
+        if (windowStyle == Window.WindowStyle.ICON_TEXT) {
+            return new Preferences(activity).getAlbumListLayout();
+        }
+        return ViewDialog.ArtworkListLayout.list;
     }
 
     private int viewParamIcon() {
@@ -146,7 +166,7 @@ public class PluginView extends BaseItemView<Plugin> {
             else if (item.hasSubItems())
                 PluginListActivity.show(getActivity(), item);
             else if (item.getNode() != null)
-                HomeMenuActivity.show(getActivity(), item.getId());
+                HomeMenuActivity.show(getActivity(), item);
         }
    }
 
