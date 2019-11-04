@@ -31,8 +31,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.common.base.Joiner;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
@@ -119,11 +117,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
         public @ViewParam int viewParams;
     }
-
-    /**
-     * Joins elements together with ' - ', skipping nulls.
-     */
-    protected static final Joiner mJoiner = Joiner.on(" - ").skipNulls();
 
     public BaseItemView(ItemListActivity activity) {
         mActivity = activity;
@@ -269,7 +262,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      *
      * @return convertView if it can be reused, or a new view
      */
-    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams, @LayoutRes int layoutResource) {
+    protected View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams, @LayoutRes int layoutResource) {
         ViewHolder viewHolder =
                 (convertView != null && convertView.getTag() instanceof ViewHolder)
                         ? (ViewHolder) convertView.getTag()
@@ -278,12 +271,12 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(layoutResource, parent, false);
             viewHolder = createViewHolder();
-            viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
-            viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            viewHolder.text1 = convertView.findViewById(R.id.text1);
+            viewHolder.text2 = convertView.findViewById(R.id.text2);
+            viewHolder.icon = convertView.findViewById(R.id.icon);
             viewHolder.contextMenuButtonHolder = convertView.findViewById(R.id.context_menu);
-            viewHolder.contextMenuButton = (ImageButton) viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
-            viewHolder.contextMenuLoading = (ProgressBar) viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+            viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
+            viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
             setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }

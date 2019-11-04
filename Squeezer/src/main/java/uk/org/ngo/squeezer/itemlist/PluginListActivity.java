@@ -103,8 +103,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         findViewById(R.id.input_view).setVisibility((hasInput()) ? View.VISIBLE : View.GONE);
         if (hasInput()) {
-            ImageButton inputButton = (ImageButton) findViewById(R.id.input_button);
-            final EditText inputText = (EditText) findViewById(R.id.plugin_input);
+            ImageButton inputButton = findViewById(R.id.input_button);
+            final EditText inputText = findViewById(R.id.plugin_input);
             int inputType = EditorInfo.TYPE_CLASS_TEXT;
             int inputImage = R.drawable.ic_keyboard_return;
 
@@ -170,13 +170,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     private void updateHeader(String headerText) {
-        TextView header = (TextView) findViewById(R.id.header);
+        TextView header = findViewById(R.id.header);
         header.setText(headerText);
         header.setVisibility(View.VISIBLE);
     }
 
     private void updateSubHeader(String headerText) {
-        TextView header = (TextView) findViewById(R.id.sub_header);
+        TextView header = findViewById(R.id.sub_header);
         header.setText(headerText);
         findViewById(R.id.sub_header_container).setVisibility(View.VISIBLE);
     }

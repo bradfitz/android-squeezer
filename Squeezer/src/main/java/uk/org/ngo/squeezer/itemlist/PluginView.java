@@ -41,10 +41,10 @@ public class PluginView extends BaseItemView<Plugin> {
     private Window.WindowStyle windowStyle;
 
     /** Width of the icon, if VIEW_PARAM_ICON is used. */
-    protected int mIconWidth;
+    private int mIconWidth;
 
     /** Height of the icon, if VIEW_PARAM_ICON is used. */
-    protected int mIconHeight;
+    private int mIconHeight;
 
     PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle) {
         super(activity);

@@ -115,7 +115,7 @@ public abstract class ItemListActivity extends BaseActivity {
     public void setContentView(int layoutResID) {
         LinearLayout fullLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.item_list_activity_layout,
                 (ViewGroup) findViewById(R.id.activity_layout));
-        subActivityContent = (FrameLayout) fullLayout.findViewById(R.id.content_frame);
+        subActivityContent = fullLayout.findViewById(R.id.content_frame);
         getLayoutInflater().inflate(layoutResID, subActivityContent, true); // Places the activity layout inside the activity content frame.
         super.setContentView(fullLayout);
 
