@@ -2,8 +2,21 @@
 
 <changelog>
     <release
+        version="2.0.0"
+        versioncode="73">
+        <change>Rewrite Squeezer to use the more modern CometD protocol to connect to the server</change>
+        <change>Full support for Apps/Plugins</change>
+        <change>Connect to mysqueezebox.com</change>
+        <change>Additional browse modes, Album Artists, All Artists and Composers</change>
+        <change>Support for extra information and options for Artists/albums/Tracks via the context
+            menu</change>
+        <change>Library Views and Remote Music Libraries</change>
+        <change>Add French translation. Contributed by Olivier Sirol</change>
+    </release>
+
+    <release
         version="1.5.4"
-        versioncode="67">
+        versioncode="68">
         <change>Show a button on the notification to disconnect Squeezer (and remove the notification).</change>
 
         <change>Disconnect Squeezer when it's swiped from the recent apps list.</change>
