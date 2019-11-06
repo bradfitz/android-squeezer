@@ -201,7 +201,7 @@
     <string name="PLAYLIST_MOVE">Déplacement…</string>
 
     <string name="ITEM_PLAYING">En train de jouer %s</string>
-    <string name="ITEM_ADDED">Ajout de% s à la playlist en cours</string>
+    <string name="ITEM_ADDED">Ajout de %s à la playlist en cours</string>
     <string name="ITEM_INSERTED">%s est inséré pour être joué immédiatement après le morceau en cours dans la playlist en cours</string>
 
     <string name="PLAYLIST_EXISTS_MESSAGE">La playlist %s existe déjà</string>
