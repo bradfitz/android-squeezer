@@ -46,14 +46,6 @@
         try to connect
     </string>
 
-    <string name="settings_notification_type_title">Notifications</string>
-    <string name="settings_notification_type_none">Never</string>
-    <string name="settings_notification_type_playing">Only while playing music
-    </string>
-    <string name="settings_notification_type_always">While connected, even when not
-        playing music
-    </string>
-
     <string name="settings_scrobble_title">Scrobble to Last.fm</string>
     <string name="settings_scrobble_on">Song information is sent to Last.fm</string>
     <string name="settings_scrobble_off">Song information is not sent to Last.fm</string>

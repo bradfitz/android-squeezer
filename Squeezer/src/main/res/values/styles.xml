@@ -191,8 +191,6 @@
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.Tertiary</item>
     </style>
 
-    <style name="SqueezerWidget.NowPlayingMini"/>
-
     <style name="SqueezerWidget.NowPlayingMini.SongName" parent="SqueezerWidget.Marquee">
         <item name="android:hint">@string/unknown_track</item>
         <item name="android:marqueeRepeatLimit">marquee_forever</item>
@@ -204,15 +202,6 @@
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlayingMini.ArtistAlbumName</item>
     </style>
 
-    <style name="SqueezerWidget.Lyrics.SongName" parent="SqueezerWidget.Marquee">
-        <item name="android:hint">@string/unknown_track</item>
-        <item name="android:textAppearance">@style/SqueezerTextAppearance.Large</item>
-    </style>
-
-    <style name="SqueezerWidget.Lyrics.AlbumName" parent="SqueezerWidget.SingleLine">
-        <item name="android:hint">@string/unknown_album</item>
-        <item name="android:textAppearance">@style/SqueezerTextAppearance.Medium</item>
-    </style>
     <!-- Media controller styles -->
     <style name="SqueezerWidget.MediaButton">
         <item name="android:layout_width">0dip</item>
@@ -239,11 +228,6 @@
 
     <style name="SqueezerWidget.MediaButton.Repeat">
         <item name="android:src">?attr/ic_action_av_repeat_off</item>
-    </style>
-
-    <style name="SqueezerWidget.MediaButton.Favorite">
-        <item name="android:layout_height">48dp</item>
-        <item name="android:layout_width">48dp</item>
     </style>
 
     <style name="VolumePanel" parent="@android:style/Theme.Panel">

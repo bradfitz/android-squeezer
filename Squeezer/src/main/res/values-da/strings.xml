@@ -46,13 +46,6 @@
         aktiv Wi-Fi forbindelse
     </string>
 
-    <string name="settings_notification_type_title">Notifikation ved forbindelse</string>
-    <string name="settings_notification_type_always">Vis notifikation ved forbindelse, også når der
-        ikke spilles musik
-    </string>
-    <string name="settings_notification_type_playing">Vis kun notification når der spilles musik
-    </string>
-
     <string name="settings_category_ui">Squeezer grænseflade</string>
 
     <string name="settings_scrobble_title">Scrobble til Last.fm</string>
