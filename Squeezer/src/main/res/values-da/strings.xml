@@ -64,6 +64,7 @@
     <string name="menu_item_view">Visning</string>
     <string name="menu_item_rename">Omdøb</string>
     <string name="menu_item_playlist">Afspilningsliste</string>
+    <string name="menu_item_playlist_show_current_song">Vis den sang der spiller</string>
     <string name="menu_item_volume">Indstil lydstyrke</string>
     <string name="connecting_text">Forbinder</string>
     <string name="connecting_to_text">Forbinder til Logitech Media Server på %s</string>
@@ -96,6 +97,7 @@
     <string name="menu_item_power_off">Sluk</string>
     <string name="menu_item_power_on">Tænd</string>
 
+    <string name="no_players_connected">Der er ingen afspillere tilsluttet</string>
     <string name="player_list_changed">Tilsluttede spillere ændret, mens genvejsmenuen var åben,
         ignorerer anmodning</string>
 
@@ -103,6 +105,26 @@
     <string name="unknown_album">Ukendt album</string>
     <string name="unknown_artist">Ukendt kunster</string>
     <string name="unknown_artistalbum">Ukendt kunster/album</string>
+
+    <string name="all_alarms_on_hint">De enkelte vækkeure kan slåes til</string>
+    <string name="all_alarms_off_hint">Alle vækkeure er slået fra</string>
+    <string name="alarm_music_prompt">Vækkelyd</string>
+    <string name="alarms_settings_dialog_title">%s indstillinger for vækkeur</string>
+    <string name="alarm_volume_text" translatable="false">Lydstyrke for vækkeur</string>
+    <string name="alarm_fade_text">Skru langsomt op for vækkeur</string>
+    <string name="alarm_fade_off_text">Vækkeuret skruer ikke langsomt op</string>
+    <string name="alarm_fade_on_text">Vækkeuret skruer langsomt op</string>
+    <string name="alarm_snooze_duration_text">Længde af slumretid</string>
+    <plurals name="alarm_snooze_hint_text">
+        <item quantity="one">Slumrer %d minut</item>
+        <item quantity="other">Slumrer %d minutter</item>
+    </plurals>
+    <string name="alarm_timeout_text">Sluk efter</string>
+    <string name="alarm_timeout_hint_text_zero">Vækkeure slukker ikke</string>
+    <plurals name="alarm_timeout_hint_text">
+        <item quantity="one">Vækkeure slukker efter %d minut</item>
+        <item quantity="other">Vækkeure slukker efter %d minutter</item>
+    </plurals>
 
     <string name="tips_title">Tips</string>
     <string name="tip_volume">Brug enhedens hardware lydstyrkeknapper for at ændre spille
