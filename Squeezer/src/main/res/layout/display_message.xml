@@ -16,6 +16,7 @@
         android:layout_gravity="center"
         >
         <ImageView android:id="@+id/icon"
+            android:scaleType="center"
             tools:src="@drawable/icon_popup_box_play"
             style="@style/DisplayMessageIcon"
             android:contentDescription="@string/app_name" />

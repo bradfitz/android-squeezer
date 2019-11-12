@@ -163,21 +163,33 @@ public abstract class Item implements Parcelable {
         if ("opmlselectRemoteLibrary".equals(id)) {
             return R.drawable.ic_my_music;
         }
+        if ("settings".equals(id)) {
+            return R.drawable.icon_background;
+        }
+        if ("settingsAlarm".equals(id)) {
+            return R.drawable.ic_alarm;
+        }
+        if ("settingsRepeat".equals(id)) {
+            return R.drawable.ic_repeat;
+        }
+        if ("settingsShuffle".equals(id)) {
+            return R.drawable.ic_shuffle;
+        }
+        if ("settingsSleep".equals(id)) {
+            return R.drawable.ic_sleep;
+        }
+        if ("settingsScreen".equals(id)) {
+            return R.drawable.icon_background;
+        }
+        if ("advancedSettings".equals(id)) {
+            return R.drawable.icon_background;
+        }
 
 /*
-       s.hm_settings = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_settings" .. skinSuffix),
-        })
-        s.hm_advancedSettings = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_settings_adv" .. skinSuffix),
-        })
         s.hm_settings_pcp = _uses(_buttonicon, {
                 img = _loadImage(self, "IconsResized/icon_settings_pcp" .. skinSuffix),
         })
 
-        s.hm_settingsAlarm = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_alarm" .. skinSuffix),
-        })
         s.hm_settingsPlayerNameChange = _uses(_buttonicon, {
                 img = _loadImage(self, "IconsResized/icon_settings_name" .. skinSuffix),
         })
@@ -191,11 +203,28 @@ public abstract class Item implements Parcelable {
                 img = _loadImage(self, "IconsResized/icon_choose_player" .. skinSuffix),
 
 
-        s.hm_quit = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_power_off" .. skinSuffix),
+
+
+        s.hm_settingsScreen = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_settings_screen" .. skinSuffix),
         })
-        s.hm_playerpower = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_power_off" .. skinSuffix),
+        s.hm_appletCustomizeHome = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_settings_home" .. skinSuffix),
+        })
+        s.hm_settingsAudio = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_settings_audio" .. skinSuffix),
+        })
+        s.hm_linein = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_linein" .. skinSuffix),
+        })
+
+        -- ??
+        s.hm_loading = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_loading" .. skinSuffix),
+        })
+        -- ??
+        s.hm_settingsPlugin = _uses(_buttonicon, {
+                img = _loadImage(self, "IconsResized/icon_settings_plugin" .. skinSuffix),
         })
 
  */

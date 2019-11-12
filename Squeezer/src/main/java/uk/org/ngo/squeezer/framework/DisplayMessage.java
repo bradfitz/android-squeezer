@@ -131,7 +131,7 @@ public class DisplayMessage {
         result.put("rew", R.drawable.icon_popup_box_rew);
         result.put("stop", R.drawable.icon_popup_box_stop);
 
-        result.put("add", R.drawable.icon_popup_box_add);
+        result.put("add", R.drawable.add);
         result.put("favorite", R.drawable.icon_popup_favorite);
         result.put("lineIn", R.drawable.icon_linein);
 
