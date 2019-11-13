@@ -16,8 +16,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
 
@@ -32,7 +32,7 @@ limitations under the License.
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_launcher"/>
+            app:srcCompat="@drawable/ic_launcher"/>
 
         <TextView
             android:id="@+id/about_title"

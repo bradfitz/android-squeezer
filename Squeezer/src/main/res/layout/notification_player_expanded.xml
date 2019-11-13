@@ -18,6 +18,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="128dp">
 
@@ -34,7 +35,7 @@
         android:minHeight="@dimen/album_art_icon_expanded_notification_height"
         android:minWidth="@dimen/album_art_icon_expanded_notification_width"
         android:scaleType="centerCrop"
-        android:src="@drawable/icon_album_noart"
+        app:srcCompat="@drawable/icon_album_noart"
         tools:ignore="ContentDescription"/>
 
     <TextView
@@ -91,7 +92,7 @@
             android:layout_marginRight="2dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:src="@drawable/ic_action_disconnect"/>
+            app:srcCompat="@drawable/ic_action_disconnect"/>
 
         <ImageButton
             android:id="@+id/previous"
@@ -102,7 +103,7 @@
             android:layout_marginRight="2dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:src="@drawable/ic_action_previous"/>
+            app:srcCompat="@drawable/ic_action_previous"/>
 
         <ImageButton
             android:id="@+id/pause"
@@ -124,7 +125,7 @@
             android:layout_marginRight="2dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:src="@drawable/ic_action_next"/>
+            app:srcCompat="@drawable/ic_action_next"/>
 
     </LinearLayout>
 

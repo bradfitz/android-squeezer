@@ -211,23 +211,23 @@
     </style>
 
     <style name="SqueezerWidget.MediaButton.Previous">
-        <item name="android:src">?attr/ic_action_av_previous</item>
+        <item name="srcCompat">?attr/ic_action_av_previous</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Next">
-        <item name="android:src">?attr/ic_action_av_next</item>
+        <item name="srcCompat">?attr/ic_action_av_next</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Play">
-        <item name="android:src">?attr/ic_action_av_play</item>
+        <item name="srcCompat">?attr/ic_action_av_play</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Shuffle">
-        <item name="android:src">?attr/ic_action_av_shuffle_off</item>
+        <item name="srcCompat">?attr/ic_action_av_shuffle_off</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Repeat">
-        <item name="android:src">?attr/ic_action_av_repeat_off</item>
+        <item name="srcCompat">?attr/ic_action_av_repeat_off</item>
     </style>
 
     <style name="VolumePanel" parent="@android:style/Theme.Panel">
