@@ -110,7 +110,7 @@ public class PluginView extends BaseItemView<Plugin> {
             ImageFetcher.getInstance(getActivity()).loadImage(item.getIcon(), viewHolder.icon,
                     mIconWidth, mIconHeight);
         } else {
-            viewHolder.icon.setImageResource(item.getIconResource());
+            viewHolder.icon.setImageDrawable(item.getIconDrawable(getActivity()));
         }
 
     }

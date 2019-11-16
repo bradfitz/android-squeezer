@@ -16,11 +16,21 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
+
 import android.text.TextUtils;
+import android.view.Gravity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,7 +109,26 @@ public abstract class Item implements Parcelable {
     /**
      * @return Icon resource for this plugin if it is embedded in the Squeezer app, or an empty icon.
      */
-    public int getIconResource() {
+    public Drawable getIconDrawable(Context context) {
+        @DrawableRes int foreground = getIconResource();
+        if (foreground != 0) {
+            int inset = (int) (6 * Resources.getSystem().getDisplayMetrics().density);
+
+            Drawable background = AppCompatResources.getDrawable(context, R.drawable.icon_background);
+            Drawable icon = AppCompatResources.getDrawable(context, foreground);
+            LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background, icon});
+            layerDrawable.setLayerInset(1, inset, inset, inset, inset);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                layerDrawable.setLayerGravity(1, Gravity.CENTER);
+            }
+            return layerDrawable;
+        }
+
+        return AppCompatResources.getDrawable(context, getSlimIcon());
+    }
+
+    @DrawableRes
+    private int getSlimIcon() {
         if ("myMusic".equals(id)) {
             return R.drawable.ic_my_music;
         }
@@ -109,15 +138,6 @@ public abstract class Item implements Parcelable {
         if ("radios".equals(id)) {
             return R.drawable.ic_internet_radio;
         }
-        if ("favorites".equals(id)) {
-            return R.drawable.ic_favorites;
-        }
-        if ("globalSearch".equals(id)) {
-            return R.drawable.ic_search;
-        }
-        if ("homeSearchRecent".equals(id)) {
-            return R.drawable.ic_search;
-        }
         if ("myApps".equals(id)) {
             return R.drawable.ic_my_apps;
         }
@@ -126,9 +146,6 @@ public abstract class Item implements Parcelable {
         }
         if ("opmlappgallery".equals(id)) {
             return R.drawable.ic_app_gallery;
-        }
-        if ("playerpower".equals(id)) {
-            return R.drawable.ic_power;
         }
         if ("myMusicArtists".equals(id)) {
             return R.drawable.ic_artists;
@@ -148,9 +165,6 @@ public abstract class Item implements Parcelable {
         if ("myMusicPlaylists".equals(id)) {
             return R.drawable.ic_playlists;
         }
-        if (id != null && id.startsWith("myMusicSearch")) {
-            return R.drawable.ic_search;
-        }
         if ("myMusicMusicFolder".equals(id)) {
             return R.drawable.ic_music_folder;
         }
@@ -166,14 +180,8 @@ public abstract class Item implements Parcelable {
         if ("settings".equals(id)) {
             return R.drawable.icon_background;
         }
-        if ("settingsAlarm".equals(id)) {
-            return R.drawable.ic_alarm;
-        }
         if ("settingsRepeat".equals(id)) {
             return R.drawable.ic_repeat;
-        }
-        if ("settingsShuffle".equals(id)) {
-            return R.drawable.ic_shuffle;
         }
         if ("settingsSleep".equals(id)) {
             return R.drawable.ic_sleep;
@@ -229,6 +237,33 @@ public abstract class Item implements Parcelable {
 
  */
         return R.drawable.icon_pending_artwork;
+    }
+
+    @DrawableRes
+    private int getIconResource() {
+        if ("favorites".equals(id)) {
+            return R.drawable.favorites;
+        }
+        if ("globalSearch".equals(id)) {
+            return R.drawable.search;
+        }
+        if ("homeSearchRecent".equals(id)) {
+            return R.drawable.search;
+        }
+        if ("playerpower".equals(id)) {
+            return R.drawable.power;
+        }
+        if (id != null && id.startsWith("myMusicSearch")) {
+            return R.drawable.search;
+        }
+        if ("settingsAlarm".equals(id)) {
+            return R.drawable.ic_menu_alarm;
+        }
+        if ("settingsShuffle".equals(id)) {
+            return R.drawable.shuffle;
+        }
+
+        return 0;
     }
 
 

@@ -691,7 +691,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
 
         if (!song.hasArtwork()) {
-            albumArt.setImageResource(song.getIconResource());
+            albumArt.setImageDrawable(song.getIconDrawable(mActivity));
         } else {
             ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
         }

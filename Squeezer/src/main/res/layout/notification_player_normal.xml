@@ -28,7 +28,7 @@
         android:layout_height="@dimen/album_art_icon_normal_notification_height"
         android:layout_marginRight="8dp"
         android:scaleType="centerCrop"
-        app:srcCompat="@drawable/icon_album_noart"/>
+        tools:src="@drawable/icon_album_noart"/>
 
     <TextView
         android:id="@+id/trackname"

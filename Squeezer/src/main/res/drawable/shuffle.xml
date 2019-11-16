@@ -4,28 +4,28 @@
         <shape android:shape="rectangle">
             <size android:height="3dp" android:width="20dp"/>
             <corners android:radius="2dp"/>
-            <gradient android:type="linear" android:angle="270" android:startColor="#666666" android:endColor="#555555"/>
+            <gradient android:type="linear" android:angle="270" android:startColor="#AF000000" android:endColor="#BF000000"/>
         </shape>
     </item>
     <item android:top="6.1dp" android:bottom="12dp" android:left="4dp" android:right="0dp">
         <shape android:shape="rectangle">
             <size android:height="3dp" android:width="20dp"/>
             <corners android:radius="2dp"/>
-            <gradient android:type="linear" android:angle="270" android:startColor="#555555" android:endColor="#444444"/>
+            <gradient android:type="linear" android:angle="270" android:startColor="#BF000000" android:endColor="#CF000000"/>
         </shape>
     </item>
     <item android:top="12dp" android:bottom="6.1dp" android:left="0dp" android:right="4dp">
         <shape android:shape="rectangle">
             <size android:height="3dp" android:width="20dp"/>
             <corners android:radius="2dp"/>
-            <gradient android:type="linear" android:angle="270" android:startColor="#444444" android:endColor="#333333"/>
+            <gradient android:type="linear" android:angle="270" android:startColor="#CF000000" android:endColor="#DF000000"/>
         </shape>
     </item>
     <item android:top="18dp" android:bottom="0dp" android:left="4dp" android:right="0dp">
         <shape android:shape="rectangle">
             <size android:height="3dp" android:width="20dp"/>
             <corners android:radius="2dp"/>
-            <gradient android:type="linear" android:angle="270" android:startColor="#333333" android:endColor="#222222"/>
+            <gradient android:type="linear" android:angle="270" android:startColor="#DF000000" android:endColor="#EF000000"/>
         </shape>
     </item>
 </layer-list>
