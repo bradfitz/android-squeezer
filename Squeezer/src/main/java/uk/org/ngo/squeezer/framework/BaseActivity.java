@@ -30,7 +30,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 import androidx.appcompat.app.ActionBar;
@@ -144,7 +143,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
     @CallSuper
     protected void onCreate(android.os.Bundle savedInstanceState) {
         mTheme.onCreate(this);
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         super.onCreate(savedInstanceState);
 
         // Set the icon as the home button, and display it.
