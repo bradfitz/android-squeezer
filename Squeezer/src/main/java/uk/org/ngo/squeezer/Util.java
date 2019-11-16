@@ -23,7 +23,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
@@ -268,16 +267,6 @@ public class Util {
                 : ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
                         layout, parent, false));
         view.setText(label);
-        return view;
-    }
-
-    /** Helper to set alpha value for a view, since View.setAlpha is API level 11 */
-    public static View setAlpha(View view, float alpha) {
-        AlphaAnimation alphaAnimation = new AlphaAnimation(alpha, alpha);
-        alphaAnimation.setDuration(0);
-        alphaAnimation.setFillAfter(true);
-        view.startAnimation(alphaAnimation);
-
         return view;
     }
 

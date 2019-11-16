@@ -76,9 +76,9 @@ public class PlayerView extends BaseItemView<Player> {
         viewHolder.volumeBar.setVisibility(View.VISIBLE);
 
         if (playerState.isPoweredOn()) {
-            Util.setAlpha(viewHolder.text1, 1.0f);
+            viewHolder.text1.setAlpha(1.0f);
         } else {
-            Util.setAlpha(viewHolder.text1, 0.25f);
+            viewHolder.text1.setAlpha(0.25f);
         }
 
         viewHolder.volumeBar.setProgress(playerState.getCurrentVolume());

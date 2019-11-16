@@ -729,7 +729,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         }
 
         button.setEnabled(state);
-        Util.setAlpha(button, state ? 1.0f : 0.25f);
+        button.setAlpha(state ? 1.0f : 0.25f);
     }
 
     private boolean setSecondsElapsed(int seconds) {
