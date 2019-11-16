@@ -318,12 +318,12 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GO) {
             if (resultCode == RESULT_OK) {
                 if (FINISH.equals(data.getAction())) {
                     finish();
-                }
-                else if (RELOAD.equals(data.getAction())) {
+                } else if (RELOAD.equals(data.getAction())) {
                     clearAndReOrderItems();
                 }
             }

@@ -29,7 +29,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringDef;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 import androidx.appcompat.app.ActionBar;
@@ -46,9 +45,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
@@ -72,7 +68,6 @@ import uk.org.ngo.squeezer.util.ThemeManager;
  * @author Kurt Aaholst
  */
 public abstract class BaseActivity extends AppCompatActivity implements HasUiThread {
-    private static final String CURRENT_DOWNLOAD_ITEM = "CURRENT_DOWNLOAD_ITEM";
 
     @Nullable
     private ISqueezeService mService = null;
@@ -410,11 +405,11 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
         DisplayMessage display = displayEvent.message;
         View layout = getLayoutInflater().inflate(R.layout.display_message,
                 (ViewGroup) findViewById(R.id.display_message_container));
-        ImageView artwork = (ImageView) layout.findViewById(R.id.artwork);
+        ImageView artwork = layout.findViewById(R.id.artwork);
         artwork.setVisibility(View.GONE);
-        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+        ImageView icon = layout.findViewById(R.id.icon);
         icon.setVisibility(View.GONE);
-        TextView text = (TextView) layout.findViewById(R.id.text);
+        TextView text = layout.findViewById(R.id.text);
         text.setVisibility(TextUtils.isEmpty(display.text) ? View.GONE : View.VISIBLE);
         text.setText(display.text);
 
@@ -472,13 +467,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
 
         mService.action(item, action);
     }
-
-    @StringDef({PLAYLIST_PLAY_NOW, PLAYLIST_ADD_TO_END, PLAYLIST_PLAY_AFTER_CURRENT})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface PlaylistControlCmd {}
-    public static final String PLAYLIST_PLAY_NOW = "load";
-    public static final String PLAYLIST_ADD_TO_END = "add";
-    public static final String PLAYLIST_PLAY_AFTER_CURRENT = "insert";
 
     /**
      * Look up an attribute resource styled for the current theme.

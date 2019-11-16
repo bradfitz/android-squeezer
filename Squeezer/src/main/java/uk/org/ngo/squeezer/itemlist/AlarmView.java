@@ -110,8 +110,8 @@ public class AlarmView extends BaseItemView<Alarm> {
             String[] amPmStrings = new DateFormatSymbols().getAmPmStrings();
             viewHolder.am = amPmStrings[0];
             viewHolder.pm = amPmStrings[1];
-            viewHolder.time = (TextView) convertView.findViewById(R.id.time);
-            viewHolder.amPm = (TextView) convertView.findViewById(R.id.am_pm);
+            viewHolder.time = convertView.findViewById(R.id.time);
+            viewHolder.amPm = convertView.findViewById(R.id.am_pm);
             viewHolder.amPm.setVisibility(viewHolder.is24HourFormat ? View.GONE : View.VISIBLE);
             viewHolder.enabled = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.enabled));
             viewHolder.enabled.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -135,9 +135,9 @@ public class AlarmView extends BaseItemView<Alarm> {
                 }
             });
             viewHolder.repeat.getButton().setText(ServerString.ALARM_ALARM_REPEAT.getLocalizedString());
-            viewHolder.delete = (ImageView) convertView.findViewById(R.id.delete);
-            viewHolder.playlist = (Spinner) convertView.findViewById(R.id.playlist);
-            viewHolder.dowHolder = (LinearLayout) convertView.findViewById(R.id.dow);
+            viewHolder.delete = convertView.findViewById(R.id.delete);
+            viewHolder.playlist = convertView.findViewById(R.id.playlist);
+            viewHolder.dowHolder = convertView.findViewById(R.id.dow);
             for (int day = 0; day < 7; day++) {
                 ViewGroup dowButton = (ViewGroup) viewHolder.dowHolder.getChildAt(day);
                 final int finalDay = day;
@@ -371,7 +371,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             if (!isEnabled(position)) {
                 FrameLayout view = (FrameLayout) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_category_dropdown_item, parent, false);
-                CheckedTextView spinnerItemView = (CheckedTextView) view.findViewById(R.id.text);
+                CheckedTextView spinnerItemView = view.findViewById(R.id.text);
                 spinnerItemView.setText(getItem(position).getCategory());
                 spinnerItemView.setTypeface(spinnerItemView.getTypeface(), Typeface.BOLD);
                 // Hide the checkmark for headings.
@@ -379,7 +379,7 @@ public class AlarmView extends BaseItemView<Alarm> {
                 return view;
             } else {
                 FrameLayout view = (FrameLayout) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_dropdown_item, parent, false);
-                TextView spinnerItemView = (TextView) view.findViewById(R.id.text);
+                TextView spinnerItemView = view.findViewById(R.id.text);
                 spinnerItemView.setText(getItem(position).getName());
                 return view;
             }

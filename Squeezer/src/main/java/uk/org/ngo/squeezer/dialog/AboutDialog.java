@@ -38,8 +38,8 @@ public class AboutDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
         final View view = getActivity().getLayoutInflater().inflate(R.layout.about_dialog, null);
-        final TextView titleText = (TextView) view.findViewById(R.id.about_title);
-        final TextView versionText = (TextView) view.findViewById(R.id.version_text);
+        final TextView titleText = view.findViewById(R.id.about_title);
+        final TextView versionText = view.findViewById(R.id.version_text);
 
         PackageManager pm = getActivity().getPackageManager();
         PackageInfo info;

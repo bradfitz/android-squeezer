@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import androidx.annotation.StringDef;
 import android.util.Log;
 
 import java.util.Random;

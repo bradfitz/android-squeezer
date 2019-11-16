@@ -79,7 +79,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         super.onCreate(savedInstanceState);
 
         ((TextView)findViewById(R.id.all_alarms_text)).setText(ServerString.ALARM_ALL_ALARMS.getLocalizedString());
-        mAllAlarmsHintView = (TextView) findViewById(R.id.all_alarms_hint);
+        mAllAlarmsHintView = findViewById(R.id.all_alarms_hint);
 
         mAlarmsEnabledButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_enabled));
         findViewById(R.id.add_alarm).setOnClickListener(new View.OnClickListener() {
@@ -89,7 +89,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
             }
         });
 
-        mSettingsButton = (ImageView) findViewById(R.id.settings);
+        mSettingsButton = findViewById(R.id.settings);
         mSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

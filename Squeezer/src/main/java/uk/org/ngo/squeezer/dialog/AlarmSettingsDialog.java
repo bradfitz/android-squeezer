@@ -91,16 +91,16 @@ public class AlarmSettingsDialog extends DialogFragment {
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
         final View view = getActivity().getLayoutInflater().inflate(R.layout.alarm_settings_dialog, null);
 
-        final TextView alarmVolumeHint = (TextView) view.findViewById(R.id.alarm_volume_hint);
-        final TextView alarmSnoozeHint = (TextView) view.findViewById(R.id.alarm_snooze_hint);
-        final TextView alarmTimeoutHint = (TextView) view.findViewById(R.id.alarm_timeout_hint);
-        final TextView alarmFadeHint = (TextView) view.findViewById(R.id.alarm_fade_hint);
+        final TextView alarmVolumeHint = view.findViewById(R.id.alarm_volume_hint);
+        final TextView alarmSnoozeHint = view.findViewById(R.id.alarm_snooze_hint);
+        final TextView alarmTimeoutHint = view.findViewById(R.id.alarm_timeout_hint);
+        final TextView alarmFadeHint = view.findViewById(R.id.alarm_fade_hint);
 
-        final SeekBar alarmVolume = (SeekBar) view.findViewById(R.id.alarm_volume_seekbar);
-        final SeekBar alarmSnooze = (SeekBar) view.findViewById(R.id.alarm_snooze_seekbar);
-        final SeekBar alarmTimeout = (SeekBar) view.findViewById(R.id.alarm_timeout_seekbar);
+        final SeekBar alarmVolume = view.findViewById(R.id.alarm_volume_seekbar);
+        final SeekBar alarmSnooze = view.findViewById(R.id.alarm_snooze_seekbar);
+        final SeekBar alarmTimeout = view.findViewById(R.id.alarm_timeout_seekbar);
 
-        final CompoundButton alarmFadeToggle = (CompoundButton) view.findViewById(R.id.alarm_fade);
+        final CompoundButton alarmFadeToggle = view.findViewById(R.id.alarm_fade);
 
         alarmVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

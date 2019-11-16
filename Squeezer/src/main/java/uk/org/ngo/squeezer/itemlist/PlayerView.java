@@ -69,7 +69,7 @@ public class PlayerView extends BaseItemView<Player> {
         viewHolder.icon.setImageResource(getModelIcon(item.getModel()));
 
         if (viewHolder.volumeBar == null) {
-            viewHolder.volumeBar = (SeekBar) view.findViewById(R.id.volume_slider);
+            viewHolder.volumeBar = view.findViewById(R.id.volume_slider);
             viewHolder.volumeBar.setOnSeekBarChangeListener(new VolumeSeekBarChangeListener(item, viewHolder.volumeValue));
         }
 

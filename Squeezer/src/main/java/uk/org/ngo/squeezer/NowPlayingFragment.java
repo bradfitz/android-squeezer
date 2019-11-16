@@ -261,18 +261,18 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         if (mFullHeightLayout) {
             v = inflater.inflate(R.layout.now_playing_fragment_full, container, false);
 
-            artistText = (TextView) v.findViewById(R.id.artistname);
-            albumText = (TextView) v.findViewById(R.id.albumname);
-            shuffleButton = (ImageButton) v.findViewById(R.id.shuffle);
-            repeatButton = (ImageButton) v.findViewById(R.id.repeat);
-            currentTime = (TextView) v.findViewById(R.id.currenttime);
-            totalTime = (TextView) v.findViewById(R.id.totaltime);
-            seekBar = (SeekBar) v.findViewById(R.id.seekbar);
+            artistText = v.findViewById(R.id.artistname);
+            albumText = v.findViewById(R.id.albumname);
+            shuffleButton = v.findViewById(R.id.shuffle);
+            repeatButton = v.findViewById(R.id.repeat);
+            currentTime = v.findViewById(R.id.currenttime);
+            totalTime = v.findViewById(R.id.totaltime);
+            seekBar = v.findViewById(R.id.seekbar);
 
             BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
             viewHolder.contextMenuButtonHolder = v.findViewById(R.id.context_menu);
-            viewHolder.contextMenuButton = (ImageButton) viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
-            viewHolder.contextMenuLoading = (ProgressBar) viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+            viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
+            viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
             viewHolder.contextMenuButtonHolder.setOnCreateContextMenuListener(this);
             viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
                 @Override
@@ -285,18 +285,18 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         } else {
             v = inflater.inflate(R.layout.now_playing_fragment_mini, container, false);
 
-            mProgressBar = (ProgressBar) v.findViewById(R.id.progressbar);
-            artistAlbumText = (TextView) v.findViewById(R.id.artistalbumname);
+            mProgressBar = v.findViewById(R.id.progressbar);
+            artistAlbumText = v.findViewById(R.id.artistalbumname);
         }
 
-        albumArt = (ImageView) v.findViewById(R.id.album);
-        trackText = (TextView) v.findViewById(R.id.trackname);
-        playPauseButton = (ImageButton) v.findViewById(R.id.pause);
+        albumArt = v.findViewById(R.id.album);
+        trackText = v.findViewById(R.id.trackname);
+        playPauseButton = v.findViewById(R.id.pause);
 
         // May or may not be present in the layout, depending on orientation,
         // screen width, and so on.
-        nextButton = (ImageButton) v.findViewById(R.id.next);
-        prevButton = (ImageButton) v.findViewById(R.id.prev);
+        nextButton = v.findViewById(R.id.next);
+        prevButton = v.findViewById(R.id.prev);
 
         // Marquee effect on TextViews only works if they're focused.
         trackText.requestFocus();

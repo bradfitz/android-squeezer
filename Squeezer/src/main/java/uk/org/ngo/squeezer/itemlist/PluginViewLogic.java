@@ -114,7 +114,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
             if (contextStack.size() > 1) {
                 View headerVew = activity.getLayoutInflater().inflate(R.layout.context_menu_header, (ViewGroup) v, false);
                 menu.setHeaderView(headerVew);
-                ImageView backButton = (ImageView) headerVew.findViewById(R.id.back);
+                ImageView backButton = headerVew.findViewById(R.id.back);
                 if (contextStack.size() > 1) {
                     backButton.setVisibility(View.VISIBLE);
                     backButton.setOnClickListener(new View.OnClickListener() {

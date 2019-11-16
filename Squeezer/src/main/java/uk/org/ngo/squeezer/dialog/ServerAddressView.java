@@ -87,12 +87,12 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
                 }
             }
 
-            mSqueezeNetworkButton = (RadioButton) findViewById(R.id.squeezeNetwork);
-            mLocalServerButton = (RadioButton) findViewById(R.id.squeezeServer);
+            mSqueezeNetworkButton = findViewById(R.id.squeezeNetwork);
+            mLocalServerButton = findViewById(R.id.squeezeServer);
 
-            mServerAddressEditText = (EditText) findViewById(R.id.server_address);
-            mUserNameEditText = (EditText) findViewById(R.id.username);
-            mPasswordEditText = (EditText) findViewById(R.id.password);
+            mServerAddressEditText = findViewById(R.id.server_address);
+            mUserNameEditText = findViewById(R.id.username);
+            mPasswordEditText = findViewById(R.id.password);
             setSqueezeNetwork(mServerAddress.squeezeNetwork);
             setServerAddress(mServerAddress.localAddress());
 
@@ -108,14 +108,14 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             // Set up the servers spinner.
             mServersAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
             mServersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            mServerName = (TextView) findViewById(R.id.server_name);
-            mServersSpinner = (Spinner) findViewById(R.id.found_servers);
+            mServerName = findViewById(R.id.server_name);
+            mServersSpinner = findViewById(R.id.found_servers);
             mServersSpinner.setAdapter(mServersAdapter);
 
             mScanResults = findViewById(R.id.scan_results);
             mScanProgress = findViewById(R.id.scan_progress);
             mScanProgress.setVisibility(GONE);
-            TextView scanDisabledMessage = (TextView) findViewById(R.id.scan_disabled_msg);
+            TextView scanDisabledMessage = findViewById(R.id.scan_disabled_msg);
 
             // Only support network scanning on WiFi.
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -124,7 +124,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             if (isWifi) {
                 scanDisabledMessage.setVisibility(GONE);
                 startNetworkScan(context);
-                Button scanButton = (Button) findViewById(R.id.scan_button);
+                Button scanButton = findViewById(R.id.scan_button);
                 scanButton.setOnClickListener(new OnClickListener() {
                     public void onClick(View v) {
                         startNetworkScan(context);

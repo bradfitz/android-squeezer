@@ -25,7 +25,7 @@ import android.util.SparseArray;
  */
 public class EnumIdLookup<E extends Enum<E> & EnumWithId> {
 
-    private final SparseArray<E> map = new SparseArray<E>();
+    private final SparseArray<E> map = new SparseArray<>();
 
     public EnumIdLookup(Class<E> enumType) {
         for (E v : enumType.getEnumConstants()) {
