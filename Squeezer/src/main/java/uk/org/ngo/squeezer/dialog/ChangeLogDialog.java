@@ -45,7 +45,7 @@ public class ChangeLogDialog extends de.cketti.library.changelog.ChangeLog {
     }
 
     private AlertDialog getThemedDialog(boolean full) {
-        WebView wv = new WebView(mContext);
+        WebView wv = new WebView(mContext.getApplicationContext());
         //wv.setBackgroundColor(0); // transparent
         wv.loadDataWithBaseURL(null, getLog(full), "text/html", "UTF-8", null);
 
