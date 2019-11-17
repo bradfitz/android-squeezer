@@ -48,14 +48,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/settings_category_ui">
-
-        <ListPreference
-            android:key="squeezer.theme"
-            android:title="@string/settings_theme_title"/>
-    </PreferenceCategory>
-
-    <PreferenceCategory
         android:title="@string/pref_cat_error_reports">
 
         <CheckBoxPreference android:key="squeezer.analytics.enabled"

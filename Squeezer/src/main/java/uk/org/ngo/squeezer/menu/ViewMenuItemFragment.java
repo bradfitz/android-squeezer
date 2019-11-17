@@ -10,6 +10,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.util.ThemeManager;
 
 /**
  * A fragment that implements a "View" menu.
@@ -79,5 +80,8 @@ public class ViewMenuItemFragment extends BaseMenuFragment {
          */
         ItemAdapter<T> getItemAdapter();
 
+        int getThemeId();
+
+        void setTheme(ThemeManager.Theme theme);
     }
 }

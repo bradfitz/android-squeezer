@@ -46,8 +46,6 @@
         aktiv Wi-Fi forbindelse
     </string>
 
-    <string name="settings_category_ui">Squeezer grænseflade</string>
-
     <string name="settings_scrobble_title">Scrobble til Last.fm</string>
     <string name="settings_scrobble_on">Sang information sendes til Last.fm</string>
     <string name="settings_scrobble_off">Sang information sendes ikke til Last.fm</string>

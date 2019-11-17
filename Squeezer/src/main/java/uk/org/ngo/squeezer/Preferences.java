@@ -27,6 +27,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
+import uk.org.ngo.squeezer.util.ThemeManager;
 
 public final class Preferences {
     private static final String TAG = Preferences.class.getSimpleName();
@@ -316,6 +317,12 @@ public final class Preferences {
 
     public String getTheme() {
         return getStringPreference(KEY_ON_THEME_SELECT_ACTION);
+    }
+
+    public void setTheme(ThemeManager.Theme theme) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Preferences.KEY_ON_THEME_SELECT_ACTION, theme.name());
+        editor.apply();
     }
 
     public boolean isAutoConnect() {

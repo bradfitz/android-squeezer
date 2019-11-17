@@ -29,6 +29,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 import androidx.appcompat.app.ActionBar;
@@ -46,6 +47,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.R;
@@ -73,7 +75,7 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
     private ISqueezeService mService = null;
 
     private final ThemeManager mTheme = new ThemeManager();
-    private int mThemeId = mTheme.getDefaultTheme().mThemeId;
+    private int mThemeId = ThemeManager.getDefaultTheme().mThemeId;
 
     /** Records whether the activity has registered on the service's event bus. */
     private boolean mRegisteredOnEventBus;
@@ -153,9 +155,14 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
     }
 
     @Override
-    public void setTheme(int resId) {
+    public void setTheme(@StyleRes int resId) {
         super.setTheme(resId);
         mThemeId = resId;
+    }
+
+    public void setTheme(ThemeManager.Theme theme) {
+        new Preferences(this).setTheme(theme);
+        mTheme.onResume(this);
     }
 
     @Override
