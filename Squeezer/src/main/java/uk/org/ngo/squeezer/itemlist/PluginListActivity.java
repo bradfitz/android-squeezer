@@ -149,6 +149,17 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
+        AbsListView listView = getListView();
+        if ((listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView))
+         || (listLayout != ViewDialog.ArtworkListLayout.grid && (listView instanceof GridView))) {
+            setListView(setupListView(listView));
+        }
+    }
+
+    @Override
     protected AbsListView setupListView(AbsListView listView) {
         ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
         if (listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView)) {
