@@ -88,4 +88,5 @@ interface SlimClient {
 
     void subscribePlayerStatus(Player newActivePlayer, PlayerState.PlayerSubscriptionType subscriptionType);
     void subscribeDisplayStatus(Player player, boolean subscribe);
+    void subscribeMenuStatus(Player player, boolean subscribe);
 }

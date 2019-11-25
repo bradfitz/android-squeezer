@@ -29,14 +29,7 @@ import uk.org.ngo.squeezer.BuildConfig;
 /**
  * {@link BayeuxClient} implementation for the Squeezer App.
  * <p>
- * This is responsible for logging and to work around an id problem.
- * <p>
- * The standard {@link BayeuxClient} set a message id in the request and expect the server to echo
- * it, in the response.
- * <p>
- * LMS doesn't include the message id in all responses (it is not a required field in the spec),
- * so we intercept outgoing and incoming messages, note the message id from the request, and add it
- * to the response.
+ * This is responsible for logging.
  */
 class SqueezerBayeuxClient extends BayeuxClient {
     private static final String TAG = SqueezerBayeuxClient.class.getSimpleName();

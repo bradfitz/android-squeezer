@@ -290,6 +290,15 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                             List<Message.Mutable> messages = parseMessages(content);
                             //Log.v(TAG, "Received messages " + messages);
                             for (Message.Mutable message : messages) {
+                                // LMS echoes the data field in the publish response for messages to the
+                                // slim/unsubscribe channel.
+                                // This causes the comet libraries to decide the message is not a publish response.
+                                // We remove the data field for susch messages, to have them correctly recognized
+                                // as publish responses.
+                                if (message.getChannel() != null && message.getChannel().startsWith("/slim/")) {
+                                    message.remove(Message.DATA_FIELD);
+                                }
+
                                 if (message.isSuccessful() && Channel.META_DISCONNECT.equals(message.getChannel())) {
                                     _delegate.disconnect("Disconnect");
                                 }

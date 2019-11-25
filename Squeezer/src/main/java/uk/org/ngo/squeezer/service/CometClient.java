@@ -68,6 +68,7 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.MenuStatusEvent;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
@@ -92,14 +93,20 @@ class CometClient extends BaseClient {
     /** The channel to publish subscription requests to. */
     private static final String CHANNEL_SLIM_SUBSCRIBE = "/slim/subscribe";
 
-    /** The format string for the channel to listen to for serverstatus events. */
+    /** The channel to publish unsubscribe requests to. */
+    private static final String CHANNEL_SLIM_UNSUBSCRIBE = "/slim/unsubscribe";
+
+    /** The format string for the channel to listen to for server status events. */
     private static final String CHANNEL_SERVER_STATUS_FORMAT = "/%s/slim/serverstatus";
 
-    /** The format string for the channel to listen to for playerstatus events. */
+    /** The format string for the channel to listen to for player status events. */
     private static final String CHANNEL_PLAYER_STATUS_FORMAT = "/%s/slim/playerstatus/%s";
 
-    /** The format string for the channel to listen to for displaystatus events. */
+    /** The format string for the channel to listen to for display status events. */
     private static final String CHANNEL_DISPLAY_STATUS_FORMAT = "/%s/slim/displaystatus/%s";
+
+    /** The format string for the channel to listen to for menu status events. */
+    private static final String CHANNEL_MENU_STATUS_FORMAT = "/%s/slim/menustatus/%s";
 
     // Maximum time for wait replies for server capabilities
     private static final long HANDSHAKE_TIMEOUT = 4000;
@@ -354,6 +361,13 @@ class CometClient extends BaseClient {
                     }
                 });
 
+                mBayeuxClient.getChannel(String.format(CHANNEL_MENU_STATUS_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
+                    @Override
+                    public void onMessage(ClientSessionChannel channel, Message message) {
+                        parseMenuStatus(message);
+                    }
+                });
+
                 // Request server status
                 publishMessage(request("serverstatus").defaultPage(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
 
@@ -462,6 +476,27 @@ class CometClient extends BaseClient {
                 mEventBus.post(new DisplayEvent(displayMessage));
             }
         }
+    }
+
+    private void parseMenuStatus(Message message) {
+        Object[] data = (Object[]) message.getData();
+
+        // each chunk.data[2] contains a table that needs insertion into the menu
+        Object[] item_data = (Object[]) data[1];
+        Plugin[] menuItems = new Plugin[item_data.length];
+        for (int i = 0; i < item_data.length; i++) {
+            Map<String, Object> record = (Map<String, Object>) item_data[i];
+            record.put("urlPrefix", mUrlPrefix);
+            menuItems[i] = new Plugin(record);
+        }
+
+        // directive for these items is in chunk.data[3]
+        String menuDirective = (String) data[2];
+
+        // the player ID this notification is for is in chunk.data[4]
+        String playerId = (String) data[3];
+
+        mEventBus.postSticky(new MenuStatusEvent(playerId, menuDirective, menuItems));
     }
 
     private interface ResponseHandler {
@@ -595,6 +630,7 @@ class CometClient extends BaseClient {
         return responseChannel;
     }
 
+    /** If request is null, this is an unsubscribe to the suplied response channel */
     private void publishMessage(final Request request, final String channel, final String responseChannel, final PublishListener publishListener) {
         // Make sure all requests are done in the handler thread
         if (mBackgroundHandler.getLooper() == Looper.myLooper()) {
@@ -612,8 +648,12 @@ class CometClient extends BaseClient {
         if (!mCurrentCommand) {
             mCurrentCommand = true;
             Map<String, Object> data = new HashMap<>();
-            data.put("request", request.slimRequest());
-            data.put("response", responseChannel);
+            if (request != null) {
+                data.put("request", request.slimRequest());
+                data.put("response", responseChannel);
+            } else {
+                data.put("unsubscribe", responseChannel);
+            }
             mBayeuxClient.getChannel(channel).publish(data, publishListener != null ? publishListener : this.mPublishListener);
         } else
             mCommandQueue.add(new PublishMessage(request, channel, responseChannel, publishListener));
@@ -663,9 +703,25 @@ class CometClient extends BaseClient {
 
     @Override
     public void subscribeDisplayStatus(Player player, boolean subscribe) {
-        Log.i(TAG, "displaystatus[" + player.getId() + "]: " + subscribe);
         Request request = request(player, "displaystatus").param("subscribe", subscribe ? "showbriefly" : "");
         publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_DISPLAY_STATUS_FORMAT), mPublishListener);
+    }
+
+    @Override
+    public void subscribeMenuStatus(Player player, boolean subscribe) {
+        if (subscribe)
+            subscribeMenuStatus(player);
+        else
+            unsubscribeMenuStatus(player);
+    }
+
+    private void subscribeMenuStatus(Player player) {
+        Request request = request(player, "menustatus");
+        publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, subscribeResponseChannel(player, CHANNEL_MENU_STATUS_FORMAT), null);
+    }
+
+    private void unsubscribeMenuStatus(Player player) {
+        publishMessage(null, CHANNEL_SLIM_UNSUBSCRIBE, subscribeResponseChannel(player, CHANNEL_MENU_STATUS_FORMAT), null);
     }
 
     private String subscribeResponseChannel(Player player, String format) {

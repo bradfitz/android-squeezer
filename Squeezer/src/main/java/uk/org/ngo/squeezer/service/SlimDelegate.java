@@ -72,6 +72,10 @@ class SlimDelegate {
         mClient.subscribeDisplayStatus(player, subscribe);
     }
 
+    void subscribeMenuStatus(Player player, boolean subscribe) {
+        mClient.subscribeMenuStatus(player, subscribe);
+    }
+
 
     boolean isConnected() {
         return mClient.getConnectionState().isConnected();

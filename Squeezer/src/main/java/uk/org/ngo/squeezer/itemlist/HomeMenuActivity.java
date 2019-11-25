@@ -36,6 +36,7 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.MenuStatusEvent;
 
 public class HomeMenuActivity extends PluginListActivity {
 
@@ -50,9 +51,9 @@ public class HomeMenuActivity extends PluginListActivity {
     /**
      * Home menu tree as received from slimserver
      * <p>
-     * This is not retained. We receive the home menu from the server, then setup the item list,
-     * which is retained by superclasses.
+     * This is retained to be able to update the home menu from a menu status
      * */
+    private static final String TAG_HOME_MENU = "HomeMenu";
     private List<Plugin> homeMenu = new Vector<>();
 
 
@@ -60,6 +61,13 @@ public class HomeMenuActivity extends PluginListActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         putRetainedValue(TAG_HOME_MENU_PLAYER, getActivePlayerId());
+        putRetainedValue(TAG_HOME_MENU, homeMenu);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        homeMenu = (List<Plugin>) getRetainedValue(TAG_HOME_MENU);
     }
 
     private String getActivePlayerId() {
@@ -94,6 +102,33 @@ public class HomeMenuActivity extends PluginListActivity {
         }
     }
 
+    public void onEvent(MenuStatusEvent event) {
+        if (event.playerId.equals(getActivePlayerId())) {
+            for (Plugin menuItem : event.menuItems) {
+                Plugin item = null;
+                for (Plugin menu : homeMenu) {
+                    if (menuItem.getId().equals(menu.getId())) {
+                        item = menu;
+                        break;
+                    }
+                }
+                if (item != null) {
+                    homeMenu.remove(item);
+                }
+                if (MenuStatusEvent.ADD.equals(event.menuDirective)) {
+                    homeMenu.add(menuItem);
+                }
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    clearItemAdapter();
+                }
+            });
+            updateMenu();
+        }
+    }
+
     @Override
     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
         homeMenu.addAll(items);
@@ -108,9 +143,13 @@ public class HomeMenuActivity extends PluginListActivity {
                 }
             });
             jiveMainNodes();
-            List<Plugin> menu = getMenuNode(plugin.getId());
-            super.onItemsReceived(menu.size(), 0, menu, dataType);
+            updateMenu();
         }
+    }
+
+    private void updateMenu() {
+        List<Plugin> menu = getMenuNode(plugin.getId());
+        super.onItemsReceived(menu.size(), 0, menu, Plugin.class);
     }
 
     private void jiveMainNodes() {

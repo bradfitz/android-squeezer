@@ -318,9 +318,11 @@ public class SqueezeService extends Service {
         mDelegate.setActivePlayer(newActivePlayer);
         if (prevActivePlayer != null) {
             mDelegate.subscribeDisplayStatus(prevActivePlayer, false);
+            mDelegate.subscribeMenuStatus(prevActivePlayer, false);
         }
         if (newActivePlayer != null) {
             mDelegate.subscribeDisplayStatus(newActivePlayer, true);
+            mDelegate.subscribeMenuStatus(newActivePlayer, true);
         }
         updateAllPlayerSubscriptionStates();
         mEventBus.post(new ActivePlayerChanged(newActivePlayer));
