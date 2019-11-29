@@ -323,7 +323,7 @@ public abstract class ItemListActivity extends BaseActivity {
             // before we register the page as received.
             if (((start + size) % mPageSize == 0) || (start + size == count)) {
                 // Add this page of data to mReceivedPages and remove from mOrderedPages.
-                int pageStart = (start + size == count) ? start : start + size - mPageSize;
+                int pageStart = (start / mPageSize) * mPageSize;
                 mReceivedPages.add(pageStart);
                 mOrderedPages.remove(pageStart);
             }
