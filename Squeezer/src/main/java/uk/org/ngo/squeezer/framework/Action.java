@@ -38,6 +38,7 @@ public class Action implements Parcelable {
 
     public String urlCommand;
     public JsonAction action;
+    public JsonAction[] choices;
 
     public Action() {
     }
@@ -57,11 +58,15 @@ public class Action implements Parcelable {
     public Action(Parcel source) {
         urlCommand = source.readString();
         if (urlCommand == null) {
-            action = new JsonAction();
-            action.cmd = source.createStringArray();
-            action.params = Util.mapify(source.createStringArray());
-            action.nextWindow = NextWindow.fromString(source.readString());
-            action.inputParam = source.readString();
+            int choiceCount = source.readInt();
+            if (choiceCount > 0) {
+                choices = new JsonAction[choiceCount];
+                for (int i = 0; i < choiceCount; i++) {
+                    choices[i] = JsonAction.getFromParcel(source);
+                }
+            } else {
+                action = JsonAction.getFromParcel(source);
+            }
         }
     }
 
@@ -69,15 +74,14 @@ public class Action implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(urlCommand);
         if (urlCommand == null) {
-            dest.writeStringArray(action.cmd);
-            String[] tokens = new String[action.params.size()];
-            int i = 0;
-            for (Map.Entry entry : action.params.entrySet()) {
-                tokens[i++] = entry.getKey() + ":" + entry.getValue();
+            dest.writeInt(choices != null ? choices.length : 0);
+            if (choices != null) {
+                for (JsonAction action : choices) {
+                    JsonAction.toParcel(dest, action);
+                }
+            } else {
+                JsonAction.toParcel(dest, action);
             }
-            dest.writeStringArray(tokens);
-            dest.writeString(action.nextWindow == null ? null : action.nextWindow.toString());
-            dest.writeString(action.inputParam);
         }
     }
 
@@ -110,20 +114,11 @@ public class Action implements Parcelable {
         return (action != null && action.params.containsKey("isContextMenu"));
     }
 
-    public boolean isAction(Action action2) {
-        if (action2 == null || action2.action == null) {
-            return false;
-        }
-        if (!Arrays.equals(action.cmd, action2.action.cmd)) return false;
-        return action.params.equals(action2.action.params);
-    }
-
     @Override
     public String toString() {
         return "Action{" +
                 "urlCommand='" + urlCommand + '\'' +
                 ", action=" + action +
-                ", inputParam='" + action.inputParam + '\'' +
                 '}';
     }
 
@@ -175,6 +170,29 @@ public class Action implements Parcelable {
                     ", params=" + params +
                     ", nextWindow=" + nextWindow +
                     '}';
+        }
+
+        private static JsonAction getFromParcel(Parcel source) {
+            JsonAction action = new JsonAction();
+
+            action.cmd = source.createStringArray();
+            action.params = Util.mapify(source.createStringArray());
+            action.nextWindow = NextWindow.fromString(source.readString());
+            action.inputParam = source.readString();
+
+            return action;
+        }
+
+        private static void toParcel(Parcel dest, JsonAction action) {
+            dest.writeStringArray(action.cmd);
+            String[] tokens = new String[action.params.size()];
+            int i = 0;
+            for (Map.Entry entry : action.params.entrySet()) {
+                tokens[i++] = entry.getKey() + ":" + entry.getValue();
+            }
+            dest.writeStringArray(tokens);
+            dest.writeString(action.nextWindow == null ? null : action.nextWindow.toString());
+            dest.writeString(action.inputParam);
         }
     }
 

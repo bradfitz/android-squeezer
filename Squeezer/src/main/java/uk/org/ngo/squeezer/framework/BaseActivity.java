@@ -476,6 +476,18 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
     }
 
     /**
+     * Perform the supplied <code>action</code> using parameters in <code>item</code> via
+     * {@link ISqueezeService#action(Action.JsonAction)}
+     */
+    public void action(Action.JsonAction action) {
+        if (mService == null) {
+            return;
+        }
+
+        mService.action(action);
+    }
+
+    /**
      * Look up an attribute resource styled for the current theme.
      *
      * @param attribute Attribute identifier to look up.

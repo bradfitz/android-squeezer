@@ -66,6 +66,8 @@ public abstract class Item implements Parcelable {
     public Action moreAction;
     public List<Plugin> subItems;
     public boolean showBigArtwork;
+    public int selectedIndex;
+    public String[] choiceStrings;
 
     public Item() {
         name = "";
@@ -315,6 +317,11 @@ public abstract class Item implements Parcelable {
         }
         subItems = extractSubItems((Object[]) record.get("item_loop"));
         showBigArtwork = record.containsKey("showBigArtwork");
+        selectedIndex = getInt(record, "selectedIndex");
+        choiceStrings = Util.getStringArray((Object[]) record.get("choiceStrings"));
+        if (goAction != null && goAction.action != null && goAction.action.cmd.length == 0) {
+            doAction = true;
+        }
     }
 
     public Item(Parcel source) {
@@ -334,6 +341,8 @@ public abstract class Item implements Parcelable {
         subItems = source.createTypedArrayList(Plugin.CREATOR);
         doAction = (source.readByte() != 0);
         showBigArtwork = (source.readByte() != 0);
+        selectedIndex = source.readInt();
+        choiceStrings = source.createStringArray();
     }
 
     @Override
@@ -354,11 +363,21 @@ public abstract class Item implements Parcelable {
         dest.writeTypedList(subItems);
         dest.writeByte((byte) (doAction ? 1 : 0));
         dest.writeByte((byte) (showBigArtwork ? 1 : 0));
+        dest.writeInt(selectedIndex);
+        dest.writeStringArray(choiceStrings);
     }
 
 
     public boolean hasInput() {
+        return hasInputField() || hasChoices();
+    }
+
+    public boolean hasInputField() {
         return (input != null);
+    }
+
+    public boolean hasChoices() {
+        return (choiceStrings.length > 0);
     }
 
     public boolean isInputReady() {
@@ -520,11 +539,29 @@ public abstract class Item implements Parcelable {
         if (actionsRecord == null) return null;
 
         Action actionHolder = new Action();
-        Action.JsonAction action = actionHolder.action = new Action.JsonAction();
+
+        if (actionsRecord.containsKey("choices")) {
+            Object[] choices = (Object[]) actionsRecord.get("choices");
+            actionHolder.choices = new Action.JsonAction[choices.length];
+            for (int i = 0; i < choices.length; i++) {
+                actionsRecord = (Map<String, Object>) choices[i];
+                actionHolder.choices[i]= extractJsonAction(baseRecord, actionsRecord, itemParams);
+            }
+        } else {
+            actionHolder.action = extractJsonAction(baseRecord, actionsRecord, itemParams);
+            actionHolder.initInputParam();
+        }
+
+        return actionHolder;
+    }
+
+    private Action.JsonAction extractJsonAction(Map<String, Object> baseRecord, Map<String, Object> actionsRecord, Map<String, Object> itemParams) {
+        Action.JsonAction action = new Action.JsonAction();
 
         action.nextWindow = Action.NextWindow.fromString(getString(actionsRecord, "nextWindow"));
         if (action.nextWindow == null) action.nextWindow = nextWindow;
-        if (action.nextWindow == null && baseRecord != null) action.nextWindow = Action.NextWindow.fromString(getString(baseRecord, "nextWindow"));
+        if (action.nextWindow == null && baseRecord != null)
+            action.nextWindow = Action.NextWindow.fromString(getString(baseRecord, "nextWindow"));
 
         action.cmd = Util.getStringArray((Object[]) actionsRecord.get("cmd"));
         action.params = new HashMap<>();
@@ -536,9 +573,8 @@ public abstract class Item implements Parcelable {
             action.params.putAll(itemParams);
         }
         action.params.put("useContextMenu", "1");
-        actionHolder.initInputParam();
 
-        return actionHolder;
+        return action;
     }
 
     private List<Plugin> extractSubItems(Object[] item_loop) {

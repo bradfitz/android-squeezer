@@ -1269,12 +1269,19 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean action(Item item, Action action) {
+        public void action(Item item, Action action) {
             if (!isConnected()) {
-                return false;
+                return;
             }
             mDelegate.command(getActivePlayer()).cmd(action.action.cmd).params(action.action.params(item.inputValue)).exec();
-            return true;
+        }
+
+        @Override
+        public void action(Action.JsonAction action) {
+            if (!isConnected()) {
+                return;
+            }
+            mDelegate.command(getActivePlayer()).cmd(action.cmd).params(action.params).exec();
         }
     }
 

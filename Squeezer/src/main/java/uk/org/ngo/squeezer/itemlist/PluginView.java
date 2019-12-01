@@ -128,7 +128,8 @@ public class PluginView extends BaseItemView<Plugin> {
 
     @Override
     public void onItemSelected(int index, Plugin item) {
-        Action.NextWindow nextWindow = (item.goAction != null ? item.goAction.action.nextWindow : item.nextWindow);
+        Action.JsonAction action = (item.goAction != null && item.goAction.action != null) ? item.goAction.action : null;
+        Action.NextWindow nextWindow = (action != null ? action.nextWindow : item.nextWindow);
         if (nextWindow != null) {
             getActivity().action(item, item.goAction);
             switch (nextWindow.nextWindow) {

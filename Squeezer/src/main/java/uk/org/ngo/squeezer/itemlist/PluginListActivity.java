@@ -34,6 +34,8 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.util.List;
@@ -101,8 +103,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         } else
             applyWindowStyle(Window.WindowStyle.TEXT_ONLY);
 
-        findViewById(R.id.input_view).setVisibility((hasInput()) ? View.VISIBLE : View.GONE);
-        if (hasInput()) {
+        findViewById(R.id.input_view).setVisibility((hasInputField()) ? View.VISIBLE : View.GONE);
+        if (hasInputField()) {
             ImageButton inputButton = findViewById(R.id.input_button);
             final EditText inputText = findViewById(R.id.plugin_input);
             int inputType = EditorInfo.TYPE_CLASS_TEXT;
@@ -143,6 +145,27 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                     if (getService() != null) {
                         clearAndReOrderItems(inputText.getText().toString());
                     }
+                }
+            });
+        }
+
+        findViewById(R.id.choices).setVisibility((hasChoices()) ? View.VISIBLE : View.GONE);
+        if (hasChoices()) {
+            updateHeader(plugin.getName());
+            RadioGroup radioGroup = findViewById(R.id.choices);
+            for (int i = 0; i < plugin.choiceStrings.length; i++) {
+                RadioButton radioButton = new RadioButton(this);
+                radioButton.setText(plugin.choiceStrings[i]);
+                radioButton.setId(i);
+                radioGroup.addView(radioButton);
+            }
+            radioGroup.check(plugin.selectedIndex-1);
+
+            radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    action(plugin.goAction.choices[checkedId]);
+                    finish();
                 }
             });
         }
@@ -231,8 +254,12 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
     }
 
-    private boolean hasInput() {
-        return plugin != null && plugin.hasInput();
+    private boolean hasInputField() {
+        return plugin != null && plugin.hasInputField();
+    }
+
+    private boolean hasChoices() {
+        return plugin != null && plugin.hasChoices();
     }
 
     @Override

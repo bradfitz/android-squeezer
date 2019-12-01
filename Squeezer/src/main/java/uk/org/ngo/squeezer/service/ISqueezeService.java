@@ -121,8 +121,6 @@ public interface ISqueezeService {
     /**
      * Sets the volume to the absolute volume in newVolume, which will be clamped to the
      * interval [0, 100].
-     *
-     * @param newVolume
      */
     void adjustVolumeTo(Player player, int newVolume);
     void adjustVolumeTo(int newVolume);
@@ -191,6 +189,16 @@ public interface ISqueezeService {
      * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
      * @return
      */
-    boolean action(Item item, Action action);
+    void action(Item item, Action action);
+
+    /**
+     * Perform the supplied SBS <code>do</code> <code>action</code>
+     * <p>
+     * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
+     *
+     * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
+     * @return
+     */
+    void action(Action.JsonAction action);
 
 }

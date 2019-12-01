@@ -86,6 +86,17 @@
             android:layout_height="match_parent"/>
     </LinearLayout>
 
+    <RadioGroup
+        android:id="@+id/choices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="4dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+    </RadioGroup>
+
     <include layout="@layout/item_list"
         android:id="@+id/item_list"
         android:layout_width="fill_parent"
