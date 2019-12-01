@@ -129,7 +129,7 @@ public class PlayerState implements Parcelable {
 
     public double statusSeen;
 
-    private int currentVolume;
+    private int currentVolume = -1;
 
     private int sleepDuration;
 
@@ -309,10 +309,11 @@ public class PlayerState implements Parcelable {
         if (value == currentVolume)
             return false;
 
+        int current = currentVolume;
         currentVolume = value;
-        return true;
+        return (current != -1); // Do not report a change if previous volume was unknown
     }
-
+;
     public int getSleepDuration() {
         return sleepDuration;
     }
