@@ -27,6 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -97,8 +100,43 @@ public class ImageFetcher extends ImageWorker {
         byte[] bytes = null;
 
         try {
-            final URL url = new URL(data);
-            urlConnection = (HttpURLConnection) url.openConnection();
+            URL resourceUrl, base, next;
+            Map<String, Integer> visited;
+            String location;
+
+            visited = new HashMap<>();
+
+            while (true)
+            {
+                Integer times = visited.get(data);
+                if (times == null) times = 0;
+                visited.put(data, ++times);
+
+                if (times > 3)
+                    throw new IOException("Stuck in redirect loop");
+
+                resourceUrl = new URL(data);
+                urlConnection = (HttpURLConnection) resourceUrl.openConnection();
+
+                urlConnection.setConnectTimeout(15000);
+                urlConnection.setReadTimeout(15000);
+                urlConnection.setInstanceFollowRedirects(false);   // Make the logic below easier to detect redirections
+
+                switch (urlConnection.getResponseCode())
+                {
+                    case HttpURLConnection.HTTP_MOVED_PERM:
+                    case HttpURLConnection.HTTP_MOVED_TEMP:
+                        location = urlConnection.getHeaderField("Location");
+                        location = URLDecoder.decode(location, "UTF-8");
+                        base     = new URL(data);
+                        next     = new URL(base, location);  // Deal with relative URLs
+                        data      = next.toExternalForm();
+                        continue;
+                }
+
+                break;
+            }
+
             in = urlConnection.getInputStream();
             bytes = ByteStreams.toByteArray(in);
         } catch (final IOException e) {
