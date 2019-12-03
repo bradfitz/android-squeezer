@@ -29,6 +29,7 @@ public class Plugin extends Item {
     public static final Plugin HOME = new Plugin("home", null, "HOME", 1, Window.WindowStyle.ICON_TEXT);
     public static final Plugin CURRENT_PLAYLIST = new Plugin("status", null, "PLAYLIST", 1, Window.WindowStyle.CURRENT_PLAYLIST);
     public static final Plugin SETTINGS = new Plugin("settings", "home", "SETTINGS", 1005, Window.WindowStyle.ICON_TEXT);
+    public static final Plugin SCREEN_SETTINGS = new Plugin("screenSettings", "settings", "SCREEN_SETTINGS", 60, Window.WindowStyle.TEXT_ONLY);
     public static final Plugin ADVANCED_SETTINGS = new Plugin("advancedSettings", "settings", "ADVANCED_SETTINGS", 105, Window.WindowStyle.TEXT_ONLY);
 
     public Plugin(Map<String, Object> record) {

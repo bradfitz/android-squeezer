@@ -52,8 +52,6 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
-import uk.org.ngo.squeezer.menu.BaseMenuFragment;
-import uk.org.ngo.squeezer.menu.ViewMenuItemFragment;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -65,8 +63,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * spatial component to navigation.
  */
 public class PluginListActivity extends BaseListActivity<Plugin>
-        implements NetworkErrorDialogFragment.NetworkErrorDialogListener,
-        ViewMenuItemFragment.ListActivityWithViewMenu<Plugin, ViewDialog.ArtworkListLayout>{
+        implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
     private static final int GO = 1;
     static final String FINISH = "FINISH";
     static final String RELOAD = "RELOAD";
@@ -95,9 +92,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         plugin = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
 
-        if (!register) {
-            BaseMenuFragment.add(this, ViewMenuItemFragment.class);
-        }
         if (plugin != null && plugin.window != null) {
             applyWindow(plugin.window);
         } else
@@ -368,7 +362,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
     }
 
-    @Override
     public void showViewDialog() {
         new ViewDialog().show(getSupportFragmentManager(), "ViewDialog");
     }

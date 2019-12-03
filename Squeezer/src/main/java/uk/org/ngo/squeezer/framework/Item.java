@@ -112,7 +112,7 @@ public abstract class Item implements Parcelable {
      * @return Icon resource for this plugin if it is embedded in the Squeezer app, or an empty icon.
      */
     public Drawable getIconDrawable(Context context) {
-        @DrawableRes int foreground = getIconResource();
+        @DrawableRes int foreground = getItemIcon();
         if (foreground != 0) {
             int inset = (int) (6 * Resources.getSystem().getDisplayMetrics().density);
 
@@ -129,71 +129,38 @@ public abstract class Item implements Parcelable {
         return AppCompatResources.getDrawable(context, getSlimIcon());
     }
 
-    @DrawableRes
-    private int getSlimIcon() {
-        if ("myMusic".equals(id)) {
-            return R.drawable.ic_my_music;
-        }
-        if ("radio".equals(id)) {
-            return R.drawable.ic_internet_radio;
-        }
-        if ("radios".equals(id)) {
-            return R.drawable.ic_internet_radio;
-        }
-        if ("myApps".equals(id)) {
-            return R.drawable.ic_my_apps;
-        }
-        if ("opmlmyapps".equals(id)) {
-            return R.drawable.ic_my_apps;
-        }
-        if ("opmlappgallery".equals(id)) {
-            return R.drawable.ic_app_gallery;
-        }
-        if ("myMusicArtists".equals(id)) {
-            return R.drawable.ic_artists;
-        }
-        if ("myMusicAlbums".equals(id)) {
-            return R.drawable.ic_albums;
-        }
-        if ("myMusicGenres".equals(id)) {
-            return R.drawable.ic_genres;
-        }
-        if ("myMusicYears".equals(id)) {
-            return R.drawable.ic_years;
-        }
-        if ("myMusicNewMusic".equals(id)) {
-            return R.drawable.ic_new_music;
-        }
-        if ("myMusicPlaylists".equals(id)) {
-            return R.drawable.ic_playlists;
-        }
-        if ("myMusicMusicFolder".equals(id)) {
-            return R.drawable.ic_music_folder;
-        }
-        if ("randomplay".equals(id)) {
-            return R.drawable.ic_random;
-        }
-        if ("opmlselectVirtualLibrary".equals(id)) {
-            return R.drawable.ic_ml_other_library;
-        }
-        if ("opmlselectRemoteLibrary".equals(id)) {
-            return R.drawable.ic_my_music;
-        }
-        if ("settings".equals(id)) {
-            return R.drawable.icon_background;
-        }
-        if ("settingsRepeat".equals(id)) {
-            return R.drawable.ic_repeat;
-        }
-        if ("settingsSleep".equals(id)) {
-            return R.drawable.ic_sleep;
-        }
-        if ("settingsScreen".equals(id)) {
-            return R.drawable.icon_background;
-        }
-        if ("advancedSettings".equals(id)) {
-            return R.drawable.icon_background;
-        }
+    @DrawableRes private int getSlimIcon() {
+        @DrawableRes Integer iconResource = slimIcons.get(id);
+        return iconResource == null ? R.drawable.icon_pending_artwork : iconResource;
+    }
+
+    private static Map<String, Integer> slimIcons = initializeSlimIcons();
+
+    private static Map<String, Integer> initializeSlimIcons() {
+        Map<String, Integer> result = new HashMap<>();
+
+        result.put("myMusic", R.drawable.ic_my_music);
+        result.put("radio", R.drawable.ic_internet_radio);
+        result.put("radios", R.drawable.ic_internet_radio);
+        result.put("myApps", R.drawable.ic_my_apps);
+        result.put("opmlmyapps", R.drawable.ic_my_apps);
+        result.put("opmlappgallery", R.drawable.ic_app_gallery);
+        result.put("myMusicArtists", R.drawable.ic_artists);
+        result.put("myMusicAlbums", R.drawable.ic_albums);
+        result.put("myMusicGenres", R.drawable.ic_genres);
+        result.put("myMusicYears", R.drawable.ic_years);
+        result.put("myMusicNewMusic", R.drawable.ic_new_music);
+        result.put("myMusicPlaylists", R.drawable.ic_playlists);
+        result.put("myMusicMusicFolder", R.drawable.ic_music_folder);
+        result.put("randomplay", R.drawable.ic_random);
+        result.put("opmlselectVirtualLibrary", R.drawable.ic_ml_other_library);
+        result.put("opmlselectRemoteLibrary", R.drawable.ic_my_music);
+        result.put("settings", R.drawable.icon_background);
+        result.put("settingsRepeat", R.drawable.ic_repeat);
+        result.put("settingsSleep", R.drawable.ic_sleep);
+        result.put("settingsScreen", R.drawable.icon_background);
+        result.put("screenSettings", R.drawable.icon_background);
+        result.put("advancedSettings", R.drawable.icon_background);
 
 /*
         s.hm_settings_pcp = _uses(_buttonicon, {
@@ -238,34 +205,34 @@ public abstract class Item implements Parcelable {
         })
 
  */
-        return R.drawable.icon_pending_artwork;
+
+        return result;
     }
 
-    @DrawableRes
-    private int getIconResource() {
-        if ("favorites".equals(id)) {
-            return R.drawable.favorites;
-        }
-        if ("globalSearch".equals(id)) {
-            return R.drawable.search;
-        }
-        if ("homeSearchRecent".equals(id)) {
-            return R.drawable.search;
-        }
-        if ("playerpower".equals(id)) {
-            return R.drawable.power;
-        }
-        if (id != null && id.startsWith("myMusicSearch")) {
-            return R.drawable.search;
-        }
-        if ("settingsAlarm".equals(id)) {
-            return R.drawable.ic_menu_alarm;
-        }
-        if ("settingsShuffle".equals(id)) {
-            return R.drawable.shuffle;
-        }
+    @DrawableRes private int getItemIcon() {
+        @DrawableRes Integer iconResource = itemIcons.get(id);
+        return iconResource == null ? 0 : iconResource;
+    }
 
-        return 0;
+    private static Map<String, Integer> itemIcons = initializeItemIcons();
+
+    private static Map<String, Integer> initializeItemIcons() {
+        Map<String, Integer> result = new HashMap<>();
+
+        result.put("favorites", R.drawable.favorites);
+        result.put("globalSearch", R.drawable.search);
+        result.put("homeSearchRecent", R.drawable.search);
+        result.put("playerpower", R.drawable.power);
+        result.put("myMusicSearch", R.drawable.search);
+        result.put("myMusicSearchArtists", R.drawable.search);
+        result.put("myMusicSearchAlbums", R.drawable.search);
+        result.put("myMusicSearchSongs", R.drawable.search);
+        result.put("myMusicSearchPlaylists", R.drawable.search);
+        result.put("myMusicSearchRecent", R.drawable.search);
+        result.put("settingsAlarm", R.drawable.ic_menu_alarm);
+        result.put("settingsShuffle", R.drawable.shuffle);
+
+        return result;
     }
 
 

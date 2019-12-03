@@ -154,6 +154,7 @@ public class HomeMenuActivity extends PluginListActivity {
 
     private void jiveMainNodes() {
         addNode(Plugin.SETTINGS);
+        addNode(Plugin.SCREEN_SETTINGS);
         addNode(Plugin.ADVANCED_SETTINGS);
     }
 

@@ -32,8 +32,7 @@ import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
-import uk.org.ngo.squeezer.framework.Item;
-import uk.org.ngo.squeezer.menu.ViewMenuItemFragment;
+import uk.org.ngo.squeezer.itemlist.PluginListActivity;
 import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
@@ -49,7 +48,7 @@ public class ViewDialog extends androidx.fragment.app.DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        @SuppressWarnings("unchecked") final ViewMenuItemFragment.ListActivityWithViewMenu<Item, ArtworkListLayout> activity = (ViewMenuItemFragment.ListActivityWithViewMenu<Item, ArtworkListLayout>) getActivity();
+        final PluginListActivity activity = (PluginListActivity) getActivity();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getTitle());
