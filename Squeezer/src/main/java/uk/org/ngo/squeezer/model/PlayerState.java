@@ -19,6 +19,8 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
@@ -33,7 +35,6 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.EnumIdLookup;
 import uk.org.ngo.squeezer.framework.EnumWithId;
-import uk.org.ngo.squeezer.service.ServerString;
 
 
 public class PlayerState implements Parcelable {
@@ -313,7 +314,7 @@ public class PlayerState implements Parcelable {
         currentVolume = value;
         return (current != -1); // Do not report a change if previous volume was unknown
     }
-;
+
     public int getSleepDuration() {
         return sleepDuration;
     }
@@ -426,23 +427,20 @@ public class PlayerState implements Parcelable {
     }
 
     public enum ShuffleStatus implements EnumWithId {
-        SHUFFLE_OFF(0, R.attr.ic_action_av_shuffle_off, ServerString.SHUFFLE_OFF),
-        SHUFFLE_SONG(1, R.attr.ic_action_av_shuffle_song, ServerString.SHUFFLE_ON_SONGS),
-        SHUFFLE_ALBUM(2, R.attr.ic_action_av_shuffle_album, ServerString.SHUFFLE_ON_ALBUMS);
+        SHUFFLE_OFF(0, R.attr.ic_action_av_shuffle_off),
+        SHUFFLE_SONG(1, R.attr.ic_action_av_shuffle_song),
+        SHUFFLE_ALBUM(2, R.attr.ic_action_av_shuffle_album);
 
         private final int id;
 
         private final int icon;
 
-        private final ServerString text;
-
         private static final EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<>(
                 ShuffleStatus.class);
 
-        ShuffleStatus(int id, int icon, ServerString text) {
+        ShuffleStatus(int id, int icon) {
             this.id = id;
             this.icon = icon;
-            this.text = text;
         }
 
         @Override
@@ -450,12 +448,9 @@ public class PlayerState implements Parcelable {
             return id;
         }
 
+        @DrawableRes
         public int getIcon() {
             return icon;
-        }
-
-        public ServerString getText() {
-            return text;
         }
 
         public static ShuffleStatus valueOf(int id) {
@@ -464,23 +459,20 @@ public class PlayerState implements Parcelable {
     }
 
     public enum RepeatStatus implements EnumWithId {
-        REPEAT_OFF(0, R.attr.ic_action_av_repeat_off, ServerString.REPEAT_OFF),
-        REPEAT_ONE(1, R.attr.ic_action_av_repeat_one, ServerString.REPEAT_ONE),
-        REPEAT_ALL(2, R.attr.ic_action_av_repeat_all, ServerString.REPEAT_ALL);
+        REPEAT_OFF(0, R.attr.ic_action_av_repeat_off),
+        REPEAT_ONE(1, R.attr.ic_action_av_repeat_one),
+        REPEAT_ALL(2, R.attr.ic_action_av_repeat_all);
 
         private final int id;
 
         private final int icon;
 
-        private final ServerString text;
-
         private static final EnumIdLookup<RepeatStatus> lookup = new EnumIdLookup<>(
                 RepeatStatus.class);
 
-        RepeatStatus(int id, int icon, ServerString text) {
+        RepeatStatus(int id, int icon) {
             this.id = id;
             this.icon = icon;
-            this.text = text;
         }
 
         @Override
@@ -490,10 +482,6 @@ public class PlayerState implements Parcelable {
 
         public int getIcon() {
             return icon;
-        }
-
-        public ServerString getText() {
-            return text;
         }
 
         public static RepeatStatus valueOf(int id) {

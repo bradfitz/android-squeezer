@@ -34,7 +34,6 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 public class PlayerView extends BaseItemView<Player> {
@@ -85,7 +84,7 @@ public class PlayerView extends BaseItemView<Player> {
 
         viewHolder.text2.setVisibility(playerState.getSleepDuration() > 0 ? View.VISIBLE : View.INVISIBLE);
         if (playerState.getSleepDuration() > 0) {
-            viewHolder.text2.setText(activity.getServerString(ServerString.SLEEPING_IN)
+            viewHolder.text2.setText(activity.getString(R.string.SLEEPING_IN)
                     + " " + Util.formatElapsedTime(item.getSleepingIn()));
         }
     }
@@ -99,8 +98,8 @@ public class PlayerView extends BaseItemView<Player> {
         super.onCreateContextMenu(menu, v, menuInfo);
         menuInfo.menuInflater.inflate(R.menu.playercontextmenu, menu);
 
-        menu.findItem(R.id.sleep).setTitle(activity.getServerString(ServerString.SLEEP));
-        String xMinutes = activity.getServerString(ServerString.X_MINUTES);
+        menu.findItem(R.id.sleep).setTitle(R.string.SLEEP);
+        String xMinutes = activity.getString(R.string.X_MINUTES);
         menu.findItem(R.id.in_15_minutes).setTitle(String.format(xMinutes, "15"));
         menu.findItem(R.id.in_30_minutes).setTitle(String.format(xMinutes, "30"));
         menu.findItem(R.id.in_45_minutes).setTitle(String.format(xMinutes, "45"));
@@ -110,13 +109,13 @@ public class PlayerView extends BaseItemView<Player> {
         PlayerState playerState = ((Player)menuInfo.item).getPlayerState();
         if (playerState.getSleepDuration() != 0) {
             MenuItem cancelSleepItem = menu.findItem(R.id.cancel_sleep);
-            cancelSleepItem.setTitle(activity.getServerString(ServerString.SLEEP_CANCEL));
+            cancelSleepItem.setTitle(R.string.SLEEP_CANCEL);
             cancelSleepItem.setVisible(true);
         }
 
         if (playerState.isPlaying()) {
             MenuItem sleepAtEndOfSongItem = menu.findItem(R.id.end_of_song);
-            sleepAtEndOfSongItem.setTitle(activity.getServerString(ServerString.SLEEP_AT_END_OF_SONG));
+            sleepAtEndOfSongItem.setTitle(R.string.SLEEP_AT_END_OF_SONG);
             sleepAtEndOfSongItem.setVisible(true);
         }
 

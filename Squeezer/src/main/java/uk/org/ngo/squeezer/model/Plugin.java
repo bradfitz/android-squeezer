@@ -18,19 +18,23 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 
+import androidx.annotation.StringRes;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.Window;
 
 
 public class Plugin extends Item {
-    public static final Plugin HOME = new Plugin("home", null, "HOME", 1, Window.WindowStyle.ICON_TEXT);
-    public static final Plugin CURRENT_PLAYLIST = new Plugin("status", null, "PLAYLIST", 1, Window.WindowStyle.CURRENT_PLAYLIST);
-    public static final Plugin SETTINGS = new Plugin("settings", "home", "SETTINGS", 1005, Window.WindowStyle.ICON_TEXT);
-    public static final Plugin SCREEN_SETTINGS = new Plugin("screenSettings", "settings", "SCREEN_SETTINGS", 60, Window.WindowStyle.TEXT_ONLY);
-    public static final Plugin ADVANCED_SETTINGS = new Plugin("advancedSettings", "settings", "ADVANCED_SETTINGS", 105, Window.WindowStyle.TEXT_ONLY);
+    public static final Plugin HOME = new Plugin("home", null, R.string.HOME, 1, Window.WindowStyle.ICON_TEXT);
+    public static final Plugin CURRENT_PLAYLIST = new Plugin("status", null, R.string.menu_item_playlist, 1, Window.WindowStyle.CURRENT_PLAYLIST);
+    public static final Plugin SETTINGS = new Plugin("settings", "home", R.string.SETTINGS, 1005, Window.WindowStyle.ICON_TEXT);
+    public static final Plugin SCREEN_SETTINGS = new Plugin("screenSettings", "settings", R.string.SCREEN_SETTINGS, 60, Window.WindowStyle.TEXT_ONLY);
+    public static final Plugin ADVANCED_SETTINGS = new Plugin("advancedSettings", "settings", R.string.ADVANCED_SETTINGS, 105, Window.WindowStyle.TEXT_ONLY);
 
     public Plugin(Map<String, Object> record) {
         super(record);
@@ -52,16 +56,16 @@ public class Plugin extends Item {
         super(source);
     }
 
-    private Plugin(String id, String node, String text, int weight, Window.WindowStyle windowStyle) {
+    private Plugin(String id, String node, @StringRes int text, int weight, Window.WindowStyle windowStyle) {
         this(record(id, node, text, weight, windowStyle));
 
     }
 
-    private static Map<String, Object> record(String id, String node, String text, int weight, Window.WindowStyle windowStyle) {
+    private static Map<String, Object> record(String id, String node, @StringRes int text, int weight, Window.WindowStyle windowStyle) {
         Map<String, Object> record = new HashMap<>();
         record.put("id", id);
         record.put("node", node);
-        record.put("name", text);
+        record.put("name", Squeezer.getContext().getString(text));
         record.put("weight", weight);
 
         Map<String, Object> window = new HashMap<>();

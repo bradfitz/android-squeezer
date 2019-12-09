@@ -29,11 +29,11 @@ import android.widget.CheckedTextView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
 import uk.org.ngo.squeezer.itemlist.PluginListActivity;
-import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
 public class ViewDialog extends androidx.fragment.app.DialogFragment {
@@ -42,7 +42,7 @@ public class ViewDialog extends androidx.fragment.app.DialogFragment {
 
 
     protected String getTitle() {
-        return ServerString.ALBUM_DISPLAY_OPTIONS.getLocalizedString();
+        return getContext().getString(R.string.ALBUM_DISPLAY_OPTIONS);
     }
 
     @NonNull
@@ -130,8 +130,8 @@ public class ViewDialog extends androidx.fragment.app.DialogFragment {
      * Supported list layouts.
      */
     public enum ArtworkListLayout implements EnumWithTextAndIcon {
-        grid(R.attr.ic_action_view_as_grid, ServerString.SWITCH_TO_GALLERY),
-        list(R.attr.ic_action_view_as_list, ServerString.SWITCH_TO_EXTENDED_LIST);
+        grid(R.attr.ic_action_view_as_grid, R.string.SWITCH_TO_GALLERY),
+        list(R.attr.ic_action_view_as_list, R.string.SWITCH_TO_EXTENDED_LIST);
 
         /**
          * The icon to use for this layout
@@ -146,14 +146,15 @@ public class ViewDialog extends androidx.fragment.app.DialogFragment {
         /**
          * The text to use for this layout
          */
-        private final ServerString serverString;
+        @StringRes
+        private final int serverString;
 
         @Override
         public String getText(Context context) {
-            return serverString.getLocalizedString();
+            return context.getString(serverString);
         }
 
-        ArtworkListLayout(int iconAttribute, ServerString serverString) {
+        ArtworkListLayout(int iconAttribute, @StringRes int serverString) {
             this.serverString = serverString;
             this.iconAttribute = iconAttribute;
         }

@@ -585,27 +585,6 @@ class CometClient extends BaseClient {
 
     public void onEvent(@SuppressWarnings("unused") HandshakeComplete event) {
         mBackgroundHandler.removeMessages(MSG_HANDSHAKE_TIMEOUT);
-        exec(new ResponseHandler() {
-            @Override
-            public void onResponse(Player player, Request request, Message message) {
-                int maxOrdinal = 0;
-                Map<String, Object> tokenMap = message.getDataAsMap();
-                for (Map.Entry<String, Object> entry : tokenMap.entrySet()) {
-                    if (entry.getValue() != null) {
-                        ServerString serverString = ServerString.valueOf(entry.getKey());
-                        serverString.setLocalizedString(entry.getValue().toString());
-                        if (serverString.ordinal() > maxOrdinal) {
-                            maxOrdinal = serverString.ordinal();
-                        }
-                    }
-                }
-
-                // Fetch the next strings until the list is completely translated
-                if (maxOrdinal < ServerString.values().length - 1) {
-                    exec(this,"getstring", ServerString.values()[maxOrdinal + 1].name());
-                }
-            }
-        }, "getstring",  ServerString.values()[0].name());
     }
 
     @Override

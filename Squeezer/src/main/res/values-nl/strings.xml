@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Squeezer</string>
     <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
@@ -49,7 +49,6 @@
     <string name="menu_item_connect">Verbind</string>
     <string name="menu_item_poweron">Aanzetten \"%s\"</string>
     <string name="menu_item_poweroff">Schakel uit \"%s\"</string>
-    <string name="menu_item_view">View</string>
     <string name="menu_item_rename">Hernoem</string>
     <string name="menu_item_playlist">Playlist</string>
     <string name="menu_item_volume">Volume</string>
@@ -101,4 +100,29 @@
         <item quantity="one">speler</item>
         <item quantity="other">spelers</item>
     </plurals>
+
+    <string name="X_MINUTES">%s minuten</string>
+    <string name="SLEEP">Sluimermodus</string>
+    <string name="ALBUM_DISPLAY_OPTIONS">Opties voor albumweergave</string>
+    <string name="ALARM">Wekker</string>
+    <string name="SETTINGS">Instellingen</string>
+    <string name="SCREEN_SETTINGS">Display</string>
+    <string name="ALARM_ALARM_REPEAT">Weksignaal herhalen</string>
+    <string name="SLEEP_CANCEL">Sluimermodus annuleren</string>
+    <string name="ALARM_SHORT_DAY_6">za</string>
+    <string name="SWITCH_TO_EXTENDED_LIST">Kleine hoesafbeeldingen</string>
+    <string name="ALARM_SHORT_DAY_4">do</string>
+    <string name="ALARM_SHORT_DAY_5">vr</string>
+    <string name="SWITCH_TO_GALLERY">Grote hoesafbeeldingen</string>
+    <string name="ADVANCED_SETTINGS">Geavanceerd</string>
+    <string name="ALARM_DELETING">Bezig met verwijderen van weksignaal…</string>
+    <string name="ALARM_SHORT_DAY_2">di</string>
+    <string name="ALARM_SHORT_DAY_3">wo</string>
+    <string name="ALARM_SHORT_DAY_0">zo</string>
+    <string name="ALARM_SHORT_DAY_1">ma</string>
+    <string name="MORE">Meer</string>
+    <string name="SLEEP_AT_END_OF_SONG">Sluimermodus aan einde van nummer</string>
+    <string name="ALARM_ALL_ALARMS">Alle weksignalen</string>
+    <string name="SLEEPING_IN">Sluimermodus in</string>
+    <string name="HOME">Hoofdmenu</string>
 </resources>

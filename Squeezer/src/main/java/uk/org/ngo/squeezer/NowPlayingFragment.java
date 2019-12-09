@@ -80,7 +80,6 @@ import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -877,7 +876,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             menu_item_playlist.setVisible(haveConnectedPlayers);
             menu_item_alarm.setVisible(haveConnectedPlayers);
             if (connected)
-                menu_item_alarm.setTitle(ServerString.ALARM.getLocalizedString());
+                menu_item_alarm.setTitle(R.string.ALARM);
         }
 
         // Don't show the item to go to CurrentPlaylistActivity if in CurrentPlaylistActivity.

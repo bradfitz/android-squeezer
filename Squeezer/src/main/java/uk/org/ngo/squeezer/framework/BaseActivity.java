@@ -55,7 +55,6 @@ import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
@@ -457,10 +456,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
 
     public boolean isConnected() {
         return mService != null && mService.isConnected();
-    }
-
-    public String getServerString(ServerString stringToken) {
-        return ServerString.values()[stringToken.ordinal()].getLocalizedString();
     }
 
     /**

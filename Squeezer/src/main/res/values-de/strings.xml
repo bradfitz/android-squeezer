@@ -31,7 +31,7 @@
     </string>
     <string name="settings_username_hint">Benutzername (optional)</string>
     <string name="settings_password_hint">Passwort (optional)</string>
-    <string name="settings_server_scan_progress">Suche nach Servern&#8230;</string>
+    <string name="settings_server_scan_progress">Suche nach Servern…</string>
     <string name="settings_fadeinsecs_title">Einblenddauer</string>
     <string name="settings_fadeinsecs_summary">Geben Sie die Einblenddauer in Sekunden an. Ein Wert
         von 0 deaktivert das Einblenden.
@@ -70,7 +70,7 @@
     </string>
     <string name="notification_playing_text">Spiele %s</string>
     <string name="rename_title">%s umbenennen</string>
-    <string name="loading_text">Lade &#8230;</string>
+    <string name="loading_text">Lade …</string>
     <string name="browse_items_text">%2$d %1$s</string>
 
     <string name="unknown_track">Unbekanntes Lied</string>
@@ -86,8 +86,8 @@
     <!-- Dialog buttons -->
     <string name="dialog_license">Lizenz</string>
 
-    <string name="copyright_text">Copyright &#169; 2009 Google Inc. Alle Rechte
-        vorbehalten\nCopyright &#169; 2011 Kurt Aaholst. Alle Rechte vorbehalten.
+    <string name="copyright_text">Copyright © 2009 Google Inc. Alle Rechte
+        vorbehalten\nCopyright © 2011 Kurt Aaholst. Alle Rechte vorbehalten.
     </string>
 
     <string name="PLAY_NOW">Abspielen</string>
@@ -115,4 +115,28 @@
         <item quantity="other">Abspielgeräte</item>
     </plurals>
 
+    <string name="X_MINUTES">%s Minuten</string>
+    <string name="SLEEP">Schlafmodus</string>
+    <string name="ALBUM_DISPLAY_OPTIONS">Albumansicht - Optionen</string>
+    <string name="ALARM">Wecker</string>
+    <string name="SETTINGS">Einstellungen</string>
+    <string name="SCREEN_SETTINGS">Anzeige</string>
+    <string name="ALARM_ALARM_REPEAT">Wecker wiederholen</string>
+    <string name="SLEEP_CANCEL">Schlafmodus abbrechen</string>
+    <string name="ALARM_SHORT_DAY_6">Sa</string>
+    <string name="SWITCH_TO_EXTENDED_LIST">Kleine Plattenhüllen</string>
+    <string name="ALARM_SHORT_DAY_4">Do</string>
+    <string name="ALARM_SHORT_DAY_5">Fr</string>
+    <string name="SWITCH_TO_GALLERY">Große Plattenhüllen</string>
+    <string name="ADVANCED_SETTINGS">Erweitert</string>
+    <string name="ALARM_DELETING">Wecker wird entfernt…</string>
+    <string name="ALARM_SHORT_DAY_2">Di</string>
+    <string name="ALARM_SHORT_DAY_3">Mi</string>
+    <string name="ALARM_SHORT_DAY_0">So</string>
+    <string name="ALARM_SHORT_DAY_1">Mo</string>
+    <string name="MORE">Mehr</string>
+    <string name="SLEEP_AT_END_OF_SONG">Schlafmodus bei Titelende</string>
+    <string name="ALARM_ALL_ALARMS">Alle Wecker</string>
+    <string name="SLEEPING_IN">Schlafmodus in</string>
+    <string name="HOME">Hauptmenü</string>
 </resources>

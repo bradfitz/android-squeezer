@@ -62,7 +62,6 @@ import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.widget.AnimationEndListener;
 import uk.org.ngo.squeezer.widget.UndoBarController;
@@ -134,7 +133,7 @@ public class AlarmView extends BaseItemView<Alarm> {
                     }
                 }
             });
-            viewHolder.repeat.getButton().setText(ServerString.ALARM_ALARM_REPEAT.getLocalizedString());
+            viewHolder.repeat.getButton().setText(R.string.ALARM_ALARM_REPEAT);
             viewHolder.delete = convertView.findViewById(R.id.delete);
             viewHolder.playlist = convertView.findViewById(R.id.playlist);
             viewHolder.dowHolder = convertView.findViewById(R.id.dow);
@@ -171,7 +170,7 @@ public class AlarmView extends BaseItemView<Alarm> {
                         @Override
                         public void onAnimationEnd(Animation animation) {
                             mActivity.getItemAdapter().removeItem(viewHolder.position);
-                            UndoBarController.show(getActivity(), ServerString.ALARM_DELETING.getLocalizedString(), new UndoListener(viewHolder.position, viewHolder.alarm));
+                            UndoBarController.show(getActivity(), R.string.ALARM_DELETING, new UndoListener(viewHolder.position, viewHolder.alarm));
                         }
                     });
 
@@ -243,7 +242,7 @@ public class AlarmView extends BaseItemView<Alarm> {
     }
 
     private void setDowText(AlarmViewHolder viewHolder, int day) {
-        SpannableString text = new SpannableString(ServerString.getAlarmShortDayText(day));
+        SpannableString text = new SpannableString(getAlarmShortDayText(day));
         if (viewHolder.alarm.isDayActive(day)) {
             text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
             text.setSpan(new ForegroundColorSpan(mColorSelected), 0, text.length(), 0);
@@ -254,6 +253,18 @@ public class AlarmView extends BaseItemView<Alarm> {
         } else
             viewHolder.dowTexts[day].setCompoundDrawables(null, null, null, null);
         viewHolder.dowTexts[day].setText(text);
+    }
+
+    private CharSequence getAlarmShortDayText(int day) {
+        switch (day) {
+            default: return getActivity().getString(R.string.ALARM_SHORT_DAY_0);
+            case 1: return getActivity().getString(R.string.ALARM_SHORT_DAY_1);
+            case 2: return getActivity().getString(R.string.ALARM_SHORT_DAY_2);
+            case 3: return getActivity().getString(R.string.ALARM_SHORT_DAY_3);
+            case 4: return getActivity().getString(R.string.ALARM_SHORT_DAY_4);
+            case 5: return getActivity().getString(R.string.ALARM_SHORT_DAY_5);
+            case 6: return getActivity().getString(R.string.ALARM_SHORT_DAY_6);
+        }
     }
 
     @Override

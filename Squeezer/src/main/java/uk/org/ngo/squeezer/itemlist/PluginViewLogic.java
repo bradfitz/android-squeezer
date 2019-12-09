@@ -39,7 +39,6 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.ServerString;
 
 /**
  * Delegate with view logic for {@link Plugin} which can be used from any {@link BaseActivity}
@@ -102,7 +101,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
                     menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
                 }
                 if (item.moreAction != null) {
-                    menu.add(Menu.NONE, R.id.more, Menu.NONE, activity.getServerString(ServerString.MORE));
+                    menu.add(Menu.NONE, R.id.more, Menu.NONE, R.string.MORE);
                 }
             }
         } else if (contextMenuReady) {

@@ -47,7 +47,6 @@ import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
@@ -78,7 +77,7 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ((TextView)findViewById(R.id.all_alarms_text)).setText(ServerString.ALARM_ALL_ALARMS.getLocalizedString());
+        ((TextView)findViewById(R.id.all_alarms_text)).setText(R.string.ALARM_ALL_ALARMS);
         mAllAlarmsHintView = findViewById(R.id.all_alarms_hint);
 
         mAlarmsEnabledButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_enabled));
