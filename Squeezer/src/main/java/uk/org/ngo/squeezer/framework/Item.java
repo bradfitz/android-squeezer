@@ -449,7 +449,7 @@ public abstract class Item implements Parcelable {
         window.textarea = getString(params, "textarea");
         window.textareaToken = getString(params, "textAreaToken");
         window.help = getString(params, "help");
-        window.icon = getString(params, params.containsKey("icon") ? "icon" : "icon-id");
+        window.icon = getImageUrl(params, params.containsKey("icon-id") ? "icon-id" : "icon");
         window.titleStyle = getString(params, "titleStyle");
 
         String menuStyle = getString(params, "menuStyle");

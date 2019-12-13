@@ -16,7 +16,10 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import android.net.Uri;
 import android.os.Parcel;
+
+import androidx.annotation.NonNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,7 +33,7 @@ public class Window {
     public String text;
     public String textarea;
     public String textareaToken;
-    public String icon;
+    @NonNull public Uri icon;
     public String titleStyle;
     public WindowStyle windowStyle;
     public String help;
@@ -43,7 +46,7 @@ public class Window {
         window.text = source.readString();
         window.textarea = source.readString();
         window.textareaToken = source.readString();
-        window.icon = source.readString();
+        window.icon = Uri.parse(source.readString());
         window.titleStyle = source.readString();
         window.windowStyle = WindowStyle.valueOf(source.readString());
         window.help = source.readString();
@@ -59,7 +62,7 @@ public class Window {
         dest.writeString(window.text);
         dest.writeString(window.textarea);
         dest.writeString(window.textareaToken);
-        dest.writeString(window.icon);
+        dest.writeString(window.icon.toString());
         dest.writeString(window.titleStyle);
         dest.writeString(window.windowStyle.name());
         dest.writeString(window.help);

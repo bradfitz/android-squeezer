@@ -437,7 +437,7 @@ class CometClient extends BaseClient {
         if (item_data != null && item_data.length > 0) {
             Map<String, Object> record = (Map<String, Object>) item_data[0];
 
-            record.put("urlPrefix", mUrlPrefix);
+            patchUrlPrefix(record);
             record.put("base", messageData.get("base"));
             currentSong = new CurrentPlaylistItem(record);
             record.remove("base");
@@ -469,7 +469,6 @@ class CometClient extends BaseClient {
             if ("alertWindow".equals(type)) {
                 AlertWindow alertWindow = new AlertWindow(display);
                 mEventBus.post(new AlertEvent(alertWindow));
-
             } else {
                 display.put("urlPrefix", mUrlPrefix);
                 DisplayMessage displayMessage = new DisplayMessage(display);
@@ -486,7 +485,7 @@ class CometClient extends BaseClient {
         Plugin[] menuItems = new Plugin[item_data.length];
         for (int i = 0; i < item_data.length; i++) {
             Map<String, Object> record = (Map<String, Object>) item_data[i];
-            record.put("urlPrefix", mUrlPrefix);
+            patchUrlPrefix(record);
             menuItems[i] = new Plugin(record);
         }
 
@@ -497,6 +496,17 @@ class CometClient extends BaseClient {
         String playerId = (String) data[3];
 
         mEventBus.postSticky(new MenuStatusEvent(playerId, menuDirective, menuItems));
+    }
+
+    /**
+     * Add endpoint to fetch further info from a slimserver item
+     */
+    private void patchUrlPrefix(Map<String, Object> record) {
+        record.put("urlPrefix", mUrlPrefix);
+        Map<String, Object> window = (Map<String, Object>) record.get("window");
+        if (window != null) {
+            window.put("urlPrefix", mUrlPrefix);
+        }
     }
 
     private interface ResponseHandler {
@@ -526,13 +536,16 @@ class CometClient extends BaseClient {
             clear();
             Map<String, Object> data = message.getDataAsMap();
             int count = Util.getInt(data.get(countName));
-            Object baseRecord = data.get("base");
+            Map<String, Object> baseRecord = (Map<String, Object>) data.get("base");
+            if (baseRecord != null) {
+                patchUrlPrefix(baseRecord);
+            }
             Object[] item_data = (Object[]) data.get(itemLoopName);
             if (item_data != null) {
                 for (Object item_d : item_data) {
                     Map<String, Object> record = (Map<String, Object>) item_d;
-                    record.put("urlPrefix", mUrlPrefix);
-                    record.put("base", baseRecord);
+                    patchUrlPrefix(record);
+                    if (baseRecord != null) record.put("base", baseRecord);
                     add(record);
                     record.remove("base");
                 }
@@ -543,7 +556,7 @@ class CometClient extends BaseClient {
             final int start = browseRequest.getStart();
             final int end = start + getItems().size();
             int max = 0;
-            data.put("urlPrefix", mUrlPrefix);
+            patchUrlPrefix(data);
             browseRequest.getCallback().onItemsReceived(count, start, data, getItems(), getDataType());
             if (count > max) {
                 max = count;

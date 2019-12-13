@@ -86,6 +86,29 @@
             android:layout_height="match_parent"/>
     </LinearLayout>
 
+    <RelativeLayout
+        android:id="@+id/window_icon_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp"
+        android:visibility="gone">
+
+        <uk.org.ngo.squeezer.widget.SquareImageView
+            android:id="@+id/window_icon"
+            android:layout_width="@dimen/album_art_large_icon_width"
+            android:layout_height="@dimen/album_art_large_icon_height"
+            android:maxHeight="@dimen/album_art_large_icon_height"
+            android:maxWidth="@dimen/album_art_large_icon_width"
+            android:minHeight="@dimen/album_art_large_icon_height"
+            android:minWidth="@dimen/album_art_large_icon_width"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"/>
+    </RelativeLayout>
+
     <RadioGroup
         android:id="@+id/choices"
         android:layout_width="wrap_content"

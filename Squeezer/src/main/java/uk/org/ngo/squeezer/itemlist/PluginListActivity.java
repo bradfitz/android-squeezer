@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -34,6 +35,7 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -55,6 +57,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -203,18 +206,19 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         header.setVisibility(View.VISIBLE);
     }
 
-    private void updateSubHeader(String headerText) {
-        TextView header = findViewById(R.id.sub_header);
-        header.setText(headerText);
-        findViewById(R.id.sub_header_container).setVisibility(View.VISIBLE);
-    }
-
     private void updateHeader(Window window) {
         if (!TextUtils.isEmpty(window.text)) {
             updateHeader(window.text);
         }
         if (!TextUtils.isEmpty(window.textarea)) {
-            updateSubHeader(window.textarea);
+            TextView header = findViewById(R.id.sub_header);
+            header.setText(window.textarea);
+            findViewById(R.id.sub_header_container).setVisibility(View.VISIBLE);
+        }
+        if (!window.icon.equals(Uri.EMPTY)) {
+            ImageView icon = findViewById(R.id.window_icon);
+            ImageFetcher.getInstance(this).loadImage(window.icon, icon);
+            findViewById(R.id.window_icon_container).setVisibility(View.VISIBLE);
         }
     }
 
