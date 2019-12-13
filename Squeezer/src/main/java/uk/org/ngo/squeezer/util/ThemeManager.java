@@ -99,7 +99,7 @@ public class ThemeManager {
      * @return The application's default theme if the user did not choose one.
      */
     public static Theme getDefaultTheme() {
-        return Theme.LIGHT_DARKACTIONBAR;
+        return Theme.DARK;
     }
 
     /**
