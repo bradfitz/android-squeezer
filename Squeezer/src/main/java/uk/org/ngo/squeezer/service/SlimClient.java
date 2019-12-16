@@ -37,7 +37,7 @@ interface SlimClient {
     void startConnect(final SqueezeService service);
 
     // XXX: Document
-    void disconnect(boolean loginFailed);
+    void disconnect();
 
     ConnectionState getConnectionState();
     String getUsername();

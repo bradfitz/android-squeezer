@@ -25,7 +25,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
@@ -37,9 +36,6 @@ public class ConnectionState {
 
     private static final String TAG = "ConnectionState";
 
-    /** {@link java.util.regex.Pattern} that splits strings on semi-colons. */
-    private static final Pattern mSemicolonSplitPattern = Pattern.compile(";");
-
     public ConnectionState(@NonNull EventBus eventBus) {
         mEventBus = eventBus;
     }
@@ -47,8 +43,7 @@ public class ConnectionState {
     private final EventBus mEventBus;
 
     // Connection state machine
-    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED,
-            LOGIN_STARTED, LOGIN_FAILED, LOGIN_COMPLETED})
+    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED, LOGIN_FAILED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionStates {}
     /** Ordinarily disconnected from the server. */
@@ -57,14 +52,10 @@ public class ConnectionState {
     public static final int CONNECTION_STARTED = 1;
     /** The connection to the server did not complete. */
     public static final int CONNECTION_FAILED = 2;
-    /** The connection to the server completed. */
+    /** The connection to the server completed, the handshake can start. */
     public static final int CONNECTION_COMPLETED = 3;
-    /** The login process has started. */
-    public static final int LOGIN_STARTED = 4;
     /** The login process has failed, the server is disconnected. */
     public static final int LOGIN_FAILED = 5;
-    /** The login process completed, the handshake can start. */
-    public static final int LOGIN_COMPLETED = 6;
 
     @ConnectionStates
     private volatile int mConnectionState = DISCONNECTED;
@@ -77,13 +68,8 @@ public class ConnectionState {
 
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
-    void disconnect(boolean loginFailed) {
-        Log.i(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
-        if (loginFailed) {
-            setConnectionState(LOGIN_FAILED);
-        } else {
-            setConnectionState(DISCONNECTED);
-        }
+    void disconnect() {
+        setConnectionState(DISCONNECTED);
         serverVersion.set(null);
         mPlayers.clear();
         mActivePlayer.set(null);
@@ -146,15 +132,7 @@ public class ConnectionState {
      * @return True if the socket connection to the server has completed.
      */
     boolean isConnected() {
-        switch (mConnectionState) {
-            case CONNECTION_COMPLETED:
-            case LOGIN_STARTED:
-            case LOGIN_COMPLETED:
-                return true;
-
-            default:
-                return false;
-        }
+        return mConnectionState == CONNECTION_COMPLETED;
     }
 
     /**
@@ -163,10 +141,6 @@ public class ConnectionState {
      */
     boolean isConnectInProgress() {
         return mConnectionState == CONNECTION_STARTED;
-    }
-
-    boolean isLoginStarted() {
-        return mConnectionState == LOGIN_STARTED;
     }
 
     @Override

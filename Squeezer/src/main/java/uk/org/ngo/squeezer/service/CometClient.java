@@ -312,7 +312,7 @@ class CometClient extends BaseClient {
                         if (!message.isSuccessful() && (getAdviceAction(message.getAdvice()) == null)) {
                             // Advices are handled internally by the bayeux protocol, so skip these here
                             Log.w(TAG, channel + ": " + message.getJSON());
-                            disconnect(false);
+                            disconnect();
                         }
                     }
                 });
@@ -324,8 +324,6 @@ class CometClient extends BaseClient {
                 Log.i(TAG, "Connected, start learning server capabilities");
                 mCurrentCommand = false;
                 mConnectionState.setConnectionState(ConnectionState.CONNECTION_COMPLETED);
-                mConnectionState.setConnectionState(ConnectionState.LOGIN_STARTED);
-                mConnectionState.setConnectionState(ConnectionState.LOGIN_COMPLETED);
 
                 String clientId = mBayeuxClient.getId();
 
@@ -601,9 +599,9 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    public void disconnect(boolean loginFailed) {
+    public void disconnect() {
         if (mBayeuxClient != null) mBackgroundHandler.sendEmptyMessage(MSG_DISCONNECT);
-        mConnectionState.disconnect(loginFailed);
+        mConnectionState.disconnect();
     }
 
     @Override
@@ -751,7 +749,7 @@ class CometClient extends BaseClient {
                     break;
                 case MSG_HANDSHAKE_TIMEOUT:
                     Log.w(TAG, "LMS handshake timeout: " + mConnectionState);
-                    disconnect(false);
+                    disconnect();
                     break;
                 case MSG_PUBLISH_RESPONSE_RECIEVED: {
                     mCurrentCommand = false;

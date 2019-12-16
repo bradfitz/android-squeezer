@@ -1024,7 +1024,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
         // Any other event means that a connection is in progress or completed.
         // Show the the dialog if appropriate.
-        if (event.connectionState != ConnectionState.LOGIN_COMPLETED) {
+        if (event.connectionState != ConnectionState.CONNECTION_COMPLETED) {
             showConnectingDialog();
         }
 

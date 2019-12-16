@@ -47,8 +47,8 @@ class SlimDelegate {
         mClient.startConnect(service);
     }
 
-    void disconnect(boolean loginFailed) {
-        mClient.disconnect(loginFailed);
+    void disconnect() {
+        mClient.disconnect();
     }
 
     void cancelClientRequests(Object client) {

@@ -266,11 +266,7 @@ public class SqueezeService extends Service {
     }
 
     void disconnect() {
-        disconnect(false);
-    }
-
-    void disconnect(boolean isServerDisconnect) {
-        mDelegate.disconnect(isServerDisconnect && !mHandshakeComplete);
+        mDelegate.disconnect();
     }
 
     @Nullable public PlayerState getActivePlayerState() {
