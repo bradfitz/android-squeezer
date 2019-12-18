@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.service.event;
+package uk.org.ngo.squeezer.framework;
 
 import androidx.annotation.NonNull;
 
@@ -22,8 +22,8 @@ import java.util.Arrays;
 
 import uk.org.ngo.squeezer.model.Plugin;
 
-/** Event sent when a menu status message is received. */
-public class MenuStatusEvent {
+/** Holds a menu status message from slimserver. */
+public class MenuStatusMessage {
     public static final String ADD = "add";
     public static final String REMOVE = "remove";
 
@@ -39,7 +39,7 @@ public class MenuStatusEvent {
     @NonNull
     public String playerId;
 
-    public MenuStatusEvent(@NonNull String playerId, @NonNull String menuDirective, @NonNull Plugin[] menuItems) {
+    public MenuStatusMessage(@NonNull String playerId, @NonNull String menuDirective, @NonNull Plugin[] menuItems) {
         this.playerId = playerId;
         this.menuDirective = menuDirective;
         this.menuItems = menuItems;
@@ -47,7 +47,7 @@ public class MenuStatusEvent {
 
     @Override
     public String toString() {
-        return "MenuStatusEvent{" +
+        return "MenuStatusMessage{" +
                 "playerId='" + playerId + '\'' +
                 ", menuDirective='" + menuDirective + '\'' +
                 ", menuItems=" + Arrays.toString(menuItems) +

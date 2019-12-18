@@ -29,6 +29,7 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 class SlimDelegate {
@@ -128,6 +129,14 @@ class SlimDelegate {
 
     public Map<String, Player> getPlayers() {
         return mClient.getConnectionState().getPlayers();
+    }
+
+    void clearHomeMenu() {
+        mClient.getConnectionState().clearHomeMenu();
+    }
+
+    void addToHomeMenu(int count, List<Plugin> items) {
+        mClient.getConnectionState().addToHomeMenu(count, items);
     }
 
     public String getUsername() {

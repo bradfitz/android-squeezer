@@ -328,6 +328,21 @@ public class SqueezeService extends Service {
         // If this is a new player then start an async fetch of its status.
         if (newActivePlayer != null) {
             mDelegate.requestPlayerStatus(newActivePlayer);
+
+            // Start an asynchronous fetch of the squeezeservers "home menu" items
+            // See http://wiki.slimdevices.com/index.php/SqueezePlayAndSqueezeCenterPlugins
+            mDelegate.clearHomeMenu();
+            mDelegate.requestItems(newActivePlayer, 0, new IServiceItemListCallback<Plugin>() {
+                @Override
+                public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+                    mDelegate.addToHomeMenu(count, items);
+                }
+
+                @Override
+                public Object getClient() {
+                    return SqueezeService.this;
+                }
+            }).cmd("menu").param("direct", "1").exec();
         }
 
         // NOTE: this involves a write and can block (sqlite lookup via binder call), so
@@ -1226,16 +1241,6 @@ public class SqueezeService extends Service {
         public void alarmSetPlaylist(String id, AlarmPlaylist playlist) {
             mDelegate.activePlayerCommand().cmd("alarm", "update").param("id", id)
                     .param("url", "".equals(playlist.getId()) ? "0" : playlist.getId()).exec();
-        }
-
-
-        /* Start an asynchronous fetch of the players home menu items */
-        @Override
-        public void homeItems(int start, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
-            if (!mHandshakeComplete) {
-                throw new HandshakeNotCompleteException("Handshake with server has not completed.");
-            }
-            mDelegate.requestItems(getActivePlayer(), start, callback).cmd("menu").param("direct", "1").exec();
         }
 
         /* Start an asynchronous fetch of the squeezeservers generic menu items */

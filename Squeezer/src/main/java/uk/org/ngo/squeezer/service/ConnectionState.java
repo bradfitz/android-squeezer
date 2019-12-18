@@ -22,21 +22,26 @@ import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
+import uk.org.ngo.squeezer.framework.MenuStatusMessage;
 
 public class ConnectionState {
 
     private static final String TAG = "ConnectionState";
 
-    public ConnectionState(@NonNull EventBus eventBus) {
+    ConnectionState(@NonNull EventBus eventBus) {
         mEventBus = eventBus;
     }
 
@@ -66,6 +71,9 @@ public class ConnectionState {
     /** The active player (the player to which commands are sent by default). */
     private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
 
+    /** Home menu tree as received from slimserver */
+    private List<Plugin> homeMenu = new Vector<>();
+
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
     void disconnect() {
@@ -91,7 +99,7 @@ public class ConnectionState {
         mPlayers.clear();
         mPlayers.putAll(players);
     }
-    public Player getPlayer(String playerId) {
+    Player getPlayer(String playerId) {
         return mPlayers.get(playerId);
     }
 
@@ -103,17 +111,61 @@ public class ConnectionState {
         return mActivePlayer.get();
     }
 
-    public void setActivePlayer(Player player) {
+    void setActivePlayer(Player player) {
         mActivePlayer.set(player);
     }
 
-    public void setServerVersion(String version) {
+    void setServerVersion(String version) {
         if (Util.atomicReferenceUpdated(serverVersion, version)) {
             maybeSendHandshakeComplete();
         }
     }
 
-    public String getServerVersion() {
+    void clearHomeMenu() {
+        homeMenu.clear();
+    }
+
+    void addToHomeMenu(int count, List<Plugin> items) {
+        homeMenu.addAll(items);
+        if (homeMenu.size() == count) {
+            jiveMainNodes();
+            mEventBus.postSticky(new HomeMenuEvent(homeMenu));
+        }
+    }
+
+    void menuStatusEvent(MenuStatusMessage event) {
+        if (event.playerId.equals(getActivePlayer().getId())) {
+            for (Plugin menuItem : event.menuItems) {
+                Plugin item = null;
+                for (Plugin menu : homeMenu) {
+                    if (menuItem.getId().equals(menu.getId())) {
+                        item = menu;
+                        break;
+                    }
+                }
+                if (item != null) {
+                    homeMenu.remove(item);
+                }
+                if (MenuStatusMessage.ADD.equals(event.menuDirective)) {
+                    homeMenu.add(menuItem);
+                }
+            }
+            mEventBus.postSticky(new HomeMenuEvent(homeMenu));
+        }
+    }
+
+    private void jiveMainNodes() {
+        addNode(Plugin.SETTINGS);
+        addNode(Plugin.SCREEN_SETTINGS);
+        addNode(Plugin.ADVANCED_SETTINGS);
+    }
+
+    private void addNode(Plugin plugin) {
+        if (!homeMenu.contains(plugin))
+            homeMenu.add(plugin);
+    }
+
+    String getServerVersion() {
         return serverVersion.get();
     }
 

@@ -146,13 +146,6 @@ public interface ISqueezeService {
     void alarmSetPlaylist(String id, AlarmPlaylist playlist);
 
 
-    /**
-     * Start an asynchronous fetch of the squeezeservers "home menu" items
-     * <p>
-     * See http://wiki.slimdevices.com/index.php/SqueezePlayAndSqueezeCenterPlugins
-      */
-    void homeItems(int start, IServiceItemListCallback<Plugin>  callback);
-
     // Plugins (Radios/Apps (music services)/Favorites)
     void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
 
@@ -187,7 +180,6 @@ public interface ISqueezeService {
      *
      * @param item Current SBS item with the <code>action</code>, and which may contain parameters for the action.
      * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
-     * @return
      */
     void action(Item item, Action action);
 
@@ -197,7 +189,6 @@ public interface ISqueezeService {
      * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
      *
      * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
-     * @return
      */
     void action(Action.JsonAction action);
 

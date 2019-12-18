@@ -68,7 +68,7 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
-import uk.org.ngo.squeezer.service.event.MenuStatusEvent;
+import uk.org.ngo.squeezer.framework.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
@@ -493,7 +493,7 @@ class CometClient extends BaseClient {
         // the player ID this notification is for is in chunk.data[4]
         String playerId = (String) data[3];
 
-        mEventBus.postSticky(new MenuStatusEvent(playerId, menuDirective, menuItems));
+        mConnectionState.menuStatusEvent(new MenuStatusMessage(playerId, menuDirective, menuItems));
     }
 
     /**
