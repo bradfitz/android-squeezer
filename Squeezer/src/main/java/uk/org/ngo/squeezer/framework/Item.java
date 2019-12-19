@@ -155,56 +155,17 @@ public abstract class Item implements Parcelable {
         result.put("randomplay", R.drawable.ic_random);
         result.put("opmlselectVirtualLibrary", R.drawable.ic_ml_other_library);
         result.put("opmlselectRemoteLibrary", R.drawable.ic_my_music);
-        result.put("settings", R.drawable.icon_background);
-        result.put("settingsRepeat", R.drawable.ic_repeat);
-        result.put("settingsSleep", R.drawable.ic_sleep);
-        result.put("settingsScreen", R.drawable.icon_background);
-        result.put("screenSettings", R.drawable.icon_background);
-        result.put("advancedSettings", R.drawable.icon_background);
-
-/*
-        s.hm_settings_pcp = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_settings_pcp" .. skinSuffix),
-        })
-
-        s.hm_settingsPlayerNameChange = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_settings_name" .. skinSuffix),
-        })
-        s.hm_settingsBrightness = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_settings_brightness" .. skinSuffix),
-        })
-        s.hm_settingsSync = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_sync" .. skinSuffix),
-        })
-        s.hm_selectPlayer = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_choose_player" .. skinSuffix),
-
-
-
-
-        s.hm_settingsScreen = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_settings_screen" .. skinSuffix),
-        })
-        s.hm_appletCustomizeHome = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_settings_home" .. skinSuffix),
-        })
-        s.hm_settingsAudio = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_settings_audio" .. skinSuffix),
-        })
-        s.hm_linein = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_linein" .. skinSuffix),
-        })
-
-        -- ??
-        s.hm_loading = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_loading" .. skinSuffix),
-        })
-        -- ??
-        s.hm_settingsPlugin = _uses(_buttonicon, {
-                img = _loadImage(self, "IconsResized/icon_settings_plugin" .. skinSuffix),
-        })
-
- */
+        result.put("settings", R.drawable.icon_settings);
+        result.put("settingsShuffle", R.drawable.icon_settings_shuffle);
+        result.put("settingsRepeat", R.drawable.icon_settings_repeat);
+        result.put("settingsAlarm", R.drawable.icon_alarm);
+        result.put("settingsAudio", R.drawable.icon_settings_audio);
+        result.put("appletCustomizeHome", R.drawable.icon_settings_home);
+        result.put("settingsSleep", R.drawable.icon_settings_sleep);
+        result.put("settingsScreen", R.drawable.icon_settings_screen);
+        result.put("settingsPlayerNameChange", R.drawable.icon_settings_name);
+        result.put("settingsSync", R.drawable.icon_sync);
+        result.put("advancedSettings", R.drawable.icon_settings_adv);
 
         return result;
     }
@@ -229,8 +190,6 @@ public abstract class Item implements Parcelable {
         result.put("myMusicSearchSongs", R.drawable.search);
         result.put("myMusicSearchPlaylists", R.drawable.search);
         result.put("myMusicSearchRecent", R.drawable.search);
-        result.put("settingsAlarm", R.drawable.ic_menu_alarm);
-        result.put("settingsShuffle", R.drawable.shuffle);
 
         return result;
     }

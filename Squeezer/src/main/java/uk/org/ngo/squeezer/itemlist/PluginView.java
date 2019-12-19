@@ -167,7 +167,7 @@ public class PluginView extends BaseItemView<Plugin> {
             else if (item.hasSubItems())
                 PluginListActivity.show(getActivity(), item);
             else if (item.getNode() != null) {
-                if ("screenSettings".equals(item.getId()))
+                if ("settingsScreen".equals(item.getId()))
                     ((PluginListActivity)getActivity()).showViewDialog();
                 else
                     HomeMenuActivity.show(getActivity(), item);
