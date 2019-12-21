@@ -98,6 +98,9 @@ public abstract class Item implements Parcelable {
      */
     @NonNull
     public Uri getIcon() {
+        if (icon.equals(Uri.EMPTY) && window != null) {
+            return window.icon;
+        }
         return icon;
     }
 
@@ -142,9 +145,6 @@ public abstract class Item implements Parcelable {
         result.put("myMusic", R.drawable.ic_my_music);
         result.put("radio", R.drawable.ic_internet_radio);
         result.put("radios", R.drawable.ic_internet_radio);
-        result.put("myApps", R.drawable.ic_my_apps);
-        result.put("opmlmyapps", R.drawable.ic_my_apps);
-        result.put("opmlappgallery", R.drawable.ic_app_gallery);
         result.put("myMusicArtists", R.drawable.ic_artists);
         result.put("myMusicAlbums", R.drawable.ic_albums);
         result.put("myMusicGenres", R.drawable.ic_genres);
@@ -153,8 +153,6 @@ public abstract class Item implements Parcelable {
         result.put("myMusicPlaylists", R.drawable.ic_playlists);
         result.put("myMusicMusicFolder", R.drawable.ic_music_folder);
         result.put("randomplay", R.drawable.ic_random);
-        result.put("opmlselectVirtualLibrary", R.drawable.ic_ml_other_library);
-        result.put("opmlselectRemoteLibrary", R.drawable.ic_my_music);
         result.put("settings", R.drawable.icon_settings);
         result.put("settingsShuffle", R.drawable.icon_settings_shuffle);
         result.put("settingsRepeat", R.drawable.icon_settings_repeat);

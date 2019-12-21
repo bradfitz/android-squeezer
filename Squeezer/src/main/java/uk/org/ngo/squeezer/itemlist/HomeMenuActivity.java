@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
@@ -47,6 +48,9 @@ public class HomeMenuActivity extends PluginListActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (plugin.window == null) {
+                    applyWindowStyle(Window.WindowStyle.ICON_TEXT);
+                }
                 clearItemAdapter();
             }
         });

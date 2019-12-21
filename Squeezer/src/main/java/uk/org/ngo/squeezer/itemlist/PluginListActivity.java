@@ -215,11 +215,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             header.setText(window.textarea);
             findViewById(R.id.sub_header_container).setVisibility(View.VISIBLE);
         }
-        if (!window.icon.equals(Uri.EMPTY)) {
-            ImageView icon = findViewById(R.id.window_icon);
-            ImageFetcher.getInstance(this).loadImage(window.icon, icon);
-            findViewById(R.id.window_icon_container).setVisibility(View.VISIBLE);
-        }
     }
 
     private void applyWindow(Window window) {
