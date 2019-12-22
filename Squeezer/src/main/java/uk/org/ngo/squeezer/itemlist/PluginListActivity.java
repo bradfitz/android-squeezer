@@ -35,7 +35,6 @@ import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -57,7 +56,6 @@ import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
-import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -97,6 +95,9 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         if (plugin != null && plugin.window != null) {
             applyWindow(plugin.window);
+        } else if (plugin != null && "playlist".equals(plugin.getType())) {
+            // special case of playlist - override server based windowStyle to play_list
+            applyWindowStyle(Window.WindowStyle.PLAY_LIST);
         } else
             applyWindowStyle(Window.WindowStyle.TEXT_ONLY);
 
@@ -289,6 +290,10 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     public void onItemsReceived(int count, int start, final Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
         final Window window = Item.extractWindow(Util.getRecord(parameters, "window"), null);
         if (window != null) {
+            // override server based icon_list style for playlist
+            if (window.windowStyle == Window.WindowStyle.ICON_TEXT &&  plugin != null && "playlist".equals(plugin.getType())) {
+                window.windowStyle = Window.WindowStyle.PLAY_LIST;
+            }
             runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

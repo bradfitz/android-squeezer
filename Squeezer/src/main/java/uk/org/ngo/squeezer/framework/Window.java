@@ -84,7 +84,7 @@ public class Window {
     }
 
     public enum WindowStyle {
-        CURRENT_PLAYLIST,
+        PLAY_LIST,
         ICON_TEXT,
         TEXT_ONLY;
 

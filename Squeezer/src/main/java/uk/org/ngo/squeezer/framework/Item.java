@@ -53,6 +53,7 @@ public abstract class Item implements Parcelable {
     @NonNull private Uri icon;
     private String node;
     private int weight;
+    private String type;
 
     public Action.NextWindow nextWindow;
     public Input input;
@@ -201,6 +202,10 @@ public abstract class Item implements Parcelable {
         return weight;
     }
 
+    public String getType() {
+        return type;
+    }
+
 
     public boolean isSelectable() {
         return (goAction != null || hasSubItems()|| node != null);
@@ -217,6 +222,7 @@ public abstract class Item implements Parcelable {
         icon = getImageUrl(record, record.containsKey("icon-id") ? "icon-id" : "icon");
         node = getString(record, "node");
         weight = getInt(record, "weight");
+        type = getString(record, "type");
         Map<String, Object> baseRecord = getRecord(record, "base");
         Map<String, Object> baseActions = (baseRecord != null ? getRecord(baseRecord, "actions") : null);
         Map<String, Object> baseWindow = (baseRecord != null ? getRecord(baseRecord, "window") : null);
@@ -254,6 +260,7 @@ public abstract class Item implements Parcelable {
         icon = Uri.parse(source.readString());
         node = source.readString();
         weight = source.readInt();
+        type = source.readString();
         nextWindow = Action.NextWindow.fromString(source.readString());
         input = Input.readFromParcel(source);
         window = Window.readFromParcel(source);
@@ -276,6 +283,7 @@ public abstract class Item implements Parcelable {
         dest.writeString(icon.toString());
         dest.writeString(node);
         dest.writeInt(weight);
+        dest.writeString(type);
         dest.writeString(nextWindow == null ? null : nextWindow.toString());
         Input.writeToParcel(dest, input);
         Window.writeToParcel(dest, window);
@@ -413,13 +421,29 @@ public abstract class Item implements Parcelable {
         String windowStyle = getString(params, "windowStyle");
         window.windowStyle = Window.WindowStyle.get(windowStyle);
         if (window.windowStyle == null) {
-            window.windowStyle = ("album".equals(menuStyle) || "icon_list".equals(windowStyle) || "home_menu".equals(windowStyle))
-                    ? Window.WindowStyle.ICON_TEXT
-                    : Window.WindowStyle.TEXT_ONLY;
+            window.windowStyle = menu2window.get(menuStyle);
+            if (window.windowStyle == null) {
+                window.windowStyle = ("icon_list".equals(windowStyle) || "home_menu".equals(windowStyle))
+                    ?Window.WindowStyle.ICON_TEXT
+                    :Window.WindowStyle.TEXT_ONLY;
+            }
         }
 
         return window;
     }
+
+
+    private static Map<String, Window.WindowStyle> menu2window = initializeMenu2Window();
+
+    private static Map<String, Window.WindowStyle> initializeMenu2Window() {
+        Map<String, Window.WindowStyle> result = new HashMap<>();
+
+        result.put("album", Window.WindowStyle.ICON_TEXT);
+        result.put("playlist", Window.WindowStyle.PLAY_LIST);
+
+        return result;
+    }
+
 
     private Input extractInput(Map<String, Object> record) {
         if (record == null) return null;
