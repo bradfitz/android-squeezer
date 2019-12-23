@@ -18,6 +18,7 @@ package uk.org.ngo.squeezer.framework;
 
 import android.net.Uri;
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
@@ -29,7 +30,7 @@ import java.util.Map;
  * Implements <window_fields> of the LMS SqueezePlay interface.
  * http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#.3Cwindow_fields.3E
  */
-public class Window {
+public class Window implements Parcelable {
     public String text;
     public String textarea;
     public String textareaToken;
@@ -39,35 +40,48 @@ public class Window {
     public String help;
     public String windowId;
 
-    public static Window readFromParcel(Parcel source) {
-        if (source.readInt() == 0) return null;
-
-        Window window = new Window();
-        window.text = source.readString();
-        window.textarea = source.readString();
-        window.textareaToken = source.readString();
-        window.icon = Uri.parse(source.readString());
-        window.titleStyle = source.readString();
-        window.windowStyle = WindowStyle.valueOf(source.readString());
-        window.help = source.readString();
-        window.windowId = source.readString();
-
-        return window;
+    Window() {
     }
 
-    public static void writeToParcel(Parcel dest, Window window) {
-        dest.writeInt(window == null ? 0 : 1);
-        if (window == null) return;
-
-        dest.writeString(window.text);
-        dest.writeString(window.textarea);
-        dest.writeString(window.textareaToken);
-        dest.writeString(window.icon.toString());
-        dest.writeString(window.titleStyle);
-        dest.writeString(window.windowStyle.name());
-        dest.writeString(window.help);
-        dest.writeString(window.windowId);
+    protected Window(Parcel in) {
+        text = in.readString();
+        textarea = in.readString();
+        textareaToken = in.readString();
+        icon = Uri.parse(in.readString());
+        titleStyle = in.readString();
+        windowStyle = WindowStyle.valueOf(in.readString());
+        help = in.readString();
+        windowId = in.readString();
     }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(text);
+        dest.writeString(textarea);
+        dest.writeString(textareaToken);
+        dest.writeString(icon.toString());
+        dest.writeString(titleStyle);
+        dest.writeString(windowStyle.name());
+        dest.writeString(help);
+        dest.writeString(windowId);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Window> CREATOR = new Creator<Window>() {
+        @Override
+        public Window createFromParcel(Parcel in) {
+            return new Window(in);
+        }
+
+        @Override
+        public Window[] newArray(int size) {
+            return new Window[size];
+        }
+    };
 
     @Override
     public String toString() {

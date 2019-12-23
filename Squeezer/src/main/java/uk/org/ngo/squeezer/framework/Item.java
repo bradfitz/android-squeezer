@@ -263,7 +263,7 @@ public abstract class Item implements Parcelable {
         type = source.readString();
         nextWindow = Action.NextWindow.fromString(source.readString());
         input = Input.readFromParcel(source);
-        window = Window.readFromParcel(source);
+        window = source.readParcelable(Item.class.getClassLoader());
         goAction = source.readParcelable(Item.class.getClassLoader());
         playAction = source.readParcelable(Item.class.getClassLoader());
         addAction = source.readParcelable(Item.class.getClassLoader());
@@ -286,7 +286,7 @@ public abstract class Item implements Parcelable {
         dest.writeString(type);
         dest.writeString(nextWindow == null ? null : nextWindow.toString());
         Input.writeToParcel(dest, input);
-        Window.writeToParcel(dest, window);
+        dest.writeParcelable(window, flags);
         dest.writeParcelable(goAction, flags);
         dest.writeParcelable(playAction, flags);
         dest.writeParcelable(addAction, flags);

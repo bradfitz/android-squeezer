@@ -72,6 +72,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     private boolean register;
     protected Item plugin;
     private Action action;
+    private Window window;
     Window.WindowStyle windowStyle;
 
     @Override
@@ -100,6 +101,10 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             applyWindowStyle(Window.WindowStyle.PLAY_LIST);
         } else
             applyWindowStyle(Window.WindowStyle.TEXT_ONLY);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("window")) {
+            applyWindow((Window) savedInstanceState.getParcelable("window"));
+        }
 
         findViewById(R.id.input_view).setVisibility((hasInputField()) ? View.VISIBLE : View.GONE);
         if (hasInputField()) {
@@ -170,6 +175,12 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("window", window);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
@@ -219,6 +230,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     private void applyWindow(Window window) {
+        this.window = window;
         applyWindowStyle(register ? Window.WindowStyle.TEXT_ONLY : window.windowStyle);
         updateHeader(window);
     }
