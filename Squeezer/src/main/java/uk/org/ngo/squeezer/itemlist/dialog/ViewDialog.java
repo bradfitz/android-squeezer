@@ -86,7 +86,7 @@ public class ViewDialog extends androidx.fragment.app.DialogFragment {
                                        ArtworkListLayout listLayout = ArtworkListLayout.values()[position];
                                        textView.setCompoundDrawablesWithIntrinsicBounds(getIcon(listLayout), 0, 0, 0);
                                        textView.setText(listLayout.getText(getActivity()));
-                                       textView.setChecked(listLayout == activity.getListLayout());
+                                       textView.setChecked(listLayout == activity.getPreferredListLayout());
                                        return textView;
                                    } else if (position > POSITION_THEME_LABEL) {
                                        CheckedTextView textView = (CheckedTextView) LayoutInflater.from(getContext())
@@ -107,7 +107,7 @@ public class ViewDialog extends androidx.fragment.app.DialogFragment {
                                @Override
                                public void onClick(DialogInterface dialog, int position) {
                                    if (position < POSITION_THEME_LABEL) {
-                                       activity.setListLayout(ArtworkListLayout.values()[position]);
+                                       activity.setPreferredListLayout(ArtworkListLayout.values()[position]);
                                        dialog.dismiss();
                                    } else if (position > POSITION_THEME_LABEL) {
                                        position -= POSITION_THEME_START;

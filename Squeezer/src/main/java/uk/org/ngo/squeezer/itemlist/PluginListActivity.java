@@ -303,7 +303,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         final Window window = Item.extractWindow(Util.getRecord(parameters, "window"), null);
         if (window != null) {
             // override server based icon_list style for playlist
-            if (window.windowStyle == Window.WindowStyle.ICON_TEXT &&  plugin != null && "playlist".equals(plugin.getType())) {
+            if (window.windowStyle == Window.WindowStyle.ICON_LIST &&  plugin != null && "playlist".equals(plugin.getType())) {
                 window.windowStyle = Window.WindowStyle.PLAY_LIST;
             }
             runOnUiThread(new Runnable() {
@@ -382,11 +382,11 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         new ViewDialog().show(getSupportFragmentManager(), "ViewDialog");
     }
 
-    public ViewDialog.ArtworkListLayout getListLayout() {
-        return PluginView.listLayout(this, Window.WindowStyle.ICON_TEXT);
+    public ViewDialog.ArtworkListLayout getPreferredListLayout() {
+        return new Preferences(this).getAlbumListLayout();
     }
 
-    public void setListLayout(ViewDialog.ArtworkListLayout listLayout) {
+    public void setPreferredListLayout(ViewDialog.ArtworkListLayout listLayout) {
         ViewDialog.ArtworkListLayout prevListLayout = getItemView().listLayout();
         new Preferences(this).setAlbumListLayout(listLayout);
         applyWindowStyle(windowStyle, prevListLayout);

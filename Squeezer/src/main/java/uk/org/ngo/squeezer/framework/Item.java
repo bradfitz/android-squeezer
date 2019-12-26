@@ -423,9 +423,7 @@ public abstract class Item implements Parcelable {
         if (window.windowStyle == null) {
             window.windowStyle = menu2window.get(menuStyle);
             if (window.windowStyle == null) {
-                window.windowStyle = ("icon_list".equals(windowStyle) || "home_menu".equals(windowStyle))
-                    ?Window.WindowStyle.ICON_TEXT
-                    :Window.WindowStyle.TEXT_ONLY;
+                window.windowStyle = Window.WindowStyle.TEXT_ONLY;
             }
         }
 
@@ -438,7 +436,7 @@ public abstract class Item implements Parcelable {
     private static Map<String, Window.WindowStyle> initializeMenu2Window() {
         Map<String, Window.WindowStyle> result = new HashMap<>();
 
-        result.put("album", Window.WindowStyle.ICON_TEXT);
+        result.put("album", Window.WindowStyle.ICON_LIST);
         result.put("playlist", Window.WindowStyle.PLAY_LIST);
 
         return result;

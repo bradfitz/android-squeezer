@@ -49,7 +49,7 @@ public class HomeMenuActivity extends PluginListActivity {
             @Override
             public void run() {
                 if (plugin.window == null) {
-                    applyWindowStyle(Window.WindowStyle.ICON_TEXT);
+                    applyWindowStyle(Window.WindowStyle.HOME_MENU);
                 }
                 clearItemAdapter();
             }

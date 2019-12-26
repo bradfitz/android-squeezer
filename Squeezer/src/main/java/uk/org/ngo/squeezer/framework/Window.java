@@ -98,16 +98,26 @@ public class Window implements Parcelable {
     }
 
     public enum WindowStyle {
-        PLAY_LIST,
-        ICON_TEXT,
-        TEXT_ONLY;
+        HOME_MENU("home_menu"),
+        ICON_LIST("icon_list"),
+        PLAY_LIST("play_list"),
+        TEXT_ONLY("text_list");
 
         private static Map<String, WindowStyle> ENUM_MAP = initEnumMap();
+        private final String id;
+
+        WindowStyle(String id) {
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
 
         private static Map<String, WindowStyle> initEnumMap() {
             Map<String, WindowStyle> map = new HashMap<>();
             for (WindowStyle windowStyle : WindowStyle.values()) {
-                map.put(windowStyle.name(), windowStyle);
+                map.put(windowStyle.id, windowStyle);
             }
             return Collections.unmodifiableMap(map);
         }

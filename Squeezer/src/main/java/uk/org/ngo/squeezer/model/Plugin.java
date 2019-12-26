@@ -30,9 +30,9 @@ import uk.org.ngo.squeezer.framework.Window;
 
 
 public class Plugin extends Item {
-    public static final Plugin HOME = new Plugin("home", null, R.string.HOME, 1, Window.WindowStyle.ICON_TEXT);
+    public static final Plugin HOME = new Plugin("home", null, R.string.HOME, 1, Window.WindowStyle.HOME_MENU);
     public static final Plugin CURRENT_PLAYLIST = new Plugin("status", null, R.string.menu_item_playlist, 1, Window.WindowStyle.PLAY_LIST);
-    public static final Plugin SETTINGS = new Plugin("settings", "home", R.string.SETTINGS, 1005, Window.WindowStyle.ICON_TEXT);
+    public static final Plugin SETTINGS = new Plugin("settings", "home", R.string.SETTINGS, 1005, Window.WindowStyle.HOME_MENU);
     public static final Plugin SCREEN_SETTINGS = new Plugin("settingsScreen", "settings", R.string.SCREEN_SETTINGS, 60, Window.WindowStyle.TEXT_ONLY);
     public static final Plugin ADVANCED_SETTINGS = new Plugin("advancedSettings", "settings", R.string.ADVANCED_SETTINGS, 105, Window.WindowStyle.TEXT_ONLY);
 
@@ -69,7 +69,7 @@ public class Plugin extends Item {
         record.put("weight", weight);
 
         Map<String, Object> window = new HashMap<>();
-        window.put("windowStyle", windowStyle.name());
+        window.put("windowStyle", windowStyle.getId());
         record.put("window", window);
 
         return record;

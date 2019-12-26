@@ -25,6 +25,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
 
+import java.util.EnumSet;
+
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.Action;
@@ -86,7 +88,7 @@ public class PluginView extends BaseItemView<Plugin> {
     }
 
     static ViewDialog.ArtworkListLayout listLayout(Activity activity, Window.WindowStyle windowStyle) {
-        if (windowStyle == Window.WindowStyle.ICON_TEXT) {
+        if (EnumSet.of(Window.WindowStyle.HOME_MENU, Window.WindowStyle.ICON_LIST).contains(windowStyle)) {
             return new Preferences(activity).getAlbumListLayout();
         }
         return ViewDialog.ArtworkListLayout.list;
