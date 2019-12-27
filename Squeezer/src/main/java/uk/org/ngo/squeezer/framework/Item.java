@@ -113,7 +113,7 @@ public abstract class Item implements Parcelable {
     }
 
     /**
-     * @return Icon resource for this plugin if it is embedded in the Squeezer app, or an empty icon.
+     * @return Icon resource for this item if it is embedded in the Squeezer app, or an empty icon.
      */
     public Drawable getIconDrawable(Context context) {
         @DrawableRes int foreground = getItemIcon();

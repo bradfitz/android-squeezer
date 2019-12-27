@@ -67,7 +67,4 @@
         <attr name="floatLabelColor" format="reference|color"/>
     </declare-styleable>
 
-    <!-- Background to use for the sub-header of the window field of the Slim item for which
-         the menu showing -->
-    <attr name="sub_header_background" format="reference"/>
 </resources>

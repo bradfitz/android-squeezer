@@ -52,7 +52,7 @@
         <item name="dialogTheme">@style/Theme.AppCompat.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Dialog.Alert</item>
 
-        <item name="sub_header_background">@color/sub_header_background</item>
+        <item name="actionBarStyle">@style/SqueezerTopBar</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -89,8 +89,17 @@
         <item name="dialogTheme">@style/Theme.AppCompat.Light.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
 
-        <item name="sub_header_background">@color/sub_header_background_light</item>
+        <item name="actionBarStyle">@style/SqueezerTopBar</item>
     </style>
+
+    <style name="SqueezerTopBar" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="background">?attr/colorPrimary</item>
+    </style>
+
+    <!-- Style for the header section of the slim browser layout -->
+    <style name="ListHeader">
+    </style>
+
 
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
 

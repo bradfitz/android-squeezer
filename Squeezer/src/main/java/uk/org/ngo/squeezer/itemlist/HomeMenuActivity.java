@@ -48,13 +48,16 @@ public class HomeMenuActivity extends PluginListActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (plugin.window == null) {
+                if (parent.window == null) {
                     applyWindowStyle(Window.WindowStyle.HOME_MENU);
+                }
+                if (parent != Plugin.HOME && windowTitle == null) {
+                    updateHeader(parent.getName());
                 }
                 clearItemAdapter();
             }
         });
-        List<Plugin> menu = getMenuNode(plugin.getId(), event.menuItems);
+        List<Plugin> menu = getMenuNode(parent.getId(), event.menuItems);
         onItemsReceived(menu.size(), 0, menu, Plugin.class);
     }
 

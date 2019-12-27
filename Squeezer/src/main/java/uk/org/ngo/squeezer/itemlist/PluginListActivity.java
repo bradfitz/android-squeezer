@@ -20,21 +20,24 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -48,6 +51,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
 import uk.org.ngo.squeezer.framework.Action;
+import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
@@ -56,6 +60,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.util.ImageFetcher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -69,11 +74,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     static final String FINISH = "FINISH";
     static final String RELOAD = "RELOAD";
 
+    private PluginViewLogic pluginViewDelegate;
     private boolean register;
-    protected Item plugin;
+    protected Item parent;
     private Action action;
     private Window window;
     Window.WindowStyle windowStyle;
+    String windowTitle;
 
     @Override
     protected ItemView<Plugin> createItemView() {
@@ -91,12 +98,12 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         Bundle extras = checkNotNull(getIntent().getExtras(), "intent did not contain extras");
         register = extras.getBoolean("register");
-        plugin = extras.getParcelable(Plugin.class.getName());
+        parent = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
 
-        if (plugin != null && plugin.window != null) {
-            applyWindow(plugin.window);
-        } else if (plugin != null && "playlist".equals(plugin.getType())) {
+        if (parent != null && parent.window != null) {
+            applyWindow(parent.window);
+        } else if (parent != null && "playlist".equals(parent.getType())) {
             // special case of playlist - override server based windowStyle to play_list
             applyWindowStyle(Window.WindowStyle.PLAY_LIST);
         } else
@@ -128,8 +135,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             }
             inputText.setInputType(inputType);
             inputButton.setImageResource(inputImage);
-            inputText.setHint(plugin.input.title);
-            inputText.setText(plugin.inputValue);
+            inputText.setHint(parent.input.title);
+            inputText.setText(parent.inputValue);
             inputText.setOnKeyListener(new OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -154,24 +161,39 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         findViewById(R.id.choices).setVisibility((hasChoices()) ? View.VISIBLE : View.GONE);
         if (hasChoices()) {
-            updateHeader(plugin.getName());
+            updateHeader(parent.getName());
             RadioGroup radioGroup = findViewById(R.id.choices);
-            for (int i = 0; i < plugin.choiceStrings.length; i++) {
+            for (int i = 0; i < parent.choiceStrings.length; i++) {
                 RadioButton radioButton = new RadioButton(this);
-                radioButton.setText(plugin.choiceStrings[i]);
+                radioButton.setText(parent.choiceStrings[i]);
                 radioButton.setId(i);
                 radioGroup.addView(radioButton);
             }
-            radioGroup.check(plugin.selectedIndex-1);
+            radioGroup.check(parent.selectedIndex-1);
 
             radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(RadioGroup group, int checkedId) {
-                    action(plugin.goAction.choices[checkedId]);
+                    action(parent.goAction.choices[checkedId]);
                     finish();
                 }
             });
         }
+
+        pluginViewDelegate = new PluginViewLogic(this);
+        ViewGroup parentView = findViewById(R.id.parent_container);
+        BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
+        viewHolder.contextMenuButtonHolder = parentView.findViewById(R.id.context_menu);
+        viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
+        viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+        viewHolder.contextMenuButtonHolder.setOnCreateContextMenuListener(this);
+        viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.showContextMenu();
+            }
+        });
+        viewHolder.contextMenuButtonHolder.setTag(viewHolder);
     }
 
     @Override
@@ -212,10 +234,28 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         return listView;
     }
 
-    private void updateHeader(String headerText) {
-        TextView header = findViewById(R.id.header);
-        header.setText(headerText);
-        header.setVisibility(View.VISIBLE);
+    void updateHeader(String windowTitle) {
+        this.windowTitle = windowTitle;
+
+        ViewGroup parentView = findViewById(R.id.parent_container);
+        parentView.setVisibility(View.VISIBLE);
+
+        TextView header = parentView.findViewById(R.id.text1);
+        header.setText(windowTitle);
+
+        ImageView icon = parentView.findViewById(R.id.icon);
+        icon.setVisibility(View.GONE);
+
+        View contextMenu = parentView.findViewById(R.id.context_menu);
+        contextMenu.setVisibility(View.GONE);
+
+        if (parent != null && parent.hasContextMenu()) {
+            if (parent.hasArtwork() && windowStyle == Window.WindowStyle.TEXT_ONLY) {
+                icon.setVisibility(View.VISIBLE);
+                ImageFetcher.getInstance(this).loadImage(parent.getIcon(), icon);
+            }
+            contextMenu.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateHeader(Window window) {
@@ -255,36 +295,36 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     private void clearAndReOrderItems(String inputString) {
         if (getService() != null && !TextUtils.isEmpty(inputString)) {
-            plugin.inputValue = inputString;
+            parent.inputValue = inputString;
             clearAndReOrderItems();
         }
     }
 
     private boolean hasInputField() {
-        return plugin != null && plugin.hasInputField();
+        return parent != null && parent.hasInputField();
     }
 
     private boolean hasChoices() {
-        return plugin != null && plugin.hasChoices();
+        return parent != null && parent.hasChoices();
     }
 
     @Override
     protected boolean needPlayer() {
-        // Most of the the times we actualle do need a player, but we have to return false, because
+        // Most of the the times we actually do need a player, but we have to return false, because
         // if we need to register on SN, it is before we can get the players
         return false;
     }
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
-        if (plugin != null) {
-            if (action == null || (plugin.hasInput() && !plugin.isInputReady())) {
+        if (parent != null) {
+            if (action == null || (parent.hasInput() && !parent.isInputReady())) {
                 showContent();
-            } else if (plugin.doAction) {
-                action(plugin, plugin.goAction);
+            } else if (parent.doAction) {
+                action(parent, parent.goAction);
                 finish();
             } else
-                service.pluginItems(start, plugin, action, this);
+                service.pluginItems(start, parent, action, this);
         } else if (register) {
             service.register(this);
         }
@@ -292,36 +332,31 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     public void onEventMainThread(HandshakeComplete event) {
         super.onEventMainThread(event);
-        if (plugin != null && plugin.hasSubItems()) {
-            getItemAdapter().update(plugin.subItems.size(), 0, plugin.subItems);
+        if (parent != null && parent.hasSubItems()) {
+            getItemAdapter().update(parent.subItems.size(), 0, parent.subItems);
         }
     }
 
+    /** Builds a context menu for the item which menu we are showing. */
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        pluginViewDelegate.onCreateContextMenu(menu, v, parent);
+    }
+
+    /** Handles clicks on the context menu. */
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+        // If info is null then this is the context menu from the header, not a list item.
+        if (info == null) {
+            return pluginViewDelegate.doItemContext(item, parent);
+        }
+        return super.onContextItemSelected(item);
+    }
 
     @Override
     public void onItemsReceived(int count, int start, final Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
-        final Window window = Item.extractWindow(Util.getRecord(parameters, "window"), null);
-        if (window != null) {
-            // override server based icon_list style for playlist
-            if (window.windowStyle == Window.WindowStyle.ICON_LIST &&  plugin != null && "playlist".equals(plugin.getType())) {
-                window.windowStyle = Window.WindowStyle.PLAY_LIST;
-            }
-            runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        applyWindow(window);
-                    }
-                });
-        }
-        if (parameters.containsKey("title")) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateHeader(Util.getString(parameters, "title"));
-                }
-            });
-        }
-
         if (parameters.containsKey("goNow")) {
             Action.NextWindow nextWindow = Action.NextWindow.fromString(Util.getString(parameters, "goNow"));
             switch (nextWindow.nextWindow) {
@@ -336,6 +371,30 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                     break;
             }
             finish();
+            return;
+        }
+
+        final Window window = Item.extractWindow(Util.getRecord(parameters, "window"), null);
+        if (window != null) {
+            // override server based icon_list style for playlist
+            if (window.windowStyle == Window.WindowStyle.ICON_LIST && parent != null && "playlist".equals(parent.getType())) {
+                window.windowStyle = Window.WindowStyle.PLAY_LIST;
+            }
+            runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        applyWindow(window);
+                    }
+                });
+        }
+
+        if (windowTitle == null && parent != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateHeader(parent.getName());
+                }
+            });
         }
 
         // The documentation says "Returned with value 1 if there was a network error accessing
@@ -417,7 +476,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
      * <p>
      * If the action requires input, we initially get the input.
      * <p>
-     * When input is ready or the actyion does not require input, the action is performed. If it
+     * When input is ready or the action does not require input, the action is performed. If it
      * is a <code>do</code> action it is performed via {@link #action(Item, Action)}i, and the
      * activity is finished.
      * <p>
@@ -426,9 +485,9 @@ public class PluginListActivity extends BaseListActivity<Plugin>
      *
      * @see #orderPage(ISqueezeService, int)
      */
-    public static void show(Activity activity, Item plugin, Action action) {
+    public static void show(Activity activity, Item parent, Action action) {
         final Intent intent = getPluginListIntent(activity);
-        intent.putExtra(Plugin.class.getName(), plugin);
+        intent.putExtra(Plugin.class.getName(), parent);
         intent.putExtra(Action.class.getName(), action);
         activity.startActivityForResult(intent, GO);
     }

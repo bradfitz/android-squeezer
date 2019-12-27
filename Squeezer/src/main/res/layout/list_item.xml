@@ -59,7 +59,7 @@ for the implementation.
         android:minHeight="@dimen/album_art_icon_height"
         android:minWidth="@dimen/album_art_icon_width"
         android:layout_marginRight="8dp"
-        tools:src="@drawable/ic_now_playing"/>
+        tools:src="@drawable/icon_album_noart"/>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -82,7 +82,9 @@ for the implementation.
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="text2"/>
     </LinearLayout>
 
     <include layout="@layout/context_menu_image_button"/>
