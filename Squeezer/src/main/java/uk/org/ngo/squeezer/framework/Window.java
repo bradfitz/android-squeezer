@@ -34,13 +34,13 @@ public class Window implements Parcelable {
     public String text;
     public String textarea;
     public String textareaToken;
-    @NonNull public Uri icon;
+    @NonNull public Uri icon = Uri.EMPTY;
     public String titleStyle;
     public WindowStyle windowStyle;
     public String help;
     public String windowId;
 
-    Window() {
+    public Window() {
     }
 
     protected Window(Parcel in) {

@@ -51,7 +51,7 @@ public class HomeMenuActivity extends PluginListActivity {
                 if (parent.window == null) {
                     applyWindowStyle(Window.WindowStyle.HOME_MENU);
                 }
-                if (parent != Plugin.HOME && windowTitle == null) {
+                if (parent != Plugin.HOME && window.text == null) {
                     updateHeader(parent.getName());
                 }
                 clearItemAdapter();

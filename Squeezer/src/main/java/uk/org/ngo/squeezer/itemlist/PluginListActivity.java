@@ -78,13 +78,11 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     private boolean register;
     protected Item parent;
     private Action action;
-    private Window window;
-    Window.WindowStyle windowStyle;
-    String windowTitle;
+    Window window = new Window();
 
     @Override
     protected ItemView<Plugin> createItemView() {
-        return new PluginView(this, windowStyle);
+        return new PluginView(this, window.windowStyle);
     }
 
     @Override
@@ -101,16 +99,17 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         parent = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
 
-        if (parent != null && parent.window != null) {
-            applyWindow(parent.window);
-        } else if (parent != null && "playlist".equals(parent.getType())) {
-            // special case of playlist - override server based windowStyle to play_list
-            applyWindowStyle(Window.WindowStyle.PLAY_LIST);
-        } else
-            applyWindowStyle(Window.WindowStyle.TEXT_ONLY);
-
+        // If initial setup is performed, use it
         if (savedInstanceState != null && savedInstanceState.containsKey("window")) {
             applyWindow((Window) savedInstanceState.getParcelable("window"));
+        } else {
+            if (parent != null && parent.window != null) {
+                applyWindow(parent.window);
+            } else if (parent != null && "playlist".equals(parent.getType())) {
+                // special case of playlist - override server based windowStyle to play_list
+                applyWindowStyle(Window.WindowStyle.PLAY_LIST);
+            } else
+                applyWindowStyle(Window.WindowStyle.TEXT_ONLY);
         }
 
         findViewById(R.id.input_view).setVisibility((hasInputField()) ? View.VISIBLE : View.GONE);
@@ -205,7 +204,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     @Override
     public void onResume() {
         super.onResume();
-        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
+        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
         AbsListView listView = getListView();
         if ((listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView))
          || (listLayout != ViewDialog.ArtworkListLayout.grid && (listView instanceof GridView))) {
@@ -215,7 +214,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     protected AbsListView setupListView(AbsListView listView) {
-        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
+        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
         if (listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView)) {
             listView = switchListView(listView, R.layout.item_grid);
         }
@@ -235,7 +234,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     void updateHeader(String windowTitle) {
-        this.windowTitle = windowTitle;
+        window.text = windowTitle;
 
         ViewGroup parentView = findViewById(R.id.parent_container);
         parentView.setVisibility(View.VISIBLE);
@@ -250,7 +249,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         contextMenu.setVisibility(View.GONE);
 
         if (parent != null && parent.hasContextMenu()) {
-            if (parent.hasArtwork() && windowStyle == Window.WindowStyle.TEXT_ONLY) {
+            if (parent.hasArtwork() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
                 icon.setVisibility(View.VISIBLE);
                 ImageFetcher.getInstance(this).loadImage(parent.getIcon(), icon);
             }
@@ -258,7 +257,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
     }
 
-    private void updateHeader(Window window) {
+    private void updateHeader(@NonNull Window window) {
         if (!TextUtils.isEmpty(window.text)) {
             updateHeader(window.text);
         }
@@ -269,10 +268,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
     }
 
-    private void applyWindow(Window window) {
-        this.window = window;
+    private void applyWindow(@NonNull Window window) {
         applyWindowStyle(register ? Window.WindowStyle.TEXT_ONLY : window.windowStyle);
         updateHeader(window);
+
+        window.titleStyle = this.window.titleStyle;
+        window.text = this.window.text;
+        this.window = window;
     }
 
 
@@ -282,8 +284,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     void applyWindowStyle(Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout prevListLayout) {
         ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
-        if (windowStyle != this.windowStyle || listLayout != getItemView().listLayout()) {
-            this.windowStyle = windowStyle;
+        if (windowStyle != window.windowStyle || listLayout != getItemView().listLayout()) {
+            window.windowStyle = windowStyle;
             getItemView().setWindowStyle(windowStyle);
             getItemAdapter().notifyDataSetChanged();
         }
@@ -388,7 +390,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                 });
         }
 
-        if (windowTitle == null && parent != null) {
+        if (this.window.text == null && parent != null) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -448,7 +450,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     public void setPreferredListLayout(ViewDialog.ArtworkListLayout listLayout) {
         ViewDialog.ArtworkListLayout prevListLayout = getItemView().listLayout();
         new Preferences(this).setAlbumListLayout(listLayout);
-        applyWindowStyle(windowStyle, prevListLayout);
+        applyWindowStyle(window.windowStyle, prevListLayout);
     }
 
     /**

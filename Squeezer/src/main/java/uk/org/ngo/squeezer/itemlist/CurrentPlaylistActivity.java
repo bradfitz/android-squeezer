@@ -124,7 +124,7 @@ public class CurrentPlaylistActivity extends PluginListActivity {
 
     @Override
     public ItemView<Plugin> createItemView() {
-        return new PluginView(this, windowStyle) {
+        return new PluginView(this, window.windowStyle) {
 
             @Override
             public boolean isSelectable(Plugin item) {
