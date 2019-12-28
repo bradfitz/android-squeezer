@@ -52,7 +52,7 @@ public class PluginView extends BaseItemView<Plugin> {
         super(activity);
         setWindowStyle(windowStyle);
         this.logicDelegate = new PluginViewLogic(activity);
-        setLoadingViewParams(viewParamIcon());
+        setLoadingViewParams(viewParamIcon() | VIEW_PARAM_TWO_LINE );
     }
 
     void setWindowStyle(Window.WindowStyle windowStyle) {
@@ -68,7 +68,7 @@ public class PluginView extends BaseItemView<Plugin> {
 
     @Override
     public View getAdapterView(View convertView, ViewGroup parent, int position, Plugin item) {
-        @ViewParam int viewParams = (viewParamIcon() | viewParamContext(item));
+        @ViewParam int viewParams = (viewParamIcon() | VIEW_PARAM_TWO_LINE | viewParamContext(item));
         View view = getAdapterView(convertView, parent, viewParams);
         bindView(view, item);
         return view;
@@ -107,6 +107,7 @@ public class PluginView extends BaseItemView<Plugin> {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
+        viewHolder.text2.setText(item.text2);
         // If the item has an image, then fetch and display it
         if (item.hasArtwork()) {
             ImageFetcher.getInstance(getActivity()).loadImage(item.getIcon(), viewHolder.icon,

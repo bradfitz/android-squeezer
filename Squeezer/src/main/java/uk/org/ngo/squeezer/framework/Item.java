@@ -50,6 +50,7 @@ import uk.org.ngo.squeezer.model.Plugin;
 public abstract class Item implements Parcelable {
     private String id;
     @NonNull private String name;
+    public String text2;
     @NonNull private Uri icon;
     private String node;
     private int weight;
@@ -218,7 +219,7 @@ public abstract class Item implements Parcelable {
 
     public Item(Map<String, Object> record) {
         setId(getString(record, record.containsKey("cmd") ? "cmd" : "id"));
-        name = getStringOrEmpty(record, record.containsKey("name") ? "name" : "text");
+        splitItemText(getStringOrEmpty(record, record.containsKey("name") ? "name" : "text"));
         icon = getImageUrl(record, record.containsKey("icon-id") ? "icon-id" : "icon");
         node = getString(record, "node");
         weight = getInt(record, "weight");
@@ -257,6 +258,7 @@ public abstract class Item implements Parcelable {
     public Item(Parcel source) {
         setId(source.readString());
         name = source.readString();
+        text2 = source.readString();
         icon = Uri.parse(source.readString());
         node = source.readString();
         weight = source.readInt();
@@ -280,6 +282,7 @@ public abstract class Item implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getId());
         dest.writeString(name);
+        dest.writeString(text2);
         dest.writeString(icon.toString());
         dest.writeString(node);
         dest.writeInt(weight);
@@ -399,6 +402,19 @@ public abstract class Item implements Parcelable {
     @NonNull
     private static Uri getImageUrl(Map<String, Object> record, String fieldName) {
         return Util.getImageUrl(record, fieldName);
+    }
+
+    private void splitItemText(String text) {
+        // This happens enough for regular expressions to be ineffective
+        String[] out = new String[2];
+        int nameEnd = text.indexOf('\n');
+        if (nameEnd > 0) {
+            name = text.substring(0, nameEnd);
+            text2 = text.substring(nameEnd+1);
+        } else {
+            name = text;
+            text2 = "";
+        }
     }
 
     public static Window extractWindow(Map<String, Object> itemWindow, Map<String, Object> baseWindow) {
