@@ -25,7 +25,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.1.0'
 
     // Third party libraries
-    implementation 'com.google.guava:guava:18.0'
+    implementation 'com.google.guava:guava:28.2-android'
 
     // findbugs is required for Proguard to work with Guava.
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
@@ -41,11 +41,8 @@ dependencies {
     implementation project(':libs:datetimepicker')
 
     // Comet client
-    implementation 'org.cometd.java:cometd-java-client:3.0.5'
-    //implementation 'org.cometd.java:cometd-java-websocket-javax-client:3.0.5'
-    //implementation "org.glassfish.tyrus.bundles:tyrus-standalone-client:1.5"
-    //implementation 'org.slf4j:slf4j-log4j12'
-    implementation 'org.slf4j:slf4j-android:1.7.12'
+    implementation 'org.cometd.java:cometd-java-client:3.1.11'
+    implementation 'org.slf4j:slf4j-android:1.7.30'
 
     // JVM tests
     testImplementation 'junit:junit:4.12'
