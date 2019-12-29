@@ -129,10 +129,12 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
             // new DatagramSocket(3483)
         } catch (UnknownHostException e) {
             // InetAddress.getByName()
-            Util.crashlyticsLogException(e);
+            Log.e(TAG, "UnknownHostException", e);
+            // TODO remote logging Util.crashlyticsLogException(e);
         } catch (IOException e) {
             // socket.send()
-            Util.crashlyticsLogException(e);
+            Log.e(TAG, "IOException", e);
+            // TODO remote logging Util.crashlyticsLogException(e);
         }
 
         if (socket != null) {

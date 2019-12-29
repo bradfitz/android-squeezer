@@ -133,6 +133,5 @@
                 <action android:name="com.android.vending.INSTALL_REFERRER"/>
             </intent-filter>
         </receiver>
-        <meta-data android:name="com.crashlytics.ApiKey" android:value="564923eeae7942c2822447dec7527419e8e62e51"/>
     </application>
 </manifest>

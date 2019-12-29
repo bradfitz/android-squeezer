@@ -38,8 +38,6 @@ import java.io.OutputStream;
 
 import uk.org.ngo.squeezer.BuildConfig;
 
-import static uk.org.ngo.squeezer.Util.crashlyticsSetLong;
-
 /**
  * This class holds our bitmap caches (memory and disk).
  */
@@ -180,7 +178,6 @@ public class ImageCache {
                             MAX_DISK_CACHE_SIZE));
                     Log.d(TAG, "Usable space: " + usableSpace);
                     Log.d(TAG, "  Cache size: " + diskCacheSize);
-                    crashlyticsSetLong("cache_size", diskCacheSize);
 
                     if (usableSpace > diskCacheSize) {
                         try {

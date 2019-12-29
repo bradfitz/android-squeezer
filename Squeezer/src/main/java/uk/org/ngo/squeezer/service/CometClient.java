@@ -515,7 +515,7 @@ class CometClient extends BaseClient {
         @Override
         public void onMessage(ClientSessionChannel channel, Message message) {
             if (!message.isSuccessful()) {
-                // TODO crashlytics and possible other handling
+                // TODO remote logging and possible other handling
                 Log.e(TAG, channel + ": " + message.getJSON());
             }
             mBackgroundHandler.sendEmptyMessage(MSG_PUBLISH_RESPONSE_RECIEVED);

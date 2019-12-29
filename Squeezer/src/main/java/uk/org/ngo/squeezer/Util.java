@@ -25,8 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
@@ -268,71 +266,5 @@ public class Util {
                         layout, parent, false));
         view.setText(label);
         return view;
-    }
-
-    /** @return True if Crashlytics is supported in this build. */
-    public static boolean supportCrashlytics() {
-        // Don't include in debug builds
-        if (BuildConfig.DEBUG) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Calls {@link Crashlytics#setString(String, String)} if Crashlytics is
-     * enabled in this build, otherwise does nothing.
-     */
-    public static void crashlyticsSetString(String key, String value) {
-        if (supportCrashlytics()) {
-            Crashlytics.setString(key, value);
-        }
-    }
-
-    /**
-     * Calls {@link Crashlytics#setLong(String, long)} if Crashlytics is
-     * enabled in this build, otherwise does nothing.
-     */
-    public static void crashlyticsSetLong(String key, long value) {
-        if (supportCrashlytics()) {
-            Crashlytics.setLong(key, value);
-        }
-    }
-
-    /**
-     * Calls {@link Crashlytics#log(String)} if Crashlytics is enabled in
-     * this build, otherwise log to .
-     */
-    public static void crashlyticsLog(String msg) {
-        if (supportCrashlytics()) {
-            Crashlytics.log(msg);
-        } else {
-            Log.i("Util.crashlyticsLog", msg);
-        }
-    }
-
-    /**
-     * Calls {@link Crashlytics#log(int, String, String)} if Crashlytics is
-     * enabled in this build, otherwise does nothing.
-     */
-    public static void crashlyticsLog(int priority, String tag, String msg) {
-        if (supportCrashlytics()) {
-            Crashlytics.log(priority, tag, msg);
-        } else {
-            Log.println(priority, tag, msg);
-        }
-    }
-
-    /**
-     * Calls {@link Crashlytics#logException(Throwable)} if Crashlytics is
-     * enabled in this build, otherwise does nothing.
-     */
-    public static void crashlyticsLogException(java.lang.Throwable throwable) {
-        if (supportCrashlytics()) {
-            Crashlytics.logException(throwable);
-        } else {
-            Log.i("Util.crashlyticsLog", "", throwable);
-        }
     }
 }
