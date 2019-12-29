@@ -26,11 +26,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.annotation.MainThread;
 import androidx.appcompat.app.ActionBar;
-import android.util.Log;
 
-import com.google.android.apps.analytics.GoogleAnalyticsTracker;
-
-import uk.org.ngo.squeezer.BuildConfig;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.dialog.ChangeLogDialog;
@@ -39,9 +35,6 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 
 public class HomeActivity extends HomeMenuActivity {
-    private final String TAG = HomeActivity.class.getSimpleName();
-
-    private GoogleAnalyticsTracker tracker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,17 +48,6 @@ public class HomeActivity extends HomeMenuActivity {
         }
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        final SharedPreferences preferences = getSharedPreferences(Preferences.NAME, 0);
-
-        // Enable Analytics if the option is on, and we're not running in debug
-        // mode so that debug tests don't pollute the stats.
-        if ((!BuildConfig.DEBUG) && preferences.getBoolean(Preferences.KEY_ANALYTICS_ENABLED, true)) {
-            Log.v("TAG", "Tracking page view '" + TAG + "'");
-            // Start the tracker in manual dispatch mode...
-            tracker = GoogleAnalyticsTracker.getInstance();
-            tracker.startNewSession("UA-26457780-1", this);
-            tracker.trackPageView(TAG);
-        }
 
         // Show the change log if necessary.
         ChangeLogDialog changeLog = new ChangeLogDialog(this);
@@ -105,12 +87,6 @@ public class HomeActivity extends HomeMenuActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        // Send analytics stats (if enabled).
-        if (tracker != null) {
-            tracker.dispatch();
-            tracker.stopSession();
-        }
     }
 
     public static void show(Context context) {
