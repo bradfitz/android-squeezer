@@ -47,6 +47,8 @@
         <item name="ic_alarm_settings">@drawable/ic_alarm_settings</item>
         <item name="ic_delete">@drawable/ic_delete</item>
 
+        <item name="icon_context_menu">@drawable/ic_menu_overflow</item>
+
         <item name="floatLabelColor">@color/float_label_dark</item>
 
         <item name="dialogTheme">@style/Theme.AppCompat.Dialog</item>
@@ -83,6 +85,8 @@
         <item name="main_button_background">@drawable/main_button_light</item>
         <item name="ic_alarm_settings">@drawable/ic_alarm_settings_light</item>
         <item name="ic_delete">@drawable/ic_delete_light</item>
+
+        <item name="icon_context_menu">@drawable/ic_menu_overflow_light</item>
 
         <item name="floatLabelColor">@color/float_label_light</item>
 
@@ -245,6 +249,18 @@
 
     <style name="VolumeDialogAnimation">
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <!-- Context menu button -->
+    <style name="SqueezerContextMenuButton">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:contentDescription">""@string/app_name</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:background">@drawable/list_selector_holo_dark</item>
+        <item name="srcCompat">?attr/icon_context_menu</item>
     </style>
 
     <!-- UndoBar -->

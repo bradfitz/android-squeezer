@@ -57,6 +57,8 @@
     <attr name="ic_alarm_settings" format="reference"/>
     <attr name="ic_delete" format="reference"/>
 
+    <attr name="icon_context_menu" format="reference"/>
+
     <declare-styleable name="FloatLabelLayout">
         <attr name="floatLabelTextAppearance" format="reference" />
         <attr name="floatLabelTrigger" format="enum">
