@@ -95,6 +95,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
                 new AlarmSettingsDialog().show(getSupportFragmentManager(), "AlarmSettingsDialog");
             }
         });
+
+        if (savedInstanceState != null) {
+            mActivePlayer = savedInstanceState.getParcelable("activePlayer");
+        }
     }
 
     @Override
@@ -141,6 +145,12 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
     public void onPause() {
         super.onPause();
         UndoBarController.hide(this);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("activePlayer", mActivePlayer);
     }
 
     public static void show(Activity context) {
