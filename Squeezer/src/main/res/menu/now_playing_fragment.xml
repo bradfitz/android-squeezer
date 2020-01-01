@@ -52,13 +52,6 @@
         android:icon="@android:drawable/ic_lock_power_off"/>
 
     <item
-        android:id="@+id/menu_item_connect"
-        android:icon="@drawable/presence_online"
-        android:title="@string/menu_item_connect"
-        android:alphabeticShortcut="c"
-        squeezer:showAsAction="never|withText"/>
-
-    <item
         android:id="@+id/menu_item_disconnect"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="@string/menu_item_disconnect"

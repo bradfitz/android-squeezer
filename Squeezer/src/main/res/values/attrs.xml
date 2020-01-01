@@ -22,7 +22,6 @@
     </declare-styleable>
 
     <declare-styleable name="ic_action">
-        <attr name="ic_action_av_connect" format="reference"/>
         <attr name="ic_action_av_next" format="reference"/>
         <attr name="ic_action_av_pause" format="reference"/>
         <attr name="ic_action_av_play" format="reference"/>

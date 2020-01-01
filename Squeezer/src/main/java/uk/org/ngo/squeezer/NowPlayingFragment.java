@@ -118,8 +118,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
     private TextView totalTime;
 
-    private MenuItem menu_item_connect;
-
     private MenuItem menu_item_disconnect;
 
     private MenuItem menu_item_poweron;
@@ -306,14 +304,7 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
                 if (mService == null) {
                     return;
                 }
-                if (isConnected()) {
-                    Log.v(TAG, "Pause...");
-                    mService.togglePausePlay();
-                } else {
-                    // When we're not connected, the play/pause
-                    // button turns into a green connect button.
-                    onUserInitiatesConnect();
-                }
+                mService.togglePausePlay();
             }
         });
 
@@ -829,7 +820,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         MenuInflater i = mActivity.getMenuInflater();
         i.inflate(R.menu.now_playing_fragment, menu);
 
-        menu_item_connect = menu.findItem(R.id.menu_item_connect);
         menu_item_disconnect = menu.findItem(R.id.menu_item_disconnect);
         menu_item_poweron = menu.findItem(R.id.menu_item_poweron);
         menu_item_poweroff = menu.findItem(R.id.menu_item_poweroff);
@@ -848,12 +838,10 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
         // Don't show an option to connect if there's no server to connect to.
         boolean knowServerAddress = new Preferences(mActivity).getServerAddress() != null;
-        menu_item_connect.setEnabled(knowServerAddress);
 
         // These are all set at the same time, so one check is sufficient
-        if (menu_item_connect != null) {
+        if (menu_item_disconnect != null) {
             // Set visibility and enabled state of menu items that are not player-specific.
-            menu_item_connect.setVisible(!connected);
             menu_item_disconnect.setVisible(connected);
 
             // Set visibility and enabled state of menu items that are player-specific and
@@ -885,9 +873,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         switch (item.getItemId()) {
             case R.id.menu_item_settings:
                 SettingsActivity.show(mActivity);
-                return true;
-            case R.id.menu_item_connect:
-                onUserInitiatesConnect();
                 return true;
             case R.id.menu_item_disconnect:
                 mService.disconnect();
@@ -922,14 +907,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
      */
     private boolean isManualDisconnect() {
         return getActivity() instanceof ConnectActivity;
-    }
-
-    private void onUserInitiatesConnect() {
-        if (mService == null) {
-            Log.e(TAG, "serviceStub is null.");
-            return;
-        }
-        startVisibleConnection();
     }
 
     public void startVisibleConnection() {
@@ -1019,9 +996,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
 
         // Ensure that option menu item state is adjusted as appropriate.
         getActivity().supportInvalidateOptionsMenu();
-
-        playPauseButton.setImageResource(
-                mActivity.getAttributeValue(R.attr.ic_action_av_connect));
 
         disableButton(nextButton);
         disableButton(prevButton);

@@ -19,7 +19,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat">
-        <item name="ic_action_av_connect">@drawable/presence_online</item>
         <item name="ic_action_av_next">@drawable/ic_action_next</item>
         <item name="ic_action_av_pause">@drawable/ic_action_pause</item>
         <item name="ic_action_av_play">@drawable/ic_action_play</item>
@@ -58,7 +57,6 @@
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="ic_action_av_connect">@drawable/presence_online</item>
         <item name="ic_action_av_next">@drawable/ic_action_av_next_holo_light</item>
         <item name="ic_action_av_pause">@drawable/ic_action_av_pause_holo_light</item>
         <item name="ic_action_av_play">@drawable/ic_action_av_play_holo_light</item>
