@@ -30,7 +30,6 @@ import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 
 class SlimDelegate {
 
@@ -54,10 +53,6 @@ class SlimDelegate {
 
     void cancelClientRequests(Object client) {
         mClient.cancelClientRequests(client);
-    }
-
-    void initialize() {
-        mEventBus.postSticky(new ConnectionChanged(ConnectionState.DISCONNECTED));
     }
 
 

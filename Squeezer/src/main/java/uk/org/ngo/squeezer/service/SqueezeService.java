@@ -69,7 +69,6 @@ import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -185,7 +184,6 @@ public class SqueezeService extends Service {
                 WifiManager.WIFI_MODE_FULL, "Squeezer_WifiLock"));
 
         mEventBus.register(this, 1);  // Get events before other subscribers
-        mDelegate.initialize();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             registerReceiver(deviceIdleModeReceiver, new IntentFilter(
@@ -321,7 +319,6 @@ public class SqueezeService extends Service {
             mDelegate.subscribeMenuStatus(newActivePlayer, true);
         }
         updateAllPlayerSubscriptionStates();
-        mEventBus.post(new ActivePlayerChanged(newActivePlayer));
 
         Log.i(TAG, "Active player now: " + newActivePlayer);
 
@@ -620,12 +617,12 @@ public class SqueezeService extends Service {
     }
 
     public void onEvent(ConnectionChanged event) {
-        if (event.connectionState == ConnectionState.DISCONNECTED) {
-            mEventBus.removeAllStickyEvents();
+        if (ConnectionState.isConnected(event.connectionState) ||
+                ConnectionState.isConnectInProgress(event.connectionState)) {
+            startForeground();
+        } else {
             mHandshakeComplete = false;
             stopForeground();
-        } else {
-            startForeground();
         }
     }
 
@@ -740,7 +737,7 @@ public class SqueezeService extends Service {
 
     public void onEvent(PlayersChanged event) {
         // Figure out the new active player, let everyone know.
-        changeActivePlayer(getPreferredPlayer());
+        changeActivePlayer(getPreferredPlayer(event.players.values()));
     }
 
     /**
@@ -748,15 +745,14 @@ public class SqueezeService extends Service {
      *     last active player (if known), the first player the server knows about if there are
      *     connected players, or null if there are no connected players.
      */
-    private @Nullable Player getPreferredPlayer() {
+    private @Nullable Player getPreferredPlayer(Collection<Player> players) {
         final SharedPreferences preferences = Squeezer.getContext().getSharedPreferences(Preferences.NAME,
                 Context.MODE_PRIVATE);
         final String lastConnectedPlayer = preferences.getString(Preferences.KEY_LAST_PLAYER,
                 null);
         Log.i(TAG, "lastConnectedPlayer was: " + lastConnectedPlayer);
 
-        Collection<Player> players = mDelegate.getPlayers().values();
-        Log.i(TAG, "mPlayers empty?: " + players.isEmpty());
+        Log.i(TAG, "players empty?: " + players.isEmpty());
         for (Player player : players) {
             if (player.getId().equals(lastConnectedPlayer)) {
                 return player;
@@ -871,7 +867,7 @@ public class SqueezeService extends Service {
             // This way we can use server side logic and we don't have to store account credentials
             // locally.
             String macId = new Preferences(SqueezeService.this).getMacId();
-            mDelegate.command().cmd("playerRegister", null, macId, "Squeezer").exec();
+            mDelegate.command().cmd("playerRegister", null, macId, "Squeezer-" + Build.MODEL).exec();
             mDelegate.requestItems(callback).cmd("register").param("service", "SN").exec();
         }
 

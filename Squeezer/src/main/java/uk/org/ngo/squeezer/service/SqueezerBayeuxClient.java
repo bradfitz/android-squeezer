@@ -57,4 +57,14 @@ class SqueezerBayeuxClient extends BayeuxClient {
             }
         }
     }
+
+    @Override
+    public void onFailure(Throwable failure, List<? extends Message> messages) {
+        super.onFailure(failure, messages);
+        for (Message message : messages) {
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "FAIL: " + message.getJSON());
+            }
+        }
+    }
 }

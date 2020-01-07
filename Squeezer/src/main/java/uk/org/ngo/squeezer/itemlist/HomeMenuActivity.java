@@ -35,11 +35,6 @@ import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 public class HomeMenuActivity extends PluginListActivity {
 
     @Override
-    protected boolean needPlayer() {
-        return true;
-    }
-
-    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         // Do nothing we get the home menu from the sticky HomeMenuEvent
     }

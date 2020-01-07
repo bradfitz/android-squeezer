@@ -525,7 +525,14 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     if (exchange != null) {
                         exchange.listener.onMessages(Collections.singletonList(message));
                     } else if (message.containsKey("error")) {
-                        fail(null, "Received error: " +  message);
+                        failMessages(null);
+
+                        // We send messages with no channel to the handshake listener
+                        if (message.getChannel() == null) {
+                            message.setChannel(Channel.META_HANDSHAKE);
+                        }
+
+                        _listener.onFailure(null, Collections.singletonList(message));
                     } else {
                         // If the exchange is missing, then the message has expired, and we do not notify
                         Log.d(TAG, "Could not find request for reply " +  message);

@@ -312,9 +312,9 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     protected boolean needPlayer() {
-        // Most of the the times we actually do need a player, but we have to return false, because
-        // if we need to register on SN, it is before we can get the players
-        return false;
+        // Most of the the times we actually do need a player, but if we need to register on SN,
+        // it is before we can get the players
+        return !register;
     }
 
     @Override

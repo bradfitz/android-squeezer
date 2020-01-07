@@ -134,7 +134,9 @@ public class PluginView extends BaseItemView<Plugin> {
         Action.JsonAction action = (item.goAction != null && item.goAction.action != null) ? item.goAction.action : null;
         Action.NextWindow nextWindow = (action != null ? action.nextWindow : item.nextWindow);
         if (nextWindow != null) {
-            getActivity().action(item, item.goAction);
+            if (item.goAction != null) {
+                getActivity().action(item, item.goAction);
+            }
             switch (nextWindow.nextWindow) {
                 case nowPlaying:
                     // Do nothing as now playing is always available in Squeezer (maybe toast the action)

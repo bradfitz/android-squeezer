@@ -209,7 +209,7 @@ public abstract class Item implements Parcelable {
 
 
     public boolean isSelectable() {
-        return (goAction != null || hasSubItems()|| node != null);
+        return (goAction != null || nextWindow != null || hasSubItems()|| node != null);
     }
 
     public boolean hasContextMenu() {

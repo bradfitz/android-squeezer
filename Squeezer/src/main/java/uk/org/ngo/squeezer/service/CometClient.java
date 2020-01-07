@@ -71,7 +71,6 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.framework.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
-import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
 import uk.org.ngo.squeezer.util.Reflection;
 
@@ -294,16 +293,23 @@ class CometClient extends BaseClient {
                     public void onMessage(ClientSessionChannel channel, Message message) {
                         if (message.isSuccessful()) {
                             onConnected(isSqueezeNetwork);
-                        } else if (getAdviceAction(message.getAdvice()) == null) {
-                            // Advices are handled internally by the bayeux protocol, so skip these here
+                        } else {
                             Log.w(TAG, channel + ": " + message.getJSON());
 
+                            // The bayeux protocol handle failures internally.
+                            // This current client libraries are however incompatible with LMS as new messages to the
+                            // meta channels are ignored.
+                            // So we disconnect here so we can create a new connection.
                             Map<String, Object> failure = Util.getRecord(message, "failure");
-                            Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
-                            int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
+                            Message failedMessage = (failure != null) ? (Message) failure.get("message") : null;
+                            if ("forced reconnect".equals(failedMessage.get("error"))) {
+                                disconnect(ConnectionState.RECONNECT);
+                            } else {
+                                Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
+                                int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
 
-                            mBayeuxClient.disconnect();
-                            mConnectionState.setConnectionState((httpCode == 401) ? ConnectionState.LOGIN_FAILED : ConnectionState.CONNECTION_FAILED);
+                                disconnect((httpCode == 401) ? ConnectionState.LOGIN_FAILED : ConnectionState.CONNECTION_FAILED);
+                            }
                         }
                     }
                 });
@@ -412,9 +418,6 @@ class CometClient extends BaseClient {
         }
         if (firstTimePlayersReceived || !players.equals(mConnectionState.getPlayers())) {
             mConnectionState.setPlayers(players);
-
-            // XXX: postSticky?
-            mEventBus.postSticky(new PlayersChanged(mConnectionState.getPlayers()));
         }
     }
 
@@ -600,8 +603,12 @@ class CometClient extends BaseClient {
 
     @Override
     public void disconnect() {
+        disconnect(ConnectionState.DISCONNECTED);
+    }
+
+    private void disconnect(@ConnectionState.ConnectionStates int connectionState) {
         if (mBayeuxClient != null) mBackgroundHandler.sendEmptyMessage(MSG_DISCONNECT);
-        mConnectionState.disconnect();
+        mConnectionState.setConnectionState(connectionState);
     }
 
     @Override

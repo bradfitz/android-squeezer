@@ -70,6 +70,7 @@ import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
+import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.PluginListActivity;
 import uk.org.ngo.squeezer.itemlist.PluginViewLogic;
@@ -985,6 +986,12 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         if (event.connectionState == ConnectionState.LOGIN_FAILED) {
             dismissConnectingDialog();
             ConnectActivity.showLoginFailed(mActivity);
+            return;
+        }
+
+        if (event.connectionState == ConnectionState.RECONNECT) {
+            dismissConnectingDialog();
+            HomeActivity.show(mActivity);
             return;
         }
 

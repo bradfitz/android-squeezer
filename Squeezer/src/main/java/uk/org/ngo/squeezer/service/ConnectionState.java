@@ -32,10 +32,12 @@ import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 import uk.org.ngo.squeezer.framework.MenuStatusMessage;
+import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
 public class ConnectionState {
 
@@ -48,7 +50,7 @@ public class ConnectionState {
     private final EventBus mEventBus;
 
     // Connection state machine
-    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED, LOGIN_FAILED})
+    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED, LOGIN_FAILED, RECONNECT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionStates {}
     /** Ordinarily disconnected from the server. */
@@ -60,7 +62,9 @@ public class ConnectionState {
     /** The connection to the server completed, the handshake can start. */
     public static final int CONNECTION_COMPLETED = 3;
     /** The login process has failed, the server is disconnected. */
-    public static final int LOGIN_FAILED = 5;
+    public static final int LOGIN_FAILED = 4;
+    /** Create a new connection to the server. */
+    public static final int RECONNECT = 5;
 
     @ConnectionStates
     private volatile int mConnectionState = DISCONNECTED;
@@ -76,13 +80,6 @@ public class ConnectionState {
 
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
-    void disconnect() {
-        setConnectionState(DISCONNECTED);
-        serverVersion.set(null);
-        mPlayers.clear();
-        mActivePlayer.set(null);
-    }
-
     /**
      * Sets a new connection state, and posts a sticky
      * {@link uk.org.ngo.squeezer.service.event.ConnectionChanged} event with the new state.
@@ -90,7 +87,15 @@ public class ConnectionState {
      * @param connectionState The new connection state.
      */
     void setConnectionState(@ConnectionStates int connectionState) {
-        Log.i(TAG, "Setting connection state to: " + connectionState);
+        Log.i(TAG, "setConnectionState(" + mConnectionState + " => " + connectionState + ")");
+        // Clear data if we were previously connected
+        if (isConnected() && !isConnected(connectionState)) {
+            mEventBus.removeAllStickyEvents();
+            setServerVersion(null);
+            mPlayers.clear();
+            setActivePlayer(null);
+        }
+
         mConnectionState = connectionState;
         mEventBus.postSticky(new ConnectionChanged(mConnectionState));
     }
@@ -98,7 +103,9 @@ public class ConnectionState {
     public void setPlayers(Map<String, Player> players) {
         mPlayers.clear();
         mPlayers.putAll(players);
+        mEventBus.postSticky(new PlayersChanged(players));
     }
+
     Player getPlayer(String playerId) {
         return mPlayers.get(playerId);
     }
@@ -113,11 +120,16 @@ public class ConnectionState {
 
     void setActivePlayer(Player player) {
         mActivePlayer.set(player);
+        mEventBus.post(new ActivePlayerChanged(player));
     }
 
     void setServerVersion(String version) {
         if (Util.atomicReferenceUpdated(serverVersion, version)) {
-            maybeSendHandshakeComplete();
+            if (version != null) {
+                HandshakeComplete event = new HandshakeComplete(getServerVersion());
+                Log.i(TAG, "Handshake complete: " + event);
+                mEventBus.postSticky(event);
+            }
         }
     }
 
@@ -169,22 +181,18 @@ public class ConnectionState {
         return serverVersion.get();
     }
 
-    private void maybeSendHandshakeComplete() {
-        if (isHandshakeComplete()) {
-            HandshakeComplete event = new HandshakeComplete(getServerVersion());
-            Log.i(TAG, "Handshake complete: " + event);
-            mEventBus.postSticky(event);
-        }
-    }
-    private boolean isHandshakeComplete() {
-        return serverVersion.get() != null;
+    /**
+     * @return True if the socket connection to the server has completed.
+     */
+    boolean isConnected() {
+        return isConnected(mConnectionState);
     }
 
     /**
      * @return True if the socket connection to the server has completed.
      */
-    boolean isConnected() {
-        return mConnectionState == CONNECTION_COMPLETED;
+    static boolean isConnected(@ConnectionStates int connectionState) {
+        return connectionState == CONNECTION_COMPLETED;
     }
 
     /**
@@ -192,7 +200,15 @@ public class ConnectionState {
      *     completed (successfully or unsuccessfully).
      */
     boolean isConnectInProgress() {
-        return mConnectionState == CONNECTION_STARTED;
+        return isConnectInProgress(mConnectionState);
+    }
+
+    /**
+     * @return True if the socket connection to the server has started, but not yet
+     *     completed (successfully or unsuccessfully).
+     */
+    static boolean isConnectInProgress(@ConnectionStates int connectionState) {
+        return connectionState == CONNECTION_STARTED;
     }
 
     @Override
