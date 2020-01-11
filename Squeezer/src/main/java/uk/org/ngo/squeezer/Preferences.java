@@ -144,9 +144,7 @@ public final class Preferences {
     public boolean hasServerConfig() {
         String bssId = getBssId();
         return (sharedPreferences.contains(prefixed(bssId, KEY_SERVER_ADDRESS)) ||
-                sharedPreferences.contains(KEY_SERVER_ADDRESS) ||
-                sharedPreferences.contains(prefixed(bssId, KEY_CLI_SERVER_ADDRESS)) ||
-                sharedPreferences.contains(KEY_CLI_SERVER_ADDRESS));
+                sharedPreferences.contains(KEY_SERVER_ADDRESS));
     }
 
     public ServerAddress getServerAddress() {

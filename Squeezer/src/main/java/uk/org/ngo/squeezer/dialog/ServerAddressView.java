@@ -93,8 +93,6 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             mServerAddressEditText = findViewById(R.id.server_address);
             mUserNameEditText = findViewById(R.id.username);
             mPasswordEditText = findViewById(R.id.password);
-            setSqueezeNetwork(mServerAddress.squeezeNetwork);
-            setServerAddress(mServerAddress.localAddress());
 
             final OnClickListener onNetworkSelected = new OnClickListener() {
                 @Override
@@ -116,6 +114,9 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             mScanProgress = findViewById(R.id.scan_progress);
             mScanProgress.setVisibility(GONE);
             TextView scanDisabledMessage = findViewById(R.id.scan_disabled_msg);
+
+            setSqueezeNetwork(mServerAddress.squeezeNetwork);
+            setServerAddress(mServerAddress.localAddress());
 
             // Only support network scanning on WiFi.
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -178,50 +179,55 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
         mServerName.setVisibility(GONE);
         mServersSpinner.setVisibility(GONE);
         mScanProgress.setVisibility(GONE);
+        mServersAdapter.clear();
 
         if (mScanNetworkTask == null) {
             return;
         }
 
         mDiscoveredServers = serverMap;
+
         mScanNetworkTask = null;
 
-        switch (mDiscoveredServers.size()) {
-            case 0:
-                // Do nothing, no servers found.
-                break;
+        if (mDiscoveredServers.size() == 0) {
+            // No servers found, manually enter address
+            // Populate the edit text widget with current address stored in preferences.
+            setServerAddress(mServerAddress.localAddress());
+            mServerAddressEditText.setEnabled(true);
+            mServerName.setVisibility(VISIBLE);
+        } else {
+            // Show the spinner so the user can choose a server or to manually enter address.
+            // Don't fire onItemSelected by calling notifyDataSetChanged and
+            // setSelection(pos, false) before setting OnItemSelectedListener
+            mServersSpinner.setOnItemSelectedListener(null);
 
-            case 1:
-                // Populate the edit text widget with the address found.
-                setServerAddress(mDiscoveredServers.get(mDiscoveredServers.firstKey()));
-                mServerName.setVisibility(VISIBLE);
-                mServerName.setText(mDiscoveredServers.firstKey());
-                break;
+            for (Entry<String, String> e : mDiscoveredServers.entrySet()) {
+                mServersAdapter.add(e.getKey());
+            }
+            mServersAdapter.add(getContext().getString(R.string.settings_manual_serveraddr));
+            mServersAdapter.notifyDataSetChanged();
 
-            default:
-                // Show the spinner so the user can choose a server.
-                // Don't fire onItemSelected by calling notifyDataSetChanged and
-                // setSelection(pos, false) before setting OnItemSelectedListener
-                mServersSpinner.setOnItemSelectedListener(null);
+            // First look the stored server name in the list of found servers
+            String addressOfStoredServerName = mDiscoveredServers.get(mPreferences.getServerName(mServerAddress));
+            int position = getServerPosition(addressOfStoredServerName);
 
-                mServersAdapter.clear();
-                for (Entry<String, String> e : mDiscoveredServers.entrySet()) {
-                    mServersAdapter.add(e.getKey());
-                }
-                mServersAdapter.notifyDataSetChanged();
+            // If that fails, look for the stored server address in the list of found servers
+            if (position < 0) {
+                position = getServerPosition(mServerAddress.localAddress());
+            }
 
-                int position = getServerPosition(mServerAddress.localHost());
-                mServersSpinner.setSelection((position < 0 ? 0 : position), false);
+            mServersSpinner.setSelection((position < 0 ? mServersAdapter.getCount() - 1 : position), false);
+            mServerAddressEditText.setEnabled(position < 0 && !mServerAddress.squeezeNetwork);
 
-                mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
-                mServersSpinner.setVisibility(VISIBLE);
+            mServersSpinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
+            mServersSpinner.setVisibility(VISIBLE);
         }
     }
 
     private void setSqueezeNetwork(boolean isSqueezeNetwork) {
         mSqueezeNetworkButton.setChecked(isSqueezeNetwork);
         mLocalServerButton.setChecked(!isSqueezeNetwork);
-        mServerAddressEditText.setEnabled(!isSqueezeNetwork);
+        setEditServerAddressAvailability(isSqueezeNetwork);
         mUserNameEditText.setEnabled(!isSqueezeNetwork);
         mPasswordEditText.setEnabled(!isSqueezeNetwork);
     }
@@ -234,6 +240,16 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
         mPasswordEditText.setText(mPreferences.getPassword(mServerAddress));
     }
 
+    private void setEditServerAddressAvailability(boolean isSqueezeNetwork) {
+        if (isSqueezeNetwork) {
+            mServerAddressEditText.setEnabled(false);
+        } else if (mServersAdapter.getCount() == 0) {
+            mServerAddressEditText.setEnabled(true);
+        } else {
+            mServerAddressEditText.setEnabled(mServersSpinner.getSelectedItemPosition() == mServersSpinner.getCount() - 1);
+        }
+    }
+
     private String getServerName(String ipPort) {
         if (mDiscoveredServers != null)
             for (Entry<String, String> entry : mDiscoveredServers.entrySet())
@@ -243,7 +259,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
     }
 
     private int getServerPosition(String host) {
-        if (mDiscoveredServers != null) {
+        if (host != null && mDiscoveredServers != null) {
             int position = 0;
             for (Entry<String, String> entry : mDiscoveredServers.entrySet()) {
                 if (host.equals(entry.getValue()))

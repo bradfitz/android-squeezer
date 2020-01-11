@@ -22,7 +22,7 @@
     <string name="menu_item_rename">Yeniden Adlandır</string>
   <string name="menu_item_playlist">Çalma Listesi</string>
     <string name="connecting_text">Bağlanıyor</string>
-    <string name="connection_failed_text">Bağlantı başarız. Ayarları kontrol edin.</string>
+    <string name="connection_failed_text">Bağlantı başarız.</string>
   <string name="login_failed_text">Giriş başarısız. Kullanıcı adı ve şifre girin.</string>
   <string name="disconnected_text">Bağlantı kesildi.</string>
   <string name="wifi_disabled_text">Wi-Fi devre dışı</string>

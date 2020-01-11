@@ -62,9 +62,8 @@
     <string name="menu_item_volume">Changer le volume</string>
     <string name="connecting_text">Connexion</string>
     <string name="connecting_to_text">Connexion à la SqueezeBox CLI à %s</string>
-    <string name="connection_failed_text">La connexion a échoué. Vérifiez les paramètres.</string>
-    <string name="login_failed_text">Échec de la connexion. Assurez-vous que le port, le nom d\'utilisateur et le mot de passe corrects sont entrés.</string>
-    <string name="login_failed_info_text">"<p>Vous trouvez les valeurs correctes dans l’interface Web du serveur. Sélectionnez les paramètres et l\'onglet Avancé.</p><p>Pour vérifier le numéro de port, sélectionnez Interface de ligne de commande dans le menu déroulant.</p><p>Le nom d\'utilisateur et le mot de passe sont trouvés en sélectionnant sécurité dans le menu déroulant.</p></string>
+    <string name="connection_failed_text">La connexion a échoué.</string>
+    <string name="login_failed_text">Échec de la connexion. Assurez-vous que le nom d\'utilisateur et le mot de passe corrects sont entrés.</string>
     <string name="disconnected_text">Débranché.</string>
     <string name="wifi_disabled_text">Wi-Fi est désactivé</string>
     <string name="enable_wifi_text">"Cela activera le Wi-Fi sur votre appareil Android. Quand la connexion Wi-Fi est établie, Squeezer essaiera automatiquement de se connecter à votre SqueezeBox. Activer le Wi-Fi maintenant?"</string>

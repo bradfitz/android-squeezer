@@ -27,7 +27,6 @@ import android.widget.TextView;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import uk.org.ngo.squeezer.dialog.InfoDialog;
 import uk.org.ngo.squeezer.dialog.ServerAddressView;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
@@ -70,12 +69,6 @@ public class ConnectActivity extends BaseActivity {
         serverAddressView = (ServerAddressView) findViewById(R.id.server_address_view);
         mHeaderMessage = (TextView) findViewById(R.id.header_message);
         setHeaderMessageFromReason(mDisconnectionReason);
-        mHeaderMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                InfoDialog.show(getSupportFragmentManager(), R.string.login_failed_info_text);
-            }
-        });
     }
 
     /**

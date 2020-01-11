@@ -54,6 +54,7 @@ import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.AlertWindow;
 import uk.org.ngo.squeezer.framework.Item;
@@ -193,37 +194,12 @@ class CometClient extends BaseClient {
         mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
-                Preferences preferences = new Preferences(service);
-                Preferences.ServerAddress serverAddress = preferences.getServerAddress();
-
-                if (serverAddress.address() == null) {
-                    Preferences.ServerAddress cliServerAddress = preferences.getCliServerAddress();
-                    if (cliServerAddress.address() == null) {
-                        Log.e(TAG, "Server address not configured, can't connect");
-                        mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
-                        return;
-                    }
-                    try {
-                        HttpPortLearner httpPortLearner = new HttpPortLearner();
-                        String username = preferences.getUsername(cliServerAddress);
-                        String password = preferences.getPassword(cliServerAddress);
-                        int port = httpPortLearner.learnHttpPort(cliServerAddress.host(), cliServerAddress.port(), username, password);
-                        serverAddress.setAddress(cliServerAddress.host() + ":" + port);
-                        preferences.saveServerAddress(serverAddress);
-                    } catch (IOException e) {
-                        Log.e(TAG, "Can't learn http port", e);
-                        mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
-                        return;
-                    } catch (ServerDisconnectedException e) {
-                        Log.i(TAG, "learnHttpPort: " + e.getMessage());
-                        mConnectionState.setConnectionState(ConnectionState.LOGIN_FAILED);
-                        return;
-                    }
-                }
-
+                final Preferences preferences = new Preferences(service);
+                final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
                 final String username = preferences.getUsername(serverAddress);
                 final String password = preferences.getPassword(serverAddress);
                 Log.i(TAG, "Connecting to: " + username + "@" + serverAddress.address());
+
                 if (!mEventBus.isRegistered(CometClient.this)) {
                     mEventBus.register(CometClient.this);
                 }

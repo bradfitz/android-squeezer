@@ -25,10 +25,71 @@
     style=""
     android:padding="16dp">
 
+    <LinearLayout
+        android:id="@+id/scan_progress"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="8dp"
+            android:text="@string/settings_server_scan_progress"
+            />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/scan_disabled_msg"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="4dp"
+        android:text="@string/settings_server_scanning_disabled_msg"
+        android:textAppearance="@style/SqueezerTextAppearance.Medium"/>
+
+    <LinearLayout
+        android:id="@+id/scan_results"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/scan_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:drawableLeftCompat="@drawable/refresh"
+            android:text="@string/settings_server_rescan"/>
+
+        <TextView
+            android:id="@+id/server_name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingLeft="8dp"
+            android:visibility="gone"
+            android:text="@string/settings_manual_serveraddr"
+            android:textAppearance="@style/SqueezerTextAppearance.Medium"/>
+
+        <Spinner
+            android:id="@+id/found_servers"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:prompt="@string/settings_server_prompt"/>
+    </LinearLayout>
+
     <RadioButton
         android:id="@+id/squeezeServer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Local server" />
 
     <uk.org.ngo.squeezer.widget.FloatLabelLayout
@@ -94,67 +155,5 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="mysqueezebox.com" />
-
-    <LinearLayout
-        android:id="@+id/scan_progress"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:orientation="horizontal">
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:paddingLeft="8dp"
-            android:text="@string/settings_server_scan_progress"
-            />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/scan_disabled_msg"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="4dp"
-        android:paddingTop="16dp"
-        android:text="@string/settings_server_scanning_disabled_msg"
-        android:textAppearance="@style/SqueezerTextAppearance.Medium"/>
-
-    <LinearLayout
-        android:id="@+id/scan_results"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/scan_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:drawableLeftCompat="@drawable/refresh"
-            android:text="@string/settings_server_rescan"/>
-
-        <TextView
-            android:id="@+id/server_name"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:paddingLeft="8dp"
-            android:visibility="gone"
-            android:textAppearance="@style/SqueezerTextAppearance.Medium"/>
-
-        <Spinner
-            android:id="@+id/found_servers"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:prompt="@string/settings_server_prompt"/>
-    </LinearLayout>
 
 </LinearLayout>

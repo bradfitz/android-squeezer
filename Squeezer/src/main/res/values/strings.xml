@@ -23,9 +23,10 @@
     <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
+    <string name="settings_manual_serveraddr">Manually enter address</string>
     <string name="settings_server_prompt">Choose a server</string>
     <string name="settings_server_rescan">Rescan</string>
-    <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because Wi-Fi is not
+    <string name="settings_server_scanning_disabled_msg">Server discovery is disabled, because Wi-Fi is not
         connected.
     </string>
     <string name="settings_theme_title">Theme</string>
@@ -62,13 +63,8 @@
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
     <string name="connecting_to_text">Connecting to Logitech Media Server at %s</string>
-    <string name="connection_failed_text">Connection failed. Check settings.</string>
-    <string name="login_failed_text">Login failed. Make sure the correct port, user name and password is entered.</string>
-    <string name="login_failed_info_text">
-        &lt;p&gt;You find the correct values in the server\'s web-interface. Select settings and the Advanced tab.&lt;/p&gt;
-        &lt;p&gt;To check the port number select Command Line Interface (CLI) in the dropdown.&lt;/p&gt;
-        &lt;p&gt;User name and password is found by selecting security in the dropdown.&lt;/p&gt;
-    </string>
+    <string name="connection_failed_text">Connection failed.</string>
+    <string name="login_failed_text">Login failed. Make sure the correct user name and password is entered.</string>
     <string name="disconnected_text">Disconnected.</string>
     <string name="wifi_disabled_text">Wi-Fi is disabled</string>
     <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. When an active
