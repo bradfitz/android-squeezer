@@ -24,8 +24,6 @@
                 android:layout_height="wrap_content"
                 android:padding="16dp"
                 android:textAppearance="@style/SqueezerTextAppearance.Medium"
-                app:drawableLeftCompat="@android:drawable/ic_menu_info_details"
-                android:drawablePadding="4dp"
                 android:text="@string/login_failed_text"/>
 
             <uk.org.ngo.squeezer.dialog.ServerAddressView
