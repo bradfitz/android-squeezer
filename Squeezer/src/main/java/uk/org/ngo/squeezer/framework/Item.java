@@ -144,17 +144,17 @@ public abstract class Item implements Parcelable {
     private static Map<String, Integer> initializeSlimIcons() {
         Map<String, Integer> result = new HashMap<>();
 
-        result.put("myMusic", R.drawable.ic_my_music);
-        result.put("radio", R.drawable.ic_internet_radio);
-        result.put("radios", R.drawable.ic_internet_radio);
-        result.put("myMusicArtists", R.drawable.ic_artists);
-        result.put("myMusicAlbums", R.drawable.ic_albums);
-        result.put("myMusicGenres", R.drawable.ic_genres);
-        result.put("myMusicYears", R.drawable.ic_years);
-        result.put("myMusicNewMusic", R.drawable.ic_new_music);
-        result.put("myMusicPlaylists", R.drawable.ic_playlists);
-        result.put("myMusicMusicFolder", R.drawable.ic_music_folder);
-        result.put("randomplay", R.drawable.ic_random);
+        result.put("myMusic", R.drawable.icon_mymusic);
+        result.put("radio", R.drawable.icon_internet_radio);
+        result.put("radios", R.drawable.icon_internet_radio);
+        result.put("myMusicArtists", R.drawable.icon_ml_artists);
+        result.put("myMusicAlbums", R.drawable.icon_ml_albums);
+        result.put("myMusicGenres", R.drawable.icon_ml_genres);
+        result.put("myMusicYears", R.drawable.icon_ml_years);
+        result.put("myMusicNewMusic", R.drawable.icon_ml_new_music);
+        result.put("myMusicPlaylists", R.drawable.icon_ml_playlist);
+        result.put("myMusicMusicFolder", R.drawable.icon_ml_folder);
+        result.put("randomplay", R.drawable.icon_ml_random);
         result.put("settings", R.drawable.icon_settings);
         result.put("settingsShuffle", R.drawable.icon_settings_shuffle);
         result.put("settingsRepeat", R.drawable.icon_settings_repeat);
