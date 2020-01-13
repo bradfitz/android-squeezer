@@ -5,9 +5,9 @@
     <size android:height="36dp" android:width="36dp"/>
     <gradient
         android:type="radial"
-        android:gradientRadius="30dp"
-        android:startColor="#DFFFFFFF"
-        android:endColor="#CFFFFFFF"
+        android:gradientRadius="100%"
+        android:startColor="#EFEFEF"
+        android:endColor="#DFDFDF"
     />
     <stroke android:color="#AAAAAA" android:width="1dp"/>
 </shape>
