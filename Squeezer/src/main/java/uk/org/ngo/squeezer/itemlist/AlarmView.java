@@ -273,7 +273,7 @@ public class AlarmView extends BaseItemView<Alarm> {
     }
 
     @Override
-    public void onItemSelected(int index, Alarm item) {
+    public void onItemSelected(View view, int index, Alarm item) {
     }
 
     @Override

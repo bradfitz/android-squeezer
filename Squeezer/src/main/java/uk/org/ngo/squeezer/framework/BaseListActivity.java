@@ -87,7 +87,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
         listView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                getItemAdapter().onItemSelected(position);
+                getItemAdapter().onItemSelected(view, position);
             }
         });
 

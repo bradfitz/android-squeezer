@@ -135,11 +135,11 @@ public class CurrentPlaylistActivity extends PluginListActivity {
              * Jumps to whichever song the user chose.
              */
             @Override
-            public void onItemSelected(int index, Plugin item) {
+            public void onItemSelected(View view, int index, Plugin item) {
 
                 // check first for a hierarchical menu or a input to perform
                 if (item.hasSubItems() || item.hasInput()) {
-                    super.onItemSelected(index, item);
+                    super.onItemSelected(view, index, item);
                 } else {
                     ISqueezeService service = getActivity().getService();
                     if (service != null) {

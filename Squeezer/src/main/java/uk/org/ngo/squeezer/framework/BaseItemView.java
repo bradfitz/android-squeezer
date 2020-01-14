@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -114,6 +115,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         public View contextMenuButtonHolder;
         public ImageButton contextMenuButton;
         public ProgressBar contextMenuLoading;
+        public CheckBox contextMenuCheckbox;
 
         public @ViewParam int viewParams;
     }
@@ -277,6 +279,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             viewHolder.contextMenuButtonHolder = convertView.findViewById(R.id.context_menu);
             viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
             viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+            viewHolder.contextMenuCheckbox = viewHolder.contextMenuButtonHolder.findViewById(R.id.checkbox);
             setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }

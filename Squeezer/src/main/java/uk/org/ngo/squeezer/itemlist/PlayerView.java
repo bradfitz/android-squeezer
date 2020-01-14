@@ -90,7 +90,7 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     @Override
-    public void onItemSelected(int index, Player item) {
+    public void onItemSelected(View view, int index, Player item) {
     }
 
     @Override

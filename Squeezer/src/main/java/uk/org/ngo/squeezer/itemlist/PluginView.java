@@ -108,6 +108,7 @@ public class PluginView extends BaseItemView<Plugin> {
 
         viewHolder.text1.setText(item.getName());
         viewHolder.text2.setText(item.text2);
+
         // If the item has an image, then fetch and display it
         if (item.hasArtwork()) {
             ImageFetcher.getInstance(getActivity()).loadImage(item.getIcon(), viewHolder.icon,
@@ -116,6 +117,13 @@ public class PluginView extends BaseItemView<Plugin> {
             viewHolder.icon.setImageDrawable(item.getIconDrawable(getActivity()));
         }
 
+        if (item.hasContextMenu()) {
+            viewHolder.contextMenuButton.setVisibility(item.checkbox == null ? View.VISIBLE : View.GONE);
+            viewHolder.contextMenuCheckbox.setVisibility(item.checkbox != null ? View.VISIBLE : View.GONE);
+            if (item.checkbox != null) {
+                viewHolder.contextMenuCheckbox.setChecked(item.checkbox);
+            }
+        }
     }
 
     @Override
@@ -130,9 +138,18 @@ public class PluginView extends BaseItemView<Plugin> {
     }
 
     @Override
-    public void onItemSelected(int index, Plugin item) {
+    public void onItemSelected(View view, int index, Plugin item) {
         Action.JsonAction action = (item.goAction != null && item.goAction.action != null) ? item.goAction.action : null;
         Action.NextWindow nextWindow = (action != null ? action.nextWindow : item.nextWindow);
+        if (item.checkbox != null) {
+            item.checkbox = !item.checkbox;
+            Action checkboxAction = item.checkboxActions.get(item.checkbox);
+            if (checkboxAction != null) {
+                getActivity().action(item, checkboxAction);
+            }
+            ViewHolder viewHolder = (ViewHolder) view.getTag();
+            viewHolder.contextMenuCheckbox.setChecked(item.checkbox);
+        }
         if (nextWindow != null) {
             if (item.goAction != null) {
                 getActivity().action(item, item.goAction);

@@ -97,10 +97,11 @@ public interface ItemView<T extends Item> {
     /**
      * Implement the action to be taken when an item is selected.
      *
+     * @param view The view currently showing the item.
      * @param index Position in the list of the selected item.
      * @param item The selected item. This may be null if
      */
-    void onItemSelected(int index, T item);
+    void onItemSelected(View view, int index, T item);
 
     /**
      * Creates the context menu, and sets the menu's title to the name of the item that it is the

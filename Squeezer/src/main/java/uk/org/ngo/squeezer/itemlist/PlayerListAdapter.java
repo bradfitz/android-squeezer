@@ -99,8 +99,8 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
         mActivity = activity;
     }
 
-    public void onChildClick(int groupPosition, int childPosition) {
-        mChildAdapters.get(groupPosition).onItemSelected(childPosition);
+    public void onChildClick(View view, int groupPosition, int childPosition) {
+        mChildAdapters.get(groupPosition).onItemSelected(view, childPosition);
     }
 
     public void clear() {

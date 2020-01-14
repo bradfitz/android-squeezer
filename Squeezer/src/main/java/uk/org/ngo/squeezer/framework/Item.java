@@ -70,6 +70,8 @@ public abstract class Item implements Parcelable {
     public boolean showBigArtwork;
     public int selectedIndex;
     public String[] choiceStrings;
+    public Boolean checkbox;
+    public Map<Boolean, Action> checkboxActions;
 
     public Item() {
         name = "";
@@ -209,11 +211,11 @@ public abstract class Item implements Parcelable {
 
 
     public boolean isSelectable() {
-        return (goAction != null || nextWindow != null || hasSubItems()|| node != null);
+        return (goAction != null || nextWindow != null || hasSubItems()|| node != null || checkbox != null);
     }
 
     public boolean hasContextMenu() {
-        return (playAction != null || addAction != null || insertAction != null || moreAction != null);
+        return (playAction != null || addAction != null || insertAction != null || moreAction != null || checkbox != null);
     }
 
 
@@ -246,12 +248,21 @@ public abstract class Item implements Parcelable {
         if (moreAction != null) {
             moreAction.action.params.put("xmlBrowseInterimCM", 1);
         }
+
         subItems = extractSubItems((Object[]) record.get("item_loop"));
         showBigArtwork = record.containsKey("showBigArtwork");
+
         selectedIndex = getInt(record, "selectedIndex");
         choiceStrings = Util.getStringArray((Object[]) record.get("choiceStrings"));
         if (goAction != null && goAction.action != null && goAction.action.cmd.length == 0) {
             doAction = true;
+        }
+
+        if (record.containsKey("checkbox")) {
+            checkbox = (getInt(record, "checkbox") != 0);
+            checkboxActions = new HashMap<>();
+            checkboxActions.put(true, extractAction("on", baseActions, actionsRecord, record, baseRecord));
+            checkboxActions.put(false, extractAction("off", baseActions, actionsRecord, record, baseRecord));
         }
     }
 

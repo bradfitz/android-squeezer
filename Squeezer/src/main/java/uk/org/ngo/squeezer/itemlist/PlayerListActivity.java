@@ -100,7 +100,7 @@ public class PlayerListActivity extends ItemListActivity implements
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                         int childPosition, long id) {
-                mResultsAdapter.onChildClick(groupPosition, childPosition);
+                mResultsAdapter.onChildClick(v, groupPosition, childPosition);
                 return true;
             }
         });

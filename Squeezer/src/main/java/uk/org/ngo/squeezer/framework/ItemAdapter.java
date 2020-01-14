@@ -129,10 +129,10 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
         return mItemView.getActivity();
     }
 
-    public void onItemSelected(int position) {
+    public void onItemSelected(View view, int position) {
         T item = getItem(position);
         if (item != null) {
-            mItemView.onItemSelected(position, item);
+            mItemView.onItemSelected(view, position, item);
         }
     }
 
