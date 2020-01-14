@@ -287,6 +287,12 @@ public abstract class Item implements Parcelable {
         showBigArtwork = (source.readByte() != 0);
         selectedIndex = source.readInt();
         choiceStrings = source.createStringArray();
+        checkbox = (Boolean) source.readValue(null);
+        if (checkbox != null) {
+            checkboxActions = new HashMap<>();
+            checkboxActions.put(true, (Action) source.readParcelable(Item.class.getClassLoader()));
+            checkboxActions.put(false, (Action) source.readParcelable(Item.class.getClassLoader()));
+        }
     }
 
     @Override
@@ -311,6 +317,11 @@ public abstract class Item implements Parcelable {
         dest.writeByte((byte) (showBigArtwork ? 1 : 0));
         dest.writeInt(selectedIndex);
         dest.writeStringArray(choiceStrings);
+        dest.writeValue(checkbox);
+        if (checkbox != null) {
+            dest.writeParcelable(checkboxActions.get(true), flags);
+            dest.writeParcelable(checkboxActions.get(false), flags);
+        }
     }
 
 
