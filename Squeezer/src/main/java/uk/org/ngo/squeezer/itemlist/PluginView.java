@@ -130,12 +130,6 @@ public class PluginView extends BaseItemView<Plugin> {
     }
 
     @Override
-    public String getQuantityString(int quantity) {
-        return "plugins";
-        //throw new UnsupportedOperationException("quantities are not supported for plugins");
-    }
-
-    @Override
     public boolean isSelectable(Plugin item) {
         return item.isSelectable();
     }

@@ -151,11 +151,6 @@
         <item quantity="other">sekunder</item>
     </plurals>
 
-    <plurals name="player">
-        <item quantity="one">afspiller</item>
-        <item quantity="other">afspillere</item>
-    </plurals>
-
     <string name="X_MINUTES">%s minutter</string>
     <string name="SLEEP">Slumre</string>
     <string name="ALBUM_DISPLAY_OPTIONS">Indstillinger for visning af album</string>

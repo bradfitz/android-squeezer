@@ -136,11 +136,6 @@
         <item quantity="other">secondes</item>
     </plurals>
 
-    <plurals name="player">
-        <item quantity="one">platine</item>
-        <item quantity="other">platines</item>
-    </plurals>
-
     <string name="pref_cat_third_party">Intégration tierce</string>
 
     <string name="X_MINUTES">%s minutes</string>

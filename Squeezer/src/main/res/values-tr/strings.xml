@@ -224,8 +224,4 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <item quantity="one">saniye</item>
     <item quantity="other">saniye</item>
   </plurals>
-    <plurals name="player">
-    <item quantity="one">oynatıcı</item>
-    <item quantity="other">oynatıcılar</item>
-  </plurals>
 </resources>

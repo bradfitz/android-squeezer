@@ -330,11 +330,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
         <item quantity="other">seconds</item>
     </plurals>
 
-    <plurals name="player">
-        <item quantity="one">player</item>
-        <item quantity="other">players</item>
-    </plurals>
-
     <string name="pref_cat_third_party">Third-party integration</string>
 
     <string name="X_MINUTES">%s minutes</string>

@@ -62,12 +62,12 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     /**
      * This is set if the list shall start with an empty item.
      */
-    protected final boolean mEmptyItem;
+    private final boolean mEmptyItem;
 
     /**
      * Text to display before the items are received from SqueezeServer
      */
-    protected final String loadingText;
+    private final String loadingText;
 
     /**
      * Number of elements to by fetched at a time
@@ -127,10 +127,6 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
 
         return mItemView.getAdapterView(convertView, parent,
                 (position == 0 && mEmptyItem ? "" : loadingText));
-    }
-
-    public String getQuantityString(int size) {
-        return mItemView.getQuantityString(size);
     }
 
     public ItemListActivity getActivity() {
@@ -257,16 +253,6 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     }
 
     /**
-     * Generates a string suitable for use as the list's title.
-     *
-     * @return the title.
-     */
-    public String getHeader() {
-        String item_text = getQuantityString(getCount());
-        return getActivity().getString(R.string.browse_items_text, item_text, getCount());
-    }
-
-    /**
      * Called when the number of items in the list changes. The default implementation is empty.
      */
     protected void onCountUpdated() {
@@ -356,7 +342,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
         notifyDataSetChanged();
     }
 
-    protected T[] arrayInstance(int size) {
+    private T[] arrayInstance(int size) {
         return mItemView.getCreator().newArray(size);
     }
 

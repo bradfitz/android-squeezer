@@ -195,11 +195,6 @@ public class PlayerView extends BaseItemView<Player> {
         return super.doItemContext(menuItem);
     }
 
-    @Override
-    public String getQuantityString(int quantity) {
-        return getActivity().getResources().getQuantityString(R.plurals.player, quantity);
-    }
-
     private static Map<String, Integer> initializeModelIcons() {
         Map<String, Integer> modelIcons = new HashMap<>();
         modelIcons.put("baby", R.drawable.ic_baby);

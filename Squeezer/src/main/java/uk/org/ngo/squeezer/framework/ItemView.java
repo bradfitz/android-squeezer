@@ -46,11 +46,6 @@ public interface ItemView<T extends Item> {
     ItemListActivity getActivity();
 
     /**
-     * @return {@link android.content.res.Resources#getQuantityString(int, int)}
-     */
-    String getQuantityString(int quantity);
-
-    /**
      * Gets a {@link android.view.View} that displays the data at the specified position in the data
      * set. See {@link ItemAdapter#getView(int, View, android.view.ViewGroup)}
      *

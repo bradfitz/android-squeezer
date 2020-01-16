@@ -83,7 +83,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             VIEW_PARAM_ICON, VIEW_PARAM_TWO_LINE, VIEW_PARAM_CONTEXT_BUTTON
     })
     @Retention(RetentionPolicy.SOURCE)
-    /** Parameters that control which additional views will be enabled in the item view. */
+    /* Parameters that control which additional views will be enabled in the item view. */
     public @interface ViewParam {}
     /** Adds a {@link SquareImageView} for displaying artwork or other iconography. */
     public static final int VIEW_PARAM_ICON = 1;

@@ -96,10 +96,6 @@
         <item quantity="one">seconde</item>
         <item quantity="other">seconden</item>
     </plurals>
-    <plurals name="player">
-        <item quantity="one">speler</item>
-        <item quantity="other">spelers</item>
-    </plurals>
 
     <string name="X_MINUTES">%s minuten</string>
     <string name="SLEEP">Sluimermodus</string>

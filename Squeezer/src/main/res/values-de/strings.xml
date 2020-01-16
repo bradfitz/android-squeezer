@@ -110,11 +110,6 @@
         <item quantity="other">Sekunden</item>
     </plurals>
 
-    <plurals name="player">
-        <item quantity="one">Abspielgerät</item>
-        <item quantity="other">Abspielgeräte</item>
-    </plurals>
-
     <string name="X_MINUTES">%s Minuten</string>
     <string name="SLEEP">Schlafmodus</string>
     <string name="ALBUM_DISPLAY_OPTIONS">Albumansicht - Optionen</string>
