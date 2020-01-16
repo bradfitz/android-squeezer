@@ -30,6 +30,7 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.lang.annotation.Retention;
@@ -116,6 +117,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         public ImageButton contextMenuButton;
         public ProgressBar contextMenuLoading;
         public CheckBox contextMenuCheckbox;
+        public RadioButton contextMenuRadio;
 
         public @ViewParam int viewParams;
     }
@@ -280,6 +282,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
             viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
             viewHolder.contextMenuCheckbox = viewHolder.contextMenuButtonHolder.findViewById(R.id.checkbox);
+            viewHolder.contextMenuRadio = viewHolder.contextMenuButtonHolder.findViewById(R.id.radio);
             setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }

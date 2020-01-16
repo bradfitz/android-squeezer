@@ -75,6 +75,11 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     private final int pageSize;
 
     /**
+     * Index of the latest selected item see {@link #onItemSelected(View, int)}
+     */
+    private int selectedIndex;
+
+    /**
      * Creates a new adapter. Initially the item list is populated with items displaying the
      * localized "loading" text. Call {@link #update(int, int, List)} as items arrives from
      * SqueezeServer.
@@ -114,6 +119,9 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     public View getView(int position, View convertView, ViewGroup parent) {
         T item = getItem(position);
         if (item != null) {
+            if (item.radio != null) {
+                item.radio = (position == selectedIndex);
+            }
             return mItemView.getAdapterView(convertView, parent, position, item);
         }
 
@@ -129,10 +137,22 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
         return mItemView.getActivity();
     }
 
+    public int getSelectedIndex() {
+        return selectedIndex;
+    }
+
+    public void setSelectedIndex(int index) {
+        selectedIndex = index;
+    }
+
     public void onItemSelected(View view, int position) {
         T item = getItem(position);
         if (item != null) {
+            selectedIndex = position;
             mItemView.onItemSelected(view, position, item);
+            if (item.radio != null) {
+                notifyDataSetChanged();
+            }
         }
     }
 
@@ -194,6 +214,9 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
         T[] page = getPage(start);
         int offset = start % pageSize;
         for (T item : items) {
+            if (item.radio != null && item.radio) {
+                selectedIndex = start + offset;
+            }
             if (offset >= pageSize) {
                 start += offset;
                 page = getPage(start);
@@ -216,6 +239,9 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     }
 
     public void setItem(int position, T item) {
+        if (item.radio != null && item.radio) {
+            selectedIndex = position;
+        }
         getPage(position)[position % pageSize] = item;
     }
 

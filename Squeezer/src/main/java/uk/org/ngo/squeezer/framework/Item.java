@@ -72,6 +72,7 @@ public abstract class Item implements Parcelable {
     public String[] choiceStrings;
     public Boolean checkbox;
     public Map<Boolean, Action> checkboxActions;
+    public Boolean radio;
 
     public Item() {
         name = "";
@@ -215,7 +216,7 @@ public abstract class Item implements Parcelable {
     }
 
     public boolean hasContextMenu() {
-        return (playAction != null || addAction != null || insertAction != null || moreAction != null || checkbox != null);
+        return (playAction != null || addAction != null || insertAction != null || moreAction != null || checkbox != null || radio != null);
     }
 
 
@@ -264,6 +265,10 @@ public abstract class Item implements Parcelable {
             checkboxActions.put(true, extractAction("on", baseActions, actionsRecord, record, baseRecord));
             checkboxActions.put(false, extractAction("off", baseActions, actionsRecord, record, baseRecord));
         }
+
+        if (record.containsKey("radio")) {
+            radio = (getInt(record, "radio") != 0);
+        }
     }
 
     public Item(Parcel source) {
@@ -276,23 +281,24 @@ public abstract class Item implements Parcelable {
         type = source.readString();
         nextWindow = Action.NextWindow.fromString(source.readString());
         input = Input.readFromParcel(source);
-        window = source.readParcelable(Item.class.getClassLoader());
-        goAction = source.readParcelable(Item.class.getClassLoader());
-        playAction = source.readParcelable(Item.class.getClassLoader());
-        addAction = source.readParcelable(Item.class.getClassLoader());
-        insertAction = source.readParcelable(Item.class.getClassLoader());
-        moreAction = source.readParcelable(Item.class.getClassLoader());
+        window = source.readParcelable(getClass().getClassLoader());
+        goAction = source.readParcelable(getClass().getClassLoader());
+        playAction = source.readParcelable(getClass().getClassLoader());
+        addAction = source.readParcelable(getClass().getClassLoader());
+        insertAction = source.readParcelable(getClass().getClassLoader());
+        moreAction = source.readParcelable(getClass().getClassLoader());
         subItems = source.createTypedArrayList(Plugin.CREATOR);
         doAction = (source.readByte() != 0);
         showBigArtwork = (source.readByte() != 0);
         selectedIndex = source.readInt();
         choiceStrings = source.createStringArray();
-        checkbox = (Boolean) source.readValue(null);
+        checkbox = (Boolean) source.readValue(getClass().getClassLoader());
         if (checkbox != null) {
             checkboxActions = new HashMap<>();
-            checkboxActions.put(true, (Action) source.readParcelable(Item.class.getClassLoader()));
-            checkboxActions.put(false, (Action) source.readParcelable(Item.class.getClassLoader()));
+            checkboxActions.put(true, (Action) source.readParcelable(getClass().getClassLoader()));
+            checkboxActions.put(false, (Action) source.readParcelable(getClass().getClassLoader()));
         }
+        radio = (Boolean) source.readValue(getClass().getClassLoader());
     }
 
     @Override
@@ -322,6 +328,7 @@ public abstract class Item implements Parcelable {
             dest.writeParcelable(checkboxActions.get(true), flags);
             dest.writeParcelable(checkboxActions.get(false), flags);
         }
+        dest.writeValue(radio);
     }
 
 
@@ -428,7 +435,6 @@ public abstract class Item implements Parcelable {
 
     private void splitItemText(String text) {
         // This happens enough for regular expressions to be ineffective
-        String[] out = new String[2];
         int nameEnd = text.indexOf('\n');
         if (nameEnd > 0) {
             name = text.substring(0, nameEnd);

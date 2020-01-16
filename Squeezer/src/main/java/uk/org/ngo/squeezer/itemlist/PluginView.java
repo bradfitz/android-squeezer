@@ -118,10 +118,13 @@ public class PluginView extends BaseItemView<Plugin> {
         }
 
         if (item.hasContextMenu()) {
-            viewHolder.contextMenuButton.setVisibility(item.checkbox == null ? View.VISIBLE : View.GONE);
+            viewHolder.contextMenuButton.setVisibility(item.checkbox == null && item.radio == null ? View.VISIBLE : View.GONE);
             viewHolder.contextMenuCheckbox.setVisibility(item.checkbox != null ? View.VISIBLE : View.GONE);
+            viewHolder.contextMenuRadio.setVisibility(item.radio != null ? View.VISIBLE : View.GONE);
             if (item.checkbox != null) {
                 viewHolder.contextMenuCheckbox.setChecked(item.checkbox);
+            } else if (item.radio != null) {
+                viewHolder.contextMenuRadio.setChecked(item.radio);
             }
         }
     }
@@ -149,8 +152,7 @@ public class PluginView extends BaseItemView<Plugin> {
             }
             ViewHolder viewHolder = (ViewHolder) view.getTag();
             viewHolder.contextMenuCheckbox.setChecked(item.checkbox);
-        }
-        if (nextWindow != null) {
+        } else if (nextWindow != null) {
             if (item.goAction != null) {
                 getActivity().action(item, item.goAction);
             }

@@ -45,5 +45,12 @@ limitations under the License.
         android:clickable="false"
         android:visibility="gone"/>
 
+    <RadioButton
+        android:id="@+id/radio"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:visibility="gone"/>
+
 
 </RelativeLayout>

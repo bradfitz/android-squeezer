@@ -62,12 +62,10 @@ public class CurrentPlaylistActivity extends PluginListActivity {
      */
     private Handler playlistIndexUpdateHandler = new Handler();
 
-    private int currentPlaylistIndex;
-
     /**
      * A list adapter that highlights the view that's currently playing.
      */
-    private class HighlightingListAdapter extends ItemAdapter<Plugin> {
+    private static class HighlightingListAdapter extends ItemAdapter<Plugin> {
 
         public HighlightingListAdapter(ItemView<Plugin> itemView) {
             super(itemView);
@@ -81,9 +79,8 @@ public class CurrentPlaylistActivity extends PluginListActivity {
             // This test because the view tag wont be set until the album is received from the server
             if (viewTag instanceof ViewHolder) {
                 ViewHolder viewHolder = (ViewHolder) viewTag;
-                if (position == currentPlaylistIndex) {
-                    viewHolder.text1
-                            .setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Primary);
+                if (position == getSelectedIndex()) {
+                    viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Primary);
 
                     // Changing the background resource to a 9-patch drawable causes the padding
                     // to be reset. See http://www.mail-archive.com/android-developers@googlegroups.com/msg09595.html
@@ -94,12 +91,12 @@ public class CurrentPlaylistActivity extends PluginListActivity {
                     int paddingRight = view.getPaddingRight();
                     int paddingBottom = view.getPaddingBottom();
 
-                    view.setBackgroundResource(getAttributeValue(R.attr.playing_item));
+                    view.setBackgroundResource(getActivity().getAttributeValue(R.attr.playing_item));
 
                     view.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
                 } else {
                     viewHolder.text1.setTextAppearance(getActivity(), R.style.SqueezerTextAppearance_ListItem_Primary);
-                    view.setBackgroundColor(getAttributeValue(R.attr.background));
+                    view.setBackgroundColor(getActivity().getAttributeValue(R.attr.background));
                 }
             }
             return view;
@@ -177,7 +174,7 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_playlist_show_current_song:
-                selectCurrentSong(currentPlaylistIndex, 0);
+                selectCurrentSong(getItemAdapter().getSelectedIndex(), 0);
                 return true;
 
         }
@@ -196,7 +193,7 @@ public class CurrentPlaylistActivity extends PluginListActivity {
             return;
         }
         if (event.player.equals(getService().getActivePlayer())) {
-            currentPlaylistIndex = event.playerState.getCurrentPlaylistIndex();
+            getItemAdapter().setSelectedIndex(event.playerState.getCurrentPlaylistIndex());
             getItemAdapter().notifyDataSetChanged();
         }
     }
@@ -229,13 +226,13 @@ public class CurrentPlaylistActivity extends PluginListActivity {
             return;
         }
 
-        currentPlaylistIndex = service.getPlayerState().getCurrentPlaylistIndex();
+        getItemAdapter().setSelectedIndex(service.getPlayerState().getCurrentPlaylistIndex());
         // Initially position the list at the currently playing song.
         // Do it again once it has loaded because the newly displayed items
-        // may push the current song outside the displayed area.
-        if (start == 0 || (start <= currentPlaylistIndex && currentPlaylistIndex < start + items
-                .size())) {
-            selectCurrentSong(currentPlaylistIndex, start);
+        // may push the current song outside the displayed area
+        int selectedIndex = getItemAdapter().getSelectedIndex();
+        if (start == 0 || (start <= selectedIndex && selectedIndex < start + items.size())) {
+            selectCurrentSong(selectedIndex, start);
         }
     }
 
