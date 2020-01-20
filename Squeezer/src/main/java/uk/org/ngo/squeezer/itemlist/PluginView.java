@@ -22,6 +22,8 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 
@@ -33,6 +35,7 @@ import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
+import uk.org.ngo.squeezer.framework.Slider;
 import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.model.Plugin;
@@ -67,10 +70,53 @@ public class PluginView extends BaseItemView<Plugin> {
     }
 
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, int position, Plugin item) {
-        @ViewParam int viewParams = (viewParamIcon() | VIEW_PARAM_TWO_LINE | viewParamContext(item));
-        View view = getAdapterView(convertView, parent, viewParams);
-        bindView(view, item);
+    public View getAdapterView(View convertView, ViewGroup parent, int position, final Plugin item) {
+        if (item.hasSlider()) {
+            return sliderView(parent, item);
+        } else {
+            @ViewParam int viewParams = (viewParamIcon() | VIEW_PARAM_TWO_LINE | viewParamContext(item));
+            View view = getAdapterView(convertView, parent, viewParams);
+            bindView(view, item);
+            return view;
+        }
+    }
+
+    private View sliderView(ViewGroup parent, final Plugin item) {
+        View view = getLayoutInflater().inflate(R.layout.slider_item, parent, false);
+        final TextView sliderValue = view.findViewById(R.id.slider_value);
+        SeekBar seekBar = view.findViewById(R.id.slider);
+        final int thumbWidth = seekBar.getThumb().getIntrinsicWidth();
+        final int thumbOffset = seekBar.getThumbOffset();
+        final Slider slider = item.slider;
+        final int max = seekBar.getMax();
+        seekBar.setProgress((slider.initial - slider.min) * max / (slider.max - slider.min));
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                sliderValue.setText(String.valueOf(getValue(progress)));
+
+                int pos = progress * (seekBar.getWidth() - 2 * thumbWidth) / seekBar.getMax();
+                sliderValue.setX(seekBar.getX() + pos + thumbOffset + thumbWidth);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                sliderValue.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (item.goAction != null) {
+                    sliderValue.setVisibility(View.INVISIBLE);
+                    item.inputValue = String.valueOf(getValue(seekBar.getProgress()));
+                    getActivity().action(item, item.goAction);
+                }
+            }
+
+            private int getValue(int progress) {
+                return slider.min + (slider.max - slider.min) * progress / max;
+            }
+        });
         return view;
     }
 

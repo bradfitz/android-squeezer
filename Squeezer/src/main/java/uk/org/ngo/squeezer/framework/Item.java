@@ -73,6 +73,7 @@ public abstract class Item implements Parcelable {
     public Boolean checkbox;
     public Map<Boolean, Action> checkboxActions;
     public Boolean radio;
+    public Slider slider;
 
     public Item() {
         name = "";
@@ -269,6 +270,16 @@ public abstract class Item implements Parcelable {
         if (record.containsKey("radio")) {
             radio = (getInt(record, "radio") != 0);
         }
+
+        if (record.containsKey("slider")) {
+            slider = new Slider();
+            slider.min = getInt(record, "min");
+            slider.max = getInt(record, "max");
+            slider.adjust = getInt(record, "adjust");
+            slider.initial = getInt(record, "initial");
+            slider.sliderIcons = getString(record, "sliderIcons");
+            slider.help = getString(record, "help");
+        }
     }
 
     public Item(Parcel source) {
@@ -299,6 +310,7 @@ public abstract class Item implements Parcelable {
             checkboxActions.put(false, (Action) source.readParcelable(getClass().getClassLoader()));
         }
         radio = (Boolean) source.readValue(getClass().getClassLoader());
+        slider = source.readParcelable(getClass().getClassLoader());
     }
 
     @Override
@@ -329,6 +341,7 @@ public abstract class Item implements Parcelable {
             dest.writeParcelable(checkboxActions.get(false), flags);
         }
         dest.writeValue(radio);
+        dest.writeParcelable(slider, flags);
     }
 
 
@@ -342,6 +355,10 @@ public abstract class Item implements Parcelable {
 
     public boolean hasChoices() {
         return (choiceStrings.length > 0);
+    }
+
+    public boolean hasSlider() {
+        return (slider != null);
     }
 
     public boolean isInputReady() {
@@ -539,7 +556,6 @@ public abstract class Item implements Parcelable {
             }
         } else {
             actionHolder.action = extractJsonAction(baseRecord, actionsRecord, itemParams);
-            actionHolder.initInputParam();
         }
 
         return actionHolder;

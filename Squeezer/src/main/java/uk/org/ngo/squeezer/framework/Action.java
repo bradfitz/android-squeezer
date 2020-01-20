@@ -91,22 +91,19 @@ public class Action implements Parcelable {
     }
 
 
-    public void initInputParam() {
-        if (action.params.containsValue(TAGGEDINPUT_PLACEHOLDER)) {
+    public InputType getInputType() {
+        if (action != null && action.params.containsValue(TAGGEDINPUT_PLACEHOLDER)) {
             for (Map.Entry<String, Object> entry : action.params.entrySet()) {
                 if (TAGGEDINPUT_PLACEHOLDER.equals(entry.getValue())) {
-                    action.inputParam = entry.getKey();
-                    break;
+                    switch (entry.getKey()) {
+                        case "search": return InputType.SEARCH;
+                        case "email": return InputType.EMAIL;
+                        case "password": return InputType.PASSWORD;
+                        default: return InputType.TEXT;
+                    }
                 }
             }
         }
-    }
-
-    public InputType getInputType() {
-        if (action.inputParam == null) return InputType.TEXT;
-        if ("search".equals(action.inputParam)) return InputType.SEARCH;
-        if ("email".equals(action.inputParam)) return InputType.EMAIL;
-        if ("password".equals(action.inputParam)) return InputType.PASSWORD;
         return InputType.TEXT;
     }
 
@@ -139,8 +136,6 @@ public class Action implements Parcelable {
          * See <item_fields> section for more detail on this parameter. */
         public NextWindow nextWindow;
 
-        private String inputParam;
-
         public String cmd() {
             return joiner.join(cmd);
         }
@@ -152,13 +147,16 @@ public class Action implements Parcelable {
             Map<String, Object> out = new HashMap<>();
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 String value = entry.getValue().toString();
-                if (INPUT_PLACEHOLDER.equals(value)) {
+                if (TAGGEDINPUT_PLACEHOLDER.equals(value)) {
+                    out.put(entry.getKey(), input);
+                } else if (INPUT_PLACEHOLDER.equals(value)) {
                     out.put(input, null);
                 } else
                     out.put(entry.getKey(), value);
             }
-            if (inputParam != null) {
-                out.put(inputParam, input);
+            if (out.containsKey("valtag")) {
+                out.put(Util.getStringOrEmpty(out.get("valtag")), input);
+                out.remove("valtag");
             }
             return out;
         }
@@ -178,7 +176,6 @@ public class Action implements Parcelable {
             action.cmd = source.createStringArray();
             action.params = Util.mapify(source.createStringArray());
             action.nextWindow = NextWindow.fromString(source.readString());
-            action.inputParam = source.readString();
 
             return action;
         }
@@ -192,7 +189,6 @@ public class Action implements Parcelable {
             }
             dest.writeStringArray(tokens);
             dest.writeString(action.nextWindow == null ? null : action.nextWindow.toString());
-            dest.writeString(action.inputParam);
         }
     }
 

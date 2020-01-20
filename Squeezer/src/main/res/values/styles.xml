@@ -35,6 +35,9 @@
         <item name="ic_action_view_as_grid">@drawable/ic_action_view_as_grid</item>
         <item name="ic_action_view_as_list">@drawable/ic_action_view_as_list</item>
 
+        <item name="ic_action_av_volume_up">@drawable/ic_volume_up_light</item>
+        <item name="ic_action_av_volume_down">@drawable/ic_volume_down_light</item>
+
         <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
 
         <item name="alarm_dow_selected">@android:color/white</item>
@@ -72,6 +75,9 @@
 
         <item name="ic_action_view_as_grid">@drawable/ic_action_view_as_grid_light</item>
         <item name="ic_action_view_as_list">@drawable/ic_action_view_as_list_light</item>
+
+        <item name="ic_action_av_volume_up">@drawable/ic_volume_up_dark</item>
+        <item name="ic_action_av_volume_down">@drawable/ic_volume_down_dark</item>
 
         <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
 

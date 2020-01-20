@@ -39,6 +39,9 @@
         <attr name="ic_action_view_as_list" format="reference"/>
     </declare-styleable>
 
+    <attr name="ic_action_av_volume_down" format="reference"/>
+    <attr name="ic_action_av_volume_up" format="reference"/>
+
     <declare-styleable name="playlist">
         <!-- The highlight colour used to show currently playing items
              in a playlist. -->
