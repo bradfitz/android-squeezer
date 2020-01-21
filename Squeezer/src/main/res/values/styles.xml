@@ -60,10 +60,10 @@
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="ic_action_av_next">@drawable/ic_action_av_next_holo_light</item>
-        <item name="ic_action_av_pause">@drawable/ic_action_av_pause_holo_light</item>
-        <item name="ic_action_av_play">@drawable/ic_action_av_play_holo_light</item>
-        <item name="ic_action_av_previous">@drawable/ic_action_av_previous_holo_light</item>
+        <item name="ic_action_av_next">@drawable/ic_action_next_light</item>
+        <item name="ic_action_av_pause">@drawable/ic_action_pause_light</item>
+        <item name="ic_action_av_play">@drawable/ic_action_play_light</item>
+        <item name="ic_action_av_previous">@drawable/ic_action_previous_light</item>
 
         <item name="ic_action_av_repeat_off">@drawable/ic_action_av_repeat_holo_light</item>
         <item name="ic_action_av_repeat_one">@drawable/btn_repeat_one</item>

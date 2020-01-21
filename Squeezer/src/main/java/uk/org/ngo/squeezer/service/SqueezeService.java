@@ -27,15 +27,20 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -540,10 +545,14 @@ public class SqueezeService extends Service {
                 builder.setCategory(NotificationCompat.CATEGORY_SERVICE);
                 builder.setSmallIcon(R.drawable.squeezer_notification);
 
+                normalView.setImageViewBitmap(R.id.next, vectorToBitmap(R.drawable.ic_action_next));
                 normalView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
 
+                expandedView.setImageViewBitmap(R.id.disconnect, vectorToBitmap(R.drawable.ic_action_disconnect));
                 expandedView.setOnClickPendingIntent(R.id.disconnect, closePendingIntent);
+                expandedView.setImageViewBitmap(R.id.previous, vectorToBitmap(R.drawable.ic_action_previous));
                 expandedView.setOnClickPendingIntent(R.id.previous, prevPendingIntent);
+                expandedView.setImageViewBitmap(R.id.next, vectorToBitmap(R.drawable.ic_action_next));
                 expandedView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
 
                 builder.setContent(normalView);
@@ -557,16 +566,16 @@ public class SqueezeService extends Service {
                 expandedView.setTextViewText(R.id.player_name, notificationState.playerName);
 
                 if (notificationState.playing) {
-                    normalView.setImageViewResource(R.id.pause, R.drawable.ic_action_pause);
+                    normalView.setImageViewBitmap(R.id.pause, vectorToBitmap(R.drawable.ic_action_pause));
                     normalView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
 
-                    expandedView.setImageViewResource(R.id.pause, R.drawable.ic_action_pause);
+                    expandedView.setImageViewBitmap(R.id.pause, vectorToBitmap(R.drawable.ic_action_pause));
                     expandedView.setOnClickPendingIntent(R.id.pause, pausePendingIntent);
                 } else {
-                    normalView.setImageViewResource(R.id.pause, R.drawable.ic_action_play);
+                    normalView.setImageViewBitmap(R.id.pause, vectorToBitmap(R.drawable.ic_action_play));
                     normalView.setOnClickPendingIntent(R.id.pause, playPendingIntent);
 
-                    expandedView.setImageViewResource(R.id.pause, R.drawable.ic_action_play);
+                    expandedView.setImageViewBitmap(R.id.pause, vectorToBitmap(R.drawable.ic_action_play));
                     expandedView.setOnClickPendingIntent(R.id.pause, playPendingIntent);
                 }
 
@@ -575,6 +584,15 @@ public class SqueezeService extends Service {
                 builder.setContentIntent(pIntent);
             }
         }
+    }
+
+    private Bitmap vectorToBitmap(@DrawableRes int vectorResource) {
+        Drawable drawable = AppCompatResources.getDrawable(this, vectorResource);
+        Bitmap b = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        drawable.setBounds(0, 0, c.getWidth(), c.getHeight());
+        drawable.draw(c);
+        return b;
     }
 
     /**
