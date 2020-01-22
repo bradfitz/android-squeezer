@@ -135,7 +135,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             inputText.setInputType(inputType);
             inputButton.setImageResource(inputImage);
             inputText.setHint(parent.input.title);
-            inputText.setText(parent.inputValue);
+            inputText.setText(parent.input.initialText);
             inputText.setOnKeyListener(new OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {

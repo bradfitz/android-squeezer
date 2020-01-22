@@ -513,6 +513,7 @@ public abstract class Item implements Parcelable {
         input.softbutton2 = getString(record, "softbutton2");
         input.inputStyle = getString(record, "inputStyle");
         input.title = getString(record, "title");
+        input.initialText = getString(record, "initialText");
         input.allowedChars = getString(record, "allowedChars");
         Map<String, Object> helpRecord = getRecord(record, "help");
         if (helpRecord != null) {
