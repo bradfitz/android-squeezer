@@ -30,8 +30,6 @@ import android.text.SpannableString;
 import android.text.format.DateFormat;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.view.ContextMenu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -81,10 +79,6 @@ public class AlarmView extends BaseItemView<Alarm> {
         mResources = activity.getResources();
         mColorSelected = mResources.getColor(getActivity().getAttributeValue(R.attr.alarm_dow_selected));
         mDensity = mResources.getDisplayMetrics().density;
-    }
-
-    public String getQuantityString(int quantity) {
-        return null;
     }
 
     @Override
@@ -274,15 +268,6 @@ public class AlarmView extends BaseItemView<Alarm> {
 
     @Override
     public void onItemSelected(View view, int index, Alarm item) {
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-    }
-
-    @Override
-    public boolean doItemContext(MenuItem menuItem, int index, Alarm selectedItem) {
-        return false;
     }
 
     // Require an immutable list so that caller's can't modify it when this method iterates

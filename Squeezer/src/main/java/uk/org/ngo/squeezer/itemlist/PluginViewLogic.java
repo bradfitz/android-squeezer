@@ -18,20 +18,15 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
 import androidx.fragment.app.FragmentManager;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.PopupMenu;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.BaseItemView;
@@ -73,24 +68,34 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
         }
     }
 
+    private BaseItemView.ViewHolder getViewHolder(View v) {
+        while (v != null) {
+            if (v.getTag() instanceof BaseItemView.ViewHolder) {
+                return (BaseItemView.ViewHolder) v.getTag();
+            }
+            v = (View) v.getParent();
+        }
+        throw new RuntimeException("No ViewHolder found in View hierarchy");
+    }
+
     // Only touch these from the main thread
     private boolean contextMenuReady = false;
     private boolean contextMenuWaiting = false;
-    private Stack<Action> contextStack;
-    private View contextMenuView;
-    private String contextMenuTitle;
+    private BaseItemView.ViewHolder contextMenuViewHolder;
+    private Item contextItem;
     private List<Plugin> contextItems;
 
-    public void onCreateContextMenu(final ContextMenu menu, final View v, Item item) {
+    public void showContextMenu(final View v, Item item) {
+
         if (!contextMenuReady && !contextMenuWaiting) {
-            contextMenuTitle = null;
             contextItems = null;
             if (item.moreAction != null) {
-                contextMenuView = v;
-                contextStack = new Stack<>();
-                contextStack.push(item.moreAction);
+                contextMenuViewHolder = getViewHolder(v);
+                contextItem = item;
                 orderContextMenu(item.moreAction);
             } else {
+                PopupMenu popup = new PopupMenu(activity, v);
+                Menu menu = popup.getMenu();
                 if (item.playAction != null) {
                     menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
                 }
@@ -103,40 +108,30 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
                 if (item.moreAction != null) {
                     menu.add(Menu.NONE, R.id.more, Menu.NONE, R.string.MORE);
                 }
+
+                popup.show();
             }
         } else if (contextMenuReady) {
             contextMenuReady = false;
-            // TODO some callback or other way to handle button visibility
-            BaseItemView.ViewHolder viewHolder = (BaseItemView.ViewHolder) contextMenuView.getTag();
-            viewHolder.contextMenuButton.setVisibility(View.VISIBLE);
-            viewHolder.contextMenuLoading.setVisibility(View.INVISIBLE);
-            if (contextStack.size() > 1) {
-                View headerVew = activity.getLayoutInflater().inflate(R.layout.context_menu_header, (ViewGroup) v, false);
-                menu.setHeaderView(headerVew);
-                ImageView backButton = headerVew.findViewById(R.id.back);
-                if (contextStack.size() > 1) {
-                    backButton.setVisibility(View.VISIBLE);
-                    backButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            menu.close();
-                            contextStack.pop();
-                            orderContextMenu(contextStack.peek());
-                        }
-                    });
-                } else {
-                    backButton.setVisibility(View.GONE);
-                }
-                if (contextMenuTitle != null) {
-                    ((TextView) headerVew.findViewById(R.id.title)).setText(contextMenuTitle);
-                }
-            } else if (contextMenuTitle != null) {
-                menu.setHeaderTitle(contextMenuTitle);
-            }
+            contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
+            contextMenuViewHolder.contextMenuLoading.setVisibility(View.INVISIBLE);
+
+            PopupMenu popup = new PopupMenu(activity, v);
+            Menu menu = popup.getMenu();
+
             int index = 0;
             for (Plugin plugin : contextItems) {
                 menu.add(Menu.NONE, index++, Menu.NONE, plugin.getName()).setEnabled(plugin.goAction != null);
             }
+
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    return doItemContext(item, contextItem);
+                }
+            });
+
+            popup.show();
         }
     }
 
@@ -144,15 +139,13 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
         ISqueezeService service = activity.getService();
         if (service != null) {
             contextMenuWaiting = true;
-            // TODO some callback or other way to handle button visibility
-            BaseItemView.ViewHolder viewHolder = (BaseItemView.ViewHolder) contextMenuView.getTag();
-            viewHolder.contextMenuButton.setVisibility(View.GONE);
-            viewHolder.contextMenuLoading.setVisibility(View.VISIBLE);
+            contextMenuViewHolder.contextMenuButton.setVisibility(View.GONE);
+            contextMenuViewHolder.contextMenuLoading.setVisibility(View.VISIBLE);
             service.pluginItems(action, this);
         }
     }
 
-    public boolean doItemContext(MenuItem menuItem, Item selectedItem) {
+    private boolean doItemContext(MenuItem menuItem, Item selectedItem) {
         if (contextItems != null) {
             selectedItem = contextItems.get(menuItem.getItemId());
             Action.NextWindow nextWindow = (selectedItem.goAction != null ? selectedItem.goAction.action.nextWindow : selectedItem.nextWindow);
@@ -177,7 +170,6 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
                 }
             } else {
                 if (selectedItem.goAction.isContextMenu()) {
-                    contextStack.push(selectedItem.goAction);
                     orderContextMenu(selectedItem.goAction);
                 } else {
                     execGoAction(selectedItem);
@@ -210,18 +202,14 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
 
     @Override
     public void onItemsReceived(int count, int start, final Map<String, Object> parameters, final List<Plugin> items, Class<Plugin> dataType) {
-        // FIXME check for activity atill running
+        // FIXME check for activity still running
         activity.getUIThreadHandler().post(new Runnable() {
             @Override
             public void run() {
                 contextMenuReady = true;
                 contextMenuWaiting = false;
-                if (parameters.containsKey("title")) {
-                    contextMenuTitle = Util.getString(parameters, "title");
-                }
                 contextItems = items;
-                // TODO callback?
-                contextMenuView.showContextMenu();
+                showContextMenu(contextMenuViewHolder.contextMenuButtonHolder, contextItem);
             }
         });
     }

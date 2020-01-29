@@ -17,12 +17,8 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.util.SparseArray;
-import android.view.ContextMenu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 
 import java.util.List;
@@ -42,8 +38,7 @@ import uk.org.ngo.squeezer.R;
  * @author Kurt Aaholst
  * @see ItemView
  */
-public class ItemAdapter<T extends Item> extends BaseAdapter implements
-        OnCreateContextMenuListener {
+public class ItemAdapter<T extends Item> extends BaseAdapter {
 
     /**
      * View logic for this adapter
@@ -150,38 +145,6 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
                 notifyDataSetChanged();
             }
         }
-    }
-
-    /**
-     * Creates the context menu for the selected item by calling {@link
-     * ItemView#onCreateContextMenu} which the subclass should have specialised.
-     * <p>
-     * Unpacks the {@link ContextMenu.ContextMenuInfo} passed to this method, and creates a {@link
-     * ItemView.ContextMenuInfo} suitable for passing to subclasses of {@link BaseItemView}.
-     */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
-        AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
-        createContextMenu(menu, adapterMenuInfo.targetView, adapterMenuInfo.position);
-    }
-
-    public void createContextMenu(ContextMenu menu, View v, int position) {
-        final T selectedItem = getItem(position);
-
-        if (selectedItem != null) {
-            ItemView.ContextMenuInfo c = new ItemView.ContextMenuInfo(position, selectedItem, this,
-                    getActivity().getMenuInflater());
-            mItemView.onCreateContextMenu(menu, v, c);
-        }
-    }
-
-    public boolean doItemContext(MenuItem menuItem, int position) {
-        return mItemView.doItemContext(menuItem, position, getItem(position));
-    }
-
-    public boolean doItemContext(MenuItem menuItem) {
-        return mItemView.doItemContext(menuItem);
     }
 
     public ItemView<T> getItemView() {

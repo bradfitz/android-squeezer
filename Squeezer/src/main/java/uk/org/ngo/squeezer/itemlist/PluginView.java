@@ -18,8 +18,6 @@ package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.view.ContextMenu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
@@ -34,7 +32,6 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
-import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Slider;
 import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
@@ -150,9 +147,9 @@ public class PluginView extends BaseItemView<Plugin> {
 
     @Override
     public void bindView(View view, Plugin item) {
+        super.bindView(view, item);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        viewHolder.text1.setText(item.getName());
         viewHolder.text2.setText(item.text2);
 
         // If the item has an image, then fetch and display it
@@ -240,12 +237,7 @@ public class PluginView extends BaseItemView<Plugin> {
    }
 
     @Override
-    public void onCreateContextMenu(final ContextMenu menu, final View v, ItemView.ContextMenuInfo menuInfo) {
-        logicDelegate.onCreateContextMenu(menu, v, menuInfo.item);
-    }
-
-    @Override
-    public boolean doItemContext(MenuItem menuItem, int index, Plugin selectedItem) {
-        return logicDelegate.doItemContext(menuItem, selectedItem);
+    public void showContextMenu(final View v, Plugin item) {
+        logicDelegate.showContextMenu(v, item);
     }
 }

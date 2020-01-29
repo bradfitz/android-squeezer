@@ -19,19 +19,14 @@ package uk.org.ngo.squeezer.framework;
 
 import android.os.Bundle;
 import androidx.annotation.MainThread;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -104,9 +99,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
             }
         });
 
-        // Delegate context menu creation to the adapter.
-        listView.setOnCreateContextMenuListener(getItemAdapter());
-
         setupAdapter(listView);
 
         return listView;
@@ -139,17 +131,6 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      */
     abstract protected ItemView<T> createItemView();
 
-    @Override
-    public boolean onContextItemSelected(MenuItem menuItem) {
-        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
-
-        // If menuInfo is null we have a sub menu, we expect the adapter to have stored the position
-        if (menuInfo == null)
-            return itemAdapter.doItemContext(menuItem);
-        else
-            return itemAdapter.doItemContext(menuItem, menuInfo.position);
-    }
-
     /**
      * Set our adapter on the list view.
      * <p>
@@ -162,14 +143,7 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * Call this method after the handshake is complete.
      */
     private void setupAdapter(AbsListView listView) {
-        // setAdapter is not defined for AbsListView before API level 11, but
-        // it is for concrete implementations, so we call it by reflection
-        try {
-            Method method = listView.getClass().getMethod("setAdapter", ListAdapter.class);
-            method.invoke(listView, getItemAdapter());
-        } catch (Exception e) {
-            Log.e(getTag(), "Error calling 'setAdapter'", e);
-        }
+        listView.setAdapter(getItemAdapter());
 
         Integer position = (Integer) getRetainedValue(TAG_POSITION);
         if (position != null) {

@@ -51,7 +51,7 @@ public class PlayerListActivity extends ItemListActivity implements
 
     private ExpandableListView mResultsExpandableListView;
 
-    private PlayerListAdapter mResultsAdapter;
+    PlayerListAdapter mResultsAdapter;
 
     private Player currentPlayer;
     private boolean mTrackingTouch;
@@ -114,7 +114,6 @@ public class PlayerListActivity extends ItemListActivity implements
             }
         });
 
-        mResultsExpandableListView.setOnCreateContextMenuListener(mResultsAdapter);
         mResultsExpandableListView.setOnScrollListener(new ScrollListener());
 
         return listView;
@@ -124,29 +123,6 @@ public class PlayerListActivity extends ItemListActivity implements
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(CURRENT_PLAYER, currentPlayer);
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public final boolean onContextItemSelected(MenuItem item) {
-        if (getService() != null) {
-            ExpandableListView.ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListView.ExpandableListContextMenuInfo) item
-                    .getMenuInfo();
-
-            // If menuInfo is null we have a sub menu, we expect the adapter to have stored the position
-            if (contextMenuInfo == null) {
-                return mResultsAdapter.doItemContext(item);
-            } else {
-
-                long packedPosition = contextMenuInfo.packedPosition;
-                int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-                int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-                if (ExpandableListView.getPackedPositionType(packedPosition)
-                        == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                    return mResultsAdapter.doItemContext(item, groupPosition, childPosition);
-                }
-            }
-        }
-        return false;
     }
 
     @Override

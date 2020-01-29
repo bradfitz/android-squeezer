@@ -17,9 +17,6 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcelable.Creator;
-import android.view.ContextMenu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -99,76 +96,14 @@ public interface ItemView<T extends Item> {
     void onItemSelected(View view, int index, T item);
 
     /**
-     * Creates the context menu, and sets the menu's title to the name of the item that it is the
-     * context menu.
+     * Creates the context menu.
      * <p>
-     * Subclasses with no context menu should override this method and do nothing.
+     * The default implementation is empty.
      * <p>
-     * Subclasses with a context menu should call this method, then inflate their context menu and
-     * perform any adjustments to it before returning.
+     * Subclasses with a context menu should override this method, create a
+     * {@link android.widget.PopupMenu} or a {@link android.app.Dialog} then
+     * inflate their context menu and show it.
      *
-     * @see android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View,
-     * android.view.ContextMenu.ContextMenuInfo)
      */
-    void onCreateContextMenu(ContextMenu menu, View v,
-            ItemView.ContextMenuInfo menuInfo);
-
-    /**
-     * Perform the selected action from the context menu for the selected item.
-     *
-     * @param menuItem The selected menu action
-     * @param index Position in the list of the selected item.
-     * @param selectedItem The item the context menu was generated for
-     *
-     * @return True if the action was consumed
-     *
-     * @see android.app.Activity#onContextItemSelected(MenuItem)
-     */
-    boolean doItemContext(MenuItem menuItem, int index, T selectedItem);
-
-    /**
-     * Perform the selected action from the context sub-menu.
-     *
-     * @param menuItem The selected menu action
-     *
-     * @return True if the action was consumed
-     *
-     * @see android.app.Activity#onContextItemSelected(MenuItem)
-     */
-    boolean doItemContext(MenuItem menuItem);
-
-    /**
-     * Extra menu information provided to the {@link android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu,
-     * View, ContextMenu.ContextMenuInfo) } callback when a context menu is brought up for this ItemView.
-     */
-    class ContextMenuInfo implements ContextMenu.ContextMenuInfo {
-
-        /**
-         * The position in the adapter for which the context menu is being displayed.
-         */
-        public final int position;
-
-        /**
-         * The {@link Item} for which the context menu is being displayed.
-         */
-        public final Item item;
-
-        /**
-         * The {@link ItemAdapter} that is bridging the content to the list view.
-         */
-        public final ItemAdapter<?> adapter;
-
-        /**
-         * A {@link android.view.MenuInflater} that can be used to inflate a menu resource.
-         */
-        public final MenuInflater menuInflater;
-
-        public ContextMenuInfo(int position, Item item, ItemAdapter<?> adapter,
-                MenuInflater menuInflater) {
-            this.position = position;
-            this.item = item;
-            this.adapter = adapter;
-            this.menuInflater = menuInflater;
-        }
-    }
+    void showContextMenu(View v, T item);
 }

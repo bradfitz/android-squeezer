@@ -24,16 +24,13 @@ import android.os.Bundle;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
-import android.view.ContextMenu;
 import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -185,11 +182,10 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         viewHolder.contextMenuButtonHolder = parentView.findViewById(R.id.context_menu);
         viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
         viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
-        viewHolder.contextMenuButtonHolder.setOnCreateContextMenuListener(this);
         viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.showContextMenu();
+                pluginViewDelegate.showContextMenu(v, parent);
             }
         });
         viewHolder.contextMenuButtonHolder.setTag(viewHolder);
@@ -337,24 +333,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         if (parent != null && parent.hasSubItems()) {
             getItemAdapter().update(parent.subItems.size(), 0, parent.subItems);
         }
-    }
-
-    /** Builds a context menu for the item which menu we are showing. */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        pluginViewDelegate.onCreateContextMenu(menu, v, parent);
-    }
-
-    /** Handles clicks on the context menu. */
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-
-        // If info is null then this is the context menu from the header, not a list item.
-        if (info == null) {
-            return pluginViewDelegate.doItemContext(item, parent);
-        }
-        return super.onContextItemSelected(item);
     }
 
     @Override

@@ -20,9 +20,7 @@ import android.os.Parcelable.Creator;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -208,10 +206,16 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * @param view The view that contains the {@link ViewHolder}
      * @param item The item to be bound
      */
-    public void bindView(View view, T item) {
+    public void bindView(View view, final T item) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
+        viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showContextMenu(v, item);
+            }
+        });
     }
 
     /**
@@ -301,18 +305,8 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
                 (viewParams & VIEW_PARAM_ICON) != 0 ? View.VISIBLE : View.GONE);
         viewHolder.text2.setVisibility(
                 (viewParams & VIEW_PARAM_TWO_LINE) != 0 ? View.VISIBLE : View.GONE);
-
-        if ((viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0) {
-            viewHolder.contextMenuButtonHolder.setVisibility(View.VISIBLE);
-            viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    v.showContextMenu();
-                }
-            });
-        } else {
-            viewHolder.contextMenuButtonHolder.setVisibility(View.GONE);
-        }
+        viewHolder.contextMenuButtonHolder.setVisibility(
+                (viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0 ? View.VISIBLE : View.GONE);
 
         viewHolder.viewParams = viewParams;
     }
@@ -327,14 +321,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ItemView.ContextMenuInfo menuInfo) {
-        menu.setHeaderTitle(menuInfo.item.getName());
-    }
-
-    /** Empty default context-sub-menu implementation, as most context menus doesn't have subs */
-    @Override
-    public boolean doItemContext(MenuItem menuItem) {
-        return false;
+    public void showContextMenu(View v, T item) {
     }
 }

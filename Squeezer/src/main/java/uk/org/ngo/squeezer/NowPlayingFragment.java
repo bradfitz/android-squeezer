@@ -40,7 +40,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.ActionBar;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -94,7 +93,7 @@ import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-public class NowPlayingFragment extends Fragment implements View.OnCreateContextMenuListener {
+public class NowPlayingFragment extends Fragment {
 
     private static final String TAG = "NowPlayingFragment";
 
@@ -271,11 +270,10 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
             viewHolder.contextMenuButtonHolder = v.findViewById(R.id.context_menu);
             viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
             viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
-            viewHolder.contextMenuButtonHolder.setOnCreateContextMenuListener(this);
             viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    v.showContextMenu();
+                    pluginViewDelegate.showContextMenu(v, getCurrentSong());
                 }
             });
             btnContextMenu = viewHolder.contextMenuButtonHolder;
@@ -786,27 +784,6 @@ public class NowPlayingFragment extends Fragment implements View.OnCreateContext
         if (mService != null) {
             mActivity.unbindService(serviceConnection);
         }
-    }
-
-    /** Builds a context menu suitable for the currently playing song. */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
-        pluginViewDelegate.onCreateContextMenu(menu, v, getCurrentSong());
-    }
-
-    /**
-     * Handles clicks on the context menu.
-     * <p>
-     * {@inheritDoc}
-     *
-     * @param item
-     *
-     * @return
-     */
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        return pluginViewDelegate.doItemContext(item, getCurrentSong());
     }
 
     /**
