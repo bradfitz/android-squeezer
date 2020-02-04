@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
@@ -189,42 +188,11 @@ public class PluginView extends BaseItemView<Plugin> {
             }
             ViewHolder viewHolder = (ViewHolder) view.getTag();
             viewHolder.contextMenuCheckbox.setChecked(item.checkbox);
-        } else if (nextWindow != null) {
-            if (item.goAction != null) {
-                getActivity().action(item, item.goAction);
-            }
-            switch (nextWindow.nextWindow) {
-                case nowPlaying:
-                    // Do nothing as now playing is always available in Squeezer (maybe toast the action)
-                    break;
-                case playlist:
-                    CurrentPlaylistActivity.show(getActivity());
-                    break;
-                case home:
-                    HomeActivity.show(getActivity());
-                    break;
-                case parent:
-                case parentNoRefresh:
-                    getActivity().finish();
-                    break;
-                case grandparent:
-                    getActivity().setResult(Activity.RESULT_OK, new Intent(PluginListActivity.FINISH));
-                    getActivity().finish();
-                    break;
-                case refresh:
-                    getActivity().clearAndReOrderItems();
-                    break;
-                case refreshOrigin:
-                    getActivity().setResult(Activity.RESULT_OK, new Intent(PluginListActivity.RELOAD));
-                    getActivity().finish();
-                    break;
-                case windowId:
-                    //TODO implement
-                    break;
-            }
+        } else if (nextWindow != null && !item.hasInput()) {
+            getActivity().action(item, item.goAction);
         } else {
             if (item.goAction != null)
-                logicDelegate.execGoAction(item);
+                logicDelegate.execGoAction(item, 0);
             else if (item.hasSubItems())
                 PluginListActivity.show(getActivity(), item);
             else if (item.getNode() != null) {

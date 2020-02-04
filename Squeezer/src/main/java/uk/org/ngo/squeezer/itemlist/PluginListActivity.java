@@ -35,8 +35,6 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.util.List;
@@ -68,8 +66,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class PluginListActivity extends BaseListActivity<Plugin>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
     private static final int GO = 1;
-    static final String FINISH = "FINISH";
-    static final String RELOAD = "RELOAD";
+    private static final String FINISH = "FINISH";
+    private static final String RELOAD = "RELOAD";
 
     private PluginViewLogic pluginViewDelegate;
     private boolean register;
@@ -151,27 +149,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                     if (getService() != null) {
                         clearAndReOrderItems(inputText.getText().toString());
                     }
-                }
-            });
-        }
-
-        findViewById(R.id.choices).setVisibility((hasChoices()) ? View.VISIBLE : View.GONE);
-        if (hasChoices()) {
-            updateHeader(parent.getName());
-            RadioGroup radioGroup = findViewById(R.id.choices);
-            for (int i = 0; i < parent.choiceStrings.length; i++) {
-                RadioButton radioButton = new RadioButton(this);
-                radioButton.setText(parent.choiceStrings[i]);
-                radioButton.setId(i);
-                radioGroup.addView(radioButton);
-            }
-            radioGroup.check(parent.selectedIndex-1);
-
-            radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(RadioGroup group, int checkedId) {
-                    action(parent.goAction.choices[checkedId]);
-                    finish();
                 }
             });
         }
@@ -302,10 +279,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         return parent != null && parent.hasInputField();
     }
 
-    private boolean hasChoices() {
-        return parent != null && parent.hasChoices();
-    }
-
     @Override
     protected boolean needPlayer() {
         // Most of the the times we actually do need a player, but if we need to register on SN,
@@ -318,9 +291,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         if (parent != null) {
             if (action == null || (parent.hasInput() && !parent.isInputReady())) {
                 showContent();
-            } else if (parent.doAction) {
-                action(parent, parent.goAction);
-                finish();
             } else
                 service.pluginItems(start, parent, action, this);
         } else if (register) {
@@ -404,6 +374,84 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     @Override
+    public void action(Item item, Action action, int alreadyPopped) {
+        if (getService() == null) {
+            return;
+        }
+
+        if (action != null) {
+            getService().action(item, action);
+        }
+
+        Action.JsonAction jAction = (action != null && action.action != null) ? action.action : null;
+        Action.NextWindow nextWindow = (jAction != null ? jAction.nextWindow : item.nextWindow);
+        nextWindow(nextWindow, alreadyPopped);
+    }
+
+    @Override
+    public void action(Action.JsonAction action, int alreadyPopped) {
+        if (getService() == null) {
+            return;
+        }
+
+        getService().action(action);
+        nextWindow(action.nextWindow, alreadyPopped);
+    }
+
+    private void nextWindow(Action.NextWindow nextWindow, int alreadyPopped) {
+        while (alreadyPopped > 0 && nextWindow != null) {
+            nextWindow = popNextWindow(nextWindow);
+            alreadyPopped--;
+        }
+        if (nextWindow != null) {
+            switch (nextWindow.nextWindow) {
+                case nowPlaying:
+                    // Do nothing as now playing is always available in Squeezer (maybe toast the action)
+                    break;
+                case playlist:
+                    CurrentPlaylistActivity.show(this);
+                    break;
+                case home:
+                    HomeActivity.show(this);
+                    break;
+                case parentNoRefresh:
+                    finish();
+                    break;
+                case grandparent:
+                    setResult(Activity.RESULT_OK, new Intent(FINISH));
+                    finish();
+                    break;
+                case refresh:
+                    clearAndReOrderItems();
+                    break;
+                case parent:
+                case refreshOrigin:
+                    setResult(Activity.RESULT_OK, new Intent(RELOAD));
+                    finish();
+                    break;
+                case windowId:
+                    //TODO implement
+                    break;
+            }
+        }
+    }
+
+    private Action.NextWindow popNextWindow(Action.NextWindow nextWindow) {
+        switch (nextWindow.nextWindow) {
+            case parent:
+            case parentNoRefresh:
+                return null;
+            case grandparent:
+                return new Action.NextWindow(Action.NextWindowEnum.parentNoRefresh);
+            case refreshOrigin:
+                return new Action.NextWindow(Action.NextWindowEnum.refresh);
+            default:
+                return nextWindow;
+
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GO) {
@@ -456,12 +504,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
      * <p>
      * If the action requires input, we initially get the input.
      * <p>
-     * When input is ready or the action does not require input, the action is performed. If it
-     * is a <code>do</code> action it is performed via {@link #action(Item, Action)}i, and the
-     * activity is finished.
-     * <p>
-     * Otherwise it is a <code>go</code> action, and items are ordered asynchronously via
-     * {@link ISqueezeService#pluginItems(int, Item, Action, IServiceItemListCallback)}
+     * When input is ready or the action does not require input, items are ordered asynchronously
+     * via {@link ISqueezeService#pluginItems(int, Item, Action, IServiceItemListCallback)}
      *
      * @see #orderPage(ISqueezeService, int)
      */

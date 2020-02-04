@@ -22,7 +22,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 import android.view.Window;
 import android.widget.ImageView;
 
@@ -50,7 +49,7 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
 
         Dialog dialog = new Dialog(getContext());
         dialog.setContentView(R.layout.show_artwork);
-        artwork = (ImageView) dialog.findViewById(R.id.artwork);
+        artwork = dialog.findViewById(R.id.artwork);
 
         Rect rect = new Rect();
         Window window = dialog.getWindow();
@@ -86,7 +85,7 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
      * <p>
      * See Slim/Control/Queries.pm in the slimserver code
      */
-    public static ArtworkDialog show(FragmentManager fragmentManager, Action action) {
+    public static ArtworkDialog show(BaseActivity activity, Action action) {
         // Create and show the dialog
         ArtworkDialog dialog = new ArtworkDialog();
 
@@ -94,7 +93,7 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
         args.putParcelable(Action.class.getName(), action);
         dialog.setArguments(args);
 
-        dialog.show(fragmentManager, TAG);
+        dialog.show(activity.getSupportFragmentManager(), TAG);
         return dialog;
     }
 }

@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
-import androidx.fragment.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +31,9 @@ import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.ChoicesDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.InputTextDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.InputTimeDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
@@ -56,13 +58,23 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
      * <p>
      * Finally if the (unsupported) "showBigArtwork" flag is present in an item the <code>do</code>
      * action will return an artwork id or URL, which can be used the fetch an image to display in a
-     * popup. See {@link ArtworkDialog#show(FragmentManager, Action)}
+     * popup. See {@link ArtworkDialog#show(BaseActivity, Action)}
      */
-    void execGoAction(Item item) {
+    void execGoAction(Item item, int alreadyPopped) {
         if (item.showBigArtwork) {
-            ArtworkDialog.show(activity.getSupportFragmentManager(), item.goAction);
-        } else if (item.doAction && !item.hasInput()) {
-            activity.action(item, item.goAction);
+            ArtworkDialog.show(activity, item.goAction);
+        } else if (item.doAction) {
+            if (item.hasInput()) {
+                if (item.hasChoices()) {
+                    ChoicesDialog.show(activity, item, alreadyPopped);
+                } else if ("time".equals(item.input.inputStyle)) {
+                    InputTimeDialog.show(activity, item, alreadyPopped);
+                } else {
+                    InputTextDialog.show(activity, item, alreadyPopped);
+                }
+            } else {
+                activity.action(item, item.goAction, alreadyPopped);
+            }
         } else {
             PluginListActivity.show(activity, item, item.goAction);
         }
@@ -81,17 +93,18 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
     // Only touch these from the main thread
     private boolean contextMenuReady = false;
     private boolean contextMenuWaiting = false;
+    private int contextStack = 0;
     private BaseItemView.ViewHolder contextMenuViewHolder;
     private Item contextItem;
     private List<Plugin> contextItems;
 
     public void showContextMenu(final View v, Item item) {
-
         if (!contextMenuReady && !contextMenuWaiting) {
             contextItems = null;
             if (item.moreAction != null) {
                 contextMenuViewHolder = getViewHolder(v);
                 contextItem = item;
+                contextStack = 1;
                 orderContextMenu(item.moreAction);
             } else {
                 PopupMenu popup = new PopupMenu(activity, v);
@@ -150,29 +163,13 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
             selectedItem = contextItems.get(menuItem.getItemId());
             Action.NextWindow nextWindow = (selectedItem.goAction != null ? selectedItem.goAction.action.nextWindow : selectedItem.nextWindow);
             if (nextWindow != null) {
-                activity.action(selectedItem, selectedItem.goAction);
-                switch (nextWindow.nextWindow) {
-                    case playlist:
-                        CurrentPlaylistActivity.show(activity);
-                        break;
-                    case home:
-                        HomeActivity.show(activity);
-                        break;
-                    case parent: // For centext menus parent and grandparent hide the context menu(s) and reload items
-                    case grandparent:
-                    case parentNoRefresh:
-                    case refresh:
-                    case refreshOrigin:
-                        break;
-                    case windowId:
-                        //TODO implement
-                        break;
-                }
+                activity.action(selectedItem, selectedItem.goAction, contextStack);
             } else {
                 if (selectedItem.goAction.isContextMenu()) {
+                    contextStack++;
                     orderContextMenu(selectedItem.goAction);
                 } else {
-                    execGoAction(selectedItem);
+                    execGoAction(selectedItem, contextStack);
                 }
             }
             return true;

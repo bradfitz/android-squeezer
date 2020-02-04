@@ -461,8 +461,12 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
     /**
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via
      * {@link ISqueezeService#action(Item, Action)}
+     * <p>
+     * Navigate to <code>nextWindow</code> if it exists in <code>action</code>. The
+     * <code>alreadyPopped</code> parameter is used to modify nextWindow if any windows has already
+     * been popped by the Android system.
      */
-    public void action(Item item, Action action) {
+    public void action(Item item, Action action, int alreadyPopped) {
         if (mService == null) {
             return;
         }
@@ -471,10 +475,17 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
     }
 
     /**
+     * Same as calling {@link #action(Item, Action, int)} with <code>alreadyPopped</code> = 0
+     */
+    public void action(Item item, Action action) {
+        action(item, action, 0);
+    }
+
+    /**
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via
      * {@link ISqueezeService#action(Action.JsonAction)}
      */
-    public void action(Action.JsonAction action) {
+    public void action(Action.JsonAction action, int alreadyPopped) {
         if (mService == null) {
             return;
         }

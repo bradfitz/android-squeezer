@@ -511,7 +511,7 @@ public abstract class Item implements Parcelable {
         input.len = getInt(record, "len");
         input.softbutton1 = getString(record, "softbutton1");
         input.softbutton2 = getString(record, "softbutton2");
-        input.inputStyle = getString(record, "inputStyle");
+        input.inputStyle = getString(record, "_inputStyle");
         input.title = getString(record, "title");
         input.initialText = getString(record, "initialText");
         input.allowedChars = getString(record, "allowedChars");

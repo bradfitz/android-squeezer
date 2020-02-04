@@ -196,6 +196,10 @@ public class Action implements Parcelable {
         public NextWindowEnum nextWindow;
         public String windowId;
 
+        public NextWindow(NextWindowEnum nextWindow) {
+            this.nextWindow = nextWindow;
+        }
+
         public static NextWindow fromString(String s) {
             return (s == null ? null : new NextWindow(s));
         }

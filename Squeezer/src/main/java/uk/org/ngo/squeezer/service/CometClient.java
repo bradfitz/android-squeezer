@@ -832,12 +832,15 @@ class CometClient extends BaseClient {
             List<String> inner = new ArrayList<>();
             slimRequest.add(inner);
             inner.addAll(Arrays.asList(cmd));
+            for (Map.Entry<String, Object> parameter : params.entrySet()) {
+                if (parameter.getValue() == null) inner.add(parameter.getKey());
+            }
             if (page != null) {
                 inner.add(page.start);
                 inner.add(page.page);
             }
             for (Map.Entry<String, Object> parameter : params.entrySet()) {
-                inner.add(parameter.getValue() != null ? parameter.getKey() + ":" + parameter.getValue() : parameter.getKey());
+                if (parameter.getValue() != null) inner.add(parameter.getKey() + ":" + parameter.getValue());
             }
 
             return slimRequest;
