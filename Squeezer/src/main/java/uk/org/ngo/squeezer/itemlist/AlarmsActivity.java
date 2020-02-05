@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.dialog.AlarmSettingsDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.AlarmSettingsDialog;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Alarm;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.dialog;
+package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
