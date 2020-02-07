@@ -993,6 +993,7 @@ public class NowPlayingFragment extends Fragment {
             repeatButton.setImageResource(0);
             updatePlayerDropDown(Collections.<Player>emptyList(), null);
             artistText.setText(getText(R.string.disconnected_text));
+            btnContextMenu.setVisibility(View.GONE);
             currentTime.setText("--:--");
             totalTime.setText("--:--");
             seekBar.setEnabled(false);
