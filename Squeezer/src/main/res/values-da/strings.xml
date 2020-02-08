@@ -175,4 +175,5 @@
     <string name="ALARM_ALL_ALARMS">Alle vækkeure</string>
     <string name="SLEEPING_IN">Slumrefunktion aktiveres om</string>
     <string name="HOME">Startside</string>
+    <string name="EXTRAS">Ekstra</string>
 </resources>

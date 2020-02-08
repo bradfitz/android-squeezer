@@ -34,6 +34,7 @@ import uk.org.ngo.squeezer.itemlist.dialog.ArtworkDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.ChoicesDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.InputTextDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.InputTimeDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.SlideShow;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
@@ -63,6 +64,8 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
     void execGoAction(Item item, int alreadyPopped) {
         if (item.showBigArtwork) {
             ArtworkDialog.show(activity, item.goAction);
+        } else if (item.goAction.isSlideShow()) {
+            SlideShow.show(activity, item.goAction);
         } else if (item.doAction) {
             if (item.hasInput()) {
                 if (item.hasChoices()) {

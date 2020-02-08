@@ -111,6 +111,10 @@ public class Action implements Parcelable {
         return (action != null && action.params.containsKey("isContextMenu"));
     }
 
+    public boolean isSlideShow() {
+        return (action != null && "slideshow".equals(action.params.get("type")));
+    }
+
     @Override
     public String toString() {
         return "Action{" +

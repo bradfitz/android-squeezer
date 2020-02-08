@@ -176,6 +176,7 @@ slimstrings {
             'MORE',
             'SETTINGS',
             'SCREEN_SETTINGS',
-            'ADVANCED_SETTINGS'
+            'ADVANCED_SETTINGS',
+            'EXTRAS'
     ]
 }

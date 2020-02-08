@@ -162,4 +162,5 @@
     <string name="ALARM_ALL_ALARMS">Tous les réveils</string>
     <string name="SLEEPING_IN">Mise en veille dans</string>
     <string name="HOME">Accueil</string>
+    <string name="EXTRAS">Extras</string>
 </resources>

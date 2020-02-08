@@ -159,6 +159,7 @@ public abstract class Item implements Parcelable {
         result.put("myMusicPlaylists", R.drawable.icon_ml_playlist);
         result.put("myMusicMusicFolder", R.drawable.icon_ml_folder);
         result.put("randomplay", R.drawable.icon_ml_random);
+        result.put("extras", R.drawable.icon_settings_adv);
         result.put("settings", R.drawable.icon_settings);
         result.put("settingsShuffle", R.drawable.icon_settings_shuffle);
         result.put("settingsRepeat", R.drawable.icon_settings_repeat);

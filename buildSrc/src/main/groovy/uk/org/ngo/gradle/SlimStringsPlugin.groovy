@@ -48,7 +48,7 @@ class SlimStringsPlugin implements Plugin<Project> {
          * Insert/update strings from slimserver and squeezeplay.
          */
         project.extensions.create('slimstrings', SlimStringsPluginExtension)
-        project.task('updateStrimStrings') {
+        project.task('updateSlimStrings') {
             doLast {
                 // Find the languages in the app source
                 def languages = new HashMap<String, File>()
