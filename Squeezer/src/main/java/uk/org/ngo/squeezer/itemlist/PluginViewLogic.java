@@ -203,7 +203,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
     @Override
     public void onItemsReceived(int count, int start, final Map<String, Object> parameters, final List<Plugin> items, Class<Plugin> dataType) {
         // FIXME check for activity still running
-        activity.getUIThreadHandler().post(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 contextMenuReady = true;

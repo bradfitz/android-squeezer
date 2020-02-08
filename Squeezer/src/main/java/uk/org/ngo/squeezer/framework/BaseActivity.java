@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
@@ -68,7 +67,7 @@ import uk.org.ngo.squeezer.util.ThemeManager;
  *
  * @author Kurt Aaholst
  */
-public abstract class BaseActivity extends AppCompatActivity implements HasUiThread {
+public abstract class BaseActivity extends AppCompatActivity {
 
     @Nullable
     private ISqueezeService mService = null;
@@ -78,9 +77,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
 
     /** Records whether the activity has registered on the service's event bus. */
     private boolean mRegisteredOnEventBus;
-
-    private final Handler uiThreadHandler = new Handler() {
-    };
 
     private SqueezePlayer squeezePlayer;
 
@@ -112,14 +108,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
 
     public int getThemeId() {
         return mThemeId;
-    }
-
-    /**
-     * Use this to post Runnables to work off thread
-     */
-    @Override
-    public Handler getUIThreadHandler() {
-        return uiThreadHandler;
     }
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
