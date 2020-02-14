@@ -832,9 +832,6 @@ public class NowPlayingFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         boolean connected = isConnected();
 
-        // Don't show an option to connect if there's no server to connect to.
-        boolean knowServerAddress = new Preferences(mActivity).getServerAddress() != null;
-
         // These are all set at the same time, so one check is sufficient
         if (menu_item_disconnect != null) {
             // Set visibility and enabled state of menu items that are not player-specific.
@@ -849,6 +846,11 @@ public class NowPlayingFragment extends Fragment {
             menu_item_alarm.setVisible(haveConnectedPlayers);
             if (connected)
                 menu_item_alarm.setTitle(R.string.ALARM);
+        }
+
+        // Don't show the item to go to players if in PlayersActivity.
+        if (mActivity instanceof PlayerListActivity && menu_item_players != null) {
+            menu_item_players.setVisible(false);
         }
 
         // Don't show the item to go to alarms if in AlarmsActivity.
