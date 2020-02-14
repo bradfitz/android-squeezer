@@ -38,6 +38,8 @@
         <item name="ic_action_av_volume_up">@drawable/ic_volume_up_light</item>
         <item name="ic_action_av_volume_down">@drawable/ic_volume_down_light</item>
 
+        <item name="ic_action_av_playlist">@drawable/ic_action_playlist</item>
+
         <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
 
         <item name="alarm_dow_selected">@android:color/white</item>
@@ -78,6 +80,8 @@
 
         <item name="ic_action_av_volume_up">@drawable/ic_volume_up_dark</item>
         <item name="ic_action_av_volume_down">@drawable/ic_volume_down_dark</item>
+
+        <item name="ic_action_av_playlist">@drawable/ic_action_playlist_light</item>
 
         <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
 
@@ -245,6 +249,26 @@
 
     <style name="SqueezerWidget.MediaButton.Repeat">
         <item name="srcCompat">?attr/ic_action_av_repeat_off</item>
+    </style>
+
+    <style name="SqueezerWidget.MediaButton.Volume">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="drawableLeftCompat">?attr/ic_action_av_volume_up</item>
+        <item name="android:drawablePadding">2dp</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:text">@string/menu_item_volume</item>
+        <item name="android:paddingRight">4dp</item>
+    </style>
+
+    <style name="SqueezerWidget.MediaButton.Playlist">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="drawableRightCompat">?attr/ic_action_av_playlist</item>
+        <item name="android:drawablePadding">2dp</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:text">@string/menu_item_playlist</item>
+        <item name="android:paddingLeft">4dp</item>
     </style>
 
     <style name="VolumePanel" parent="@android:style/Theme.Panel">

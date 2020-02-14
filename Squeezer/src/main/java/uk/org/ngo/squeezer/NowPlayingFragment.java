@@ -48,6 +48,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -126,8 +127,6 @@ public class NowPlayingFragment extends Fragment {
 
     private MenuItem menu_item_players;
 
-    private MenuItem menu_item_playlist;
-
     private MenuItem menu_item_alarm;
 
     private ImageButton playPauseButton;
@@ -152,6 +151,10 @@ public class NowPlayingFragment extends Fragment {
 
     // Updating the seekbar
     private boolean updateSeekBar = true;
+
+    private Button volumeButton;
+
+    private Button playlistButton;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -265,6 +268,8 @@ public class NowPlayingFragment extends Fragment {
             currentTime = v.findViewById(R.id.currenttime);
             totalTime = v.findViewById(R.id.totaltime);
             seekBar = v.findViewById(R.id.seekbar);
+            volumeButton = v.findViewById(R.id.volume);
+            playlistButton = v.findViewById(R.id.playlist);
 
             BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
             viewHolder.contextMenuButtonHolder = v.findViewById(R.id.context_menu);
@@ -355,6 +360,20 @@ public class NowPlayingFragment extends Fragment {
                         return;
                     }
                     mService.toggleRepeat();
+                }
+            });
+
+            volumeButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mActivity.showVolumePanel();
+                }
+            });
+
+            playlistButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CurrentPlaylistActivity.show(mActivity);
                 }
             });
 
@@ -802,7 +821,6 @@ public class NowPlayingFragment extends Fragment {
         menu_item_poweron = menu.findItem(R.id.menu_item_poweron);
         menu_item_poweroff = menu.findItem(R.id.menu_item_poweroff);
         menu_item_players = menu.findItem(R.id.menu_item_players);
-        menu_item_playlist = menu.findItem(R.id.menu_item_playlist);
         menu_item_alarm = menu.findItem(R.id.menu_item_alarm);
     }
 
@@ -828,16 +846,11 @@ public class NowPlayingFragment extends Fragment {
                     && !mService.getPlayers().isEmpty();
 
             menu_item_players.setVisible(haveConnectedPlayers);
-            menu_item_playlist.setVisible(haveConnectedPlayers);
             menu_item_alarm.setVisible(haveConnectedPlayers);
             if (connected)
                 menu_item_alarm.setTitle(R.string.ALARM);
         }
 
-        // Don't show the item to go to CurrentPlaylistActivity if in CurrentPlaylistActivity.
-        if (mActivity instanceof CurrentPlaylistActivity && menu_item_playlist != null) {
-            menu_item_playlist.setVisible(false);
-        }
         // Don't show the item to go to alarms if in AlarmsActivity.
         if (mActivity instanceof AlarmsActivity && menu_item_alarm != null) {
             menu_item_alarm.setVisible(false);
@@ -861,9 +874,6 @@ public class NowPlayingFragment extends Fragment {
             case R.id.menu_item_poweroff:
                 mService.powerOff();
                 return true;
-            case R.id.menu_item_playlist:
-                CurrentPlaylistActivity.show(mActivity);
-                break;
             case R.id.menu_item_players:
                 PlayerListActivity.show(mActivity);
                 return true;
@@ -987,6 +997,8 @@ public class NowPlayingFragment extends Fragment {
         if (mFullHeightLayout) {
             shuffleButton.setEnabled(false);
             repeatButton.setEnabled(false);
+            volumeButton.setEnabled(false);
+            playlistButton.setEnabled(false);
 
             albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
             shuffleButton.setImageResource(0);
@@ -1025,6 +1037,8 @@ public class NowPlayingFragment extends Fragment {
             shuffleButton.setEnabled(true);
             repeatButton.setEnabled(true);
             seekBar.setEnabled(true);
+            volumeButton.setEnabled(true);
+            playlistButton.setEnabled(true);
         } else {
             mProgressBar.setEnabled(true);
         }

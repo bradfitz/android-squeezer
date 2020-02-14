@@ -17,10 +17,12 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:paddingLeft="8dp">
+    android:paddingStart="8dp"
+    android:paddingBottom="4dp">
 
     <uk.org.ngo.squeezer.widget.SquareImageView
         android:id="@+id/album"
@@ -29,7 +31,7 @@
         android:layout_alignParentTop="true"
         android:cropToPadding="false"
         android:paddingBottom="4dp"
-        android:paddingRight="8dp"
+        android:paddingEnd="8dp"
         android:paddingTop="8dp"
         android:scaleType="fitCenter"/>
 
@@ -49,8 +51,8 @@
             android:id="@+id/trackname"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="left|top"
-            android:paddingRight="8dp"
+            android:gravity="start|top"
+            android:paddingEnd="8dp"
             android:paddingTop="2dp"
             style="@style/SqueezerWidget.NowPlaying.SongName"/>
     </LinearLayout>
@@ -58,16 +60,16 @@
     <TextView
         android:id="@+id/albumname"
         android:layout_below="@id/track_wrapper"
-        android:layout_toLeftOf="@id/context_menu"
-        android:gravity="left|top"
+        android:layout_toStartOf="@id/context_menu"
+        android:gravity="start|top"
         android:paddingTop="4dp"
         style="@style/SqueezerWidget.NowPlaying.AlbumName"/>
 
     <TextView
         android:id="@+id/artistname"
         android:layout_below="@id/albumname"
-        android:layout_toLeftOf="@id/context_menu"
-        android:gravity="left|top"
+        android:layout_toStartOf="@id/context_menu"
+        android:gravity="start|top"
         android:paddingTop="4dp"
         style="@style/SqueezerWidget.NowPlaying.ArtistName"/>
 
@@ -75,7 +77,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignBottom="@+id/artistname"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@id/track_wrapper"
         android:visibility="visible"/>
 
@@ -83,7 +85,7 @@
         android:id="@+id/currenttime"
         android:layout_above="@+id/media_buttons"
         android:layout_alignBottom="@+id/seekbar"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignTop="@+id/seekbar"
         android:layout_below="@id/artistname"
         style="@style/SqueezerWidget.NowPlaying.Timestamp"/>
@@ -94,29 +96,29 @@
         android:layout_width="0dip"
         android:layout_height="wrap_content"
         android:layout_below="@id/artistname"
-        android:layout_toLeftOf="@+id/totaltime"
-        android:layout_toRightOf="@+id/currenttime"/>
+        android:layout_toStartOf="@+id/totaltime"
+        android:layout_toEndOf="@+id/currenttime"/>
 
     <TextView
         android:id="@+id/totaltime"
         android:layout_above="@id/media_buttons"
         android:layout_alignBottom="@id/seekbar"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/seekbar"
         android:layout_below="@id/context_menu"
-        android:paddingRight="8dp"
+        android:paddingEnd="8dp"
         style="@style/SqueezerWidget.NowPlaying.Timestamp"/>
 
     <LinearLayout
         android:id="@+id/media_buttons"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_height="fill_parent"
         android:layout_below="@id/seekbar"
+        android:layout_above="@id/volume"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingBottom="4dp"
-        android:paddingRight="8dp">
+        android:paddingEnd="8dp">
 
         <ImageButton
             android:id="@+id/shuffle"
@@ -138,6 +140,17 @@
             android:id="@+id/repeat"
             style="@style/SqueezerWidget.MediaButton.Repeat"/>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/volume"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        style="@style/SqueezerWidget.MediaButton.Volume"/>
+
+
+    <Button
+        android:id="@+id/playlist"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        style="@style/SqueezerWidget.MediaButton.Playlist" />
 </RelativeLayout>
-
-

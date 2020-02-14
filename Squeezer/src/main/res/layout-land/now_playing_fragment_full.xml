@@ -17,6 +17,7 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
@@ -35,10 +36,10 @@
 
     <TextView
         android:id="@+id/trackname"
-        android:layout_toRightOf="@id/album"
-        android:gravity="left"
+        android:layout_toEndOf="@id/album"
+        android:gravity="start"
         android:paddingBottom="4dp"
-        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
         android:paddingTop="8dp"
         style="@style/SqueezerWidget.NowPlaying.SongName"/>
 
@@ -47,22 +48,22 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/trackname"
-        android:layout_toLeftOf="@+id/context_menu_wrapper"
-        android:layout_toRightOf="@id/album"
-        android:gravity="left"
+        android:layout_toStartOf="@+id/context_menu"
+        android:layout_toEndOf="@id/album"
+        android:gravity="start"
         android:paddingBottom="4dp"
-        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
         android:paddingTop="4dp"
         style="@style/SqueezerWidget.NowPlaying.AlbumName"/>
 
     <TextView
         android:id="@+id/artistname"
         android:layout_below="@id/albumname"
-        android:layout_toLeftOf="@+id/context_menu_wrapper"
-        android:layout_toRightOf="@id/album"
-        android:gravity="left"
+        android:layout_toStartOf="@+id/context_menu"
+        android:layout_toEndOf="@id/album"
+        android:gravity="start"
         android:paddingBottom="4dp"
-        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
         android:paddingTop="4dp"
         style="@style/SqueezerWidget.NowPlaying.ArtistName"/>
 
@@ -70,7 +71,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignBottom="@+id/artistname"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@id/track_wrapper"
         android:gravity="bottom"
         android:visibility="visible"/>
@@ -78,14 +79,15 @@
     <LinearLayout
         android:id="@+id/media_buttons"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/currenttime"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/album"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/artistname"
+        android:layout_above="@id/volume"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@id/album"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingBottom="4dp"
-        android:paddingLeft="8dp">
+        android:paddingStart="8dp">
 
         <ImageButton
             android:id="@+id/shuffle"
@@ -108,26 +110,39 @@
             style="@style/SqueezerWidget.MediaButton.Repeat"/>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/volume"
+        android:layout_toEndOf="@id/album"
+        android:layout_above="@id/currenttime"
+        style="@style/SqueezerWidget.MediaButton.Volume"/>
+
+
+    <Button
+        android:id="@+id/playlist"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@id/currenttime"
+        style="@style/SqueezerWidget.MediaButton.Playlist" />
+
     <SeekBar
         android:id="@+id/seekbar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@id/totaltime"/>
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@id/totaltime"/>
 
     <TextView
         android:id="@+id/currenttime"
         android:layout_above="@id/totaltime"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_gravity="center_horizontal"
         style="@style/SqueezerWidget.NowPlaying.Timestamp"/>
 
     <TextView
         android:id="@+id/totaltime"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_gravity="center_horizontal"
         style="@style/SqueezerWidget.NowPlaying.Timestamp"/>
 </RelativeLayout>

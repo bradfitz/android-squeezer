@@ -20,14 +20,6 @@
     xmlns:squeezer="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_item_playlist"
-        android:title="@string/menu_item_playlist"
-        android:alphabeticShortcut="p"
-        android:icon="@drawable/ic_menu_playlist"
-        squeezer:showAsAction="always|withText"
-        android:orderInCategory="1"/>
-
-    <item
         android:id="@+id/menu_item_players"
         android:title="@string/menu_item_players"
         android:alphabeticShortcut="z"

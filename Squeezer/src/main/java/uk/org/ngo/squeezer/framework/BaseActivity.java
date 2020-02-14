@@ -80,10 +80,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private SqueezePlayer squeezePlayer;
 
-    /** Option menu volume control entry. */
-    @Nullable
-    private MenuItem mMenuItemVolume;
-
     /** Whether volume changes should be ignored. */
     private boolean mIgnoreVolumeChange;
 
@@ -282,29 +278,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     @CallSuper
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.base_activity, menu);
-
-        mMenuItemVolume = menu.findItem(R.id.menu_item_volume);
-        return true;
-    }
-
-    @Override
-    @CallSuper
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean haveConnectedPlayers = isConnected() && mService != null
-                && !mService.getPlayers().isEmpty();
-
-        if (mMenuItemVolume != null) {
-            mMenuItemVolume.setVisible(haveConnectedPlayers);
-        }
-
-        return true;
-    }
-
-    @Override
-    @CallSuper
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -322,19 +295,6 @@ public abstract class BaseActivity extends AppCompatActivity {
                     HomeActivity.show(this);
                 }
                 return true;
-            case R.id.menu_item_volume:
-                // Show the volume dialog.
-                if (mService != null) {
-                    PlayerState playerState = mService.getPlayerState();
-                    Player player = mService.getActivePlayer();
-
-                    if (playerState != null  && mVolumePanel != null) {
-                        mVolumePanel.postVolumeChanged(playerState.getCurrentVolume(),
-                                player == null ? "" : player.getName());
-                    }
-
-                    return true;
-                }
         }
 
         return super.onOptionsItemSelected(item);
@@ -387,6 +347,23 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void onEvent(PlayerVolume event) {
         if (!mIgnoreVolumeChange && mVolumePanel != null && event.player == mService.getActivePlayer()) {
             mVolumePanel.postVolumeChanged(event.volume, event.player.getName());
+        }
+    }
+
+    // Show the volume dialog.
+    public boolean showVolumePanel() {
+        if (mService != null) {
+            PlayerState playerState = mService.getPlayerState();
+            Player player = mService.getActivePlayer();
+
+            if (playerState != null  && mVolumePanel != null) {
+                mVolumePanel.postVolumeChanged(playerState.getCurrentVolume(),
+                        player == null ? "" : player.getName());
+            }
+
+            return true;
+        } else {
+            return false;
         }
     }
 
