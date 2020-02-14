@@ -132,6 +132,7 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
     @Override
     public void onProgressChanged(Croller croller, int progress) {
         if (mCurrentProgress != progress) {
+            resetTimeout();
             mCurrentProgress = progress;
             ISqueezeService service = mActivity.getService();
             if (service != null) {
