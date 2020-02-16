@@ -134,7 +134,6 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
     @Override
     public void onProgressChanged(Croller croller, int progress) {
         if (mCurrentProgress != progress) {
-            resetTimeout();
             mCurrentProgress = progress;
             ISqueezeService service = mActivity.getService();
             if (service != null) {
@@ -146,11 +145,13 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
     @Override
     public void onStartTrackingTouch(Croller croller) {
         mTrackingTouch = true;
+        removeMessages(MSG_TIMEOUT);
     }
 
     @Override
     public void onStopTrackingTouch(Croller croller) {
         mTrackingTouch = false;
+        resetTimeout();
     }
 
     public void postVolumeChanged(int newVolume, String additionalMessage) {
