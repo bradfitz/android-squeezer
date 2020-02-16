@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,9 +34,16 @@ public class NowPlayingActivity extends BaseActivity {
         setContentView(R.layout.now_playing);
     }
 
-    public static void show(Context context) {
-        final Intent intent = new Intent(context, NowPlayingActivity.class)
+    public static void show(Activity activity) {
+        final Intent intent = new Intent(activity, NowPlayingActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        context.startActivity(intent);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_down);
     }
 }
