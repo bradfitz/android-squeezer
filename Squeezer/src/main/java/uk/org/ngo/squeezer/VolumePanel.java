@@ -61,6 +61,7 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
     private final View mView;
 
     private final TextView mMessage;
+    private final TextView mLabel;
 
     private final Croller mSeekbar;
     private int mCurrentProgress = 0;
@@ -82,6 +83,7 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
         });
 
         mMessage = mView.findViewById(R.id.message);
+        mLabel = mView.findViewById(R.id.label);
         mSeekbar = mView.findViewById(R.id.level);
 
         mSeekbar.setOnCrollerChangeListener(this);
@@ -166,7 +168,7 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
         mCurrentProgress = newVolume;
         mSeekbar.setProgress(newVolume);
         mMessage.setText(mActivity.getString(R.string.volume, mActivity.getString(R.string.app_name)));
-        mSeekbar.setLabel(additionalMessage);
+        mLabel.setText(additionalMessage);
 
         if (!mDialog.isShowing() && !mActivity.isFinishing()) {
             mDialog.setContentView(mView);
