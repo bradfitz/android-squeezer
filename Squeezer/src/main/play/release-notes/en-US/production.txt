@@ -1,3 +1,13 @@
-&bull; Show a button on the notification to disconnect Squeezer (and remove the notification).
+&bull; Rewrite Squeezer to use the more modern CometD protocol to connect to the server
 
-&bull; Disconnect Squeezer when it's swiped from the recent apps list.
+&bull; Full support for Apps/Plugins
+
+&bull; Connect to mysqueezebox.com
+
+&bull; Additional browse modes, Album Artists, All Artists and Composers
+
+&bull; Support for extra information and options for Artists/albums/Tracks via the context menu
+
+&bull; Library Views and Remote Music Libraries
+
+&bull; Add French translation. Contributed by Olivier Sirol
