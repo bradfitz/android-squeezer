@@ -1,3 +1,5 @@
-&bull; Show a button on the notification to disconnect Squeezer (and remove the notification).
+&bull; Enable extras menu
 
-&bull; Disconnect Squeezer when it's swiped from the recent apps list.
+&bull; Use vector graphics to reduce download size of the app
+
+&bull; Fix a reported crash

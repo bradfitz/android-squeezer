@@ -1,3 +1,23 @@
+2.0.0
+=====
+
+*   Rewrite Squeezer to use the more modern CometD protocol to connect to the
+    server
+
+*   Full support for Apps/Plugins
+
+*   Connect to mysqueezebox.com
+
+*   Additional browse modes, Album Artists, All Artists and Composers
+
+*   Support for extra information and options for Artists/albums/Tracks via
+    the context menu
+
+*   Library Views and Remote Music Libraries
+
+*   Add French translation. Contributed by Olivier Sirol
+
+
 1.5.4
 =====
 
