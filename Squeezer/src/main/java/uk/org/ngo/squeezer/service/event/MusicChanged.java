@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -33,5 +33,13 @@ public class MusicChanged {
     public MusicChanged(@NonNull Player player, @NonNull PlayerState playerState) {
         this.player = player;
         this.playerState = playerState;
+    }
+
+    @Override
+    public String toString() {
+        return "MusicChanged{" +
+                "player=" + player +
+                ", playerState=" + playerState +
+                '}';
     }
 }

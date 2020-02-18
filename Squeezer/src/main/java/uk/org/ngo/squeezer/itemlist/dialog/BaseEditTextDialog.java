@@ -5,8 +5,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
@@ -28,7 +28,7 @@ public abstract class BaseEditTextDialog extends DialogFragment {
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
         View form = getActivity().getLayoutInflater().inflate(R.layout.edittext_dialog, null);
         builder.setView(form);
-        editText = (EditText) form.findViewById(R.id.edittext);
+        editText = form.findViewById(R.id.edittext);
 
         editText.setText("");
         editText.setOnKeyListener(new OnKeyListener() {
@@ -50,7 +50,6 @@ public abstract class BaseEditTextDialog extends DialogFragment {
                 commit(editText.getText().toString());
             }
         });
-        builder.setNegativeButton(android.R.string.cancel, null);
 
         return builder.create();
     }

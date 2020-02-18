@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 
@@ -36,5 +36,14 @@ public class SongTimeChanged {
         this.player = player;
         this.currentPosition = currentPosition;
         this.duration = duration;
+    }
+
+    @Override
+    public String toString() {
+        return "SongTimeChanged{" +
+                "player=" + player +
+                ", currentPosition=" + currentPosition +
+                ", duration=" + duration +
+                '}';
     }
 }

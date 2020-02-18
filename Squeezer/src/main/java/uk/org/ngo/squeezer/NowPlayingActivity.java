@@ -24,8 +24,6 @@ import uk.org.ngo.squeezer.framework.BaseActivity;
 
 public class NowPlayingActivity extends BaseActivity {
 
-    protected static final int HOME_REQUESTCODE = 0;
-
     /**
      * Called when the activity is first created.
      */

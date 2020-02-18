@@ -16,17 +16,15 @@
 
 package uk.org.ngo.squeezer.util;
 
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.os.StatFs;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.util.LruCache;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.collection.LruCache;
 import android.util.Log;
 
 import com.google.common.hash.HashFunction;
@@ -39,8 +37,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import uk.org.ngo.squeezer.BuildConfig;
-
-import static uk.org.ngo.squeezer.Util.crashlyticsSetLong;
 
 /**
  * This class holds our bitmap caches (memory and disk).
@@ -182,7 +178,6 @@ public class ImageCache {
                             MAX_DISK_CACHE_SIZE));
                     Log.d(TAG, "Usable space: " + usableSpace);
                     Log.d(TAG, "  Cache size: " + diskCacheSize);
-                    crashlyticsSetLong("cache_size", diskCacheSize);
 
                     if (usableSpace > diskCacheSize) {
                         try {
@@ -610,13 +605,8 @@ public class ImageCache {
      *
      * @return size in bytes
      */
-    @TargetApi(12)
     public static int getBitmapSize(Bitmap bitmap) {
-        if (UIUtils.hasHoneycombMR1()) {
-            return bitmap.getByteCount();
-        }
-        // Pre HC-MR1
-        return bitmap.getRowBytes() * bitmap.getHeight();
+        return bitmap.getByteCount();
     }
 
     /**
@@ -624,12 +614,8 @@ public class ImageCache {
      *
      * @return True if external storage is removable (like an SD card), false otherwise.
      */
-    @TargetApi(9)
     public static boolean isExternalStorageRemovable() {
-        if (UIUtils.hasGingerbread()) {
-            return Environment.isExternalStorageRemovable();
-        }
-        return true;
+        return Environment.isExternalStorageRemovable();
     }
 
     /**
@@ -639,16 +625,9 @@ public class ImageCache {
      *
      * @return The external cache dir
      */
-    @TargetApi(8)
     @Nullable
     public static File getExternalCacheDir(Context context) {
-        if (UIUtils.hasFroyo()) {
-            return context.getExternalCacheDir();
-        }
-
-        // Before Froyo we need to construct the external cache dir ourselves
-        final String cacheDir = "/Android/data/" + context.getPackageName() + "/cache/";
-        return new File(Environment.getExternalStorageDirectory().getPath() + cacheDir);
+        return context.getExternalCacheDir();
     }
 
     /**
@@ -658,12 +637,7 @@ public class ImageCache {
      *
      * @return The space available in bytes
      */
-    @TargetApi(9)
     public static long getUsableSpace(File path) {
-        if (UIUtils.hasGingerbread()) {
-            return path.getUsableSpace();
-        }
-        final StatFs stats = new StatFs(path.getPath());
-        return (long) stats.getBlockSize() * (long) stats.getAvailableBlocks();
+        return path.getUsableSpace();
     }
 }

@@ -18,92 +18,27 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 
+import androidx.annotation.StringRes;
+
+import java.util.HashMap;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.framework.Window;
 
 
 public class Plugin extends Item {
+    public static final Plugin HOME = new Plugin("home", null, R.string.HOME, 1, Window.WindowStyle.HOME_MENU);
+    public static final Plugin CURRENT_PLAYLIST = new Plugin("status", null, R.string.menu_item_playlist, 1, Window.WindowStyle.PLAY_LIST);
+    public static final Plugin EXTRAS = new Plugin("extras", "home", R.string.EXTRAS, 50, Window.WindowStyle.HOME_MENU);
+    public static final Plugin SETTINGS = new Plugin("settings", "home", R.string.SETTINGS, 1005, Window.WindowStyle.HOME_MENU);
+    public static final Plugin SCREEN_SETTINGS = new Plugin("settingsScreen", "settings", R.string.SCREEN_SETTINGS, 60, Window.WindowStyle.TEXT_ONLY);
+    public static final Plugin ADVANCED_SETTINGS = new Plugin("advancedSettings", "settings", R.string.ADVANCED_SETTINGS, 105, Window.WindowStyle.TEXT_ONLY);
 
-    public static final Plugin FAVORITE = new Plugin("favorites", R.drawable.ic_favorites);
-    public static final Plugin MY_APPS = new Plugin("myapps", R.drawable.ic_my_apps);
-
-    private String name;
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public Plugin setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    private String icon;
-
-    /**
-     * @return Relative URL path to an icon for this radio or music service, for example
-     * "plugins/Picks/html/images/icon.png"
-     */
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    private int iconResource;
-
-    /**
-     * @return Icon resource for this plugin if it is embedded in the Squeezer app, or null.
-     */
-    public int getIconResource() {
-        return iconResource;
-    }
-
-    public void setIconResource(int iconResource) {
-        this.iconResource = iconResource;
-    }
-
-    private int weight;
-
-    public int getWeight() {
-        return weight;
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
-
-    private String type;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public boolean isSearchable() {
-        return "xmlbrowser_search".equals(type);
-    }
-
-    private Plugin(String cmd, int iconResource) {
-        setId(cmd);
-        setIconResource(iconResource);
-    }
-
-    public Plugin(Map<String, String> record) {
-        setId(record.get("cmd"));
-        name = record.get("name");
-        type = record.get("type");
-        icon = record.get("icon");
-        weight = Util.parseDecimalIntOrZero(record.get("weight"));
+    public Plugin(Map<String, Object> record) {
+        super(record);
     }
 
     public static final Creator<Plugin> CREATOR = new Creator<Plugin>() {
@@ -119,27 +54,25 @@ public class Plugin extends Item {
     };
 
     private Plugin(Parcel source) {
-        setId(source.readString());
-        name = source.readString();
-        type = source.readString();
-        icon = source.readString();
-        iconResource = source.readInt();
-        weight = source.readInt();
+        super(source);
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getId());
-        dest.writeString(name);
-        dest.writeString(type);
-        dest.writeString(icon);
-        dest.writeInt(iconResource);
-        dest.writeInt(weight);
+    private Plugin(String id, String node, @StringRes int text, int weight, Window.WindowStyle windowStyle) {
+        this(record(id, node, text, weight, windowStyle));
+
     }
 
-    @Override
-    public String toStringOpen() {
-        return super.toStringOpen() + "type: " + getType() + ", weight: " + getWeight();
-    }
+    private static Map<String, Object> record(String id, String node, @StringRes int text, int weight, Window.WindowStyle windowStyle) {
+        Map<String, Object> record = new HashMap<>();
+        record.put("id", id);
+        record.put("node", node);
+        record.put("name", Squeezer.getContext().getString(text));
+        record.put("weight", weight);
 
+        Map<String, Object> window = new HashMap<>();
+        window.put("windowStyle", windowStyle.getId());
+        record.put("window", window);
+
+        return record;
+    }
 }

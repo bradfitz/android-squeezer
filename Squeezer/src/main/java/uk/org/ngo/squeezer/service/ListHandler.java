@@ -22,8 +22,7 @@ import java.util.Map;
 import uk.org.ngo.squeezer.framework.Item;
 
 /**
- * Implement this and give it to {@link CliClient#parseSqueezerList(CliClient.ExtendedQueryFormatCmd, List)} for each
- * extended query format command you wish to support. </p>
+ * Implement this for each extended query format command you wish to support.
  *
  * @author Kurt Aaholst
  */
@@ -48,5 +47,5 @@ interface ListHandler<T extends Item> {
      *
      * @param record Item data from Squeezebox Server
      */
-    void add(Map<String, String> record);
+    void add(Map<String, Object> record);
 }

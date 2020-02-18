@@ -18,13 +18,6 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:squeezer="http://schemas.android.com/apk/res-auto">
-    <item
-        android:icon="@drawable/ic_menu_search"
-        android:id="@+id/menu_item_search"
-        android:title="@string/menu_item_search_label"
-        android:alphabeticShortcut="s"
-        squeezer:showAsAction="ifRoom"
-        android:orderInCategory="0"/>
 
     <item
         android:id="@+id/menu_item_playlist"
@@ -57,13 +50,6 @@
         android:id="@+id/menu_item_poweroff"
         android:title="@string/menu_item_poweroff"
         android:icon="@android:drawable/ic_lock_power_off"/>
-
-    <item
-        android:id="@+id/menu_item_connect"
-        android:icon="@drawable/presence_online"
-        android:title="@string/menu_item_connect"
-        android:alphabeticShortcut="c"
-        squeezer:showAsAction="never|withText"/>
 
     <item
         android:id="@+id/menu_item_disconnect"

@@ -3,7 +3,7 @@ package uk.org.ngo.squeezer.dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.webkit.WebView;
 
 import uk.org.ngo.squeezer.R;
@@ -45,7 +45,7 @@ public class ChangeLogDialog extends de.cketti.library.changelog.ChangeLog {
     }
 
     private AlertDialog getThemedDialog(boolean full) {
-        WebView wv = new WebView(mContext);
+        WebView wv = new WebView(mContext.getApplicationContext());
         //wv.setBackgroundColor(0); // transparent
         wv.loadDataWithBaseURL(null, getLog(full), "text/html", "UTF-8", null);
 

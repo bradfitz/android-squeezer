@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 
@@ -35,5 +35,14 @@ public class PowerStatusChanged {
         this.player = player;
         this.canPowerOn = canPowerOn;
         this.canPowerOff = canPowerOff;
+    }
+
+    @Override
+    public String toString() {
+        return "PowerStatusChanged{" +
+                "player=" + player +
+                ", canPowerOn=" + canPowerOn +
+                ", canPowerOff=" + canPowerOff +
+                '}';
     }
 }

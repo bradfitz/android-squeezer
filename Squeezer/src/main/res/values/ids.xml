@@ -17,6 +17,8 @@
     -->
 
 <resources>
-  <item type="id" name="group_position_tag"/>
-  <item type="id" name="child_position_tag"/>
+    <item type="id" name="play_now"/>
+    <item type="id" name="play_next"/>
+    <item type="id" name="add_to_playlist"/>
+    <item type="id" name="more"/>
 </resources>

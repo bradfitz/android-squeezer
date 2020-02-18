@@ -16,31 +16,48 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringDef;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.NowPlayingActivity;
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
+import uk.org.ngo.squeezer.framework.Action;
+import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
+import uk.org.ngo.squeezer.framework.Window;
+import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.PluginItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.util.ImageFetcher;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /*
  * The activity's content view scrolls in from the right, and disappear to the left, to provide a
@@ -48,83 +65,284 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
  */
 public class PluginListActivity extends BaseListActivity<Plugin>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
+    private static final int GO = 1;
+    private static final String FINISH = "FINISH";
+    private static final String RELOAD = "RELOAD";
 
-    private Plugin plugin;
-
-    private String search;
+    private PluginViewLogic pluginViewDelegate;
+    private boolean register;
+    protected Item parent;
+    private Action action;
+    Window window = new Window();
 
     @Override
-    public ItemView<Plugin> createItemView() {
-        return new RadioView(this);
+    protected ItemView<Plugin> createItemView() {
+        return new PluginView(this, window.windowStyle);
+    }
+
+    @Override
+    public PluginView getItemView() {
+        return (PluginView) super.getItemView();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            plugin = extras.getParcelable(Plugin.class.getName());
-            findViewById(R.id.search_view).setVisibility(
-                    plugin.isSearchable() ? View.VISIBLE : View.GONE);
+        Bundle extras = checkNotNull(getIntent().getExtras(), "intent did not contain extras");
+        register = extras.getBoolean("register");
+        parent = extras.getParcelable(Plugin.class.getName());
+        action = extras.getParcelable(Action.class.getName());
 
-            ImageButton searchButton = (ImageButton) findViewById(R.id.search_button);
-            final EditText searchCriteriaText = (EditText) findViewById(R.id.search_input);
+        // If initial setup is performed, use it
+        if (savedInstanceState != null && savedInstanceState.containsKey("window")) {
+            applyWindow((Window) savedInstanceState.getParcelable("window"));
+        } else {
+            if (parent != null && parent.window != null) {
+                applyWindow(parent.window);
+            } else if (parent != null && "playlist".equals(parent.getType())) {
+                // special case of playlist - override server based windowStyle to play_list
+                applyWindowStyle(Window.WindowStyle.PLAY_LIST);
+            } else
+                applyWindowStyle(Window.WindowStyle.TEXT_ONLY);
+        }
 
-            searchCriteriaText.setOnKeyListener(new OnKeyListener() {
+        findViewById(R.id.input_view).setVisibility((hasInputField()) ? View.VISIBLE : View.GONE);
+        if (hasInputField()) {
+            ImageButton inputButton = findViewById(R.id.input_button);
+            final EditText inputText = findViewById(R.id.plugin_input);
+            int inputType = EditorInfo.TYPE_CLASS_TEXT;
+            int inputImage = R.drawable.ic_keyboard_return;
+
+            switch (action.getInputType()) {
+                case TEXT:
+                    break;
+                case SEARCH:
+                    inputImage = R.drawable.search;
+                    break;
+                case EMAIL:
+                    inputType |= EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+                    break;
+                case PASSWORD:
+                    inputType |= EditorInfo.TYPE_TEXT_VARIATION_PASSWORD;
+                    break;
+            }
+            inputText.setInputType(inputType);
+            inputButton.setImageResource(inputImage);
+            inputText.setHint(parent.input.title);
+            inputText.setText(parent.input.initialText);
+            inputText.setOnKeyListener(new OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if ((event.getAction() == KeyEvent.ACTION_DOWN)
                             && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                        clearAndReOrderItems(searchCriteriaText.getText().toString());
+                        clearAndReOrderItems(inputText.getText().toString());
                         return true;
                     }
                     return false;
                 }
             });
 
-            searchButton.setOnClickListener(new OnClickListener() {
+            inputButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (getService() != null) {
-                        clearAndReOrderItems(searchCriteriaText.getText().toString());
+                        clearAndReOrderItems(inputText.getText().toString());
                     }
                 }
             });
         }
+
+        pluginViewDelegate = new PluginViewLogic(this);
+        ViewGroup parentView = findViewById(R.id.parent_container);
+        BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
+        viewHolder.contextMenuButtonHolder = parentView.findViewById(R.id.context_menu);
+        viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
+        viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+        viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pluginViewDelegate.showContextMenu(v, parent);
+            }
+        });
+        viewHolder.contextMenuButtonHolder.setTag(viewHolder);
     }
 
-    private void updateHeader(String headerText) {
-        TextView header = (TextView) findViewById(R.id.header);
-        header.setText(headerText);
-        header.setVisibility(View.VISIBLE);
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("window", window);
     }
 
-    public Plugin getPlugin() {
-        return plugin;
-    }
-
-    private void clearAndReOrderItems(String searchString) {
-        if (getService() != null && !(plugin.isSearchable() && (searchString == null
-                || searchString.length() == 0))) {
-            search = searchString;
-            super.clearAndReOrderItems();
+    @Override
+    public void onResume() {
+        super.onResume();
+        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
+        AbsListView listView = getListView();
+        if ((listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView))
+         || (listLayout != ViewDialog.ArtworkListLayout.grid && (listView instanceof GridView))) {
+            setListView(setupListView(listView));
         }
     }
 
     @Override
-    protected void orderPage(@NonNull ISqueezeService service, int start) {
-        service.apps(start, this);
+    protected AbsListView setupListView(AbsListView listView) {
+        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
+        if (listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView)) {
+            listView = switchListView(listView, R.layout.item_grid);
+        }
+        if (listLayout != ViewDialog.ArtworkListLayout.grid && (listView instanceof GridView)) {
+            listView = switchListView(listView, R.layout.item_list);
+        }
+        return super.setupListView(listView);
+    }
+
+    private AbsListView switchListView(AbsListView listView, @LayoutRes int resource) {
+        ViewGroup parent = (ViewGroup) listView.getParent();
+        int i1 = parent.indexOfChild(listView);
+        parent.removeViewAt(i1);
+        listView = (AbsListView) getLayoutInflater().inflate(resource, parent, false);
+        parent.addView(listView, i1);
+        return listView;
+    }
+
+    void updateHeader(String windowTitle) {
+        window.text = windowTitle;
+
+        ViewGroup parentView = findViewById(R.id.parent_container);
+        parentView.setVisibility(View.VISIBLE);
+
+        TextView header = parentView.findViewById(R.id.text1);
+        header.setText(windowTitle);
+
+        ImageView icon = parentView.findViewById(R.id.icon);
+        icon.setVisibility(View.GONE);
+
+        View contextMenu = parentView.findViewById(R.id.context_menu);
+        contextMenu.setVisibility(View.GONE);
+
+        if (parent != null && parent.hasContextMenu()) {
+            if (parent.hasArtwork() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
+                icon.setVisibility(View.VISIBLE);
+                ImageFetcher.getInstance(this).loadImage(parent.getIcon(), icon);
+            }
+            contextMenu.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateHeader(@NonNull Window window) {
+        if (!TextUtils.isEmpty(window.text)) {
+            updateHeader(window.text);
+        }
+        if (!TextUtils.isEmpty(window.textarea)) {
+            TextView header = findViewById(R.id.sub_header);
+            header.setText(window.textarea);
+            findViewById(R.id.sub_header_container).setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void applyWindow(@NonNull Window window) {
+        applyWindowStyle(register ? Window.WindowStyle.TEXT_ONLY : window.windowStyle);
+        updateHeader(window);
+
+        window.titleStyle = this.window.titleStyle;
+        window.text = this.window.text;
+        this.window = window;
     }
 
 
+    void applyWindowStyle(Window.WindowStyle windowStyle) {
+        applyWindowStyle(windowStyle, getItemView().listLayout());
+    }
+
+    void applyWindowStyle(Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout prevListLayout) {
+        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
+        if (windowStyle != window.windowStyle || listLayout != getItemView().listLayout()) {
+            window.windowStyle = windowStyle;
+            getItemView().setWindowStyle(windowStyle);
+            getItemAdapter().notifyDataSetChanged();
+        }
+        if (listLayout != prevListLayout) {
+            setListView(setupListView(getListView()));
+        }
+    }
+
+
+    private void clearAndReOrderItems(String inputString) {
+        if (getService() != null && !TextUtils.isEmpty(inputString)) {
+            parent.inputValue = inputString;
+            clearAndReOrderItems();
+        }
+    }
+
+    private boolean hasInputField() {
+        return parent != null && parent.hasInputField();
+    }
+
     @Override
-    public void onItemsReceived(int count, int start, final Map<String, String> parameters, List<Plugin> items, Class<Plugin> dataType) {
-        if (parameters.containsKey("title")) {
+    protected boolean needPlayer() {
+        // Most of the the times we actually do need a player, but if we need to register on SN,
+        // it is before we can get the players
+        return !register;
+    }
+
+    @Override
+    protected void orderPage(@NonNull ISqueezeService service, int start) {
+        if (parent != null) {
+            if (action == null || (parent.hasInput() && !parent.isInputReady())) {
+                showContent();
+            } else
+                service.pluginItems(start, parent, action, this);
+        } else if (register) {
+            service.register(this);
+        }
+    }
+
+    public void onEventMainThread(HandshakeComplete event) {
+        super.onEventMainThread(event);
+        if (parent != null && parent.hasSubItems()) {
+            getItemAdapter().update(parent.subItems.size(), 0, parent.subItems);
+        }
+    }
+
+    @Override
+    public void onItemsReceived(int count, int start, final Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+        if (parameters.containsKey("goNow")) {
+            Action.NextWindow nextWindow = Action.NextWindow.fromString(Util.getString(parameters, "goNow"));
+            switch (nextWindow.nextWindow) {
+                case nowPlaying:
+                    NowPlayingActivity.show(this);
+                    break;
+                case playlist:
+                    CurrentPlaylistActivity.show(this);
+                    break;
+                case home:
+                    HomeActivity.show(this);
+                    break;
+            }
+            finish();
+            return;
+        }
+
+        final Window window = Item.extractWindow(Util.getRecord(parameters, "window"), null);
+        if (window != null) {
+            // override server based icon_list style for playlist
+            if (window.windowStyle == Window.WindowStyle.ICON_LIST && parent != null && "playlist".equals(parent.getType())) {
+                window.windowStyle = Window.WindowStyle.PLAY_LIST;
+            }
+            runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        applyWindow(window);
+                    }
+                });
+        }
+
+        if (this.window.text == null && parent != null) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    updateHeader(parameters.get("title"));
+                    updateHeader(parent.getName());
                 }
             });
         }
@@ -143,7 +361,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                 playerName = service.getActivePlayer().getName();
             }
 
-            String errorMsg = parameters.get("networkerror");
+            String errorMsg = Util.getString(parameters, "networkerror");
 
             String errorMessage = String.format(resources.getString(R.string.server_error),
                     playerName, errorMsg);
@@ -153,6 +371,112 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
 
         super.onItemsReceived(count, start, parameters, items, dataType);
+    }
+
+    @Override
+    public void action(Item item, Action action, int alreadyPopped) {
+        if (getService() == null) {
+            return;
+        }
+
+        if (action != null) {
+            getService().action(item, action);
+        }
+
+        Action.JsonAction jAction = (action != null && action.action != null) ? action.action : null;
+        Action.NextWindow nextWindow = (jAction != null ? jAction.nextWindow : item.nextWindow);
+        nextWindow(nextWindow, alreadyPopped);
+    }
+
+    @Override
+    public void action(Action.JsonAction action, int alreadyPopped) {
+        if (getService() == null) {
+            return;
+        }
+
+        getService().action(action);
+        nextWindow(action.nextWindow, alreadyPopped);
+    }
+
+    private void nextWindow(Action.NextWindow nextWindow, int alreadyPopped) {
+        while (alreadyPopped > 0 && nextWindow != null) {
+            nextWindow = popNextWindow(nextWindow);
+            alreadyPopped--;
+        }
+        if (nextWindow != null) {
+            switch (nextWindow.nextWindow) {
+                case nowPlaying:
+                    // Do nothing as now playing is always available in Squeezer (maybe toast the action)
+                    break;
+                case playlist:
+                    CurrentPlaylistActivity.show(this);
+                    break;
+                case home:
+                    HomeActivity.show(this);
+                    break;
+                case parentNoRefresh:
+                    finish();
+                    break;
+                case grandparent:
+                    setResult(Activity.RESULT_OK, new Intent(FINISH));
+                    finish();
+                    break;
+                case refresh:
+                    clearAndReOrderItems();
+                    break;
+                case parent:
+                case refreshOrigin:
+                    setResult(Activity.RESULT_OK, new Intent(RELOAD));
+                    finish();
+                    break;
+                case windowId:
+                    //TODO implement
+                    break;
+            }
+        }
+    }
+
+    private Action.NextWindow popNextWindow(Action.NextWindow nextWindow) {
+        switch (nextWindow.nextWindow) {
+            case parent:
+            case parentNoRefresh:
+                return null;
+            case grandparent:
+                return new Action.NextWindow(Action.NextWindowEnum.parentNoRefresh);
+            case refreshOrigin:
+                return new Action.NextWindow(Action.NextWindowEnum.refresh);
+            default:
+                return nextWindow;
+
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GO) {
+            if (resultCode == RESULT_OK) {
+                if (FINISH.equals(data.getAction())) {
+                    finish();
+                } else if (RELOAD.equals(data.getAction())) {
+                    clearAndReOrderItems();
+                }
+            }
+        }
+    }
+
+    public void showViewDialog() {
+        new ViewDialog().show(getSupportFragmentManager(), "ViewDialog");
+    }
+
+    public ViewDialog.ArtworkListLayout getPreferredListLayout() {
+        return new Preferences(this).getAlbumListLayout();
+    }
+
+    public void setPreferredListLayout(ViewDialog.ArtworkListLayout listLayout) {
+        ViewDialog.ArtworkListLayout prevListLayout = getItemView().listLayout();
+        new Preferences(this).setAlbumListLayout(listLayout);
+        applyWindowStyle(window.windowStyle, prevListLayout);
     }
 
     /**
@@ -169,21 +493,42 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         });
     }
 
-    private boolean pluginPlaylistControl(@PluginPlaylistControlCmd String cmd, PluginItem item) {
-        if (getService() == null) {
-            return false;
-        }
-        getService().pluginPlaylistControl(plugin, cmd, item.getId());
-        return true;
+    public static void register(Activity activity) {
+        final Intent intent = new Intent(activity, PluginListActivity.class);
+        intent.putExtra("register", true);
+        activity.startActivity(intent);
     }
 
-    @StringDef({PLUGIN_PLAYLIST_PLAY, PLUGIN_PLAYLIST_PLAY_NOW, PLUGIN_PLAYLIST_ADD_TO_END,
-            PLUGIN_PLAYLIST_PLAY_AFTER_CURRENT})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface PluginPlaylistControlCmd {}
-    public static final String PLUGIN_PLAYLIST_PLAY = "play";
-    public static final String PLUGIN_PLAYLIST_PLAY_NOW = "load";
-    public static final String PLUGIN_PLAYLIST_ADD_TO_END = "add";
-    public static final String PLUGIN_PLAYLIST_PLAY_AFTER_CURRENT = "insert";
+    /**
+     * Start a new {@link PluginListActivity} to perform the supplied <code>action</code>.
+     * <p>
+     * If the action requires input, we initially get the input.
+     * <p>
+     * When input is ready or the action does not require input, items are ordered asynchronously
+     * via {@link ISqueezeService#pluginItems(int, Item, Action, IServiceItemListCallback)}
+     *
+     * @see #orderPage(ISqueezeService, int)
+     */
+    public static void show(Activity activity, Item parent, Action action) {
+        final Intent intent = getPluginListIntent(activity);
+        intent.putExtra(Plugin.class.getName(), parent);
+        intent.putExtra(Action.class.getName(), action);
+        activity.startActivityForResult(intent, GO);
+    }
+
+    public static void show(Activity activity, Item plugin) {
+        final Intent intent = getPluginListIntent(activity);
+        intent.putExtra(Plugin.class.getName(), plugin);
+        activity.startActivityForResult(intent, GO);
+    }
+
+    @NonNull
+    private static Intent getPluginListIntent(Activity activity) {
+        Intent intent = new Intent(activity, PluginListActivity.class);
+        if (activity instanceof PluginListActivity && ((PluginListActivity)activity).register) {
+            intent.putExtra("register", true);
+        }
+        return intent;
+    }
 
 }

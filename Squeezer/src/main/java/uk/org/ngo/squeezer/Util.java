@@ -17,31 +17,25 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
-import android.os.Build;
-import android.support.annotation.NonNull;
+import android.net.Uri;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.channels.FileChannel;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 public class Util {
-    private static final String TAG = Util.class.getSimpleName();
+
+    /** {@link java.util.regex.Pattern} that splits strings on colon. */
+    private static final Pattern mColonSplitPattern = Pattern.compile(":");
 
     private Util() {
     }
@@ -64,7 +58,21 @@ public class Util {
         return false;
     }
 
-    public static int parseDecimalInt(String value, int defaultValue) {
+    public static double parseDouble(String value, double defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value.length() == 0) {
+            return defaultValue;
+        }
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    public static long parseDecimalInt(String value, long defaultValue) {
         if (value == null) {
             return defaultValue;
         }
@@ -76,14 +84,120 @@ public class Util {
             return defaultValue;
         }
         try {
-            return Integer.parseInt(value);
+            return Long.parseLong(value);
         } catch (NumberFormatException e) {
             return defaultValue;
         }
     }
 
-    public static int parseDecimalIntOrZero(String value) {
-        return parseDecimalInt(value, 0);
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> getRecord(Map<String, Object> record, String recordName) {
+        return (Map<String, Object>) record.get(recordName);
+    }
+
+    public static double getDouble(Map<String, Object> record, String fieldName) {
+        return getDouble(record, fieldName, 0);
+    }
+
+    public static double getDouble(Map<String, Object> record, String fieldName, double defaultValue) {
+        return getDouble(record.get(fieldName), defaultValue);
+    }
+
+    public static double getDouble(Object value, double defaultValue) {
+        return (value instanceof Number) ? ((Number)value).doubleValue() : parseDouble((String)value, defaultValue);
+    }
+
+    public static long getLong(Map<String, Object> record, String fieldName) {
+        return getLong(record, fieldName, 0);
+    }
+
+    public static long getLong(Map<String, Object> record, String fieldName, long defaultValue) {
+        return getLong(record.get(fieldName), defaultValue);
+    }
+
+    public static long getLong(Object value, long defaultValue) {
+        return (value instanceof Number) ? ((Number)value).intValue() : parseDecimalInt((String) value, defaultValue);
+    }
+
+    public static int getInt(Map<String, Object> record, String fieldName) {
+        return getInt(record, fieldName, 0);
+    }
+
+    public static int getInt(Map<String, Object> record, String fieldName, int defaultValue) {
+        return getInt(record.get(fieldName), defaultValue);
+    }
+
+    public static int getInt(Object value, int defaultValue) {
+        return (value instanceof Number) ? ((Number)value).intValue() : (int) parseDecimalInt((String) value, defaultValue);
+    }
+
+    public static int getInt(Object value) {
+        return getInt(value, 0);
+    }
+
+    public static String getString(Map<String, Object> record, String fieldName) {
+        return getString(record.get(fieldName), null);
+    }
+
+    public static String getString(Map<String, Object> record, String fieldName, String defaultValue) {
+        return getString(record.get(fieldName), defaultValue);
+    }
+
+    @NonNull
+    public static String getStringOrEmpty(Map<String, Object> record, String fieldName) {
+        return getStringOrEmpty(record.get(fieldName));
+    }
+
+    @NonNull
+    public static String getStringOrEmpty(Object value) {
+        return getString(value, "");
+    }
+
+    public static String getString(Object value, String defaultValue) {
+        if (value == null) return defaultValue;
+        return (value instanceof String) ? (String)value : value.toString();
+    }
+
+    public static String[] getStringArray(Object[] objects) {
+        String[] result = new String[objects == null ? 0 : objects.length];
+        if (objects != null) {
+            for (int i = 0; i < objects.length; i++) {
+                result[i] = getString(objects[i], null);
+            }
+        }
+        return result;
+    }
+
+    public static Map<String, Object > mapify(String[] tokens) {
+        Map<String, Object> tokenMap = new HashMap<>();
+        for (String token : tokens) {
+            String[] split = mColonSplitPattern.split(token, 2);
+            tokenMap.put(split[0], split.length > 1 ? split[1] : null);
+        }
+        return tokenMap;
+    }
+
+    /** Make sure the icon/image tag is an absolute URL. */
+    private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
+    @NonNull
+    private static Uri getImageUrl(String urlPrefix, String imageId) {
+        if (imageId != null) {
+            if (HEX_PATTERN.matcher(imageId).matches()) {
+                // if the iconId is a hex digit, this is a coverid or remote track id(a negative id)
+                imageId = "/music/" + imageId + "/cover";
+            }
+
+            // Make sure the url is absolute
+            if (!Uri.parse(imageId).isAbsolute()) {
+                imageId = urlPrefix + (imageId.startsWith("/") ? imageId : "/" + imageId);
+            }
+        }
+        return Uri.parse(imageId != null ? imageId : "");
+    }
+
+    @NonNull
+    public static Uri getImageUrl(Map<String, Object> record, String fieldName) {
+        return getImageUrl(getString(record, "urlPrefix"), getString(record, fieldName));
     }
 
     private static final StringBuilder sFormatBuilder = new StringBuilder();
@@ -114,55 +228,20 @@ public class Util {
         sTimeArgs[4] = elapsedSeconds % 60;
     }
 
-    public static String encode(String string) {
-        try {
-            return URLEncoder.encode(string, "UTF-8").replace("+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            return "";
-        }
-    }
-
-    public static String decode(String string) {
-        try {
-            return URLDecoder.decode(string, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return "";
-        }
-    }
-
-    public static String parseHost(String hostPort) {
-        if (hostPort == null) {
-            return "";
-        }
-        int colonPos = hostPort.indexOf(":");
-        if (colonPos == -1) {
-            return hostPort;
-        }
-        return hostPort.substring(0, colonPos);
-    }
-
-    public static int parsePort(String hostPort) {
-        if (hostPort == null) {
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
-        int colonPos = hostPort.indexOf(":");
-        if (colonPos == -1) {
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
-        try {
-            return Integer.parseInt(hostPort.substring(colonPos + 1));
-        } catch (NumberFormatException unused) {
-            Log.d(TAG, "Can't parse port out of " + hostPort);
-            return Squeezer.getContext().getResources().getInteger(R.integer.DefaultPort);
-        }
+    /**
+     * Returns {@code true} if the arguments are equal to each other
+     * and {@code false} otherwise.
+     * Consequently, if both arguments are {@code null}, {@code true}
+     * is returned and if exactly one argument is {@code null}, {@code
+     * false} is returned.  Otherwise, equality is determined by using
+     * the {@link Object#equals equals} method of the first
+     * argument.
+     */
+    public static boolean equals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
     }
 
     /**
-     *
-     * @param context
-     * @param convertView
-     * @param parent
-     * @param label
      * @return a view suitable for use as a spinner view.
      */
     public static View getSpinnerItemView(Context context, View convertView, ViewGroup parent,
@@ -171,24 +250,10 @@ public class Util {
                 android.R.layout.simple_spinner_item);
     }
 
-    /**
-     *
-     * @param context
-     * @param convertView
-     * @param parent
-     * @param label
-     * @return a view suitable for use in a spinner's dropdown menu.
-     */
-    public static View getSpinnerDropDownView(Context context, View convertView, ViewGroup parent,
-                                      String label) {
-        return getSpinnerView(context, convertView, parent, label,
-                android.R.layout.simple_spinner_dropdown_item);
-    }
-
     public static View getActionBarSpinnerItemView(Context context, View convertView,
                                                    ViewGroup parent, String label) {
         return getSpinnerView(context, convertView, parent, label,
-                android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item);
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
     }
 
     private static View getSpinnerView(Context context, View convertView, ViewGroup parent,
@@ -201,157 +266,5 @@ public class Util {
                         layout, parent, false));
         view.setText(label);
         return view;
-    }
-
-    /**
-     * Count how many of the supplied booleans are true.
-     *
-     * @param items Booleans to count
-     *
-     * @return Number of arguments which are true
-     */
-    public static int countBooleans(boolean... items) {
-        int count = 0;
-        for (boolean item : items) {
-            if (item) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    /** Helper to set alpha value for a view, since View.setAlpha is API level 11 */
-    public static View setAlpha(View view, float alpha) {
-        AlphaAnimation alphaAnimation = new AlphaAnimation(alpha, alpha);
-        alphaAnimation.setDuration(0);
-        alphaAnimation.setFillAfter(true);
-        view.startAnimation(alphaAnimation);
-
-        return view;
-    }
-
-    /** @return True if Crashlytics is supported in this build. */
-    public static boolean supportCrashlytics() {
-        // Don't include in debug builds
-        if (BuildConfig.DEBUG) {
-            return false;
-        }
-
-        // Don't include in <= API 7 (only works on API 8 and above).
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ECLAIR_MR1) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Calls {@link Crashlytics#setString(String, String)} if Crashlytics is
-     * enabled in this build, otherwise does nothing.
-     *
-     * @param key
-     * @param value
-     */
-    public static void crashlyticsSetString(String key, String value) {
-        if (supportCrashlytics()) {
-            Crashlytics.setString(key, value);
-        }
-    }
-
-    /**
-     * Calls {@link Crashlytics#setLong(String, long)} if Crashlytics is
-     * enabled in this build, otherwise does nothing.
-     *
-     * @param key
-     * @param value
-     */
-    public static void crashlyticsSetLong(String key, long value) {
-        if (supportCrashlytics()) {
-            Crashlytics.setLong(key, value);
-        }
-    }
-
-    /**
-     * Calls {@link Crashlytics#log(String)} if Crashlytics is enabled in
-     * this build, otherwise log to .
-     *
-     * @param msg
-     */
-    public static void crashlyticsLog(String msg) {
-        if (supportCrashlytics()) {
-            Crashlytics.log(msg);
-        } else {
-            Log.i("Util.crashlyticsLog", msg);
-        }
-    }
-
-    /**
-     * Calls {@link Crashlytics#log(int, String, String)} if Crashlytics is
-     * enabled in this build, otherwise does nothing.
-     *
-     * @param priority
-     * @param tag
-     * @param msg
-     */
-    public static void crashlyticsLog(int priority, String tag, String msg) {
-        if (supportCrashlytics()) {
-            Crashlytics.log(priority, tag, msg);
-        } else {
-            Log.println(priority, tag, msg);
-        }
-    }
-
-    /**
-     * Calls {@link Crashlytics#logException(Throwable)} if Crashlytics is
-     * enabled in this build, otherwise does nothing.
-     *
-     * @param throwable
-     */
-    public static void crashlyticsLogException(java.lang.Throwable throwable) {
-        if (supportCrashlytics()) {
-            Crashlytics.logException(throwable);
-        } else {
-            Log.i("Util.crashlyticsLog", "", throwable);
-        }
-    }
-
-    @NonNull
-    public static String getBaseName(String fileName) {
-        String name = new File(fileName).getName();
-        int pos = name.lastIndexOf(".");
-        return (pos > 0) ? name.substring(0, pos) : name;
-    }
-
-    public static void moveFile(File sourceFile, File destinationFile) throws IOException {
-        File destFolder = destinationFile.getParentFile();
-        if (!destFolder.exists()) {
-            if (!destFolder.mkdirs()) {
-                throw new IOException("Cant create folder for '" + destinationFile + "'");
-            }
-        }
-        if (!sourceFile.renameTo(destinationFile)) {
-            // We could not rename. This may be because source and destination are on different
-            // mount points, so we attempt to copy and delete instead.
-            FileChannel sourceChannel = null;
-            FileChannel destinationChannel = null;
-            try {
-                sourceChannel = new FileInputStream(sourceFile).getChannel();
-                destinationChannel = new FileOutputStream(destinationFile).getChannel();
-                // Transfer the file in chunks to avoid out of memory issues
-                final long blockSize = Math.min(268435456, sourceChannel.size());
-                long position = 0;
-                while (destinationChannel.transferFrom(sourceChannel, position, blockSize) > 0) {
-                    position += blockSize;
-                }
-            } finally {
-                if (sourceChannel != null)
-                    sourceChannel.close();
-                if (destinationChannel != null)
-                    destinationChannel.close();
-            }
-            if (!sourceFile.delete()) {
-                throw new IOException("failed to delete " + sourceFile);
-            }
-        }
     }
 }

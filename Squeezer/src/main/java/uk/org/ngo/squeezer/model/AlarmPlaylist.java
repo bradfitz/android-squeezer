@@ -49,11 +49,11 @@ public class AlarmPlaylist extends Item {
     public AlarmPlaylist() {
     }
 
-    public AlarmPlaylist(Map<String, String> record) {
-        setId(record.get("url"));
-        title = record.get("title");
-        category = record.get("category");
-        singleton = Util.parseDecimalIntOrZero(record.get("singleton")) == 1;
+    public AlarmPlaylist(Map<String, Object> record) {
+        setId(getStringOrEmpty(record, "url"));
+        title = getString(record, "title");
+        category = getString(record, "category");
+        singleton = getInt(record, "singleton") == 1;
     }
 
     public static final Creator<AlarmPlaylist> CREATOR = new Creator<AlarmPlaylist>() {

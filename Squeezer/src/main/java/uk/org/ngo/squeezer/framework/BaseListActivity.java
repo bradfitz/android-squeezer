@@ -18,20 +18,15 @@ package uk.org.ngo.squeezer.framework;
 
 
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
+import androidx.annotation.MainThread;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -39,9 +34,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.util.RetainFragment;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A generic base class for an activity to list items of a particular SqueezeServer data type. The
@@ -59,8 +52,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public abstract class BaseListActivity<T extends Item> extends ItemListActivity implements IServiceItemListCallback<T> {
 
-    private static final String TAG = BaseListActivity.class.getName();
-
     /**
      * Tag for first visible position in mRetainFragment.
      */
@@ -71,89 +62,74 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      */
     public static final String TAG_ADAPTER = "adapter";
 
-    private AbsListView mListView;
-
     private ItemAdapter<T> itemAdapter;
 
     /**
-     * Progress bar (spinning) while items are loading.
+     * Can't do much here, as content is based on settings, and which data to display, which is controlled by data
+     * returned from server.
+     * <p>
+     * See {@link #setupListView(AbsListView)} and {@link #onItemsReceived(int, int, Map, List, Class)} for the actual setup of
+     * views and adapter
      */
-    private ProgressBar loadingProgress;
-
-    /**
-     * Fragment to retain information across the activity lifecycle.
-     */
-    private RetainFragment mRetainFragment;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
-
         setContentView(getContentView());
-        mListView = checkNotNull((AbsListView) findViewById(R.id.item_list),
-                "getContentView() did not return a view containing R.id.item_list");
+    }
 
-        loadingProgress = checkNotNull((ProgressBar) findViewById(R.id.loading_progress),
-                "getContentView() did not return a view containing R.id.loading_progress");
-
-        mListView.setOnItemClickListener(new OnItemClickListener() {
+    @Override
+    protected AbsListView setupListView(AbsListView listView) {
+        listView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                getItemAdapter().onItemSelected(position);
+                getItemAdapter().onItemSelected(view, position);
             }
         });
 
-        mListView.setOnScrollListener(new ScrollListener());
+        listView.setOnScrollListener(new ScrollListener());
 
-        mListView.setRecyclerListener(new RecyclerListener() {
+        listView.setRecyclerListener(new RecyclerListener() {
             @Override
             public void onMovedToScrapHeap(View view) {
                 // Release strong reference when a view is recycled
-                final ImageView imageView = (ImageView) view.findViewById(R.id.icon);
+                final ImageView imageView = view.findViewById(R.id.icon);
                 if (imageView != null) {
                     imageView.setImageBitmap(null);
                 }
             }
         });
 
-        // Delegate context menu creation to the adapter.
-        mListView.setOnCreateContextMenuListener(getItemAdapter());
+        setupAdapter(listView);
+
+        return listView;
     }
 
+    @MainThread
     public void onEventMainThread(HandshakeComplete event) {
-        maybeOrderVisiblePages(mListView);
-        setAdapter();
+        super.onEventMainThread(event);
+        if (!needPlayer() || getService().getActivePlayer() != null) {
+            maybeOrderVisiblePages(getListView());
+        } else {
+            showEmptyView();
+        }
     }
 
     /**
      * Returns the ID of a content view to be used by this list activity.
      * <p>
-     * The content view must contain a {@link AbsListView} with the id {@literal item_list} and a
-     * {@link ProgressBar} with the id {@literal loading_progress} in order to be valid.
+     * The content view must contain a {@link AbsListView} with the id {@literal item_list} in order
+     * to be valid.
      *
      * @return The ID
      */
     protected int getContentView() {
-        return R.layout.item_list;
+        return R.layout.slim_browser_layout;
     }
 
     /**
      * @return A new view logic to be used by this activity
      */
     abstract protected ItemView<T> createItemView();
-
-    @Override
-    public boolean onContextItemSelected(MenuItem menuItem) {
-        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) menuItem.getMenuInfo();
-
-        // If menuInfo is null we have a sub menu, we expect the adapter to have stored the position
-        if (menuInfo == null)
-            return itemAdapter.doItemContext(menuItem);
-        else
-            return itemAdapter.doItemContext(menuItem, menuInfo.position);
-    }
 
     /**
      * Set our adapter on the list view.
@@ -166,22 +142,15 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
      * <p>
      * Call this method after the handshake is complete.
      */
-    private void setAdapter() {
-        // setAdapter is not defined for AbsListView before API level 11, but
-        // it is for concrete implementations, so we call it by reflection
-        try {
-            Method method = mListView.getClass().getMethod("setAdapter", ListAdapter.class);
-            method.invoke(mListView, getItemAdapter());
-        } catch (Exception e) {
-            Log.e(getTag(), "Error calling 'setAdapter'", e);
-        }
+    private void setupAdapter(AbsListView listView) {
+        listView.setAdapter(getItemAdapter());
 
-        Integer position = (Integer) mRetainFragment.get(TAG_POSITION);
+        Integer position = (Integer) getRetainedValue(TAG_POSITION);
         if (position != null) {
-            if (mListView instanceof ListView) {
-                ((ListView) mListView).setSelectionFromTop(position, 0);
+            if (listView instanceof ListView) {
+                ((ListView) listView).setSelectionFromTop(position, 0);
             } else {
-                mListView.setSelection(position);
+                listView.setSelection(position);
             }
         }
     }
@@ -193,13 +162,13 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     }
 
     /**
-     * Store the first visible position of {@link #mListView}, in the {@link #mRetainFragment}, so
+     * Store the first visible position of {@link #getListView()}, in the retain fragment, so
      * we can later retrieve it.
      *
      * @see android.widget.AbsListView#getFirstVisiblePosition()
      */
     private void saveVisiblePosition() {
-        mRetainFragment.put(TAG_POSITION, mListView.getFirstVisiblePosition());
+        putRetainedValue(TAG_POSITION, getListView().getFirstVisiblePosition());
     }
 
     /**
@@ -215,10 +184,10 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
     public ItemAdapter<T> getItemAdapter() {
         if (itemAdapter == null) {
             //noinspection unchecked
-            itemAdapter = (ItemAdapter<T>) mRetainFragment.get(TAG_ADAPTER);
+            itemAdapter = (ItemAdapter<T>) getRetainedValue(TAG_ADAPTER);
             if (itemAdapter == null) {
                 itemAdapter = createItemListAdapter(createItemView());
-                mRetainFragment.put(TAG_ADAPTER, itemAdapter);
+                putRetainedValue(TAG_ADAPTER, itemAdapter);
             } else {
                 // We have just retained the item adapter, we need to create a new
                 // item view logic, cause it holds a reference to the old activity
@@ -233,40 +202,22 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
 
     @Override
     protected void clearItemAdapter() {
-        // TODO: This should be removed in favour of showing a progress spinner in the actionbar.
-        mListView.setVisibility(View.GONE);
-        loadingProgress.setVisibility(View.VISIBLE);
-
         getItemAdapter().clear();
     }
 
-    /**
-     * @return The {@link AbsListView} used by this activity
-     */
-    public AbsListView getListView() {
-        return mListView;
-    }
-
     protected ItemAdapter<T> createItemListAdapter(ItemView<T> itemView) {
-        return new ItemAdapter<T>(itemView);
-    }
-
-    public void onItemsReceived(final int count, final int start, final List<T> items) {
-        super.onItemsReceived(count, start, items.size());
-
-        getUIThreadHandler().post(new Runnable() {
-            @Override
-            public void run() {
-                mListView.setVisibility(View.VISIBLE);
-                loadingProgress.setVisibility(View.GONE);
-                getItemAdapter().update(count, start, items);
-            }
-        });
+        return new ItemAdapter<>(itemView);
     }
 
     @Override
-    public void onItemsReceived(int count, int start, Map<String, String> parameters, List<T> items, Class<T> dataType) {
-        onItemsReceived(count, start, items);
+    @SuppressWarnings("unchecked")
+    protected <IT extends Item> void updateAdapter(int count, int start, List<IT> items, Class<IT> dataType) {
+        getItemAdapter().update(count, start, (List<T>) items);
+    }
+
+    @Override
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<T> items, Class<T> dataType) {
+        super.onItemsReceived(count, start, items, dataType);
     }
 
     @Override

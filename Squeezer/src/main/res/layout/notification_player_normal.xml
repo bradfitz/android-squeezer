@@ -16,9 +16,7 @@
   limitations under the License.
   -->
 
-<RelativeLayout
-    android:id="@+id/layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="64dp">
@@ -29,7 +27,7 @@
         android:layout_height="@dimen/album_art_icon_normal_notification_height"
         android:layout_marginRight="8dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/icon_album_noart"/>
+        tools:src="@drawable/icon_album_noart"/>
 
     <TextView
         android:id="@+id/trackname"
@@ -79,5 +77,5 @@
         android:maxWidth="48dp"
         android:minHeight="48dp"
         android:minWidth="48dp"
-        android:src="@drawable/ic_action_next"/>
+        tools:src="@drawable/ic_action_next"/>
 </RelativeLayout>

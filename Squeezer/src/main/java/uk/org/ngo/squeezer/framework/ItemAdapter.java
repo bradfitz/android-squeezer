@@ -17,12 +17,8 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.util.SparseArray;
-import android.view.ContextMenu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.BaseAdapter;
 
 import java.util.List;
@@ -42,8 +38,7 @@ import uk.org.ngo.squeezer.R;
  * @author Kurt Aaholst
  * @see ItemView
  */
-public class ItemAdapter<T extends Item> extends BaseAdapter implements
-        OnCreateContextMenuListener {
+public class ItemAdapter<T extends Item> extends BaseAdapter {
 
     /**
      * View logic for this adapter
@@ -57,26 +52,27 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
      */
     private int count;
 
-    private final SparseArray<T[]> pages = new SparseArray<T[]>();
+    private final SparseArray<T[]> pages = new SparseArray<>();
 
     /**
      * This is set if the list shall start with an empty item.
      */
-    protected final boolean mEmptyItem;
+    private final boolean mEmptyItem;
 
     /**
      * Text to display before the items are received from SqueezeServer
      */
-    protected final String loadingText;
+    private final String loadingText;
 
     /**
      * Number of elements to by fetched at a time
      */
     private final int pageSize;
 
-    public int getPageSize() {
-        return pageSize;
-    }
+    /**
+     * Index of the latest selected item see {@link #onItemSelected(View, int)}
+     */
+    private int selectedIndex;
 
     /**
      * Creates a new adapter. Initially the item list is populated with items displaying the
@@ -95,7 +91,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     }
 
     /**
-     * Calls {@link #ItemAdapter(ItemView, boolean)}, with emptyItem = false
+     * Calls {@link #(ItemView, boolean)}, with emptyItem = false
      */
     public ItemAdapter(ItemView<T> itemView) {
         this(itemView, false);
@@ -111,12 +107,16 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     public void clear() {
         count = (mEmptyItem ? 1 : 0);
         pages.clear();
+        notifyDataSetChanged();
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         T item = getItem(position);
         if (item != null) {
+            if (item.radio != null) {
+                item.radio = (position == selectedIndex);
+            }
             return mItemView.getAdapterView(convertView, parent, position, item);
         }
 
@@ -124,51 +124,27 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
                 (position == 0 && mEmptyItem ? "" : loadingText));
     }
 
-    public String getQuantityString(int size) {
-        return mItemView.getQuantityString(size);
-    }
-
     public ItemListActivity getActivity() {
         return mItemView.getActivity();
     }
 
-    public void onItemSelected(int position) {
+    public int getSelectedIndex() {
+        return selectedIndex;
+    }
+
+    public void setSelectedIndex(int index) {
+        selectedIndex = index;
+    }
+
+    public void onItemSelected(View view, int position) {
         T item = getItem(position);
-        if (item != null && item.getId() != null) {
-            mItemView.onItemSelected(position, item);
+        if (item != null) {
+            selectedIndex = position;
+            mItemView.onItemSelected(view, position, item);
+            if (item.radio != null) {
+                notifyDataSetChanged();
+            }
         }
-    }
-
-    /**
-     * Creates the context menu for the selected item by calling {@link
-     * ItemView#onCreateContextMenu} which the subclass should have specialised.
-     * <p>
-     * Unpacks the {@link ContextMenu.ContextMenuInfo} passed to this method, and creates a {@link
-     * ItemView.ContextMenuInfo} suitable for passing to subclasses of {@link BaseItemView}.
-     */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
-        AdapterContextMenuInfo adapterMenuInfo = (AdapterContextMenuInfo) menuInfo;
-        createContextMenu(menu, v, adapterMenuInfo.position);
-    }
-
-    public void createContextMenu(ContextMenu menu, View v, int position) {
-        final T selectedItem = getItem(position);
-        ItemView.ContextMenuInfo c = new ItemView.ContextMenuInfo(position, selectedItem, this,
-                getActivity().getMenuInflater());
-
-        if (selectedItem != null && selectedItem.getId() != null) {
-            mItemView.onCreateContextMenu(menu, v, c);
-        }
-    }
-
-    public boolean doItemContext(MenuItem menuItem, int position) {
-        return mItemView.doItemContext(menuItem, position, getItem(position));
-    }
-
-    public boolean doItemContext(MenuItem menuItem) {
-        return mItemView.doItemContext(menuItem);
     }
 
     public ItemView<T> getItemView() {
@@ -197,6 +173,9 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
         T[] page = getPage(start);
         int offset = start % pageSize;
         for (T item : items) {
+            if (item.radio != null && item.radio) {
+                selectedIndex = start + offset;
+            }
             if (offset >= pageSize) {
                 start += offset;
                 page = getPage(start);
@@ -219,6 +198,9 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     }
 
     public void setItem(int position, T item) {
+        if (item.radio != null && item.radio) {
+            selectedIndex = position;
+        }
         getPage(position)[position % pageSize] = item;
     }
 
@@ -230,17 +212,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
     @Override
     public boolean isEnabled(int position) {
         T item = getItem(position);
-        return item != null && item.getId() != null && mItemView.isSelectable(item);
-    }
-
-    /**
-     * Generates a string suitable for use as the list's title.
-     *
-     * @return the title.
-     */
-    public String getHeader() {
-        String item_text = getQuantityString(getCount());
-        return getActivity().getString(R.string.browse_items_text, item_text, getCount());
+        return item != null && mItemView.isSelectable(item);
     }
 
     /**
@@ -333,7 +305,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter implements
         notifyDataSetChanged();
     }
 
-    protected T[] arrayInstance(int size) {
+    private T[] arrayInstance(int size) {
         return mItemView.getCreator().newArray(size);
     }
 

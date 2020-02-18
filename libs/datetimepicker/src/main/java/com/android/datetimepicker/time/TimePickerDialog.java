@@ -18,11 +18,10 @@ package com.android.datetimepicker.time;
 
 import com.nineoldandroids.animation.ObjectAnimator;
 import android.app.ActionBar.LayoutParams;
-import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import androidx.fragment.app.DialogFragment;
 import android.util.Log;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -39,7 +38,6 @@ import com.android.datetimepicker.HapticFeedbackController;
 import com.android.datetimepicker.R;
 import com.android.datetimepicker.Utils;
 import com.android.datetimepicker.time.RadialPickerLayout.OnValueSelectedListener;
-import com.nineoldandroids.view.animation.AnimatorProxy;
 
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;

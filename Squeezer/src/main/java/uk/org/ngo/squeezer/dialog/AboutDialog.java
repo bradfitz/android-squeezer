@@ -23,9 +23,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog.Builder;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog.Builder;
 import android.view.View;
 import android.widget.TextView;
 
@@ -38,8 +38,8 @@ public class AboutDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
         final View view = getActivity().getLayoutInflater().inflate(R.layout.about_dialog, null);
-        final TextView titleText = (TextView) view.findViewById(R.id.about_title);
-        final TextView versionText = (TextView) view.findViewById(R.id.version_text);
+        final TextView titleText = view.findViewById(R.id.about_title);
+        final TextView versionText = view.findViewById(R.id.version_text);
 
         PackageManager pm = getActivity().getPackageManager();
         PackageInfo info;

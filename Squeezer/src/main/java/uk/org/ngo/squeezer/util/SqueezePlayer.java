@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 
 import uk.org.ngo.squeezer.Preferences;
@@ -30,25 +30,35 @@ public class SqueezePlayer extends Handler {
 
     private final String serverUrl;
     private final String serverName;
-    private final String userName;
+    private final String username;
     private final String password;
     private final AppCompatActivity context;
 
-    public SqueezePlayer(AppCompatActivity context) {
+    private SqueezePlayer(AppCompatActivity context, Preferences.ServerAddress serverAddress) {
         this.context = context;
 
         Preferences preferences = new Preferences(context);
-        Preferences.ServerAddress serverAddress = preferences.getServerAddress();
-        serverUrl = serverAddress.address;
+        serverUrl = serverAddress.address();
         serverName = preferences.getServerName(serverAddress);
-        userName = preferences.getUserName(serverAddress);
+        username = preferences.getUsername(serverAddress);
         password = preferences.getPassword(serverAddress);
 
         Log.d(TAG, "startControllingSqueezePlayer");
         startControllingSqueezePlayer();
     }
 
-    public static boolean hasSqueezePlayer(Context context) {
+    public static SqueezePlayer maybeStartControllingSqueezePlayer(AppCompatActivity context) {
+        Preferences preferences = new Preferences(context);
+        Preferences.ServerAddress serverAddress = preferences.getServerAddress();
+
+        if (hasSqueezePlayer(context) && preferences.controlSqueezePlayer(serverAddress)) {
+            return new SqueezePlayer(context, serverAddress);
+        }
+
+        return null;
+    }
+
+    private static boolean hasSqueezePlayer(Context context) {
         final PackageManager packageManager = context.getPackageManager();
         Intent intent = packageManager.getLaunchIntentForPackage(SQUEEZEPLAYER_PACKAGE);
         return (intent != null);
@@ -71,8 +81,8 @@ public class SqueezePlayer extends Handler {
             intent.putExtra(HAS_SERVER_SETTINGS_EXTRA, true);
             intent.putExtra(SERVER_URL_EXTRA, serverUrl);
             intent.putExtra(SERVER_NAME_EXTRA, serverName);
-            if (userName != null)
-                intent.putExtra(USER_NAME_EXTRA, userName);
+            if (username != null)
+                intent.putExtra(USER_NAME_EXTRA, username);
             if (password != null)
                 intent.putExtra(PASSWORD_EXTRA, password);
         }

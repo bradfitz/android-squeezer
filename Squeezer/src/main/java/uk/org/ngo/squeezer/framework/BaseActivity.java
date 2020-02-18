@@ -16,46 +16,47 @@
 
 package uk.org.ngo.squeezer.framework;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.CallSuper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
-import android.support.v4.app.NavUtils;
-import android.support.v4.app.TaskStackBuilder;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.CallSuper;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
+import androidx.core.app.NavUtils;
+import androidx.core.app.TaskStackBuilder;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-import uk.org.ngo.squeezer.HomeActivity;
 import uk.org.ngo.squeezer.Preferences;
+import uk.org.ngo.squeezer.dialog.AlertEventDialog;
+import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.AlertEvent;
+import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 import uk.org.ngo.squeezer.util.SqueezePlayer;
@@ -66,20 +67,16 @@ import uk.org.ngo.squeezer.util.ThemeManager;
  *
  * @author Kurt Aaholst
  */
-public abstract class BaseActivity extends AppCompatActivity implements HasUiThread {
-    private static final String CURRENT_DOWNLOAD_ITEM = "CURRENT_DOWNLOAD_ITEM";
+public abstract class BaseActivity extends AppCompatActivity {
 
     @Nullable
     private ISqueezeService mService = null;
 
     private final ThemeManager mTheme = new ThemeManager();
-    private int mThemeId = mTheme.getDefaultTheme().mThemeId;
+    private int mThemeId = ThemeManager.getDefaultTheme().mThemeId;
 
     /** Records whether the activity has registered on the service's event bus. */
     private boolean mRegisteredOnEventBus;
-
-    private final Handler uiThreadHandler = new Handler() {
-    };
 
     private SqueezePlayer squeezePlayer;
 
@@ -113,14 +110,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
         return mThemeId;
     }
 
-    /**
-     * Use this to post Runnables to work off thread
-     */
-    @Override
-    public Handler getUIThreadHandler() {
-        return uiThreadHandler;
-    }
-
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
@@ -150,21 +139,17 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
         boundService = bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
         Log.d(getTag(), "did bindService; serviceStub = " + getService());
-
-        if (savedInstanceState != null)
-            currentDownloadItem = savedInstanceState.getParcelable(CURRENT_DOWNLOAD_ITEM);
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(CURRENT_DOWNLOAD_ITEM, currentDownloadItem);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void setTheme(int resId) {
+    public void setTheme(@StyleRes int resId) {
         super.setTheme(resId);
         mThemeId = resId;
+    }
+
+    public void setTheme(ThemeManager.Theme theme) {
+        new Preferences(this).setTheme(theme);
+        mTheme.onResume(this);
     }
 
     @Override
@@ -180,10 +165,7 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
         mVolumePanel = new VolumePanel(this);
 
         // If SqueezePlayer is installed, start it
-        // TODO Only when connected (or at least serveraddress is saved)
-        if (SqueezePlayer.hasSqueezePlayer(this) && new Preferences(this).controlSqueezePlayer()) {
-            squeezePlayer = new SqueezePlayer(this);
-        }
+        squeezePlayer = SqueezePlayer.maybeStartControllingSqueezePlayer(this);
 
         // Ensure that any image fetching tasks started by this activity do not finish prematurely.
         ImageFetcher.getInstance(this).setExitTasksEarly(false);
@@ -210,7 +192,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
             if (mService != null) {
                 mService.getEventBus().unregister(this);
                 mService.cancelItemListRequests(this);
-                mService.cancelSubscriptions(this);
             }
             mRegisteredOnEventBus = false;
         }
@@ -313,7 +294,7 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
     @CallSuper
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean haveConnectedPlayers = isConnected() && mService != null
-                && !mService.getConnectedPlayers().isEmpty();
+                && !mService.getPlayers().isEmpty();
 
         if (mMenuItemVolume != null) {
             mMenuItemVolume.setVisible(haveConnectedPlayers);
@@ -359,17 +340,6 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
         return super.onOptionsItemSelected(item);
     }
 
-
-    /**
-     * Block searches, when we are not connected.
-     */
-    @Override
-    public boolean onSearchRequested() {
-        if (!isConnected()) {
-            return false;
-        }
-        return super.onSearchRequested();
-    }
 
     /*
      * Intercept hardware volume control keys to control Squeezeserver
@@ -424,83 +394,92 @@ public abstract class BaseActivity extends AppCompatActivity implements HasUiThr
         mIgnoreVolumeChange = ignoreVolumeChange;
     }
 
+    public void onEventMainThread(DisplayEvent displayEvent) {
+        boolean showMe = true;
+        DisplayMessage display = displayEvent.message;
+        View layout = getLayoutInflater().inflate(R.layout.display_message,
+                (ViewGroup) findViewById(R.id.display_message_container));
+        ImageView artwork = layout.findViewById(R.id.artwork);
+        artwork.setVisibility(View.GONE);
+        ImageView icon = layout.findViewById(R.id.icon);
+        icon.setVisibility(View.GONE);
+        TextView text = layout.findViewById(R.id.text);
+        text.setVisibility(TextUtils.isEmpty(display.text) ? View.GONE : View.VISIBLE);
+        text.setText(display.text);
+
+        if (display.isIcon() || display.isMixed() || display.isPopupAlbum()) {
+            @DrawableRes int iconResource = display.getIconResource();
+            if (iconResource != 0) {
+                icon.setVisibility(View.VISIBLE);
+                icon.setImageResource(iconResource);
+            }
+            if (display.hasIcon()) {
+                artwork.setVisibility(View.VISIBLE);
+                ImageFetcher.getInstance(this).loadImage(display.icon, artwork);
+            }
+        } else if (display.isSong()) {
+            //These are for the NowPlaying screen, which we update via player status messages
+            showMe = false;
+        }
+
+        if (showMe) {
+            if (!(icon.getVisibility() == View.VISIBLE &&text.getVisibility() == View.VISIBLE)) {
+                layout.findViewById(R.id.divider).setVisibility(View.GONE);
+            }
+            int duration = (display.duration >=0 && display.duration <= 3000 ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
+            Toast toast = new Toast(getApplicationContext());
+            //TODO handle duration == -1 => LENGTH.INDEFINITE and custom (server side) duration,
+            // once we have material design and BaseTransientBottomBar
+            toast.setDuration(duration);
+            toast.setView(layout);
+            toast.show();
+        }
+    }
+
+    public void onEventMainThread(AlertEvent alert) {
+        AlertEventDialog.show(getSupportFragmentManager(), alert.message.title, alert.message.text);
+    }
+
     // Safe accessors
 
     public boolean isConnected() {
         return mService != null && mService.isConnected();
     }
 
-    public String getServerString(ServerString stringToken) {
-        return ServerString.values()[stringToken.ordinal()].getLocalizedString();
-    }
-
-    // This section is just an easier way to call squeeze service
-
-    public void play(PlaylistItem item, int index) {
-        playlistControl(PLAYLIST_PLAY_NOW, item, index, R.string.ITEM_PLAYING);
-    }
-
-    public void play(PlaylistItem item) {
-        playlistControl(PLAYLIST_PLAY_NOW, item, 0, R.string.ITEM_PLAYING);
-    }
-
-    public void add(PlaylistItem item) {
-        playlistControl(PLAYLIST_ADD_TO_END, item, 0, R.string.ITEM_ADDED);
-    }
-
-    public void insert(PlaylistItem item) {
-        playlistControl(PLAYLIST_PLAY_AFTER_CURRENT, item, 0, R.string.ITEM_INSERTED);
-    }
-
-    private void playlistControl(@PlaylistControlCmd String cmd, PlaylistItem item, int index, int resId)
-            {
+    /**
+     * Perform the supplied <code>action</code> using parameters in <code>item</code> via
+     * {@link ISqueezeService#action(Item, Action)}
+     * <p>
+     * Navigate to <code>nextWindow</code> if it exists in <code>action</code>. The
+     * <code>alreadyPopped</code> parameter is used to modify nextWindow if any windows has already
+     * been popped by the Android system.
+     */
+    public void action(Item item, Action action, int alreadyPopped) {
         if (mService == null) {
             return;
         }
 
-        mService.playlistControl(cmd, item, index);
-        Toast.makeText(this, getString(resId, item.getName()), Toast.LENGTH_SHORT).show();
+        mService.action(item, action);
     }
 
     /**
-     * Initiate download of songs for the supplied item.
-     *
-     * @param item Song or item with songs to download
-     * @see ISqueezeService#downloadItem(FilterItem)
+     * Same as calling {@link #action(Item, Action, int)} with <code>alreadyPopped</code> = 0
      */
-    public void downloadItem(FilterItem item) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            currentDownloadItem = (Item) item;
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        } else
-            mService.downloadItem(item);
+    public void action(Item item, Action action) {
+        action(item, action, 0);
     }
 
-    private Item currentDownloadItem;
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (currentDownloadItem != null) {
-                        mService.downloadItem((FilterItem) currentDownloadItem);
-                        currentDownloadItem = null;
-                    } else
-                        Toast.makeText(this, "Please select download again now that we have permission to save it", Toast.LENGTH_LONG).show();
-                } else
-                    Toast.makeText(this, R.string.DOWNLOAD_REQUIRES_WRITE_PERMISSION, Toast.LENGTH_LONG).show();
-                break;
+    /**
+     * Perform the supplied <code>action</code> using parameters in <code>item</code> via
+     * {@link ISqueezeService#action(Action.JsonAction)}
+     */
+    public void action(Action.JsonAction action, int alreadyPopped) {
+        if (mService == null) {
+            return;
         }
-    }
 
-    @StringDef({PLAYLIST_PLAY_NOW, PLAYLIST_ADD_TO_END, PLAYLIST_PLAY_AFTER_CURRENT})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface PlaylistControlCmd {}
-    public static final String PLAYLIST_PLAY_NOW = "load";
-    public static final String PLAYLIST_ADD_TO_END = "add";
-    public static final String PLAYLIST_PLAY_AFTER_CURRENT = "insert";
+        mService.action(action);
+    }
 
     /**
      * Look up an attribute resource styled for the current theme.

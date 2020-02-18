@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -35,5 +35,13 @@ public class PlayStatusChanged {
     public PlayStatusChanged(@NonNull @PlayerState.PlayState String playStatus, @NonNull Player player) {
         this.playStatus = playStatus;
         this.player = player;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayStatusChanged{" +
+                "playStatus='" + playStatus + '\'' +
+                ", player=" + player +
+                '}';
     }
 }

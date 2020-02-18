@@ -38,14 +38,15 @@ for the implementation.
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:minHeight="48dp"
     android:orientation="horizontal"
     android:paddingBottom="4dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="32dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="32dp"
     android:paddingTop="4dp">
 
     <uk.org.ngo.squeezer.widget.SquareImageView
@@ -57,7 +58,8 @@ for the implementation.
         android:maxWidth="@dimen/album_art_icon_width"
         android:minHeight="@dimen/album_art_icon_height"
         android:minWidth="@dimen/album_art_icon_width"
-        android:layout_marginRight="8dp"/>
+        android:layout_marginEnd="8dp"
+        tools:src="@drawable/icon_album_noart"/>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -66,20 +68,23 @@ for the implementation.
         android:gravity="center_vertical"
         android:minHeight="48dp"
         android:orientation="vertical"
-        android:paddingRight="8dp">
+        android:paddingEnd="8dp">
 
         <TextView
             android:id="@+id/text1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary"/>
+            android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary"
+            tools:text="text1"/>
 
         <TextView
             android:id="@+id/text2"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="text2"/>
     </LinearLayout>
 
     <include layout="@layout/context_menu_image_button"/>

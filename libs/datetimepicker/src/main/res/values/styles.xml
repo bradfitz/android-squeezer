@@ -44,5 +44,4 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="day_of_week_label_condensed" />
 </resources>

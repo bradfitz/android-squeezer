@@ -1,6 +1,6 @@
 package uk.org.ngo.squeezer.service;
 
-import android.support.v4.app.Fragment.InstantiationException;
+import androidx.fragment.app.Fragment.InstantiationException;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import uk.org.ngo.squeezer.framework.Item;
 abstract class BaseListHandler<T extends Item> implements ListHandler<T> {
     private static final String TAG = BaseListHandler.class.getSimpleName();
 
-    protected List<T> items;
+    private List<T> items;
 
     @SuppressWarnings("unchecked")
     private final Class<T> dataType = (Class<T>) Reflection
@@ -45,7 +45,7 @@ abstract class BaseListHandler<T extends Item> implements ListHandler<T> {
     }
 
     @Override
-    public void add(Map<String, String> record) {
+    public void add(Map<String, Object> record) {
         if (constructor == null) {
             try {
                 constructor = dataType.getDeclaredConstructor(Map.class);

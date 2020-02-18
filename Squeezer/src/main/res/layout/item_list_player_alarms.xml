@@ -20,117 +20,84 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/alarm_manager"
+    <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical">
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="8dp">
-
-            <TextView
-                android:id="@+id/all_alarms_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/alarms_enabled"
-                android:singleLine="true"
-                android:textAppearance="@style/SqueezerTextAppearance.Medium"
-                tools:text="All Alarms" />
-
-            <TextView
-                android:id="@+id/all_alarms_hint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_below="@id/all_alarms_text"
-                android:layout_toLeftOf="@+id/alarms_enabled"
-                android:singleLine="true"
-                android:text="@string/all_alarms_off_hint"
-                android:textAppearance="@style/SqueezerTextAppearance.Small" />
-
-            <include
-                android:id="@+id/alarms_enabled"
-                layout="@layout/squeezer_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true" />
-        </RelativeLayout>
-
-        <ListView
-            android:id="@+id/item_list"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="?alarm_list_background"
-            android:fastScrollEnabled="true"
-            tools:listitem="@layout/list_item_alarm" />
-
-        <ProgressBar
-            android:id="@+id/loading_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="8dp">
-
-            <ImageButton
-                android:id="@+id/add_alarm"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_centerHorizontal="true"
-                android:background="?main_button_background"
-                android:src="@drawable/ic_add" />
-
-            <ImageButton
-                android:id="@+id/settings"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:background="?item_background"
-                android:visibility="invisible"
-                android:src="?ic_alarm_settings" />
-        </RelativeLayout>
-    </LinearLayout>
-
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center"
-        android:drawableLeft="@drawable/ic_squeezeplay"
-        android:drawablePadding="16dp"
-        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:text="@string/no_players_connected"
-        android:textAppearance="@style/SqueezerTextAppearance.Medium"
-        android:visibility="gone" />
+        android:paddingTop="8dp">
 
-    <fragment
-        android:id="@+id/now_playing_fragment"
-        android:name="uk.org.ngo.squeezer.NowPlayingFragment"
+        <TextView
+            android:id="@+id/all_alarms_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/alarms_enabled"
+            android:singleLine="true"
+            android:textAppearance="@style/SqueezerTextAppearance.Medium"
+            tools:text="All Alarms" />
+
+        <TextView
+            android:id="@+id/all_alarms_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/all_alarms_text"
+            android:layout_toLeftOf="@+id/alarms_enabled"
+            android:singleLine="true"
+            android:text="@string/all_alarms_off_hint"
+            android:textAppearance="@style/SqueezerTextAppearance.Small" />
+
+        <include
+            android:id="@+id/alarms_enabled"
+            layout="@layout/squeezer_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/item_list"
         android:layout_width="fill_parent"
-        android:layout_height="48dp"
-        tools:layout="@layout/now_playing_fragment_mini" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="?alarm_list_background"
+        android:fastScrollEnabled="true"
+        tools:listitem="@layout/list_item_alarm" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp">
+
+        <ImageButton
+            android:id="@+id/add_alarm"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:background="?main_button_background"
+            app:srcCompat="@drawable/ic_add" />
+
+        <ImageButton
+            android:id="@+id/settings"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="?item_background"
+            android:visibility="invisible"
+            app:srcCompat="?ic_alarm_settings" />
+    </RelativeLayout>
+
 </LinearLayout>

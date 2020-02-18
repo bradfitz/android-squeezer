@@ -16,26 +16,23 @@
 
 package uk.org.ngo.squeezer.model;
 
-import android.os.Build;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringDef;
+import android.os.SystemClock;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringDef;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Sets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
 
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 
 public class Player extends Item implements Comparable {
@@ -60,7 +57,7 @@ public class Player extends Item implements Comparable {
     private boolean mConnected;
 
     @Override
-    public int compareTo(Object otherPlayer) {
+    public int compareTo(@NonNull Object otherPlayer) {
         return this.mName.compareToIgnoreCase(((Player)otherPlayer).mName);
     }
 
@@ -75,34 +72,20 @@ public class Player extends Item implements Comparable {
         public static final String ALARM_SNOOZE_SECONDS = "alarmSnoozeSeconds";
         public static final String ALARM_TIMEOUT_SECONDS = "alarmTimeoutSeconds";
         public static final String ALARMS_ENABLED = "alarmsEnabled";
-        public static final Set<String> VALID_PLAYER_PREFS = Sets.newHashSet(
-                ALARM_DEFAULT_VOLUME, ALARM_FADE_SECONDS, ALARM_SNOOZE_SECONDS, ALARM_TIMEOUT_SECONDS,
-                ALARMS_ENABLED);
     }
 
-    public Player(Map<String, String> record) {
-        setId(record.get("playerid"));
-        mIp = record.get("ip");
-        mName = record.get("name");
-        mModel = record.get("model");
-        mCanPowerOff = Util.parseDecimalIntOrZero(record.get("canpoweroff")) == 1;
-        mConnected = Util.parseDecimalIntOrZero(record.get("connected")) == 1;
+    public Player(Map<String, Object> record) {
+        setId(getString(record, "playerid"));
+        mIp = getString(record, "ip");
+        mName = getString(record, "name");
+        mModel = getString(record, "model");
+        mCanPowerOff = getInt(record, "canpoweroff") == 1;
+        mConnected = getInt(record, "connected") == 1;
+        mHashCode = calcHashCode();
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            mHashCode = mHashFunction.hashString(getId(), Charsets.UTF_8);
-        } else {
-            // API versions < GINGERBREAD do not have String.getBytes(Charset charset),
-            // which hashString() ends up calling. This will trigger an exception.
-            byte[] bytes;
-            try {
-                bytes = getId().getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                // Can't happen, Android's native charset is UTF-8. But just in case
-                // we're running on something wacky, fallback to the un-parsed bytes.
-                bytes = getId().getBytes();
-            }
-            mHashCode = mHashFunction.hashBytes(bytes);
-        }
+    private HashCode calcHashCode() {
+        return mHashFunction.hashString(getId(), Charsets.UTF_8);
     }
 
     private Player(Parcel source) {
@@ -115,12 +98,13 @@ public class Player extends Item implements Comparable {
         mHashCode = HashCode.fromString(source.readString());
     }
 
+    @NonNull
     @Override
     public String getName() {
         return mName;
     }
 
-    public Player setName(String name) {
+    public Player setName(@NonNull String name) {
         this.mName = name;
         return this;
     }
@@ -203,5 +187,21 @@ public class Player extends Item implements Comparable {
     public String toStringOpen() {
         return super.toStringOpen() + ", model: " + mModel + ", canpoweroff: " + mCanPowerOff
                 + ", ip: " + mIp + ", connected: " + mConnected;
+    }
+
+    public SongTimeChanged getTrackElapsed() {
+        double now = SystemClock.elapsedRealtime() / 1000.0;
+        double trackCorrection = mPlayerState.rate * (now - mPlayerState.statusSeen);
+        double trackElapsed = (trackCorrection <= 0 ? mPlayerState.getCurrentTimeSecond() : mPlayerState.getCurrentTimeSecond() + trackCorrection);
+
+        return new SongTimeChanged(this, (int) trackElapsed, mPlayerState.getCurrentSongDuration());
+    }
+
+    public int getSleepingIn() {
+        double now = SystemClock.elapsedRealtime() / 1000.0;
+        double correction = now - mPlayerState.statusSeen;
+        double remaining = (correction <= 0 ? mPlayerState.getSleep() : mPlayerState.getSleep() - correction);
+
+        return (int) remaining;
     }
 }

@@ -33,13 +33,13 @@ public class Alarm extends Item {
         return String.valueOf(tod);
     }
 
-    public Alarm(Map<String, String> record) {
-        setId(record.get("id"));
-        tod = Util.parseDecimalIntOrZero(record.get("time"));
-        setDow(record.get("dow"));
-        enabled = Util.parseDecimalIntOrZero(record.get("enabled")) == 1;
-        repeat = Util.parseDecimalIntOrZero(record.get("repeat")) == 1;
-        url = record.get("url");
+    public Alarm(Map<String, Object> record) {
+        setId(getString(record, "id"));
+        tod = getInt(record, "time");
+        setDow(getString(record, "dow"));
+        enabled = getInt(record, "enabled") == 1;
+        repeat = getInt(record, "repeat") == 1;
+        url = getString(record, "url");
         if ("CURRENT_PLAYLIST".equals(url)) url = "";
     }
 
@@ -81,7 +81,7 @@ public class Alarm extends Item {
         dow.clear();
         String[] days = dowString.split(",");
         for (String day : days) {
-            dow.add(Util.parseDecimalIntOrZero(day));
+            dow.add(Util.getInt(day));
         }
     }
 

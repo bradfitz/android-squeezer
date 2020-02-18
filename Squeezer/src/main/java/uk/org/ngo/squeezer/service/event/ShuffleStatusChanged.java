@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -26,16 +26,20 @@ public class ShuffleStatusChanged {
     /** The player with changed state. */
     @NonNull public final Player player;
 
-    /** True if the previous shuffle status was unknown. */
-    public final boolean initial;
-
     /** The new shuffle status. */
     @NonNull
     public final PlayerState.ShuffleStatus shuffleStatus;
 
-    public ShuffleStatusChanged(@NonNull Player player, boolean initial, @NonNull PlayerState.ShuffleStatus shuffleStatus) {
+    public ShuffleStatusChanged(@NonNull Player player, @NonNull PlayerState.ShuffleStatus shuffleStatus) {
         this.player = player;
-        this.initial = initial;
         this.shuffleStatus = shuffleStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "ShuffleStatusChanged{" +
+                "player=" + player +
+                ", shuffleStatus=" + shuffleStatus +
+                '}';
     }
 }

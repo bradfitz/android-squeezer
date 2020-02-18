@@ -20,8 +20,9 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -39,16 +40,15 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.dialog.AlarmSettingsDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.AlarmSettingsDialog;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.ServerString;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
-import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.widget.UndoBarController;
 
@@ -60,12 +60,6 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
 
     /** Toggle/Switch that controls whether all alarms are enabled or disabled. */
     private CompoundButtonWrapper mAlarmsEnabledButton;
-
-    /** View to display when no players are connected. */
-    private View mEmptyView;
-
-    /** View to display when at least one player is connected. */
-    private View mNonEmptyView;
 
     /** View that contains all_alarms_{on,off}_hint text. */
     private TextView mAllAlarmsHintView;
@@ -83,11 +77,8 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mNonEmptyView = findViewById(R.id.alarm_manager);
-        mEmptyView = findViewById(android.R.id.empty);
-
-        ((TextView)findViewById(R.id.all_alarms_text)).setText(ServerString.ALARM_ALL_ALARMS.getLocalizedString());
-        mAllAlarmsHintView = (TextView) findViewById(R.id.all_alarms_hint);
+        ((TextView)findViewById(R.id.all_alarms_text)).setText(R.string.ALARM_ALL_ALARMS);
+        mAllAlarmsHintView = findViewById(R.id.all_alarms_hint);
 
         mAlarmsEnabledButton = new CompoundButtonWrapper((CompoundButton) findViewById(R.id.alarms_enabled));
         findViewById(R.id.add_alarm).setOnClickListener(new View.OnClickListener() {
@@ -97,13 +88,17 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
             }
         });
 
-        mSettingsButton = (ImageView) findViewById(R.id.settings);
+        mSettingsButton = findViewById(R.id.settings);
         mSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new AlarmSettingsDialog().show(getSupportFragmentManager(), "AlarmSettingsDialog");
             }
         });
+
+        if (savedInstanceState != null) {
+            mActivePlayer = savedInstanceState.getParcelable("activePlayer");
+        }
     }
 
     @Override
@@ -152,6 +147,12 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         UndoBarController.hide(this);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("activePlayer", mActivePlayer);
+    }
+
     public static void show(Activity context) {
         final Intent intent = new Intent(context, AlarmsActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -170,6 +171,11 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
     }
 
     @Override
+    protected boolean needPlayer() {
+        return true;
+    }
+
+    @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         service.alarms(start, this);
         if (start == 0) {
@@ -185,17 +191,22 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         private final List<AlarmPlaylist> mAlarmPlaylists = new ArrayList<>();
 
         @Override
-        public void onItemsReceived(final int count, final int start, Map<String, String> parameters, final List<AlarmPlaylist> items, Class<AlarmPlaylist> dataType) {
-            if (start == 0) {
-                mAlarmPlaylists.clear();
-            }
+        public void onItemsReceived(final int count, final int start, Map<String, Object> parameters, final List<AlarmPlaylist> items, Class<AlarmPlaylist> dataType) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (start == 0) {
+                        mAlarmPlaylists.clear();
+                    }
 
-            mAlarmPlaylists.addAll(items);
-            if (start + items.size() >= count) {
-                mAlarmView.setAlarmPlaylists(ImmutableList.copyOf(mAlarmPlaylists));
-                getItemAdapter().notifyDataSetChanged();
+                    mAlarmPlaylists.addAll(items);
+                    if (start + items.size() >= count) {
+                        mAlarmView.setAlarmPlaylists(ImmutableList.copyOf(mAlarmPlaylists));
+                        getItemAdapter().notifyDataSetChanged();
 
-            }
+                    }
+                }
+            });
         }
 
         @Override
@@ -230,32 +241,10 @@ public class AlarmsActivity extends BaseListActivity<Alarm> implements AlarmSett
         }
     }
 
-    public void onEventMainThread(PlayersChanged event) {
-        // Only include players that are connected to the server.
-        ArrayList<Player> connectedPlayers = new ArrayList<>();
-        for (Player player : event.players.values()) {
-            if (player.getConnected()) {
-                connectedPlayers.add(player);
-            }
-        }
-
-        if (connectedPlayers.isEmpty()) {
-            mEmptyView.setVisibility(View.VISIBLE);
-            mNonEmptyView.setVisibility(View.GONE);
-            mActivePlayer = null;
-            return;
-        }
-
-        Player newActivePlayer = getService().getActivePlayer();
-        if (newActivePlayer != null && newActivePlayer.equals(mActivePlayer)
-                && mActivePlayer.getConnected() == newActivePlayer.getConnected()) {
-            return;
-        }
-
-        mActivePlayer = newActivePlayer;
-        mEmptyView.setVisibility(View.GONE);
-        mNonEmptyView.setVisibility(View.VISIBLE);
-        clearAndReOrderItems();
+    @MainThread
+    public void onEventMainThread(ActivePlayerChanged event) {
+        super.onEventMainThread(event);
+        mActivePlayer = event.player;
     }
 
     @Override

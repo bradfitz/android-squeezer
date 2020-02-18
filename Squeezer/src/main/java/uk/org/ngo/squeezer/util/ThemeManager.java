@@ -21,6 +21,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.StringRes;
+import androidx.annotation.StyleRes;
+
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.EnumWithText;
@@ -36,6 +39,7 @@ import uk.org.ngo.squeezer.framework.EnumWithText;
  */
 public class ThemeManager {
     /** The current theme applied to the app. */
+    @StyleRes
     private int mCurrentTheme;
 
     /** Available themes. */
@@ -43,10 +47,10 @@ public class ThemeManager {
         LIGHT_DARKACTIONBAR(R.string.settings_theme_light_dark, R.style.AppTheme_Light_DarkActionBar),
         DARK(R.string.settings_theme_dark, R.style.AppTheme);
 
-        private final int mLabelId;
-        public final int mThemeId;
+        @StringRes private final int mLabelId;
+        @StyleRes public final int mThemeId;
 
-        Theme(int labelId, int themeId) {
+        Theme(@StringRes int labelId, @StyleRes int themeId) {
             mLabelId = labelId;
             mThemeId = themeId;
         }
@@ -95,7 +99,7 @@ public class ThemeManager {
      * @return The application's default theme if the user did not choose one.
      */
     public static Theme getDefaultTheme() {
-        return Theme.LIGHT_DARKACTIONBAR;
+        return Theme.DARK;
     }
 
     /**

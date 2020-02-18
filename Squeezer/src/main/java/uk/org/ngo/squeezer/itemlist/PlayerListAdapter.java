@@ -16,15 +16,10 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.view.ContextMenu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
@@ -37,13 +32,13 @@ import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
+import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.Song;
 
-class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCreateContextMenuListener {
+class PlayerListAdapter extends BaseExpandableListAdapter {
     private final PlayerListActivity mActivity;
 
-    private final List<SyncGroup> mChildAdapters = new ArrayList();
+    private final List<SyncGroup> mChildAdapters = new ArrayList<>();
 
     /**
      * A list adapter for a synchronization group, containing players.
@@ -71,7 +66,7 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
             super.update(count, start, syncedPlayersList);
 
             // determine and set synchronization group name (player names divided by commas)
-            List<String> playerNames = new ArrayList<String>();
+            List<String> playerNames = new ArrayList<>();
             for (int i = 0; i < this.getCount(); i++) {
                 Player p = this.getItem(i);
                 playerNames.add(p.getName());
@@ -84,23 +79,20 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     private Multimap<String, Player> prevPlayerSyncGroups;
 
     /** Indicates if the list of players has changed. */
-    private boolean mPlayersChanged;
-
-    /** The group position of the item that was most recently selected. */
-    private int mLastGroupPosition;
+    boolean mPlayersChanged;
 
     /** Joins elements together with ' - ', skipping nulls. */
     private static final Joiner mJoiner = Joiner.on(" - ").skipNulls();
 
     /** Count of how many players are in the adapter. */
-    private int mPlayerCount;
+    int mPlayerCount;
 
     public PlayerListAdapter(PlayerListActivity activity) {
         mActivity = activity;
     }
 
-    public void onChildClick(int groupPosition, int childPosition) {
-        mChildAdapters.get(groupPosition).onItemSelected(childPosition);
+    public void onChildClick(View view, int groupPosition, int childPosition) {
+        mChildAdapters.get(groupPosition).onItemSelected(view, childPosition);
     }
 
     public void clear() {
@@ -115,10 +107,10 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
      *
      * @param playerSyncGroups Multimap, mapping from the player ID of the syncmaster to the
      *     Players synced to that master. See
-     *     {@link PlayerListActivity#updateSyncGroups(List, Player)} for how this map is
+     *     {@link PlayerListActivity#updateSyncGroups(Collection)} for how this map is
      *     generated.
      */
-    public void setSyncGroups(Multimap<String, Player> playerSyncGroups) {
+    void setSyncGroups(Multimap<String, Player> playerSyncGroups) {
         // The players might not have changed (so there's no need to reset the contents of the
         // adapter) but information about an individual player might have done.
         if (prevPlayerSyncGroups != null && prevPlayerSyncGroups.equals(playerSyncGroups)) {
@@ -141,56 +133,6 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
         }
         Collections.sort(mChildAdapters); // sort syncgroup list alphabetically by syncgroup name
         notifyDataSetChanged();
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        mPlayersChanged = false;
-        ExpandableListView.ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
-        long packedPosition = contextMenuInfo.packedPosition;
-        if (ExpandableListView.getPackedPositionType(packedPosition)
-                == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-            int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-
-            AdapterView.AdapterContextMenuInfo adapterContextMenuInfo
-                    = new AdapterView.AdapterContextMenuInfo(
-                    contextMenuInfo.targetView, childPosition, contextMenuInfo.id);
-
-            mChildAdapters.get(groupPosition).onCreateContextMenu(menu, v, adapterContextMenuInfo);
-
-            // Enable player sync menu options if there's more than one player.
-            if (mPlayerCount > 1) {
-                menu.findItem(R.id.player_sync).setVisible(true);
-            }
-        }
-    }
-
-    public boolean doItemContext(MenuItem menuItem, int groupPosition, int childPosition) {
-        if (mPlayersChanged) {
-            Toast.makeText(mActivity, mActivity.getText(R.string.player_list_changed),
-                    Toast.LENGTH_LONG).show();
-            return true;
-        }
-
-        mLastGroupPosition = groupPosition;
-        return mChildAdapters.get(groupPosition).doItemContext(menuItem, childPosition);
-    }
-
-    /**
-     * Handle sub menu items of context menus.
-     *
-     * @param menuItem
-     * @return
-     */
-    public boolean doItemContext(MenuItem menuItem) {
-        if (mPlayersChanged) {
-            Toast.makeText(mActivity, mActivity.getText(R.string.player_list_changed),
-                    Toast.LENGTH_LONG).show();
-            return true;
-        }
-
-        return mChildAdapters.get(mLastGroupPosition).doItemContext(menuItem);
     }
 
     @Override
@@ -249,18 +191,18 @@ class PlayerListAdapter extends BaseExpandableListAdapter implements View.OnCrea
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         View row = mActivity.getLayoutInflater().inflate(R.layout.group_player, parent, false);
 
-        TextView text1 = (TextView) row.findViewById(R.id.text1);
-        TextView text2 = (TextView) row.findViewById(R.id.text2);
+        TextView text1 = row.findViewById(R.id.text1);
+        TextView text2 = row.findViewById(R.id.text2);
 
         SyncGroup syncGroup = mChildAdapters.get(groupPosition);
         String header = syncGroup.syncGroupName;
         text1.setText(mActivity.getString(R.string.player_group_header, header));
 
-        Song groupSong = syncGroup.getItem(0).getPlayerState().getCurrentSong();
+        CurrentPlaylistItem groupSong = syncGroup.getItem(0).getPlayerState().getCurrentSong();
 
         if (groupSong != null) {
             text2.setText(mJoiner.join(groupSong.getName(), groupSong.getArtist(),
-                    groupSong.getAlbumName()));
+                    groupSong.getAlbum()));
         }
         return row;
     }

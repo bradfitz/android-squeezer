@@ -16,29 +16,20 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import java.util.List;
+import java.util.Collection;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.framework.FilterItem;
-import uk.org.ngo.squeezer.framework.PlaylistItem;
+import uk.org.ngo.squeezer.framework.Action;
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.model.Album;
-import uk.org.ngo.squeezer.model.Artist;
-import uk.org.ngo.squeezer.model.Genre;
-import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Playlist;
 import uk.org.ngo.squeezer.model.Plugin;
-import uk.org.ngo.squeezer.model.PluginItem;
-import uk.org.ngo.squeezer.model.Song;
-import uk.org.ngo.squeezer.model.Year;
 
 public interface ISqueezeService {
     /**
@@ -48,10 +39,13 @@ public interface ISqueezeService {
 
     // Instructing the service to connect to the SqueezeCenter server:
     // hostPort is the port of the CLI interface.
-    void startConnect(String hostPort, String userName, String password);
+    void startConnect();
     void disconnect();
     boolean isConnected();
     boolean isConnectInProgress();
+
+    /** Initiate the flow to register the controller with the server */
+    void register(IServiceItemListCallback<Plugin> callback);
 
     // For the SettingsActivity to notify the Service that a setting changed.
     void preferenceChanged(String key);
@@ -67,16 +61,10 @@ public interface ISqueezeService {
      * @return players that the server knows about (irrespective of power, connection, or
      * other status).
      */
-    List<Player> getPlayers();
-
-    /**
-     * @return players that are connected to the server.
-     */
-    java.util.Collection<Player> getConnectedPlayers();
+    Collection<Player> getPlayers();
 
     // XXX: Delete, now that PlayerState is tracked in the player?
     PlayerState getActivePlayerState();
-    PlayerState getPlayerState(String playerId);
 
     // Player control
     void togglePower(Player player);
@@ -115,8 +103,6 @@ public interface ISqueezeService {
     void powerOn();
     void powerOff();
     String getServerVersion() throws SqueezeService.HandshakeNotCompleteException;
-    String preferredAlbumSort() throws SqueezeService.HandshakeNotCompleteException;
-    void setPreferredAlbumSort(String preferredAlbumSort);
     boolean togglePausePlay();
     boolean play();
     boolean pause();
@@ -125,14 +111,7 @@ public interface ISqueezeService {
     boolean previousTrack();
     boolean toggleShuffle();
     boolean toggleRepeat();
-    boolean playlistControl(String cmd, PlaylistItem playlistItem, int index);
-    boolean randomPlay(String type) throws SqueezeService.HandshakeNotCompleteException;
     boolean playlistIndex(int index);
-    boolean playlistRemove(int index);
-    boolean playlistMove(int fromIndex, int toIndex);
-    boolean playlistClear();
-    boolean playlistSave(String name);
-    boolean pluginPlaylistControl(Plugin plugin, String cmd, String id);
 
     boolean setSecondsElapsed(int seconds);
 
@@ -142,8 +121,6 @@ public interface ISqueezeService {
     /**
      * Sets the volume to the absolute volume in newVolume, which will be clamped to the
      * interval [0, 100].
-     *
-     * @param newVolume
      */
     void adjustVolumeTo(Player player, int newVolume);
     void adjustVolumeTo(int newVolume);
@@ -151,12 +128,6 @@ public interface ISqueezeService {
 
     /** Cancel any pending callbacks for client */
     void cancelItemListRequests(Object client);
-
-    /** Cancel any subscriptions for client */
-    void cancelSubscriptions(Object client);
-
-    /** Start an async fetch of the SqueezeboxServer's players */
-    void players() throws SqueezeService.HandshakeNotCompleteException;
 
     /** Alarm list */
     void alarms(int start, IServiceItemListCallback<Alarm> callback);
@@ -175,59 +146,50 @@ public interface ISqueezeService {
     void alarmSetPlaylist(String id, AlarmPlaylist playlist);
 
 
-    // Album list
-    /**
-     * Starts an asynchronous fetch of album data from the server. The supplied
-     * will be called when the data is fetched.
-     */
-    void albums(IServiceItemListCallback<Album> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Artist list
-    void artists(IServiceItemListCallback<Artist> callback, int start, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Year list
-    void years(int start, IServiceItemListCallback<Year> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Genre list
-    void genres(int start, String searchString, IServiceItemListCallback<Genre> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // MusicFolder list
-    void musicFolders(int start, MusicFolderItem musicFolderItem, IServiceItemListCallback<MusicFolderItem> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Song list
-    void songs(IServiceItemListCallback<Song> callback, int start, String sortOrder, String searchString, FilterItem... filters) throws SqueezeService.HandshakeNotCompleteException;
-    void currentPlaylist(int start, IServiceItemListCallback<Song> callback) throws SqueezeService.HandshakeNotCompleteException;
-    void playlistSongs(int start, Playlist playlist, IServiceItemListCallback<Song> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Favourites
-    void favoritesExists(@NonNull Uri url) throws SqueezeService.HandshakeNotCompleteException;
-    void favoritesAdd(@NonNull Uri url, @NonNull String title) throws SqueezeService.HandshakeNotCompleteException;
-    void favoritesDelete(@NonNull Uri url, @NonNull String index) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Playlists
-    void playlists(int start, IServiceItemListCallback<Playlist> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Named playlist maintenance
-    boolean playlistsNew(String name);
-    boolean playlistsRename(Playlist playlist, String newname);
-    boolean playlistsDelete(Playlist playlist);
-    boolean playlistsMove(Playlist playlist, int index, int toindex);
-    boolean playlistsRemove(Playlist playlist, int index);
-
-    // Search
-    void search(int start, String searchString, IServiceItemListCallback itemListCallback) throws SqueezeService.HandshakeNotCompleteException;
-
-    // Radios/plugins
-    void radios(int start, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
-    void apps(int start, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
-
-    void pluginItems(int start, Plugin plugin, PluginItem parent, String search, IServiceItemListCallback<PluginItem> callback) throws SqueezeService.HandshakeNotCompleteException;
+    // Plugins (Radios/Apps (music services)/Favorites)
+    void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
-     * Initiate download of songs for the supplied item.
+     * Start an asynchronous fetch of the squeezeservers generic menu items.
+     * <p>
+     * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
      *
-     * @param item Song or item with songs to download
+     * @param start Offset of the first item to fetch. Paging parameters are added automatically.
+     * @param item Current SBS item with the <code>action</code>, and which may contain parameters for the action.
+     * @param action <code>go</code> action from SBS. "go" refers to a command that opens a new window (i.e. returns results to browse)
+     * @param callback This will be called as the items arrive.
+     * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
      */
-    void downloadItem(FilterItem item) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, Item item, Action action, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+
+    /**
+     * Start an asynchronous fetch of the squeezeservers generic menu items with no paging nor extra parameters.
+     * <p>
+     * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
+     *
+     * @param action <code>go</code> action from SBS. "go" refers to a command that opens a new window (i.e. returns results to browse)
+     * @param callback This will be called as the items arrive.
+     * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
+     */
+    void pluginItems(Action action, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+
+    /**
+     * Perform the supplied SBS <code>do</code> <code>action</code> using parameters in <code>item</code>.
+     * <p>
+     * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
+     *
+     * @param item Current SBS item with the <code>action</code>, and which may contain parameters for the action.
+     * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
+     */
+    void action(Item item, Action action);
+
+    /**
+     * Perform the supplied SBS <code>do</code> <code>action</code>
+     * <p>
+     * See http://wiki.slimdevices.com/index.php/SqueezeCenterSqueezePlayInterface#Go_Do.2C_On_and_Off_actions"
+     *
+     * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
+     */
+    void action(Action.JsonAction action);
 
 }

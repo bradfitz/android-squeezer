@@ -16,12 +16,11 @@
 
 package uk.org.ngo.squeezer.util;
 
-import android.annotation.TargetApi;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -182,8 +181,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * An {@link Executor} that executes tasks one at a time in serial order.  This serialization is
      * global to a particular process.
      */
-    public static final Executor SERIAL_EXECUTOR = UIUtils.hasHoneycomb() ? new SerialExecutor() :
-            Executors.newSingleThreadExecutor(sThreadFactory);
+    public static final Executor SERIAL_EXECUTOR = new SerialExecutor();
 
     public static final Executor DUAL_THREAD_EXECUTOR =
             Executors.newFixedThreadPool(2, sThreadFactory);
@@ -206,7 +204,6 @@ public abstract class AsyncTask<Params, Progress, Result> {
 
     private final AtomicBoolean mTaskInvoked = new AtomicBoolean();
 
-    @TargetApi(11)
     private static class SerialExecutor implements Executor {
 
         final ArrayDeque<Runnable> mTasks = new ArrayDeque<Runnable>();

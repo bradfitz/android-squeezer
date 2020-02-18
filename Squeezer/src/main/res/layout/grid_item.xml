@@ -58,13 +58,15 @@ for the implementation.
         android:maxHeight="@dimen/album_art_icon_grid_height"
         android:maxWidth="@dimen/album_art_icon_grid_width"
         android:minHeight="@dimen/album_art_icon_grid_height"
-        android:minWidth="@dimen/album_art_icon_grid_width"/>
+        android:minWidth="@dimen/album_art_icon_grid_width"
+        tools:src="@drawable/icon_album_noart"/>
 
     <TextView
         android:id="@+id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/icon"
+        android:layout_toLeftOf="@id/context_menu"
         android:ellipsize="end"
         android:paddingTop="4dp"
         android:singleLine="true"
@@ -84,9 +86,9 @@ for the implementation.
 
     <include
         layout="@layout/context_menu_image_button"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_alignParentBottom="true"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_below="@id/icon"
         android:layout_alignParentRight="true"
-        android:minWidth="36dp"/>
+        android:minWidth="48dp"/>
 </RelativeLayout>

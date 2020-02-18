@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 
@@ -35,5 +35,14 @@ public class PlayerPrefReceived {
         this.player = player;
         this.pref = pref;
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerPrefReceived{" +
+                "player=" + player +
+                ", pref='" + pref + '\'' +
+                ", value='" + value + '\'' +
+                '}';
     }
 }

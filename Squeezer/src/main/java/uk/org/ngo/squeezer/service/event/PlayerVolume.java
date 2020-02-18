@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 
@@ -32,5 +32,13 @@ public class PlayerVolume {
     public PlayerVolume(int volume, @NonNull Player player) {
         this.volume = volume;
         this.player = player;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerVolume{" +
+                "volume=" + volume +
+                ", player=" + player +
+                '}';
     }
 }

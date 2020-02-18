@@ -17,11 +17,12 @@
 package uk.org.ngo.squeezer.util;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import android.util.Log;
 
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,7 +36,7 @@ public class RetainFragment extends Fragment {
 
     private static final String TAG = RetainFragment.class.getName();
 
-    private final Map<String, Object> mHash = new Hashtable<String, Object>();
+    private final Map<String, Object> mHash = Collections.synchronizedMap(new HashMap<String, Object>());
 
     /**
      * Empty constructor as per the Fragment documentation

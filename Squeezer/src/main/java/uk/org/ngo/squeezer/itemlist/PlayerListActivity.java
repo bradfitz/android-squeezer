@@ -19,19 +19,22 @@ package uk.org.ngo.squeezer.itemlist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
@@ -48,7 +51,7 @@ public class PlayerListActivity extends ItemListActivity implements
 
     private ExpandableListView mResultsExpandableListView;
 
-    private PlayerListAdapter mResultsAdapter;
+    PlayerListAdapter mResultsAdapter;
 
     private Player currentPlayer;
     private boolean mTrackingTouch;
@@ -69,7 +72,7 @@ public class PlayerListActivity extends ItemListActivity implements
             return;
         }
 
-        updateSyncGroups(getService().getPlayers(), getService().getActivePlayer());
+        updateSyncGroups(getService().getPlayers());
         mResultsAdapter.setSyncGroups(mPlayerSyncGroups);
 
         for (int i = 0; i < mResultsAdapter.getGroupCount(); i++) {
@@ -81,18 +84,23 @@ public class PlayerListActivity extends ItemListActivity implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mResultsAdapter = new PlayerListAdapter(this);
         setContentView(R.layout.item_list_players);
         if (savedInstanceState != null)
             currentPlayer = savedInstanceState.getParcelable(CURRENT_PLAYER);
 
-        mResultsAdapter = new PlayerListAdapter(this);
-        mResultsExpandableListView = (ExpandableListView) findViewById(R.id.expandable_list);
+        setIgnoreVolumeChange(true);
+    }
+
+    @Override
+    protected AbsListView setupListView(AbsListView listView) {
+        mResultsExpandableListView = (ExpandableListView) listView;
 
         mResultsExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                         int childPosition, long id) {
-                mResultsAdapter.onChildClick(groupPosition, childPosition);
+                mResultsAdapter.onChildClick(v, groupPosition, childPosition);
                 return true;
             }
         });
@@ -106,10 +114,9 @@ public class PlayerListActivity extends ItemListActivity implements
             }
         });
 
-        mResultsExpandableListView.setOnCreateContextMenuListener(mResultsAdapter);
-        mResultsExpandableListView.setOnScrollListener(new ItemListActivity.ScrollListener());
+        mResultsExpandableListView.setOnScrollListener(new ScrollListener());
 
-        setIgnoreVolumeChange(true);
+        return listView;
     }
 
     @Override
@@ -119,26 +126,13 @@ public class PlayerListActivity extends ItemListActivity implements
     }
 
     @Override
-    public final boolean onContextItemSelected(MenuItem item) {
-        if (getService() != null) {
-            ExpandableListView.ExpandableListContextMenuInfo contextMenuInfo = (ExpandableListView.ExpandableListContextMenuInfo) item
-                    .getMenuInfo();
-
-            // If menuInfo is null we have a sub menu, we expect the adapter to have stored the position
-            if (contextMenuInfo == null) {
-                return mResultsAdapter.doItemContext(item);
-            } else {
-
-                long packedPosition = contextMenuInfo.packedPosition;
-                int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-                int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-                if (ExpandableListView.getPackedPositionType(packedPosition)
-                        == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                    return mResultsAdapter.doItemContext(item, groupPosition, childPosition);
-                }
-            }
-        }
+    protected boolean needPlayer() {
         return false;
+    }
+
+    @Override
+    protected <T extends Item> void updateAdapter(int count, int start, List<T> items, Class<T> dataType) {
+        // Do nothing -- we get the synchronously from the service
     }
 
     @Override
@@ -171,10 +165,9 @@ public class PlayerListActivity extends ItemListActivity implements
      * Builds the list of lists that is a sync group.
      *
      * @param players List of players.
-     * @param activePlayer The currently active player.
      */
-    public void updateSyncGroups(List<Player> players, Player activePlayer) {
-        Map<String, Player> connectedPlayers = new HashMap<String, Player>();
+    public void updateSyncGroups(Collection<Player> players) {
+        Map<String, Player> connectedPlayers = new HashMap<>();
 
         // Make a copy of the players we know about, ignoring unconnected ones.
         for (Player player : players) {
@@ -215,10 +208,6 @@ public class PlayerListActivity extends ItemListActivity implements
     @NonNull
     public Multimap<String, Player> getPlayerSyncGroups() {
         return mPlayerSyncGroups;
-    }
-
-    public PlayerState getPlayerState(String id) {
-        return getService().getPlayerState(id);
     }
 
     @Override

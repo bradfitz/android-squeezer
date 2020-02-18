@@ -1,36 +1,31 @@
 buildscript {
     repositories {
-        mavenCentral()
-        maven { url 'https://maven.fabric.io/public' }
         maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
         classpath 'com.github.triplet.gradle:play-publisher:2.3.0'
-        classpath 'io.fabric.tools:gradle:1.29.0'
     }
 }
 
-apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
-apply plugin: 'com.github.triplet.play'
-apply plugin: 'uk.org.ngo.gradle.whatsnew'
-
-repositories {
-    mavenCentral()
-    maven { url 'https://maven.fabric.io/public' }
+plugins {
+    id 'com.android.application'
+    id 'com.github.triplet.play' version '2.3.0'
 }
+
+apply plugin: 'uk.org.ngo.gradle.whatsnew'
+apply plugin: 'uk.org.ngo.gradle.slimstrings'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')
     // Android support libraries
     // Note: these libraries require the "Google Repository" and "Android
     //       Support Repository" to be installed via the SDK manager.
-    implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:support-annotations:$rootProject.supportLibraryVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
 
     // Third party libraries
-    implementation 'com.google.guava:guava:18.0'
+    implementation 'com.google.guava:guava:28.2-android'
 
     // findbugs is required for Proguard to work with Guava.
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
@@ -41,14 +36,13 @@ dependencies {
     // Changelogs, see https://github.com/cketti/ckChangeLog.
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.0'
 
-    // Crashlytics.
-    implementation('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
-        transitive = true
-    }
-
     // KitKat time picker
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation project(':libs:datetimepicker')
+
+    // Comet client
+    implementation 'org.cometd.java:cometd-java-client:3.1.11'
+    implementation 'org.slf4j:slf4j-android:1.7.30'
 
     // JVM tests
     testImplementation 'junit:junit:4.12'
@@ -69,8 +63,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 68
-        versionName "1.5.4"
+        versionCode 73
+        versionName "2.0.0"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -78,6 +72,8 @@ android {
     lintOptions {
         // Downgrade missing translations to non-fatal severity.
         warning 'MissingTranslation'
+        warning 'ImpliedQuantity'
+        lintConfig file("lint.xml")
     }
 
     signingConfigs {
@@ -108,6 +104,7 @@ android {
 
         release {
             minifyEnabled true
+            shrinkResources true
             signingConfig signingConfigs.release
             // You could use 'proguardFile "proguard.cfg"' here and get the
             // same effect, but this ensures that any changes to
@@ -116,6 +113,7 @@ android {
             proguardFile "proguard-crashlytics.cfg"
             proguardFile "proguard-eventbus.cfg"
             proguardFile "proguard-guava.cfg"
+            proguardFile "proguard-cometd.cfg"
             proguardFile "proguard-squeezer.cfg"
         }
     }
@@ -128,7 +126,7 @@ def publishTrack() {
         case ~/\d+\.\d+\.\d+/:
             return 'production'
     }
-    throw new IllegalArgumentException("versionName '${versionName}' is not valid")
+    throw new IllegalArgumentException("versionName '${android.defaultConfig.versionName}' is not valid")
 }
 
 whatsnew {
@@ -144,4 +142,41 @@ whatsnew {
 play {
     serviceAccountCredentials = file('key.json')
     track = publishTrack()
+}
+
+// To update/add server strings copy relevant strings.txt files from slimserver and squeezeplay
+// to the serverstrings folder and update the 2 tables below; 'files' (if necessary) and 'strings'.
+// run: './gradlew updateStrimStrings'
+slimstrings {
+    files = [
+            'serverstrings/slimserver/strings.txt',
+            'serverstrings/squeezeplay/global_strings.txt'
+    ]
+    strings = [
+            'HOME',
+            'SWITCH_TO_EXTENDED_LIST',
+            'SWITCH_TO_GALLERY',
+            'ALBUM_DISPLAY_OPTIONS',
+            'SLEEP',
+            'SLEEP_CANCEL',
+            'X_MINUTES',
+            'SLEEPING_IN',
+            'SLEEP_AT_END_OF_SONG',
+            'ALARM',
+            'ALARM_ALARM_REPEAT',
+            'ALARM_SHORT_DAY_0',
+            'ALARM_SHORT_DAY_1',
+            'ALARM_SHORT_DAY_2',
+            'ALARM_SHORT_DAY_3',
+            'ALARM_SHORT_DAY_4',
+            'ALARM_SHORT_DAY_5',
+            'ALARM_SHORT_DAY_6',
+            'ALARM_DELETING',
+            'ALARM_ALL_ALARMS',
+            'MORE',
+            'SETTINGS',
+            'SCREEN_SETTINGS',
+            'ADVANCED_SETTINGS',
+            'EXTRAS'
+    ]
 }

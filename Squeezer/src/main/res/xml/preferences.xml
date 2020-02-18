@@ -18,18 +18,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="first_preferencescreen">
 
-    <PreferenceCategory
-        android:title="@string/pref_cat_server">
-
-        <uk.org.ngo.squeezer.dialog.ServerAddressPreference
-            android:key="squeezer.serveraddr"
-            android:dialogLayout="@layout/server_address_dialog"
-            android:title="@string/settings_serveraddr_title"
-            android:summary="@string/settings_serveraddr_summary"
-            android:dialogMessage="@string/settings_serveraddr_summary"
-            android:persistent="false"/>
-    </PreferenceCategory>
-
     <uk.org.ngo.squeezer.IntEditTextPreference
         android:key="squeezer.fadeInSecs"
         android:title="@string/settings_fadeinsecs_title"
@@ -57,50 +45,6 @@
             android:persistent="true"
             android:summary="@string/settings_squeezeplayer_summary"
             android:title="@string/settings_squeezeplayer_title"/>
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/settings_category_ui">
-
-        <ListPreference
-            android:key="squeezer.action.onselect.album"
-            android:title="@string/settings_album_selectaction"/>
-
-        <ListPreference
-            android:key="squeezer.action.onselect.song"
-            android:title="@string/settings_song_selectaction"/>
-
-        <ListPreference
-            android:key="squeezer.theme"
-            android:title="@string/settings_theme_title"/>
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:key="squeezer.download.category"
-        android:title="@string/settings_category_download">
-
-        <PreferenceScreen
-            android:key="squeezer.download.use_sd_card.screen"
-            android:title="@string/settings_download_use_sd_card"
-            >
-        <CheckBoxPreference
-            android:key="squeezer.download.use_sd_card"
-            android:summary="@string/settings_download_use_sd_card_desc"
-            />
-        </PreferenceScreen>
-
-        <CheckBoxPreference
-            android:key="squeezer.download.use_server_path"
-            android:title="@string/settings_download_use_server_path"/>
-
-        <ListPreference
-            android:key="squeezer.download.path_structure"
-            android:title="@string/settings_download_path_structure"/>
-
-        <ListPreference
-            android:key="squeezer.download.filename_structure"
-            android:title="@string/settings_download_filename_structure"/>
-
     </PreferenceCategory>
 
     <PreferenceCategory

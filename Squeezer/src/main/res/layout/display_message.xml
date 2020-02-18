@@ -1,0 +1,31 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/display_message_container"
+    style="@style/DisplayMessage"
+    android:orientation="vertical"
+    >
+    <uk.org.ngo.squeezer.widget.SquareImageView
+        android:id="@+id/artwork"
+        tools:src="@drawable/icon_album_noart"
+        style="@style/DisplayMessageArtwork"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        >
+        <ImageView android:id="@+id/icon"
+            android:scaleType="center"
+            tools:src="@drawable/icon_popup_box_play"
+            style="@style/DisplayMessageIcon"
+            android:contentDescription="@string/app_name" />
+        <include android:id="@+id/divider"
+            layout="@layout/horizontal_divider"
+            />
+        <TextView android:id="@+id/text"
+            tools:text="Toast text\nLine 2"
+            style="@style/DisplayMessageText"
+            />
+    </LinearLayout>
+</LinearLayout>

@@ -24,13 +24,12 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import android.text.SpannableString;
 import android.text.format.DateFormat;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.view.ContextMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -61,7 +60,6 @@ import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
-import uk.org.ngo.squeezer.service.ServerString;
 import uk.org.ngo.squeezer.util.CompoundButtonWrapper;
 import uk.org.ngo.squeezer.widget.AnimationEndListener;
 import uk.org.ngo.squeezer.widget.UndoBarController;
@@ -81,10 +79,6 @@ public class AlarmView extends BaseItemView<Alarm> {
         mResources = activity.getResources();
         mColorSelected = mResources.getColor(getActivity().getAttributeValue(R.attr.alarm_dow_selected));
         mDensity = mResources.getDisplayMetrics().density;
-    }
-
-    public String getQuantityString(int quantity) {
-        return null;
     }
 
     @Override
@@ -109,8 +103,8 @@ public class AlarmView extends BaseItemView<Alarm> {
             String[] amPmStrings = new DateFormatSymbols().getAmPmStrings();
             viewHolder.am = amPmStrings[0];
             viewHolder.pm = amPmStrings[1];
-            viewHolder.time = (TextView) convertView.findViewById(R.id.time);
-            viewHolder.amPm = (TextView) convertView.findViewById(R.id.am_pm);
+            viewHolder.time = convertView.findViewById(R.id.time);
+            viewHolder.amPm = convertView.findViewById(R.id.am_pm);
             viewHolder.amPm.setVisibility(viewHolder.is24HourFormat ? View.GONE : View.VISIBLE);
             viewHolder.enabled = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.enabled));
             viewHolder.enabled.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -133,10 +127,10 @@ public class AlarmView extends BaseItemView<Alarm> {
                     }
                 }
             });
-            viewHolder.repeat.getButton().setText(ServerString.ALARM_ALARM_REPEAT.getLocalizedString());
-            viewHolder.delete = (ImageView) convertView.findViewById(R.id.delete);
-            viewHolder.playlist = (Spinner) convertView.findViewById(R.id.playlist);
-            viewHolder.dowHolder = (LinearLayout) convertView.findViewById(R.id.dow);
+            viewHolder.repeat.getButton().setText(R.string.ALARM_ALARM_REPEAT);
+            viewHolder.delete = convertView.findViewById(R.id.delete);
+            viewHolder.playlist = convertView.findViewById(R.id.playlist);
+            viewHolder.dowHolder = convertView.findViewById(R.id.dow);
             for (int day = 0; day < 7; day++) {
                 ViewGroup dowButton = (ViewGroup) viewHolder.dowHolder.getChildAt(day);
                 final int finalDay = day;
@@ -170,7 +164,7 @@ public class AlarmView extends BaseItemView<Alarm> {
                         @Override
                         public void onAnimationEnd(Animation animation) {
                             mActivity.getItemAdapter().removeItem(viewHolder.position);
-                            UndoBarController.show(getActivity(), ServerString.ALARM_DELETING.getLocalizedString(), new UndoListener(viewHolder.position, viewHolder.alarm));
+                            UndoBarController.show(getActivity(), R.string.ALARM_DELETING, new UndoListener(viewHolder.position, viewHolder.alarm));
                         }
                     });
 
@@ -242,7 +236,7 @@ public class AlarmView extends BaseItemView<Alarm> {
     }
 
     private void setDowText(AlarmViewHolder viewHolder, int day) {
-        SpannableString text = new SpannableString(ServerString.getAlarmShortDayText(day));
+        SpannableString text = new SpannableString(getAlarmShortDayText(day));
         if (viewHolder.alarm.isDayActive(day)) {
             text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
             text.setSpan(new ForegroundColorSpan(mColorSelected), 0, text.length(), 0);
@@ -255,17 +249,25 @@ public class AlarmView extends BaseItemView<Alarm> {
         viewHolder.dowTexts[day].setText(text);
     }
 
+    private CharSequence getAlarmShortDayText(int day) {
+        switch (day) {
+            default: return getActivity().getString(R.string.ALARM_SHORT_DAY_0);
+            case 1: return getActivity().getString(R.string.ALARM_SHORT_DAY_1);
+            case 2: return getActivity().getString(R.string.ALARM_SHORT_DAY_2);
+            case 3: return getActivity().getString(R.string.ALARM_SHORT_DAY_3);
+            case 4: return getActivity().getString(R.string.ALARM_SHORT_DAY_4);
+            case 5: return getActivity().getString(R.string.ALARM_SHORT_DAY_5);
+            case 6: return getActivity().getString(R.string.ALARM_SHORT_DAY_6);
+        }
+    }
+
     @Override
     public boolean isSelectable(Alarm item) {
         return false;
     }
 
     @Override
-    public void onItemSelected(int index, Alarm item) {
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    public void onItemSelected(View view, int index, Alarm item) {
     }
 
     // Require an immutable list so that caller's can't modify it when this method iterates
@@ -365,7 +367,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             if (!isEnabled(position)) {
                 FrameLayout view = (FrameLayout) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_category_dropdown_item, parent, false);
-                CheckedTextView spinnerItemView = (CheckedTextView) view.findViewById(R.id.text);
+                CheckedTextView spinnerItemView = view.findViewById(R.id.text);
                 spinnerItemView.setText(getItem(position).getCategory());
                 spinnerItemView.setTypeface(spinnerItemView.getTypeface(), Typeface.BOLD);
                 // Hide the checkmark for headings.
@@ -373,7 +375,7 @@ public class AlarmView extends BaseItemView<Alarm> {
                 return view;
             } else {
                 FrameLayout view = (FrameLayout) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_dropdown_item, parent, false);
-                TextView spinnerItemView = (TextView) view.findViewById(R.id.text);
+                TextView spinnerItemView = view.findViewById(R.id.text);
                 spinnerItemView.setText(getItem(position).getName());
                 return view;
             }

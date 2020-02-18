@@ -17,8 +17,7 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="fill_parent"
+    android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:paddingLeft="8dp">
@@ -46,47 +45,39 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/album">
-
         <TextView
             android:id="@+id/trackname"
-            style="@style/SqueezerWidget.NowPlaying.SongName"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="left|top"
             android:paddingRight="8dp"
-            android:paddingTop="2dp"/>
-
+            android:paddingTop="2dp"
+            style="@style/SqueezerWidget.NowPlaying.SongName"/>
     </LinearLayout>
 
     <TextView
         android:id="@+id/albumname"
         android:layout_below="@id/track_wrapper"
+        android:layout_toLeftOf="@id/context_menu"
         android:gravity="left|top"
         android:paddingTop="4dp"
-        style="@style/SqueezerWidget.NowPlaying.AlbumName"
-        android:layout_toLeftOf="@+id/favorite"
-        android:layout_toStartOf="@+id/favorite"/>
+        style="@style/SqueezerWidget.NowPlaying.AlbumName"/>
 
     <TextView
         android:id="@+id/artistname"
         android:layout_below="@id/albumname"
+        android:layout_toLeftOf="@id/context_menu"
         android:gravity="left|top"
         android:paddingTop="4dp"
-        style="@style/SqueezerWidget.NowPlaying.ArtistName"
-        android:layout_toLeftOf="@+id/favorite"
-        android:layout_toStartOf="@+id/favorite"/>
+        style="@style/SqueezerWidget.NowPlaying.ArtistName"/>
 
-    <uk.org.ngo.squeezer.widget.ListItemImageButton
-        android:id="@+id/context_menu"
+    <include layout="@layout/context_menu_image_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignBottom="@+id/artistname"
         android:layout_alignParentRight="true"
         android:layout_below="@id/track_wrapper"
-        android:background="@drawable/list_selector_holo_dark"
-        android:contentDescription="@string/app_name"
-        android:minWidth="48dp"
-        android:src="@drawable/dropdown_ic_arrow_normal_holo_dark"/>
+        android:visibility="visible"/>
 
     <TextView
         android:id="@+id/currenttime"
@@ -147,15 +138,6 @@
             android:id="@+id/repeat"
             style="@style/SqueezerWidget.MediaButton.Repeat"/>
     </LinearLayout>
-
-    <uk.org.ngo.squeezer.widget.FavoriteButton
-        android:id="@+id/favorite"
-        style="@style/SqueezerWidget.MediaButton.Favorite"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_above="@+id/seekbar"
-        android:layout_toLeftOf="@+id/context_menu"
-        android:layout_toStartOf="@+id/context_menu"/>
 </RelativeLayout>
 
 

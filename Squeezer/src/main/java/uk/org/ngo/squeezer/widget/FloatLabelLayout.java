@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -263,9 +263,7 @@ public class FloatLabelLayout extends FrameLayout {
 
         @Override
         public void onFocusChange(View view, boolean focused) {
-            if (android.os.Build.VERSION.SDK_INT>= android.os.Build.VERSION_CODES.HONEYCOMB) {
-                mLabel.setActivated(focused); // only available after API 11
-            }
+            mLabel.setActivated(focused);
 
             if (mTrigger == Trigger.FOCUS) {
                 if (focused) {

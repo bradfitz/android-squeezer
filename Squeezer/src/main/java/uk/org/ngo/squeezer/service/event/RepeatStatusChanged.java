@@ -16,7 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -26,16 +26,20 @@ public class RepeatStatusChanged {
     /** The player with changed state. */
     @NonNull public final Player player;
 
-    /** True if the previous repeat status was unknown. */
-    public final boolean initial;
-
     /** The new repeat status. */
     @NonNull
     public final PlayerState.RepeatStatus repeatStatus;
 
-    public RepeatStatusChanged(@NonNull Player player, boolean initial, @NonNull PlayerState.RepeatStatus repeatStatus) {
+    public RepeatStatusChanged(@NonNull Player player, @NonNull PlayerState.RepeatStatus repeatStatus) {
         this.player = player;
-        this.initial = initial;
         this.repeatStatus = repeatStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "RepeatStatusChanged{" +
+                "player=" + player +
+                ", repeatStatus=" + repeatStatus +
+                '}';
     }
 }

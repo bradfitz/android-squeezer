@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.org.ngo.squeezer.itemlist.dialog.AlbumViewDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -86,7 +86,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         SqueezeboxServerMock.starter().start();
         mWantedState = ConnectionState.CONNECTION_FAILED;
 
-        mService.startConnect("localhost", "test", "test");
+        mService.startConnect("localhost", 80, 0, "test", "test");
 
         synchronized(mLockWantedState) {
             mLockWantedState.wait(TIMEOUT_IN_MS);
@@ -106,8 +106,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
     public void testConnect() throws InterruptedException {
         SqueezeboxServerMock.starter().start();
 
-        mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT,
-                "test", "test");
+        mService.startConnect("localhost", SqueezeboxServerMock.CLI_PORT, 0, "test", "test");
 
         synchronized (mLockHandshakeComplete) {
             mLockHandshakeComplete.wait(TIMEOUT_IN_MS);
@@ -122,7 +121,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
         assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
         assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
-        assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
+        assertEquals(ViewDialog.AlbumsSortOrder.album.name(),
                 mService.preferredAlbumSort());
 
         // Check that disconnecting only generates one additional DISCONNECTED event.
@@ -146,8 +145,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
     public void testConnectProtectedServer() throws InterruptedException {
         SqueezeboxServerMock.starter().username("user").password("1234").start();
 
-        mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT,
-                "user", "1234");
+        mService.startConnect("localhost", SqueezeboxServerMock.CLI_PORT, 0, "user", "1234");
 
         synchronized (mLockHandshakeComplete) {
             mLockHandshakeComplete.wait(TIMEOUT_IN_MS);
@@ -162,7 +160,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
 
         assertTrue(mLastHandshakeCompleteEvent.canMusicFolders);
         assertTrue(mLastHandshakeCompleteEvent.canRandomPlay);
-        assertEquals(AlbumViewDialog.AlbumsSortOrder.album.name(),
+        assertEquals(ViewDialog.AlbumsSortOrder.album.name(),
                 mService.preferredAlbumSort());
 
         // Check that disconnecting only generates one additional DISCONNECTED event.
@@ -187,7 +185,7 @@ public class SqueezeServiceTest extends ServiceTestCase<SqueezeService> {
         SqueezeboxServerMock.starter().username("user").password("1234").start();
         mWantedState = ConnectionState.LOGIN_FAILED;
 
-        mService.startConnect("localhost:" + SqueezeboxServerMock.CLI_PORT, "test", "test");
+        mService.startConnect("localhost", SqueezeboxServerMock.CLI_PORT, 0, "test", "test");
 
         synchronized (mLockWantedState) {
             mLockWantedState.wait(TIMEOUT_IN_MS);

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
  Copyright (c) 2009 Google Inc.  All Rights Reserved.
 
@@ -14,31 +13,20 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
--->
-
-<resources xmlns:tools="http://schemas.android.com/tools">
+--><resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Squeezer</string>
-    <string name="execute_always">Always</string>
-    <string name="execute_just_once">Just once</string>
     <string name="undo">Undo</string>
-    <string name="on">On</string>
-    <string name="off">Off</string>
     <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
     <string name="menu_item_players">Players</string>
-    <string name="menu_item_search_label">Search</string>
     <string name="menu_item_settings_label">Settings</string>
     <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
-    <string name="pref_cat_server">Server settings</string>
-    <string name="settings_serveraddr_title">Server Address</string>
-    <string name="settings_serveraddr_summary">IP address or name of Squeezebox Server, e.g.
-        10.0.0.5.
-    </string>
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
+    <string name="settings_manual_serveraddr">Manually enter address</string>
     <string name="settings_server_prompt">Choose a server</string>
     <string name="settings_server_rescan">Rescan</string>
-    <string name="settings_server_scanning_disabled_msg">Scanning is disabled, because Wi-Fi is not
+    <string name="settings_server_scanning_disabled_msg">Server discovery is disabled, because Wi-Fi is not
         connected.
     </string>
     <string name="settings_theme_title">Theme</string>
@@ -46,7 +34,7 @@
     <string name="settings_theme_light_dark">Light, dark action bar</string>
     <string name="settings_username_hint">User name (optional)</string>
     <string name="settings_password_hint">Password (optional)</string>
-    <string name="settings_server_scan_progress">Scanning for servers&#8230;</string>
+    <string name="settings_server_scan_progress">Scanning for servers…</string>
     <string name="settings_fadeinsecs_title">Fade in duration</string>
     <string name="settings_fadeinsecs_summary">Enter the amount of time to take to fade in when
         unpausing, in seconds. Enter 0 to disable fade in.
@@ -54,14 +42,6 @@
     <string name="settings_autoconnect_title">Auto-connect</string>
     <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability,
         try to connect
-    </string>
-
-    <string name="settings_notification_type_title">Notifications</string>
-    <string name="settings_notification_type_none">Never</string>
-    <string name="settings_notification_type_playing">Only while playing music
-    </string>
-    <string name="settings_notification_type_always">While connected, even when not
-        playing music
     </string>
 
     <string name="settings_scrobble_title">Scrobble to Last.fm</string>
@@ -73,38 +53,18 @@
     <string name="settings_squeezeplayer_title">Start SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Check this option to make sure SqueezePlayer is running, when using Squeezer</string>
 
-    <string name="settings_category_ui">Squeezer interface</string>
-
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
     <string name="menu_item_poweron">Turn on \"%s\"</string>
     <string name="menu_item_poweroff">Turn off \"%s\"</string>
-    <string name="menu_item_main">Now playing</string>
-    <string name="menu_item_home">Main Menu</string>
-    <string name="menu_item_fetch_all">Fetch remaining</string>
-    <string name="menu_item_filter">Filter</string>
-    <string name="menu_item_sort">Sort order</string>
-    <string name="menu_item_view">View</string>
-    <string name="menu_item_delete">Delete</string>
     <string name="menu_item_rename">Rename</string>
     <string name="menu_item_playlist">Playlist</string>
-    <string name="menu_item_playlists_new">New</string>
-    <string name="menu_item_playlist_clear">Clear playlist</string>
-    <string name="menu_item_playlist_save">Save as playlist</string>
     <string name="menu_item_playlist_show_current_song">Go to current song</string>
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
-    <string name="connect_to_text">Connect to %s</string>
-    <string name="connecting_to_text">Connecting to SqueezeBox CLI at %s</string>
-    <string name="connection_failed_text">Connection failed. Check settings.</string>
-    <string name="not_connected">Squeezer is not connected to any Squeezeservers.</string>
-    <string name="select_server">Or select one the servers below.</string>
-    <string name="login_failed_text">Login failed. Make sure the correct port, user name and password is entered.</string>
-    <string name="login_failed_info_text">
-        &lt;p&gt;You find the correct values in the server\'s web-interface. Select settings and the Advanced tab.&lt;/p&gt;
-        &lt;p&gt;To check the port number select Command Line Interface (CLI) in the dropdown.&lt;/p&gt;
-        &lt;p&gt;User name and password is found by selecting security in the dropdown.&lt;/p&gt;
-    </string>
+    <string name="connecting_to_text">Connecting to Logitech Media Server at %s</string>
+    <string name="connection_failed_text">Connection failed.</string>
+    <string name="login_failed_text">Login failed. Make sure the correct user name and password is entered.</string>
     <string name="disconnected_text">Disconnected.</string>
     <string name="wifi_disabled_text">Wi-Fi is disabled</string>
     <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. When an active
@@ -114,32 +74,10 @@
     <string name="wifi_enabled_text">Wi-Fi is enabled. Please wait for an active Wi-Fi connection.
     </string>
     <string name="notification_playing_text">%s playing</string>
-    <string name="notification_connected_text">%s connected</string>
-    <string name="filter_text_hint">Search %s</string>
-    <string name="search_text_hint">Enter search text</string>
-    <string name="search_music_library_hint">Search artist, album, genre or song title.</string>
-    <string name="move_to_dialog_title">Move song number %d</string>
-    <string name="move_to_index_hint">Enter new position for song</string>
-    <string name="save_playlist_title">Save playlist</string>
-    <string name="save_playlist_hint">Enter name of playlist</string>
-    <string name="new_playlist_title">New playlist</string>
-    <string name="new_playlist_hint">Enter name of playlist</string>
     <string name="rename_title">Rename %s</string>
     <string name="sync_title">Synchronize %s to…</string>
-    <string name="delete_title">Delete %s</string>
-    <string name="delete__message">Are you sure to delete?</string>
-    <string name="loading_text">Loading&#8230;</string>
+    <string name="loading_text">Loading…</string>
     <string name="browse_items_text">%2$d %1$s</string>
-    <string name="choose_sort_order">Choose ordering of %s</string>
-    <string name="genre_prompt">Choose genre</string>
-    <string name="year_prompt">Choose year</string>
-    <string name="track_label">Track</string>
-    <string name="artist_label">Artist</string>
-    <string name="album_label">Album</string>
-    <string name="genre_label">Genre</string>
-    <string name="year_label">Year</string>
-    <string name="filter_label">Search text</string>
-    <string name="lyrics_label">Lyrics</string>
 
     <string name="player_group_header">Group: %s</string>
     <string name="menu_item_player_sync">Synchronize…</string>
@@ -149,17 +87,10 @@
     <string name="player_list_changed">Connected players changed while context menu was open,
         ignoring request</string>
 
-    <string name="albums_by_artist_header">Albums with songs by %s</string>
-    <string name="albums_by_genre_header">Albums with songs in genre \"%s\"</string>
-    <string name="albums_by_year_header">Albums with songs from %s</string>
-
-    <string name="songs_by_header">Songs by %s</string>
-
     <string name="unknown_track">Unknown track</string>
     <string name="unknown_album">Unknown album</string>
     <string name="unknown_artist">Unknown artist</string>
     <string name="unknown_artistalbum">Unknown artist/album</string>
-    <string name="unknown_year">Unknown year</string>
 
     <!-- Alarm management -->
     <string name="all_alarms_on_hint">Individual alarms can be enabled</string>
@@ -201,8 +132,8 @@
     <!-- Dialog buttons -->
     <string name="dialog_license">License</string>
 
-    <string name="copyright_text">Copyright &#169; 2009 Google Inc. All Rights Reserved\nCopyright
-        &#169; 2011 Kurt Aaholst. All Rights Reserved.
+    <string name="copyright_text">Copyright © 2009 Google Inc. All Rights Reserved\nCopyright
+        © 2011 Kurt Aaholst. All Rights Reserved.
     </string>
 
     <string name="license_text" tools:ignore="TypographyOther">&lt;p&gt;Apache License&lt;br /&gt;
@@ -380,41 +311,11 @@ defend, and hold each Contributor harmless for any liability
 incurred by, or claims asserted against, such Contributor by reason
 of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
-    <string name="NO_ACTION">None</string>
-    <string name="BROWSE_SONGS">Browse songs</string>
-    <string name="BROWSE_SONGS_BY_ITEM">Browse songs by %s</string>
-    <string name="BROWSE_ALBUMS">Browse albums</string>
-    <string name="BROWSE_ARTISTS">Browse artists</string>
-    <string name="BROWSE_ALBUM_SONGS">Browse songs on album</string>
-    <string name="BROWSE_ARTIST_ALBUMS">Browse albums with songs by artist</string>
-    <string name="BROWSE_ARTIST_SONGS">Browse songs by artist</string>
     <string name="PLAY_NOW">Play</string>
-    <string name="PLAY_ITEM">Play \"%s\"</string>
-    <string name="PLAY_FROM_HERE">Play from here</string>
     <string name="ADD_TO_END">Add to playlist</string>
-    <string name="ADD_ITEM_TO_END">Add \"%s\" to playlist</string>
     <string name="PLAY_NEXT">Play after the current song</string>
-    <string name="DOWNLOAD">Download</string>
-    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Download cancelled, as we don\'t have permission to save the downloaded files</string>
-
-    <string name="PLAYLIST_REMOVE">Remove from playlist</string>
-    <string name="PLAYLIST_MOVE_UP">Move up</string>
-    <string name="PLAYLIST_MOVE_DOWN">Move down</string>
-    <string name="PLAYLIST_MOVE">Move&#8230;</string>
-
-    <string name="ITEM_PLAYING">Now playing %s</string>
-    <string name="ITEM_ADDED">Added %s to the current playlist</string>
-    <string name="ITEM_INSERTED">%s is inserted to be played immediately after the current song in
-        the current playlist
-    </string>
-
-    <string name="PLAYLIST_EXISTS_MESSAGE">Playlist %s already exists</string>
 
     <!-- Song display options -->
-    <string name="song_display_options">Songview options</string>
-    <string name="songs_sort_order_title">Title</string>
-    <string name="songs_sort_order_tracknum">Track</string>
-    <string name="songs_sort_order_albumtrack">Album, Track</string>
 
     <!--  Analytics preference strings -->
     <string name="pref_cat_error_reports">Error reports and statistics</string>
@@ -424,110 +325,36 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     </string>
     <string name="pref_analytics_enable_disabled">No usage statistics are collected.</string>
 
-    <string name="home_item_artists">Artists</string>
-    <string name="home_item_albums">Albums</string>
-    <string name="home_item_songs">Songs</string>
-    <string name="home_item_genres">Genres</string>
-    <string name="home_item_years">Years</string>
-    <string name="home_item_new_music">New Music</string>
-    <string name="home_item_music_folder">Music Folder</string>
-    <string name="home_item_random_mix">Random mix</string>
-    <string name="home_item_playlists">Playlists</string>
-    <string name="home_item_radios">Internet Radio</string>
-    <string name="home_item_favorites">Favorites</string>
-    <string name="home_item_my_apps">My Apps</string>
-
-    <string name="randomplay_item_song_mix">Song mix</string>
-    <string name="randomplay_item_album_mix">Album mix</string>
-    <string name="randomplay_item_artist_mix">Artist mix</string>
-    <string name="randomplay_item_year_mix">Year mix</string>
-    <string name="randomplay_item_choose_genres">Choose genres</string>
-
     <plurals name="seconds">
         <item quantity="one">second</item>
         <item quantity="other">seconds</item>
     </plurals>
 
-    <plurals name="artist">
-        <item quantity="one">artist</item>
-        <item quantity="other">artists</item>
-    </plurals>
-
-    <plurals name="album">
-        <item quantity="one">album</item>
-        <item quantity="other">albums</item>
-    </plurals>
-
-    <plurals name="favorites">
-        <item quantity="one">Favorite</item>
-        <item quantity="other">Favorites</item>
-    </plurals>
-
-    <plurals name="genre">
-        <item quantity="one">genre</item>
-        <item quantity="other">genres</item>
-    </plurals>
-
-    <plurals name="musicfolder">
-        <item quantity="one">music folder</item>
-        <item quantity="other">music folders</item>
-    </plurals>
-
-    <plurals name="year">
-        <item quantity="one">year</item>
-        <item quantity="other">years</item>
-    </plurals>
-
-    <plurals name="song">
-        <item quantity="one">song</item>
-        <item quantity="other">songs</item>
-    </plurals>
-
-    <plurals name="player">
-        <item quantity="one">player</item>
-        <item quantity="other">players</item>
-    </plurals>
-
-    <plurals name="playlist">
-        <item quantity="one">playlist</item>
-        <item quantity="other">playlists</item>
-    </plurals>
-
-    <plurals name="radio">
-        <item quantity="one">radio station plugin</item>
-        <item quantity="other">radio station plugins</item>
-    </plurals>
-
-    <plurals name="application">
-        <item quantity="one">application</item>
-        <item quantity="other">applications</item>
-    </plurals>
-
-    <string name="settings_album_selectaction">Album select action</string>
-    <string name="settings_song_selectaction">Song select action</string>
-    <string name="confirm_cancel_downloads">Cancel pending downloads?</string>
-
-    <string name="settings_category_download">Download</string>
-    <string name="settings_download_use_sd_card">Download music to SD-Card</string>
-    <string name="settings_download_use_sd_card_desc">
-        &lt;p&gt;Store downloaded music on SD-Card.&lt;/p&gt;
-        &lt;p&gt;&lt;b&gt;Note&lt;/b&gt; The downloaded music will be deleted when this app is
-        uninstalled.&lt;/p&gt;
-    </string>
-    <string name="settings_download_use_server_path">Use server path and filename</string>
-    <string name="settings_download_path_structure">Folder hierarchy</string>
-    <string name="settings_download_filename_structure">File name</string>
-    <string name="download_path_structure_artist_artistalbum">Artist/Artist - Album</string>
-    <string name="download_path_structure_artist_album">Artist/Album</string>
-    <string name="download_path_structure_artistalbum">Artist - Album</string>
-    <string name="download_path_structure_album">Album</string>
-    <string name="download_path_structure_artist">Artist</string>
-    <string name="download_filename_structure_number_title">Number - Title</string>
-    <string name="download_filename_structure_artist_title">Artist - Title</string>
-    <string name="download_filename_structure_artist_number_title">Artist - Number - Title</string>
-    <string name="download_filename_structure_albumartist_number_title">Artist (Album) - Number - Title</string>
-    <string name="download_filename_structure_title">Title</string>
-    <string name="download_filename_structure_number_dot_artist_title">Number. Artist - Title</string>
-    <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">could not be added to the device\'s media database</string>
     <string name="pref_cat_third_party">Third-party integration</string>
+
+    <string name="X_MINUTES">%s minutes</string>
+    <string name="SLEEP">Sleep</string>
+    <string name="ALBUM_DISPLAY_OPTIONS">Albumview options</string>
+    <string name="ALARM">Alarm Clock</string>
+    <string name="SETTINGS">Settings</string>
+    <string name="SCREEN_SETTINGS">Screen</string>
+    <string name="ALARM_ALARM_REPEAT">Repeat Alarm</string>
+    <string name="SLEEP_CANCEL">Cancel sleep</string>
+    <string name="ALARM_SHORT_DAY_6">Sa</string>
+    <string name="SWITCH_TO_EXTENDED_LIST">Small Artwork</string>
+    <string name="ALARM_SHORT_DAY_4">Th</string>
+    <string name="ALARM_SHORT_DAY_5">Fr</string>
+    <string name="SWITCH_TO_GALLERY">Large Artwork</string>
+    <string name="ADVANCED_SETTINGS">Advanced</string>
+    <string name="ALARM_DELETING">Removing Alarm…</string>
+    <string name="ALARM_SHORT_DAY_2">Tu</string>
+    <string name="ALARM_SHORT_DAY_3">We</string>
+    <string name="ALARM_SHORT_DAY_0">Su</string>
+    <string name="ALARM_SHORT_DAY_1">Mo</string>
+    <string name="MORE">More</string>
+    <string name="SLEEP_AT_END_OF_SONG">Sleep at end of song</string>
+    <string name="ALARM_ALL_ALARMS">All Alarms</string>
+    <string name="SLEEPING_IN">Sleeping in</string>
+    <string name="HOME">Home</string>
+    <string name="EXTRAS">Extras</string>
 </resources>

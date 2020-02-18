@@ -19,7 +19,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat">
-        <item name="ic_action_av_connect">@drawable/presence_online</item>
         <item name="ic_action_av_next">@drawable/ic_action_next</item>
         <item name="ic_action_av_pause">@drawable/ic_action_pause</item>
         <item name="ic_action_av_play">@drawable/ic_action_play</item>
@@ -36,6 +35,9 @@
         <item name="ic_action_view_as_grid">@drawable/ic_action_view_as_grid</item>
         <item name="ic_action_view_as_list">@drawable/ic_action_view_as_list</item>
 
+        <item name="ic_action_av_volume_up">@drawable/ic_volume_up_light</item>
+        <item name="ic_action_av_volume_down">@drawable/ic_volume_down_light</item>
+
         <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
 
         <item name="alarm_dow_selected">@android:color/white</item>
@@ -47,18 +49,21 @@
         <item name="ic_alarm_settings">@drawable/ic_alarm_settings</item>
         <item name="ic_delete">@drawable/ic_delete</item>
 
+        <item name="icon_context_menu">@drawable/ic_menu_overflow</item>
+
         <item name="floatLabelColor">@color/float_label_dark</item>
 
         <item name="dialogTheme">@style/Theme.AppCompat.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Dialog.Alert</item>
+
+        <item name="actionBarStyle">@style/SqueezerTopBar</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="ic_action_av_connect">@drawable/presence_online</item>
-        <item name="ic_action_av_next">@drawable/ic_action_av_next_holo_light</item>
-        <item name="ic_action_av_pause">@drawable/ic_action_av_pause_holo_light</item>
-        <item name="ic_action_av_play">@drawable/ic_action_av_play_holo_light</item>
-        <item name="ic_action_av_previous">@drawable/ic_action_av_previous_holo_light</item>
+        <item name="ic_action_av_next">@drawable/ic_action_next_light</item>
+        <item name="ic_action_av_pause">@drawable/ic_action_pause_light</item>
+        <item name="ic_action_av_play">@drawable/ic_action_play_light</item>
+        <item name="ic_action_av_previous">@drawable/ic_action_previous_light</item>
 
         <item name="ic_action_av_repeat_off">@drawable/ic_action_av_repeat_holo_light</item>
         <item name="ic_action_av_repeat_one">@drawable/btn_repeat_one</item>
@@ -71,6 +76,9 @@
         <item name="ic_action_view_as_grid">@drawable/ic_action_view_as_grid_light</item>
         <item name="ic_action_view_as_list">@drawable/ic_action_view_as_list_light</item>
 
+        <item name="ic_action_av_volume_up">@drawable/ic_volume_up_dark</item>
+        <item name="ic_action_av_volume_down">@drawable/ic_volume_down_dark</item>
+
         <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
 
         <item name="alarm_dow_selected">@android:color/black</item>
@@ -82,11 +90,24 @@
         <item name="ic_alarm_settings">@drawable/ic_alarm_settings_light</item>
         <item name="ic_delete">@drawable/ic_delete_light</item>
 
+        <item name="icon_context_menu">@drawable/ic_menu_overflow_light</item>
+
         <item name="floatLabelColor">@color/float_label_light</item>
 
         <item name="dialogTheme">@style/Theme.AppCompat.Light.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
+
+        <item name="actionBarStyle">@style/SqueezerTopBar</item>
     </style>
+
+    <style name="SqueezerTopBar" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="background">?attr/colorPrimary</item>
+    </style>
+
+    <!-- Style for the header section of the slim browser layout -->
+    <style name="ListHeader">
+    </style>
+
 
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
 
@@ -97,6 +118,10 @@
     <style name="SqueezerTextAppearance.Large" parent="@android:style/TextAppearance.Large"/>
     <style name="SqueezerTextAppearance.Medium" parent="@android:style/TextAppearance.Medium"/>
     <style name="SqueezerTextAppearance.Small" parent="@android:style/TextAppearance.Small"/>
+
+    <!-- List headers -->
+    <style name="SqueezerTextAppearance.ItemList.Header" parent="SqueezerTextAppearance.Medium"/>
+    <style name="SqueezerTextAppearance.ItemList.SubHeader" parent="SqueezerTextAppearance.Small"/>
 
     <!-- Text in list items -->
     <style name="SqueezerTextAppearance.ListItem.Primary" parent="SqueezerTextAppearance.Medium"/>
@@ -123,7 +148,6 @@
     <!-- Text on the NowPlayingFragment mini player. -->
     <style name="SqueezerTextAppearance.NowPlayingMini.Primary" parent="SqueezerTextAppearance.SongInfo.Primary"/>
     <style name="SqueezerTextAppearance.NowPlayingMini.Secondary" parent="SqueezerTextAppearance.SongInfo.Secondary"/>
-    <style name="SqueezerTextAppearance.NowPlayingMini.Tertiary" parent="SqueezerTextAppearance.SongInfo.Tertiary"/>
 
     <style name="SqueezerTextAppearance.NowPlayingMini.SongName" parent="SqueezerTextAppearance.NowPlayingMini.Primary"/>
     <style name="SqueezerTextAppearance.NowPlayingMini.ArtistAlbumName" parent="SqueezerTextAppearance.NowPlayingMini.Secondary"/>
@@ -184,8 +208,6 @@
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.Tertiary</item>
     </style>
 
-    <style name="SqueezerWidget.NowPlayingMini"/>
-
     <style name="SqueezerWidget.NowPlayingMini.SongName" parent="SqueezerWidget.Marquee">
         <item name="android:hint">@string/unknown_track</item>
         <item name="android:marqueeRepeatLimit">marquee_forever</item>
@@ -197,15 +219,6 @@
         <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlayingMini.ArtistAlbumName</item>
     </style>
 
-    <style name="SqueezerWidget.Lyrics.SongName" parent="SqueezerWidget.Marquee">
-        <item name="android:hint">@string/unknown_track</item>
-        <item name="android:textAppearance">@style/SqueezerTextAppearance.Large</item>
-    </style>
-
-    <style name="SqueezerWidget.Lyrics.AlbumName" parent="SqueezerWidget.SingleLine">
-        <item name="android:hint">@string/unknown_album</item>
-        <item name="android:textAppearance">@style/SqueezerTextAppearance.Medium</item>
-    </style>
     <!-- Media controller styles -->
     <style name="SqueezerWidget.MediaButton">
         <item name="android:layout_width">0dip</item>
@@ -215,28 +228,23 @@
     </style>
 
     <style name="SqueezerWidget.MediaButton.Previous">
-        <item name="android:src">?attr/ic_action_av_previous</item>
+        <item name="srcCompat">?attr/ic_action_av_previous</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Next">
-        <item name="android:src">?attr/ic_action_av_next</item>
+        <item name="srcCompat">?attr/ic_action_av_next</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Play">
-        <item name="android:src">?attr/ic_action_av_play</item>
+        <item name="srcCompat">?attr/ic_action_av_play</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Shuffle">
-        <item name="android:src">?attr/ic_action_av_shuffle_off</item>
+        <item name="srcCompat">?attr/ic_action_av_shuffle_off</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Repeat">
-        <item name="android:src">?attr/ic_action_av_repeat_off</item>
-    </style>
-
-    <style name="SqueezerWidget.MediaButton.Favorite">
-        <item name="android:layout_height">48dp</item>
-        <item name="android:layout_width">48dp</item>
+        <item name="srcCompat">?attr/ic_action_av_repeat_off</item>
     </style>
 
     <style name="VolumePanel" parent="@android:style/Theme.Panel">
@@ -245,6 +253,18 @@
 
     <style name="VolumeDialogAnimation">
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <!-- Context menu button -->
+    <style name="SqueezerContextMenuButton">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:contentDescription">""@string/app_name</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:background">@drawable/list_selector_holo_dark</item>
+        <item name="srcCompat">?attr/icon_context_menu</item>
     </style>
 
     <!-- UndoBar -->
@@ -281,11 +301,52 @@
         <item name="android:layout_marginLeft">12dp</item>
         <item name="android:layout_marginRight">12dp</item>
         <item name="android:background">@drawable/undobar_button</item>
-        <item name="android:drawableLeft">@drawable/ic_undobar_undo</item>
+        <item name="drawableLeftCompat">@drawable/ic_undobar_undo</item>
         <item name="android:drawablePadding">8dp</item>
         <item name="android:textAppearance">?android:textAppearanceSmall</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#fff</item>
         <item name="android:text">@string/undo</item>
+    </style>
+
+    <!-- Toast -->
+    <style name="DisplayMessage">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:background">@android:drawable/toast_frame</item>
+    </style>
+
+    <style name="DisplayMessageArtwork">
+        <item name="android:layout_width">@dimen/album_art_icon_grid_width</item>
+        <item name="android:layout_height">@dimen/album_art_icon_grid_height</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxHeight">@dimen/album_art_icon_grid_height</item>
+        <item name="android:maxWidth">@dimen/album_art_icon_grid_width</item>
+        <item name="android:minHeight">@dimen/album_art_icon_grid_height</item>
+        <item name="android:minWidth">@dimen/album_art_icon_grid_width</item>
+    </style>
+
+    <style name="DisplayMessageIcon">
+        <item name="android:layout_width">@dimen/album_art_icon_width</item>
+        <item name="android:layout_height">@dimen/album_art_icon_height</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxHeight">@dimen/album_art_icon_height</item>
+        <item name="android:maxWidth">@dimen/album_art_icon_width</item>
+        <item name="android:minHeight">@dimen/album_art_icon_height</item>
+        <item name="android:minWidth">@dimen/album_art_icon_width</item>
+    </style>
+
+    <style name="DisplayMessageText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 </resources>

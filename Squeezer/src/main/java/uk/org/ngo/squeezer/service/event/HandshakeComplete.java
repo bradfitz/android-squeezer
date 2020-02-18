@@ -20,27 +20,17 @@ package uk.org.ngo.squeezer.service.event;
  * Event sent after handshaking with the server is complete.
  */
 public class HandshakeComplete {
-    /** Does the server support the {@code favorites items} command? */
-    public final boolean canFavorites;
-
-    /** Does the server support the {@code musicfolders} command? */
-    public final boolean canMusicFolders;
-
-    /** Does the server support the {@code myapps items} command? */
-    public final boolean canMyApps;
-
-    /** Does the server support the {@code randomplay} command? */
-    public final boolean canRandomPlay;
-
     /** Server version */
     public final String version;
 
-    public HandshakeComplete(boolean canFavorites, boolean canMusicFolders,
-                             boolean canMyApps, boolean canRandomPlay, String version) {
-        this.canFavorites = canFavorites;
-        this.canMusicFolders = canMusicFolders;
-        this.canMyApps = canMyApps;
-        this.canRandomPlay = canRandomPlay;
+    public HandshakeComplete(String version) {
         this.version = version;
+    }
+
+    @Override
+    public String toString() {
+        return "HandshakeComplete{" +
+                "version='" + version + '\'' +
+                '}';
     }
 }

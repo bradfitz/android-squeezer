@@ -17,27 +17,25 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.os.Parcelable.Creator;
-import android.support.annotation.IntDef;
-import android.view.ContextMenu;
+import androidx.annotation.IntDef;
+import androidx.annotation.LayoutRes;
+
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
-
-import com.google.common.base.Joiner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.itemlist.AlbumListActivity;
-import uk.org.ngo.squeezer.itemlist.ArtistListActivity;
-import uk.org.ngo.squeezer.itemlist.SongListActivity;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.widget.ListItemImageButton;
 import uk.org.ngo.squeezer.widget.SquareImageView;
@@ -71,8 +69,6 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  */
 public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
-    protected static final int BROWSE_ALBUMS = 1;
-
     private final ItemListActivity mActivity;
 
     private final LayoutInflater mLayoutInflater;
@@ -85,7 +81,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             VIEW_PARAM_ICON, VIEW_PARAM_TWO_LINE, VIEW_PARAM_CONTEXT_BUTTON
     })
     @Retention(RetentionPolicy.SOURCE)
-    /** Parameters that control which additional views will be enabled in the item view. */
+    /* Parameters that control which additional views will be enabled in the item view. */
     public @interface ViewParam {}
     /** Adds a {@link SquareImageView} for displaying artwork or other iconography. */
     public static final int VIEW_PARAM_ICON = 1;
@@ -104,12 +100,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      */
     @ViewParam private int mLoadingViewParams = 0;
 
-    /** Width of the icon, if VIEW_PARAM_ICON is used. */
-    protected int mIconWidth;
-
-    /** Height of the icon, if VIEW_PARAM_ICON is used. */
-    protected int mIconHeight;
-
     /**
      * A ViewHolder for the views that make up a complete list item.
      */
@@ -121,21 +111,18 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
         public TextView text2;
 
-        public ImageButton btnContextMenu;
+        public View contextMenuButtonHolder;
+        public ImageButton contextMenuButton;
+        public ProgressBar contextMenuLoading;
+        public CheckBox contextMenuCheckbox;
+        public RadioButton contextMenuRadio;
 
         public @ViewParam int viewParams;
     }
 
-    /**
-     * Joins elements together with ' - ', skipping nulls.
-     */
-    protected static final Joiner mJoiner = Joiner.on(" - ").skipNulls();
-
     public BaseItemView(ItemListActivity activity) {
         mActivity = activity;
         mLayoutInflater = activity.getLayoutInflater();
-        mIconWidth = mActivity.getResources().getDimensionPixelSize(R.dimen.album_art_icon_width);
-        mIconHeight = mActivity.getResources().getDimensionPixelSize(R.dimen.album_art_icon_height);
     }
 
     @Override
@@ -213,22 +200,28 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Binds the item's name to {@link ViewHolder#text1}.
      * <p>
-     * OVerride this instead of {@link #getAdapterView(View, ViewGroup, Item)} if the
+     * OVerride this instead of {@link #getAdapterView(View, ViewGroup, int, Item)} if the
      * default layouts are sufficient.
      *
      * @param view The view that contains the {@link ViewHolder}
      * @param item The item to be bound
      */
-    public void bindView(View view, T item) {
+    public void bindView(View view, final T item) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
+        viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showContextMenu(v, item);
+            }
+        });
     }
 
     /**
      * Returns a view suitable for displaying the "Loading..." text.
      * <p>
-     * Override this method and {@link #getAdapterView(View, ViewGroup, Item)} if your
+     * Override this method and {@link #getAdapterView(View, ViewGroup, int, Item)} if your
      * extension uses a different layout.
      */
     @Override
@@ -277,8 +270,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      *
      * @return convertView if it can be reused, or a new view
      */
-    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams,
-            int layoutResource) {
+    protected View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams, @LayoutRes int layoutResource) {
         ViewHolder viewHolder =
                 (convertView != null && convertView.getTag() instanceof ViewHolder)
                         ? (ViewHolder) convertView.getTag()
@@ -287,37 +279,36 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(layoutResource, parent, false);
             viewHolder = createViewHolder();
-            viewHolder.text1 = (TextView) convertView.findViewById(R.id.text1);
-            viewHolder.text2 = (TextView) convertView.findViewById(R.id.text2);
-            viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
-            viewHolder.btnContextMenu = (ImageButton) convertView.findViewById(R.id.context_menu);
+            viewHolder.text1 = convertView.findViewById(R.id.text1);
+            viewHolder.text2 = convertView.findViewById(R.id.text2);
+            viewHolder.icon = convertView.findViewById(R.id.icon);
+            viewHolder.contextMenuButtonHolder = convertView.findViewById(R.id.context_menu);
+            viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
+            viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+            viewHolder.contextMenuCheckbox = viewHolder.contextMenuButtonHolder.findViewById(R.id.checkbox);
+            viewHolder.contextMenuRadio = viewHolder.contextMenuButtonHolder.findViewById(R.id.radio);
+            setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }
 
         // If the view parameters are different then reset the visibility of child views and hook
         // up any standard behaviours.
         if (viewParams != viewHolder.viewParams) {
-            viewHolder.icon.setVisibility(
-                    (viewParams & VIEW_PARAM_ICON) != 0 ? View.VISIBLE : View.GONE);
-            viewHolder.text2.setVisibility(
-                    (viewParams & VIEW_PARAM_TWO_LINE) != 0 ? View.VISIBLE : View.GONE);
-
-            if ((viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0) {
-                viewHolder.btnContextMenu.setVisibility(View.VISIBLE);
-                viewHolder.btnContextMenu.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        v.showContextMenu();
-                    }
-                });
-            } else {
-                viewHolder.btnContextMenu.setVisibility(View.GONE);
-            }
-
-            viewHolder.viewParams = viewParams;
+            setViewParams(viewParams, viewHolder);
         }
 
         return convertView;
+    }
+
+    private void setViewParams(@ViewParam int viewParams, ViewHolder viewHolder) {
+        viewHolder.icon.setVisibility(
+                (viewParams & VIEW_PARAM_ICON) != 0 ? View.VISIBLE : View.GONE);
+        viewHolder.text2.setVisibility(
+                (viewParams & VIEW_PARAM_TWO_LINE) != 0 ? View.VISIBLE : View.GONE);
+        viewHolder.contextMenuButtonHolder.setVisibility(
+                (viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0 ? View.VISIBLE : View.GONE);
+
+        viewHolder.viewParams = viewParams;
     }
 
     public ViewHolder createViewHolder() {
@@ -326,56 +317,10 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
     @Override
     public boolean isSelectable(T item) {
-        return true;
+        return (item.getId() != null);
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ItemView.ContextMenuInfo menuInfo) {
-        menu.setHeaderTitle(menuInfo.item.getName());
-    }
-
-    /**
-     * The default context menu handler handles some common actions.
-     */
-    @Override
-    public boolean doItemContext(MenuItem menuItem, int index, T selectedItem) {
-        switch (menuItem.getItemId()) {
-            case R.id.browse_songs:
-                SongListActivity.show(mActivity, selectedItem);
-                return true;
-
-            case BROWSE_ALBUMS:
-                AlbumListActivity.show(mActivity, selectedItem);
-                return true;
-
-            case R.id.browse_artists:
-                ArtistListActivity.show(mActivity, selectedItem);
-                return true;
-
-            case R.id.play_now:
-                mActivity.play((PlaylistItem) selectedItem);
-                return true;
-
-            case R.id.add_to_playlist:
-                mActivity.add((PlaylistItem) selectedItem);
-                return true;
-
-            case R.id.play_next:
-                mActivity.insert((PlaylistItem) selectedItem);
-                return true;
-
-            case R.id.download:
-                if (selectedItem instanceof FilterItem)
-                    mActivity.downloadItem((FilterItem) selectedItem);
-                return true;
-        }
-        return false;
-    }
-
-    /** Empty default context-sub-menu implementation, as most context menus doesn't have subs */
-    @Override
-    public boolean doItemContext(MenuItem menuItem) {
-        return false;
+    public void showContextMenu(View v, T item) {
     }
 }

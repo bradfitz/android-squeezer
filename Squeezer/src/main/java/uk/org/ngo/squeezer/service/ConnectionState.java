@@ -16,47 +16,41 @@
 
 package uk.org.ngo.squeezer.service;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
+import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
+import uk.org.ngo.squeezer.framework.MenuStatusMessage;
+import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
 public class ConnectionState {
 
     private static final String TAG = "ConnectionState";
 
-    /** {@link java.util.regex.Pattern} that splits strings on semi-colons. */
-    private static final Pattern mSemicolonSplitPattern = Pattern.compile(";");
+    ConnectionState(@NonNull EventBus eventBus) {
+        mEventBus = eventBus;
+    }
 
-    // Incremented once per new connection and given to the Thread
-    // that's listening on the socket.  So if it dies and it's not the
-    // most recent version, then it's expected.  Else it should notify
-    // the server of the disconnection.
-    private final AtomicInteger currentConnectionGeneration = new AtomicInteger(0);
+    private final EventBus mEventBus;
 
     // Connection state machine
-    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED,
-            LOGIN_STARTED, LOGIN_FAILED, LOGIN_COMPLETED})
+    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED, LOGIN_FAILED, RECONNECT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionStates {}
     /** Ordinarily disconnected from the server. */
@@ -65,164 +59,141 @@ public class ConnectionState {
     public static final int CONNECTION_STARTED = 1;
     /** The connection to the server did not complete. */
     public static final int CONNECTION_FAILED = 2;
-    /** The connection to the server completed. */
+    /** The connection to the server completed, the handshake can start. */
     public static final int CONNECTION_COMPLETED = 3;
-    /** The login process has started. */
-    public static final int LOGIN_STARTED = 4;
     /** The login process has failed, the server is disconnected. */
-    public static final int LOGIN_FAILED = 5;
-    /** The login process completed, the handshake can start. */
-    public static final int LOGIN_COMPLETED = 6;
+    public static final int LOGIN_FAILED = 4;
+    /** Create a new connection to the server. */
+    public static final int RECONNECT = 5;
 
     @ConnectionStates
     private volatile int mConnectionState = DISCONNECTED;
 
-    /** Does the server support "favorites items" queries? */
-    private final AtomicBoolean mCanFavorites = new AtomicBoolean(false);
+    /** Map Player IDs to the {@link uk.org.ngo.squeezer.model.Player} with that ID. */
+    private final Map<String, Player> mPlayers = new ConcurrentHashMap<>();
 
-    private final AtomicBoolean mCanMusicfolder = new AtomicBoolean(false);
+    /** The active player (the player to which commands are sent by default). */
+    private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
 
-    /** Does the server support "myapps items" queries? */
-    private final AtomicBoolean mCanMyApps = new AtomicBoolean(false);
+    /** Home menu tree as received from slimserver */
+    private List<Plugin> homeMenu = new Vector<>();
 
-    private final AtomicBoolean canRandomplay = new AtomicBoolean(false);
-
-    private final AtomicReference<String> serverVersion = new AtomicReference<String>();
-
-    private final AtomicReference<String> preferredAlbumSort = new AtomicReference<String>("album");
-
-    private final AtomicReference<Socket> socketRef = new AtomicReference<Socket>();
-
-    private final AtomicReference<PrintWriter> socketWriter = new AtomicReference<PrintWriter>();
-
-    // Where we connected (or are connecting) to:
-    private final AtomicReference<String> currentHost = new AtomicReference<String>();
-
-    private final AtomicReference<Integer> httpPort = new AtomicReference<Integer>();
-
-    private final AtomicReference<Integer> cliPort = new AtomicReference<Integer>();
-
-    private final AtomicReference<String> userName = new AtomicReference<String>();
-
-    private final AtomicReference<String> password = new AtomicReference<String>();
-
-    private final AtomicReference<String[]> mediaDirs = new AtomicReference<String[]>();
-
-    void disconnect(EventBus eventBus, boolean loginFailed) {
-        Log.v(TAG, "disconnect" + (loginFailed ? ": authentication failure" : ""));
-        currentConnectionGeneration.incrementAndGet();
-        Socket socket = socketRef.get();
-        if (socket != null) {
-            try {
-                socket.close();
-            } catch (IOException e) {
-            }
-        }
-        socketRef.set(null);
-        socketWriter.set(null);
-
-        if (loginFailed) {
-            setConnectionState(eventBus, LOGIN_FAILED);
-        } else {
-            setConnectionState(eventBus, DISCONNECTED);
-        }
-        httpPort.set(null);
-        mediaDirs.set(null);
-    }
+    private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
     /**
      * Sets a new connection state, and posts a sticky
      * {@link uk.org.ngo.squeezer.service.event.ConnectionChanged} event with the new state.
      *
-     * @param eventBus The eventbus to post the event to.
      * @param connectionState The new connection state.
      */
-    void setConnectionState(@NonNull EventBus eventBus,
-            @ConnectionStates int connectionState) {
-        Log.d(TAG, "Setting connection state to: " + connectionState);
+    void setConnectionState(@ConnectionStates int connectionState) {
+        Log.i(TAG, "setConnectionState(" + mConnectionState + " => " + connectionState + ")");
+        // Clear data if we were previously connected
+        if (isConnected() && !isConnected(connectionState)) {
+            mEventBus.removeAllStickyEvents();
+            setServerVersion(null);
+            mPlayers.clear();
+            setActivePlayer(null);
+        }
+
         mConnectionState = connectionState;
-        eventBus.postSticky(new ConnectionChanged(mConnectionState));
+        mEventBus.postSticky(new ConnectionChanged(mConnectionState));
     }
 
-    PrintWriter getSocketWriter() {
-        return socketWriter.get();
+    public void setPlayers(Map<String, Player> players) {
+        mPlayers.clear();
+        mPlayers.putAll(players);
+        mEventBus.postSticky(new PlayersChanged(players));
     }
 
-    void setHttpPort(Integer port) {
-        httpPort.set(port);
-        Log.v(TAG, "HTTP port is now: " + port);
+    Player getPlayer(String playerId) {
+        return mPlayers.get(playerId);
     }
 
-    public String[] getMediaDirs() {
-        String[] dirs = mediaDirs.get();
-        return dirs == null ? new String[0] : dirs;
+    public Map<String, Player> getPlayers() {
+        return mPlayers;
     }
 
-    public void setMediaDirs(String dirs) {
-        mediaDirs.set(mSemicolonSplitPattern.split(dirs));
+    public Player getActivePlayer() {
+        return mActivePlayer.get();
     }
 
-    void setCanFavorites(boolean value) {
-        mCanFavorites.set(value);
+    void setActivePlayer(Player player) {
+        mActivePlayer.set(player);
+        mEventBus.post(new ActivePlayerChanged(player));
     }
 
-    boolean canFavorites() {
-        return mCanFavorites.get();
+    void setServerVersion(String version) {
+        if (Util.atomicReferenceUpdated(serverVersion, version)) {
+            if (version != null) {
+                HandshakeComplete event = new HandshakeComplete(getServerVersion());
+                Log.i(TAG, "Handshake complete: " + event);
+                mEventBus.postSticky(event);
+            }
+        }
     }
 
-    void setCanMusicfolder(boolean value) {
-        mCanMusicfolder.set(value);
+    void clearHomeMenu() {
+        homeMenu.clear();
     }
 
-    boolean canMusicfolder() {
-        return mCanMusicfolder.get();
+    void addToHomeMenu(int count, List<Plugin> items) {
+        homeMenu.addAll(items);
+        if (homeMenu.size() == count) {
+            jiveMainNodes();
+            mEventBus.postSticky(new HomeMenuEvent(homeMenu));
+        }
     }
 
-    void setCanMyApps(boolean value) {
-        mCanMyApps.set(value);
+    void menuStatusEvent(MenuStatusMessage event) {
+        if (event.playerId.equals(getActivePlayer().getId())) {
+            for (Plugin menuItem : event.menuItems) {
+                Plugin item = null;
+                for (Plugin menu : homeMenu) {
+                    if (menuItem.getId().equals(menu.getId())) {
+                        item = menu;
+                        break;
+                    }
+                }
+                if (item != null) {
+                    homeMenu.remove(item);
+                }
+                if (MenuStatusMessage.ADD.equals(event.menuDirective)) {
+                    homeMenu.add(menuItem);
+                }
+            }
+            mEventBus.postSticky(new HomeMenuEvent(homeMenu));
+        }
     }
 
-    boolean canMyApps() {
-        return mCanMyApps.get();
+    private void jiveMainNodes() {
+        addNode(Plugin.EXTRAS);
+        addNode(Plugin.SETTINGS);
+        addNode(Plugin.SCREEN_SETTINGS);
+        addNode(Plugin.ADVANCED_SETTINGS);
     }
 
-    void setCanRandomplay(boolean value) {
-        canRandomplay.set(value);
+    private void addNode(Plugin plugin) {
+        if (!homeMenu.contains(plugin))
+            homeMenu.add(plugin);
     }
 
-    boolean canRandomplay() {
-        return canRandomplay.get();
-    }
-
-    public void setServerVersion(String version) {
-        serverVersion.set(version);
-    }
-
-    public String getServerVersion() {
+    String getServerVersion() {
         return serverVersion.get();
-    }
-
-    public void setPreferedAlbumSort(String value) {
-        preferredAlbumSort.set(value);
-    }
-
-    public String getPreferredAlbumSort() {
-        return preferredAlbumSort.get();
     }
 
     /**
      * @return True if the socket connection to the server has completed.
      */
     boolean isConnected() {
-        switch (mConnectionState) {
-            case CONNECTION_COMPLETED:
-            case LOGIN_STARTED:
-            case LOGIN_COMPLETED:
-                return true;
+        return isConnected(mConnectionState);
+    }
 
-            default:
-                return false;
-        }
+    /**
+     * @return True if the socket connection to the server has completed.
+     */
+    static boolean isConnected(@ConnectionStates int connectionState) {
+        return connectionState == CONNECTION_COMPLETED;
     }
 
     /**
@@ -230,185 +201,22 @@ public class ConnectionState {
      *     completed (successfully or unsuccessfully).
      */
     boolean isConnectInProgress() {
-        return mConnectionState == CONNECTION_STARTED;
-    }
-
-    void startListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, CliClient cli) {
-        Thread listeningThread = new ListeningThread(eventBus, executor, cli, socketRef.get(),
-                currentConnectionGeneration.incrementAndGet());
-        listeningThread.start();
-    }
-
-    private class ListeningThread extends Thread {
-
-        @NonNull private final EventBus mEventBus;
-
-        @NonNull private final Executor mExecutor;
-
-        private final Socket socket;
-
-        private final CliClient cli;
-
-        private final int generationNumber;
-
-        private ListeningThread(@NonNull EventBus eventBus, @NonNull Executor executor, CliClient cli, Socket socket, int generationNumber) {
-            mEventBus = eventBus;
-            mExecutor = executor;
-            this.cli = cli;
-            this.socket = socket;
-            this.generationNumber = generationNumber;
-        }
-
-        @Override
-        public void run() {
-            Log.d(TAG, "Listening thread started");
-
-            BufferedReader in;
-            try {
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            } catch (IOException e) {
-                Log.v(TAG, "IOException while creating BufferedReader: " + e);
-                cli.disconnect(false);
-                return;
-            }
-            IOException exception = null;
-            while (true) {
-                String line;
-                try {
-                    line = in.readLine();
-                } catch (IOException e) {
-                    line = null;
-                    exception = e;
-                }
-                if (line == null) {
-                    // Socket disconnected.  This is expected
-                    // if we're not the main connection generation anymore,
-                    // else we should notify about it.
-                    if (currentConnectionGeneration.get() == generationNumber) {
-                        Log.v(TAG, "Server disconnected; exception=" + exception);
-                        cli.disconnect(exception == null);
-                    } else {
-                        // Who cares.
-                        Log.v(TAG, "Old generation connection disconnected, as expected.");
-                    }
-                    return;
-                }
-                final String inputLine = line;
-
-                // If a login attempt was in progress and this is a line that does not start
-                // with "login " then the login must have been successful (otherwise the
-                // server would have disconnected), so update the connection state accordingly.
-                if (mConnectionState == LOGIN_STARTED && !inputLine.startsWith("login ")) {
-                    setConnectionState(mEventBus, LOGIN_COMPLETED);
-                }
-                mExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        cli.onLineReceived(inputLine);
-                    }
-                });
-            }
-        }
-    }
-
-    void startConnect(final SqueezeService service, @NonNull final EventBus eventBus,
-                      @NonNull final Executor executor,
-                      final CliClient cli, String hostPort, final String userName,
-                      final String password) {
-        Log.v(TAG, "startConnect");
-        // Common mistakes, based on crash reports...
-        if (hostPort.startsWith("Http://") || hostPort.startsWith("http://")) {
-            hostPort = hostPort.substring(7);
-        }
-
-        // Ending in whitespace?  From LatinIME, probably?
-        while (hostPort.endsWith(" ")) {
-            hostPort = hostPort.substring(0, hostPort.length() - 1);
-        }
-
-        final int port = Util.parsePort(hostPort);
-        final String host = Util.parseHost(hostPort);
-        final String cleanHostPort = host + ":" + port;
-
-        currentHost.set(host);
-        cliPort.set(port);
-        httpPort.set(null);  // not known until later, after connect.
-        this.userName.set(userName);
-        this.password.set(password);
-
-        // Start the off-thread connect.
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Ensuring service is disconnected");
-                service.disconnect();
-                Socket socket = new Socket();
-                try {
-                    Log.d(TAG, "Connecting to: " + cleanHostPort);
-                    setConnectionState(eventBus, CONNECTION_STARTED);
-                    socket.connect(new InetSocketAddress(host, port),
-                            4000 /* ms timeout */);
-                    socketRef.set(socket);
-                    Log.d(TAG, "Connected to: " + cleanHostPort);
-                    socketWriter.set(new PrintWriter(socket.getOutputStream(), true));
-                    setConnectionState(eventBus, CONNECTION_COMPLETED);
-                    startListeningThread(eventBus, executor, cli);
-                    onCliPortConnectionEstablished(eventBus, cli, userName, password);
-                    Authenticator.setDefault(new Authenticator() {
-                        @Override
-                        public PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication(userName, password.toCharArray());
-                        }
-                    });
-                } catch (SocketTimeoutException e) {
-                    Log.e(TAG, "Socket timeout connecting to: " + cleanHostPort);
-                    setConnectionState(eventBus, CONNECTION_FAILED);
-                } catch (IOException e) {
-                    Log.e(TAG, "IOException connecting to: " + cleanHostPort);
-                    setConnectionState(eventBus, CONNECTION_FAILED);
-                }
-            }
-
-        });
+        return isConnectInProgress(mConnectionState);
     }
 
     /**
-     * Authenticate on the SqueezeServer.
-     * <p>
-     * The server does
-     * <pre>
-     * login user wrongpassword
-     * login user ******
-     * (Connection terminated)
-     * </pre>
-     * instead of as documented
-     * <pre>
-     * login user wrongpassword
-     * (Connection terminated)
-     * </pre>
-     * therefore a disconnect when handshake (the next step after authentication) is not completed,
-     * is considered an authentication failure.
+     * @return True if the socket connection to the server has started, but not yet
+     *     completed (successfully or unsuccessfully).
      */
-    void onCliPortConnectionEstablished(final EventBus eventBus, final CliClient cli, final String userName, final String password) {
-        setConnectionState(eventBus, ConnectionState.LOGIN_STARTED);
-        cli.sendCommandImmediately("login " + Util.encode(userName) + " " + Util.encode(password));
+    static boolean isConnectInProgress(@ConnectionStates int connectionState) {
+        return connectionState == CONNECTION_STARTED;
     }
 
-
-    Integer getHttpPort() {
-        return httpPort.get();
+    @Override
+    public String toString() {
+        return "ConnectionState{" +
+                "mConnectionState=" + mConnectionState +
+                ", serverVersion=" + serverVersion +
+                '}';
     }
-
-    String getUserName() {
-        return userName.get();
-    }
-
-    String getPassword() {
-        return password.get();
-    }
-
-    String getCurrentHost() {
-        return currentHost.get();
-    }
-
 }

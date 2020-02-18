@@ -17,10 +17,5 @@
 -->
 
 <resources>
-    <string name="home_item_favorites">Favourites</string>
 
-    <plurals name="favorites">
-        <item quantity="one">Favourite</item>
-        <item quantity="other">Favourites</item>
-    </plurals>
 </resources>

@@ -19,11 +19,12 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 
-import com.google.common.base.Strings;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringDef;
+
 import com.google.common.collect.ImmutableList;
 
 import java.lang.annotation.Retention;
@@ -34,17 +35,9 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.EnumIdLookup;
 import uk.org.ngo.squeezer.framework.EnumWithId;
-import uk.org.ngo.squeezer.service.ServerString;
 
 
 public class PlayerState implements Parcelable {
-
-    @StringDef({NOTIFY_NONE, NOTIFY_ON_CHANGE, NOTIFY_REAL_TIME})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface PlayerSubscriptionType {}
-    public static final String NOTIFY_NONE = "-";
-    public static final String NOTIFY_ON_CHANGE = "0";
-    public static final String NOTIFY_REAL_TIME = "1";
 
     public PlayerState() {
     }
@@ -62,50 +55,48 @@ public class PlayerState implements Parcelable {
     };
 
     private PlayerState(Parcel source) {
-        playerId = source.readString();
         playStatus = source.readString();
         poweredOn = (source.readByte() == 1);
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
         repeatStatus = RepeatStatus.valueOf(source.readInt());
-        currentSong = source.readParcelable(Song.class.getClassLoader());
+        currentSong = source.readParcelable(CurrentPlaylistItem.class.getClassLoader());
         currentPlaylist = source.readString();
+        currentPlaylistTimestamp = source.readLong();
         currentPlaylistIndex = source.readInt();
-        currentTimeSecond = source.readInt();
+        currentTimeSecond = source.readDouble();
         currentSongDuration = source.readInt();
         currentVolume = source.readInt();
         sleepDuration = source.readInt();
         sleep = source.readInt();
         mSyncMaster = source.readString();
         source.readStringList(mSyncSlaves);
-        mPlayerSubscriptionType = source.readString();
+        mPlayerSubscriptionType = PlayerSubscriptionType.valueOf(source.readString());
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(playerId);
         dest.writeString(playStatus);
         dest.writeByte(poweredOn ? (byte) 1 : (byte) 0);
         dest.writeInt(shuffleStatus.getId());
         dest.writeInt(repeatStatus.getId());
         dest.writeParcelable(currentSong, 0);
         dest.writeString(currentPlaylist);
+        dest.writeLong(currentPlaylistTimestamp);
         dest.writeInt(currentPlaylistIndex);
-        dest.writeInt(currentTimeSecond);
+        dest.writeDouble(currentTimeSecond);
         dest.writeInt(currentSongDuration);
         dest.writeInt(currentVolume);
         dest.writeInt(sleepDuration);
-        dest.writeInt(sleep);
+        dest.writeDouble(sleep);
         dest.writeString(mSyncMaster);
         dest.writeStringList(mSyncSlaves);
-        dest.writeString(mPlayerSubscriptionType);
+        dest.writeString(mPlayerSubscriptionType.name());
     }
 
     @Override
     public int describeContents() {
         return 0;
     }
-
-    private String playerId;
 
     private boolean poweredOn;
 
@@ -115,25 +106,35 @@ public class PlayerState implements Parcelable {
 
     private RepeatStatus repeatStatus;
 
-    private Song currentSong;
+    private CurrentPlaylistItem currentSong;
 
     /** The name of the current playlist, which may be the empty string. */
     @NonNull
     private String currentPlaylist;
 
+    private long currentPlaylistTimestamp;
+
     private int currentPlaylistTracksNum;
 
     private int currentPlaylistIndex;
 
-    private int currentTimeSecond;
+    private boolean remote;
+
+    public boolean waitingToPlay;
+
+    public double rate;
+
+    private double currentTimeSecond;
 
     private int currentSongDuration;
 
-    private int currentVolume;
+    public double statusSeen;
+
+    private int currentVolume = -1;
 
     private int sleepDuration;
 
-    private int sleep;
+    private double sleep;
 
     /** The player this player is synced to (null if none). */
     @Nullable
@@ -144,7 +145,7 @@ public class PlayerState implements Parcelable {
 
     /** How the server is subscribed to the player's status changes. */
     @NonNull
-    @PlayerSubscriptionType private String mPlayerSubscriptionType = NOTIFY_NONE;
+    private PlayerSubscriptionType mPlayerSubscriptionType = PlayerSubscriptionType.NOTIFY_NONE;
 
     public boolean isPlaying() {
         return PLAY_STATE_PLAY.equals(playStatus);
@@ -169,18 +170,6 @@ public class PlayerState implements Parcelable {
         playStatus = s;
 
         return true;
-    }
-
-    public String getPlayerId() {
-        return playerId;
-    }
-
-    public void setPlayerId(String playerId) {
-        this.playerId = playerId;
-    }
-
-    public boolean getPoweredOn() {
-        return poweredOn;
     }
 
     public boolean isPoweredOn() {
@@ -208,7 +197,7 @@ public class PlayerState implements Parcelable {
     }
 
     public boolean setShuffleStatus(String s) {
-        return setShuffleStatus(s != null ? ShuffleStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
+        return setShuffleStatus(s != null ? ShuffleStatus.valueOf(Util.getInt(s)) : null);
     }
 
     public RepeatStatus getRepeatStatus() {
@@ -224,19 +213,14 @@ public class PlayerState implements Parcelable {
     }
 
     public boolean setRepeatStatus(String s) {
-        return setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.parseDecimalIntOrZero(s)) : null);
+        return setRepeatStatus(s != null ? RepeatStatus.valueOf(Util.getInt(s)) : null);
     }
 
-    public Song getCurrentSong() {
+    public CurrentPlaylistItem getCurrentSong() {
         return currentSong;
     }
 
-    @NonNull
-    public String getCurrentSongName() {
-        return (currentSong != null) ? currentSong.getName() : "";
-    }
-
-    public boolean setCurrentSong(Song song) {
+    public boolean setCurrentSong(CurrentPlaylistItem song) {
         if (song.equals(currentSong))
             return false;
 
@@ -250,6 +234,18 @@ public class PlayerState implements Parcelable {
         return currentPlaylist;
     }
 
+    public long getCurrentPlaylistTimestamp() {
+        return currentPlaylistTimestamp;
+    }
+
+    public boolean setCurrentPlaylistTimestamp(long value) {
+        if (value == currentPlaylistTimestamp)
+            return false;
+
+        currentPlaylistTimestamp = value;
+        return true;
+    }
+
     /** @return the number of tracks in the current playlist */
     public int getCurrentPlaylistTracksNum() {
         return currentPlaylistTracksNum;
@@ -259,39 +255,34 @@ public class PlayerState implements Parcelable {
         return currentPlaylistIndex;
     }
 
-    public boolean setCurrentPlaylist(@Nullable String playlist) {
+    public void setCurrentPlaylist(@Nullable String playlist) {
         if (playlist == null)
             playlist = "";
-
-        if (playlist.equals(currentPlaylist))
-            return false;
-
         currentPlaylist = playlist;
-        return true;
     }
 
     // set the number of tracks in the current playlist
-    public boolean setCurrentPlaylistTracksNum(int value) {
-        if (value == currentPlaylistTracksNum)
-            return false;
-
+    public void setCurrentPlaylistTracksNum(int value) {
         currentPlaylistTracksNum = value;
-        return true;
     }
 
-    public boolean setCurrentPlaylistIndex(int value) {
-        if (value == currentPlaylistIndex)
-            return false;
-
+    public void setCurrentPlaylistIndex(int value) {
         currentPlaylistIndex = value;
-        return true;
     }
 
-    public int getCurrentTimeSecond() {
+    public boolean isRemote() {
+        return remote;
+    }
+
+    public void setRemote(boolean remote) {
+        this.remote = remote;
+    }
+
+    public double getCurrentTimeSecond() {
         return currentTimeSecond;
     }
 
-    public boolean setCurrentTimeSecond(int value) {
+    public boolean setCurrentTimeSecond(double value) {
         if (value == currentTimeSecond)
             return false;
 
@@ -319,8 +310,9 @@ public class PlayerState implements Parcelable {
         if (value == currentVolume)
             return false;
 
+        int current = currentVolume;
         currentVolume = value;
-        return true;
+        return (current != -1); // Do not report a change if previous volume was unknown
     }
 
     public int getSleepDuration() {
@@ -336,7 +328,7 @@ public class PlayerState implements Parcelable {
     }
 
     /** @return seconds left until the player sleeps. */
-    public int getSleep() {
+    public double getSleep() {
         return sleep;
     }
 
@@ -345,7 +337,7 @@ public class PlayerState implements Parcelable {
      * @param sleep seconds left until the player sleeps.
      * @return True if the sleep value was changed, false otherwise.
      */
-    public boolean setSleep(int sleep) {
+    public boolean setSleep(double sleep) {
         if (sleep == this.sleep)
             return false;
 
@@ -383,16 +375,12 @@ public class PlayerState implements Parcelable {
         return mSyncSlaves;
     }
 
-    @PlayerSubscriptionType public String getSubscriptionType() {
+    public PlayerSubscriptionType getSubscriptionType() {
         return mPlayerSubscriptionType;
     }
 
-    public boolean setSubscriptionType(@Nullable @PlayerSubscriptionType String type) {
-        if (Strings.isNullOrEmpty(type))
-            return setSubscriptionType(NOTIFY_NONE);
-
+    public void setSubscriptionType(PlayerSubscriptionType type) {
         mPlayerSubscriptionType = type;
-        return true;
     }
 
     @StringDef({PLAY_STATE_PLAY, PLAY_STATE_PAUSE, PLAY_STATE_STOP})
@@ -402,24 +390,57 @@ public class PlayerState implements Parcelable {
     public static final String PLAY_STATE_PAUSE = "pause";
     public static final String PLAY_STATE_STOP = "stop";
 
+    @Override
+    public String toString() {
+        return "PlayerState{" +
+                "poweredOn=" + poweredOn +
+                ", playStatus='" + playStatus + '\'' +
+                ", shuffleStatus=" + shuffleStatus +
+                ", repeatStatus=" + repeatStatus +
+                ", currentSong=" + currentSong +
+                ", currentPlaylist='" + currentPlaylist + '\'' +
+                ", currentPlaylistIndex=" + currentPlaylistIndex +
+                ", currentTimeSecond=" + currentTimeSecond +
+                ", currentSongDuration=" + currentSongDuration +
+                ", currentVolume=" + currentVolume +
+                ", sleepDuration=" + sleepDuration +
+                ", sleep=" + sleep +
+                ", mSyncMaster='" + mSyncMaster + '\'' +
+                ", mSyncSlaves=" + mSyncSlaves +
+                ", mPlayerSubscriptionType='" + mPlayerSubscriptionType + '\'' +
+                '}';
+    }
+
+    public enum PlayerSubscriptionType {
+        NOTIFY_NONE("-"),
+        NOTIFY_ON_CHANGE("600");
+
+        private final String status;
+
+        PlayerSubscriptionType(String status) {
+            this.status = status;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+    }
+
     public enum ShuffleStatus implements EnumWithId {
-        SHUFFLE_OFF(0, R.attr.ic_action_av_shuffle_off, ServerString.SHUFFLE_OFF),
-        SHUFFLE_SONG(1, R.attr.ic_action_av_shuffle_song, ServerString.SHUFFLE_ON_SONGS),
-        SHUFFLE_ALBUM(2, R.attr.ic_action_av_shuffle_album, ServerString.SHUFFLE_ON_ALBUMS);
+        SHUFFLE_OFF(0, R.attr.ic_action_av_shuffle_off),
+        SHUFFLE_SONG(1, R.attr.ic_action_av_shuffle_song),
+        SHUFFLE_ALBUM(2, R.attr.ic_action_av_shuffle_album);
 
         private final int id;
 
         private final int icon;
 
-        private final ServerString text;
-
-        private static final EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<ShuffleStatus>(
+        private static final EnumIdLookup<ShuffleStatus> lookup = new EnumIdLookup<>(
                 ShuffleStatus.class);
 
-        ShuffleStatus(int id, int icon, ServerString text) {
+        ShuffleStatus(int id, int icon) {
             this.id = id;
             this.icon = icon;
-            this.text = text;
         }
 
         @Override
@@ -427,12 +448,9 @@ public class PlayerState implements Parcelable {
             return id;
         }
 
+        @DrawableRes
         public int getIcon() {
             return icon;
-        }
-
-        public ServerString getText() {
-            return text;
         }
 
         public static ShuffleStatus valueOf(int id) {
@@ -441,23 +459,20 @@ public class PlayerState implements Parcelable {
     }
 
     public enum RepeatStatus implements EnumWithId {
-        REPEAT_OFF(0, R.attr.ic_action_av_repeat_off, ServerString.REPEAT_OFF),
-        REPEAT_ONE(1, R.attr.ic_action_av_repeat_one, ServerString.REPEAT_ONE),
-        REPEAT_ALL(2, R.attr.ic_action_av_repeat_all, ServerString.REPEAT_ALL);
+        REPEAT_OFF(0, R.attr.ic_action_av_repeat_off),
+        REPEAT_ONE(1, R.attr.ic_action_av_repeat_one),
+        REPEAT_ALL(2, R.attr.ic_action_av_repeat_all);
 
         private final int id;
 
         private final int icon;
 
-        private final ServerString text;
-
-        private static final EnumIdLookup<RepeatStatus> lookup = new EnumIdLookup<RepeatStatus>(
+        private static final EnumIdLookup<RepeatStatus> lookup = new EnumIdLookup<>(
                 RepeatStatus.class);
 
-        RepeatStatus(int id, int icon, ServerString text) {
+        RepeatStatus(int id, int icon) {
             this.id = id;
             this.icon = icon;
-            this.text = text;
         }
 
         @Override
@@ -467,10 +482,6 @@ public class PlayerState implements Parcelable {
 
         public int getIcon() {
             return icon;
-        }
-
-        public ServerString getText() {
-            return text;
         }
 
         public static RepeatStatus valueOf(int id) {

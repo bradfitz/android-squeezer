@@ -7,15 +7,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
-import uk.org.ngo.squeezer.model.Album;
-import uk.org.ngo.squeezer.model.Song;
+import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.Plugin;
 
 public class UtilTest extends TestCase {
 
     public void testAtomicReferenceUpdated() {
-        AtomicReference<String> atomicString = new AtomicReference<String>();
+        AtomicReference<String> atomicString = new AtomicReference<>();
         assertFalse(Util.atomicReferenceUpdated(atomicString, null));
-        assertEquals(null, atomicString.get());
+        assertNull(atomicString.get());
         assertTrue(Util.atomicReferenceUpdated(atomicString, "test"));
         assertEquals("test", atomicString.get());
         assertFalse(Util.atomicReferenceUpdated(atomicString, "test"));
@@ -23,25 +23,27 @@ public class UtilTest extends TestCase {
         assertTrue(Util.atomicReferenceUpdated(atomicString, "change"));
         assertEquals("change", atomicString.get());
         assertTrue(Util.atomicReferenceUpdated(atomicString, null));
-        assertEquals(null, atomicString.get());
+        assertNull(atomicString.get());
         assertTrue(Util.atomicReferenceUpdated(atomicString, "change"));
         assertEquals("change", atomicString.get());
         assertTrue(Util.atomicReferenceUpdated(atomicString, null));
-        assertEquals(null, atomicString.get());
+        assertNull(atomicString.get());
         assertFalse(Util.atomicReferenceUpdated(atomicString, null));
-        assertEquals(null, atomicString.get());
+        assertNull(atomicString.get());
 
-        AtomicReference<Item> atomicItem = new AtomicReference<Item>();
-        Album album = new Album("1", "album");
-        Song song = new Song(new HashMap<String, String>());
+        AtomicReference<Item> atomicItem = new AtomicReference<>();
+        Plugin album = new Plugin(new HashMap<String, Object>());
+        album.setId("1");
+        album.setName("Album");
+        CurrentPlaylistItem song = new CurrentPlaylistItem(new HashMap<String, Object>());
         song.setId("1");
 
         assertFalse(Util.atomicReferenceUpdated(atomicItem, null));
-        assertEquals(null, atomicItem.get());
+        assertNull(atomicItem.get());
         assertTrue(Util.atomicReferenceUpdated(atomicItem, album));
         assertEquals(album, atomicItem.get());
 
-        album.setName("newname");
+        album.setName("new_name");
         assertFalse(Util.atomicReferenceUpdated(atomicItem, album));
         assertEquals(album, atomicItem.get());
 
@@ -53,7 +55,7 @@ public class UtilTest extends TestCase {
         assertEquals(album, atomicItem.get());
 
         assertTrue(Util.atomicReferenceUpdated(atomicItem, null));
-        assertEquals(null, atomicItem.get());
+        assertNull(atomicItem.get());
     }
 
     public void testParseInt() {
@@ -84,32 +86,5 @@ public class UtilTest extends TestCase {
         assertEquals("20:00", Util.formatElapsedTime(1200));
         assertEquals("20:01", Util.formatElapsedTime(1201));
         assertEquals("20:11", Util.formatElapsedTime(1211));
-    }
-
-    public void testEncoding() {
-        assertEquals("test", Util.decode("test"));
-        assertEquals("test", Util.encode("test"));
-        assertEquals("test", Util.decode(Util.encode("test")));
-
-        assertEquals("test:test", Util.decode("test%3Atest"));
-        assertEquals("test%3Atest", Util.encode("test:test"));
-        assertEquals("test:test", Util.decode(Util.encode("test:test")));
-
-        assertEquals("test test", Util.decode("test%20test"));
-        assertEquals("test%20test", Util.encode("test test"));
-        assertEquals("test test", Util.decode(Util.encode("test test")));
-
-        assertEquals("test:æøåÆØÅ'éüõÛ-_/ ;.test", Util.decode(
-                "test%3A%C3%A6%C3%B8%C3%A5%C3%86%C3%98%C3%85%27%C3%A9%C3%BC%C3%B5%C3%9B-_%2F%20%3B.test"));
-        assertEquals(
-                "test%3A%C3%A6%C3%B8%C3%A5%C3%86%C3%98%C3%85%27%C3%A9%C3%BC%C3%B5%C3%9B-_%2F%20%3B.test",
-                Util.encode("test:æøåÆØÅ'éüõÛ-_/ ;.test"));
-        assertEquals("test:æøåÆØÅ'éüũÛ-_/ ;.test",
-                Util.decode(Util.encode("test:æøåÆØÅ'éüũÛ-_/ ;.test")));
-
-        // Apparently LMS doesn't encode all the characters our version does, but luckily we still decode correctly
-        assertEquals("album:#1's", Util.decode("album%3A%231's"));
-        assertEquals("album:100 80'er hits (disc 1)",
-                Util.decode("album%3A100%2080'er%20hits%20(disc%201)"));
     }
 }

@@ -17,25 +17,32 @@
 package uk.org.ngo.squeezer.framework;
 
 
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
-import android.support.annotation.NonNull;
+import androidx.annotation.MainThread;
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
+import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.RetainFragment;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This class defines the common minimum, which any activity browsing the SqueezeServer's database
@@ -60,7 +67,7 @@ public abstract class ItemListActivity extends BaseActivity {
     /**
      * The pages that have been requested from the server.
      */
-    private final Set<Integer> mOrderedPages = new HashSet<Integer>();
+    private final Set<Integer> mOrderedPages = new HashSet<>();
 
     /**
      * The pages that have been received from the server
@@ -72,15 +79,56 @@ public abstract class ItemListActivity extends BaseActivity {
      * that once the service is bound the most recently requested pages should be ordered
      * first.
      */
-    private final Stack<Integer> mOrderedPagesBeforeHandshake = new Stack<Integer>();
+    private final Stack<Integer> mOrderedPagesBeforeHandshake = new Stack<>();
+
+    /**
+     * Progress bar (spinning) while items are loading.
+     */
+    private View loadingProgress;
+
+    /**
+     * View to show when no players are connected
+     */
+    private View emptyView;
+
+    /**
+     * Layout hosting the sub activity content
+     */
+    private FrameLayout subActivityContent;
+
+    /**
+     * List view to show the received items
+     */
+    private AbsListView listView;
 
     /**
      * Tag for mReceivedPages in mRetainFragment.
      */
     private static final String TAG_RECEIVED_PAGES = "mReceivedPages";
 
-    /* Fragment to retain information across orientation changes. */
+    /**
+     * Fragment to retain information across the activity lifecycle.
+     */
     private RetainFragment mRetainFragment;
+
+    @Override
+    public void setContentView(int layoutResID) {
+        LinearLayout fullLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.item_list_activity_layout,
+                (ViewGroup) findViewById(R.id.activity_layout));
+        subActivityContent = fullLayout.findViewById(R.id.content_frame);
+        getLayoutInflater().inflate(layoutResID, subActivityContent, true); // Places the activity layout inside the activity content frame.
+        super.setContentView(fullLayout);
+
+        loadingProgress = checkNotNull(findViewById(R.id.loading_label),
+                "activity layout did not return a view containing R.id.loading_label");
+
+        emptyView = checkNotNull(findViewById(R.id.empty_view),
+                "activity layout did not return a view containing R.id.empty_view");
+
+        AbsListView listView = checkNotNull((AbsListView) subActivityContent.findViewById(R.id.item_list),
+                "getContentView() did not return a view containing R.id.item_list");
+        setListView(setupListView(listView));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,11 +139,19 @@ public abstract class ItemListActivity extends BaseActivity {
         mRetainFragment = RetainFragment.getInstance(TAG, getSupportFragmentManager());
 
         //noinspection unchecked
-        mReceivedPages = (Set<Integer>) mRetainFragment.get(TAG_RECEIVED_PAGES);
+        mReceivedPages = (Set<Integer>) getRetainedValue(TAG_RECEIVED_PAGES);
         if (mReceivedPages == null) {
-            mReceivedPages = new HashSet<Integer>();
-            mRetainFragment.put(TAG_RECEIVED_PAGES, mReceivedPages);
+            mReceivedPages = new HashSet<>();
+            putRetainedValue(TAG_RECEIVED_PAGES, mReceivedPages);
         }
+    }
+
+    protected Object getRetainedValue(String key) {
+        return mRetainFragment.get(key);
+    }
+
+    protected Object putRetainedValue(String key, Object value) {
+        return mRetainFragment.put(key, value);
     }
 
     @Override
@@ -108,6 +164,29 @@ public abstract class ItemListActivity extends BaseActivity {
         cancelOrders();
     }
 
+    private void showLoading() {
+        subActivityContent.setVisibility(View.GONE);
+        loadingProgress.setVisibility(View.VISIBLE);
+        emptyView.setVisibility(View.GONE);
+    }
+
+    void showEmptyView() {
+        subActivityContent.setVisibility(View.GONE);
+        loadingProgress.setVisibility(View.GONE);
+        emptyView.setVisibility(View.VISIBLE);
+    }
+
+    protected void showContent() {
+        subActivityContent.setVisibility(View.VISIBLE);
+        loadingProgress.setVisibility(View.GONE);
+        emptyView.setVisibility(View.GONE);
+    }
+
+    /**
+     * @return True if the LMS command issued by {@link #orderPage(ISqueezeService, int)} requires a player
+     */
+    protected abstract boolean needPlayer();
+
     /**
      * Starts an asynchronous fetch of items from the server. Will only be called after the
      * service connection has been bound.
@@ -119,11 +198,32 @@ public abstract class ItemListActivity extends BaseActivity {
     protected abstract void orderPage(@NonNull ISqueezeService service, int start);
 
     /**
+     * Set the list view to host received items
+     */
+    protected abstract AbsListView setupListView(AbsListView listView);
+
+    /**
+     * @return The view listing the items for this acitvity
+     */
+    public final AbsListView getListView() {
+        return listView;
+    }
+
+    public void setListView(AbsListView listView) {
+        this.listView = listView;
+    }
+
+    /**
      * List can clear any information about which items have been received and ordered, by calling
      * {@link #clearAndReOrderItems()}. This will call back to this method, which must clear any
      * adapters holding items.
      */
     protected abstract void clearItemAdapter();
+
+    /**
+     * Call back from {@link #onItemsReceived(int, int, List, Class)}
+     */
+     protected abstract <T extends Item> void updateAdapter(int count, int start, List<T> items, Class<T> dataType);
 
     /**
      * Orders a page worth of data, starting at the specified position, if it has not already been
@@ -156,9 +256,26 @@ public abstract class ItemListActivity extends BaseActivity {
     }
 
     /**
+     * Update the UI with the player change
+     */
+    @MainThread
+    public void onEventMainThread(ActivePlayerChanged event) {
+        Log.i(getTag(), "ActivePlayerChanged: " + event.player);
+        supportInvalidateOptionsMenu();
+        if (needPlayer()) {
+            if (event.player == null) {
+                showEmptyView();
+            } else {
+                clearAndReOrderItems();
+            }
+        }
+    }
+
+    /**
      * Orders any pages requested before the handshake completed.
      */
-    public void onEvent(HandshakeComplete event) {
+    @MainThread
+    public void onEventMainThread(HandshakeComplete event) {
         // Order any pages that were requested before the handshake complete.
         while (!mOrderedPagesBeforeHandshake.empty()) {
             maybeOrderPage(mOrderedPagesBeforeHandshake.pop());
@@ -188,13 +305,16 @@ public abstract class ItemListActivity extends BaseActivity {
      * <p>
      * Subclasses <b>must</b> call this method when receiving data from the server to ensure that
      * internal bookkeeping about pages that have/have not been ordered is kept consistent.
+     * <p>
+     * This will call back to {@link #updateAdapter(int, int, List, Class)} on the UI thread
      *
      * @param count The total number of items known by the server.
      * @param start The start position of this update.
-     * @param size The number of items in this update
+     * @param items The items received in this update
      */
     @CallSuper
-    protected void onItemsReceived(final int count, final int start, int size) {
+    protected <T extends Item> void onItemsReceived(final int count, final int start, final List<T> items, final Class<T> dataType) {
+        int size = items.size();
         Log.d(getTag(), "onItemsReceived(" + count + ", " + start + ", " + size + ")");
 
         // If this doesn't add any items, then don't register the page as received
@@ -203,19 +323,30 @@ public abstract class ItemListActivity extends BaseActivity {
             // before we register the page as received.
             if (((start + size) % mPageSize == 0) || (start + size == count)) {
                 // Add this page of data to mReceivedPages and remove from mOrderedPages.
-                int pageStart = (start + size == count) ? start : start + size - mPageSize;
+                int pageStart = (start / mPageSize) * mPageSize;
                 mReceivedPages.add(pageStart);
                 mOrderedPages.remove(pageStart);
             }
         }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showContent();
+                updateAdapter(count, start, items, dataType);
+            }
+        });
     }
 
     /**
      * Empties the variables that track which pages have been requested, and orders page 0.
      */
     public void clearAndReOrderItems() {
-        clearItems();
-        maybeOrderPage(0);
+        if (!(needPlayer() && getService().getActivePlayer() == null)) {
+            showLoading();
+            clearItems();
+            maybeOrderPage(0);
+        }
     }
 
     /** Empty the variables that track which pages have been requested. */
@@ -243,7 +374,7 @@ public abstract class ItemListActivity extends BaseActivity {
      */
     protected class ScrollListener implements AbsListView.OnScrollListener {
 
-        private TouchListener mTouchListener = null;
+        private TouchListener mTouchListener;
 
         private boolean mAttachedTouchListener = false;
 
@@ -255,10 +386,7 @@ public abstract class ItemListActivity extends BaseActivity {
          * Subclasses must call this.
          */
         public ScrollListener() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR &&
-                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO) {
-                mTouchListener = new TouchListener(this);
-            }
+            mTouchListener = new TouchListener(this);
         }
 
         @Override
@@ -267,7 +395,7 @@ public abstract class ItemListActivity extends BaseActivity {
                 return;
             }
 
-            if (mAttachedTouchListener == false) {
+            if (!mAttachedTouchListener) {
                 if (mTouchListener != null) {
                     listView.setOnTouchListener(mTouchListener);
                 }
@@ -316,7 +444,7 @@ public abstract class ItemListActivity extends BaseActivity {
 
             private final OnScrollListener mOnScrollListener;
 
-            public TouchListener(OnScrollListener onScrollListener) {
+            TouchListener(OnScrollListener onScrollListener) {
                 mOnScrollListener = onScrollListener;
             }
 

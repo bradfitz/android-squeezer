@@ -26,7 +26,7 @@ import android.util.AttributeSet;
  * resulting in a square image.
  */
 @SuppressLint("NewApi")
-public class SquareImageView extends android.support.v7.widget.AppCompatImageView {
+public class SquareImageView extends androidx.appcompat.widget.AppCompatImageView {
 
     private boolean mBlockLayout;
 

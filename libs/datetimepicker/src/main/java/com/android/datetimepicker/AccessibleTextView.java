@@ -17,9 +17,9 @@
 package com.android.datetimepicker;
 
 import android.content.Context;
-import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
@@ -28,7 +28,7 @@ import android.widget.Button;
 /**
  * Fake Button class, used so TextViews can announce themselves as Buttons, for accessibility.
  */
-public class AccessibleTextView extends android.support.v7.widget.AppCompatTextView {
+public class AccessibleTextView extends androidx.appcompat.widget.AppCompatTextView {
 
     public AccessibleTextView(Context context, AttributeSet attrs) {
         super(context, attrs);

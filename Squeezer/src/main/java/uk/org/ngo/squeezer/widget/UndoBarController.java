@@ -19,7 +19,9 @@ package uk.org.ngo.squeezer.widget;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -39,7 +41,7 @@ import uk.org.ngo.squeezer.R;
  * <p>
  * Use this for actions which which shall be undoable. The undo bar is hosted by an activity. When
  * the undo bar is first requested (by calling
- * {@link #show(Activity, CharSequence, UndoBarController.UndoListener)}) it inflates its view, and
+ * {@link #show(Activity, int, UndoBarController.UndoListener)}) it inflates its view, and
  * add this view to the activity. The visibility of this view is maintained by this class. You
  * supply an {@link UndoBarController.UndoListener} when you request the undo bar, which is called
  * when the undo button is pressed, or the undo bar goes away. The undo bar instance is shared
@@ -114,7 +116,7 @@ public class UndoBarController extends LinearLayout {
      * @param message The message will be shown in left side in toast
      * @param listener Callback
      */
-    private static void showUndoBar(final Activity activity, final CharSequence message,
+    private static void showUndoBar(final Activity activity, final @StringRes int message,
                                     final UndoListener listener) {
         UndoBarController undo = UndoBarController.getView(activity);
         if (undo == null) {
@@ -173,7 +175,7 @@ public class UndoBarController extends LinearLayout {
      * @param message The message will be shown in left side in toast
      * @param listener Callback
      */
-    public static void show(final Activity activity, final CharSequence message,
+    public static void show(final Activity activity, final @StringRes int message,
                             final UndoListener listener) {
         showUndoBar(activity, message, listener);
     }
