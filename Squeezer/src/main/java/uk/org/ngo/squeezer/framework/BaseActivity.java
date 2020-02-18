@@ -300,7 +300,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             mMenuItemVolume.setVisible(haveConnectedPlayers);
         }
 
-        return true;
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override

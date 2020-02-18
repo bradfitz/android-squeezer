@@ -25,6 +25,8 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -74,6 +76,9 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     protected Item parent;
     private Action action;
     Window window = new Window();
+
+    private MenuItem menuItemList;
+    private MenuItem menuItemGrid;
 
     @Override
     protected ItemView<Plugin> createItemView() {
@@ -188,6 +193,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     @Override
     protected AbsListView setupListView(AbsListView listView) {
         ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
+        updateViewMenuItems(listLayout);
         if (listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView)) {
             listView = switchListView(listView, R.layout.item_grid);
         }
@@ -477,6 +483,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         ViewDialog.ArtworkListLayout prevListLayout = getItemView().listLayout();
         new Preferences(this).setAlbumListLayout(listLayout);
         applyWindowStyle(window.windowStyle, prevListLayout);
+        updateViewMenuItems(listLayout);
     }
 
     /**
@@ -492,6 +499,43 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             }
         });
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.pluginlistmenu, menu);
+        menuItemList = menu.findItem(R.id.menu_item_list);
+        menuItemGrid = menu.findItem(R.id.menu_item_grid);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        updateViewMenuItems(getPreferredListLayout());
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_list:
+                setPreferredListLayout(ViewDialog.ArtworkListLayout.list);
+                return true;
+            case R.id.menu_item_grid:
+                setPreferredListLayout(ViewDialog.ArtworkListLayout.grid);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void updateViewMenuItems(ViewDialog.ArtworkListLayout listLayout) {
+        boolean canChangeListLayout = PluginView.canChangeListLayout(window.windowStyle);
+        if (menuItemList != null) {
+            menuItemList.setVisible(canChangeListLayout && listLayout != ViewDialog.ArtworkListLayout.list);
+            menuItemGrid.setVisible(canChangeListLayout && listLayout != ViewDialog.ArtworkListLayout.grid);
+        }
+    }
+
 
     public static void register(Activity activity) {
         final Intent intent = new Intent(activity, PluginListActivity.class);
