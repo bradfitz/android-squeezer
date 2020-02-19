@@ -193,7 +193,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     @Override
     protected AbsListView setupListView(AbsListView listView) {
         ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
-        updateViewMenuItems(listLayout);
         if (listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView)) {
             listView = switchListView(listView, R.layout.item_grid);
         }
@@ -263,6 +262,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     void applyWindowStyle(Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout prevListLayout) {
         ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
+        updateViewMenuItems(listLayout);
         if (windowStyle != window.windowStyle || listLayout != getItemView().listLayout()) {
             window.windowStyle = windowStyle;
             getItemView().setWindowStyle(windowStyle);
