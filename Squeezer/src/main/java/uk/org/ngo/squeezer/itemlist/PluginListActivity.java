@@ -262,7 +262,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     void applyWindowStyle(Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout prevListLayout) {
         ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
-        updateViewMenuItems(listLayout);
+        updateViewMenuItems(listLayout, windowStyle);
         if (windowStyle != window.windowStyle || listLayout != getItemView().listLayout()) {
             window.windowStyle = windowStyle;
             getItemView().setWindowStyle(windowStyle);
@@ -483,7 +483,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         ViewDialog.ArtworkListLayout prevListLayout = getItemView().listLayout();
         new Preferences(this).setAlbumListLayout(listLayout);
         applyWindowStyle(window.windowStyle, prevListLayout);
-        updateViewMenuItems(listLayout);
     }
 
     /**
@@ -511,7 +510,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        updateViewMenuItems(getPreferredListLayout());
+        updateViewMenuItems(getPreferredListLayout(), window.windowStyle);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -528,8 +527,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateViewMenuItems(ViewDialog.ArtworkListLayout listLayout) {
-        boolean canChangeListLayout = PluginView.canChangeListLayout(window.windowStyle);
+    private void updateViewMenuItems(ViewDialog.ArtworkListLayout listLayout, Window.WindowStyle windowStyle) {
+        boolean canChangeListLayout = PluginView.canChangeListLayout(windowStyle);
         if (menuItemList != null) {
             menuItemList.setVisible(canChangeListLayout && listLayout != ViewDialog.ArtworkListLayout.list);
             menuItemGrid.setVisible(canChangeListLayout && listLayout != ViewDialog.ArtworkListLayout.grid);
