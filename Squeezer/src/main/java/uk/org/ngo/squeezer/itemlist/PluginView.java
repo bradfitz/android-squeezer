@@ -130,10 +130,14 @@ public class PluginView extends BaseItemView<Plugin> {
     }
 
     static ViewDialog.ArtworkListLayout listLayout(Activity activity, Window.WindowStyle windowStyle) {
-        if (EnumSet.of(Window.WindowStyle.HOME_MENU, Window.WindowStyle.ICON_LIST).contains(windowStyle)) {
+        if (canChangeListLayout(windowStyle)) {
             return new Preferences(activity).getAlbumListLayout();
         }
         return ViewDialog.ArtworkListLayout.list;
+    }
+
+    static boolean canChangeListLayout(Window.WindowStyle windowStyle) {
+        return EnumSet.of(Window.WindowStyle.HOME_MENU, Window.WindowStyle.ICON_LIST).contains(windowStyle);
     }
 
     private int viewParamIcon() {
