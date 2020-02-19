@@ -94,6 +94,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Nullable
     private VolumePanel mVolumePanel;
 
+    /** Set this to true to stop displaying icon-based showBrieflies */
+    protected boolean ignoreIconMessages = false;
+
     protected String getTag() {
         return getClass().getSimpleName();
     }
@@ -408,14 +411,19 @@ public abstract class BaseActivity extends AppCompatActivity {
         text.setText(display.text);
 
         if (display.isIcon() || display.isMixed() || display.isPopupAlbum()) {
-            @DrawableRes int iconResource = display.getIconResource();
-            if (iconResource != 0) {
-                icon.setVisibility(View.VISIBLE);
-                icon.setImageResource(iconResource);
-            }
-            if (display.hasIcon()) {
-                artwork.setVisibility(View.VISIBLE);
-                ImageFetcher.getInstance(this).loadImage(display.icon, artwork);
+            if (display.isIcon() && ignoreIconMessages) {
+                //icon based messages afre ignored for the now playing screen
+                showMe = false;
+            } else {
+                @DrawableRes int iconResource = display.getIconResource();
+                if (iconResource != 0) {
+                    icon.setVisibility(View.VISIBLE);
+                    icon.setImageResource(iconResource);
+                }
+                if (display.hasIcon()) {
+                    artwork.setVisibility(View.VISIBLE);
+                    ImageFetcher.getInstance(this).loadImage(display.icon, artwork);
+                }
             }
         } else if (display.isSong()) {
             //These are for the NowPlaying screen, which we update via player status messages
