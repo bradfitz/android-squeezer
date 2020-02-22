@@ -956,13 +956,18 @@ public class NowPlayingFragment extends Fragment {
 
         if (event.connectionState == ConnectionState.CONNECTION_FAILED) {
             dismissConnectingDialog();
-            ConnectActivity.showConnectionFailed(mActivity);
-            return;
-        }
-
-        if (event.connectionState == ConnectionState.LOGIN_FAILED) {
-            dismissConnectingDialog();
-            ConnectActivity.showLoginFailed(mActivity);
+            switch (event.connectionError) {
+                case LOGIN_FALIED:
+                    ConnectActivity.showLoginFailed(mActivity);
+                    break;
+                case INVALID_URL:
+                    ConnectActivity.showInvalidUrl(mActivity);
+                    break;
+                case START_CLIENT_ERROR:
+                case CONNECTION_ERROR:
+                    ConnectActivity.showConnectionFailed(mActivity);
+                    break;
+            }
             return;
         }
 

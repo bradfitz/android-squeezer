@@ -18,14 +18,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/header_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:textAppearance="@style/SqueezerTextAppearance.Medium"
-                android:text="@string/login_failed_text"/>
-
             <uk.org.ngo.squeezer.dialog.ServerAddressView
                 android:id="@+id/server_address_view"
                 android:layout_width="fill_parent"

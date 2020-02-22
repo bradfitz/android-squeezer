@@ -50,7 +50,7 @@ public class ConnectionState {
     private final EventBus mEventBus;
 
     // Connection state machine
-    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED, LOGIN_FAILED, RECONNECT})
+    @IntDef({DISCONNECTED, CONNECTION_STARTED, CONNECTION_FAILED, CONNECTION_COMPLETED, RECONNECT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ConnectionStates {}
     /** Ordinarily disconnected from the server. */
@@ -61,8 +61,6 @@ public class ConnectionState {
     public static final int CONNECTION_FAILED = 2;
     /** The connection to the server completed, the handshake can start. */
     public static final int CONNECTION_COMPLETED = 3;
-    /** The login process has failed, the server is disconnected. */
-    public static final int LOGIN_FAILED = 4;
     /** Create a new connection to the server. */
     public static final int RECONNECT = 5;
 
@@ -88,6 +86,17 @@ public class ConnectionState {
      */
     void setConnectionState(@ConnectionStates int connectionState) {
         Log.i(TAG, "setConnectionState(" + mConnectionState + " => " + connectionState + ")");
+        updateConnectionState(connectionState);
+        mEventBus.postSticky(new ConnectionChanged(connectionState));
+    }
+
+    void setConnectionError(ConnectionError connectionError) {
+        Log.i(TAG, "setConnectionError(" + mConnectionState + " => " + connectionError.name() + ")");
+        updateConnectionState(CONNECTION_FAILED);
+        mEventBus.postSticky(new ConnectionChanged(connectionError));
+    }
+
+    private void updateConnectionState(@ConnectionStates int connectionState) {
         // Clear data if we were previously connected
         if (isConnected() && !isConnected(connectionState)) {
             mEventBus.removeAllStickyEvents();
@@ -95,9 +104,7 @@ public class ConnectionState {
             mPlayers.clear();
             setActivePlayer(null);
         }
-
         mConnectionState = connectionState;
-        mEventBus.postSticky(new ConnectionChanged(mConnectionState));
     }
 
     public void setPlayers(Map<String, Player> players) {

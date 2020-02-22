@@ -67,6 +67,7 @@
     <string name="connecting_to_text">Forbinder til Logitech Media Server på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes.</string>
     <string name="login_failed_text">Login mislykkedes, kontrollér at brugernavn og adgangskode er korrekte.</string>
+    <string name="invalid_url_text">Angiv venligst en gyldig adresse.</string>
     <string name="disconnected_text">Afbrudt.</string>
     <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
     <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed.\nNår der opnås

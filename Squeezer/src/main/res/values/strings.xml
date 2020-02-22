@@ -65,6 +65,7 @@
     <string name="connecting_to_text">Connecting to Logitech Media Server at %s</string>
     <string name="connection_failed_text">Connection failed.</string>
     <string name="login_failed_text">Login failed. Make sure the correct user name and password is entered.</string>
+    <string name="invalid_url_text">Please enter a valid address.</string>
     <string name="disconnected_text">Disconnected.</string>
     <string name="wifi_disabled_text">Wi-Fi is disabled</string>
     <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. When an active

@@ -59,6 +59,7 @@
     <string name="connecting_to_text">Verbinde mit Logitech Media Server %s</string>
     <string name="connection_failed_text">Verbindung fehlgeschlagen. Prüfen Sie die Einstellungen.
     </string>
+    <string name="invalid_url_text">Geben Sie bitte eine gültige E-Mail-Adresse an.</string>
     <string name="disconnected_text">Verbindung getrennt</string>
     <string name="wifi_disabled_text">WLAN ist deaktiviert</string>
     <string name="enable_wifi_text">Aktiviert WLAN auf dem Android-Gerät. Sobald eine
