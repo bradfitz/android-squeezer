@@ -813,6 +813,7 @@ public abstract class ImageWorker {
                     });
 
             imageView.setImageDrawable(td);
+            td.setCrossFadeEnabled(true);
             td.startTransition(FADE_IN_TIME);
         } else {
             imageView.setImageDrawable(new BitmapDrawable(mResources, bitmap));
