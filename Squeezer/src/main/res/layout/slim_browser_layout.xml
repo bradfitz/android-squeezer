@@ -101,6 +101,7 @@
         android:orientation="horizontal">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/plugin_input_til"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="1"

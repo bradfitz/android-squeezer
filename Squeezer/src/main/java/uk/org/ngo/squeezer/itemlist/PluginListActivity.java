@@ -39,6 +39,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.List;
 import java.util.Map;
 
@@ -116,6 +118,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         if (hasInputField()) {
             ImageButton inputButton = findViewById(R.id.input_button);
             final EditText inputText = findViewById(R.id.plugin_input);
+            TextInputLayout inputTextLayout = findViewById(R.id.plugin_input_til);
             int inputType = EditorInfo.TYPE_CLASS_TEXT;
             int inputImage = R.drawable.ic_keyboard_return;
 
@@ -134,7 +137,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             }
             inputText.setInputType(inputType);
             inputButton.setImageResource(inputImage);
-            inputText.setHint(parent.input.title);
+            inputTextLayout.setHint(parent.input.title);
             inputText.setText(parent.input.initialText);
             inputText.setOnKeyListener(new OnKeyListener() {
                 @Override

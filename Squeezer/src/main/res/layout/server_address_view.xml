@@ -97,13 +97,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:paddingStart="8dp">
+        android:paddingStart="8dp"
+        android:hint="@string/settings_serveraddr_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/server_address"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/settings_serveraddr_hint"
             android:inputType="textNoSuggestions"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"/>
@@ -114,13 +114,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="8dp"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:hint="@string/settings_username_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/username"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/settings_username_hint"
             android:inputType="textNoSuggestions"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"/>
@@ -130,13 +130,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="8dp"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:hint="@string/settings_password_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/settings_password_hint"
             android:inputType="textPassword"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"/>

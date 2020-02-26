@@ -12,10 +12,13 @@ import android.view.View;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 import uk.org.ngo.squeezer.R;
 
 public abstract class BaseEditTextDialog extends DialogFragment {
 
+    protected TextInputLayout editTextLayout;
     protected EditText editText;
 
     abstract protected boolean commit(String string);
@@ -28,6 +31,7 @@ public abstract class BaseEditTextDialog extends DialogFragment {
         @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
         View form = getActivity().getLayoutInflater().inflate(R.layout.edittext_dialog, null);
         builder.setView(form);
+        editTextLayout = form.findViewById(R.id.edittext_til);
         editText = form.findViewById(R.id.edittext);
 
         editText.setText("");
