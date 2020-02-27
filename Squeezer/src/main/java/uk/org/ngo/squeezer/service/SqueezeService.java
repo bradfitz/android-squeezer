@@ -522,7 +522,7 @@ public class SqueezeService extends Service {
                 builder.setContentText(notificationState.artistAlbum());
                 builder.setSubText(notificationState.playerName);
                 builder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(1, 2)
+                        .setShowActionsInCompactView(2, 3)
                         .setMediaSession(mMediaSession.getSessionToken()));
 
                 // Don't set an ongoing notification, otherwise wearable's won't show it.
