@@ -11,15 +11,19 @@ import org.cometd.client.transport.MessageClientTransport;
 import org.cometd.client.transport.TransportListener;
 import org.cometd.common.TransportException;
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.HttpDestination;
+import org.eclipse.jetty.client.Origin;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.api.Result;
+import org.eclipse.jetty.client.http.HttpDestinationOverHTTP;
 import org.eclipse.jetty.client.util.BufferingResponseListener;
 import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
 
 import java.io.BufferedReader;
@@ -41,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -355,6 +360,18 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
             Request request = _httpClient.newRequest(getURL());
             customize(request);
             headers = request.getHeaders();
+            headers.add(getHostField(request));
+        }
+
+        private HttpField getHostField(Request request) {
+            String scheme = request.getScheme().toLowerCase(Locale.ENGLISH);
+            if (!HttpScheme.HTTP.is(scheme) && !HttpScheme.HTTPS.is(scheme))
+                throw new IllegalArgumentException("Invalid protocol " + scheme);
+
+            String host = request.getHost().toLowerCase(Locale.ENGLISH);
+            Origin origin = new Origin(scheme, host, request.getPort());
+            HttpDestination destination = new HttpDestinationOverHTTP(_httpClient, origin);
+            return destination.getHostField();
         }
 
         public void connect(String host, int port) throws IOException {
