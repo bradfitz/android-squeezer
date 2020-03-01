@@ -267,9 +267,7 @@ public class NowPlayingFragment extends Fragment {
             seekBar = v.findViewById(R.id.seekbar);
 
             BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
-            viewHolder.contextMenuButtonHolder = v.findViewById(R.id.context_menu);
-            viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
-            viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+            viewHolder.setContextMenu(v);
             viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -778,6 +776,8 @@ public class NowPlayingFragment extends Fragment {
             mService.getEventBus().unregister(this);
             mRegisteredCallbacks = false;
         }
+
+        pluginViewDelegate.resetContextMenu();
 
         super.onPause();
     }

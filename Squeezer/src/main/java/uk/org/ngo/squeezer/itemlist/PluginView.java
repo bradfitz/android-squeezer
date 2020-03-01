@@ -54,6 +54,10 @@ public class PluginView extends BaseItemView<Plugin> {
         setLoadingViewParams(viewParamIcon() | VIEW_PARAM_TWO_LINE );
     }
 
+    public PluginViewLogic getLogicDelegate() {
+        return logicDelegate;
+    }
+
     void setWindowStyle(Window.WindowStyle windowStyle) {
         this.windowStyle = windowStyle;
         if (listLayout() == ViewDialog.ArtworkListLayout.grid) {

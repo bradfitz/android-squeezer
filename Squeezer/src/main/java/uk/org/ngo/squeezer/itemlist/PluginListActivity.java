@@ -164,9 +164,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         pluginViewDelegate = new PluginViewLogic(this);
         ViewGroup parentView = findViewById(R.id.parent_container);
         BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
-        viewHolder.contextMenuButtonHolder = parentView.findViewById(R.id.context_menu);
-        viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
-        viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+        viewHolder.setContextMenu(parentView);
         viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -191,6 +189,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
          || (listLayout != ViewDialog.ArtworkListLayout.grid && (listView instanceof GridView))) {
             setListView(setupListView(listView));
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getItemView().getLogicDelegate().resetContextMenu();
+        pluginViewDelegate.resetContextMenu();
     }
 
     @Override

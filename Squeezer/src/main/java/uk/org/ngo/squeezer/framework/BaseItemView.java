@@ -118,6 +118,14 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         public RadioButton contextMenuRadio;
 
         public @ViewParam int viewParams;
+
+        public void setContextMenu(View view) {
+            contextMenuButtonHolder = view.findViewById(R.id.context_menu);
+            contextMenuButton = contextMenuButtonHolder.findViewById(R.id.context_menu_button);
+            contextMenuLoading = contextMenuButtonHolder.findViewById(R.id.loading_progress);
+            contextMenuCheckbox = contextMenuButtonHolder.findViewById(R.id.checkbox);
+            contextMenuRadio = contextMenuButtonHolder.findViewById(R.id.radio);
+        }
     }
 
     public BaseItemView(ItemListActivity activity) {
@@ -282,11 +290,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             viewHolder.text1 = convertView.findViewById(R.id.text1);
             viewHolder.text2 = convertView.findViewById(R.id.text2);
             viewHolder.icon = convertView.findViewById(R.id.icon);
-            viewHolder.contextMenuButtonHolder = convertView.findViewById(R.id.context_menu);
-            viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
-            viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
-            viewHolder.contextMenuCheckbox = viewHolder.contextMenuButtonHolder.findViewById(R.id.checkbox);
-            viewHolder.contextMenuRadio = viewHolder.contextMenuButtonHolder.findViewById(R.id.radio);
+            viewHolder.setContextMenu(convertView);
             setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }

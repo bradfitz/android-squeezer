@@ -607,8 +607,12 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    public void cancelClientRequests(Object object) {
-        //TODO see CliClient
+    public void cancelClientRequests(Object client) {
+        for (Map.Entry<String, BrowseRequest<? extends Item>> entry : mPendingBrowseRequests.entrySet()) {
+            if (entry.getValue().getCallback().getClient() == client) {
+                mPendingBrowseRequests.remove(entry.getKey());
+            }
+        }
     }
 
     private void exec(ResponseHandler callback, String... cmd) {

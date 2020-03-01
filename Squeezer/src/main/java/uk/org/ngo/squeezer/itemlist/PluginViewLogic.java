@@ -130,7 +130,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
         } else if (contextMenuReady) {
             contextMenuReady = false;
             contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
-            contextMenuViewHolder.contextMenuLoading.setVisibility(View.INVISIBLE);
+            contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
 
             PopupMenu popup = new PopupMenu(activity, v);
             Menu menu = popup.getMenu();
@@ -202,7 +202,6 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
 
     @Override
     public void onItemsReceived(int count, int start, final Map<String, Object> parameters, final List<Plugin> items, Class<Plugin> dataType) {
-        // FIXME check for activity still running
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -212,5 +211,19 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
                 showContextMenu(contextMenuViewHolder.contextMenuButtonHolder, contextItem);
             }
         });
+    }
+
+    public void resetContextMenu() {
+        if (contextMenuWaiting) {
+            contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
+            contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
+        }
+
+        contextMenuReady = false;
+        contextMenuWaiting = false;
+        contextStack = 0;
+        contextMenuViewHolder = null;
+        contextItem = null;
+        contextItems = null;
     }
 }
