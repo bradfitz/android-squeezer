@@ -140,7 +140,6 @@
 
     <string name="X_MINUTES">%s minutes</string>
     <string name="SLEEP">Veille</string>
-    <string name="ALBUM_DISPLAY_OPTIONS">Options d\'affichage des albums</string>
     <string name="ALARM">Réveil</string>
     <string name="SETTINGS">Paramètres</string>
     <string name="SCREEN_SETTINGS">Affichage</string>

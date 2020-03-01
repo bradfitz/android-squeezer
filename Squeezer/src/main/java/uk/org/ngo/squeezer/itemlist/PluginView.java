@@ -33,7 +33,7 @@ import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.Slider;
 import uk.org.ngo.squeezer.framework.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
@@ -60,7 +60,7 @@ public class PluginView extends BaseItemView<Plugin> {
 
     void setWindowStyle(Window.WindowStyle windowStyle) {
         this.windowStyle = windowStyle;
-        if (listLayout() == ViewDialog.ArtworkListLayout.grid) {
+        if (listLayout() == ArtworkListLayout.grid) {
             mIconWidth = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_width);
             mIconHeight = getActivity().getResources().getDimensionPixelSize(R.dimen.album_art_icon_grid_height);
         } else {
@@ -126,18 +126,19 @@ public class PluginView extends BaseItemView<Plugin> {
     }
 
     @LayoutRes private int layoutResource() {
-        return (listLayout() == ViewDialog.ArtworkListLayout.grid) ? R.layout.grid_item : R.layout.list_item;
+        return (listLayout() == ArtworkListLayout.grid) ? R.layout.grid_item : R.layout.list_item;
     }
 
-    ViewDialog.ArtworkListLayout listLayout() {
+    ArtworkListLayout listLayout() {
         return listLayout(getActivity(), windowStyle);
     }
 
-    static ViewDialog.ArtworkListLayout listLayout(Activity activity, Window.WindowStyle windowStyle) {
-        if (canChangeListLayout(windowStyle)) {
+    static ArtworkListLayout listLayout(Activity activity, Window.WindowStyle windowStyle) {
+        if (windowStyle == Window.WindowStyle.HOME_MENU)
+            return new Preferences(activity).getHomeMenuLayout();
+        if (windowStyle == Window.WindowStyle.ICON_LIST)
             return new Preferences(activity).getAlbumListLayout();
-        }
-        return ViewDialog.ArtworkListLayout.list;
+        return ArtworkListLayout.list;
     }
 
     static boolean canChangeListLayout(Window.WindowStyle windowStyle) {

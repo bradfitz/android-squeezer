@@ -26,8 +26,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.Window;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
@@ -37,6 +39,16 @@ public class HomeMenuActivity extends PluginListActivity {
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
         // Do nothing we get the home menu from the sticky HomeMenuEvent
+    }
+
+    @Override
+    public ArtworkListLayout getPreferredListLayout() {
+        return new Preferences(this).getHomeMenuLayout();
+    }
+
+    @Override
+    protected void saveListLayout(ArtworkListLayout listLayout) {
+        new Preferences(this).setHomeMenuLayout(listLayout);
     }
 
     public void onEvent(HomeMenuEvent event) {
