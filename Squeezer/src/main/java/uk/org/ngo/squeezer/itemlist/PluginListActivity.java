@@ -56,7 +56,6 @@ import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
-import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -478,10 +477,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                 }
             }
         }
-    }
-
-    public void showViewDialog() {
-        new ViewDialog().show(getSupportFragmentManager(), "ViewDialog");
     }
 
     public ArtworkListLayout getPreferredListLayout() {

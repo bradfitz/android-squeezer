@@ -176,7 +176,6 @@ public class ConnectionState {
     private void jiveMainNodes() {
         addNode(Plugin.EXTRAS);
         addNode(Plugin.SETTINGS);
-        addNode(Plugin.SCREEN_SETTINGS);
         addNode(Plugin.ADVANCED_SETTINGS);
     }
 

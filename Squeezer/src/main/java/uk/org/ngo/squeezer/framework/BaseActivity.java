@@ -28,7 +28,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StyleRes;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 import androidx.appcompat.app.ActionBar;
@@ -46,7 +45,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.R;
@@ -145,14 +143,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     @Override
-    public void setTheme(@StyleRes int resId) {
+    public void setTheme(int resId) {
         super.setTheme(resId);
         mThemeId = resId;
-    }
-
-    public void setTheme(ThemeManager.Theme theme) {
-        new Preferences(this).setTheme(theme);
-        mTheme.onResume(this);
     }
 
     @Override
