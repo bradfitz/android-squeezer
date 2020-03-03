@@ -1,13 +1,13 @@
-&bull; Rewrite Squeezer to use the more modern CometD protocol to connect to the server
+&bull; Seperate list layout settings for home menu items and Slimbrowseitems
 
-&bull; Full support for Apps/Plugins
+&bull; Notification shows button for next song instead of the previous one
 
-&bull; Connect to mysqueezebox.com
+&bull; Fix artwork display in the Spotty plugin
 
-&bull; Additional browse modes, Album Artists, All Artists and Composers
+&bull; Option to easy switch between list and grid layouts
 
-&bull; Support for extra information and options for Artists/albums/Tracks via the context menu
+&bull; Ignore icon based popup message when in the Now Playing screen
 
-&bull; Library Views and Remote Music Libraries
+&bull; Handle invalid server address
 
-&bull; Add French translation. Contributed by Olivier Sirol
+&bull; Fix some reported crashes
