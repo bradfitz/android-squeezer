@@ -92,62 +92,55 @@
         android:layout_marginTop="16dp"
         android:text="Local server" />
 
-    <uk.org.ngo.squeezer.widget.FloatLabelLayout
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/server_address_til"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:paddingLeft="8dp"
-        app:floatLabelTextAppearance="@style/SqueezerTextAppearance.FloatLabel"
-        app:floatLabelTrigger="text">
+        android:paddingStart="8dp"
+        android:hint="@string/settings_serveraddr_hint">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/server_address"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:minHeight="40dp"
-            android:hint="@string/settings_serveraddr_hint"
             android:inputType="textNoSuggestions"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"/>
-    </uk.org.ngo.squeezer.widget.FloatLabelLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <uk.org.ngo.squeezer.widget.FloatLabelLayout
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/username_til"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
         android:layout_marginTop="16dp"
-        app:floatLabelTextAppearance="@style/SqueezerTextAppearance.FloatLabel"
-        app:floatLabelTrigger="text">
+        android:hint="@string/settings_username_hint">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/username"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/settings_username_hint"
             android:inputType="textNoSuggestions"
-            android:minHeight="40dp"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"/>
-    </uk.org.ngo.squeezer.widget.FloatLabelLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <uk.org.ngo.squeezer.widget.FloatLabelLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
         android:layout_marginTop="16dp"
-        app:floatLabelTextAppearance="@style/SqueezerTextAppearance.FloatLabel"
-        app:floatLabelTrigger="text">
+        android:hint="@string/settings_password_hint">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/settings_password_hint"
             android:inputType="textPassword"
-            android:minHeight="40dp"
             android:paddingBottom="4dp"
             android:paddingTop="4dp"/>
-    </uk.org.ngo.squeezer.widget.FloatLabelLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <RadioButton
         android:id="@+id/squeezeNetwork"

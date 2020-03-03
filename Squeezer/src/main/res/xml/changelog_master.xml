@@ -2,6 +2,18 @@
 
 <changelog>
     <release
+        version="2.0.1"
+        versioncode="74">
+        <change>Seperate list layout settings for home menu items and Slimbrowseitems</change>
+        <change>Notification shows button for next song instead of the previous one</change>
+        <change>Fix artwork display in the Spotty plugin</change>
+        <change>Option to easy switch between list and grid layouts</change>
+        <change>Ignore icon based popup message when in the Now Playing screen</change>
+        <change>Handle invalid server address</change>
+        <change>Fix some reported crashes</change>
+    </release>
+
+    <release
         version="2.0.0"
         versioncode="73">
         <change>Rewrite Squeezer to use the more modern CometD protocol to connect to the server</change>

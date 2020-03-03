@@ -53,6 +53,8 @@
     <string name="settings_squeezeplayer_title">Start SqueezePlayer</string>
     <string name="settings_squeezeplayer_summary">Check this option to make sure SqueezePlayer is running, when using Squeezer</string>
 
+    <string name="settings_category_ui">Squeezer interface</string>
+
     <string name="menu_item_disconnect">Disconnect</string>
     <string name="menu_item_connect">Connect</string>
     <string name="menu_item_poweron">Turn on \"%s\"</string>
@@ -65,6 +67,7 @@
     <string name="connecting_to_text">Connecting to Logitech Media Server at %s</string>
     <string name="connection_failed_text">Connection failed.</string>
     <string name="login_failed_text">Login failed. Make sure the correct user name and password is entered.</string>
+    <string name="invalid_url_text">Please enter a valid address.</string>
     <string name="disconnected_text">Disconnected.</string>
     <string name="wifi_disabled_text">Wi-Fi is disabled</string>
     <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. When an active
@@ -334,7 +337,6 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
 
     <string name="X_MINUTES">%s minutes</string>
     <string name="SLEEP">Sleep</string>
-    <string name="ALBUM_DISPLAY_OPTIONS">Albumview options</string>
     <string name="ALARM">Alarm Clock</string>
     <string name="SETTINGS">Settings</string>
     <string name="SCREEN_SETTINGS">Screen</string>

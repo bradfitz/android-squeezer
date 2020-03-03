@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.service.event;
 
+import uk.org.ngo.squeezer.service.ConnectionError;
 import uk.org.ngo.squeezer.service.ConnectionState;
 
 /**
@@ -25,13 +26,20 @@ public class ConnectionChanged {
     /** The new connection state. */
     @ConnectionState.ConnectionStates
     public int connectionState;
+    public ConnectionError connectionError;
 
     public ConnectionChanged(@ConnectionState.ConnectionStates int connectionState) {
         this.connectionState = connectionState;
+    }
+
+    public ConnectionChanged(ConnectionError connectionError) {
+        this.connectionState = ConnectionState.CONNECTION_FAILED;
+        this.connectionError = connectionError;
     }
 
     @Override
     public String toString() {
         return "ConnectionChanged{" + connectionState + '}';
     }
+
 }

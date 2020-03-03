@@ -17,12 +17,15 @@
 package uk.org.ngo.squeezer;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
+
 import android.view.View;
-import android.widget.TextView;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,18 +43,17 @@ import uk.org.ngo.squeezer.service.event.HandshakeComplete;
  */
 public class ConnectActivity extends BaseActivity {
 
-    @IntDef({MANUAL_DISCONNECT, CONNECTION_FAILED, LOGIN_FAILED})
+    @IntDef({MANUAL_DISCONNECT, CONNECTION_FAILED, LOGIN_FAILED, INVALID_URL})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface DisconnectionReasons {}
-    public static final int MANUAL_DISCONNECT = 0;
-    public static final int CONNECTION_FAILED = 1;
-    public static final int LOGIN_FAILED = 2;
+    private  @interface DisconnectionReasons {}
+    private static final int MANUAL_DISCONNECT = 0;
+    private static final int CONNECTION_FAILED = 1;
+    private static final int LOGIN_FAILED = 2;
+    private static final int INVALID_URL = 3;
 
     private static final String EXTRA_DISCONNECTION_REASON = "reason";
 
     private ServerAddressView serverAddressView;
-
-    private TextView mHeaderMessage;
 
     @DisconnectionReasons private int mDisconnectionReason = MANUAL_DISCONNECT;
 
@@ -67,8 +69,7 @@ public class ConnectActivity extends BaseActivity {
 
         setContentView(R.layout.disconnected);
         serverAddressView = findViewById(R.id.server_address_view);
-        mHeaderMessage = findViewById(R.id.header_message);
-        setHeaderMessageFromReason(mDisconnectionReason);
+        setErrorMessageFromReason(mDisconnectionReason);
     }
 
     /**
@@ -86,7 +87,7 @@ public class ConnectActivity extends BaseActivity {
         // If the activity is already running then make sure the header message is appropriate
         // and stop, as there's no need to start another instance of the activity.
         if (activity instanceof ConnectActivity) {
-            ((ConnectActivity) activity).setHeaderMessageFromReason(disconnectionReason);
+            ((ConnectActivity) activity).setErrorMessageFromReason(disconnectionReason);
             return;
         }
 
@@ -105,22 +106,25 @@ public class ConnectActivity extends BaseActivity {
      *
      * @param disconnectionReason The reason.
      */
-    private void setHeaderMessageFromReason(@DisconnectionReasons int disconnectionReason) {
+    @SuppressLint("SwitchIntDef")
+    private void setErrorMessageFromReason(@DisconnectionReasons int disconnectionReason) {
+        TextInputLayout serverAddress = serverAddressView.findViewById(R.id.server_address_til);
+        TextInputLayout userName = serverAddressView.findViewById(R.id.username_til);
+        serverAddress.setError(null);
+        userName.setError(null);
+
+
         switch (disconnectionReason) {
-            case MANUAL_DISCONNECT:
-                mHeaderMessage.setVisibility(View.GONE);
-                return;
-
             case CONNECTION_FAILED:
-                mHeaderMessage.setText(R.string.connection_failed_text);
+                serverAddress.setError(getString(R.string.connection_failed_text));
                 break;
-
             case LOGIN_FAILED:
-                mHeaderMessage.setText(R.string.login_failed_text);
+                userName.setError(getString(R.string.login_failed_text));
+                break;
+            case INVALID_URL:
+                serverAddress.setError(getString(R.string.invalid_url_text));
                 break;
         }
-
-        mHeaderMessage.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -141,6 +145,10 @@ public class ConnectActivity extends BaseActivity {
 
     public static void showConnectionFailed(Activity activity) {
         show(activity, CONNECTION_FAILED);
+    }
+
+    public static void showInvalidUrl(Activity activity) {
+        show(activity, INVALID_URL);
     }
 
     /**

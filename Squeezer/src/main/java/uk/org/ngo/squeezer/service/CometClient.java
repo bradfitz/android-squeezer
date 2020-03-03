@@ -21,6 +21,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.common.base.Joiner;
@@ -38,9 +40,10 @@ import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.B64Code;
 
-import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +57,6 @@ import java.util.regex.Pattern;
 
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
-import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.AlertWindow;
 import uk.org.ngo.squeezer.framework.Item;
@@ -211,10 +213,7 @@ class CometClient extends BaseClient {
                 try {
                     httpClient.start();
                 } catch (Exception e) {
-                    // XXX: Handle this properly. Maybe startConnect() should throw exceptions if the
-                    // connection fails?
-                    Log.e(TAG, "Can't start HttpClient", e);
-                    mConnectionState.setConnectionState(ConnectionState.CONNECTION_FAILED);
+                    mConnectionState.setConnectionError(ConnectionError.START_CLIENT_ERROR);
                     return;
                 }
 
@@ -223,6 +222,21 @@ class CometClient extends BaseClient {
 
                 mUrlPrefix = "http://" + serverAddress.address();
                 final String url = mUrlPrefix + "/cometd";
+                try {
+                    // Neither URLUtil.isValidUrl nor Patterns.WEB_URL works as expected
+                    // Not even create of URL and URI throws reliably so we add some extra checks
+                    URI uri = new URL(url).toURI();
+                    if (!(
+                            TextUtils.equals(uri.getHost(), serverAddress.host())
+                                    && uri.getPort() == serverAddress.port()
+                                    && TextUtils.equals(uri.getPath(), "/cometd")
+                    )) {
+                        throw new IllegalArgumentException("Invalid url: " + url);
+                    }
+                } catch (Exception e) {
+                    mConnectionState.setConnectionError(ConnectionError.INVALID_URL);
+                    return;
+                }
 
                 // Set the VM-wide authentication handler (needed by image fetcher and other using
                 // the standard java http API)
@@ -284,7 +298,7 @@ class CometClient extends BaseClient {
                                 Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
                                 int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
 
-                                disconnect((httpCode == 401) ? ConnectionState.LOGIN_FAILED : ConnectionState.CONNECTION_FAILED);
+                                disconnect((httpCode == 401) ? ConnectionError.LOGIN_FALIED : ConnectionError.CONNECTION_ERROR);
                             }
                         }
                     }
@@ -587,9 +601,18 @@ class CometClient extends BaseClient {
         mConnectionState.setConnectionState(connectionState);
     }
 
+    private void disconnect(ConnectionError connectionError) {
+        if (mBayeuxClient != null) mBackgroundHandler.sendEmptyMessage(MSG_DISCONNECT);
+        mConnectionState.setConnectionError(connectionError);
+    }
+
     @Override
-    public void cancelClientRequests(Object object) {
-        //TODO see CliClient
+    public void cancelClientRequests(Object client) {
+        for (Map.Entry<String, BrowseRequest<? extends Item>> entry : mPendingBrowseRequests.entrySet()) {
+            if (entry.getValue().getCallback().getClient() == client) {
+                mPendingBrowseRequests.remove(entry.getKey());
+            }
+        }
     }
 
     private void exec(ResponseHandler callback, String... cmd) {

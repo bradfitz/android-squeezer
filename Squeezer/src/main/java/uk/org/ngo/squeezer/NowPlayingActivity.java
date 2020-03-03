@@ -31,6 +31,7 @@ public class NowPlayingActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.now_playing);
+        ignoreIconMessages = true;
     }
 
     public static void show(Context context) {
