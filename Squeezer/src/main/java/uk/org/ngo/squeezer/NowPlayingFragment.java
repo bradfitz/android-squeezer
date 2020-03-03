@@ -272,13 +272,15 @@ public class NowPlayingFragment extends Fragment {
             playlistButton = v.findViewById(R.id.playlist);
 
             BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
-            viewHolder.contextMenuButtonHolder = v.findViewById(R.id.context_menu);
-            viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
-            viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+            viewHolder.setContextMenu(v);
             viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    pluginViewDelegate.showContextMenu(v, getCurrentSong());
+                    CurrentPlaylistItem currentSong = getCurrentSong();
+                    // This extra check is if user pressed the button before visibility is set to GONE
+                    if (currentSong != null) {
+                        pluginViewDelegate.showContextMenu(v, currentSong);
+                    }
                 }
             });
             btnContextMenu = viewHolder.contextMenuButtonHolder;
@@ -794,6 +796,8 @@ public class NowPlayingFragment extends Fragment {
             mRegisteredCallbacks = false;
         }
 
+        pluginViewDelegate.resetContextMenu();
+
         super.onPause();
     }
 
@@ -968,13 +972,18 @@ public class NowPlayingFragment extends Fragment {
 
         if (event.connectionState == ConnectionState.CONNECTION_FAILED) {
             dismissConnectingDialog();
-            ConnectActivity.showConnectionFailed(mActivity);
-            return;
-        }
-
-        if (event.connectionState == ConnectionState.LOGIN_FAILED) {
-            dismissConnectingDialog();
-            ConnectActivity.showLoginFailed(mActivity);
+            switch (event.connectionError) {
+                case LOGIN_FALIED:
+                    ConnectActivity.showLoginFailed(mActivity);
+                    break;
+                case INVALID_URL:
+                    ConnectActivity.showInvalidUrl(mActivity);
+                    break;
+                case START_CLIENT_ERROR:
+                case CONNECTION_ERROR:
+                    ConnectActivity.showConnectionFailed(mActivity);
+                    break;
+            }
             return;
         }
 

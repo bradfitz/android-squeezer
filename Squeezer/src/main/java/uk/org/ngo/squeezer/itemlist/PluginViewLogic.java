@@ -41,7 +41,7 @@ import uk.org.ngo.squeezer.service.ISqueezeService;
 /**
  * Delegate with view logic for {@link Plugin} which can be used from any {@link BaseActivity}
  */
-public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
+public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupMenu.OnDismissListener {
     private final BaseActivity activity;
 
     public PluginViewLogic(BaseActivity activity) {
@@ -97,6 +97,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
     private boolean contextMenuReady = false;
     private boolean contextMenuWaiting = false;
     private int contextStack = 0;
+    private PopupMenu contextPopup;
     private BaseItemView.ViewHolder contextMenuViewHolder;
     private Item contextItem;
     private List<Plugin> contextItems;
@@ -110,8 +111,8 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
                 contextStack = 1;
                 orderContextMenu(item.moreAction);
             } else {
-                PopupMenu popup = new PopupMenu(activity, v);
-                Menu menu = popup.getMenu();
+                contextPopup = new PopupMenu(activity, v);
+                Menu menu = contextPopup.getMenu();
                 if (item.playAction != null) {
                     menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
                 }
@@ -125,29 +126,31 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
                     menu.add(Menu.NONE, R.id.more, Menu.NONE, R.string.MORE);
                 }
 
-                popup.show();
+                contextPopup.show();
+                contextPopup.setOnDismissListener(this);
             }
         } else if (contextMenuReady) {
             contextMenuReady = false;
             contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
-            contextMenuViewHolder.contextMenuLoading.setVisibility(View.INVISIBLE);
+            contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
 
-            PopupMenu popup = new PopupMenu(activity, v);
-            Menu menu = popup.getMenu();
+            contextPopup = new PopupMenu(activity, v);
+            Menu menu = contextPopup.getMenu();
 
             int index = 0;
             for (Plugin plugin : contextItems) {
                 menu.add(Menu.NONE, index++, Menu.NONE, plugin.getName()).setEnabled(plugin.goAction != null);
             }
 
-            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            contextPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
                     return doItemContext(item, contextItem);
                 }
             });
 
-            popup.show();
+            contextPopup.show();
+            contextPopup.setOnDismissListener(this);
         }
     }
 
@@ -202,7 +205,6 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
 
     @Override
     public void onItemsReceived(int count, int start, final Map<String, Object> parameters, final List<Plugin> items, Class<Plugin> dataType) {
-        // FIXME check for activity still running
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -212,5 +214,29 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin> {
                 showContextMenu(contextMenuViewHolder.contextMenuButtonHolder, contextItem);
             }
         });
+    }
+
+    public void resetContextMenu() {
+        if (contextMenuWaiting) {
+            contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
+            contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
+        }
+
+        if (contextPopup != null) {
+            contextPopup.dismiss();
+            contextPopup = null;
+        }
+
+        contextMenuReady = false;
+        contextMenuWaiting = false;
+        contextStack = 0;
+        contextMenuViewHolder = null;
+        contextItem = null;
+        contextItems = null;
+    }
+
+    @Override
+    public void onDismiss(PopupMenu menu) {
+        contextPopup = null;
     }
 }

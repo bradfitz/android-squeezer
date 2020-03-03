@@ -26,7 +26,7 @@ import android.util.Log;
 import java.util.Random;
 import java.util.UUID;
 
-import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
 public final class Preferences {
@@ -85,6 +85,9 @@ public final class Preferences {
 
     // Preferred album list layout.
     private static final String KEY_ALBUM_LIST_LAYOUT = "squeezer.album.list.layout";
+
+    // Preferred home menu layout.
+    private static final String KEY_HOME_MENU_LAYOUT = "squeezer.home.menu.layout";
 
     // Preferred song list layout.
     private static final String KEY_SONG_LIST_LAYOUT = "squeezer.song.list.layout";
@@ -331,27 +334,45 @@ public final class Preferences {
         return  (!serverAddress.squeezeNetwork && sharedPreferences.getBoolean(KEY_SQUEEZEPLAYER_ENABLED, true));
     }
 
+    /** Get the preferred album list layout. */
+    public ArtworkListLayout getAlbumListLayout() {
+        return getListLayout(KEY_ALBUM_LIST_LAYOUT);
+    }
+
+    public void setAlbumListLayout(ArtworkListLayout artworkListLayout) {
+        setListLayout(KEY_ALBUM_LIST_LAYOUT, artworkListLayout);
+    }
+
+    /** Get the preferred home menu layout. */
+    public ArtworkListLayout getHomeMenuLayout() {
+        return getListLayout(KEY_HOME_MENU_LAYOUT);
+    }
+
+    public void setHomeMenuLayout(ArtworkListLayout artworkListLayout) {
+        setListLayout(KEY_HOME_MENU_LAYOUT, artworkListLayout);
+    }
+
     /**
-     * Get the preferred album list layout.
+     * Get the preferred layout for the specified preference
      * <p>
      * If the list layout is not selected, a default one is chosen, based on the current screen
      * size, on the assumption that the artwork grid is preferred on larger screens.
      */
-    public ViewDialog.ArtworkListLayout getAlbumListLayout() {
-        String listLayoutString = sharedPreferences.getString(Preferences.KEY_ALBUM_LIST_LAYOUT, null);
+    private ArtworkListLayout getListLayout(String preference) {
+        String listLayoutString = sharedPreferences.getString(preference, null);
         if (listLayoutString == null) {
             int screenSize = context.getResources().getConfiguration().screenLayout
                     & Configuration.SCREENLAYOUT_SIZE_MASK;
             return (screenSize >= Configuration.SCREENLAYOUT_SIZE_NORMAL)
-                    ? ViewDialog.ArtworkListLayout.grid : ViewDialog.ArtworkListLayout.list;
+                    ? ArtworkListLayout.grid : ArtworkListLayout.list;
         } else {
-            return ViewDialog.ArtworkListLayout.valueOf(listLayoutString);
+            return ArtworkListLayout.valueOf(listLayoutString);
         }
     }
 
-    public void setAlbumListLayout(ViewDialog.ArtworkListLayout artworkListLayout) {
+    private void setListLayout(String preference, ArtworkListLayout artworkListLayout) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Preferences.KEY_ALBUM_LIST_LAYOUT, artworkListLayout.name());
+        editor.putString(preference, artworkListLayout.name());
         editor.apply();
     }
 

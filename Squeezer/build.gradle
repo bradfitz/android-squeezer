@@ -23,6 +23,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
 
     // Third party libraries
     implementation 'com.google.guava:guava:28.2-android'
@@ -159,7 +160,6 @@ slimstrings {
             'HOME',
             'SWITCH_TO_EXTENDED_LIST',
             'SWITCH_TO_GALLERY',
-            'ALBUM_DISPLAY_OPTIONS',
             'SLEEP',
             'SLEEP_CANCEL',
             'X_MINUTES',

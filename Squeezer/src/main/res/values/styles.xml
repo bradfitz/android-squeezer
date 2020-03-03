@@ -53,8 +53,6 @@
 
         <item name="icon_context_menu">@drawable/ic_menu_overflow</item>
 
-        <item name="floatLabelColor">@color/float_label_dark</item>
-
         <item name="dialogTheme">@style/Theme.AppCompat.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Dialog.Alert</item>
 
@@ -95,8 +93,6 @@
         <item name="ic_delete">@drawable/ic_delete_light</item>
 
         <item name="icon_context_menu">@drawable/ic_menu_overflow_light</item>
-
-        <item name="floatLabelColor">@color/float_label_light</item>
 
         <item name="dialogTheme">@style/Theme.AppCompat.Light.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
@@ -163,12 +159,6 @@
 
     <style name="SqueezerNotificationText">
         <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
-    </style>
-
-    <style name="SqueezerTextAppearance.FloatLabel" parent="SqueezerTextAppearance.Small">
-        <item name="android:textColor">?attr/floatLabelColor</item>
-        <item name="android:textSize">11sp</item>
-        <item name="android:textStyle">bold</item>
     </style>
 
     <!-- Widget appearance. Apply these using the "style" attribute. -->

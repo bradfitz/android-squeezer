@@ -100,20 +100,19 @@
         android:visibility="gone"
         android:orientation="horizontal">
 
-        <uk.org.ngo.squeezer.widget.FloatLabelLayout
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/plugin_input_til"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_marginTop="16dp"
-            app:floatLabelTextAppearance="@style/SqueezerTextAppearance.FloatLabel"
-            app:floatLabelTrigger="focus">
+            android:layout_marginTop="16dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/plugin_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text" />
-        </uk.org.ngo.squeezer.widget.FloatLabelLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <ImageButton
             android:id="@+id/input_button"

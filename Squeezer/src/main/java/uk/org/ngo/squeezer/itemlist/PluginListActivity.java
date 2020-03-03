@@ -39,6 +39,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +55,7 @@ import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.framework.Window;
-import uk.org.ngo.squeezer.itemlist.dialog.ViewDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -116,6 +118,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         if (hasInputField()) {
             ImageButton inputButton = findViewById(R.id.input_button);
             final EditText inputText = findViewById(R.id.plugin_input);
+            TextInputLayout inputTextLayout = findViewById(R.id.plugin_input_til);
             int inputType = EditorInfo.TYPE_CLASS_TEXT;
             int inputImage = R.drawable.ic_keyboard_return;
 
@@ -134,7 +137,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             }
             inputText.setInputType(inputType);
             inputButton.setImageResource(inputImage);
-            inputText.setHint(parent.input.title);
+            inputTextLayout.setHint(parent.input.title);
             inputText.setText(parent.input.initialText);
             inputText.setOnKeyListener(new OnKeyListener() {
                 @Override
@@ -161,9 +164,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         pluginViewDelegate = new PluginViewLogic(this);
         ViewGroup parentView = findViewById(R.id.parent_container);
         BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
-        viewHolder.contextMenuButtonHolder = parentView.findViewById(R.id.context_menu);
-        viewHolder.contextMenuButton = viewHolder.contextMenuButtonHolder.findViewById(R.id.context_menu_button);
-        viewHolder.contextMenuLoading = viewHolder.contextMenuButtonHolder.findViewById(R.id.loading_progress);
+        viewHolder.setContextMenu(parentView);
         viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -182,21 +183,28 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     @Override
     public void onResume() {
         super.onResume();
-        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
+        ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
         AbsListView listView = getListView();
-        if ((listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView))
-         || (listLayout != ViewDialog.ArtworkListLayout.grid && (listView instanceof GridView))) {
+        if ((listLayout == ArtworkListLayout.grid && !(listView instanceof GridView))
+         || (listLayout != ArtworkListLayout.grid && (listView instanceof GridView))) {
             setListView(setupListView(listView));
         }
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        getItemView().getLogicDelegate().resetContextMenu();
+        pluginViewDelegate.resetContextMenu();
+    }
+
+    @Override
     protected AbsListView setupListView(AbsListView listView) {
-        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
-        if (listLayout == ViewDialog.ArtworkListLayout.grid && !(listView instanceof GridView)) {
+        ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
+        if (listLayout == ArtworkListLayout.grid && !(listView instanceof GridView)) {
             listView = switchListView(listView, R.layout.item_grid);
         }
-        if (listLayout != ViewDialog.ArtworkListLayout.grid && (listView instanceof GridView)) {
+        if (listLayout != ArtworkListLayout.grid && (listView instanceof GridView)) {
             listView = switchListView(listView, R.layout.item_list);
         }
         return super.setupListView(listView);
@@ -260,8 +268,8 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         applyWindowStyle(windowStyle, getItemView().listLayout());
     }
 
-    void applyWindowStyle(Window.WindowStyle windowStyle, ViewDialog.ArtworkListLayout prevListLayout) {
-        ViewDialog.ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
+    void applyWindowStyle(Window.WindowStyle windowStyle, ArtworkListLayout prevListLayout) {
+        ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
         updateViewMenuItems(listLayout, windowStyle);
         if (windowStyle != window.windowStyle || listLayout != getItemView().listLayout()) {
             window.windowStyle = windowStyle;
@@ -471,18 +479,18 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
     }
 
-    public void showViewDialog() {
-        new ViewDialog().show(getSupportFragmentManager(), "ViewDialog");
-    }
-
-    public ViewDialog.ArtworkListLayout getPreferredListLayout() {
+    public ArtworkListLayout getPreferredListLayout() {
         return new Preferences(this).getAlbumListLayout();
     }
 
-    public void setPreferredListLayout(ViewDialog.ArtworkListLayout listLayout) {
-        ViewDialog.ArtworkListLayout prevListLayout = getItemView().listLayout();
-        new Preferences(this).setAlbumListLayout(listLayout);
+    public void setPreferredListLayout(ArtworkListLayout listLayout) {
+        ArtworkListLayout prevListLayout = getItemView().listLayout();
+        saveListLayout(listLayout);
         applyWindowStyle(window.windowStyle, prevListLayout);
+    }
+
+    protected void saveListLayout(ArtworkListLayout listLayout) {
+        new Preferences(this).setAlbumListLayout(listLayout);
     }
 
     /**
@@ -518,20 +526,20 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_list:
-                setPreferredListLayout(ViewDialog.ArtworkListLayout.list);
+                setPreferredListLayout(ArtworkListLayout.list);
                 return true;
             case R.id.menu_item_grid:
-                setPreferredListLayout(ViewDialog.ArtworkListLayout.grid);
+                setPreferredListLayout(ArtworkListLayout.grid);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateViewMenuItems(ViewDialog.ArtworkListLayout listLayout, Window.WindowStyle windowStyle) {
+    private void updateViewMenuItems(ArtworkListLayout listLayout, Window.WindowStyle windowStyle) {
         boolean canChangeListLayout = PluginView.canChangeListLayout(windowStyle);
         if (menuItemList != null) {
-            menuItemList.setVisible(canChangeListLayout && listLayout != ViewDialog.ArtworkListLayout.list);
-            menuItemGrid.setVisible(canChangeListLayout && listLayout != ViewDialog.ArtworkListLayout.grid);
+            menuItemList.setVisible(canChangeListLayout && listLayout != ArtworkListLayout.list);
+            menuItemGrid.setVisible(canChangeListLayout && listLayout != ArtworkListLayout.grid);
         }
     }
 

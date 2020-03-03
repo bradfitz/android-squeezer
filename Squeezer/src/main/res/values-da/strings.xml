@@ -46,6 +46,8 @@
         aktiv Wi-Fi forbindelse
     </string>
 
+    <string name="settings_category_ui">Squeezer grænseflade</string>
+
     <string name="settings_scrobble_title">Scrobble til Last.fm</string>
     <string name="settings_scrobble_on">Sang information sendes til Last.fm</string>
     <string name="settings_scrobble_off">Sang information sendes ikke til Last.fm</string>
@@ -67,6 +69,7 @@
     <string name="connecting_to_text">Forbinder til Logitech Media Server på %s</string>
     <string name="connection_failed_text">Forbindelse mislykkedes.</string>
     <string name="login_failed_text">Login mislykkedes, kontrollér at brugernavn og adgangskode er korrekte.</string>
+    <string name="invalid_url_text">Angiv venligst en gyldig adresse.</string>
     <string name="disconnected_text">Afbrudt.</string>
     <string name="wifi_disabled_text">Wi-Fi er slået fra</string>
     <string name="enable_wifi_text">Dette vil tænde for Wi-Fi på din Android enhed.\nNår der opnås
@@ -153,7 +156,6 @@
 
     <string name="X_MINUTES">%s minutter</string>
     <string name="SLEEP">Slumre</string>
-    <string name="ALBUM_DISPLAY_OPTIONS">Indstillinger for visning af album</string>
     <string name="ALARM">Vækkeur</string>
     <string name="SETTINGS">Indstillinger</string>
     <string name="SCREEN_SETTINGS">Skærm</string>

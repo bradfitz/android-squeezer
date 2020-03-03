@@ -41,7 +41,7 @@ public class InputTextDialog extends BaseEditTextDialog {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.setTitle(item.getName());
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        editText.setHint(item.input.title);
+        editTextLayout.setHint(item.input.title);
         editText.setText(item.input.initialText);
 
         return dialog;

@@ -80,9 +80,9 @@ interface SlimClient {
 
     /**
      * Notify that the specified client (activity) nno longer wants messages from LMS.
-     * @param object messages receiver to remove
+     * @param client messages receiver to remove
      */
-    void cancelClientRequests(Object object);
+    void cancelClientRequests(Object client);
 
     void requestPlayerStatus(Player player);
 

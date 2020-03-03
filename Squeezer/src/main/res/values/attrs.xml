@@ -63,14 +63,4 @@
 
     <attr name="icon_context_menu" format="reference"/>
 
-    <declare-styleable name="FloatLabelLayout">
-        <attr name="floatLabelTextAppearance" format="reference" />
-        <attr name="floatLabelTrigger" format="enum">
-            <enum name="text" value="0" />
-            <enum name="focus" value="1" />
-        </attr>
-        <attr name="floatLabelSidePadding" format="reference|dimension" />
-        <attr name="floatLabelColor" format="reference|color"/>
-    </declare-styleable>
-
 </resources>

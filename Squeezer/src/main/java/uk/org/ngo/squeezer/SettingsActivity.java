@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
@@ -38,9 +39,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Scrobble;
+import uk.org.ngo.squeezer.util.ThemeManager;
 
 public class SettingsActivity extends PreferenceActivity implements
         OnPreferenceChangeListener, OnSharedPreferenceChangeListener {
@@ -52,6 +56,8 @@ public class SettingsActivity extends PreferenceActivity implements
     private ISqueezeService service = null;
 
     private IntEditTextPreference fadeInPref;
+
+    private final ThemeManager mThemeManager = new ThemeManager();
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -67,6 +73,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mThemeManager.onCreate(this);
         super.onCreate(savedInstanceState);
 
         bindService(new Intent(this, SqueezeService.class), serviceConnection,
@@ -78,6 +85,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
         SharedPreferences sharedPreferences = getPreferenceManager().getSharedPreferences();
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        Preferences preferences = new Preferences(this, sharedPreferences);
 
         fadeInPref = (IntEditTextPreference) findPreference(Preferences.KEY_FADE_IN_SECS);
         fadeInPref.setOnPreferenceChangeListener(this);
@@ -88,6 +96,8 @@ public class SettingsActivity extends PreferenceActivity implements
         autoConnectPref.setChecked(sharedPreferences.getBoolean(Preferences.KEY_AUTO_CONNECT, true));
 
         fillScrobblePreferences(sharedPreferences);
+
+        fillThemeSelectionPreferences();
 
         CheckBoxPreference startSqueezePlayerPref = (CheckBoxPreference) findPreference(
                 Preferences.KEY_SQUEEZEPLAYER_ENABLED);
@@ -122,6 +132,39 @@ public class SettingsActivity extends PreferenceActivity implements
         }
     }
 
+    private void fillThemeSelectionPreferences() {
+        ListPreference onSelectThemePref = (ListPreference) findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
+        ArrayList<String> entryValues = new ArrayList<>();
+        ArrayList<String> entries = new ArrayList<>();
+
+        for (ThemeManager.Theme theme : ThemeManager.Theme.values()) {
+            entryValues.add(theme.name());
+            entries.add(theme.getText(this));
+        }
+
+        onSelectThemePref.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
+        onSelectThemePref.setEntries(entries.toArray(new String[entries.size()]));
+        onSelectThemePref.setDefaultValue(ThemeManager.getDefaultTheme().name());
+        if (onSelectThemePref.getValue() == null) {
+            onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
+        } else {
+            try {
+                ThemeManager.Theme t = ThemeManager.Theme.valueOf(onSelectThemePref.getValue());
+            } catch (Exception e) {
+                onSelectThemePref.setValue(ThemeManager.getDefaultTheme().name());
+            }
+        }
+        onSelectThemePref.setOnPreferenceChangeListener(this);
+        updateListPreferenceSummary(onSelectThemePref, onSelectThemePref.getValue());
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mThemeManager.onResume(this);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -138,6 +181,23 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     /**
+     * Explicitly set the preference's summary based on the value for the selected item.
+     * <p>
+     * Work around a bug in ListPreference on devices running earlier API versions (not
+     * sure when the bug starts) where the preference summary string is not automatically
+     * updated when the preference changes. See http://stackoverflow.com/a/7018053/775306
+     * for details.
+     *
+     * @param pref the preference to set
+     * @param value the preference's value (might not be set yet)
+     */
+    private void updateListPreferenceSummary(ListPreference pref, String value) {
+        CharSequence[] entries = pref.getEntries();
+        int index = pref.findIndexOfValue(value);
+        if (index != -1) pref.setSummary(entries[index]);
+    }
+
+    /**
      * A preference has been changed by the user, but has not yet been persisted.
      */
     @Override
@@ -147,6 +207,10 @@ public class SettingsActivity extends PreferenceActivity implements
 
         if (Preferences.KEY_FADE_IN_SECS.equals(key)) {
             updateFadeInSecondsSummary(Util.getInt(newValue.toString()));
+        }
+
+        if (Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
+            updateListPreferenceSummary((ListPreference) preference, (String) newValue);
         }
 
         // If the user has enabled Scrobbling but we don't think it will work
