@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -47,11 +48,18 @@ import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
  */
 public class CurrentPlaylistActivity extends PluginListActivity {
 
-    public static void show(Context context) {
-        final Intent intent = new Intent(context, CurrentPlaylistActivity.class)
+    public static void show(Activity activity) {
+        final Intent intent = new Intent(activity, CurrentPlaylistActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.putExtra(Plugin.class.getName(), Plugin.CURRENT_PLAYLIST);
-        context.startActivity(intent);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_down);
     }
 
     /**

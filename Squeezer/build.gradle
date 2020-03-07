@@ -41,6 +41,9 @@ dependencies {
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation project(':libs:datetimepicker')
 
+    // Radial SeekBar
+    implementation 'com.sdsmdg.harjot:croller:1.0.7'
+
     // Comet client
     implementation 'org.cometd.java:cometd-java-client:3.1.11'
     implementation 'org.slf4j:slf4j-android:1.7.30'

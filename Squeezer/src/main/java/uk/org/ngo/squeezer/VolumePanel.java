@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * Implement a custom toast view that's modelled on the one in
- * android.view.VolumePanel (but which is not public).
- *
- */
+
 package uk.org.ngo.squeezer;
 
 import android.annotation.SuppressLint;
@@ -32,21 +28,23 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.sdsmdg.harjot.crollerTest.Croller;
+import com.sdsmdg.harjot.crollerTest.OnCrollerChangeListener;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 
-public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListener {
+/**
+ * Implement a custom volume toast view
+ */
+public class VolumePanel extends Handler implements OnCrollerChangeListener {
 
     private static final int TIMEOUT_DELAY = 3000;
 
     private static final int MSG_VOLUME_CHANGED = 0;
-
-    private static final int MSG_FREE_RESOURCES = 1;
 
     private static final int MSG_TIMEOUT = 2;
 
@@ -63,12 +61,11 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
     private final View mView;
 
     private final TextView mMessage;
+    private final TextView mLabel;
 
-    private final TextView mAdditionalMessage;
-
-    private final ImageView mLargeStreamIcon;
-
-    private final SeekBar mSeekbar;
+    private final Croller mSeekbar;
+    private int mCurrentProgress = 0;
+    private boolean mTrackingTouch = false;
 
     @SuppressLint({"InflateParams"}) // OK, as view is passed to Dialog.setView()
     public VolumePanel(BaseActivity activity) {
@@ -85,12 +82,11 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
             }
         });
 
-        mMessage = (TextView) mView.findViewById(R.id.message);
-        mAdditionalMessage = (TextView) mView.findViewById(R.id.additional_message);
-        mSeekbar = (SeekBar) mView.findViewById(R.id.level);
-        mLargeStreamIcon = (ImageView) mView.findViewById(R.id.ringer_stream_icon);
+        mMessage = mView.findViewById(R.id.message);
+        mLabel = mView.findViewById(R.id.label);
+        mSeekbar = mView.findViewById(R.id.level);
 
-        mSeekbar.setOnSeekBarChangeListener(this);
+        mSeekbar.setOnCrollerChangeListener(this);
 
         mDialog = new Dialog(mActivity, R.style.VolumePanel) { //android.R.style.Theme_Panel) {
             @Override
@@ -136,8 +132,9 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
     }
 
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (fromUser) {
+    public void onProgressChanged(Croller croller, int progress) {
+        if (mCurrentProgress != progress) {
+            mCurrentProgress = progress;
             ISqueezeService service = mActivity.getService();
             if (service != null) {
                 service.adjustVolumeTo(progress);
@@ -146,36 +143,33 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
     }
 
     @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
+    public void onStartTrackingTouch(Croller croller) {
+        mTrackingTouch = true;
+        removeMessages(MSG_TIMEOUT);
     }
 
     @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
+    public void onStopTrackingTouch(Croller croller) {
+        mTrackingTouch = false;
+        resetTimeout();
     }
 
     public void postVolumeChanged(int newVolume, String additionalMessage) {
         if (hasMessages(MSG_VOLUME_CHANGED)) {
             return;
         }
-        removeMessages(MSG_FREE_RESOURCES);
         obtainMessage(MSG_VOLUME_CHANGED, newVolume, 0, additionalMessage).sendToTarget();
     }
 
-    protected void onVolumeChanged(int newVolume, String additionalMessage) {
-        onShowVolumeChanged(newVolume, additionalMessage);
-    }
+    private void onShowVolumeChanged(int newVolume, String additionalMessage) {
+        if (mTrackingTouch) {
+            return;
+        }
 
-    protected void onShowVolumeChanged(int newVolume, String additionalMessage) {
-        mSeekbar.setMax(100);
+        mCurrentProgress = newVolume;
         mSeekbar.setProgress(newVolume);
-
-        mMessage.setText(
-                mActivity.getString(R.string.volume, mActivity.getString(R.string.app_name)));
-        mAdditionalMessage.setText(additionalMessage);
-
-        mLargeStreamIcon.setImageResource(newVolume == 0
-                ? R.drawable.ic_volume_off
-                : R.drawable.ic_volume);
+        mMessage.setText(mActivity.getString(R.string.volume, mActivity.getString(R.string.app_name)));
+        mLabel.setText(additionalMessage);
 
         if (!mDialog.isShowing() && !mActivity.isFinishing()) {
             mDialog.setContentView(mView);
@@ -185,28 +179,17 @@ public class VolumePanel extends Handler implements SeekBar.OnSeekBarChangeListe
         resetTimeout();
     }
 
-    protected void onFreeResources() {
-        // We'll keep the views, just ditch the cached drawable and hence
-        // bitmaps
-        mLargeStreamIcon.setImageDrawable(null);
-    }
-
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
 
             case MSG_VOLUME_CHANGED: {
-                onVolumeChanged(msg.arg1, (String) msg.obj);
+                onShowVolumeChanged(msg.arg1, (String) msg.obj);
                 break;
             }
 
             case MSG_TIMEOUT: {
                 dismiss();
-                break;
-            }
-
-            case MSG_FREE_RESOURCES: {
-                onFreeResources();
                 break;
             }
         }
