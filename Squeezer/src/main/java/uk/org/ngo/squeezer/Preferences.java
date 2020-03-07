@@ -363,7 +363,7 @@ public final class Preferences {
         if (listLayoutString == null) {
             int screenSize = context.getResources().getConfiguration().screenLayout
                     & Configuration.SCREENLAYOUT_SIZE_MASK;
-            return (screenSize >= Configuration.SCREENLAYOUT_SIZE_NORMAL)
+            return (screenSize >= Configuration.SCREENLAYOUT_SIZE_LARGE)
                     ? ArtworkListLayout.grid : ArtworkListLayout.list;
         } else {
             return ArtworkListLayout.valueOf(listLayoutString);
