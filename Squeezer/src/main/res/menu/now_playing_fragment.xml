@@ -22,14 +22,12 @@
     <item
         android:id="@+id/menu_item_players"
         android:title="@string/menu_item_players"
-        android:icon="@drawable/ic_menu_choose_player"
-        squeezer:showAsAction="ifRoom|withText"/>
+        android:icon="@drawable/ic_menu_choose_player"/>
 
     <item
         android:id="@+id/menu_item_alarm"
-        android:title="Alarm Clock"
-        android:icon="@drawable/ic_menu_alarm"
-        squeezer:showAsAction="ifRoom"/>
+        android:title="@string/ALARM"
+        android:icon="@drawable/ic_menu_alarm"/>
 
     <item
         android:id="@+id/menu_item_poweron"

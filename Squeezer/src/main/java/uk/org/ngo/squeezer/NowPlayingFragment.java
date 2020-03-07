@@ -848,8 +848,6 @@ public class NowPlayingFragment extends Fragment {
 
             menu_item_players.setVisible(haveConnectedPlayers);
             menu_item_alarm.setVisible(haveConnectedPlayers);
-            if (connected)
-                menu_item_alarm.setTitle(R.string.ALARM);
         }
 
         // Don't show the item to go to players if in PlayersActivity.
