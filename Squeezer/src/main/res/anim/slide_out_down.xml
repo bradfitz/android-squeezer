@@ -20,4 +20,4 @@
     android:fromYDelta="0"
     android:toYDelta="100%p"
 
-    android:duration="@android:integer/config_longAnimTime" />
+    android:duration="@android:integer/config_mediumAnimTime" />
