@@ -79,11 +79,13 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
+import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
@@ -120,6 +122,9 @@ public class NowPlayingFragment extends Fragment {
     private TextView totalTime;
 
     private MenuItem menu_item_disconnect;
+
+    private Plugin globalSearch;
+    private MenuItem menu_item_search;
 
     private MenuItem menu_item_poweron;
 
@@ -821,6 +826,7 @@ public class NowPlayingFragment extends Fragment {
         MenuInflater i = mActivity.getMenuInflater();
         i.inflate(R.menu.now_playing_fragment, menu);
 
+        menu_item_search = menu.findItem(R.id.menu_item_search);
         menu_item_disconnect = menu.findItem(R.id.menu_item_disconnect);
         menu_item_poweron = menu.findItem(R.id.menu_item_poweron);
         menu_item_poweroff = menu.findItem(R.id.menu_item_poweroff);
@@ -839,6 +845,7 @@ public class NowPlayingFragment extends Fragment {
         // These are all set at the same time, so one check is sufficient
         if (menu_item_disconnect != null) {
             // Set visibility and enabled state of menu items that are not player-specific.
+            menu_item_search.setVisible(globalSearch != null);
             menu_item_disconnect.setVisible(connected);
 
             // Set visibility and enabled state of menu items that are player-specific and
@@ -866,6 +873,9 @@ public class NowPlayingFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_item_search:
+                PluginListActivity.show(mActivity, globalSearch, globalSearch.goAction);
+                return true;
             case R.id.menu_item_settings:
                 SettingsActivity.show(mActivity);
                 return true;
@@ -1091,6 +1101,20 @@ public class NowPlayingFragment extends Fragment {
     public void onEventMainThread(PowerStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updatePowerMenuItems(event.canPowerOn, event.canPowerOff);
+        }
+    }
+
+    @MainThread
+    public void onEventMainThread(HomeMenuEvent event) {
+        globalSearch = null;
+        for (Plugin menuItem : event.menuItems) {
+            if ("globalSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
+                globalSearch = menuItem;
+                break;
+            }
+        }
+        if (menu_item_search != null) {
+            menu_item_search.setVisible(globalSearch != null);
         }
     }
 
