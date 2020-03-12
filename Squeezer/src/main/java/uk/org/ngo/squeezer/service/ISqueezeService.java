@@ -192,4 +192,11 @@ public interface ISqueezeService {
      */
     void action(Action.JsonAction action);
 
+    /**
+     * Initiate download of songs for the supplied item.
+     *
+     * @param item Song or item with songs to download
+     */
+    void downloadItem(Item item) throws SqueezeService.HandshakeNotCompleteException;
+
 }

@@ -85,6 +85,7 @@
     <string name="PLAY_NOW">Speel af</string>
     <string name="ADD_TO_END">Voeg toe aan Playlist</string>
     <string name="PLAY_NEXT">Speel af na huidige liedje</string>
+    <string name="DOWNLOAD">Download</string>
     <!--Song display options-->
     <!--Analytics preference strings-->
     <string name="pref_cat_error_reports">Fouten rapporten en statistieken</string>
@@ -97,6 +98,7 @@
         <item quantity="one">seconde</item>
         <item quantity="other">seconden</item>
     </plurals>
+    <string name="confirm_cancel_downloads">Downloaden afbreken?</string>
 
     <string name="X_MINUTES">%s minuten</string>
     <string name="SLEEP">Sluimermodus</string>

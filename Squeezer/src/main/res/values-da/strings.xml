@@ -19,6 +19,8 @@
 <resources>
     <string name="app_name">Squeezer</string>
     <string name="undo">Fortryd</string>
+    <string name="on">Til</string>
+    <string name="off">Fra</string>
     <string name="disabled">Deaktiveret</string>
     <string name="volume">%s lydstyrke</string>
     <string name="menu_item_players">Afspillere</string>
@@ -138,6 +140,8 @@
     <string name="PLAY_NOW">Afspil</string>
     <string name="ADD_TO_END">Tilføj til afspilningsliste</string>
     <string name="PLAY_NEXT">Afspil efter den sang der spilles nu</string>
+    <string name="DOWNLOAD">Hent</string>
+    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Hent afbrudt, da vi ikke har tilladelse til at gemme de valgte filer</string>
 
     <!-- Song display options -->
 
@@ -153,6 +157,22 @@
         <item quantity="one">sekund</item>
         <item quantity="other">sekunder</item>
     </plurals>
+
+    <string name="confirm_cancel_downloads">Annullér ventende overførsler?</string>
+
+    <string name="settings_download_path_structure">Mappestruktur</string>
+    <string name="settings_download_filename_structure">Filnavn</string>
+    <string name="download_path_structure_artist_artistalbum">Kunstner/Kunstner - Album</string>
+    <string name="download_path_structure_artist_album">Kunstner/Album</string>
+    <string name="download_path_structure_artistalbum">Kunstner - Album</string>
+    <string name="download_path_structure_album">Album</string>
+    <string name="download_path_structure_artist">Kunstner</string>
+    <string name="download_filename_structure_number_title">Nummer - Titel</string>
+    <string name="download_filename_structure_artist_title">Kunstner - Titel</string>
+    <string name="download_filename_structure_artist_number_title">Kunstner - Nummer - Titel</string>
+    <string name="download_filename_structure_albumartist_number_title">Kunstner (Album) - Nummer - Titel</string>
+    <string name="download_filename_structure_title">Titel</string>
+    <string name="download_filename_structure_number_dot_artist_title">Nummer. Kunstner - Titel</string>
 
     <string name="X_MINUTES">%s minutter</string>
     <string name="SLEEP">Slumre</string>

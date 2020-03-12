@@ -26,6 +26,8 @@ import android.util.Log;
 import java.util.Random;
 import java.util.UUID;
 
+import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
+import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.util.ThemeManager;
 
@@ -99,20 +101,20 @@ public final class Preferences {
     static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
 
     // Download category
-    private static final String KEY_DOWNLOAD_CATEGORY = "squeezer.download.category";
+    static final String KEY_DOWNLOAD_CATEGORY = "squeezer.download.category";
 
     // Download folder
-    private static final String KEY_DOWNLOAD_USE_SERVER_PATH = "squeezer.download.use_server_path";
+    static final String KEY_DOWNLOAD_USE_SERVER_PATH = "squeezer.download.use_server_path";
 
     // Download path structure
-    private static final String KEY_DOWNLOAD_PATH_STRUCTURE = "squeezer.download.path_structure";
+    static final String KEY_DOWNLOAD_PATH_STRUCTURE = "squeezer.download.path_structure";
 
     // Download filename structure
-    private static final String KEY_DOWNLOAD_FILENAME_STRUCTURE = "squeezer.download.filename_structure";
+    static final String KEY_DOWNLOAD_FILENAME_STRUCTURE = "squeezer.download.filename_structure";
 
     // Use SD-card (getExternalMediaDirs)
-    private static final String KEY_DOWNLOAD_USE_SD_CARD_SCREEN = "squeezer.download.use_sd_card.screen";
-    private static final String KEY_DOWNLOAD_USE_SD_CARD = "squeezer.download.use_sd_card";
+    static final String KEY_DOWNLOAD_USE_SD_CARD_SCREEN = "squeezer.download.use_sd_card.screen";
+    static final String KEY_DOWNLOAD_USE_SD_CARD = "squeezer.download.use_sd_card";
 
     // Store a "mac id" for this app instance.
     private static final String KEY_MAC_ID = "squeezer.mac_id";
@@ -424,5 +426,23 @@ public final class Preferences {
             editor.apply();
         }
         return uuid;
+    }
+
+    public boolean isDownloadUseServerPath() {
+        return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SERVER_PATH, true);
+    }
+
+    public DownloadPathStructure getDownloadPathStructure() {
+        final String string = sharedPreferences.getString(KEY_DOWNLOAD_PATH_STRUCTURE, null);
+        return (string == null ? DownloadPathStructure.ARTIST_ALBUM: DownloadPathStructure.valueOf(string));
+    }
+
+    public DownloadFilenameStructure getDownloadFilenameStructure() {
+        final String string = sharedPreferences.getString(KEY_DOWNLOAD_FILENAME_STRUCTURE, null);
+        return (string == null ? DownloadFilenameStructure.NUMBER_TITLE: DownloadFilenameStructure.valueOf(string));
+    }
+
+    public boolean isDownloadUseSdCard() {
+        return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SD_CARD, false);
     }
 }

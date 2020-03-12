@@ -217,6 +217,7 @@ incurred by, or claims asserted against, such Contributor by reason
 of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="PLAY_NOW">Oynat</string>
   <string name="ADD_TO_END">Çalma listesine ekle</string>
+  <string name="DOWNLOAD">İndir</string>
     <!--Song display options-->
     <!--Analytics preference strings-->
   <string name="pref_cat_error_reports">Hata raporları ve istatistikler</string>

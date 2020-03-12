@@ -94,6 +94,7 @@
     <string name="PLAY_NOW">Abspielen</string>
     <string name="ADD_TO_END">Zur Wiedergabeliste hinzufügen</string>
     <string name="PLAY_NEXT">Nach dem aktuellen Titel wiedergeben</string>
+    <string name="DOWNLOAD">Herunterladen</string>
 
     <!-- Song display options -->
 

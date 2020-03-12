@@ -22,6 +22,8 @@
     <string name="app_name">Squeezer</string>
 
     <string name="undo">Annuler</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
     <string name="disabled">Désactivé</string>
     <string name="volume">%s volume</string>
     <string name="menu_item_players">Platine</string>
@@ -126,6 +128,8 @@
     <string name="PLAY_NOW">Jouer</string>
     <string name="ADD_TO_END">Ajouter à la playlist</string>
     <string name="PLAY_NEXT">Jouer après le morceau en cours</string>
+    <string name="DOWNLOAD">Télécharger</string>
+    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Téléchargement annulé car nous n’avons pas l’autorisation de sauvegarder les fichiers téléchargés</string>
 
 
     <string name="pref_cat_error_reports">Rapports d\'erreur et statistiques</string>
@@ -138,6 +142,26 @@
         <item quantity="other">secondes</item>
     </plurals>
 
+    <string name="confirm_cancel_downloads">Annuler les téléchargements en attente?</string>
+
+    <string name="settings_category_download">Télécharger</string>
+    <string name="settings_download_use_sd_card">Télécharger de la musique sur carte SD</string>
+    <string name="settings_download_use_sd_card_desc">"<p>Stockez la musique téléchargée sur la carte SD.</p><p><b>Remarque</b> La musique téléchargée sera supprimée lorsque cette application sera désinstallé.</p>"</string>
+    <string name="settings_download_use_server_path">Utiliser le chemin du serveur et le nom du fichier</string>
+    <string name="settings_download_path_structure">Hiérarchie des dossiers</string>
+    <string name="settings_download_filename_structure">Nom de fichier</string>
+    <string name="download_path_structure_artist_artistalbum">Artiste / Artiste - Album</string>
+    <string name="download_path_structure_artist_album">Artiste / Album</string>
+    <string name="download_path_structure_artistalbum">Artiste - Album</string>
+    <string name="download_path_structure_album">Album</string>
+    <string name="download_path_structure_artist">Artiste</string>
+    <string name="download_filename_structure_number_title">Numéro - Titre</string>
+    <string name="download_filename_structure_artist_title">Artiste - Titre</string>
+    <string name="download_filename_structure_artist_number_title">Artiste - Numéro - Titre</string>
+    <string name="download_filename_structure_albumartist_number_title">Artiste (Album) - Numéro - Titre</string>
+    <string name="download_filename_structure_title">Titre</string>
+    <string name="download_filename_structure_number_dot_artist_title">Nombre. Artiste - Titre</string>
+    <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">n\'a pas pu être ajouté à la base de données multimédia de l\'appareil</string>
     <string name="pref_cat_third_party">Intégration tierce</string>
 
     <string name="X_MINUTES">%s minutes</string>
