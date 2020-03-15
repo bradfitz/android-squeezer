@@ -108,7 +108,8 @@ public class Action implements Parcelable {
     }
 
     public boolean isContextMenu() {
-        return (action != null && action.params.containsKey("isContextMenu"));
+        return (action != null &&
+                (action.params.containsKey("isContextMenu") || (action.window != null && action.window.isContextMenu)));
     }
 
     public boolean isSlideShow() {
@@ -139,6 +140,8 @@ public class Action implements Parcelable {
          * which in turn takes precendence over a nextWindow param at the base level.
          * See <item_fields> section for more detail on this parameter. */
         public NextWindow nextWindow;
+
+        public ActionWindow window;
 
         public String cmd() {
             return joiner.join(cmd);
@@ -180,6 +183,7 @@ public class Action implements Parcelable {
             action.cmd = source.createStringArray();
             action.params = Util.mapify(source.createStringArray());
             action.nextWindow = NextWindow.fromString(source.readString());
+            action.window = ActionWindow.fromString(source.readString());
 
             return action;
         }
@@ -193,6 +197,19 @@ public class Action implements Parcelable {
             }
             dest.writeStringArray(tokens);
             dest.writeString(action.nextWindow == null ? null : action.nextWindow.toString());
+            dest.writeString(action.window == null ? null : action.window.isContextMenu ? "1" : "0");
+        }
+    }
+
+    public static class ActionWindow {
+        public boolean isContextMenu;
+
+        public ActionWindow(boolean isContextMenu) {
+            this.isContextMenu = isContextMenu;
+        }
+
+        public static ActionWindow fromString(String s) {
+            return (s == null) ? null : new ActionWindow("1".equals(s));
         }
     }
 

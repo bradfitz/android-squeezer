@@ -276,7 +276,7 @@ public class NowPlayingFragment extends Fragment {
             volumeButton = v.findViewById(R.id.volume);
             playlistButton = v.findViewById(R.id.playlist);
 
-            BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
+            final BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
             viewHolder.setContextMenu(v);
             viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
                 @Override
@@ -284,7 +284,7 @@ public class NowPlayingFragment extends Fragment {
                     CurrentPlaylistItem currentSong = getCurrentSong();
                     // This extra check is if user pressed the button before visibility is set to GONE
                     if (currentSong != null) {
-                        pluginViewDelegate.showContextMenu(v, currentSong);
+                        pluginViewDelegate.showContextMenu(viewHolder, currentSong);
                     }
                 }
             });

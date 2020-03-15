@@ -54,7 +54,7 @@ public class PluginView extends BaseItemView<Plugin> {
         setLoadingViewParams(viewParamIcon() | VIEW_PARAM_TWO_LINE );
     }
 
-    public PluginViewLogic getLogicDelegate() {
+    PluginViewLogic getLogicDelegate() {
         return logicDelegate;
     }
 
@@ -201,7 +201,7 @@ public class PluginView extends BaseItemView<Plugin> {
             getActivity().action(item, item.goAction);
         } else {
             if (item.goAction != null)
-                logicDelegate.execGoAction(item, 0);
+                logicDelegate.execGoAction((ViewHolder) view.getTag(), item, 0);
             else if (item.hasSubItems())
                 PluginListActivity.show(getActivity(), item);
             else if (item.getNode() != null) {
@@ -211,7 +211,7 @@ public class PluginView extends BaseItemView<Plugin> {
    }
 
     @Override
-    public void showContextMenu(final View v, Plugin item) {
-        logicDelegate.showContextMenu(v, item);
+    public void showContextMenu(ViewHolder viewHolder, Plugin item) {
+        logicDelegate.showContextMenu(viewHolder, item);
     }
 }

@@ -163,12 +163,12 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         pluginViewDelegate = new PluginViewLogic(this);
         ViewGroup parentView = findViewById(R.id.parent_container);
-        BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
+        final BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
         viewHolder.setContextMenu(parentView);
         viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                pluginViewDelegate.showContextMenu(v, parent);
+                pluginViewDelegate.showContextMenu(viewHolder, parent);
             }
         });
         viewHolder.contextMenuButtonHolder.setTag(viewHolder);

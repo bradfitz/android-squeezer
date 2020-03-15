@@ -188,10 +188,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         return mCreator;
     }
 
-    protected String getTag() {
-        return getClass().getSimpleName();
-    }
-
     /**
      * Returns a view suitable for displaying the data of item in a list. Item may not be null.
      * <p>
@@ -214,14 +210,14 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * @param view The view that contains the {@link ViewHolder}
      * @param item The item to be bound
      */
-    public void bindView(View view, final T item) {
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
+    public void bindView(final View view, final T item) {
+        final ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
         viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                showContextMenu(v, item);
+                showContextMenu(viewHolder, item);
             }
         });
     }
@@ -325,6 +321,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     }
 
     @Override
-    public void showContextMenu(View v, T item) {
+    public void showContextMenu(ViewHolder v, T item) {
     }
 }
