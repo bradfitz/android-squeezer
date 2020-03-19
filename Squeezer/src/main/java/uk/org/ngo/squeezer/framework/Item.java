@@ -584,6 +584,13 @@ public abstract class Item implements Parcelable {
         }
         action.params.put("useContextMenu", "1");
 
+        // Work around an issue in LMS which assumes the number of sub items equals itemsPerResponse.
+        // This causes the playControl action of our initial request of one item, to not include the
+        // "Play All" item, because it thinks there is only one item.
+        if (getInt(action.params, "_quantity") == 1) {
+            action.params.put("_quantity", 2);
+        }
+
         Map<String, Object> windowRecord = getRecord(actionRecord, "window");
         if (windowRecord != null) {
             action.window = new Action.ActionWindow(getInt(windowRecord, "isContextMenu") != 0);
