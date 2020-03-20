@@ -584,6 +584,7 @@ public abstract class Item implements Parcelable {
         }
         action.params.put("useContextMenu", "1");
 
+
         // Work around an issue in LMS which assumes the number of sub items equals itemsPerResponse.
         // This causes the playControl action of our initial request of one item, to not include the
         // "Play All" item, because it thinks there is only one item.
@@ -595,6 +596,9 @@ public abstract class Item implements Parcelable {
         if (windowRecord != null) {
             action.window = new Action.ActionWindow(getInt(windowRecord, "isContextMenu") != 0);
         }
+
+        // LMS may send isContextMenu in the itemParams, but this is ignored by squeezeplay, so we must do the same.
+        action.isContextMenu = (params != null && params.containsKey("isContextMenu")) || (action.window != null && action.window.isContextMenu);
 
         return action;
     }

@@ -108,8 +108,7 @@ public class Action implements Parcelable {
     }
 
     public boolean isContextMenu() {
-        return (action != null &&
-                (action.params.containsKey("isContextMenu") || (action.window != null && action.window.isContextMenu)));
+        return (action != null && action.isContextMenu);
     }
 
     public boolean isSlideShow() {
@@ -142,6 +141,7 @@ public class Action implements Parcelable {
         public NextWindow nextWindow;
 
         public ActionWindow window;
+        public boolean isContextMenu;
 
         public String cmd() {
             return joiner.join(cmd);
