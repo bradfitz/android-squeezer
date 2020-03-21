@@ -97,6 +97,13 @@ public class Window implements Parcelable {
                 '}';
     }
 
+    /**
+     * Window styles from LMS
+     * <p>
+     * <b>NOTE:</b><br/>
+     * home_menu from LMS just means "hasImage", whereas we use it for Home Menu Items
+     * http://wiki.slimdevices.com/index.php/HomeMenuItemsVersusSlimbrowseItems
+     */
     public enum WindowStyle {
         HOME_MENU("home_menu"),
         ICON_LIST("icon_list"),

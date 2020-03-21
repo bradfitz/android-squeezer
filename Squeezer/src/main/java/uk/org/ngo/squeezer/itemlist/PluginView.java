@@ -31,6 +31,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
+import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.Slider;
 import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
@@ -133,11 +134,10 @@ public class PluginView extends BaseItemView<Plugin> {
         return listLayout(getActivity(), windowStyle);
     }
 
-    static ArtworkListLayout listLayout(Activity activity, Window.WindowStyle windowStyle) {
-        if (windowStyle == Window.WindowStyle.HOME_MENU)
-            return new Preferences(activity).getHomeMenuLayout();
-        if (windowStyle == Window.WindowStyle.ICON_LIST)
-            return new Preferences(activity).getAlbumListLayout();
+    static ArtworkListLayout listLayout(ItemListActivity activity, Window.WindowStyle windowStyle) {
+        if (canChangeListLayout(windowStyle)) {
+            return activity.getPreferredListLayout();
+        }
         return ArtworkListLayout.list;
     }
 

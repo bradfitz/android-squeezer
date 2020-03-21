@@ -479,10 +479,6 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         }
     }
 
-    public ArtworkListLayout getPreferredListLayout() {
-        return new Preferences(this).getAlbumListLayout();
-    }
-
     public void setPreferredListLayout(ArtworkListLayout listLayout) {
         ArtworkListLayout prevListLayout = getItemView().listLayout();
         saveListLayout(listLayout);

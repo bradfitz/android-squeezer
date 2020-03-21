@@ -494,7 +494,11 @@ public abstract class Item implements Parcelable {
         return window;
     }
 
-
+    /**
+     * legacy map of menuStyles to windowStyles
+     * <p>
+     * make an educated guess at window style when one is not sent but a menu style is
+     */
     private static Map<String, Window.WindowStyle> menu2window = initializeMenu2Window();
 
     private static Map<String, Window.WindowStyle> initializeMenu2Window() {
