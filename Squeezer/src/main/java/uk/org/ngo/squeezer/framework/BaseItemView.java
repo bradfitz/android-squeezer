@@ -104,6 +104,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * A ViewHolder for the views that make up a complete list item.
      */
     public static class ViewHolder {
+        public View itemView;
 
         public ImageView icon;
 
@@ -118,6 +119,14 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         public RadioButton contextMenuRadio;
 
         public @ViewParam int viewParams;
+
+        public void setView(View view) {
+            itemView = view;
+            text1 = view.findViewById(R.id.text1);
+            text2 = view.findViewById(R.id.text2);
+            icon = view.findViewById(R.id.icon);
+            setContextMenu(view);
+        }
 
         public void setContextMenu(View view) {
             contextMenuButtonHolder = view.findViewById(R.id.context_menu);
@@ -283,10 +292,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(layoutResource, parent, false);
             viewHolder = createViewHolder();
-            viewHolder.text1 = convertView.findViewById(R.id.text1);
-            viewHolder.text2 = convertView.findViewById(R.id.text2);
-            viewHolder.icon = convertView.findViewById(R.id.icon);
-            viewHolder.setContextMenu(convertView);
+            viewHolder.setView(convertView);
             setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }

@@ -81,6 +81,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     private MenuItem menuItemList;
     private MenuItem menuItemGrid;
+    private BaseItemView.ViewHolder parentViewHolder;
 
     @Override
     protected ItemView<Plugin> createItemView() {
@@ -100,6 +101,9 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         register = extras.getBoolean("register");
         parent = extras.getParcelable(Plugin.class.getName());
         action = extras.getParcelable(Action.class.getName());
+
+        pluginViewDelegate = new PluginViewLogic(this);
+        setParentViewHolder();
 
         // If initial setup is performed, use it
         if (savedInstanceState != null && savedInstanceState.containsKey("window")) {
@@ -160,18 +164,18 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                 }
             });
         }
+    }
 
-        pluginViewDelegate = new PluginViewLogic(this);
-        ViewGroup parentView = findViewById(R.id.parent_container);
-        final BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
-        viewHolder.setContextMenu(parentView);
-        viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
+    private void setParentViewHolder() {
+        parentViewHolder = new BaseItemView.ViewHolder();
+        parentViewHolder.setView(this.findViewById(R.id.parent_container));
+        parentViewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                pluginViewDelegate.showContextMenu(viewHolder, parent);
+                pluginViewDelegate.showContextMenu(parentViewHolder, parent);
             }
         });
-        viewHolder.contextMenuButtonHolder.setTag(viewHolder);
+        parentViewHolder.contextMenuButtonHolder.setTag(parentViewHolder);
     }
 
     @Override
@@ -222,25 +226,26 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     void updateHeader(String windowTitle) {
         window.text = windowTitle;
 
-        ViewGroup parentView = findViewById(R.id.parent_container);
-        parentView.setVisibility(View.VISIBLE);
+        parentViewHolder.itemView.setVisibility(View.VISIBLE);
+        parentViewHolder.text1.setText(windowTitle);
+        parentViewHolder.icon.setVisibility(View.GONE);
+        parentViewHolder.contextMenuButtonHolder.setVisibility(View.GONE);
+    }
 
-        TextView header = parentView.findViewById(R.id.text1);
-        header.setText(windowTitle);
+    void updateHeader(Item parent) {
+        updateHeader(parent.getName());
 
-        ImageView icon = parentView.findViewById(R.id.icon);
-        icon.setVisibility(View.GONE);
+        if (parent.hasArtwork() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
+            parentViewHolder.text2.setVisibility(View.VISIBLE);
+            parentViewHolder.text2.setText(parent.text2);
 
-        View contextMenu = parentView.findViewById(R.id.context_menu);
-        contextMenu.setVisibility(View.GONE);
-
-        if (parent != null && parent.hasContextMenu()) {
-            if (parent.hasArtwork() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
-                icon.setVisibility(View.VISIBLE);
-                ImageFetcher.getInstance(this).loadImage(parent.getIcon(), icon);
-            }
-            contextMenu.setVisibility(View.VISIBLE);
+            parentViewHolder.icon.setVisibility(View.VISIBLE);
+            ImageFetcher.getInstance(this).loadImage(parent.getIcon(), parentViewHolder.icon);
         }
+        if (parent.hasContextMenu()) {
+            parentViewHolder.contextMenuButtonHolder.setVisibility(View.VISIBLE);
+        }
+
     }
 
     private void updateHeader(@NonNull Window window) {
@@ -356,7 +361,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    updateHeader(parent.getName());
+                    updateHeader(parent);
                 }
             });
         }
