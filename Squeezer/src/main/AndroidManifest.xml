@@ -52,9 +52,6 @@
             android:name=".itemlist.HomeMenuActivity"
             android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
@@ -62,45 +59,30 @@
             android:label="@string/app_name"
             android:exported="true"
             android:parentActivityName=".itemlist.HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".SettingsActivity"
             android:label="@string/activity_settings_name"
             android:parentActivityName=".itemlist.HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".ConnectActivity"
             android:label="@string/disconnected_text"
             android:parentActivityName=".itemlist.HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.PlayerListActivity"
             android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.AlarmsActivity"
             android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
@@ -108,18 +90,12 @@
             android:exported="true"
             android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <activity
             android:name=".itemlist.PluginListActivity"
             android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.org.ngo.squeezer.itemlist.HomeActivity"/>
         </activity>
 
         <service android:exported="false" android:label="Squeezer Service"
