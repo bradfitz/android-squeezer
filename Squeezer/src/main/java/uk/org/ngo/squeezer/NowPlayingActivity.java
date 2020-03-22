@@ -17,13 +17,17 @@
 package uk.org.ngo.squeezer;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MotionEvent;
+
+import androidx.core.view.GestureDetectorCompat;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
 public class NowPlayingActivity extends BaseActivity {
+    private GestureDetectorCompat mDetector;
 
     /**
      * Called when the activity is first created.
@@ -32,6 +36,7 @@ public class NowPlayingActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.now_playing);
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
         ignoreIconMessages = true;
     }
 
@@ -40,6 +45,23 @@ public class NowPlayingActivity extends BaseActivity {
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    class MyGestureListener extends OnSwipeListener {
+        @Override
+        public boolean onSwipe(Direction direction) {
+            if (direction == Direction.down) {
+                finish();
+                overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_down);
+            }
+            return true;
+        }
     }
 
     @Override
