@@ -89,7 +89,7 @@
             android:name=".itemlist.CurrentPlaylistActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:parentActivityName=".itemlist.HomeActivity">
+            android:parentActivityName=".NowPlayingActivity">
         </activity>
 
         <activity

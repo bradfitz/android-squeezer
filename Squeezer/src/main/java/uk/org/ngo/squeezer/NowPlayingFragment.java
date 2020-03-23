@@ -33,6 +33,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -44,6 +45,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -95,6 +97,7 @@ import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
 public class NowPlayingFragment extends Fragment {
 
@@ -418,11 +421,25 @@ public class NowPlayingFragment extends Fragment {
                 }
             });
         } else {
-            // Clicking on the layout goes to NowPlayingActivity.
-            v.setOnClickListener(new OnClickListener() {
+            final GestureDetectorCompat detector = new GestureDetectorCompat(mActivity, new OnSwipeListener() {
+                // Clicking on the layout goes to NowPlayingActivity.
                 @Override
-                public void onClick(View v) {
+                public boolean onSingleTapUp(MotionEvent e) {
                     NowPlayingActivity.show(mActivity);
+                    return true;
+                }
+
+                // Swipe up on the layout goes to NowPlayingActivity.
+                @Override
+                public boolean onSwipeUp() {
+                    NowPlayingActivity.show(mActivity);
+                    return true;
+                }
+            });
+            v.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return detector.onTouchEvent(event);
                 }
             });
         }
