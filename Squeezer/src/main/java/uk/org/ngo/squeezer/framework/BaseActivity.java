@@ -129,7 +129,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         // Set the icon as the home button, and display it.
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_launcher);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_action_home);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
