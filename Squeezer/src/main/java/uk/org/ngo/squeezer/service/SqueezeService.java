@@ -53,6 +53,8 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.google.common.io.Files;
+
 import org.eclipse.jetty.util.ajax.JSON;
 
 import java.io.File;
@@ -822,12 +824,12 @@ public class SqueezeService extends Service {
     private void downloadSong(Item song) {
         final Preferences preferences = new Preferences(this);
         if (preferences.isDownloadUseServerPath()) {
-//            downloadSong(song.getDownloadUrl(), song.getName(), song.getUrl(), song.getArtworkUrl());
+            downloadSong(song.getDownloadUrl(), song.getName(), song.getUrl(), song.getIcon());
         } else {
-//            final String lastPathSegment = song.getUrl().getLastPathSegment();
-//            final String fileExtension = Files.getFileExtension(lastPathSegment);
-//            final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
-//            downloadSong(song.getDownloadUrl(), song.getName(), localPath+"."+fileExtension, song.getArtworkUrl());
+            final String lastPathSegment = song.getUrl().getLastPathSegment();
+            final String fileExtension = Files.getFileExtension(lastPathSegment);
+            final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
+            downloadSong(song.getDownloadUrl(), song.getName(), localPath+"."+fileExtension, song.getIcon());
         }
     }
 

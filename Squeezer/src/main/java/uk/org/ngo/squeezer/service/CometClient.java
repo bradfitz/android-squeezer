@@ -536,6 +536,7 @@ class CometClient extends BaseClient {
                 for (Object item_d : item_data) {
                     Map<String, Object> record = (Map<String, Object>) item_d;
                     patchUrlPrefix(record);
+                    addDownloadUrlTag(record);
                     if (baseRecord != null) record.put("base", baseRecord);
                     add(record);
                     record.remove("base");

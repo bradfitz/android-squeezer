@@ -32,6 +32,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import android.text.TextUtils;
 import android.view.Gravity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,8 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
+import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.model.Plugin;
 
 /**
@@ -55,6 +58,26 @@ public abstract class Item implements Parcelable {
     private String node;
     private int weight;
     private String type;
+
+    /** The URL of the track on the server. This is the file:/// URL, not the URL to download it. */
+    @NonNull private final Uri mUrl;
+
+    @NonNull
+    public Uri getUrl() {
+        return mUrl;
+    }
+
+    /** The URL to use to download the song. */
+    @NonNull private final Uri mDownloadUrl;
+
+    @NonNull
+    public Uri getDownloadUrl() {
+        return mDownloadUrl;
+    }
+
+    public String getLocalPath(DownloadPathStructure downloadPathStructure, DownloadFilenameStructure downloadFilenameStructure) {
+        return new File(downloadPathStructure.get(this), downloadFilenameStructure.get(this)).getPath();
+    }
 
     public Action.NextWindow nextWindow;
     public Input input;
@@ -78,6 +101,8 @@ public abstract class Item implements Parcelable {
     public Item() {
         name = "";
         icon = Uri.EMPTY;
+        mUrl = Uri.EMPTY;
+        mDownloadUrl = Uri.EMPTY;
     }
 
     public void setId(String id) {
@@ -237,6 +262,9 @@ public abstract class Item implements Parcelable {
         input = extractInput(getRecord(record, "input"));
         window = extractWindow(getRecord(record, "window"), baseWindow);
 
+        mUrl = Uri.parse(getStringOrEmpty(record, "url"));
+        mDownloadUrl = Uri.parse(getStringOrEmpty(record, "download_url"));
+
         // do takes precedence over go
         goAction = extractAction("do", baseActions, actionsRecord, record, baseRecord);
         doAction = (goAction != null);
@@ -312,6 +340,9 @@ public abstract class Item implements Parcelable {
         }
         radio = (Boolean) source.readValue(getClass().getClassLoader());
         slider = source.readParcelable(getClass().getClassLoader());
+
+        mUrl = Uri.parse(source.readString());
+        mDownloadUrl = Uri.parse(source.readString());
     }
 
     @Override
@@ -343,6 +374,9 @@ public abstract class Item implements Parcelable {
         }
         dest.writeValue(radio);
         dest.writeParcelable(slider, flags);
+
+        dest.writeString(mUrl.toString());
+        dest.writeString(mDownloadUrl.toString());
     }
 
 

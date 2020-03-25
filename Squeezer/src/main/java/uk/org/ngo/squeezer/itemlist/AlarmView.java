@@ -178,8 +178,8 @@ public class AlarmView extends BaseItemView<Alarm> {
                     final Alarm alarm = viewHolder.alarm;
                     if (getActivity().getService() != null &&
                             selectedAlarmPlaylist.getId() != null &&
-                            !selectedAlarmPlaylist.getId().equals(alarm.getUrl())) {
-                        alarm.setUrl(selectedAlarmPlaylist.getId());
+                            !selectedAlarmPlaylist.getId().equals(alarm.getPlayListId())) {
+                        alarm.setPlayListId(selectedAlarmPlaylist.getId());
                         getActivity().getService().alarmSetPlaylist(alarm.getId(), selectedAlarmPlaylist);
                     }
                 }
@@ -221,7 +221,7 @@ public class AlarmView extends BaseItemView<Alarm> {
             viewHolder.playlist.setAdapter(new AlarmPlaylistSpinnerAdapter());
             for (int i = 0; i < mAlarmPlaylists.size(); i++) {
                 AlarmPlaylist alarmPlaylist = mAlarmPlaylists.get(i);
-                if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(item.getUrl())) {
+                if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(item.getPlayListId())) {
                     viewHolder.playlist.setSelection(i);
                     break;
                 }

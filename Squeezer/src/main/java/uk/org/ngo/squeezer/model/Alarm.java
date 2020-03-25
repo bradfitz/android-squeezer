@@ -39,8 +39,8 @@ public class Alarm extends Item {
         setDow(getString(record, "dow"));
         enabled = getInt(record, "enabled") == 1;
         repeat = getInt(record, "repeat") == 1;
-        url = getString(record, "url");
-        if ("CURRENT_PLAYLIST".equals(url)) url = "";
+        playListId = getString(record, "url");
+        if ("CURRENT_PLAYLIST".equals(playListId)) playListId = "";
     }
 
     private int tod;
@@ -67,12 +67,12 @@ public class Alarm extends Item {
         this.enabled = enabled;
     }
 
-    private String url;
-    public String getUrl() {
-        return url;
+    private String playListId;
+    public String getPlayListId() {
+        return playListId;
     }
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPlayListId(String playListId) {
+        this.playListId = playListId;
     }
 
     private Set<Integer> dow = new TreeSet<Integer>();
@@ -122,7 +122,7 @@ public class Alarm extends Item {
         setDow(source.readString());
         enabled = (source.readInt() != 0);
         repeat = (source.readInt() != 0);
-        url = source.readString();
+        playListId = source.readString();
     }
 
     public void writeToParcel(Parcel dest, int flags) {
@@ -131,7 +131,7 @@ public class Alarm extends Item {
         dest.writeString(serializeDow());
         dest.writeInt(enabled ? 1 : 0);
         dest.writeInt(repeat ? 1 : 0);
-        dest.writeString(url);
+        dest.writeString(playListId);
     }
 
     @Override
