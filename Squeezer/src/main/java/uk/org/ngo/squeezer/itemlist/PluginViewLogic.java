@@ -61,11 +61,13 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
      * action will return an artwork id or URL, which can be used the fetch an image to display in a
      * popup. See {@link ArtworkDialog#show(BaseActivity, Action)}
      */
-    void execGoAction(Item item, int alreadyPopped) {
+    void execGoAction(BaseItemView.ViewHolder viewHolder, Item item, int alreadyPopped) {
         if (item.showBigArtwork) {
             ArtworkDialog.show(activity, item.goAction);
         } else if (item.goAction.isSlideShow()) {
             SlideShow.show(activity, item.goAction);
+        } else if (item.goAction.isContextMenu()) {
+            showContextMenu(viewHolder, item.goAction);
         } else if (item.doAction) {
             if (item.hasInput()) {
                 if (item.hasChoices()) {
@@ -83,119 +85,106 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
         }
     }
 
-    private BaseItemView.ViewHolder getViewHolder(View v) {
-        while (v != null) {
-            if (v.getTag() instanceof BaseItemView.ViewHolder) {
-                return (BaseItemView.ViewHolder) v.getTag();
-            }
-            v = (View) v.getParent();
-        }
-        throw new RuntimeException("No ViewHolder found in View hierarchy");
-    }
-
     // Only touch these from the main thread
-    private boolean contextMenuReady = false;
-    private boolean contextMenuWaiting = false;
     private int contextStack = 0;
     private PopupMenu contextPopup;
     private BaseItemView.ViewHolder contextMenuViewHolder;
-    private Item contextItem;
-    private List<Plugin> contextItems;
 
-    public void showContextMenu(final View v, Item item) {
-        if (!contextMenuReady && !contextMenuWaiting) {
-            contextItems = null;
-            if (item.moreAction != null) {
-                contextMenuViewHolder = getViewHolder(v);
-                contextItem = item;
-                contextStack = 1;
-                orderContextMenu(item.moreAction);
-            } else {
-                contextPopup = new PopupMenu(activity, v);
-                Menu menu = contextPopup.getMenu();
-                if (item.playAction != null) {
-                    menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
-                }
-                if (item.addAction != null) {
-                    menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
-                }
-                if (item.insertAction != null) {
-                    menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
-                }
-                if (item.moreAction != null) {
-                    menu.add(Menu.NONE, R.id.more, Menu.NONE, R.string.MORE);
-                }
-
-                contextPopup.show();
-                contextPopup.setOnDismissListener(this);
-            }
-        } else if (contextMenuReady) {
-            contextMenuReady = false;
-            contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
-            contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
-
-            contextPopup = new PopupMenu(activity, v);
-            Menu menu = contextPopup.getMenu();
-
-            int index = 0;
-            for (Plugin plugin : contextItems) {
-                menu.add(Menu.NONE, index++, Menu.NONE, plugin.getName()).setEnabled(plugin.goAction != null);
-            }
-
-            contextPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    return doItemContext(item, contextItem);
-                }
-            });
-
-            contextPopup.show();
-            contextPopup.setOnDismissListener(this);
+    public void showContextMenu(BaseItemView.ViewHolder viewHolder, Item item) {
+        if (item.moreAction != null) {
+            showContextMenu(viewHolder, item.moreAction);
+        } else {
+            showStandardContextMenu(viewHolder.contextMenuButtonHolder, item);
         }
+    }
+
+    private void showContextMenu(BaseItemView.ViewHolder viewHolder, Action action) {
+        contextMenuViewHolder = viewHolder;
+        contextStack = 1;
+        orderContextMenu(action);
+    }
+
+    private void showStandardContextMenu(View v, final Item item) {
+        contextPopup = new PopupMenu(activity, v);
+        Menu menu = contextPopup.getMenu();
+
+        if (item.playAction != null) {
+            menu.add(Menu.NONE, R.id.play_now, Menu.NONE, R.string.PLAY_NOW);
+        }
+        if (item.addAction != null) {
+            menu.add(Menu.NONE, R.id.add_to_playlist, Menu.NONE, R.string.ADD_TO_END);
+        }
+        if (item.insertAction != null) {
+            menu.add(Menu.NONE, R.id.play_next, Menu.NONE, R.string.PLAY_NEXT);
+        }
+        if (item.moreAction != null) {
+            menu.add(Menu.NONE, R.id.more, Menu.NONE, R.string.MORE);
+        }
+
+        contextPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                return doStandardItemContext(menuItem, item);
+            }
+        });
+        contextPopup.setOnDismissListener(this);
+        contextPopup.show();
+    }
+
+    private boolean doStandardItemContext(MenuItem menuItem, Item item) {
+        switch (menuItem.getItemId()) {
+            case R.id.play_now:
+                activity.action(item, item.playAction);
+                return true;
+            case R.id.add_to_playlist:
+                activity.action(item, item.addAction);
+                return true;
+            case R.id.play_next:
+                activity.action(item, item.insertAction);
+                return true;
+            case R.id.more:
+                PluginListActivity.show(activity, item, item.moreAction);
+                return true;
+        }
+        return false;
+    }
+
+    private void showContextMenu(final BaseItemView.ViewHolder viewHolder, final List<Plugin> items) {
+        contextPopup = new PopupMenu(activity, viewHolder.contextMenuButtonHolder);
+        Menu menu = contextPopup.getMenu();
+
+        int index = 0;
+        for (Plugin plugin : items) {
+            menu.add(Menu.NONE, index++, Menu.NONE, plugin.getName()).setEnabled(plugin.goAction != null);
+        }
+
+        contextPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                return doItemContext(viewHolder, items.get(menuItem.getItemId()));
+            }
+        });
+        contextPopup.setOnDismissListener(this);
+        contextPopup.show();
+    }
+
+    private boolean doItemContext(BaseItemView.ViewHolder viewHolder, Plugin item) {
+        Action.NextWindow nextWindow = (item.goAction != null ? item.goAction.action.nextWindow : item.nextWindow);
+        if (nextWindow != null) {
+            activity.action(item, item.goAction, contextStack);
+        } else {
+            execGoAction(viewHolder, item, contextStack);
+        }
+        return true;
     }
 
     private void orderContextMenu(Action action) {
         ISqueezeService service = activity.getService();
         if (service != null) {
-            contextMenuWaiting = true;
             contextMenuViewHolder.contextMenuButton.setVisibility(View.GONE);
             contextMenuViewHolder.contextMenuLoading.setVisibility(View.VISIBLE);
             service.pluginItems(action, this);
         }
-    }
-
-    private boolean doItemContext(MenuItem menuItem, Item selectedItem) {
-        if (contextItems != null) {
-            selectedItem = contextItems.get(menuItem.getItemId());
-            Action.NextWindow nextWindow = (selectedItem.goAction != null ? selectedItem.goAction.action.nextWindow : selectedItem.nextWindow);
-            if (nextWindow != null) {
-                activity.action(selectedItem, selectedItem.goAction, contextStack);
-            } else {
-                if (selectedItem.goAction.isContextMenu()) {
-                    contextStack++;
-                    orderContextMenu(selectedItem.goAction);
-                } else {
-                    execGoAction(selectedItem, contextStack);
-                }
-            }
-            return true;
-        } else {
-        switch (menuItem.getItemId()) {
-            case R.id.play_now:
-                activity.action(selectedItem, selectedItem.playAction);
-                return true;
-            case R.id.add_to_playlist:
-                activity.action(selectedItem, selectedItem.addAction);
-                return true;
-            case R.id.play_next:
-                activity.action(selectedItem, selectedItem.insertAction);
-                return true;
-            case R.id.more:
-                PluginListActivity.show(activity, selectedItem, selectedItem.moreAction);
-                return true;
-        }
-        return false;
-    }
     }
 
     @Override
@@ -208,16 +197,15 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                contextMenuReady = true;
-                contextMenuWaiting = false;
-                contextItems = items;
-                showContextMenu(contextMenuViewHolder.contextMenuButtonHolder, contextItem);
+                contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
+                contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
+                showContextMenu(contextMenuViewHolder, items);
             }
         });
     }
 
     public void resetContextMenu() {
-        if (contextMenuWaiting) {
+        if (contextMenuViewHolder != null) {
             contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
             contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
         }
@@ -227,12 +215,8 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
             contextPopup = null;
         }
 
-        contextMenuReady = false;
-        contextMenuWaiting = false;
         contextStack = 0;
         contextMenuViewHolder = null;
-        contextItem = null;
-        contextItems = null;
     }
 
     @Override

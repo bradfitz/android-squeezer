@@ -31,6 +31,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
+import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.framework.Slider;
 import uk.org.ngo.squeezer.framework.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
@@ -54,7 +55,7 @@ public class PluginView extends BaseItemView<Plugin> {
         setLoadingViewParams(viewParamIcon() | VIEW_PARAM_TWO_LINE );
     }
 
-    public PluginViewLogic getLogicDelegate() {
+    PluginViewLogic getLogicDelegate() {
         return logicDelegate;
     }
 
@@ -133,11 +134,10 @@ public class PluginView extends BaseItemView<Plugin> {
         return listLayout(getActivity(), windowStyle);
     }
 
-    static ArtworkListLayout listLayout(Activity activity, Window.WindowStyle windowStyle) {
-        if (windowStyle == Window.WindowStyle.HOME_MENU)
-            return new Preferences(activity).getHomeMenuLayout();
-        if (windowStyle == Window.WindowStyle.ICON_LIST)
-            return new Preferences(activity).getAlbumListLayout();
+    static ArtworkListLayout listLayout(ItemListActivity activity, Window.WindowStyle windowStyle) {
+        if (canChangeListLayout(windowStyle)) {
+            return activity.getPreferredListLayout();
+        }
         return ArtworkListLayout.list;
     }
 
@@ -201,7 +201,7 @@ public class PluginView extends BaseItemView<Plugin> {
             getActivity().action(item, item.goAction);
         } else {
             if (item.goAction != null)
-                logicDelegate.execGoAction(item, 0);
+                logicDelegate.execGoAction((ViewHolder) view.getTag(), item, 0);
             else if (item.hasSubItems())
                 PluginListActivity.show(getActivity(), item);
             else if (item.getNode() != null) {
@@ -211,7 +211,7 @@ public class PluginView extends BaseItemView<Plugin> {
    }
 
     @Override
-    public void showContextMenu(final View v, Plugin item) {
-        logicDelegate.showContextMenu(v, item);
+    public void showContextMenu(ViewHolder viewHolder, Plugin item) {
+        logicDelegate.showContextMenu(viewHolder, item);
     }
 }

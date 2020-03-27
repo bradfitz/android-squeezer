@@ -17,11 +17,12 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -30,6 +31,8 @@ import java.util.List;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.core.view.GestureDetectorCompat;
 
 import java.util.Map;
 
@@ -40,6 +43,7 @@ import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistChanged;
+import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
 import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
 
@@ -48,18 +52,42 @@ import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
  */
 public class CurrentPlaylistActivity extends PluginListActivity {
 
-    public static void show(Activity activity) {
-        final Intent intent = new Intent(activity, CurrentPlaylistActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.putExtra(Plugin.class.getName(), Plugin.CURRENT_PLAYLIST);
-        activity.startActivity(intent);
-        activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+    /**
+     * Called when the activity is first created.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_action_close);
+        }
+
+        final GestureDetectorCompat detector = new GestureDetectorCompat(this, new OnSwipeListener() {
+            @Override
+            public boolean onSwipeDown() {
+                finish();
+                return true;
+            }
+        });
+        findViewById(R.id.parent_container).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                detector.onTouchEvent(event);
+                return true;
+            }
+        });
+
+        ignoreIconMessages = true;
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_down);
+    public void onPause() {
+        if (isFinishing()) {
+            overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_down);
+        }
+        super.onPause();
     }
 
     /**
@@ -255,4 +283,11 @@ public class CurrentPlaylistActivity extends PluginListActivity {
         });
     }
 
+    public static void show(Activity activity) {
+        final Intent intent = new Intent(activity, CurrentPlaylistActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.putExtra(Plugin.class.getName(), Plugin.CURRENT_PLAYLIST);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+    }
 }

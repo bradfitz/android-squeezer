@@ -35,7 +35,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
@@ -196,6 +198,10 @@ public abstract class ItemListActivity extends BaseActivity {
      *     uk.org.ngo.squeezer.service.SqueezeService}
      */
     protected abstract void orderPage(@NonNull ISqueezeService service, int start);
+
+    public ArtworkListLayout getPreferredListLayout() {
+        return new Preferences(this).getAlbumListLayout();
+    }
 
     /**
      * Set the list view to host received items
