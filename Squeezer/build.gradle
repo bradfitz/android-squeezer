@@ -150,7 +150,7 @@ play {
 
 // To update/add server strings copy relevant strings.txt files from slimserver and squeezeplay
 // to the serverstrings folder and update the 2 tables below; 'files' (if necessary) and 'strings'.
-// run: './gradlew updateStrimStrings'
+// run: './gradlew updateSlimStrings'
 slimstrings {
     files = [
             'serverstrings/slimserver/strings.txt',

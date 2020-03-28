@@ -16,15 +16,9 @@
 
 package uk.org.ngo.gradle
 
+import groovy.xml.MarkupBuilder
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.jdom2.Document
-import org.jdom2.Element
-import org.jdom2.filter.AbstractFilter
-import org.jdom2.input.SAXBuilder
-import org.jdom2.output.Format
-import org.jdom2.output.LineSeparator
-import org.jdom2.output.XMLOutputter
 
 import java.util.regex.Pattern
 
@@ -57,7 +51,8 @@ class SlimStringsPlugin implements Plugin<Project> {
                 tree.each { file ->
                     def name = file.parentFile.name
                     def language = (name == 'values' ? 'en' : name[-2..-1]).toUpperCase()
-                    languages.put(language, file)
+                    def outFile = new File(file.parentFile, "serverstrings.xml");
+                    languages.put(language, outFile)
                 }
 
 
@@ -89,36 +84,14 @@ class SlimStringsPlugin implements Plugin<Project> {
 
                 // Update translations in the app
                 languages.each {language, file ->
-                    Document doc = new SAXBuilder().build(new FileInputStream(file))
-                    Element resources = doc.rootElement
-                    translations[language].each { name, translation ->
-                        def current = resources.getDescendants(new AbstractFilter<Element>() {
-                            @Override
-                            Element filter(Object content) {
-                                if (content instanceof Element) {
-                                    Element node = (Element) content
-                                    if (node.name == 'string' && node.getAttribute('name').value == name) {
-                                        return content
-                                    }
-                                }
-                                return null
-                            }
+                    def xmlWriter = new FileWriter(file)
+                    def xmlMarkup = new MarkupBuilder(xmlWriter)
+                    xmlMarkup.resources('"xmlns:tools=\"http://schemas.android.com/tools"') {
+                        mkp.comment('\nAutomatically generated file. DO NOT MODIFY\n')
+                        translations[language].each { name, translation ->
+                            string(name: name, translation.replace("'", "\\'").replace("...", "…"))
 
-                        })
-                        if (current.hasNext()) {
-                            current.next().setText(translation)
-                        } else {
-                            Element child = new Element('string')
-                            child.setAttribute('name', name)
-                            child.setText(translation)
-                            resources.addContent(child)
                         }
-                    }
-
-                    new XMLOutputter().with {
-                        format = Format.getRawFormat()
-                        format.setLineSeparator(LineSeparator.NL)
-                        output(doc, new FileOutputStream(file))
                     }
                 }
             }
