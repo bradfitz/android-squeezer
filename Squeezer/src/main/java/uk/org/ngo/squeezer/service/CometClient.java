@@ -444,6 +444,7 @@ class CometClient extends BaseClient {
     protected void postSongTimeChanged(Player player) {
         super.postSongTimeChanged(player);
         if (player.getPlayerState().isPlaying()) {
+            mBackgroundHandler.removeMessages(MSG_TIME_UPDATE);
             mBackgroundHandler.sendEmptyMessageDelayed(MSG_TIME_UPDATE, 1000);
         }
     }
@@ -453,6 +454,7 @@ class CometClient extends BaseClient {
         super.postPlayerStateChanged(player);
         if (player.getPlayerState().getSleepDuration() > 0) {
             android.os.Message message = mBackgroundHandler.obtainMessage(MSG_STATE_UPDATE, player);
+            mBackgroundHandler.removeMessages(MSG_STATE_UPDATE);
             mBackgroundHandler.sendMessageDelayed(message, 1000);
         }
     }
