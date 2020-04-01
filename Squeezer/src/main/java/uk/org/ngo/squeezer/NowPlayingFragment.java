@@ -576,7 +576,6 @@ public class NowPlayingFragment extends Fragment {
             if (connectedPlayers.size() == 1) {
                 actionBar.setTitle(connectedPlayers.get(0).getName());
             } else {
-                // TODO: Alert the user if there are no connected players.
                 actionBar.setTitle(R.string.app_name);
             }
         }

@@ -31,6 +31,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Comparator;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
@@ -64,7 +65,7 @@ public class Player extends Item implements Comparable {
     public static class Pref {
         /** The types of player preferences. */
         @StringDef({ALARM_DEFAULT_VOLUME, ALARM_FADE_SECONDS, ALARM_SNOOZE_SECONDS, ALARM_TIMEOUT_SECONDS,
-                Pref.ALARMS_ENABLED})
+                ALARMS_ENABLED, PLAY_TRACK_ALBUM, DEFEAT_DESTRUCTIVE_TTP})
         @Retention(RetentionPolicy.SOURCE)
         public @interface Name {}
         public static final String ALARM_DEFAULT_VOLUME = "alarmDefaultVolume";
@@ -72,6 +73,8 @@ public class Player extends Item implements Comparable {
         public static final String ALARM_SNOOZE_SECONDS = "alarmSnoozeSeconds";
         public static final String ALARM_TIMEOUT_SECONDS = "alarmTimeoutSeconds";
         public static final String ALARMS_ENABLED = "alarmsEnabled";
+        public static final String PLAY_TRACK_ALBUM = "playtrackalbum";
+        public static final String DEFEAT_DESTRUCTIVE_TTP = "defeatDestructiveTouchToPlay";
     }
 
     public Player(Map<String, Object> record) {
@@ -82,6 +85,13 @@ public class Player extends Item implements Comparable {
         mCanPowerOff = getInt(record, "canpoweroff") == 1;
         mConnected = getInt(record, "connected") == 1;
         mHashCode = calcHashCode();
+
+        if (record.containsKey(Pref.PLAY_TRACK_ALBUM)) {
+            mPlayerState.prefs.put(Pref.PLAY_TRACK_ALBUM, Util.getString(record, Pref.PLAY_TRACK_ALBUM));
+        }
+        if (record.containsKey(Pref.DEFEAT_DESTRUCTIVE_TTP)) {
+            mPlayerState.prefs.put(Pref.DEFEAT_DESTRUCTIVE_TTP, Util.getString(record, Pref.DEFEAT_DESTRUCTIVE_TTP));
+        }
     }
 
     private HashCode calcHashCode() {

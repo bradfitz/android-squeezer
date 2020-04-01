@@ -363,11 +363,11 @@ class CometClient extends BaseClient {
                 });
 
                 // Request server status
-                publishMessage(request("serverstatus").defaultPage(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
+                publishMessage(serverStatusRequest(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
 
                 // Subscribe to server changes
                 {
-                    Request request = request("serverstatus").defaultPage().param("subscribe", "60");
+                    Request request = serverStatusRequest().param("subscribe", "60");
                     publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
                 }
 
@@ -402,6 +402,10 @@ class CometClient extends BaseClient {
         if (item_data != null) {
             for (Object item_d : item_data) {
                 Map<String, Object> record = (Map<String, Object>) item_d;
+                if (!record.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP) &&
+                        data.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP)) {
+                    record.put(Player.Pref.DEFEAT_DESTRUCTIVE_TTP, data.get(Player.Pref.DEFEAT_DESTRUCTIVE_TTP));
+                }
                 Player player = new Player(record);
                 players.put(player.getId(), player);
             }
@@ -778,6 +782,14 @@ class CometClient extends BaseClient {
                 }
             }
         }
+    }
+
+    @NonNull
+    private Request serverStatusRequest() {
+        return request("serverstatus")
+                .defaultPage()
+                .param("prefs", Player.Pref.DEFEAT_DESTRUCTIVE_TTP)
+                .param("playerprefs", Player.Pref.PLAY_TRACK_ALBUM + "," + Player.Pref.DEFEAT_DESTRUCTIVE_TTP);
     }
 
     @NonNull

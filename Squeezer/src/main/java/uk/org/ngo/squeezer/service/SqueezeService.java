@@ -951,6 +951,11 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public void playerPref(Player player, @Player.Pref.Name String playerPref, String value) {
+            mDelegate.command(player).cmd("playerpref", playerPref, value).exec();
+        }
+
+        @Override
         public boolean canPowerOn() {
             Player activePlayer = getActivePlayer();
             if (activePlayer == null) {

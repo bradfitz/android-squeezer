@@ -180,6 +180,17 @@ slimstrings {
             'SETTINGS',
             'SCREEN_SETTINGS',
             'ADVANCED_SETTINGS',
-            'EXTRAS'
+            'EXTRAS',
+            'SETUP_PLAYTRACKALBUM',
+            'SETUP_PLAYTRACKALBUM_DESC',
+            'SETUP_PLAYTRACKALBUM_0',
+            'SETUP_PLAYTRACKALBUM_1',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_DESC',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_0',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_1',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_2',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_3',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_4'
     ]
 }
