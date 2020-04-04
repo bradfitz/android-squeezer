@@ -392,7 +392,7 @@ class CometClient extends BaseClient {
     private void parseServerStatus(Message message) {
         Map<String, Object> data = message.getDataAsMap();
 
-        // We can't distinguish betwween no copnnected players and players not received
+        // We can't distinguish between no connected players and players not received
         // so we check the server version which is also set from server status
         boolean firstTimePlayersReceived = (getConnectionState().getServerVersion() == null);
 
@@ -410,8 +410,18 @@ class CometClient extends BaseClient {
                 players.put(player.getId(), player);
             }
         }
-        if (firstTimePlayersReceived || !players.equals(mConnectionState.getPlayers())) {
+
+        Map<String, Player> currentPlayers = mConnectionState.getPlayers();
+        if (firstTimePlayersReceived || !players.equals(currentPlayers)) {
             mConnectionState.setPlayers(players);
+        } else {
+            for (Player player : players.values()) {
+                PlayerState currentPlayerState = currentPlayers.get(player.getId()).getPlayerState();
+                if (!player.getPlayerState().prefs.equals(currentPlayerState.prefs)) {
+                    currentPlayerState.prefs = player.getPlayerState().prefs;
+                    postPlayerStateChanged(player);
+                }
+            }
         }
     }
 
