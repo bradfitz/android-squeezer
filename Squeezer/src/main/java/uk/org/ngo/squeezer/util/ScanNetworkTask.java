@@ -4,6 +4,9 @@ import android.content.Context;
 import android.net.wifi.WifiManager;
 
 import androidx.annotation.NonNull;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -23,12 +26,14 @@ import uk.org.ngo.squeezer.R;
 /**
  * Scans the local network for servers.
  */
-public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
+public class ScanNetworkTask implements Runnable {
     private static final String TAG = ScanNetworkTask.class.getSimpleName();
 
-    private final Context mContext;
-
     private final ScanNetworkCallback callback;
+    private final WifiManager wm;
+    private final int defaultHttpPort;
+    private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
+    private volatile boolean cancelled;
 
     /**
      * Map server names to IP addresses.
@@ -46,8 +51,9 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
     private static final int DISCOVERY_ATTEMPT_TIMEOUT = 1000;
 
     public ScanNetworkTask(Context context, ScanNetworkCallback callback) {
-        mContext = context;
         this.callback = callback;
+        wm = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        defaultHttpPort = context.getResources().getInteger(R.integer.DefaultHttpPort);
     }
 
     /**
@@ -66,7 +72,7 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
      * See the Slim::Networking::Discovery module in Squeeze server for more details.
      */
     @Override
-    protected Void doInBackground(Void... unused) {
+    public void run() {
         WifiManager.WifiLock wifiLock;
         DatagramSocket socket = null;
 
@@ -86,8 +92,6 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
         byte[] data = new byte[512];
         System.arraycopy(request, 0, data, 0, request.length);
 
-        WifiManager wm = (WifiManager) mContext
-                .getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiLock = wm.createWifiLock(TAG);
 
         // mServerMap.put("Dummy", "127.0.0.1");
@@ -109,19 +113,18 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
             socket.send(discoveryPacket);
             timedOut = false;
             while (!timedOut) {
-                if (isCancelled()) {
+                if (cancelled) {
                     break;
                 }
                 try {
                     socket.receive(responsePacket);
                     if (buf[0] == (byte) 'E') {
                         Map<String, String> discover = parseDiscover(responsePacket.getLength(), responsePacket.getData());
-                        publishProgress();
 
                         String name = discover.get("NAME");
                         if (name != null) {
                             String host = responsePacket.getAddress().getHostAddress();
-                            String port = discover.containsKey("JSON") ? discover.get("JSON") : String.valueOf(mContext.getResources().getInteger(R.integer.DefaultHttpPort));
+                            String port = discover.containsKey("JSON") ? discover.get("JSON") : String.valueOf(defaultHttpPort);
                             mServerMap.put(name, host + ':' + port);
                         }
                     }
@@ -151,7 +154,12 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
 
         // For testing that multiple servers are handled correctly.
         // mServerMap.put("Dummy", "127.0.0.1");
-        return null;
+        uiThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onScanFinished(mServerMap);
+            }
+        });
     }
 
     /**
@@ -200,13 +208,8 @@ public class ScanNetworkTask extends android.os.AsyncTask<Void, Void, Void> {
         return result;
     }
 
-    @Override
-    protected void onCancelled(Void result) {
-        callback.onScanFinished(mServerMap);
-    }
-
-    @Override
-    protected void onPostExecute(Void result) {
+    public void cancel() {
+        cancelled = true;
         callback.onScanFinished(mServerMap);
     }
 
