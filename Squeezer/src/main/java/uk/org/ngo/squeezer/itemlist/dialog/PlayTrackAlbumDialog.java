@@ -16,24 +16,16 @@
 
 package uk.org.ngo.squeezer.itemlist.dialog;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
 import uk.org.ngo.squeezer.R;
 
-public class PlayTrackAlbumDialog extends DialogFragment {
+public class PlayTrackAlbumDialog extends BaseChoicesDialog {
     /**
      * Activities that host this dialog must implement this interface.
      */
@@ -46,7 +38,7 @@ public class PlayTrackAlbumDialog extends DialogFragment {
     private PlayTrackAlbumDialogHost host;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         host = (PlayTrackAlbumDialogHost) context;
     }
@@ -58,31 +50,17 @@ public class PlayTrackAlbumDialog extends DialogFragment {
             getString(R.string.SETUP_PLAYTRACKALBUM_0),
             getString(R.string.SETUP_PLAYTRACKALBUM_1)
         };
+        return createDialog(
+                getString(R.string.SETUP_PLAYTRACKALBUM),
+                getString(R.string.SETUP_PLAYTRACKALBUM_DESC),
+                Integer.parseInt(host.getPlayTrackAlbum()),
+                options
+        );
+    }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_single_choice, options);
-
-        @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
-        View content = getActivity().getLayoutInflater().inflate(R.layout.single_choices_dialog, null);
-
-        content.<TextView>findViewById(R.id.message).setText(R.string.SETUP_PLAYTRACKALBUM_DESC);
-
-        final ListView lvItems = content.findViewById(R.id.item_list);
-        lvItems.setAdapter(adapter);
-        lvItems.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        lvItems.setItemChecked(Integer.parseInt(host.getPlayTrackAlbum()), true);
-        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                host.setPlayTrackAlbum(String.valueOf(position));
-                dismiss();
-            }
-        });
-
-        return new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.SETUP_PLAYTRACKALBUM)
-                .setView(content)
-                .create();
+    @Override
+    protected void onSelectOption(int checkedId) {
+        host.setPlayTrackAlbum(String.valueOf(checkedId));
     }
 
     /**

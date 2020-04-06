@@ -16,24 +16,16 @@
 
 package uk.org.ngo.squeezer.itemlist.dialog;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
 import uk.org.ngo.squeezer.R;
 
-public class DefeatDestructiveTouchToPlayDialog extends DialogFragment {
+public class DefeatDestructiveTouchToPlayDialog extends BaseChoicesDialog {
     /**
      * Activities that host this dialog must implement this interface.
      */
@@ -46,7 +38,7 @@ public class DefeatDestructiveTouchToPlayDialog extends DialogFragment {
     private DefeatDestructiveTouchToPlayDialogHost host;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         host = (DefeatDestructiveTouchToPlayDialogHost) context;
     }
@@ -61,31 +53,17 @@ public class DefeatDestructiveTouchToPlayDialog extends DialogFragment {
             getString(R.string.SETUP_DEFEAT_DESTRUCTIVE_TTP_3),
             getString(R.string.SETUP_DEFEAT_DESTRUCTIVE_TTP_4)
         };
+        return createDialog(
+                getString(R.string.SETUP_DEFEAT_DESTRUCTIVE_TTP),
+                getString(R.string.SETUP_DEFEAT_DESTRUCTIVE_TTP_DESC),
+                Integer.parseInt(host.getDefeatDestructiveTTP()),
+                options
+        );
+    }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_single_choice, options);
-
-        @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
-        View content = getActivity().getLayoutInflater().inflate(R.layout.single_choices_dialog, null);
-
-        content.<TextView>findViewById(R.id.message).setText(R.string.SETUP_DEFEAT_DESTRUCTIVE_TTP_DESC);
-
-        final ListView lvItems = content.findViewById(R.id.item_list);
-        lvItems.setAdapter(adapter);
-        lvItems.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        lvItems.setItemChecked(Integer.parseInt(host.getDefeatDestructiveTTP()), true);
-        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                host.setDefeatDestructiveTTP(String.valueOf(position));
-                dismiss();
-            }
-        });
-
-        return new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.SETUP_DEFEAT_DESTRUCTIVE_TTP)
-                .setView(content)
-                .create();
+    @Override
+    protected void onSelectOption(int checkedId) {
+        host.setDefeatDestructiveTTP(String.valueOf(checkedId));
     }
 
     /**
