@@ -2,28 +2,50 @@
 
 <changelog>
     <release
+        version="2.1.0"
+        versioncode="82">
+        <change>Button for global search in the top bar.</change>
+
+        <change>Access current playlist and volume control from the Now Playing screen.</change>
+
+        <change>Radial volume control to enable finer control of the volume.</change>
+
+        <change>Navigate back from the Now Playing or current playlist screens via the home button
+            or swipe down. To indicate the function of the home button, specifically that it doesn't
+            navigate home, set a close icon for the current playlist and a down arrow for the now
+            playing screen.</change>
+
+        <change>Control LMS settings playtrackalbum and defeatDestructiveTouchToPlay.
+            These settings control what happens when you select a playable item.
+            Access via three-dot menu on the players screen.</change>
+
+        <change>Work around issues in LMS which causes the context menu and
+            defeatDestructiveTouchToPlay to not work properly.</change>
+    </release>
+
+    <release
         version="2.0.1"
         versioncode="74">
-        <change>Seperate list layout settings for home menu items and Slimbrowseitems</change>
-        <change>Notification shows button for next song instead of the previous one</change>
-        <change>Fix artwork display in the Spotty plugin</change>
-        <change>Option to easy switch between list and grid layouts</change>
-        <change>Ignore icon based popup message when in the Now Playing screen</change>
-        <change>Handle invalid server address</change>
-        <change>Fix some reported crashes</change>
+        <change>Separate list layout settings for home menu items and Slimbrowseitems.</change>
+        <change>Notification shows button for next song instead of the previous one.</change>
+        <change>Fix artwork display in the Spotty plugin.</change>
+        <change>Option to easy switch between list and grid layouts.</change>
+        <change>Ignore icon based popup message when in the Now Playing screen.</change>
+        <change>Handle invalid server address.</change>
+        <change>Fix some reported crashes.</change>
     </release>
 
     <release
         version="2.0.0"
         versioncode="73">
-        <change>Rewrite Squeezer to use the more modern CometD protocol to connect to the server</change>
-        <change>Full support for Apps/Plugins</change>
-        <change>Connect to mysqueezebox.com</change>
-        <change>Additional browse modes, Album Artists, All Artists and Composers</change>
+        <change>Rewrite Squeezer to use the more modern CometD protocol to connect to the server.</change>
+        <change>Full support for Apps/Plugins.</change>
+        <change>Connect to mysqueezebox.com.</change>
+        <change>Additional browse modes, Album Artists, All Artists and Composers.</change>
         <change>Support for extra information and options for Artists/albums/Tracks via the context
-            menu</change>
-        <change>Library Views and Remote Music Libraries</change>
-        <change>Add French translation. Contributed by Olivier Sirol</change>
+            menu.</change>
+        <change>Library Views and Remote Music Libraries.</change>
+        <change>Add French translation. Contributed by Olivier Sirol.</change>
     </release>
 
     <release
