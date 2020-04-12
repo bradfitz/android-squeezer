@@ -17,7 +17,6 @@
 -->
 
 <resources>
-    <string name="app_name">Squeezer</string>
     <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
     <string name="menu_item_players">Spelers</string>

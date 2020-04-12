@@ -19,8 +19,6 @@
 -->
 
 <resources>
-    <string name="app_name">Squeezer</string>
-
     <string name="undo">Annuler</string>
     <string name="disabled">Désactivé</string>
     <string name="volume">%s volume</string>

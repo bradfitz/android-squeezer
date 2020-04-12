@@ -17,7 +17,6 @@
 -->
 
 <resources>
-    <string name="app_name">Squeezer</string>
     <string name="disabled">Deaktiviert</string>
     <string name="volume">Lautstärke %s</string>
     <string name="menu_item_players">Abspielgeräte</string>

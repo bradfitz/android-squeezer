@@ -17,7 +17,6 @@
 -->
 
 <resources>
-    <string name="app_name">Squeezer</string>
     <string name="undo">Fortryd</string>
     <string name="disabled">Deaktiveret</string>
     <string name="volume">%s lydstyrke</string>
