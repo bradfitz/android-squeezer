@@ -334,4 +334,9 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     </plurals>
 
     <string name="pref_cat_third_party">Third-party integration</string>
+
+    <string name="about_team" translatable="false">Team</string>
+    <string name="about_authors" translatable="false">Kurt Aaholst\nNik Clayton\nBrad Fitzpatrick</string>
+    <string name="about_support" translatable="false">Support</string>
+    <string name="about_support_text" translatable="false">https://nikclayton.github.io/android-squeezer/</string>
 </resources>
