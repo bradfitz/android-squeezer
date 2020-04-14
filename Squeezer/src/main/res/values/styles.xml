@@ -40,6 +40,9 @@
 
         <item name="ic_action_av_playlist">@drawable/ic_action_playlist</item>
 
+        <item name="ic_keyboard_return">@drawable/keyboard_return_white</item>
+        <item name="ic_keyboard_search">@drawable/keyboard_search_white</item>
+
         <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
 
         <item name="alarm_dow_selected">@android:color/white</item>
@@ -78,6 +81,9 @@
 
         <item name="ic_action_av_volume_up">@drawable/ic_volume_up_dark</item>
         <item name="ic_action_av_volume_down">@drawable/ic_volume_down_dark</item>
+
+        <item name="ic_keyboard_return">@drawable/keyboard_return_black</item>
+        <item name="ic_keyboard_search">@drawable/keyboard_search_black</item>
 
         <item name="ic_action_av_playlist">@drawable/ic_action_playlist_light</item>
 

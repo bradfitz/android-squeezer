@@ -44,6 +44,9 @@
 
     <attr name="ic_action_av_playlist" format="reference"/>
 
+    <attr name="ic_keyboard_return" format="reference"/>
+    <attr name="ic_keyboard_search" format="reference"/>
+
     <declare-styleable name="playlist">
         <!-- The highlight colour used to show currently playing items
              in a playlist. -->

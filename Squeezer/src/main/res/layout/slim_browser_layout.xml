@@ -117,7 +117,7 @@
         <ImageButton
             android:id="@+id/input_button"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_keyboard_return"
+            app:srcCompat="?attr/ic_keyboard_return"
             android:layout_width="48dp"
             android:layout_height="match_parent"/>
     </LinearLayout>

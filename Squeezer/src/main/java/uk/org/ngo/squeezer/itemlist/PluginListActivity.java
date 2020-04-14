@@ -124,13 +124,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             final EditText inputText = findViewById(R.id.plugin_input);
             TextInputLayout inputTextLayout = findViewById(R.id.plugin_input_til);
             int inputType = EditorInfo.TYPE_CLASS_TEXT;
-            int inputImage = R.drawable.ic_keyboard_return;
+            int inputImageAttribute = R.attr.ic_keyboard_return;
 
             switch (action.getInputType()) {
                 case TEXT:
                     break;
                 case SEARCH:
-                    inputImage = R.drawable.search;
+                    inputImageAttribute = R.attr.ic_keyboard_search;
                     break;
                 case EMAIL:
                     inputType |= EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
@@ -140,7 +140,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                     break;
             }
             inputText.setInputType(inputType);
-            inputButton.setImageResource(inputImage);
+            inputButton.setImageResource(getAttributeValue(inputImageAttribute));
             inputTextLayout.setHint(parent.input.title);
             inputText.setText(parent.input.initialText);
             inputText.setOnKeyListener(new OnKeyListener() {
