@@ -65,5 +65,6 @@
     <attr name="ic_delete" format="reference"/>
 
     <attr name="icon_context_menu" format="reference"/>
+    <attr name="icon_refresh" format="reference"/>
 
 </resources>

@@ -55,6 +55,7 @@
         <item name="ic_delete">@drawable/ic_delete</item>
 
         <item name="icon_context_menu">@drawable/ic_menu_overflow</item>
+        <item name="icon_refresh">@drawable/ic_refresh_white</item>
 
         <item name="dialogTheme">@style/Theme.AppCompat.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Dialog.Alert</item>
@@ -99,6 +100,7 @@
         <item name="ic_delete">@drawable/ic_delete_light</item>
 
         <item name="icon_context_menu">@drawable/ic_menu_overflow_light</item>
+        <item name="icon_refresh">@drawable/ic_refresh_black</item>
 
         <item name="dialogTheme">@style/Theme.AppCompat.Light.Dialog</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
