@@ -38,7 +38,8 @@
         android:maxHeight="@dimen/album_art_icon_height"
         android:maxWidth="@dimen/album_art_icon_width"
         android:minHeight="@dimen/album_art_icon_height"
-        android:minWidth="@dimen/album_art_icon_width"/>
+        android:minWidth="@dimen/album_art_icon_width"
+        tools:src="@drawable/icon_pending_artwork"/>
 
     <TextView
         android:id="@+id/trackname"

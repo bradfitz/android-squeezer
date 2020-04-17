@@ -6,7 +6,7 @@
     >
     <uk.org.ngo.squeezer.widget.SquareImageView
         android:id="@+id/artwork"
-        tools:src="@drawable/icon_album_noart"
+        tools:src="@drawable/icon_pending_artwork"
         style="@style/DisplayMessageArtwork"
         />
     <LinearLayout

@@ -1035,7 +1035,7 @@ public class NowPlayingFragment extends Fragment {
             volumeButton.setEnabled(false);
             playlistButton.setEnabled(false);
 
-            albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
+            albumArt.setImageResource(R.drawable.icon_pending_artwork);
             shuffleButton.setImageResource(0);
             repeatButton.setImageResource(0);
             updatePlayerDropDown(Collections.<Player>emptyList(), null);
@@ -1046,7 +1046,7 @@ public class NowPlayingFragment extends Fragment {
             seekBar.setEnabled(false);
             seekBar.setProgress(0);
         } else {
-            albumArt.setImageResource(R.drawable.icon_album_noart);
+            albumArt.setImageResource(R.drawable.icon_pending_artwork);
             mProgressBar.setEnabled(false);
             mProgressBar.setProgress(0);
         }

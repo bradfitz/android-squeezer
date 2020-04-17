@@ -36,7 +36,7 @@
         android:paddingStart="36dp"
         android:paddingEnd="36dp"
         android:scaleType="fitCenter"
-        tools:src="@drawable/icon_album_noart_fullscreen"/>
+        tools:src="@drawable/icon_pending_artwork"/>
 
     <!-- The trackname TextView needs to be wrapped in a LinearLayout.
 

@@ -460,7 +460,7 @@ public class SqueezeService extends Service {
                         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                         public void process(Object data, @Nullable Bitmap bitmap) {
                             if (bitmap == null) {
-                                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_album_noart);
+                                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_pending_artwork);
                             }
 
                             metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);

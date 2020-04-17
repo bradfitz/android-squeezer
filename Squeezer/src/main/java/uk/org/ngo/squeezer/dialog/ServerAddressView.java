@@ -204,7 +204,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             for (Entry<String, String> e : mDiscoveredServers.entrySet()) {
                 mServersAdapter.add(e.getKey());
             }
-            mServersAdapter.add(getContext().getString(R.string.settings_manual_serveraddr));
+            mServersAdapter.add(getContext().getString(R.string.settings_manual_server_addr));
             mServersAdapter.notifyDataSetChanged();
 
             // First look the stored server name in the list of found servers

@@ -59,7 +59,7 @@ for the implementation.
         android:minHeight="@dimen/album_art_icon_height"
         android:minWidth="@dimen/album_art_icon_width"
         android:layout_marginEnd="8dp"
-        tools:src="@drawable/icon_album_noart"/>
+        tools:src="@drawable/icon_pending_artwork"/>
 
     <LinearLayout
         android:layout_width="0dp"
