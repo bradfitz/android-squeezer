@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:drawableLeftCompat="?attr/icon_refresh"
+            app:icon="@drawable/ic_refresh"
             android:text="@string/settings_server_rescan"/>
 
         <TextView

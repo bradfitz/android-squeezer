@@ -5,24 +5,14 @@ import android.content.Context;
 import androidx.annotation.StringRes;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.EnumWithTextAndIcon;
+import uk.org.ngo.squeezer.framework.EnumWithText;
 
 /**
  * Supported list layouts.
  */
-public enum ArtworkListLayout implements EnumWithTextAndIcon {
-    grid(R.attr.ic_action_view_as_grid, R.string.SWITCH_TO_GALLERY),
-    list(R.attr.ic_action_view_as_list, R.string.SWITCH_TO_EXTENDED_LIST);
-
-    /**
-     * The icon to use for this layout
-     */
-    private final int iconAttribute;
-
-    @Override
-    public int getIconAttribute() {
-        return iconAttribute;
-    }
+public enum ArtworkListLayout implements EnumWithText {
+    grid(R.string.SWITCH_TO_GALLERY),
+    list(R.string.SWITCH_TO_EXTENDED_LIST);
 
     /**
      * The text to use for this layout
@@ -35,8 +25,7 @@ public enum ArtworkListLayout implements EnumWithTextAndIcon {
         return context.getString(stringResource);
     }
 
-    ArtworkListLayout(int iconAttribute, @StringRes int serverString) {
+    ArtworkListLayout(@StringRes int serverString) {
         this.stringResource = serverString;
-        this.iconAttribute = iconAttribute;
     }
 }

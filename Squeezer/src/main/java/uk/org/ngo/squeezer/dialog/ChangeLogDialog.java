@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import androidx.appcompat.app.AlertDialog;
 import android.webkit.WebView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import uk.org.ngo.squeezer.R;
 
 /**
@@ -49,7 +51,7 @@ public class ChangeLogDialog extends de.cketti.library.changelog.ChangeLog {
         //wv.setBackgroundColor(0); // transparent
         wv.loadDataWithBaseURL(null, getLog(full), "text/html", "UTF-8", null);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
         builder.setView(wv)
                 .setCancelable(false)
                 // OK button

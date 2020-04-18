@@ -46,7 +46,7 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            app:srcCompat="?ic_action_av_volume_down"/>
+            app:srcCompat="@drawable/ic_volume_down"/>
 
         <SeekBar
             android:id="@+id/slider"
@@ -59,7 +59,7 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            app:srcCompat="?ic_action_av_volume_up"/>
+            app:srcCompat="@drawable/ic_volume_up"/>
     </LinearLayout>
 
 </LinearLayout>

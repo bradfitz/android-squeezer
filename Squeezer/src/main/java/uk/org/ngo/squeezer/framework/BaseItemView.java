@@ -24,8 +24,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
@@ -37,7 +37,6 @@ import java.lang.reflect.Field;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.util.Reflection;
-import uk.org.ngo.squeezer.widget.ListItemImageButton;
 import uk.org.ngo.squeezer.widget.SquareImageView;
 
 /**
@@ -48,7 +47,7 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  * the {@link Item} and can optionally enable additional views.  The layout is defined in {@code
  * res/layout/list_item.xml}. <ul> <li>A {@link SquareImageView} suitable for displaying icons</li>
  * <li>A second, smaller {@link TextView} for additional item information</li> <li>A {@link
- * ListItemImageButton} that shows a disclosure triangle for a context menu</li> </ul> The view can
+ * Button} that shows a disclosure triangle for a context menu</li> </ul> The view can
  * display an item in one of two states.  The primary state is when the data to be inserted in to
  * the view is known, and represented by a complete {@link Item} subclass. The loading state is when
  * the data type is known, but has not been fetched from the server yet.
@@ -113,7 +112,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         public TextView text2;
 
         public View contextMenuButtonHolder;
-        public ImageButton contextMenuButton;
+        public Button contextMenuButton;
         public ProgressBar contextMenuLoading;
         public CheckBox contextMenuCheckbox;
         public RadioButton contextMenuRadio;

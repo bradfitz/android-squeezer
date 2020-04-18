@@ -66,7 +66,7 @@ for the implementation.
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/icon"
-        android:layout_toLeftOf="@id/context_menu"
+        android:layout_toStartOf="@id/context_menu"
         android:ellipsize="end"
         android:paddingTop="4dp"
         android:singleLine="true"
@@ -78,7 +78,7 @@ for the implementation.
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/text1"
-        android:layout_toLeftOf="@id/context_menu"
+        android:layout_toStartOf="@id/context_menu"
         android:ellipsize="end"
         android:singleLine="true"
         android:textAppearance="@style/SqueezerTextAppearance.GridItem.Secondary"
@@ -89,6 +89,5 @@ for the implementation.
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_below="@id/icon"
-        android:layout_alignParentRight="true"
-        android:minWidth="48dp"/>
+        android:layout_alignParentEnd="true"/>
 </RelativeLayout>

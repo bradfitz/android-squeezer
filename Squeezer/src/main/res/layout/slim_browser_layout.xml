@@ -32,7 +32,6 @@
         android:paddingEnd="32dp"
         android:paddingTop="8dp"
         android:visibility="gone"
-        style="@style/ListHeader"
         tools:visibility="visible">
 
         <uk.org.ngo.squeezer.widget.SquareImageView
@@ -114,12 +113,11 @@
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/input_button"
-            android:scaleType="fitCenter"
-            app:srcCompat="?attr/ic_keyboard_return"
+            app:icon="@drawable/keyboard_return"
             android:layout_width="48dp"
-            android:layout_height="48dp"/>
+            android:layout_height="match_parent"/>
     </LinearLayout>
 
     <include layout="@layout/item_list"
