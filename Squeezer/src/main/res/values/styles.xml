@@ -43,7 +43,7 @@
         <item name="ic_alarm_settings">@drawable/ic_alarm_settings</item>
         <item name="ic_delete">@drawable/ic_delete</item>
 
-        <item name="actionBarStyle">@style/Widget.MaterialComponents.ActionBar.Primary</item>
+        <item name="actionBarStyle">@style/SqueezerActionBar.Dark</item>
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.MaterialComponents.Light">
@@ -72,6 +72,10 @@
         <item name="ic_delete">@drawable/ic_delete_light</item>
 
         <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+    </style>
+
+    <style name="SqueezerActionBar.Dark" parent="@style/Widget.MaterialComponents.ActionBar.Primary">
+        <item name="background">@color/actionBarBackgroundDark</item>
     </style>
 
     <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
