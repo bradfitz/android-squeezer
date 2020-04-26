@@ -49,6 +49,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -56,6 +57,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.common.base.Joiner;
@@ -532,7 +534,9 @@ public class NowPlayingFragment extends Fragment {
         // choose between them.
         if (connectedPlayers.size() > 1) {
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            actionBar.setDisplayShowCustomEnabled(true);
+            actionBar.setCustomView(R.layout.action_bar_custom_view);
+            Spinner spinner = (Spinner) actionBar.getCustomView();
             final Context actionBarContext = actionBar.getThemedContext();
             final ArrayAdapter<Player> playerAdapter = new ArrayAdapter<Player>(
                     actionBarContext, android.R.layout.simple_spinner_dropdown_item,
@@ -549,29 +553,28 @@ public class NowPlayingFragment extends Fragment {
                             getItem(position).getName());
                 }
             };
-            actionBar.setListNavigationCallbacks(playerAdapter,
-                    new ActionBar.OnNavigationListener() {
-                        @Override
-                        public boolean onNavigationItemSelected(int position, long id) {
-                            if (!playerAdapter.getItem(position)
-                                    .equals(mService.getActivePlayer())) {
-                                Log.i(TAG,
-                                        "onNavigationItemSelected.setActivePlayer(" + playerAdapter
-                                                .getItem(position) + ")");
-                                mService.setActivePlayer(playerAdapter.getItem(position));
-                                updateUiFromPlayerState(mService.getActivePlayerState());
-                            }
-                            return true;
-                        }
-                    });
+            spinner.setAdapter(playerAdapter);
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (!playerAdapter.getItem(position).equals(mService.getActivePlayer())) {
+                        mService.setActivePlayer(playerAdapter.getItem(position));
+                        updateUiFromPlayerState(mService.getActivePlayerState());
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
             if (activePlayer != null) {
-                actionBar.setSelectedNavigationItem(playerAdapter.getPosition(activePlayer));
+                spinner.setSelection(playerAdapter.getPosition(activePlayer));
             }
         } else {
             // 0 or 1 players, disable the spinner, and either show the sole player in the
             // action bar, or the app name if there are no players.
             actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            actionBar.setDisplayShowCustomEnabled(false);
 
             if (connectedPlayers.size() == 1) {
                 actionBar.setTitle(connectedPlayers.get(0).getName());
