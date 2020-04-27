@@ -124,21 +124,9 @@ abstract class BaseClient implements SlimClient {
             mEventBus.post(new PlaylistChanged(player));
         }
 
-        // Note to self: The problem here is that with second-to-second updates enabled
-        // the playerlistactivity callback will be called every second.  Thinking that
-        // a better approach would be for clients to register a single callback and a
-        // bitmask of events they're interested in based on the change* variables.
-        // Each callback would be called a maximum of once, with the new player and a
-        // bitmask that corresponds to which changes happened (so the client can
-        // distinguish between the types of changes).
-
-        // Might also be worth investigating Otto as an event bus instead.
-
-        // Quick and dirty fix -- only call onPlayerStateReceived for changes to the
-        // player state (ignore changes to Song, SongDuration, SongTime).
-
         if (changedPower || changedSleep || changedSleepDuration || changedVolume
-                || changedSong || changedSyncMaster || changedSyncSlaves) {
+                || changedSong || changedSongDuration || changedSongTime
+                || changedSyncMaster || changedSyncSlaves) {
             postPlayerStateChanged(player);
         }
 

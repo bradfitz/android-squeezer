@@ -60,7 +60,8 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_volume_down_light"/>
+            android:tint="#FFFFFF"
+            app:srcCompat="@drawable/ic_volume_down"/>
 
         <TextView
             android:id="@+id/label"
@@ -76,7 +77,8 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_volume_up_light"/>
+            android:tint="#FFFFFF"
+            app:srcCompat="@drawable/ic_volume_up"/>
     </LinearLayout>
 
 </LinearLayout>

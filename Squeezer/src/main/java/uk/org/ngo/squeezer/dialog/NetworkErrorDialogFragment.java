@@ -22,7 +22,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * A dialog for displaying networking error messages received from the server.
@@ -93,10 +94,9 @@ public class NetworkErrorDialogFragment extends DialogFragment {
             message = "No message provided.";
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(message).setPositiveButton(android.R.string.ok, null);
-
-        return builder.create();
+        return new MaterialAlertDialogBuilder(getActivity())
+            .setMessage(message).setPositiveButton(android.R.string.ok, null)
+            .create();
     }
 
     @Override

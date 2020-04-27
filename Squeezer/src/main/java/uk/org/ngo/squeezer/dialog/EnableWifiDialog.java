@@ -7,9 +7,10 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import uk.org.ngo.squeezer.R;
 
@@ -20,7 +21,7 @@ public class EnableWifiDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         builder.setTitle(R.string.wifi_disabled_text);
         builder.setMessage(R.string.enable_wifi_text);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

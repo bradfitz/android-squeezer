@@ -363,11 +363,11 @@ class CometClient extends BaseClient {
                 });
 
                 // Request server status
-                publishMessage(request("serverstatus").defaultPage(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
+                publishMessage(serverStatusRequest(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
 
                 // Subscribe to server changes
                 {
-                    Request request = request("serverstatus").defaultPage().param("subscribe", "60");
+                    Request request = serverStatusRequest().param("subscribe", "60");
                     publishMessage(request, CHANNEL_SLIM_SUBSCRIBE, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
                 }
 
@@ -392,7 +392,7 @@ class CometClient extends BaseClient {
     private void parseServerStatus(Message message) {
         Map<String, Object> data = message.getDataAsMap();
 
-        // We can't distinguish betwween no copnnected players and players not received
+        // We can't distinguish between no connected players and players not received
         // so we check the server version which is also set from server status
         boolean firstTimePlayersReceived = (getConnectionState().getServerVersion() == null);
 
@@ -402,12 +402,26 @@ class CometClient extends BaseClient {
         if (item_data != null) {
             for (Object item_d : item_data) {
                 Map<String, Object> record = (Map<String, Object>) item_d;
+                if (!record.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP) &&
+                        data.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP)) {
+                    record.put(Player.Pref.DEFEAT_DESTRUCTIVE_TTP, data.get(Player.Pref.DEFEAT_DESTRUCTIVE_TTP));
+                }
                 Player player = new Player(record);
                 players.put(player.getId(), player);
             }
         }
-        if (firstTimePlayersReceived || !players.equals(mConnectionState.getPlayers())) {
+
+        Map<String, Player> currentPlayers = mConnectionState.getPlayers();
+        if (firstTimePlayersReceived || !players.equals(currentPlayers)) {
             mConnectionState.setPlayers(players);
+        } else {
+            for (Player player : players.values()) {
+                PlayerState currentPlayerState = currentPlayers.get(player.getId()).getPlayerState();
+                if (!player.getPlayerState().prefs.equals(currentPlayerState.prefs)) {
+                    currentPlayerState.prefs = player.getPlayerState().prefs;
+                    postPlayerStateChanged(player);
+                }
+            }
         }
     }
 
@@ -440,6 +454,7 @@ class CometClient extends BaseClient {
     protected void postSongTimeChanged(Player player) {
         super.postSongTimeChanged(player);
         if (player.getPlayerState().isPlaying()) {
+            mBackgroundHandler.removeMessages(MSG_TIME_UPDATE);
             mBackgroundHandler.sendEmptyMessageDelayed(MSG_TIME_UPDATE, 1000);
         }
     }
@@ -449,6 +464,7 @@ class CometClient extends BaseClient {
         super.postPlayerStateChanged(player);
         if (player.getPlayerState().getSleepDuration() > 0) {
             android.os.Message message = mBackgroundHandler.obtainMessage(MSG_STATE_UPDATE, player);
+            mBackgroundHandler.removeMessages(MSG_STATE_UPDATE);
             mBackgroundHandler.sendMessageDelayed(message, 1000);
         }
     }
@@ -779,6 +795,14 @@ class CometClient extends BaseClient {
                 }
             }
         }
+    }
+
+    @NonNull
+    private Request serverStatusRequest() {
+        return request("serverstatus")
+                .defaultPage()
+                .param("prefs", Player.Pref.DEFEAT_DESTRUCTIVE_TTP)
+                .param("playerprefs", Player.Pref.PLAY_TRACK_ALBUM + "," + Player.Pref.DEFEAT_DESTRUCTIVE_TTP);
     }
 
     @NonNull

@@ -25,9 +25,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog.Builder;
 import android.view.View;
 import android.widget.TextView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import uk.org.ngo.squeezer.BuildConfig;
 import uk.org.ngo.squeezer.R;
@@ -36,7 +37,7 @@ public class AboutDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
+        @SuppressLint({"InflateParams"})
         final View view = getActivity().getLayoutInflater().inflate(R.layout.about_dialog, null);
         final TextView titleText = view.findViewById(R.id.about_title);
         final TextView versionText = view.findViewById(R.id.version_text);
@@ -54,7 +55,7 @@ public class AboutDialog extends DialogFragment {
             titleText.setText(getString(R.string.app_name));
         }
 
-        Builder builder = new Builder(getActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         builder.setView(view);
         builder.setPositiveButton(android.R.string.ok, null);
         builder.setNeutralButton(R.string.changelog_full_title, new DialogInterface.OnClickListener() {

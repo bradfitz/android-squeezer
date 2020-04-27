@@ -23,10 +23,10 @@ import android.content.DialogInterface.OnKeyListener;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AlertDialog.Builder;
 import android.view.KeyEvent;
 import android.view.View;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import uk.org.ngo.squeezer.R;
 
@@ -35,14 +35,14 @@ public class TipsDialog extends DialogFragment implements OnKeyListener {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
+        @SuppressLint({"InflateParams"})
         final View view = getActivity().getLayoutInflater().inflate(R.layout.tips_dialog, null);
 
-        Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(view);
-        builder.setPositiveButton(android.R.string.ok, null);
-        builder.setOnKeyListener(this);
-        return builder.create();
+        return new MaterialAlertDialogBuilder(getActivity())
+            .setView(view)
+            .setPositiveButton(android.R.string.ok, null)
+            .setOnKeyListener(this)
+            .create();
     }
 
     /*

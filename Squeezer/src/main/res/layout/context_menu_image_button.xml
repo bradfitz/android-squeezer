@@ -24,7 +24,7 @@ limitations under the License.
     android:visibility="gone"
     tools:visibility="visible">
 
-    <uk.org.ngo.squeezer.widget.ListItemImageButton
+    <Button
         style="@style/SqueezerContextMenuButton"
         android:id="@+id/context_menu_button"
         />

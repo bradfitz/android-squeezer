@@ -19,9 +19,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Note some items use server texts -->
-    <item android:id="@+id/sleep" android:title="">
+    <item android:id="@+id/sleep" android:title="@string/SLEEP">
         <menu>
-            <item android:id="@+id/end_of_song" android:visible="false"/>
+            <item android:id="@+id/end_of_song" android:title="@string/SLEEP_AT_END_OF_SONG"/>
             <item android:id="@+id/in_15_minutes" android:title=""/>
             <item android:id="@+id/in_30_minutes" android:title=""/>
             <item android:id="@+id/in_45_minutes" android:title=""/>
@@ -29,8 +29,10 @@
             <item android:id="@+id/in_90_minutes" android:title=""/>
         </menu>
     </item>
-    <item android:id="@+id/cancel_sleep" android:visible="false"/>
+    <item android:id="@+id/cancel_sleep" android:title="@string/SLEEP_CANCEL"/>
     <item android:id="@+id/rename" android:title="@string/menu_item_rename"/>
-    <item android:id="@+id/toggle_power" android:visible="false"/>
-    <item android:id="@+id/player_sync" android:title="@string/menu_item_player_sync" android:visible="false"/>
+    <item android:id="@+id/toggle_power" android:title="@string/menu_item_power_on"/>
+    <item android:id="@+id/player_sync" android:title="@string/menu_item_player_sync"/>
+    <item android:id="@+id/play_track_album" android:title="@string/SETUP_PLAYTRACKALBUM"/>
+    <item android:id="@+id/defeat_destructive_ttp" android:title="@string/SETUP_DEFEAT_DESTRUCTIVE_TTP"/>
 </menu>

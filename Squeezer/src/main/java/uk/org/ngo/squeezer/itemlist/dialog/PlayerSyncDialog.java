@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -25,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import android.widget.ArrayAdapter;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Multimap;
 
@@ -121,7 +121,7 @@ public class PlayerSyncDialog extends DialogFragment {
         ArrayAdapter<String> playerSyncGroupAdapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_list_item_single_choice, playerSyncGroupNames);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         builder.setTitle(getString(R.string.sync_title, currentPlayer.getName()))
                 .setSingleChoiceItems(playerSyncGroupAdapter, mSelectedGroup,
                         new DialogInterface.OnClickListener() {

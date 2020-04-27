@@ -70,6 +70,7 @@ public class SqueezePlayer extends Handler {
         } else {
             context.startService(getSqueezePlayerIntent());
         }
+        removeMessages(MSG_TIMEOUT);
         sendMessageDelayed(obtainMessage(MSG_TIMEOUT), TIMEOUT_DELAY);
     }
 

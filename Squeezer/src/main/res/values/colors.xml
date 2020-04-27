@@ -17,6 +17,7 @@
   -->
 
 <resources>
+    <color name="actionBarBackgroundDark">#272727</color>
 
     <color name="alarm_list_background">#1c1e20</color>
     <color name="transparent">#00000000</color>

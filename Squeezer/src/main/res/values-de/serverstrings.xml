@@ -1,0 +1,39 @@
+<resources>"xmlns:tools="http://schemas.android.com/tools"<!-- 
+Automatically generated file. DO NOT MODIFY
+ -->
+  <string name='X_MINUTES'>%s Minuten</string>
+  <string name='SLEEP'>Schlafmodus</string>
+  <string name='ALARM'>Wecker</string>
+  <string name='SETTINGS'>Einstellungen</string>
+  <string name='SCREEN_SETTINGS'>Anzeige</string>
+  <string name='ALARM_ALARM_REPEAT'>Wecker wiederholen</string>
+  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_3'>Nachfragen, wenn die aktuelle Wiedergabeliste mehr als einen Titel enthält und die Wiedergabe läuft</string>
+  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_2'>Nachfragen, wenn die aktuelle Wiedergabeliste mehr als einen Titel enthält</string>
+  <string name='SETUP_PLAYTRACKALBUM_DESC'>Wenn Sie einen Titel auswählen und PLAY drücken, können Sie hier festlegen, ob nur dieses eine oder alle Titel aus diesem Album oder Ordner wiedergegeben werden soll.</string>
+  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_4'>Nachfragen, wenn die Wiedergabe läuft, und aktuell keine Radiostation wiedergegeben wird</string>
+  <string name='SLEEP_CANCEL'>Schlafmodus abbrechen</string>
+  <string name='ALARM_SHORT_DAY_6'>Sa</string>
+  <string name='SWITCH_TO_EXTENDED_LIST'>Kleine Plattenhüllen</string>
+  <string name='ALARM_SHORT_DAY_4'>Do</string>
+  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_1'>Vor dem Ersetzen der Wiedergabeliste immer nachfragen</string>
+  <string name='ALARM_SHORT_DAY_5'>Fr</string>
+  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_0'>Destruktives Verhalten nicht unterdrücken</string>
+  <string name='EXTRAS'>Extras</string>
+  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP'>Destruktive "Wiedergabe durch Berühren" unterdrücken </string>
+  <string name='SWITCH_TO_GALLERY'>Große Plattenhüllen</string>
+  <string name='ADVANCED_SETTINGS'>Erweitert</string>
+  <string name='ALARM_DELETING'>Wecker wird entfernt…</string>
+  <string name='ALARM_SHORT_DAY_2'>Di</string>
+  <string name='ALARM_SHORT_DAY_3'>Mi</string>
+  <string name='ALARM_SHORT_DAY_0'>So</string>
+  <string name='ALARM_SHORT_DAY_1'>Mo</string>
+  <string name='SETUP_PLAYTRACKALBUM_0'>Nur den ausgewählten Titel wiedergeben</string>
+  <string name='MORE'>Mehr</string>
+  <string name='SLEEP_AT_END_OF_SONG'>Schlafmodus bei Titelende</string>
+  <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_DESC'>Durch das Berühren/auswählen eines Musikstückes auf der Squeezebox kann versehentlich eine aktuelle Wiedergabeliste ersetzt werden. Dieses destruktive Verhalten kann mit dieser Einstellunge kontrolliert weren.</string>
+  <string name='ALARM_ALL_ALARMS'>Alle Wecker</string>
+  <string name='SETUP_PLAYTRACKALBUM_1'>Auch andere Titel im Album oder Ordner wiedergeben</string>
+  <string name='SETUP_PLAYTRACKALBUM'>Andere Titel des Albums wiedergeben</string>
+  <string name='SLEEPING_IN'>Schlafmodus in</string>
+  <string name='HOME'>Hauptmenü</string>
+</resources>

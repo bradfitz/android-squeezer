@@ -36,7 +36,7 @@
         android:paddingStart="36dp"
         android:paddingEnd="36dp"
         android:scaleType="fitCenter"
-        tools:src="@drawable/icon_album_noart_fullscreen"/>
+        tools:src="@drawable/icon_pending_artwork"/>
 
     <!-- The trackname TextView needs to be wrapped in a LinearLayout.
 
@@ -138,16 +138,15 @@
             style="@style/SqueezerWidget.MediaButton.Repeat"/>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/volume"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        style="@style/SqueezerWidget.MediaButton.Volume"/>
-
-
-    <Button
-        android:id="@+id/playlist"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        style="@style/SqueezerWidget.MediaButton.Playlist" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+        <Button
+            android:id="@+id/volume"
+            style="@style/SqueezerWidget.MediaButton.Volume"/>
+        <Button
+            android:id="@+id/playlist"
+            style="@style/SqueezerWidget.MediaButton.Playlist"/>
+    </LinearLayout>
 </RelativeLayout>

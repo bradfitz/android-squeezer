@@ -18,51 +18,30 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 
-import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.Item;
 
-public class ChoicesDialog extends DialogFragment {
-    private static final String TAG = DialogFragment.class.getSimpleName();
+public class ChoicesDialog extends BaseChoicesDialog {
+
+    private BaseActivity activity;
+    private Item item;
+    private int alreadyPopped;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final BaseActivity activity = (BaseActivity)getActivity();
-        final Item item = getArguments().getParcelable(Item.class.getName());
-        final int alreadyPopped = getArguments().getInt("alreadyPopped", 0);
+        activity = (BaseActivity)getActivity();
+        item = getArguments().getParcelable(Item.class.getName());
+        alreadyPopped = getArguments().getInt("alreadyPopped", 0);
+        return createDialog(item.getName(), null, item.selectedIndex-1, item.choiceStrings);
+    }
 
-        Dialog dialog = new Dialog(getContext());
-        dialog.setContentView(R.layout.choices_layout);
-
-        ((TextView)dialog.findViewById(R.id.header)).setText(item.getName());
-
-        RadioGroup radioGroup = dialog.findViewById(R.id.choices);
-        for (int i = 0; i < item.choiceStrings.length; i++) {
-            RadioButton radioButton = new RadioButton(activity);
-            radioButton.setText(item.choiceStrings[i]);
-            radioButton.setId(i);
-            radioGroup.addView(radioButton);
-        }
-        radioGroup.check(item.selectedIndex-1);
-
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                activity.action(item.goAction.choices[checkedId], alreadyPopped);
-                dismiss();
-            }
-        });
-
-
-        return dialog;
+    @Override
+    protected void onSelectOption(int checkedId) {
+        activity.action(item.goAction.choices[checkedId], alreadyPopped);
     }
 
     /**
@@ -81,7 +60,7 @@ public class ChoicesDialog extends DialogFragment {
         args.putInt("alreadyPopped", alreadyPopped);
         dialog.setArguments(args);
 
-        dialog.show(activity.getSupportFragmentManager(), TAG);
+        dialog.show(activity.getSupportFragmentManager(), ChoicesDialog.class.getSimpleName());
         return dialog;
     }
 }

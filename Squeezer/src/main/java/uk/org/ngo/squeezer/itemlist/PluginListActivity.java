@@ -35,10 +35,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.List;
@@ -120,17 +119,17 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         findViewById(R.id.input_view).setVisibility((hasInputField()) ? View.VISIBLE : View.GONE);
         if (hasInputField()) {
-            ImageButton inputButton = findViewById(R.id.input_button);
+            MaterialButton inputButton = findViewById(R.id.input_button);
             final EditText inputText = findViewById(R.id.plugin_input);
             TextInputLayout inputTextLayout = findViewById(R.id.plugin_input_til);
             int inputType = EditorInfo.TYPE_CLASS_TEXT;
-            int inputImage = R.drawable.ic_keyboard_return;
+            int inputImage = R.drawable.keyboard_return;
 
             switch (action.getInputType()) {
                 case TEXT:
                     break;
                 case SEARCH:
-                    inputImage = R.drawable.search;
+                    inputImage = R.drawable.ic_menu_search;
                     break;
                 case EMAIL:
                     inputType |= EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
@@ -140,7 +139,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
                     break;
             }
             inputText.setInputType(inputType);
-            inputButton.setImageResource(inputImage);
+            inputButton.setIconResource(inputImage);
             inputTextLayout.setHint(parent.input.title);
             inputText.setText(parent.input.initialText);
             inputText.setOnKeyListener(new OnKeyListener() {

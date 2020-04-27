@@ -36,6 +36,8 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
+import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -46,7 +48,9 @@ import uk.org.ngo.squeezer.service.event.PlayerVolume;
 
 
 public class PlayerListActivity extends ItemListActivity implements
-        PlayerSyncDialog.PlayerSyncDialogHost {
+        PlayerSyncDialog.PlayerSyncDialogHost,
+        PlayTrackAlbumDialog.PlayTrackAlbumDialogHost,
+        DefeatDestructiveTouchToPlayDialog.DefeatDestructiveTouchToPlayDialogHost {
     private static final String CURRENT_PLAYER = "currentPlayer";
 
     private ExpandableListView mResultsExpandableListView;
@@ -269,5 +273,25 @@ public class PlayerListActivity extends ItemListActivity implements
         final Intent intent = new Intent(context, PlayerListActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         context.startActivity(intent);
+    }
+
+    @Override
+    public String getPlayTrackAlbum() {
+        return currentPlayer.getPlayerState().prefs.get(Player.Pref.PLAY_TRACK_ALBUM);
+    }
+
+    @Override
+    public void setPlayTrackAlbum(@NonNull String option) {
+        getService().playerPref(currentPlayer, Player.Pref.PLAY_TRACK_ALBUM, option);
+    }
+
+    @Override
+    public String getDefeatDestructiveTTP() {
+        return currentPlayer.getPlayerState().prefs.get(Player.Pref.DEFEAT_DESTRUCTIVE_TTP);
+    }
+
+    @Override
+    public void setDefeatDestructiveTTP(@NonNull String option) {
+        getService().playerPref(currentPlayer, Player.Pref.DEFEAT_DESTRUCTIVE_TTP, option);
     }
 }
