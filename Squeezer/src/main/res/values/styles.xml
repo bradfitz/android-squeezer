@@ -43,6 +43,10 @@
         <item name="ic_alarm_settings">@drawable/ic_alarm_settings</item>
         <item name="ic_delete">@drawable/ic_delete</item>
 
+        <item name="colorPrimary">@color/lightBlueDark</item>
+        <item name="colorPrimaryVariant">@color/lightBlueDarkVariant</item>
+        <item name="colorSecondary">@color/amberDark</item>
+        <item name="colorSecondaryVariant">@color/amberDarkVariant</item>
         <item name="actionBarStyle">@style/SqueezerActionBar.Dark</item>
     </style>
 
@@ -71,6 +75,10 @@
         <item name="ic_alarm_settings">@drawable/ic_alarm_settings_light</item>
         <item name="ic_delete">@drawable/ic_delete_light</item>
 
+        <item name="colorPrimary">@color/lightBlueLight</item>
+        <item name="colorPrimaryVariant">@color/lightBlueLightVariant</item>
+        <item name="colorSecondary">@color/amberLight</item>
+        <item name="colorSecondaryVariant">@color/amberLightVariant</item>
         <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
     </style>
 

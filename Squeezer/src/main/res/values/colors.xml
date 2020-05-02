@@ -17,6 +17,101 @@
   -->
 
 <resources>
+    <color name="redDark">#F44336</color>
+    <color name="redDarkVariant">#EF9A9A</color>
+    <color name="redLight">#D32F2F</color>
+    <color name="redLightVariant">#9a0007</color>
+
+    <color name="pinkDark">#F48FB1</color> <!-- (+) -->
+    <color name="pinkDarkVariant">#bf5f82</color>
+    <color name="pinkLight">#C2185B</color> <!-- (+) -->
+    <color name="pinkLightVariant">#8c0032</color>
+
+    <color name="purpleDark">#CE93D8</color>
+    <color name="purpleDarkVariant">#9c64a6</color>
+    <color name="purpleLight">#4A148C</color>
+    <color name="purpleLightVariant">#7B1FA2</color>
+
+    <color name="deepPurpleDark">#B39DDB</color> <!-- ++ -->
+    <color name="deepPurpleDarkVariant">#836fa9</color>
+    <color name="deepPurpleLight">#311B92</color> <!-- ++ -->
+    <color name="deepPurpleLightVariant">#512DA8</color>
+
+    <color name="indigoDark">#9FA8DA</color> <!-- ++ -->
+    <color name="indigoDarkVariant">#6f79a8</color>
+    <color name="indigoLight">#1A237E</color> <!-- ++ -->
+    <color name="indigoLightVariant">#303F9F</color>
+
+    <color name="blueDark">#90CAF9</color> <!-- + -->
+    <color name="blueDarkVariant">#5d99c6</color>
+    <color name="blueLight">#0D47A1</color> <!-- + -->
+    <color name="blueLightVariant">#002171</color>
+
+    <color name="lightBlueDark">#81D4FA</color> <!-- ++ -->
+    <color name="lightBlueDarkVariant">#4ba3c7</color>
+    <color name="lightBlueLight">#01579B</color> <!-- ++ -->
+    <color name="lightBlueLightVariant">#002f6c</color>
+
+    <color name="cyanDark">#80DEEA</color> <!-- ++ -->
+    <color name="cyanDarkVariant">#4bacb8</color>
+    <color name="cyanLight">#006064</color> <!-- ++ -->
+    <color name="cyanLightVariant">#00363a</color>
+
+    <color name="tealDark">#80CBC4</color> <!-- + (close to secondary) -->
+    <color name="tealDarkVariant">#4f9a94</color>
+    <color name="tealLight">#00796B</color> <!-- + -->
+    <color name="tealLightVariant">#004D40</color>
+
+    <color name="greenDark">#A5D6A7</color>
+    <color name="greenDarkVariant">#75a478</color>
+    <color name="greenLight">#1B5E20</color>
+    <color name="greenLightVariant">#003300</color>
+
+    <color name="lightGreenDark">#C5E1A5</color> <!-- (+) -->
+    <color name="lightGreenDarkVariant">#94af76</color>
+    <color name="lightGreenLight">#33691E</color> <!-- (+) -->
+    <color name="lightGreenLightVariant">#003d00</color>
+
+    <color name="limeDark">#E6EE9C</color> <!-- (+) -->
+    <color name="limeDarkVariant">#b3bc6d</color>
+    <color name="limeLight">#827717</color> <!-- (+) -->
+    <color name="limeLightVariant">#524c00</color>
+
+    <color name="yellowDark">#FFF59D</color>
+    <color name="yellowDarkVariant">#cbc26d</color>
+    <color name="yellowLight">#bc5100</color>
+    <color name="yellowLightVariant">#bc5100</color>
+
+    <color name="amberDark">#FF6F00</color> <!-- ++ -->
+    <color name="amberDarkVariant">#caae53</color>
+    <color name="amberLight">#c43e00</color> <!-- + -->
+    <color name="amberLightVariant">#c43e00</color>
+
+    <color name="orangeDark">#F57C00</color> <!-- ++ -->
+    <color name="orangeDarkVariant">#ca9b52</color>
+    <color name="orangeLight">#bb4d00</color> <!-- + -->
+    <color name="orangeLightVariant">#ac1900</color>
+
+    <color name="deepOrangeDark">#FFAB91</color>
+    <color name="deepOrangeDarkVariant">#c97b63</color>
+    <color name="deepOrangeLight">#BF360C</color>
+    <color name="deepOrangeLightVariant">#870000</color>
+
+    <color name="brownDark">#BCAAA4</color> <!-- + -->
+    <color name="brownDarkVariant">#8c7b75</color>
+    <color name="brownLight">#3E2723</color> <!-- + -->
+    <color name="brownLightVariant">#5D4037</color>
+
+    <color name="greyDark">#EEEEEE</color> <!-- + -->
+    <color name="greyDarkVariant">#bcbcbc</color>
+    <color name="greyLight">#616161</color> <!-- + -->
+    <color name="greyLightVariant">#373737</color>
+
+    <color name="blueGreyDark">#B0BEC5</color> <!-- + -->
+    <color name="blueGreyDarkVariant">#808e95</color>
+    <color name="blueGreyLight">#455A64</color> <!-- + -->
+    <color name="blueGreyLightVariant">#263238</color>
+
     <color name="actionBarBackgroundDark">#272727</color>
 
     <color name="alarm_list_background">#1c1e20</color>
