@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.framework;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
@@ -148,7 +147,7 @@ public abstract class Item implements Parcelable {
     public Drawable getIconDrawable(Context context) {
         @DrawableRes int foreground = getItemIcon();
         if (foreground != 0) {
-            int inset = (int) (6 * Resources.getSystem().getDisplayMetrics().density);
+            int inset = context.getResources().getDimensionPixelSize(R.dimen.album_art_inset);
 
             Drawable background = AppCompatResources.getDrawable(context, R.drawable.icon_background);
             Drawable icon = AppCompatResources.getDrawable(context, foreground);

@@ -3,6 +3,7 @@
     <!-- Icons in list rows. -->
     <dimen name="album_art_icon_width">48dp</dimen>
     <dimen name="album_art_icon_height">48dp</dimen>
+    <dimen name="album_art_inset">6dp</dimen>
 
     <!-- Icons in list headers. -->
     <dimen name="album_art_large_icon_width">96dp</dimen>
@@ -20,4 +21,7 @@
     <!-- Icons in expanded notification -->
     <dimen name="album_art_icon_expanded_notification_width">128dp</dimen>
     <dimen name="album_art_icon_expanded_notification_height">128dp</dimen>
+
+    <!-- Volume panel -->
+    <dimen name="volume_panel_top_margin">8dp</dimen>
 </resources>
