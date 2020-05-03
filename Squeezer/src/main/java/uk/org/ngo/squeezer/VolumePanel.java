@@ -106,6 +106,7 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
         window.setGravity(Gravity.TOP);
         WindowManager.LayoutParams lp = window.getAttributes();
         lp.token = null;
+        lp.y = activity.getResources().getDimensionPixelSize(R.dimen.volume_panel_top_margin);
         lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         window.setAttributes(lp);

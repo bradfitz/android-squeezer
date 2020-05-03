@@ -126,4 +126,7 @@
     <color name="alarm_list_background_light">#e5e5e5</color>
     <color name="main_button_normal_light">#b0b0b0</color>
     <color name="main_button_selected_light">#e0e0e0</color>
+
+    <color name="volume_panel_back_circle_color">#222222</color>
+    <color name="volume_panel_back_circle_color_light">#EDEDED</color>
 </resources>

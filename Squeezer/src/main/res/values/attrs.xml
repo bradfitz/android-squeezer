@@ -42,6 +42,7 @@
         <attr name="playing_item" format="reference"/>
     </declare-styleable>
 
+    <!-- Alarm -->
     <declare-styleable name="alarm">
         <attr name="alarm_dow_selected" format="reference"/>
         <attr name="alarm_am_pm_color" format="reference"/>
@@ -53,4 +54,6 @@
     <attr name="ic_alarm_settings" format="reference"/>
     <attr name="ic_delete" format="reference"/>
 
+    <!-- Volume panel -->
+    <attr name="volume_panel_back_circle_color" format="reference"/>
 </resources>

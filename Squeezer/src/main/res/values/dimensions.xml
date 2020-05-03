@@ -20,4 +20,7 @@
     <!-- Icons in expanded notification -->
     <dimen name="album_art_icon_expanded_notification_width">128dp</dimen>
     <dimen name="album_art_icon_expanded_notification_height">128dp</dimen>
+
+    <!-- Volume panel -->
+    <dimen name="volume_panel_top_margin">8dp</dimen>
 </resources>
