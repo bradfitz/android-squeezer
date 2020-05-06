@@ -453,23 +453,21 @@ public class NowPlayingFragment extends Fragment {
     private void updatePlayPauseIcon(@PlayerState.PlayState String playStatus) {
         playPauseButton
                 .setImageResource((PlayerState.PLAY_STATE_PLAY.equals(playStatus)) ?
-                        mActivity.getAttributeValue(R.attr.ic_action_av_pause)
-                        : mActivity.getAttributeValue(R.attr.ic_action_av_play));
+                        R.drawable.ic_action_pause
+                        : R.drawable.ic_action_play);
     }
 
     @UiThread
     private void updateShuffleStatus(ShuffleStatus shuffleStatus) {
         if (mFullHeightLayout && shuffleStatus != null) {
-            shuffleButton.setImageResource(
-                    mActivity.getAttributeValue(shuffleStatus.getIcon()));
+            shuffleButton.setImageResource(shuffleStatus.getIcon());
         }
     }
 
     @UiThread
     private void updateRepeatStatus(RepeatStatus repeatStatus) {
         if (mFullHeightLayout && repeatStatus != null) {
-            repeatButton.setImageResource(
-                    mActivity.getAttributeValue(repeatStatus.getIcon()));
+            repeatButton.setImageResource(repeatStatus.getIcon());
         }
     }
 

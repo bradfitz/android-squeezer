@@ -19,19 +19,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents">
-        <item name="ic_action_av_next">@drawable/ic_action_next</item>
-        <item name="ic_action_av_pause">@drawable/ic_action_pause</item>
-        <item name="ic_action_av_play">@drawable/ic_action_play</item>
-        <item name="ic_action_av_previous">@drawable/ic_action_previous</item>
-
-        <item name="ic_action_av_repeat_off">@drawable/btn_repeat_off</item>
-        <item name="ic_action_av_repeat_one">@drawable/btn_repeat_one</item>
-        <item name="ic_action_av_repeat_all">@drawable/btn_repeat_all</item>
-
-        <item name="ic_action_av_shuffle_off">@drawable/btn_shuffle_off</item>
-        <item name="ic_action_av_shuffle_song">@drawable/btn_shuffle_song</item>
-        <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
-
         <item name="playing_item">@drawable/abc_list_pressed_holo_dark</item>
 
         <item name="alarm_dow_selected">@android:color/white</item>
@@ -53,19 +40,6 @@
     </style>
 
     <style name="AppTheme.Light.DarkActionBar" parent="Theme.MaterialComponents.Light">
-        <item name="ic_action_av_next">@drawable/ic_action_next_light</item>
-        <item name="ic_action_av_pause">@drawable/ic_action_pause_light</item>
-        <item name="ic_action_av_play">@drawable/ic_action_play_light</item>
-        <item name="ic_action_av_previous">@drawable/ic_action_previous_light</item>
-
-        <item name="ic_action_av_repeat_off">@drawable/ic_action_av_repeat_holo_light</item>
-        <item name="ic_action_av_repeat_one">@drawable/btn_repeat_one</item>
-        <item name="ic_action_av_repeat_all">@drawable/btn_repeat_all</item>
-
-        <item name="ic_action_av_shuffle_off">@drawable/ic_action_av_shuffle_holo_light</item>
-        <item name="ic_action_av_shuffle_song">@drawable/btn_shuffle_song</item>
-        <item name="ic_action_av_shuffle_album">@drawable/btn_shuffle_album</item>
-
         <item name="playing_item">@drawable/abc_list_pressed_holo_light</item>
 
         <item name="alarm_dow_selected">@android:color/black</item>
@@ -203,23 +177,23 @@
     </style>
 
     <style name="SqueezerWidget.MediaButton.Previous">
-        <item name="srcCompat">?attr/ic_action_av_previous</item>
+        <item name="srcCompat">@drawable/ic_action_previous</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Next">
-        <item name="srcCompat">?attr/ic_action_av_next</item>
+        <item name="srcCompat">@drawable/ic_action_next</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Play">
-        <item name="srcCompat">?attr/ic_action_av_play</item>
+        <item name="srcCompat">@drawable/ic_action_play</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Shuffle">
-        <item name="srcCompat">?attr/ic_action_av_shuffle_off</item>
+        <item name="srcCompat">@drawable/btn_shuffle</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Repeat">
-        <item name="srcCompat">?attr/ic_action_av_repeat_off</item>
+        <item name="srcCompat">@drawable/btn_repeat</item>
     </style>
 
     <style name="SqueezerWidget.MediaButton.Volume" parent="Widget.MaterialComponents.Button.TextButton">
