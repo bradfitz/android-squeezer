@@ -151,20 +151,15 @@ public abstract class Item implements Parcelable {
         result.put("radio", R.drawable.icon_internet_radio);
         result.put("radios", R.drawable.icon_internet_radio);
         result.put("myMusicArtists", R.drawable.icon_ml_artists);
-        result.put("myMusicAlbums", R.drawable.icon_ml_albums);
         result.put("myMusicGenres", R.drawable.icon_ml_genres);
         result.put("myMusicYears", R.drawable.icon_ml_years);
         result.put("myMusicNewMusic", R.drawable.icon_ml_new_music);
         result.put("myMusicPlaylists", R.drawable.icon_ml_playlist);
-        result.put("randomplay", R.drawable.icon_ml_random);
         result.put("extras", R.drawable.icon_settings_adv);
         result.put("settings", R.drawable.icon_settings);
-        result.put("settingsRepeat", R.drawable.icon_settings_repeat);
         result.put("settingsAlarm", R.drawable.icon_alarm);
         result.put("appletCustomizeHome", R.drawable.icon_settings_home);
-        result.put("settingsSleep", R.drawable.icon_settings_sleep);
         result.put("settingsPlayerNameChange", R.drawable.icon_settings_name);
-        result.put("settingsSync", R.drawable.icon_sync);
         result.put("advancedSettings", R.drawable.icon_settings_adv);
 
         return result;
@@ -190,10 +185,15 @@ public abstract class Item implements Parcelable {
         result.put("myMusicSearchSongs", R.drawable.search);
         result.put("myMusicSearchPlaylists", R.drawable.search);
         result.put("myMusicSearchRecent", R.drawable.search);
-        result.put("settingsShuffle", R.drawable.shuffle);
-        result.put("settingsAudio", R.drawable.settings_audio);
-        result.put("settingsScreen", R.drawable.settings_screen);
+        result.put("myMusicAlbums", R.drawable.ml_albums);
         result.put("myMusicMusicFolder", R.drawable.ml_folder);
+        result.put("randomplay", R.drawable.ml_random);
+        result.put("settingsShuffle", R.drawable.shuffle);
+        result.put("settingsRepeat", R.drawable.settings_repeat);
+        result.put("settingsAudio", R.drawable.settings_audio);
+        result.put("settingsSleep", R.drawable.settings_sleep);
+        result.put("settingsScreen", R.drawable.settings_screen);
+        result.put("settingsSync", R.drawable.settings_sync);
 
         return result;
     }
