@@ -31,6 +31,8 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseItemView;
+import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
+import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
@@ -96,12 +98,11 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     @Override
-    public void showContextMenu(View v, final Player item) {
-        PopupMenu popup = new PopupMenu(getActivity(), v);
+    public void showContextMenu(ViewHolder viewHolder, final Player item) {
+        PopupMenu popup = new PopupMenu(getActivity(), viewHolder.contextMenuButtonHolder);
         popup.inflate(R.menu.playercontextmenu);
 
         Menu menu = popup.getMenu();
-        menu.findItem(R.id.sleep).setTitle(R.string.SLEEP);
         String xMinutes = activity.getString(R.string.X_MINUTES);
         menu.findItem(R.id.in_15_minutes).setTitle(String.format(xMinutes, "15"));
         menu.findItem(R.id.in_30_minutes).setTitle(String.format(xMinutes, "30"));
@@ -110,23 +111,18 @@ public class PlayerView extends BaseItemView<Player> {
         menu.findItem(R.id.in_90_minutes).setTitle(String.format(xMinutes, "90"));
 
         PlayerState playerState = item.getPlayerState();
-        if (playerState.getSleepDuration() != 0) {
-            MenuItem cancelSleepItem = menu.findItem(R.id.cancel_sleep);
-            cancelSleepItem.setTitle(R.string.SLEEP_CANCEL);
-            cancelSleepItem.setVisible(true);
-        }
+        menu.findItem(R.id.cancel_sleep).setVisible(playerState.getSleepDuration() != 0);
 
-        if (playerState.isPlaying()) {
-            MenuItem sleepAtEndOfSongItem = menu.findItem(R.id.end_of_song);
-            sleepAtEndOfSongItem.setTitle(R.string.SLEEP_AT_END_OF_SONG);
-            sleepAtEndOfSongItem.setVisible(true);
-        }
+        menu.findItem(R.id.end_of_song).setVisible(playerState.isPlaying());
 
-        MenuItem togglePowerItem = menu.findItem(R.id.toggle_power);
-        togglePowerItem.setTitle(
-                activity.getString(playerState.isPoweredOn() ? R.string.menu_item_power_off
-                        : R.string.menu_item_power_on));
-        togglePowerItem.setVisible(true);
+        menu.findItem(R.id.toggle_power).setTitle(playerState.isPoweredOn() ? R.string.menu_item_power_off : R.string.menu_item_power_on);
+
+        // Enable player sync menu options if there's more than one player.
+        menu.findItem(R.id.player_sync).setVisible(activity.mResultsAdapter.mPlayerCount > 1);
+
+        menu.findItem(R.id.play_track_album).setVisible(playerState.prefs.containsKey(Player.Pref.PLAY_TRACK_ALBUM));
+
+        menu.findItem(R.id.defeat_destructive_ttp).setVisible(playerState.prefs.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP));
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -134,11 +130,6 @@ public class PlayerView extends BaseItemView<Player> {
                 return doItemContext(menuItem, item);
             }
         });
-
-        // Enable player sync menu options if there's more than one player.
-        if (activity.mResultsAdapter.mPlayerCount > 1) {
-            menu.findItem(R.id.player_sync).setVisible(true);
-        }
 
         activity.mResultsAdapter.mPlayersChanged = false;
         popup.show();
@@ -175,6 +166,12 @@ public class PlayerView extends BaseItemView<Player> {
             case R.id.player_sync:
                 new PlayerSyncDialog().show(activity.getSupportFragmentManager(),
                         PlayerSyncDialog.class.getName());
+                return true;
+            case R.id.play_track_album:
+                PlayTrackAlbumDialog.show(activity);
+                return true;
+            case R.id.defeat_destructive_ttp:
+                DefeatDestructiveTouchToPlayDialog.show(activity);
                 return true;
         }
 

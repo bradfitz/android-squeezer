@@ -1,0 +1,32 @@
+<resources>"xmlns:tools="http://schemas.android.com/tools"<!-- 
+Automatically generated file. DO NOT MODIFY
+ -->
+  <string name='X_MINUTES'>%s minutter</string>
+  <string name='SLEEP'>Slumre</string>
+  <string name='ALARM'>Vækkeur</string>
+  <string name='SETTINGS'>Indstillinger</string>
+  <string name='SCREEN_SETTINGS'>Skærm</string>
+  <string name='ALARM_ALARM_REPEAT'>Gentag vækning</string>
+  <string name='SETUP_PLAYTRACKALBUM_DESC'>Når du vælger et enkelt nummer og trykker på Afspil på fjernbetjeningen, kan du vælge om kun det valgte nummer skal afspilles eller om alle numrene fra det album eller i den mappe skal afspilles (startende med det valgte nummer).</string>
+  <string name='SLEEP_CANCEL'>Annuller slumrefunktion</string>
+  <string name='ALARM_SHORT_DAY_6'>Lør</string>
+  <string name='SWITCH_TO_EXTENDED_LIST'>Små coverbilleder</string>
+  <string name='ALARM_SHORT_DAY_4'>Tor</string>
+  <string name='ALARM_SHORT_DAY_5'>Fre</string>
+  <string name='EXTRAS'>Ekstra</string>
+  <string name='SWITCH_TO_GALLERY'>Store albumcovere</string>
+  <string name='ADVANCED_SETTINGS'>Avanceret</string>
+  <string name='ALARM_DELETING'>Sletter vækkeur…</string>
+  <string name='ALARM_SHORT_DAY_2'>Tir</string>
+  <string name='ALARM_SHORT_DAY_3'>Ons</string>
+  <string name='ALARM_SHORT_DAY_0'>Søn</string>
+  <string name='ALARM_SHORT_DAY_1'>Man</string>
+  <string name='SETUP_PLAYTRACKALBUM_0'>Afspil kun det valgte nummer</string>
+  <string name='MORE'>Mere…</string>
+  <string name='SLEEP_AT_END_OF_SONG'>Slumrefunktion når nummeret er slut</string>
+  <string name='ALARM_ALL_ALARMS'>Alle vækkeure</string>
+  <string name='SETUP_PLAYTRACKALBUM_1'>Afspil andre numre på album eller i mappe</string>
+  <string name='SETUP_PLAYTRACKALBUM'>Afspil andre numre fra album</string>
+  <string name='SLEEPING_IN'>Slumrefunktion aktiveres om</string>
+  <string name='HOME'>Startside</string>
+</resources>

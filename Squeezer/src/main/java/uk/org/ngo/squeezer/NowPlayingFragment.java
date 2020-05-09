@@ -33,6 +33,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -44,10 +45,12 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -78,11 +81,13 @@ import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
+import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
+import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
@@ -92,6 +97,7 @@ import uk.org.ngo.squeezer.service.event.RepeatStatusChanged;
 import uk.org.ngo.squeezer.service.event.ShuffleStatusChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
+import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
 public class NowPlayingFragment extends Fragment {
 
@@ -120,13 +126,14 @@ public class NowPlayingFragment extends Fragment {
 
     private MenuItem menu_item_disconnect;
 
+    private Plugin globalSearch;
+    private MenuItem menu_item_search;
+
     private MenuItem menu_item_poweron;
 
     private MenuItem menu_item_poweroff;
 
     private MenuItem menu_item_players;
-
-    private MenuItem menu_item_playlist;
 
     private MenuItem menu_item_alarm;
 
@@ -152,6 +159,10 @@ public class NowPlayingFragment extends Fragment {
 
     // Updating the seekbar
     private boolean updateSeekBar = true;
+
+    private Button volumeButton;
+
+    private Button playlistButton;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -265,8 +276,10 @@ public class NowPlayingFragment extends Fragment {
             currentTime = v.findViewById(R.id.currenttime);
             totalTime = v.findViewById(R.id.totaltime);
             seekBar = v.findViewById(R.id.seekbar);
+            volumeButton = v.findViewById(R.id.volume);
+            playlistButton = v.findViewById(R.id.playlist);
 
-            BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
+            final BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
             viewHolder.setContextMenu(v);
             viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
                 @Override
@@ -274,7 +287,7 @@ public class NowPlayingFragment extends Fragment {
                     CurrentPlaylistItem currentSong = getCurrentSong();
                     // This extra check is if user pressed the button before visibility is set to GONE
                     if (currentSong != null) {
-                        pluginViewDelegate.showContextMenu(v, currentSong);
+                        pluginViewDelegate.showContextMenu(viewHolder, currentSong);
                     }
                 }
             });
@@ -360,6 +373,20 @@ public class NowPlayingFragment extends Fragment {
                 }
             });
 
+            volumeButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mActivity.showVolumePanel();
+                }
+            });
+
+            playlistButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CurrentPlaylistActivity.show(mActivity);
+                }
+            });
+
             seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
                 CurrentPlaylistItem seekingSong;
 
@@ -394,11 +421,25 @@ public class NowPlayingFragment extends Fragment {
                 }
             });
         } else {
-            // Clicking on the layout goes to NowPlayingActivity.
-            v.setOnClickListener(new OnClickListener() {
+            final GestureDetectorCompat detector = new GestureDetectorCompat(mActivity, new OnSwipeListener() {
+                // Clicking on the layout goes to NowPlayingActivity.
                 @Override
-                public void onClick(View v) {
+                public boolean onSingleTapUp(MotionEvent e) {
                     NowPlayingActivity.show(mActivity);
+                    return true;
+                }
+
+                // Swipe up on the layout goes to NowPlayingActivity.
+                @Override
+                public boolean onSwipeUp() {
+                    NowPlayingActivity.show(mActivity);
+                    return true;
+                }
+            });
+            v.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return detector.onTouchEvent(event);
                 }
             });
         }
@@ -535,7 +576,6 @@ public class NowPlayingFragment extends Fragment {
             if (connectedPlayers.size() == 1) {
                 actionBar.setTitle(connectedPlayers.get(0).getName());
             } else {
-                // TODO: Alert the user if there are no connected players.
                 actionBar.setTitle(R.string.app_name);
             }
         }
@@ -802,11 +842,11 @@ public class NowPlayingFragment extends Fragment {
         MenuInflater i = mActivity.getMenuInflater();
         i.inflate(R.menu.now_playing_fragment, menu);
 
+        menu_item_search = menu.findItem(R.id.menu_item_search);
         menu_item_disconnect = menu.findItem(R.id.menu_item_disconnect);
         menu_item_poweron = menu.findItem(R.id.menu_item_poweron);
         menu_item_poweroff = menu.findItem(R.id.menu_item_poweroff);
         menu_item_players = menu.findItem(R.id.menu_item_players);
-        menu_item_playlist = menu.findItem(R.id.menu_item_playlist);
         menu_item_alarm = menu.findItem(R.id.menu_item_alarm);
     }
 
@@ -818,12 +858,10 @@ public class NowPlayingFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         boolean connected = isConnected();
 
-        // Don't show an option to connect if there's no server to connect to.
-        boolean knowServerAddress = new Preferences(mActivity).getServerAddress() != null;
-
         // These are all set at the same time, so one check is sufficient
         if (menu_item_disconnect != null) {
             // Set visibility and enabled state of menu items that are not player-specific.
+            menu_item_search.setVisible(globalSearch != null);
             menu_item_disconnect.setVisible(connected);
 
             // Set visibility and enabled state of menu items that are player-specific and
@@ -832,16 +870,14 @@ public class NowPlayingFragment extends Fragment {
                     && !mService.getPlayers().isEmpty();
 
             menu_item_players.setVisible(haveConnectedPlayers);
-            menu_item_playlist.setVisible(haveConnectedPlayers);
             menu_item_alarm.setVisible(haveConnectedPlayers);
-            if (connected)
-                menu_item_alarm.setTitle(R.string.ALARM);
         }
 
-        // Don't show the item to go to CurrentPlaylistActivity if in CurrentPlaylistActivity.
-        if (mActivity instanceof CurrentPlaylistActivity && menu_item_playlist != null) {
-            menu_item_playlist.setVisible(false);
+        // Don't show the item to go to players if in PlayersActivity.
+        if (mActivity instanceof PlayerListActivity && menu_item_players != null) {
+            menu_item_players.setVisible(false);
         }
+
         // Don't show the item to go to alarms if in AlarmsActivity.
         if (mActivity instanceof AlarmsActivity && menu_item_alarm != null) {
             menu_item_alarm.setVisible(false);
@@ -853,6 +889,9 @@ public class NowPlayingFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_item_search:
+                PluginListActivity.show(mActivity, globalSearch, globalSearch.goAction);
+                return true;
             case R.id.menu_item_settings:
                 SettingsActivity.show(mActivity);
                 return true;
@@ -865,9 +904,6 @@ public class NowPlayingFragment extends Fragment {
             case R.id.menu_item_poweroff:
                 mService.powerOff();
                 return true;
-            case R.id.menu_item_playlist:
-                CurrentPlaylistActivity.show(mActivity);
-                break;
             case R.id.menu_item_players:
                 PlayerListActivity.show(mActivity);
                 return true;
@@ -996,6 +1032,8 @@ public class NowPlayingFragment extends Fragment {
         if (mFullHeightLayout) {
             shuffleButton.setEnabled(false);
             repeatButton.setEnabled(false);
+            volumeButton.setEnabled(false);
+            playlistButton.setEnabled(false);
 
             albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
             shuffleButton.setImageResource(0);
@@ -1034,6 +1072,8 @@ public class NowPlayingFragment extends Fragment {
             shuffleButton.setEnabled(true);
             repeatButton.setEnabled(true);
             seekBar.setEnabled(true);
+            volumeButton.setEnabled(true);
+            playlistButton.setEnabled(true);
         } else {
             mProgressBar.setEnabled(true);
         }
@@ -1077,6 +1117,20 @@ public class NowPlayingFragment extends Fragment {
     public void onEventMainThread(PowerStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
             updatePowerMenuItems(event.canPowerOn, event.canPowerOff);
+        }
+    }
+
+    @MainThread
+    public void onEventMainThread(HomeMenuEvent event) {
+        globalSearch = null;
+        for (Plugin menuItem : event.menuItems) {
+            if ("globalSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
+                globalSearch = menuItem;
+                break;
+            }
+        }
+        if (menu_item_search != null) {
+            menu_item_search.setVisible(globalSearch != null);
         }
     }
 

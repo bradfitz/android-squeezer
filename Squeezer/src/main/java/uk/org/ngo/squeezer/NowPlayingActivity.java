@@ -16,13 +16,20 @@
 
 package uk.org.ngo.squeezer;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.core.view.GestureDetectorCompat;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
+import uk.org.ngo.squeezer.widget.OnSwipeListener;
 
 public class NowPlayingActivity extends BaseActivity {
+    private GestureDetectorCompat mDetector;
 
     /**
      * Called when the activity is first created.
@@ -31,12 +38,51 @@ public class NowPlayingActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.now_playing);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_action_down);
+        }
+
+        mDetector = new GestureDetectorCompat(this, new OnSwipeListener() {
+            @Override
+            public boolean onSwipeDown() {
+                finish();
+                return true;
+            }
+        });
+
         ignoreIconMessages = true;
     }
 
-    public static void show(Context context) {
-        final Intent intent = new Intent(context, NowPlayingActivity.class)
+    public static void show(Activity activity) {
+        final Intent intent = new Intent(activity, NowPlayingActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        context.startActivity(intent);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public void onPause() {
+        if (isFinishing()) {
+            overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_down);
+        }
+        super.onPause();
     }
 }

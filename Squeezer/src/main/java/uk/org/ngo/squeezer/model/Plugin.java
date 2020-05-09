@@ -57,20 +57,17 @@ public class Plugin extends Item {
     }
 
     private Plugin(String id, String node, @StringRes int text, int weight, Window.WindowStyle windowStyle) {
-        this(record(id, node, text, weight, windowStyle));
-
+        this(record(id, node, text, weight));
+        window = new Window();
+        window.windowStyle = windowStyle;
     }
 
-    private static Map<String, Object> record(String id, String node, @StringRes int text, int weight, Window.WindowStyle windowStyle) {
+    private static Map<String, Object> record(String id, String node, @StringRes int text, int weight) {
         Map<String, Object> record = new HashMap<>();
         record.put("id", id);
         record.put("node", node);
         record.put("name", Squeezer.getContext().getString(text));
         record.put("weight", weight);
-
-        Map<String, Object> window = new HashMap<>();
-        window.put("windowStyle", windowStyle.getId());
-        record.put("window", window);
 
         return record;
     }

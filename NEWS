@@ -1,39 +1,61 @@
+2.1.0
+=====
+
+*   Button for global search in the top bar.
+
+*   Access current playlist and volume control from the Now Playing screen.
+
+*   Radial volume control to enable finer control of the volume.
+
+*   Navigate back from the Now Playing or current playlist screens via the
+    home button or swipe down. To indicate the function of the home button,
+    specifically that it doesn't navigate home, set a close icon for the
+    current playlist and a down arrow for the now playing screen.
+
+*   Control LMS settings playtrackalbum and defeatDestructiveTouchToPlay.
+    These settings control what happens when you select a playable item.
+    Access via three-dot menu on the players screen.
+
+*   Work around issues in LMS which causes the context menu and
+    defeatDestructiveTouchToPlay to not work properly.
+
+
 2.0.1
 =====
 
-*   Seperate list layout settings for home menu items and Slimbrowseitems
+*   Separate list layout settings for home menu items and Slimbrowseitems.
 
-*   Notification shows button for next song instead of the previous one
+*   Notification shows button for next song instead of the previous one.
 
-*   Fix artwork display in the Spotty plugin
+*   Fix artwork display in the Spotty plugin.
 
-*   Option to easy switch between list and grid layouts
+*   Option to easy switch between list and grid layouts.
 
-*   Ignore icon based popup message when in the Now Playing screen
+*   Ignore icon based popup message when in the Now Playing screen.
 
-*   Handle invalid server address
+*   Handle invalid server address.
 
-*   Fix some reported crashes
+*   Fix some reported crashes.
 
 
 2.0.0
 =====
 
 *   Rewrite Squeezer to use the more modern CometD protocol to connect to the
-    server
+    server.
 
-*   Full support for Apps/Plugins
+*   Full support for Apps/Plugins.
 
-*   Connect to mysqueezebox.com
+*   Connect to mysqueezebox.com.
 
-*   Additional browse modes, Album Artists, All Artists and Composers
+*   Additional browse modes, Album Artists, All Artists and Composers.
 
 *   Support for extra information and options for Artists/albums/Tracks via
-    the context menu
+    the context menu.
 
-*   Library Views and Remote Music Libraries
+*   Library Views and Remote Music Libraries.
 
-*   Add French translation. Contributed by Olivier Sirol
+*   Add French translation. Contributed by Olivier Sirol.
 
 
 1.5.4

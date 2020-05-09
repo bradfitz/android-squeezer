@@ -241,7 +241,9 @@ public abstract class Item implements Parcelable {
         goAction = extractAction("do", baseActions, actionsRecord, record, baseRecord);
         doAction = (goAction != null);
         if (goAction == null) {
-            goAction = extractAction("go", baseActions, actionsRecord, record, baseRecord);
+            // check if item instructs us to use a different action
+            String goActionName = record.containsKey("goAction") ? getString(record, "goAction") : "go";
+            goAction = extractAction(goActionName, baseActions, actionsRecord, record, baseRecord);
         }
 
         playAction = extractAction("play", baseActions, actionsRecord, record, baseRecord);
@@ -492,7 +494,11 @@ public abstract class Item implements Parcelable {
         return window;
     }
 
-
+    /**
+     * legacy map of menuStyles to windowStyles
+     * <p>
+     * make an educated guess at window style when one is not sent but a menu style is
+     */
     private static Map<String, Window.WindowStyle> menu2window = initializeMenu2Window();
 
     private static Map<String, Window.WindowStyle> initializeMenu2Window() {
@@ -526,54 +532,54 @@ public abstract class Item implements Parcelable {
     }
 
     private Action extractAction(String actionName, Map<String, Object> baseActions, Map<String, Object> itemActions, Map<String, Object> record, Map<String, Object> baseRecord) {
-        Map<String, Object> actionsRecord = null;
+        Map<String, Object> actionRecord = null;
         Map<String, Object> itemParams = null;
 
         Object itemAction = (itemActions != null ? itemActions.get(actionName) : null);
         if (itemAction instanceof Map) {
-            actionsRecord = (Map<String, Object>) itemAction;
+            actionRecord = (Map<String, Object>) itemAction;
         }
-        if (actionsRecord == null && baseActions != null) {
+        if (actionRecord == null && baseActions != null) {
             Map<String, Object> baseAction = getRecord(baseActions, actionName);
             if (baseAction != null) {
                 String itemsParams = (String) baseAction.get("itemsParams");
                 if (itemsParams != null) {
                     itemParams = getRecord(record, itemsParams);
                     if (itemParams != null) {
-                        actionsRecord = baseAction;
+                        actionRecord = baseAction;
                     }
                 }
             }
         }
-        if (actionsRecord == null) return null;
+        if (actionRecord == null) return null;
 
         Action actionHolder = new Action();
 
-        if (actionsRecord.containsKey("choices")) {
-            Object[] choices = (Object[]) actionsRecord.get("choices");
+        if (actionRecord.containsKey("choices")) {
+            Object[] choices = (Object[]) actionRecord.get("choices");
             actionHolder.choices = new Action.JsonAction[choices.length];
             for (int i = 0; i < choices.length; i++) {
-                actionsRecord = (Map<String, Object>) choices[i];
-                actionHolder.choices[i]= extractJsonAction(baseRecord, actionsRecord, itemParams);
+                actionRecord = (Map<String, Object>) choices[i];
+                actionHolder.choices[i]= extractJsonAction(baseRecord, actionRecord, itemParams);
             }
         } else {
-            actionHolder.action = extractJsonAction(baseRecord, actionsRecord, itemParams);
+            actionHolder.action = extractJsonAction(baseRecord, actionRecord, itemParams);
         }
 
         return actionHolder;
     }
 
-    private Action.JsonAction extractJsonAction(Map<String, Object> baseRecord, Map<String, Object> actionsRecord, Map<String, Object> itemParams) {
+    private Action.JsonAction extractJsonAction(Map<String, Object> baseRecord, Map<String, Object> actionRecord, Map<String, Object> itemParams) {
         Action.JsonAction action = new Action.JsonAction();
 
-        action.nextWindow = Action.NextWindow.fromString(getString(actionsRecord, "nextWindow"));
+        action.nextWindow = Action.NextWindow.fromString(getString(actionRecord, "nextWindow"));
         if (action.nextWindow == null) action.nextWindow = nextWindow;
         if (action.nextWindow == null && baseRecord != null)
             action.nextWindow = Action.NextWindow.fromString(getString(baseRecord, "nextWindow"));
 
-        action.cmd = Util.getStringArray((Object[]) actionsRecord.get("cmd"));
+        action.cmd = Util.getStringArray((Object[]) actionRecord.get("cmd"));
         action.params = new HashMap<>();
-        Map<String, Object> params = getRecord(actionsRecord, "params");
+        Map<String, Object> params = getRecord(actionRecord, "params");
         if (params != null) {
             action.params.putAll(params);
         }
@@ -581,6 +587,22 @@ public abstract class Item implements Parcelable {
             action.params.putAll(itemParams);
         }
         action.params.put("useContextMenu", "1");
+
+
+        // Work around an issue in LMS which assumes the number of sub items equals itemsPerResponse.
+        // This causes the playControl action of our initial request of one item, to not include the
+        // "Play All" item, because it thinks there is only one item.
+        if (getInt(action.params, "_quantity") == 1) {
+            action.params.put("_quantity", 2);
+        }
+
+        Map<String, Object> windowRecord = getRecord(actionRecord, "window");
+        if (windowRecord != null) {
+            action.window = new Action.ActionWindow(getInt(windowRecord, "isContextMenu") != 0);
+        }
+
+        // LMS may send isContextMenu in the itemParams, but this is ignored by squeezeplay, so we must do the same.
+        action.isContextMenu = (params != null && params.containsKey("isContextMenu")) || (action.window != null && action.window.isContextMenu);
 
         return action;
     }

@@ -105,5 +105,5 @@ public interface ItemView<T extends Item> {
      * inflate their context menu and show it.
      *
      */
-    void showContextMenu(View v, T item);
+    void showContextMenu(BaseItemView.ViewHolder v, T item);
 }

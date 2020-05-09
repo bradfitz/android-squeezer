@@ -29,7 +29,9 @@ import com.google.common.collect.ImmutableList;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -59,7 +61,7 @@ public class PlayerState implements Parcelable {
         poweredOn = (source.readByte() == 1);
         shuffleStatus = ShuffleStatus.valueOf(source.readInt());
         repeatStatus = RepeatStatus.valueOf(source.readInt());
-        currentSong = source.readParcelable(CurrentPlaylistItem.class.getClassLoader());
+        currentSong = source.readParcelable(getClass().getClassLoader());
         currentPlaylist = source.readString();
         currentPlaylistTimestamp = source.readLong();
         currentPlaylistIndex = source.readInt();
@@ -71,6 +73,7 @@ public class PlayerState implements Parcelable {
         mSyncMaster = source.readString();
         source.readStringList(mSyncSlaves);
         mPlayerSubscriptionType = PlayerSubscriptionType.valueOf(source.readString());
+        prefs = source.readHashMap(getClass().getClassLoader());
     }
 
     @Override
@@ -79,7 +82,7 @@ public class PlayerState implements Parcelable {
         dest.writeByte(poweredOn ? (byte) 1 : (byte) 0);
         dest.writeInt(shuffleStatus.getId());
         dest.writeInt(repeatStatus.getId());
-        dest.writeParcelable(currentSong, 0);
+        dest.writeParcelable(currentSong, flags);
         dest.writeString(currentPlaylist);
         dest.writeLong(currentPlaylistTimestamp);
         dest.writeInt(currentPlaylistIndex);
@@ -91,6 +94,7 @@ public class PlayerState implements Parcelable {
         dest.writeString(mSyncMaster);
         dest.writeStringList(mSyncSlaves);
         dest.writeString(mPlayerSubscriptionType.name());
+        dest.writeMap(prefs);
     }
 
     @Override
@@ -146,6 +150,10 @@ public class PlayerState implements Parcelable {
     /** How the server is subscribed to the player's status changes. */
     @NonNull
     private PlayerSubscriptionType mPlayerSubscriptionType = PlayerSubscriptionType.NOTIFY_NONE;
+
+    /** Map of current values of our the playerprefs we track. See the specific SlimClient */
+    @NonNull
+    public Map<String, String> prefs = new HashMap<>();
 
     public boolean isPlaying() {
         return PLAY_STATE_PLAY.equals(playStatus);

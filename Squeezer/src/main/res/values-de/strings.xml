@@ -17,7 +17,6 @@
 -->
 
 <resources>
-    <string name="app_name">Squeezer</string>
     <string name="disabled">Deaktiviert</string>
     <string name="volume">Lautstärke %s</string>
     <string name="menu_item_players">Abspielgeräte</string>
@@ -110,29 +109,4 @@
         <item quantity="one">Sekunde</item>
         <item quantity="other">Sekunden</item>
     </plurals>
-
-    <string name="X_MINUTES">%s Minuten</string>
-    <string name="SLEEP">Schlafmodus</string>
-    <string name="ALARM">Wecker</string>
-    <string name="SETTINGS">Einstellungen</string>
-    <string name="SCREEN_SETTINGS">Anzeige</string>
-    <string name="ALARM_ALARM_REPEAT">Wecker wiederholen</string>
-    <string name="SLEEP_CANCEL">Schlafmodus abbrechen</string>
-    <string name="ALARM_SHORT_DAY_6">Sa</string>
-    <string name="SWITCH_TO_EXTENDED_LIST">Kleine Plattenhüllen</string>
-    <string name="ALARM_SHORT_DAY_4">Do</string>
-    <string name="ALARM_SHORT_DAY_5">Fr</string>
-    <string name="SWITCH_TO_GALLERY">Große Plattenhüllen</string>
-    <string name="ADVANCED_SETTINGS">Erweitert</string>
-    <string name="ALARM_DELETING">Wecker wird entfernt…</string>
-    <string name="ALARM_SHORT_DAY_2">Di</string>
-    <string name="ALARM_SHORT_DAY_3">Mi</string>
-    <string name="ALARM_SHORT_DAY_0">So</string>
-    <string name="ALARM_SHORT_DAY_1">Mo</string>
-    <string name="MORE">Mehr</string>
-    <string name="SLEEP_AT_END_OF_SONG">Schlafmodus bei Titelende</string>
-    <string name="ALARM_ALL_ALARMS">Alle Wecker</string>
-    <string name="SLEEPING_IN">Schlafmodus in</string>
-    <string name="HOME">Hauptmenü</string>
-    <string name="EXTRAS">Extras</string>
 </resources>

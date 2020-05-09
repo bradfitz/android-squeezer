@@ -104,6 +104,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * A ViewHolder for the views that make up a complete list item.
      */
     public static class ViewHolder {
+        public View itemView;
 
         public ImageView icon;
 
@@ -118,6 +119,14 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         public RadioButton contextMenuRadio;
 
         public @ViewParam int viewParams;
+
+        public void setView(View view) {
+            itemView = view;
+            text1 = view.findViewById(R.id.text1);
+            text2 = view.findViewById(R.id.text2);
+            icon = view.findViewById(R.id.icon);
+            setContextMenu(view);
+        }
 
         public void setContextMenu(View view) {
             contextMenuButtonHolder = view.findViewById(R.id.context_menu);
@@ -188,10 +197,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         return mCreator;
     }
 
-    protected String getTag() {
-        return getClass().getSimpleName();
-    }
-
     /**
      * Returns a view suitable for displaying the data of item in a list. Item may not be null.
      * <p>
@@ -214,14 +219,14 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * @param view The view that contains the {@link ViewHolder}
      * @param item The item to be bound
      */
-    public void bindView(View view, final T item) {
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
+    public void bindView(final View view, final T item) {
+        final ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
         viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                showContextMenu(v, item);
+                showContextMenu(viewHolder, item);
             }
         });
     }
@@ -287,10 +292,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(layoutResource, parent, false);
             viewHolder = createViewHolder();
-            viewHolder.text1 = convertView.findViewById(R.id.text1);
-            viewHolder.text2 = convertView.findViewById(R.id.text2);
-            viewHolder.icon = convertView.findViewById(R.id.icon);
-            viewHolder.setContextMenu(convertView);
+            viewHolder.setView(convertView);
             setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }
@@ -325,6 +327,6 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     }
 
     @Override
-    public void showContextMenu(View v, T item) {
+    public void showContextMenu(ViewHolder v, T item) {
     }
 }
