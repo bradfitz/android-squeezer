@@ -20,7 +20,6 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -29,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import android.text.TextUtils;
-import android.view.Gravity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,16 +120,9 @@ public abstract class Item implements Parcelable {
     public Drawable getIconDrawable(Context context) {
         @DrawableRes int foreground = getItemIcon();
         if (foreground != 0) {
-            int inset = context.getResources().getDimensionPixelSize(R.dimen.album_art_inset);
-
             Drawable background = AppCompatResources.getDrawable(context, R.drawable.icon_background);
             Drawable icon = AppCompatResources.getDrawable(context, foreground);
-            LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{background, icon});
-            layerDrawable.setLayerInset(1, inset, inset, inset, inset);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                layerDrawable.setLayerGravity(1, Gravity.CENTER);
-            }
-            return layerDrawable;
+            return new LayerDrawable(new Drawable[]{background, icon});
         }
 
         return AppCompatResources.getDrawable(context, getSlimIcon());
@@ -192,7 +183,6 @@ public abstract class Item implements Parcelable {
         result.put("settingsRepeat", R.drawable.settings_repeat);
         result.put("settingsAudio", R.drawable.settings_audio);
         result.put("settingsSleep", R.drawable.settings_sleep);
-        result.put("settingsScreen", R.drawable.settings_screen);
         result.put("settingsSync", R.drawable.settings_sync);
 
         return result;

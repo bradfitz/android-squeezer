@@ -116,6 +116,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/input_button"
             app:icon="@drawable/keyboard_return"
+            app:iconSize="24dp"
             android:layout_width="48dp"
             android:layout_height="match_parent"/>
     </LinearLayout>
