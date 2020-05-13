@@ -1,5 +1,9 @@
-&bull; Enable extras menu
+&bull; Button for global search in the top bar.
 
-&bull; Use vector graphics to reduce download size of the app
+&bull; Access current playlist and volume control from the Now Playing screen.
 
-&bull; Fix a reported crash
+&bull; Radial volume control to enable finer control of the volume.
+
+&bull; Control LMS settings playtrackalbum and defeatDestructiveTouchToPlay. These settings control what happens when you select a playable item.
+
+&bull; Work around issues in LMS which causes the context menu and defeatDestructiveTouchToPlay to not work properly.
