@@ -1,13 +1,9 @@
-&bull; Seperate list layout settings for home menu items and Slimbrowseitems
+&bull; Button for global search in the top bar.
 
-&bull; Notification shows button for next song instead of the previous one
+&bull; Access current playlist and volume control from the Now Playing screen.
 
-&bull; Fix artwork display in the Spotty plugin
+&bull; Radial volume control to enable finer control of the volume.
 
-&bull; Option to easy switch between list and grid layouts
+&bull; Control LMS settings playtrackalbum and defeatDestructiveTouchToPlay. These settings control what happens when you select a playable item.
 
-&bull; Ignore icon based popup message when in the Now Playing screen
-
-&bull; Handle invalid server address
-
-&bull; Fix some reported crashes
+&bull; Work around issues in LMS which causes the context menu and defeatDestructiveTouchToPlay to not work properly.
