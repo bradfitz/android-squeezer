@@ -139,13 +139,10 @@ public abstract class Item implements Parcelable {
         Map<String, Integer> result = new HashMap<>();
 
         result.put("myMusic", R.drawable.icon_mymusic);
-        result.put("radio", R.drawable.icon_internet_radio);
-        result.put("radios", R.drawable.icon_internet_radio);
         result.put("myMusicArtists", R.drawable.icon_ml_artists);
         result.put("myMusicGenres", R.drawable.icon_ml_genres);
         result.put("myMusicYears", R.drawable.icon_ml_years);
         result.put("myMusicNewMusic", R.drawable.icon_ml_new_music);
-        result.put("myMusicPlaylists", R.drawable.icon_ml_playlist);
         result.put("extras", R.drawable.icon_settings_adv);
         result.put("settings", R.drawable.icon_settings);
         result.put("settingsAlarm", R.drawable.icon_alarm);
@@ -166,6 +163,8 @@ public abstract class Item implements Parcelable {
     private static Map<String, Integer> initializeItemIcons() {
         Map<String, Integer> result = new HashMap<>();
 
+        result.put("radio", R.drawable.internet_radio);
+        result.put("radios", R.drawable.internet_radio);
         result.put("favorites", R.drawable.favorites);
         result.put("globalSearch", R.drawable.search);
         result.put("homeSearchRecent", R.drawable.search);
@@ -178,6 +177,7 @@ public abstract class Item implements Parcelable {
         result.put("myMusicSearchRecent", R.drawable.search);
         result.put("myMusicAlbums", R.drawable.ml_albums);
         result.put("myMusicMusicFolder", R.drawable.ml_folder);
+        result.put("myMusicPlaylists", R.drawable.ml_playlist);
         result.put("randomplay", R.drawable.ml_random);
         result.put("settingsShuffle", R.drawable.shuffle);
         result.put("settingsRepeat", R.drawable.settings_repeat);
