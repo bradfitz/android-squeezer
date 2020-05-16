@@ -66,6 +66,8 @@
     <string name="menu_item_poweroff">Sluk \"%s\"</string>
     <string name="menu_item_rename">Omdøb</string>
     <string name="menu_item_playlist">Afspilningsliste</string>
+    <string name="menu_item_playlist_clear">Ryd afspilningsliste</string>
+    <string name="menu_item_playlist_save">Gem afspilningsliste</string>
     <string name="menu_item_playlist_show_current_song">Vis den sang der spiller</string>
     <string name="menu_item_volume">Indstil lydstyrke</string>
     <string name="connecting_text">Forbinder</string>
@@ -83,6 +85,8 @@
         Wi-Fi-forbindelse.
     </string>
     <string name="notification_playing_text">%s spiller</string>
+    <string name="save_playlist_title">Gem afspilningsliste</string>
+    <string name="save_playlist_hint">Angiv navn på afspilningsliste</string>
     <string name="rename_title">Omdøb %s</string>
     <string name="sync_title">Synkronisér %s med…</string>
     <string name="loading_text">Henter…</string>

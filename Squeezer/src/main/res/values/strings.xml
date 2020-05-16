@@ -64,6 +64,8 @@
     <string name="menu_item_poweroff">Turn off \"%s\"</string>
     <string name="menu_item_rename">Rename</string>
     <string name="menu_item_playlist">Playlist</string>
+    <string name="menu_item_playlist_clear">Clear playlist</string>
+    <string name="menu_item_playlist_save">Save as playlist</string>
     <string name="menu_item_playlist_show_current_song">Go to current song</string>
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
@@ -80,6 +82,8 @@
     <string name="wifi_enabled_text">Wi-Fi is enabled. Please wait for an active Wi-Fi connection.
     </string>
     <string name="notification_playing_text">%s playing</string>
+    <string name="save_playlist_title">Save playlist</string>
+    <string name="save_playlist_hint">Enter name of playlist</string>
     <string name="rename_title">Rename %s</string>
     <string name="sync_title">Synchronize %s to…</string>
     <string name="loading_text">Loading…</string>

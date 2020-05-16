@@ -113,6 +113,8 @@ public interface ISqueezeService {
     boolean toggleShuffle();
     boolean toggleRepeat();
     boolean playlistIndex(int index);
+    boolean playlistClear();
+    boolean playlistSave(String name);
 
     boolean setSecondsElapsed(int seconds);
 

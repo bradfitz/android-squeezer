@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 import android.os.Handler;
 
@@ -39,6 +40,7 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
+import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
 import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
@@ -169,15 +171,9 @@ public class CurrentPlaylistActivity extends PluginListActivity {
              */
             @Override
             public void onItemSelected(View view, int index, Plugin item) {
-
-                // check first for a hierarchical menu or a input to perform
-                if (item.hasSubItems() || item.hasInput()) {
-                    super.onItemSelected(view, index, item);
-                } else {
-                    ISqueezeService service = getActivity().getService();
-                    if (service != null) {
-                        getActivity().getService().playlistIndex(index);
-                    }
+                ISqueezeService service = getActivity().getService();
+                if (service != null) {
+                    getActivity().getService().playlistIndex(index);
                 }
             }
         };
@@ -194,7 +190,8 @@ public class CurrentPlaylistActivity extends PluginListActivity {
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        final int[] ids = { R.id.menu_item_playlist_show_current_song };
+        final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save,
+                R.id.menu_item_playlist_show_current_song};
 
         final boolean knowCurrentPlaylist = getCurrentPlaylist() != null;
 
@@ -209,6 +206,14 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_item_playlist_clear:
+                if (getService() != null) {
+                    getService().playlistClear();
+                }
+                return true;
+            case R.id.menu_item_playlist_save:
+                PlaylistSaveDialog.addTo(this, getCurrentPlaylist());
+                return true;
             case R.id.menu_item_playlist_show_current_song:
                 selectCurrentSong(getItemAdapter().getSelectedIndex(), 0);
                 return true;
@@ -246,16 +251,20 @@ public class CurrentPlaylistActivity extends PluginListActivity {
 
     @Override
     public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+        List<Plugin> playlistItems = new ArrayList<>();
         for (Plugin item : items) {
-            // check for a hierarchical menu or a input to perform
-            if (!(item.hasSubItems() || item.hasInput())) {
+            // Skip special items (global actions) as there are handled locally
+            if ((item.hasSubItems() || item.hasInput())) {
+                count--;
+            } else {
+                playlistItems.add(item);
                 if (item.moreAction == null) {
                     item.moreAction = item.goAction;
                     item.goAction = null;
                 }
             }
         }
-        super.onItemsReceived(count, start, parameters, items, dataType);
+        super.onItemsReceived(count, start, parameters, playlistItems, dataType);
 
         ISqueezeService service = getService();
         if (service == null) {
@@ -267,7 +276,7 @@ public class CurrentPlaylistActivity extends PluginListActivity {
         // Do it again once it has loaded because the newly displayed items
         // may push the current song outside the displayed area
         int selectedIndex = getItemAdapter().getSelectedIndex();
-        if (start == 0 || (start <= selectedIndex && selectedIndex < start + items.size())) {
+        if (start == 0 || (start <= selectedIndex && selectedIndex < start + playlistItems.size())) {
             selectCurrentSong(selectedIndex, start);
         }
     }

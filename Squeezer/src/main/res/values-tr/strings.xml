@@ -21,12 +21,16 @@
   <string name="menu_item_poweroff">\"%s\" kapat</string>
     <string name="menu_item_rename">Yeniden Adlandır</string>
   <string name="menu_item_playlist">Çalma Listesi</string>
+  <string name="menu_item_playlist_clear">Çalma listesini temizle</string>
+  <string name="menu_item_playlist_save">Çalma listesi olarak kaydet</string>
     <string name="connecting_text">Bağlanıyor</string>
     <string name="connection_failed_text">Bağlantı başarız.</string>
   <string name="login_failed_text">Giriş başarısız. Kullanıcı adı ve şifre girin.</string>
   <string name="disconnected_text">Bağlantı kesildi.</string>
   <string name="wifi_disabled_text">Wi-Fi devre dışı</string>
   <string name="notification_playing_text">%s çalıyor</string>
+  <string name="save_playlist_title">Çalma listesini kaydet</string>
+  <string name="save_playlist_hint">Çalma listesi adı girin</string>
     <string name="rename_title">%s yeniden adlandır</string>
     <string name="loading_text">Yükleniyor...</string>
   <string name="browse_items_text">%2$d %1$s</string>
