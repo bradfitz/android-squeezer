@@ -75,6 +75,7 @@ public class Player extends Item implements Comparable {
         public static final String ALARMS_ENABLED = "alarmsEnabled";
         public static final String PLAY_TRACK_ALBUM = "playtrackalbum";
         public static final String DEFEAT_DESTRUCTIVE_TTP = "defeatDestructiveTouchToPlay";
+        public static final String MEDIA_DIRS = "mediadirs";
     }
 
     public Player(Map<String, Object> record) {

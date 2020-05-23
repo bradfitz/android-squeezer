@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -98,15 +97,19 @@ class SlimDelegate {
         return new PlayerCommand(mClient, mClient.getConnectionState().getActivePlayer());
     }
 
-    <T extends Item> Request requestItems(Player player, int start, IServiceItemListCallback<T> callback) {
+    <T> Request requestItems(Player player, int start, IServiceItemListCallback<T> callback) {
         return new Request<>(mClient, player, start, callback);
     }
 
-    <T extends Item> Request requestItems(Player player, IServiceItemListCallback<T> callback) {
+    <T> Request requestItems(Player player, IServiceItemListCallback<T> callback) {
         return new Request<>(mClient, player, 0, 200, callback);
     }
 
-    <T extends Item> Request requestItems(IServiceItemListCallback<T> callback) {
+    <T> Request requestItems(int start, IServiceItemListCallback<T> callback) {
+        return new Request<>(mClient, start, callback);
+    }
+
+    <T> Request requestItems(IServiceItemListCallback<T> callback) {
         return new Request<>(mClient, 0, 200, callback);
     }
 
@@ -140,6 +143,14 @@ class SlimDelegate {
 
     public String getPassword() {
         return mClient.getPassword();
+    }
+
+    public String getUrlPrefix() {
+        return mClient.getUrlPrefix();
+    }
+
+    public String[] getMediaDirs() {
+        return mClient.getConnectionState().getMediaDirs();
     }
 
     static class Command {
@@ -189,7 +200,7 @@ class SlimDelegate {
         }
     }
 
-    static class Request<T extends Item> extends Command {
+    static class Request<T> extends Command {
         private final IServiceItemListCallback<T> callback;
         private final int start;
         private final int pageSize;
@@ -203,6 +214,10 @@ class SlimDelegate {
 
         private Request(SlimClient slimClient, Player player, int start, IServiceItemListCallback<T> callback) {
             this(slimClient, player, start, (start == 0 ? 1 : BaseClient.mPageSize), callback);
+        }
+
+        private Request(SlimClient slimClient, int start, IServiceItemListCallback<T> callback) {
+            this(slimClient, null, start, (start == 0 ? 1 : BaseClient.mPageSize), callback);
         }
 
         private Request(SlimClient slimClient, int start, int pageSize, IServiceItemListCallback<T> callback) {

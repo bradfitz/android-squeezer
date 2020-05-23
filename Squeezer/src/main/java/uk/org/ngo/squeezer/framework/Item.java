@@ -51,30 +51,11 @@ public abstract class Item implements Parcelable {
     private String id;
     @NonNull private String name;
     public String text2;
-    @NonNull private Uri icon;
+    @NonNull private final Uri icon;
+
     private String node;
     private int weight;
     private String type;
-
-    /** The URL of the track on the server. This is the file:/// URL, not the URL to download it. */
-    @NonNull private final Uri mUrl;
-
-    @NonNull
-    public Uri getUrl() {
-        return mUrl;
-    }
-
-    /** The URL to use to download the song. */
-    @NonNull private final Uri mDownloadUrl;
-
-    @NonNull
-    public Uri getDownloadUrl() {
-        return mDownloadUrl;
-    }
-
-    public String getLocalPath(DownloadPathStructure downloadPathStructure, DownloadFilenameStructure downloadFilenameStructure) {
-        return new File(downloadPathStructure.get(this), downloadFilenameStructure.get(this)).getPath();
-    }
 
     public Action.NextWindow nextWindow;
     public Input input;
@@ -98,8 +79,6 @@ public abstract class Item implements Parcelable {
     public Item() {
         name = "";
         icon = Uri.EMPTY;
-        mUrl = Uri.EMPTY;
-        mDownloadUrl = Uri.EMPTY;
     }
 
     public void setId(String id) {
@@ -120,10 +99,7 @@ public abstract class Item implements Parcelable {
         return this;
     }
 
-    /**
-     * @return Relative URL path to an icon for this radio or music service, for example
-     * "plugins/Picks/html/images/icon.png"
-     */
+    /** The URL to use to download the icon. */
     @NonNull
     public Uri getIcon() {
         if (icon.equals(Uri.EMPTY) && window != null) {
@@ -251,9 +227,6 @@ public abstract class Item implements Parcelable {
         input = extractInput(getRecord(record, "input"));
         window = extractWindow(getRecord(record, "window"), baseWindow);
 
-        mUrl = Uri.parse(getStringOrEmpty(record, "url"));
-        mDownloadUrl = Uri.parse(getStringOrEmpty(record, "download_url"));
-
         // do takes precedence over go
         goAction = extractAction("do", baseActions, actionsRecord, record, baseRecord);
         doAction = (goAction != null);
@@ -271,11 +244,20 @@ public abstract class Item implements Parcelable {
             moreAction.action.params.put("xmlBrowseInterimCM", 1);
         }
 
+        String trackType = getStringOrEmpty(record, "trackType");
+        if ("local".equals(trackType) && (goAction != null || moreAction != null)) {
+            type = "track";
+            if (moreAction != null)
+                id = getStringOrEmpty(moreAction.action.params, "track_id");
+            else
+                id = getStringOrEmpty(goAction.action.params, "track_id");
+        }
+
         subItems = extractSubItems((Object[]) record.get("item_loop"));
         showBigArtwork = record.containsKey("showBigArtwork");
 
         selectedIndex = getInt(record, "selectedIndex");
-        choiceStrings = Util.getStringArray((Object[]) record.get("choiceStrings"));
+        choiceStrings = Util.getStringArray(record, "choiceStrings");
         if (goAction != null && goAction.action != null && goAction.action.cmd.length == 0) {
             doAction = true;
         }
@@ -331,9 +313,6 @@ public abstract class Item implements Parcelable {
         }
         radio = (Boolean) source.readValue(getClass().getClassLoader());
         slider = source.readParcelable(getClass().getClassLoader());
-
-        mUrl = Uri.parse(source.readString());
-        mDownloadUrl = Uri.parse(source.readString());
     }
 
     @Override
@@ -365,9 +344,6 @@ public abstract class Item implements Parcelable {
         }
         dest.writeValue(radio);
         dest.writeParcelable(slider, flags);
-
-        dest.writeString(mUrl.toString());
-        dest.writeString(mDownloadUrl.toString());
     }
 
 
@@ -393,6 +369,10 @@ public abstract class Item implements Parcelable {
 
     public boolean hasSubItems() {
         return (subItems != null);
+    }
+
+    public boolean canDownload() {
+        return "track".equals(type) && id != null;
     }
 
 
@@ -600,7 +580,7 @@ public abstract class Item implements Parcelable {
         if (action.nextWindow == null && baseRecord != null)
             action.nextWindow = Action.NextWindow.fromString(getString(baseRecord, "nextWindow"));
 
-        action.cmd = Util.getStringArray((Object[]) actionRecord.get("cmd"));
+        action.cmd = Util.getStringArray(actionRecord, "cmd");
         action.params = new HashMap<>();
         Map<String, Object> params = getRecord(actionRecord, "params");
         if (params != null) {
@@ -642,5 +622,4 @@ public abstract class Item implements Parcelable {
 
         return null;
     }
-
 }

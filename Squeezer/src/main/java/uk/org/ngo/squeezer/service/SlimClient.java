@@ -42,6 +42,7 @@ interface SlimClient {
     ConnectionState getConnectionState();
     String getUsername();
     String getPassword();
+    String getUrlPrefix();
 
     /**
      * Execute the supplied command.
@@ -76,7 +77,7 @@ interface SlimClient {
      * @param pageSize Number of items to fetch in each request.
      * @param callback Received items are returned in this.
      */
-    <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback);
+    <T> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback);
 
     /**
      * Notify that the specified client (activity) nno longer wants messages from LMS.

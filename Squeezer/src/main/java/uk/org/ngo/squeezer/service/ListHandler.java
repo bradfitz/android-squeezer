@@ -19,14 +19,12 @@ package uk.org.ngo.squeezer.service;
 import java.util.List;
 import java.util.Map;
 
-import uk.org.ngo.squeezer.framework.Item;
-
 /**
  * Implement this for each extended query format command you wish to support.
  *
  * @author Kurt Aaholst
  */
-interface ListHandler<T extends Item> {
+interface ListHandler<T> {
     /**
      * @return The type of item this handler can handle
      */

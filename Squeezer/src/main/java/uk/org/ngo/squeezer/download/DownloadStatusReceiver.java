@@ -50,32 +50,28 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            if (DownloadManager.ACTION_NOTIFICATION_CLICKED.equals(intent.getAction())) {
-                handleUserRequest(context);
-            }
-            if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) {
-                handleDownloadComplete(context, intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0));
-            }
+        if (DownloadManager.ACTION_NOTIFICATION_CLICKED.equals(intent.getAction())) {
+            handleUserRequest(context);
+        }
+        if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) {
+            handleDownloadComplete(context, intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0));
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private void handleUserRequest(Context context) {
         Log.i(TAG, "Download notification clicked");
         Intent intent = new Intent(context, CancelDownloadsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private void handleDownloadComplete(Context context, long id) {
         final DownloadStorage downloadStorage = new DownloadStorage(context);
         final DownloadDatabase downloadDatabase = new DownloadDatabase(context);
         final DownloadManager downloadManager = (DownloadManager) context.getSystemService(SqueezeService.DOWNLOAD_SERVICE);
         final DownloadManager.Query query = new DownloadManager.Query().setFilterById(id);
 
-        final Cursor cursor = downloadManager.query(query);
-        try {
+        Log.i(TAG, "download complete: " + id);
+        try (Cursor cursor = downloadManager.query(query)) {
             if (!cursor.moveToNext()) {
                 // Download complete events may still come in, even after DownloadManager.remove is
                 // called, so don't log this
@@ -89,6 +85,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
             String title = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_TITLE));
             String url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
             String local_url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+            Log.i(TAG, "download complete(" + title + "): " + id);
 
             final DownloadDatabase.DownloadEntry downloadEntry = downloadDatabase.popDownloadEntry(downloadId);
             if (downloadEntry == null) {
@@ -116,8 +113,6 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                 // TODO remote logging
                 Log.e(TAG, "IOException moving downloaded file", e);
             }
-        } finally {
-            cursor.close();
         }
     }
 
@@ -126,7 +121,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private class DownloadOnScanCompletedListener implements MediaScannerConnection.OnScanCompletedListener {
+    private static class DownloadOnScanCompletedListener implements MediaScannerConnection.OnScanCompletedListener {
         private final Context context;
         private final DownloadDatabase.DownloadEntry downloadEntry;
 
@@ -137,6 +132,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
 
         @Override
         public void onScanCompleted(String path, final Uri uri) {
+            Log.i(TAG, "onScanCompleted('" + path + "'): " + uri);
             if (uri == null) {
                 // Scanning failed, probably the file format is not supported.
                 Log.i(TAG, "'" + path + "' could not be added to the media database");
@@ -160,7 +156,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                     new Intent(),  //Dummy Intent do nothing
                     0);
 
-            final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+            final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, SqueezeService.NOTIFICATION_CHANNEL_ID);
             builder.setContentIntent(emptyPendingIntent);
             builder.setOngoing(false);
             builder.setOnlyAlertOnce(true);

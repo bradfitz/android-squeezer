@@ -59,7 +59,6 @@ import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.AlertWindow;
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.DisplayMessage;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -68,6 +67,7 @@ import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -119,7 +119,7 @@ class CometClient extends BaseClient {
     private final Handler mBackgroundHandler;
 
     /** Map from an item request command ("players") to the listener class for responses. */
-    private final Map<Class<? extends Item>, ItemListener<? extends Item>> mItemRequestMap;
+    private final Map<Class<?>, ItemListener<?>> mItemRequestMap;
 
     /** Map from a request to the listener class for responses. */
     private  final Map<String, ResponseHandler> mRequestMap;
@@ -131,7 +131,7 @@ class CometClient extends BaseClient {
     private final Map<String, Request> mPendingRequests
             = new ConcurrentHashMap<>();
 
-    private final Map<String, BrowseRequest<? extends Item>> mPendingBrowseRequests
+    private final Map<String, BrowseRequest<?>> mPendingBrowseRequests
             = new ConcurrentHashMap<>();
 
     private final Queue<PublishMessage> mCommandQueue = new LinkedList<>();
@@ -150,13 +150,14 @@ class CometClient extends BaseClient {
         handlerThread.start();
         mBackgroundHandler = new CliHandler(handlerThread.getLooper());
 
-        List<ItemListener<? extends Item>> itemListeners = Arrays.asList(
+        List<ItemListener<?>> itemListeners = Arrays.asList(
                 new AlarmsListener(),
                 new AlarmPlaylistsListener(),
+                new SongListener(),
                 new PluginListener()
         );
-        ImmutableMap.Builder<Class<? extends Item>, ItemListener<? extends Item>> builder = ImmutableMap.builder();
-        for (ItemListener<? extends Item> itemListener : itemListeners) {
+        ImmutableMap.Builder<Class<?>, ItemListener<?>> builder = ImmutableMap.builder();
+        for (ItemListener<?> itemListener : itemListeners) {
             builder.put(itemListener.getDataType(), itemListener);
         }
         mItemRequestMap = builder.build();
@@ -396,6 +397,7 @@ class CometClient extends BaseClient {
         // so we check the server version which is also set from server status
         boolean firstTimePlayersReceived = (getConnectionState().getServerVersion() == null);
 
+        getConnectionState().setMediaDirs(Util.getStringArray(data, Player.Pref.MEDIA_DIRS));
         getConnectionState().setServerVersion((String) data.get("version"));
         Object[] item_data = (Object[]) data.get("players_loop");
         final HashMap<String, Player> players = new HashMap<>();
@@ -531,7 +533,7 @@ class CometClient extends BaseClient {
         }
     }
 
-    private abstract class ItemListener<T extends Item> extends BaseListHandler<T> implements ResponseHandler {
+    private abstract class ItemListener<T> extends BaseListHandler<T> implements ResponseHandler {
         void parseMessage(String countName, String itemLoopName, Message message) {
             @SuppressWarnings("unchecked")
             BrowseRequest<T> browseRequest = (BrowseRequest<T>) mPendingBrowseRequests.get(message.getChannel());
@@ -552,7 +554,6 @@ class CometClient extends BaseClient {
                 for (Object item_d : item_data) {
                     Map<String, Object> record = (Map<String, Object>) item_d;
                     patchUrlPrefix(record);
-                    addDownloadUrlTag(record);
                     if (baseRecord != null) record.put("base", baseRecord);
                     add(record);
                     record.remove("base");
@@ -597,6 +598,13 @@ class CometClient extends BaseClient {
         }
     }
 
+    private class SongListener extends ItemListener<Song> {
+        @Override
+        public void onResponse(Player player, Request request, Message message) {
+            parseMessage("titles_loop", message);
+        }
+    }
+
     private class PluginListener extends ItemListener<Plugin> {
         @Override
         public void onResponse(Player player, Request request, Message message) {
@@ -625,7 +633,7 @@ class CometClient extends BaseClient {
 
     @Override
     public void cancelClientRequests(Object client) {
-        for (Map.Entry<String, BrowseRequest<? extends Item>> entry : mPendingBrowseRequests.entrySet()) {
+        for (Map.Entry<String, BrowseRequest<?>> entry : mPendingBrowseRequests.entrySet()) {
             if (entry.getValue().getCallback().getClient() == client) {
                 mPendingBrowseRequests.remove(entry.getKey());
             }
@@ -673,13 +681,12 @@ class CometClient extends BaseClient {
     }
 
     @Override
-    protected  <T extends Item> void internalRequestItems(final BrowseRequest<T> browseRequest) {
+    protected  <T> void internalRequestItems(final BrowseRequest<T> browseRequest) {
         Class<?> callbackClass = Reflection.getGenericClass(browseRequest.getCallback().getClass(), IServiceItemListCallback.class, 0);
         ItemListener listener = mItemRequestMap.get(callbackClass);
         if (listener == null) {
             throw new RuntimeException("No handler defined for '" + browseRequest.getCallback().getClass() + "'");
         }
-
 
         Request request = request(browseRequest.getPlayer(), listener, browseRequest.getCmd())
                 .page(browseRequest.getStart(), browseRequest.getItemsPerResponse())
@@ -801,7 +808,7 @@ class CometClient extends BaseClient {
     private Request serverStatusRequest() {
         return request("serverstatus")
                 .defaultPage()
-                .param("prefs", Player.Pref.DEFEAT_DESTRUCTIVE_TTP)
+                .param("prefs", Player.Pref.MEDIA_DIRS + ", " + Player.Pref.DEFEAT_DESTRUCTIVE_TTP)
                 .param("playerprefs", Player.Pref.PLAY_TRACK_ALBUM + "," + Player.Pref.DEFEAT_DESTRUCTIVE_TTP);
     }
 

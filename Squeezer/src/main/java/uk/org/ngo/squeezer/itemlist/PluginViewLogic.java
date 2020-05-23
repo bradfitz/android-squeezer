@@ -67,7 +67,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
         } else if (item.goAction.isSlideShow()) {
             SlideShow.show(activity, item.goAction);
         } else if (item.goAction.isContextMenu()) {
-            showContextMenu(viewHolder, item.goAction);
+            showContextMenu(viewHolder, item, item.goAction);
         } else if (item.doAction) {
             if (item.hasInput()) {
                 if (item.hasChoices()) {
@@ -87,20 +87,22 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
 
     // Only touch these from the main thread
     private int contextStack = 0;
+    private Item contextMenuItem;
     private PopupMenu contextPopup;
     private BaseItemView.ViewHolder contextMenuViewHolder;
 
     public void showContextMenu(BaseItemView.ViewHolder viewHolder, Item item) {
         if (item.moreAction != null) {
-            showContextMenu(viewHolder, item.moreAction);
+            showContextMenu(viewHolder, item, item.moreAction);
         } else {
             showStandardContextMenu(viewHolder.contextMenuButtonHolder, item);
         }
     }
 
-    private void showContextMenu(BaseItemView.ViewHolder viewHolder, Action action) {
+    private void showContextMenu(BaseItemView.ViewHolder viewHolder, Item item, Action action) {
         contextMenuViewHolder = viewHolder;
         contextStack = 1;
+        contextMenuItem = item;
         orderContextMenu(action);
     }
 
@@ -154,6 +156,10 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
         Menu menu = contextPopup.getMenu();
 
         int index = 0;
+        if (contextMenuItem != null && contextMenuItem.canDownload()) {
+            menu.add(Menu.NONE, index++, Menu.NONE, R.string.DOWNLOAD);
+        }
+        final int offset = index;
         for (Plugin plugin : items) {
             menu.add(Menu.NONE, index++, Menu.NONE, plugin.getName()).setEnabled(plugin.goAction != null);
         }
@@ -161,21 +167,25 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
         contextPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                return doItemContext(viewHolder, items.get(menuItem.getItemId()));
+                if (menuItem.getItemId() < offset) {
+                    activity.downloadItem(contextMenuItem);
+                } else {
+                    doItemContext(viewHolder, items.get(menuItem.getItemId() - offset));
+                }
+                return true;
             }
         });
         contextPopup.setOnDismissListener(this);
         contextPopup.show();
     }
 
-    private boolean doItemContext(BaseItemView.ViewHolder viewHolder, Plugin item) {
+    private void doItemContext(BaseItemView.ViewHolder viewHolder, Plugin item) {
         Action.NextWindow nextWindow = (item.goAction != null ? item.goAction.action.nextWindow : item.nextWindow);
         if (nextWindow != null) {
             activity.action(item, item.goAction, contextStack);
         } else {
             execGoAction(viewHolder, item, contextStack);
         }
-        return true;
     }
 
     private void orderContextMenu(Action action) {

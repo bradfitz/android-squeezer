@@ -78,6 +78,8 @@ public class ConnectionState {
 
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
 
+    private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
+
     /**
      * Sets a new connection state, and posts a sticky
      * {@link uk.org.ngo.squeezer.service.event.ConnectionChanged} event with the new state.
@@ -140,6 +142,10 @@ public class ConnectionState {
         }
     }
 
+    void setMediaDirs(String[] mediaDirs) {
+        this.mediaDirs.set(mediaDirs);
+    }
+
     void clearHomeMenu() {
         homeMenu.clear();
     }
@@ -186,6 +192,10 @@ public class ConnectionState {
 
     String getServerVersion() {
         return serverVersion.get();
+    }
+
+    String[] getMediaDirs() {
+        return mediaDirs.get();
     }
 
     /**

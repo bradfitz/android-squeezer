@@ -101,5 +101,18 @@
         <service android:exported="false" android:label="Squeezer Service"
             android:name=".service.SqueezeService">
         </service>
+
+        <activity
+            android:name=".download.CancelDownloadsActivity"
+            android:theme="@android:style/Theme.Dialog"/>
+
+        <receiver
+            android:name=".download.DownloadStatusReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

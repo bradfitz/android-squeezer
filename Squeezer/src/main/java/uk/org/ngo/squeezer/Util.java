@@ -163,7 +163,11 @@ public class Util {
         return (value instanceof String) ? (String)value : value.toString();
     }
 
-    public static String[] getStringArray(Object[] objects) {
+    public static String[] getStringArray(Map<String, Object> record, String fieldName) {
+        return getStringArray((Object[]) record.get(fieldName));
+    }
+
+    private static String[] getStringArray(Object[] objects) {
         String[] result = new String[objects == null ? 0 : objects.length];
         if (objects != null) {
             for (int i = 0; i < objects.length; i++) {
@@ -185,7 +189,7 @@ public class Util {
     /** Make sure the icon/image tag is an absolute URL. */
     private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
     @NonNull
-    private static Uri getImageUrl(String urlPrefix, String imageId) {
+    public static Uri getImageUrl(String urlPrefix, String imageId) {
         if (imageId != null) {
             if (HEX_PATTERN.matcher(imageId).matches()) {
                 // if the iconId is a hex digit, this is a coverid or remote track id(a negative id)
@@ -203,6 +207,12 @@ public class Util {
     @NonNull
     public static Uri getImageUrl(Map<String, Object> record, String fieldName) {
         return getImageUrl(getString(record, "urlPrefix"), getString(record, fieldName));
+    }
+
+    /** Make sure the icon/image tag is an absolute URL. */
+    @NonNull
+    public static Uri getDownloadUrl(String urlPrefix, String trackId) {
+        return Uri.parse(urlPrefix + "/music/" + trackId + "/download");
     }
 
     private static final StringBuilder sFormatBuilder = new StringBuilder();

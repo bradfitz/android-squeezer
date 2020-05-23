@@ -29,7 +29,6 @@ import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
@@ -68,12 +67,12 @@ abstract class BaseClient implements SlimClient {
     }
 
     @Override
-    public <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
+    public <T> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
         final BaseClient.BrowseRequest<T> browseRequest = new BaseClient.BrowseRequest<>(player, cmd, params, start, pageSize, callback);
         internalRequestItems(browseRequest);
     }
 
-    protected abstract <T extends Item> void internalRequestItems(BrowseRequest<T> browseRequest);
+    protected abstract <T> void internalRequestItems(BrowseRequest<T> browseRequest);
 
     @Override
     public String getUsername() {
@@ -85,13 +84,14 @@ abstract class BaseClient implements SlimClient {
         return password.get();
     }
 
-
+    @Override
+    public String getUrlPrefix() {
+        return mUrlPrefix;
+    }
 
     void parseStatus(final Player player, CurrentPlaylistItem currentSong, Map<String, Object> tokenMap) {
         PlayerState playerState = player.getPlayerState();
         playerState.statusSeen = SystemClock.elapsedRealtime() / 1000.0;
-
-        addDownloadUrlTag(tokenMap);
 
         boolean changedPower = playerState.setPoweredOn(Util.getInt(tokenMap, "power") == 1);
         boolean changedShuffleStatus = playerState.setShuffleStatus(Util.getString(tokenMap, "playlist shuffle"));
@@ -172,15 +172,6 @@ abstract class BaseClient implements SlimClient {
         mEventBus.post(new PlayerStateChanged(player));
     }
 
-    /**
-     * Adds a <code>download_url</code> entry for the item passed in.
-     *
-     * @param record The record to modify.
-     */
-    void addDownloadUrlTag(Map<String, Object> record) {
-        record.put("download_url", mUrlPrefix + "/music/" + record.get("id") + "/download");
-    }
-
     private void updatePlayStatus(Player player, String playStatus) {
         // Handle unknown states.
         if (!playStatus.equals(PlayerState.PLAY_STATE_PLAY) &&
@@ -196,7 +187,7 @@ abstract class BaseClient implements SlimClient {
         }
     }
 
-    protected static class BrowseRequest<T extends Item> {
+    protected static class BrowseRequest<T> {
         private final Player player;
         private final String[] cmd;
         private final boolean fullList;

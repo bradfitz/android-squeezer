@@ -16,11 +16,9 @@
 
 package uk.org.ngo.squeezer.download;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -59,7 +57,6 @@ public class CancelDownloadsActivity extends Activity {
         new CancelDownloadsTask(this).execute();
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     static class CancelDownloadsTask extends AsyncTask<Void, Void, Void> {
         final DownloadDatabase downloadDatabase;
         final DownloadManager downloadManager;
