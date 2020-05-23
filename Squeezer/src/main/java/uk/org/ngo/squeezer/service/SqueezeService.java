@@ -859,7 +859,7 @@ public class SqueezeService extends Service {
             }
         }
         if (mediaDir != null) {
-            path = serverPath.substring(mediaDir.length(), serverPath.length());
+            path = serverPath.substring(mediaDir.length());
         } else {
             // Note: if serverUrl is the empty string this can return null.
             path = serverUrl.getLastPathSegment();
