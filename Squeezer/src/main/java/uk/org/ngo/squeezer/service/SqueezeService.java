@@ -55,16 +55,8 @@ import android.widget.RemoteViews;
 
 import com.google.common.io.Files;
 
-import org.eclipse.jetty.util.ajax.JSON;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -723,58 +715,6 @@ public class SqueezeService extends Service {
 
     public void onEvent(HandshakeComplete event) {
         mHandshakeComplete = true;
-        //fetchPlugins("menu");
-    }
-
-    private void fetchPlugins(String cmd) {
-        HashMap<String, Object> params = new HashMap<>();
-        if ("menu".equals(cmd)) {
-            params.put("direct", "1");
-        } else {
-            params.put("menu", "menu");
-        }
-        fetchPlugins(new File(getFilesDir(), cmd), new String[]{cmd}, params);
-    }
-
-    private void fetchPlugins(final File path, String[] cmd, Map<String, Object> params) {
-        Log.i(TAG, "fetchPlugins(path:" + path + ", cmd:" + Arrays.toString(cmd) + ", params:" + params + ")");
-        mDelegate.requestItems(mDelegate.getActivePlayer(), -1, new IServiceItemListCallback<Plugin>() {
-            @Override
-            public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
-                path.getParentFile().mkdirs();
-                File file = new File(path.getParentFile(), path.getName() + "." + start + ".json");
-                try {
-                    FileOutputStream output = new FileOutputStream(file);
-                    output.write(JSON.toString(parameters).getBytes());
-                    output.close();
-                } catch (FileNotFoundException e) {
-                    Log.e(TAG, "Can't create output file: " + file);
-                } catch (IOException e) {
-                    Log.e(TAG, "Can't write output file: " + file);
-                }
-                for (Plugin plugin : items) {
-                    if (plugin.goAction != null) fetchPlugins(path, plugin.goAction.action);
-                    if (plugin.moreAction != null) fetchPlugins(path, plugin.moreAction.action);
-                }
-            }
-
-            @Override
-            public Object getClient() {
-                return SqueezeService.this;
-            }
-        }).cmd(cmd).params(params).exec();
-    }
-
-    private void fetchPlugins(final File path, Action.JsonAction action) {
-        if (action.cmd[0].equals("playlistcontrol")) {
-            Log.w(TAG, "Skip to avoid calling playlistcontrol command: " + action);
-            return;
-        }
-        if (action.cmd.length > 1 && action.cmd[1].equals("playlist")) {
-            Log.w(TAG, "Skip to avoid calling playlist command: " + action);
-            return;
-        }
-        fetchPlugins(new File(path, action.cmd()), action.cmd, action.params);
     }
 
     public void onEvent(MusicChanged event) {
