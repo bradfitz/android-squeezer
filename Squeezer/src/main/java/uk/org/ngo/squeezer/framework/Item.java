@@ -29,7 +29,6 @@ import androidx.appcompat.content.res.AppCompatResources;
 
 import android.text.TextUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,8 +36,6 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
-import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.model.Plugin;
 
 /**
@@ -48,6 +45,22 @@ import uk.org.ngo.squeezer.model.Plugin;
  * @author Kurt Aaholst
  */
 public abstract class Item implements Parcelable {
+
+    /**
+     * Information that will be requested about songs.
+     * <p>
+     * a:artist artist name<br/>
+     * C:compilation (1 if true, missing otherwise)<br/>
+     * j:coverart (1 if available, missing otherwise)<br/>
+     * J:artwork_track_id (if available, missing otherwise)<br/>
+     * K:artwork_url URL to remote artwork<br/>
+     * l:album album name<br/>
+     * t:tracknum, if known<br/>
+     * u:url Song file url<br/>
+     * x:remote 1, if this is a remote track<br/>
+     */
+    private static final String SONG_TAGS = "aCjJKltux";
+
     private String id;
     @NonNull private String name;
     public String text2;
@@ -75,6 +88,8 @@ public abstract class Item implements Parcelable {
     public Map<Boolean, Action> checkboxActions;
     public Boolean radio;
     public Slider slider;
+
+    private JsonCommand downloadCommand;
 
     public Item() {
         name = "";
@@ -246,11 +261,12 @@ public abstract class Item implements Parcelable {
 
         String trackType = getStringOrEmpty(record, "trackType");
         if ("local".equals(trackType) && (goAction != null || moreAction != null)) {
-            type = "track";
-            if (moreAction != null)
-                id = getStringOrEmpty(moreAction.action.params, "track_id");
-            else
-                id = getStringOrEmpty(goAction.action.params, "track_id");
+            Action action = (moreAction != null ? moreAction : goAction);
+            String trackId = getStringOrEmpty(action.action.params, "track_id");
+            downloadCommand = new JsonCommand()
+                    .cmd("titles")
+                    .param("tags", SONG_TAGS)
+                    .param("track_id", trackId);
         }
 
         subItems = extractSubItems((Object[]) record.get("item_loop"));
@@ -258,7 +274,7 @@ public abstract class Item implements Parcelable {
 
         selectedIndex = getInt(record, "selectedIndex");
         choiceStrings = Util.getStringArray(record, "choiceStrings");
-        if (goAction != null && goAction.action != null && goAction.action.cmd.length == 0) {
+        if (goAction != null && goAction.action != null && goAction.action.cmd.size() == 0) {
             doAction = true;
         }
 
@@ -372,7 +388,11 @@ public abstract class Item implements Parcelable {
     }
 
     public boolean canDownload() {
-        return "track".equals(type) && id != null;
+        return downloadCommand != null;
+    }
+
+    public JsonCommand downloadCommand() {
+        return downloadCommand;
     }
 
 
@@ -580,23 +600,22 @@ public abstract class Item implements Parcelable {
         if (action.nextWindow == null && baseRecord != null)
             action.nextWindow = Action.NextWindow.fromString(getString(baseRecord, "nextWindow"));
 
-        action.cmd = Util.getStringArray(actionRecord, "cmd");
-        action.params = new HashMap<>();
+        action.cmd(Util.getStringArray(actionRecord, "cmd"));
         Map<String, Object> params = getRecord(actionRecord, "params");
         if (params != null) {
-            action.params.putAll(params);
+            action.params(params);
         }
         if (itemParams != null) {
-            action.params.putAll(itemParams);
+            action.params(itemParams);
         }
-        action.params.put("useContextMenu", "1");
+        action.param("useContextMenu", "1");
 
 
         // Work around an issue in LMS which assumes the number of sub items equals itemsPerResponse.
         // This causes the playControl action of our initial request of one item, to not include the
         // "Play All" item, because it thinks there is only one item.
         if (getInt(action.params, "_quantity") == 1) {
-            action.params.put("_quantity", 2);
+            action.param("_quantity", 2);
         }
 
         Map<String, Object> windowRecord = getRecord(actionRecord, "window");

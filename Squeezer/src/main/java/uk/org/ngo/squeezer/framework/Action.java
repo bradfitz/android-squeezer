@@ -19,9 +19,8 @@ package uk.org.ngo.squeezer.framework;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.common.base.Joiner;
+import androidx.annotation.NonNull;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +33,6 @@ import uk.org.ngo.squeezer.Util;
 public class Action implements Parcelable {
     private static final String INPUT_PLACEHOLDER = "__INPUT__";
     private static final String TAGGEDINPUT_PLACEHOLDER = "__TAGGEDINPUT__";
-    private static final Joiner joiner = Joiner.on(" ");
 
     public String urlCommand;
     public JsonAction action;
@@ -115,6 +113,7 @@ public class Action implements Parcelable {
         return (action != null && "slideshow".equals(action.params.get("type")));
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Action{" +
@@ -128,13 +127,7 @@ public class Action implements Parcelable {
      * <p>
      * It is either received from the server or constructed from the CLI specification
      */
-    public static class JsonAction {
-        /** Array of command terms, f.e. ['playlist', 'jump'] */
-        public String[] cmd;
-
-        /** Hash of parameters, f.e. {sort = new}. Passed to the server in the form "key:value", f.e. 'sort:new'. */
-        public Map<String, Object> params;
-
+    public static class JsonAction extends JsonCommand {
         /** If a nextWindow param is given at the json command level, it takes precedence over a nextWindow param at the item level,
          * which in turn takes precendence over a nextWindow param at the base level.
          * See <item_fields> section for more detail on this parameter. */
@@ -142,10 +135,6 @@ public class Action implements Parcelable {
 
         public ActionWindow window;
         public boolean isContextMenu;
-
-        public String cmd() {
-            return joiner.join(cmd);
-        }
 
         public Map<String, Object> params(String input) {
             if (input == null) {
@@ -168,10 +157,11 @@ public class Action implements Parcelable {
             return out;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return "JsonAction{" +
-                    "cmd=" + Arrays.toString(cmd) +
+                    "cmd=" + cmd +
                     ", params=" + params +
                     ", nextWindow=" + nextWindow +
                     '}';
@@ -180,8 +170,8 @@ public class Action implements Parcelable {
         private static JsonAction getFromParcel(Parcel source) {
             JsonAction action = new JsonAction();
 
-            action.cmd = source.createStringArray();
-            action.params = Util.mapify(source.createStringArray());
+            action.cmd(source.createStringArray());
+            action.params(Util.mapify(source.createStringArray()));
             action.nextWindow = NextWindow.fromString(source.readString());
             action.window = ActionWindow.fromString(source.readString());
 
@@ -189,7 +179,7 @@ public class Action implements Parcelable {
         }
 
         private static void toParcel(Parcel dest, JsonAction action) {
-            dest.writeStringArray(action.cmd);
+            dest.writeStringArray(action.cmd());
             String[] tokens = new String[action.params.size()];
             int i = 0;
             for (Map.Entry entry : action.params.entrySet()) {
@@ -234,6 +224,7 @@ public class Action implements Parcelable {
             }
         }
 
+        @NonNull
         @Override
         public String toString() {
             return (nextWindow == NextWindowEnum.windowId ? windowId : nextWindow.name());

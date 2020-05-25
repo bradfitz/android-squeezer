@@ -18,13 +18,11 @@ package uk.org.ngo.squeezer.service;
 
 import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
+import uk.org.ngo.squeezer.framework.JsonCommand;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -32,13 +30,9 @@ import uk.org.ngo.squeezer.model.Plugin;
 
 class SlimDelegate {
 
-    /** Shared event bus for status changes. */
-    @NonNull private final EventBus mEventBus;
     @NonNull private final SlimClient mClient;
 
-
     SlimDelegate(@NonNull EventBus eventBus) {
-        mEventBus = eventBus;
         mClient = new CometClient(eventBus);
     }
 
@@ -145,19 +139,17 @@ class SlimDelegate {
         return mClient.getPassword();
     }
 
-    public String getUrlPrefix() {
+    String getUrlPrefix() {
         return mClient.getUrlPrefix();
     }
 
-    public String[] getMediaDirs() {
+    String[] getMediaDirs() {
         return mClient.getConnectionState().getMediaDirs();
     }
 
-    static class Command {
+    static class Command extends JsonCommand {
         final SlimClient slimClient;
         final protected Player player;
-        final protected List<String> cmd = new ArrayList<>();
-        final protected Map<String, Object> params = new HashMap<>();
 
         private Command(SlimClient slimClient, Player player) {
             this.slimClient = slimClient;
@@ -168,23 +160,32 @@ class SlimDelegate {
             this(slimClient, null);
         }
 
-        Command cmd(String... commandTerms) {
-            cmd.addAll(Arrays.asList(commandTerms));
+        @Override
+        public Command cmd(String... commandTerms) {
+            super.cmd(commandTerms);
             return this;
         }
 
+        @Override
+        public Command cmd(List<String> commandTerms) {
+            super.cmd(commandTerms);
+            return this;
+        }
+
+        @Override
         public Command params(Map<String, Object> params) {
-            this.params.putAll(params);
+            super.params(params);
             return this;
         }
 
-        Command param(String tag, Object value) {
-            params.put(tag, value);
+        @Override
+        public Command param(String tag, Object value) {
+            super.param(tag, value);
             return this;
         }
 
         protected void exec() {
-            slimClient.command(player, cmd.toArray(new String[0]), params);
+            slimClient.command(player, cmd(), params);
         }
     }
 
