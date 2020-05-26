@@ -67,6 +67,7 @@ import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
@@ -168,13 +169,13 @@ class CometClient extends BaseClient {
                     public void onResponse(Player player, Request request, Message message) {
                         //noinspection WrongConstant
                         String p2 = (String) message.getDataAsMap().get("_p2");
-                        mEventBus.post(new PlayerPrefReceived(player, request.cmd[1], p2 != null ? p2 : request.cmd[2]));
+                        mEventBus.post(new PlayerPrefReceived(player, request.cmd.get(1), p2 != null ? p2 : request.cmd.get(2)));
                     }
                 })
                 .put("mixer", new ResponseHandler() {
                     @Override
                     public void onResponse(Player player, Request request, Message message) {
-                        if (request.cmd[1].equals("volume")) {
+                        if (request.cmd.get(1).equals("volume")) {
                             String volume = (String) message.getDataAsMap().get("_volume");
                             if (volume != null) {
                                 int newVolume = Integer.valueOf(volume);
@@ -688,9 +689,9 @@ class CometClient extends BaseClient {
             throw new RuntimeException("No handler defined for '" + browseRequest.getCallback().getClass() + "'");
         }
 
-        Request request = request(browseRequest.getPlayer(), listener, browseRequest.getCmd())
+        Request request = request(browseRequest.getPlayer(), listener, browseRequest.cmd())
                 .page(browseRequest.getStart(), browseRequest.getItemsPerResponse())
-                .params(browseRequest.getParams());
+                .params(browseRequest.params);
         mPendingBrowseRequests.put(exec(request), browseRequest);
     }
 
@@ -836,28 +837,26 @@ class CometClient extends BaseClient {
         return new Request(null, null, cmd);
     }
 
-    private static class Request {
+    private static class Request extends SlimCommand {
         private static final Joiner joiner = Joiner.on(" ");
 
         private final ResponseHandler callback;
         private final Player player;
-        private final String[] cmd;
         private PagingParams page;
-        private Map<String, Object> params = new HashMap<>();
 
         private Request(Player player, ResponseHandler callback, String... cmd) {
             this.player = player;
             this.callback = callback;
-            this.cmd = cmd;
+            this.cmd(cmd);
         }
 
-        private Request param(String param, Object value) {
-            params.put(param, value);
+        public Request param(String param, Object value) {
+            super.param(param, value);
             return this;
         }
 
-        private Request params(Map<String, Object> params) {
-            this.params.putAll(params);
+        public Request params(Map<String, Object> params) {
+            super.params(params);
             return this;
         }
 
@@ -886,7 +885,7 @@ class CometClient extends BaseClient {
             slimRequest.add(player == null ? "" : player.getId());
             List<String> inner = new ArrayList<>();
             slimRequest.add(inner);
-            inner.addAll(Arrays.asList(cmd));
+            inner.addAll(cmd);
             for (Map.Entry<String, Object> parameter : params.entrySet()) {
                 if (parameter.getValue() == null) inner.add(parameter.getKey());
             }
