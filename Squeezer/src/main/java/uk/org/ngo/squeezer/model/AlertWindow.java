@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.framework;
+package uk.org.ngo.squeezer.model;
 
 import com.google.common.base.Joiner;
 

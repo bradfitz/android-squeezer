@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.framework;
+package uk.org.ngo.squeezer.model;
 
 import android.net.Uri;
 import androidx.annotation.DrawableRes;
@@ -69,11 +69,11 @@ public class DisplayMessage {
         return (TYPE_ICON.equals(type) && !TextUtils.isEmpty(style));
     }
 
-    boolean isMixed() {
+    public boolean isMixed() {
         return (TYPE_MIXED.equals(type));
     }
 
-    boolean isPopupAlbum() {
+    public boolean isPopupAlbum() {
         return (TYPE_POPUPALBUM.equals(type));
     }
 
@@ -82,7 +82,7 @@ public class DisplayMessage {
     }
 
     /** @return Whether this message has a remote icon associated with it. */
-    boolean hasIcon() {
+    public boolean hasIcon() {
         return !(icon.equals(Uri.EMPTY));
     }
 
@@ -97,7 +97,8 @@ public class DisplayMessage {
                 '}';
     }
 
-    @DrawableRes int getIconResource() {
+    @DrawableRes
+    public int getIconResource() {
         @DrawableRes Integer iconResource = displayMessageIcons.get(style);
         return iconResource == null ? 0 : iconResource;
     }

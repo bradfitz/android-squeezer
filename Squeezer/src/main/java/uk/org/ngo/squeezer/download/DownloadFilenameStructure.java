@@ -4,7 +4,6 @@ import android.content.Context;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.EnumWithText;
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.model.Song;
 
 public enum DownloadFilenameStructure implements EnumWithText{

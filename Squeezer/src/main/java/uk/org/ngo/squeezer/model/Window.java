@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.framework;
+package uk.org.ngo.squeezer.model;
 
 import android.net.Uri;
 import android.os.Parcel;

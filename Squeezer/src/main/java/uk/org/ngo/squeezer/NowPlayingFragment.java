@@ -76,14 +76,14 @@ import uk.org.ngo.squeezer.itemlist.AlarmsActivity;
 import uk.org.ngo.squeezer.itemlist.CurrentPlaylistActivity;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
-import uk.org.ngo.squeezer.itemlist.PluginListActivity;
-import uk.org.ngo.squeezer.itemlist.PluginViewLogic;
+import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
+import uk.org.ngo.squeezer.itemlist.JiveItemViewLogic;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.PlayerState.RepeatStatus;
 import uk.org.ngo.squeezer.model.PlayerState.ShuffleStatus;
-import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.ConnectionState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -106,7 +106,7 @@ public class NowPlayingFragment extends Fragment {
     private static final String TAG = "NowPlayingFragment";
 
     private BaseActivity mActivity;
-    private PluginViewLogic pluginViewDelegate;
+    private JiveItemViewLogic pluginViewDelegate;
 
     @Nullable
     private ISqueezeService mService = null;
@@ -128,7 +128,7 @@ public class NowPlayingFragment extends Fragment {
 
     private MenuItem menu_item_disconnect;
 
-    private Plugin globalSearch;
+    private JiveItem globalSearch;
     private MenuItem menu_item_search;
 
     private MenuItem menu_item_poweron;
@@ -250,7 +250,7 @@ public class NowPlayingFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (BaseActivity) activity;
-        pluginViewDelegate = new PluginViewLogic(mActivity);
+        pluginViewDelegate = new JiveItemViewLogic(mActivity);
     }
 
     @Override
@@ -891,7 +891,7 @@ public class NowPlayingFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_search:
-                PluginListActivity.show(mActivity, globalSearch, globalSearch.goAction);
+                JiveItemListActivity.show(mActivity, globalSearch, globalSearch.goAction);
                 return true;
             case R.id.menu_item_settings:
                 SettingsActivity.show(mActivity);
@@ -1092,7 +1092,7 @@ public class NowPlayingFragment extends Fragment {
     @MainThread
     public void onEventMainThread(@SuppressWarnings("unused") RegisterSqueezeNetwork event) {
         // We're connected but the controller needs to register with the server
-        PluginListActivity.register(mActivity);
+        JiveItemListActivity.register(mActivity);
     }
 
     @MainThread
@@ -1124,7 +1124,7 @@ public class NowPlayingFragment extends Fragment {
     @MainThread
     public void onEventMainThread(HomeMenuEvent event) {
         globalSearch = null;
-        for (Plugin menuItem : event.menuItems) {
+        for (JiveItem menuItem : event.menuItems) {
             if ("globalSearch".equals(menuItem.getId()) && menuItem.goAction != null) {
                 globalSearch = menuItem;
                 break;

@@ -82,7 +82,7 @@ public class AlarmView extends BaseItemView<Alarm> {
     }
 
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, int position, Alarm item) {
+    public View getAdapterView(View convertView, ViewGroup parent, int position, Alarm item, boolean selected) {
         View view = getAdapterView(convertView, parent);
         bindView((AlarmViewHolder) view.getTag(), position, item);
         return view;
@@ -264,10 +264,6 @@ public class AlarmView extends BaseItemView<Alarm> {
     @Override
     public boolean isSelectable(Alarm item) {
         return false;
-    }
-
-    @Override
-    public void onItemSelected(View view, int index, Alarm item) {
     }
 
     // Require an immutable list so that caller's can't modify it when this method iterates

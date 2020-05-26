@@ -50,6 +50,9 @@ import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
+import uk.org.ngo.squeezer.model.Action;
+import uk.org.ngo.squeezer.model.DisplayMessage;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -437,13 +440,13 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /**
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via
-     * {@link ISqueezeService#action(Item, Action)}
+     * {@link ISqueezeService#action(JiveItem, Action)}
      * <p>
      * Navigate to <code>nextWindow</code> if it exists in <code>action</code>. The
      * <code>alreadyPopped</code> parameter is used to modify nextWindow if any windows has already
      * been popped by the Android system.
      */
-    public void action(Item item, Action action, int alreadyPopped) {
+    public void action(JiveItem item, Action action, int alreadyPopped) {
         if (mService == null) {
             return;
         }
@@ -452,9 +455,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * Same as calling {@link #action(Item, Action, int)} with <code>alreadyPopped</code> = 0
+     * Same as calling {@link #action(JiveItem, Action, int)} with <code>alreadyPopped</code> = 0
      */
-    public void action(Item item, Action action) {
+    public void action(JiveItem item, Action action) {
         action(item, action, 0);
     }
 
@@ -474,18 +477,18 @@ public abstract class BaseActivity extends AppCompatActivity {
      * Initiate download of songs for the supplied item.
      *
      * @param item Song or item with songs to download
-     * @see ISqueezeService#downloadItem(Item)
+     * @see ISqueezeService#downloadItem(JiveItem)
      */
-    public void downloadItem(Item item) {
+    public void downloadItem(JiveItem item) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                 checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            currentDownloadItem = (Item) item;
+            currentDownloadItem = item;
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         } else
             mService.downloadItem(item);
     }
 
-    private Item currentDownloadItem;
+    private JiveItem currentDownloadItem;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

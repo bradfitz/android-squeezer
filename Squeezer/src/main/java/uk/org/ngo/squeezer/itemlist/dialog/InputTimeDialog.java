@@ -14,24 +14,24 @@ import java.util.Calendar;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
-import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.model.JiveItem;
 
 public class InputTimeDialog extends TimePickerDialog implements TimePickerDialog.OnTimeSetListener {
     private BaseListActivity activity;
-    private Item item;
+    private JiveItem item;
     private int alreadyPopped;
 
     @Override
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         activity = (BaseListActivity) getActivity();
-        item = getArguments().getParcelable(Item.class.getName());
+        item = getArguments().getParcelable(JiveItem.class.getName());
         alreadyPopped = getArguments().getInt("alreadyPopped", 0);
         setOnTimeSetListener(this);
         return super.onCreateDialog(savedInstanceState);
     }
 
-    public static void show(BaseActivity activity, Item item, int alreadyPopped) {
+    public static void show(BaseActivity activity, JiveItem item, int alreadyPopped) {
         int hour;
         int minute;
         try {
@@ -48,7 +48,7 @@ public class InputTimeDialog extends TimePickerDialog implements TimePickerDialo
         InputTimeDialog dialog = new InputTimeDialog();
 
         Bundle args = new Bundle();
-        args.putParcelable(Item.class.getName(), item);
+        args.putParcelable(JiveItem.class.getName(), item);
         args.putInt("alreadyPopped", alreadyPopped);
         dialog.setArguments(args);
 

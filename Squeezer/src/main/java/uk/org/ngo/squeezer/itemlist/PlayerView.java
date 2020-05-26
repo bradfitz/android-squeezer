@@ -94,10 +94,6 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     @Override
-    public void onItemSelected(View view, int index, Player item) {
-    }
-
-    @Override
     public void showContextMenu(ViewHolder viewHolder, final Player item) {
         PopupMenu popup = new PopupMenu(getActivity(), viewHolder.contextMenuButtonHolder);
         popup.inflate(R.menu.playercontextmenu);

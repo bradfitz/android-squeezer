@@ -67,16 +67,16 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
-import uk.org.ngo.squeezer.framework.Action;
-import uk.org.ngo.squeezer.framework.Item;
-import uk.org.ngo.squeezer.framework.JsonCommand;
+import uk.org.ngo.squeezer.model.Action;
+import uk.org.ngo.squeezer.model.Item;
+import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
@@ -341,9 +341,9 @@ public class SqueezeService extends Service {
             // Start an asynchronous fetch of the squeezeservers "home menu" items
             // See http://wiki.slimdevices.com/index.php/SqueezePlayAndSqueezeCenterPlugins
             mDelegate.clearHomeMenu();
-            mDelegate.requestItems(newActivePlayer, 0, new IServiceItemListCallback<Plugin>() {
+            mDelegate.requestItems(newActivePlayer, 0, new IServiceItemListCallback<JiveItem>() {
                 @Override
-                public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+                public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
                     mDelegate.addToHomeMenu(count, items);
                 }
 
@@ -734,7 +734,7 @@ public class SqueezeService extends Service {
     }
 
     /* Start an async fetch of the SqueezeboxServer's songs */
-    private void songs(IServiceItemListCallback<Song> callback, JsonCommand command) throws HandshakeNotCompleteException {
+    private void songs(IServiceItemListCallback<Song> callback, SlimCommand command) throws HandshakeNotCompleteException {
         mDelegate.requestItems(-1, callback).params(command.params).cmd(command.cmd()).exec();
     }
 
@@ -944,7 +944,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void register(IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException {
+        public void register(IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
@@ -1355,7 +1355,7 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous fetch of the squeezeservers generic menu items */
         @Override
-        public void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
+        public void pluginItems(int start, String cmd, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
@@ -1364,7 +1364,7 @@ public class SqueezeService extends Service {
 
         /* Start an asynchronous fetch of the squeezeservers generic menu items */
         @Override
-        public void pluginItems(int start, Item item, Action action, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException {
+        public void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException {
             if (!mHandshakeComplete) {
                 throw new HandshakeNotCompleteException("Handshake with server has not completed.");
             }
@@ -1372,14 +1372,14 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void pluginItems(Action action, IServiceItemListCallback<Plugin> callback) throws HandshakeNotCompleteException {
+        public void pluginItems(Action action, IServiceItemListCallback<JiveItem> callback) throws HandshakeNotCompleteException {
             // We cant use paging for context menu items as LMS does some "magic"
             // See XMLBrowser.pm ("xmlBrowseInterimCM" and  "# Cannot do this if we might screw up paging")
             mDelegate.requestItems(getActivePlayer(), callback).cmd(action.action.cmd).params(action.action.params).exec();
         }
 
         @Override
-        public void action(Item item, Action action) {
+        public void action(JiveItem item, Action action) {
             if (!isConnected()) {
                 return;
             }
@@ -1395,7 +1395,7 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void downloadItem(Item item) throws HandshakeNotCompleteException {
+        public void downloadItem(JiveItem item) throws HandshakeNotCompleteException {
             Log.i(TAG, "downloadItem(" + item + ")");
             songs(songDownloadCallback, item.downloadCommand());
 

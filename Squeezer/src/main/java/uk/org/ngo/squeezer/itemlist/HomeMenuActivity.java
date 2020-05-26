@@ -27,14 +27,13 @@ import java.util.Comparator;
 import java.util.List;
 
 import uk.org.ngo.squeezer.Preferences;
-import uk.org.ngo.squeezer.framework.Item;
-import uk.org.ngo.squeezer.framework.Window;
+import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
-import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
 
-public class HomeMenuActivity extends PluginListActivity {
+public class HomeMenuActivity extends JiveItemListActivity {
 
     @Override
     protected void orderPage(@NonNull ISqueezeService service, int start) {
@@ -58,26 +57,26 @@ public class HomeMenuActivity extends PluginListActivity {
                 if (parent.window == null) {
                     applyWindowStyle(Window.WindowStyle.HOME_MENU);
                 }
-                if (parent != Plugin.HOME && window.text == null) {
+                if (parent != JiveItem.HOME && window.text == null) {
                     updateHeader(parent);
                 }
                 clearItemAdapter();
             }
         });
-        List<Plugin> menu = getMenuNode(parent.getId(), event.menuItems);
-        onItemsReceived(menu.size(), 0, menu, Plugin.class);
+        List<JiveItem> menu = getMenuNode(parent.getId(), event.menuItems);
+        onItemsReceived(menu.size(), 0, menu, JiveItem.class);
     }
 
-    private List<Plugin> getMenuNode(String node, List<Plugin> homeMenu) {
-        ArrayList<Plugin> menu = new ArrayList<>();
-        for (Plugin item : homeMenu) {
+    private List<JiveItem> getMenuNode(String node, List<JiveItem> homeMenu) {
+        ArrayList<JiveItem> menu = new ArrayList<>();
+        for (JiveItem item : homeMenu) {
             if (node.equals(item.getNode())) {
                 menu.add(item);
             }
         }
-        Collections.sort(menu, new Comparator<Plugin>() {
+        Collections.sort(menu, new Comparator<JiveItem>() {
             @Override
-            public int compare(Plugin o1, Plugin o2) {
+            public int compare(JiveItem o1, JiveItem o2) {
                 if (o1.getWeight() == o2.getWeight()) {
                     return o1.getName().compareTo(o2.getName());
                 }
@@ -87,9 +86,9 @@ public class HomeMenuActivity extends PluginListActivity {
         return menu;
     }
 
-    public static void show(Activity activity, Item plugin) {
+    public static void show(Activity activity, JiveItem item) {
         final Intent intent = new Intent(activity, HomeMenuActivity.class);
-        intent.putExtra(Plugin.class.getName(), plugin);
+        intent.putExtra(JiveItem.class.getName(), item);
         activity.startActivity(intent);
     }
 

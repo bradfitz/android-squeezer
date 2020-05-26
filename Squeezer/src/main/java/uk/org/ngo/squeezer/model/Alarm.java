@@ -18,12 +18,13 @@ package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 
+import androidx.annotation.NonNull;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.Item;
 
 
 public class Alarm extends Item {
@@ -75,7 +76,7 @@ public class Alarm extends Item {
         this.playListId = playListId;
     }
 
-    private Set<Integer> dow = new TreeSet<Integer>();
+    private Set<Integer> dow = new TreeSet<>();
 
     private void setDow(String dowString) {
         dow.clear();
@@ -134,6 +135,7 @@ public class Alarm extends Item {
         dest.writeString(playListId);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "id=" + getId() + ", tod=" + getName();

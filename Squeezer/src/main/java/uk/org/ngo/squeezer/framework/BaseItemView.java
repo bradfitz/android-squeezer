@@ -36,6 +36,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.util.Reflection;
 import uk.org.ngo.squeezer.widget.SquareImageView;
 
@@ -203,7 +204,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * uses a different layout.
      */
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, int position, T item) {
+    public View getAdapterView(View convertView, ViewGroup parent, int position, T item, boolean selected) {
         View view = getAdapterView(convertView, parent, mViewParams);
         bindView(view, item);
         return view;
@@ -212,7 +213,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Binds the item's name to {@link ViewHolder#text1}.
      * <p>
-     * OVerride this instead of {@link #getAdapterView(View, ViewGroup, int, Item)} if the
+     * OVerride this instead of {@link #getAdapterView(View, ViewGroup, int, Item, boolean)} if the
      * default layouts are sufficient.
      *
      * @param view The view that contains the {@link ViewHolder}
@@ -233,7 +234,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Returns a view suitable for displaying the "Loading..." text.
      * <p>
-     * Override this method and {@link #getAdapterView(View, ViewGroup, int, Item)} if your
+     * Override this method and {@link #getAdapterView(View, ViewGroup, int, Item, boolean)} if your
      * extension uses a different layout.
      */
     @Override
@@ -323,6 +324,16 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     @Override
     public boolean isSelectable(T item) {
         return (item.getId() != null);
+    }
+
+    @Override
+    public boolean onItemSelected(View view, int index, T item) {
+        return false;
+    }
+
+    @Override
+    public boolean isSelected(T item) {
+        return false;
     }
 
     @Override

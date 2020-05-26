@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import android.view.MenuItem;
+
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ExpandableListView;
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;

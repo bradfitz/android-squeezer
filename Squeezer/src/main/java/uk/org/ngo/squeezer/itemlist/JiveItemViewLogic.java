@@ -26,25 +26,25 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.Action;
+import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.framework.BaseItemView;
-import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.ChoicesDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.InputTextDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.InputTimeDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.SlideShow;
-import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 
 /**
- * Delegate with view logic for {@link Plugin} which can be used from any {@link BaseActivity}
+ * Delegate with view logic for {@link JiveItem} which can be used from any {@link BaseActivity}
  */
-public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupMenu.OnDismissListener {
+public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, PopupMenu.OnDismissListener {
     private final BaseActivity activity;
 
-    public PluginViewLogic(BaseActivity activity) {
+    public JiveItemViewLogic(BaseActivity activity) {
         this.activity = activity;
     }
 
@@ -52,16 +52,16 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
      * Perform the <code>go</code> action of the supplied item.
      * <p>
      * If this is a <code>do</code> action and it doesn't require input, it is performed immediately
-     * by calling {@link BaseActivity#action(Item, Action) }.
+     * by calling {@link BaseActivity#action(JiveItem, Action) }.
      * <p>
      * Otherwise we pass the action to a sub <code>activity</code> (window in slim terminology) which
-     * collects the input if required and performs the action. See {@link PluginListActivity#show(Activity, Item, Action)}
+     * collects the input if required and performs the action. See {@link JiveItemListActivity#show(Activity, Item, Action)}
      * <p>
      * Finally if the (unsupported) "showBigArtwork" flag is present in an item the <code>do</code>
      * action will return an artwork id or URL, which can be used the fetch an image to display in a
      * popup. See {@link ArtworkDialog#show(BaseActivity, Action)}
      */
-    void execGoAction(BaseItemView.ViewHolder viewHolder, Item item, int alreadyPopped) {
+    void execGoAction(BaseItemView.ViewHolder viewHolder, JiveItem item, int alreadyPopped) {
         if (item.showBigArtwork) {
             ArtworkDialog.show(activity, item.goAction);
         } else if (item.goAction.isSlideShow()) {
@@ -81,17 +81,17 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
                 activity.action(item, item.goAction, alreadyPopped);
             }
         } else {
-            PluginListActivity.show(activity, item, item.goAction);
+            JiveItemListActivity.show(activity, item, item.goAction);
         }
     }
 
     // Only touch these from the main thread
     private int contextStack = 0;
-    private Item contextMenuItem;
+    private JiveItem contextMenuItem;
     private PopupMenu contextPopup;
     private BaseItemView.ViewHolder contextMenuViewHolder;
 
-    public void showContextMenu(BaseItemView.ViewHolder viewHolder, Item item) {
+    public void showContextMenu(BaseItemView.ViewHolder viewHolder, JiveItem item) {
         if (item.moreAction != null) {
             showContextMenu(viewHolder, item, item.moreAction);
         } else {
@@ -99,14 +99,14 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
         }
     }
 
-    private void showContextMenu(BaseItemView.ViewHolder viewHolder, Item item, Action action) {
+    private void showContextMenu(BaseItemView.ViewHolder viewHolder, JiveItem item, Action action) {
         contextMenuViewHolder = viewHolder;
         contextStack = 1;
         contextMenuItem = item;
         orderContextMenu(action);
     }
 
-    private void showStandardContextMenu(View v, final Item item) {
+    private void showStandardContextMenu(View v, final JiveItem item) {
         contextPopup = new PopupMenu(activity, v);
         Menu menu = contextPopup.getMenu();
 
@@ -133,7 +133,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
         contextPopup.show();
     }
 
-    private boolean doStandardItemContext(MenuItem menuItem, Item item) {
+    private boolean doStandardItemContext(MenuItem menuItem, JiveItem item) {
         switch (menuItem.getItemId()) {
             case R.id.play_now:
                 activity.action(item, item.playAction);
@@ -145,13 +145,13 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
                 activity.action(item, item.insertAction);
                 return true;
             case R.id.more:
-                PluginListActivity.show(activity, item, item.moreAction);
+                JiveItemListActivity.show(activity, item, item.moreAction);
                 return true;
         }
         return false;
     }
 
-    private void showContextMenu(final BaseItemView.ViewHolder viewHolder, final List<Plugin> items) {
+    private void showContextMenu(final BaseItemView.ViewHolder viewHolder, final List<JiveItem> items) {
         contextPopup = new PopupMenu(activity, viewHolder.contextMenuButtonHolder);
         Menu menu = contextPopup.getMenu();
 
@@ -160,8 +160,8 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
             menu.add(Menu.NONE, index++, Menu.NONE, R.string.DOWNLOAD);
         }
         final int offset = index;
-        for (Plugin plugin : items) {
-            menu.add(Menu.NONE, index++, Menu.NONE, plugin.getName()).setEnabled(plugin.goAction != null);
+        for (JiveItem jiveItem : items) {
+            menu.add(Menu.NONE, index++, Menu.NONE, jiveItem.getName()).setEnabled(jiveItem.goAction != null);
         }
 
         contextPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -179,7 +179,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
         contextPopup.show();
     }
 
-    private void doItemContext(BaseItemView.ViewHolder viewHolder, Plugin item) {
+    private void doItemContext(BaseItemView.ViewHolder viewHolder, JiveItem item) {
         Action.NextWindow nextWindow = (item.goAction != null ? item.goAction.action.nextWindow : item.nextWindow);
         if (nextWindow != null) {
             activity.action(item, item.goAction, contextStack);
@@ -203,7 +203,7 @@ public class PluginViewLogic implements IServiceItemListCallback<Plugin>, PopupM
     }
 
     @Override
-    public void onItemsReceived(int count, int start, final Map<String, Object> parameters, final List<Plugin> items, Class<Plugin> dataType) {
+    public void onItemsReceived(int count, int start, final Map<String, Object> parameters, final List<JiveItem> items, Class<JiveItem> dataType) {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

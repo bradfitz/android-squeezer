@@ -48,14 +48,13 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.dialog.NetworkErrorDialogFragment;
-import uk.org.ngo.squeezer.framework.Action;
+import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.framework.ItemView;
-import uk.org.ngo.squeezer.framework.Window;
+import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
-import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
@@ -66,15 +65,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * The activity's content view scrolls in from the right, and disappear to the left, to provide a
  * spatial component to navigation.
  */
-public class PluginListActivity extends BaseListActivity<Plugin>
+public class JiveItemListActivity extends BaseListActivity<JiveItem>
         implements NetworkErrorDialogFragment.NetworkErrorDialogListener {
     private static final int GO = 1;
     private static final String FINISH = "FINISH";
     private static final String RELOAD = "RELOAD";
 
-    private PluginViewLogic pluginViewDelegate;
+    private JiveItemViewLogic pluginViewDelegate;
     private boolean register;
-    protected Item parent;
+    protected JiveItem parent;
     private Action action;
     Window window = new Window();
 
@@ -83,13 +82,13 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     private BaseItemView.ViewHolder parentViewHolder;
 
     @Override
-    protected ItemView<Plugin> createItemView() {
-        return new PluginView(this, window.windowStyle);
+    protected ItemView<JiveItem> createItemView() {
+        return new JiveItemView(this, window.windowStyle);
     }
 
     @Override
-    public PluginView getItemView() {
-        return (PluginView) super.getItemView();
+    public JiveItemView getItemView() {
+        return (JiveItemView) super.getItemView();
     }
 
     @Override
@@ -98,10 +97,10 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
         Bundle extras = checkNotNull(getIntent().getExtras(), "intent did not contain extras");
         register = extras.getBoolean("register");
-        parent = extras.getParcelable(Plugin.class.getName());
+        parent = extras.getParcelable(JiveItem.class.getName());
         action = extras.getParcelable(Action.class.getName());
 
-        pluginViewDelegate = new PluginViewLogic(this);
+        pluginViewDelegate = new JiveItemViewLogic(this);
         setParentViewHolder();
 
         // If initial setup is performed, use it
@@ -186,7 +185,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     @Override
     public void onResume() {
         super.onResume();
-        ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
+        ArtworkListLayout listLayout = JiveItemView.listLayout(this, window.windowStyle);
         AbsListView listView = getListView();
         if ((listLayout == ArtworkListLayout.grid && !(listView instanceof GridView))
          || (listLayout != ArtworkListLayout.grid && (listView instanceof GridView))) {
@@ -203,7 +202,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
     @Override
     protected AbsListView setupListView(AbsListView listView) {
-        ArtworkListLayout listLayout = PluginView.listLayout(this, window.windowStyle);
+        ArtworkListLayout listLayout = JiveItemView.listLayout(this, window.windowStyle);
         if (listLayout == ArtworkListLayout.grid && !(listView instanceof GridView)) {
             listView = switchListView(listView, R.layout.item_grid);
         }
@@ -231,7 +230,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
         parentViewHolder.contextMenuButtonHolder.setVisibility(View.GONE);
     }
 
-    void updateHeader(Item parent) {
+    void updateHeader(JiveItem parent) {
         updateHeader(parent.getName());
 
         if (parent.hasArtwork() && window.windowStyle == Window.WindowStyle.TEXT_ONLY) {
@@ -273,7 +272,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     void applyWindowStyle(Window.WindowStyle windowStyle, ArtworkListLayout prevListLayout) {
-        ArtworkListLayout listLayout = PluginView.listLayout(this, windowStyle);
+        ArtworkListLayout listLayout = JiveItemView.listLayout(this, windowStyle);
         updateViewMenuItems(listLayout, windowStyle);
         if (windowStyle != window.windowStyle || listLayout != getItemView().listLayout()) {
             window.windowStyle = windowStyle;
@@ -324,7 +323,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     @Override
-    public void onItemsReceived(int count, int start, final Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+    public void onItemsReceived(int count, int start, final Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
         if (parameters.containsKey("goNow")) {
             Action.NextWindow nextWindow = Action.NextWindow.fromString(Util.getString(parameters, "goNow"));
             switch (nextWindow.nextWindow) {
@@ -342,7 +341,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
             return;
         }
 
-        final Window window = Item.extractWindow(Util.getRecord(parameters, "window"), null);
+        final Window window = JiveItem.extractWindow(Util.getRecord(parameters, "window"), null);
         if (window != null) {
             // override server based icon_list style for playlist
             if (window.windowStyle == Window.WindowStyle.ICON_LIST && parent != null && "playlist".equals(parent.getType())) {
@@ -392,7 +391,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     @Override
-    public void action(Item item, Action action, int alreadyPopped) {
+    public void action(JiveItem item, Action action, int alreadyPopped) {
         if (getService() == null) {
             return;
         }
@@ -536,7 +535,7 @@ public class PluginListActivity extends BaseListActivity<Plugin>
     }
 
     private void updateViewMenuItems(ArtworkListLayout listLayout, Window.WindowStyle windowStyle) {
-        boolean canChangeListLayout = PluginView.canChangeListLayout(windowStyle);
+        boolean canChangeListLayout = JiveItemView.canChangeListLayout(windowStyle);
         if (menuItemList != null) {
             menuItemList.setVisible(canChangeListLayout && listLayout != ArtworkListLayout.list);
             menuItemGrid.setVisible(canChangeListLayout && listLayout != ArtworkListLayout.grid);
@@ -545,38 +544,38 @@ public class PluginListActivity extends BaseListActivity<Plugin>
 
 
     public static void register(Activity activity) {
-        final Intent intent = new Intent(activity, PluginListActivity.class);
+        final Intent intent = new Intent(activity, JiveItemListActivity.class);
         intent.putExtra("register", true);
         activity.startActivity(intent);
     }
 
     /**
-     * Start a new {@link PluginListActivity} to perform the supplied <code>action</code>.
+     * Start a new {@link JiveItemListActivity} to perform the supplied <code>action</code>.
      * <p>
      * If the action requires input, we initially get the input.
      * <p>
      * When input is ready or the action does not require input, items are ordered asynchronously
-     * via {@link ISqueezeService#pluginItems(int, Item, Action, IServiceItemListCallback)}
+     * via {@link ISqueezeService#pluginItems(int, JiveItem, Action, IServiceItemListCallback)}
      *
      * @see #orderPage(ISqueezeService, int)
      */
-    public static void show(Activity activity, Item parent, Action action) {
+    public static void show(Activity activity, JiveItem parent, Action action) {
         final Intent intent = getPluginListIntent(activity);
-        intent.putExtra(Plugin.class.getName(), parent);
+        intent.putExtra(JiveItem.class.getName(), parent);
         intent.putExtra(Action.class.getName(), action);
         activity.startActivityForResult(intent, GO);
     }
 
-    public static void show(Activity activity, Item plugin) {
+    public static void show(Activity activity, JiveItem item) {
         final Intent intent = getPluginListIntent(activity);
-        intent.putExtra(Plugin.class.getName(), plugin);
+        intent.putExtra(JiveItem.class.getName(), item);
         activity.startActivityForResult(intent, GO);
     }
 
     @NonNull
     private static Intent getPluginListIntent(Activity activity) {
-        Intent intent = new Intent(activity, PluginListActivity.class);
-        if (activity instanceof PluginListActivity && ((PluginListActivity)activity).register) {
+        Intent intent = new Intent(activity, JiveItemListActivity.class);
+        if (activity instanceof JiveItemListActivity && ((JiveItemListActivity)activity).register) {
             intent.putExtra("register", true);
         }
         return intent;

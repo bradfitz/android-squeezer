@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.framework;
+package uk.org.ngo.squeezer.model;
 
 import androidx.annotation.NonNull;
 
 import java.util.Arrays;
-
-import uk.org.ngo.squeezer.model.Plugin;
 
 /** Holds a menu status message from slimserver. */
 public class MenuStatusMessage {
@@ -29,7 +27,7 @@ public class MenuStatusMessage {
 
     /** each entry contains a table that needs insertion into the menu */
     @NonNull
-    public Plugin[] menuItems;
+    public JiveItem[] menuItems;
 
     // directive for these items is in chunk.data[3]
     @NonNull
@@ -39,7 +37,7 @@ public class MenuStatusMessage {
     @NonNull
     public String playerId;
 
-    public MenuStatusMessage(@NonNull String playerId, @NonNull String menuDirective, @NonNull Plugin[] menuItems) {
+    public MenuStatusMessage(@NonNull String playerId, @NonNull String menuDirective, @NonNull JiveItem[] menuItems) {
         this.playerId = playerId;
         this.menuDirective = menuDirective;
         this.menuItems = menuItems;

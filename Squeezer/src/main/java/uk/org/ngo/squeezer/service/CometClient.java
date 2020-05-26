@@ -58,20 +58,20 @@ import java.util.regex.Pattern;
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.AlertWindow;
-import uk.org.ngo.squeezer.framework.DisplayMessage;
+import uk.org.ngo.squeezer.model.AlertWindow;
+import uk.org.ngo.squeezer.model.DisplayMessage;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.model.Song;
 import uk.org.ngo.squeezer.service.event.AlertEvent;
 import uk.org.ngo.squeezer.service.event.DisplayEvent;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
-import uk.org.ngo.squeezer.framework.MenuStatusMessage;
+import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.PlayerPrefReceived;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 import uk.org.ngo.squeezer.service.event.RegisterSqueezeNetwork;
@@ -154,7 +154,7 @@ class CometClient extends BaseClient {
                 new AlarmsListener(),
                 new AlarmPlaylistsListener(),
                 new SongListener(),
-                new PluginListener()
+                new JiveItemListener()
         );
         ImmutableMap.Builder<Class<?>, ItemListener<?>> builder = ImmutableMap.builder();
         for (ItemListener<?> itemListener : itemListeners) {
@@ -491,11 +491,11 @@ class CometClient extends BaseClient {
 
         // each chunk.data[2] contains a table that needs insertion into the menu
         Object[] item_data = (Object[]) data[1];
-        Plugin[] menuItems = new Plugin[item_data.length];
+        JiveItem[] menuItems = new JiveItem[item_data.length];
         for (int i = 0; i < item_data.length; i++) {
             Map<String, Object> record = (Map<String, Object>) item_data[i];
             patchUrlPrefix(record);
-            menuItems[i] = new Plugin(record);
+            menuItems[i] = new JiveItem(record);
         }
 
         // directive for these items is in chunk.data[3]
@@ -605,7 +605,7 @@ class CometClient extends BaseClient {
         }
     }
 
-    private class PluginListener extends ItemListener<Plugin> {
+    private class JiveItemListener extends ItemListener<JiveItem> {
         @Override
         public void onResponse(Player player, Request request, Message message) {
             parseMessage("item_loop", message);

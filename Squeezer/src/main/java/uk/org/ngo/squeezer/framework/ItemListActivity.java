@@ -38,6 +38,7 @@ import java.util.Stack;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
+import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;

@@ -30,14 +30,14 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.Action;
+import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-public class ArtworkDialog extends DialogFragment implements IServiceItemListCallback<Plugin> {
+public class ArtworkDialog extends DialogFragment implements IServiceItemListCallback<JiveItem> {
     private static final String TAG = DialogFragment.class.getSimpleName();
     private ImageView artwork;
 
@@ -66,7 +66,7 @@ public class ArtworkDialog extends DialogFragment implements IServiceItemListCal
     }
 
     @Override
-    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
         Uri artworkId = Util.getImageUrl(parameters, parameters.containsKey("artworkId") ? "artworkId" : "artworkUrl");
         ImageFetcher.getInstance(getContext()).loadImage(artworkId, artwork);
     }

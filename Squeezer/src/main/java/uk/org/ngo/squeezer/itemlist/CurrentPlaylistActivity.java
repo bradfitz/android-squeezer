@@ -41,7 +41,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
-import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistChanged;
@@ -52,7 +52,7 @@ import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
 /**
  * Activity that shows the songs in the current playlist.
  */
-public class CurrentPlaylistActivity extends PluginListActivity {
+public class CurrentPlaylistActivity extends JiveItemListActivity {
 
     /**
      * Called when the activity is first created.
@@ -103,9 +103,9 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     /**
      * A list adapter that highlights the view that's currently playing.
      */
-    private static class HighlightingListAdapter extends ItemAdapter<Plugin> {
+    private static class HighlightingListAdapter extends ItemAdapter<JiveItem> {
 
-        public HighlightingListAdapter(ItemView<Plugin> itemView) {
+        public HighlightingListAdapter(ItemView<JiveItem> itemView) {
             super(itemView);
         }
 
@@ -152,17 +152,17 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     }
 
     @Override
-    protected ItemAdapter<Plugin> createItemListAdapter(
-            ItemView<Plugin> itemView) {
+    protected ItemAdapter<JiveItem> createItemListAdapter(
+            ItemView<JiveItem> itemView) {
         return new HighlightingListAdapter(itemView);
     }
 
     @Override
-    public ItemView<Plugin> createItemView() {
-        return new PluginView(this, window.windowStyle) {
+    public ItemView<JiveItem> createItemView() {
+        return new JiveItemView(this, window.windowStyle) {
 
             @Override
-            public boolean isSelectable(Plugin item) {
+            public boolean isSelectable(JiveItem item) {
                 return true;
             }
 
@@ -170,11 +170,12 @@ public class CurrentPlaylistActivity extends PluginListActivity {
              * Jumps to whichever song the user chose.
              */
             @Override
-            public void onItemSelected(View view, int index, Plugin item) {
+            public boolean onItemSelected(View view, int index, JiveItem item) {
                 ISqueezeService service = getActivity().getService();
                 if (service != null) {
                     getActivity().getService().playlistIndex(index);
                 }
+                return false;
             }
         };
     }
@@ -250,9 +251,9 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     }
 
     @Override
-    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
-        List<Plugin> playlistItems = new ArrayList<>();
-        for (Plugin item : items) {
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
+        List<JiveItem> playlistItems = new ArrayList<>();
+        for (JiveItem item : items) {
             // Skip special items (global actions) as there are handled locally
             if ((item.hasSubItems() || item.hasInput())) {
                 count--;
@@ -295,7 +296,7 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     public static void show(Activity activity) {
         final Intent intent = new Intent(activity, CurrentPlaylistActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.putExtra(Plugin.class.getName(), Plugin.CURRENT_PLAYLIST);
+        intent.putExtra(JiveItem.class.getName(), JiveItem.CURRENT_PLAYLIST);
         activity.startActivity(intent);
         activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
     }

@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.framework.JsonCommand;
+import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Plugin;
 
 class SlimDelegate {
 
@@ -127,7 +127,7 @@ class SlimDelegate {
         mClient.getConnectionState().clearHomeMenu();
     }
 
-    void addToHomeMenu(int count, List<Plugin> items) {
+    void addToHomeMenu(int count, List<JiveItem> items) {
         mClient.getConnectionState().addToHomeMenu(count, items);
     }
 
@@ -147,7 +147,7 @@ class SlimDelegate {
         return mClient.getConnectionState().getMediaDirs();
     }
 
-    static class Command extends JsonCommand {
+    static class Command extends SlimCommand {
         final SlimClient slimClient;
         final protected Player player;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.framework;
+package uk.org.ngo.squeezer.model;
 
 import androidx.annotation.NonNull;
 
@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Data for a command to LMS
  */
-public class JsonCommand {
+public class SlimCommand {
     /** Array of command terms, f.e. ['playlist', 'jump'] */
     public final List<String> cmd = new ArrayList<>();
 
@@ -35,21 +35,21 @@ public class JsonCommand {
     public final Map<String, Object> params = new HashMap<>();
 
 
-    public JsonCommand cmd(String... commandTerms) {
+    public SlimCommand cmd(String... commandTerms) {
         return cmd(Arrays.asList(commandTerms));
     }
 
-    public JsonCommand cmd(List<String> commandTerms) {
+    public SlimCommand cmd(List<String> commandTerms) {
         cmd.addAll(commandTerms);
         return this;
     }
 
-    public JsonCommand params(Map<String, Object> params) {
+    public SlimCommand params(Map<String, Object> params) {
         this.params.putAll(params);
         return this;
     }
 
-    public JsonCommand param(String tag, Object value) {
+    public SlimCommand param(String tag, Object value) {
         params.put(tag, value);
         return this;
     }

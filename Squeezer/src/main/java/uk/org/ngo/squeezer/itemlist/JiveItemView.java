@@ -16,7 +16,6 @@
 
 package uk.org.ngo.squeezer.itemlist;
 
-import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
@@ -26,20 +25,19 @@ import androidx.annotation.LayoutRes;
 
 import java.util.EnumSet;
 
-import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.framework.Action;
+import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.framework.BaseListActivity;
 import uk.org.ngo.squeezer.framework.ItemListActivity;
-import uk.org.ngo.squeezer.framework.Slider;
-import uk.org.ngo.squeezer.framework.Window;
+import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.Slider;
+import uk.org.ngo.squeezer.model.Window;
 import uk.org.ngo.squeezer.itemlist.dialog.ArtworkListLayout;
-import uk.org.ngo.squeezer.model.Plugin;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-public class PluginView extends BaseItemView<Plugin> {
-    private final PluginViewLogic logicDelegate;
+public class JiveItemView extends BaseItemView<JiveItem> {
+    private final JiveItemViewLogic logicDelegate;
     private Window.WindowStyle windowStyle;
 
     /** Width of the icon, if VIEW_PARAM_ICON is used. */
@@ -48,14 +46,14 @@ public class PluginView extends BaseItemView<Plugin> {
     /** Height of the icon, if VIEW_PARAM_ICON is used. */
     private int mIconHeight;
 
-    PluginView(BaseListActivity<Plugin> activity, Window.WindowStyle windowStyle) {
+    JiveItemView(BaseListActivity<JiveItem> activity, Window.WindowStyle windowStyle) {
         super(activity);
         setWindowStyle(windowStyle);
-        this.logicDelegate = new PluginViewLogic(activity);
+        this.logicDelegate = new JiveItemViewLogic(activity);
         setLoadingViewParams(viewParamIcon() | VIEW_PARAM_TWO_LINE );
     }
 
-    PluginViewLogic getLogicDelegate() {
+    JiveItemViewLogic getLogicDelegate() {
         return logicDelegate;
     }
 
@@ -71,7 +69,12 @@ public class PluginView extends BaseItemView<Plugin> {
     }
 
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, int position, final Plugin item) {
+    public View getAdapterView(View convertView, ViewGroup parent, int position, final JiveItem item, boolean selected) {
+        if (selected) {
+            if (item.radio != null) {
+                item.radio = selected;
+            }
+        }
         if (item.hasSlider()) {
             return sliderView(parent, item);
         } else {
@@ -82,7 +85,7 @@ public class PluginView extends BaseItemView<Plugin> {
         }
     }
 
-    private View sliderView(ViewGroup parent, final Plugin item) {
+    private View sliderView(ViewGroup parent, final JiveItem item) {
         View view = getLayoutInflater().inflate(R.layout.slider_item, parent, false);
         final TextView sliderValue = view.findViewById(R.id.slider_value);
         SeekBar seekBar = view.findViewById(R.id.slider);
@@ -149,12 +152,12 @@ public class PluginView extends BaseItemView<Plugin> {
         return windowStyle == Window.WindowStyle.TEXT_ONLY ? 0 : VIEW_PARAM_ICON;
     }
 
-    private int viewParamContext(Plugin item) {
+    private int viewParamContext(JiveItem item) {
         return item.hasContextMenu() ? VIEW_PARAM_CONTEXT_BUTTON : 0;
     }
 
     @Override
-    public void bindView(View view, Plugin item) {
+    public void bindView(View view, JiveItem item) {
         super.bindView(view, item);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
@@ -181,12 +184,17 @@ public class PluginView extends BaseItemView<Plugin> {
     }
 
     @Override
-    public boolean isSelectable(Plugin item) {
+    public boolean isSelectable(JiveItem item) {
         return item.isSelectable();
     }
 
     @Override
-    public void onItemSelected(View view, int index, Plugin item) {
+    public boolean isSelected(JiveItem item) {
+        return item.radio != null && item.radio;
+    }
+
+    @Override
+    public boolean onItemSelected(View view, int index, JiveItem item) {
         Action.JsonAction action = (item.goAction != null && item.goAction.action != null) ? item.goAction.action : null;
         Action.NextWindow nextWindow = (action != null ? action.nextWindow : item.nextWindow);
         if (item.checkbox != null) {
@@ -203,15 +211,17 @@ public class PluginView extends BaseItemView<Plugin> {
             if (item.goAction != null)
                 logicDelegate.execGoAction((ViewHolder) view.getTag(), item, 0);
             else if (item.hasSubItems())
-                PluginListActivity.show(getActivity(), item);
+                JiveItemListActivity.show(getActivity(), item);
             else if (item.getNode() != null) {
                 HomeMenuActivity.show(getActivity(), item);
             }
         }
+
+        return (item.radio != null);
    }
 
     @Override
-    public void showContextMenu(ViewHolder viewHolder, Plugin item) {
+    public void showContextMenu(ViewHolder viewHolder, JiveItem item) {
         logicDelegate.showContextMenu(viewHolder, item);
     }
 }

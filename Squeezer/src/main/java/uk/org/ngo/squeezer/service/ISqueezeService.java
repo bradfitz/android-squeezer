@@ -22,14 +22,13 @@ import androidx.annotation.Nullable;
 import java.util.Collection;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.framework.Action;
-import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Plugin;
 
 public interface ISqueezeService {
     /**
@@ -45,7 +44,7 @@ public interface ISqueezeService {
     boolean isConnectInProgress();
 
     /** Initiate the flow to register the controller with the server */
-    void register(IServiceItemListCallback<Plugin> callback);
+    void register(IServiceItemListCallback<JiveItem> callback);
 
     // For the SettingsActivity to notify the Service that a setting changed.
     void preferenceChanged(String key);
@@ -150,7 +149,7 @@ public interface ISqueezeService {
 
 
     // Plugins (Radios/Apps (music services)/Favorites)
-    void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, String cmd, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
      * Start an asynchronous fetch of the squeezeservers generic menu items.
@@ -163,7 +162,7 @@ public interface ISqueezeService {
      * @param callback This will be called as the items arrive.
      * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
      */
-    void pluginItems(int start, Item item, Action action, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
      * Start an asynchronous fetch of the squeezeservers generic menu items with no paging nor extra parameters.
@@ -174,7 +173,7 @@ public interface ISqueezeService {
      * @param callback This will be called as the items arrive.
      * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
      */
-    void pluginItems(Action action, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(Action action, IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
      * Perform the supplied SBS <code>do</code> <code>action</code> using parameters in <code>item</code>.
@@ -184,7 +183,7 @@ public interface ISqueezeService {
      * @param item Current SBS item with the <code>action</code>, and which may contain parameters for the action.
      * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
      */
-    void action(Item item, Action action);
+    void action(JiveItem item, Action action);
 
     /**
      * Perform the supplied SBS <code>do</code> <code>action</code>
@@ -200,6 +199,6 @@ public interface ISqueezeService {
      *
      * @param item Song or item with songs to download
      */
-    void downloadItem(Item item) throws SqueezeService.HandshakeNotCompleteException;
+    void downloadItem(JiveItem item) throws SqueezeService.HandshakeNotCompleteException;
 
 }

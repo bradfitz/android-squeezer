@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.framework;
+package uk.org.ngo.squeezer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -127,7 +127,7 @@ public class Action implements Parcelable {
      * <p>
      * It is either received from the server or constructed from the CLI specification
      */
-    public static class JsonAction extends JsonCommand {
+    public static class JsonAction extends SlimCommand {
         /** If a nextWindow param is given at the json command level, it takes precedence over a nextWindow param at the item level,
          * which in turn takes precendence over a nextWindow param at the base level.
          * See <item_fields> section for more detail on this parameter. */

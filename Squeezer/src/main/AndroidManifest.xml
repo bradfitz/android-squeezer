@@ -93,7 +93,7 @@
         </activity>
 
         <activity
-            android:name=".itemlist.PluginListActivity"
+            android:name=".itemlist.JiveItemListActivity"
             android:label="@string/app_name"
             android:parentActivityName=".itemlist.HomeActivity">
         </activity>

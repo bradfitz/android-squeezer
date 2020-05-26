@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package uk.org.ngo.squeezer.framework;
+package uk.org.ngo.squeezer.model;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Parcel;
-import android.os.Parcelable;
+import android.text.TextUtils;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
-
-import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,16 +34,16 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.model.Plugin;
 
-/**
- * Base class for SqueezeServer data. Specializations must implement all the necessary boilerplate
- * code. This is okay for now, because we only have few data types.
- *
- * @author Kurt Aaholst
- */
-public abstract class Item implements Parcelable {
+
+public class JiveItem extends Item {
+    public static final JiveItem HOME = new JiveItem("home", null, R.string.HOME, 1, Window.WindowStyle.HOME_MENU);
+    public static final JiveItem CURRENT_PLAYLIST = new JiveItem("status", null, R.string.menu_item_playlist, 1, Window.WindowStyle.PLAY_LIST);
+    public static final JiveItem EXTRAS = new JiveItem("extras", "home", R.string.EXTRAS, 50, Window.WindowStyle.HOME_MENU);
+    public static final JiveItem SETTINGS = new JiveItem("settings", "home", R.string.SETTINGS, 1005, Window.WindowStyle.HOME_MENU);
+    public static final JiveItem ADVANCED_SETTINGS = new JiveItem("advancedSettings", "settings", R.string.ADVANCED_SETTINGS, 105, Window.WindowStyle.TEXT_ONLY);
 
     /**
      * Information that will be requested about songs.
@@ -61,8 +60,38 @@ public abstract class Item implements Parcelable {
      */
     private static final String SONG_TAGS = "aCjJKltux";
 
+    public static final Creator<JiveItem> CREATOR = new Creator<JiveItem>() {
+        @Override
+        public JiveItem[] newArray(int size) {
+            return new JiveItem[size];
+        }
+
+        @Override
+        public JiveItem createFromParcel(Parcel source) {
+            return new JiveItem(source);
+        }
+    };
+
+    private JiveItem(String id, String node, @StringRes int text, int weight, Window.WindowStyle windowStyle) {
+        this(record(id, node, text, weight));
+        window = new Window();
+        window.windowStyle = windowStyle;
+    }
+
+    private static Map<String, Object> record(String id, String node, @StringRes int text, int weight) {
+        Map<String, Object> record = new HashMap<>();
+        record.put("id", id);
+        record.put("node", node);
+        record.put("name", Squeezer.getContext().getString(text));
+        record.put("weight", weight);
+
+        return record;
+    }
+
+
     private String id;
-    @NonNull private String name;
+    @NonNull
+    private String name;
     public String text2;
     @NonNull private final Uri icon;
 
@@ -80,7 +109,7 @@ public abstract class Item implements Parcelable {
     public Action addAction;
     public Action insertAction;
     public Action moreAction;
-    public List<Plugin> subItems;
+    public List<JiveItem> subItems;
     public boolean showBigArtwork;
     public int selectedIndex;
     public String[] choiceStrings;
@@ -89,9 +118,9 @@ public abstract class Item implements Parcelable {
     public Boolean radio;
     public Slider slider;
 
-    private JsonCommand downloadCommand;
+    private SlimCommand downloadCommand;
 
-    public Item() {
+    public JiveItem() {
         name = "";
         icon = Uri.EMPTY;
     }
@@ -109,9 +138,8 @@ public abstract class Item implements Parcelable {
         return name;
     }
 
-    public Item setName(@NonNull String name) {
+    public void setName(@NonNull String name) {
         this.name = name;
-        return this;
     }
 
     /** The URL to use to download the icon. */
@@ -227,7 +255,7 @@ public abstract class Item implements Parcelable {
     }
 
 
-    public Item(Map<String, Object> record) {
+    public JiveItem(Map<String, Object> record) {
         setId(getString(record, record.containsKey("cmd") ? "cmd" : "id"));
         splitItemText(getStringOrEmpty(record, record.containsKey("name") ? "name" : "text"));
         icon = getImageUrl(record, record.containsKey("icon-id") ? "icon-id" : "icon");
@@ -263,7 +291,7 @@ public abstract class Item implements Parcelable {
         if ("local".equals(trackType) && (goAction != null || moreAction != null)) {
             Action action = (moreAction != null ? moreAction : goAction);
             String trackId = getStringOrEmpty(action.action.params, "track_id");
-            downloadCommand = new JsonCommand()
+            downloadCommand = new SlimCommand()
                     .cmd("titles")
                     .param("tags", SONG_TAGS)
                     .param("track_id", trackId);
@@ -300,7 +328,7 @@ public abstract class Item implements Parcelable {
         }
     }
 
-    public Item(Parcel source) {
+    public JiveItem(Parcel source) {
         setId(source.readString());
         name = source.readString();
         text2 = source.readString();
@@ -316,7 +344,7 @@ public abstract class Item implements Parcelable {
         addAction = source.readParcelable(getClass().getClassLoader());
         insertAction = source.readParcelable(getClass().getClassLoader());
         moreAction = source.readParcelable(getClass().getClassLoader());
-        subItems = source.createTypedArrayList(Plugin.CREATOR);
+        subItems = source.createTypedArrayList(JiveItem.CREATOR);
         doAction = (source.readByte() != 0);
         showBigArtwork = (source.readByte() != 0);
         selectedIndex = source.readInt();
@@ -391,7 +419,7 @@ public abstract class Item implements Parcelable {
         return downloadCommand != null;
     }
 
-    public JsonCommand downloadCommand() {
+    public SlimCommand downloadCommand() {
         return downloadCommand;
     }
 
@@ -430,7 +458,7 @@ public abstract class Item implements Parcelable {
         return getId() != null && getId().equals(((Item) o).getId());
     }
 
-    protected String toStringOpen() {
+    private String toStringOpen() {
         return getClass().getSimpleName() + " { id: " + getId()
                 + ", name: " + getName()
                 + ", node: " + node
@@ -444,36 +472,10 @@ public abstract class Item implements Parcelable {
 
     }
 
+    @NonNull
     @Override
     public String toString() {
         return toStringOpen() + " }";
-    }
-
-
-    private Map<String, Object> getRecord(Map<String, Object> record, String recordName) {
-        return Util.getRecord(record, recordName);
-    }
-
-    protected int getInt(Map<String, Object> record, String fieldName) {
-        return Util.getInt(record, fieldName);
-    }
-
-    protected int getInt(Map<String, Object> record, String fieldName, int defaultValue) {
-        return Util.getInt(record, fieldName, defaultValue);
-    }
-
-    protected static String getString(Map<String, Object> record, String fieldName) {
-        return Util.getString(record, fieldName);
-    }
-
-    @NonNull
-    protected String getStringOrEmpty(Map<String, Object> record, String fieldName) {
-        return Util.getStringOrEmpty(record, fieldName);
-    }
-
-    @NonNull
-    private static Uri getImageUrl(Map<String, Object> record, String fieldName) {
-        return Util.getImageUrl(record, fieldName);
     }
 
     private void splitItemText(String text) {
@@ -629,16 +631,17 @@ public abstract class Item implements Parcelable {
         return action;
     }
 
-    private List<Plugin> extractSubItems(Object[] item_loop) {
+    private List<JiveItem> extractSubItems(Object[] item_loop) {
         if (item_loop != null) {
-            List<Plugin> items = new ArrayList<>();
+            List<JiveItem> items = new ArrayList<>();
             for (Object item_d : item_loop) {
                 Map<String, Object> record = (Map<String, Object>) item_d;
-                items.add(new Plugin(record));
+                items.add(new JiveItem(record));
             }
             return items;
         }
 
         return null;
     }
+
 }

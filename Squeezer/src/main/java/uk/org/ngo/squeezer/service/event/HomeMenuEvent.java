@@ -18,21 +18,21 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import java.util.Arrays;
 import java.util.List;
 
-import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.JiveItem;
 
 /** Event sent when the home menu has changed. */
 public class HomeMenuEvent {
 
     @NonNull
-    public List<Plugin> menuItems;
+    public List<JiveItem> menuItems;
 
-    public HomeMenuEvent(@NonNull List<Plugin> menuItems) {
+    public HomeMenuEvent(@NonNull List<JiveItem> menuItems) {
         this.menuItems = menuItems;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "HomeMenuEvent{" +

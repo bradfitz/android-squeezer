@@ -32,6 +32,7 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
+import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
