@@ -723,7 +723,7 @@ public class NowPlayingFragment extends Fragment {
         }
 
         if (!song.hasArtwork()) {
-            albumArt.setImageDrawable(song.getIconDrawable(mActivity));
+            albumArt.setImageDrawable(song.getIconDrawable(mActivity, R.drawable.icon_album_noart_fullscreen));
         } else {
             ImageFetcher.getInstance(mActivity).loadImage(song.getIcon(), albumArt);
         }
@@ -1036,7 +1036,7 @@ public class NowPlayingFragment extends Fragment {
             volumeButton.setEnabled(false);
             playlistButton.setEnabled(false);
 
-            albumArt.setImageResource(R.drawable.icon_pending_artwork);
+            albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
             shuffleButton.setImageResource(0);
             repeatButton.setImageResource(0);
             updatePlayerDropDown(Collections.<Player>emptyList(), null);

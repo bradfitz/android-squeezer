@@ -162,6 +162,13 @@ public class JiveItem extends Item {
      * @return Icon resource for this item if it is embedded in the Squeezer app, or an empty icon.
      */
     public Drawable getIconDrawable(Context context) {
+        return getIconDrawable(context, R.drawable.icon_pending_artwork);
+    }
+
+    /**
+     * @return Icon resource for this item if it is embedded in the Squeezer app, or the supplied default icon.
+     */
+    public Drawable getIconDrawable(Context context, @DrawableRes int defaultIcon) {
         @DrawableRes int foreground = getItemIcon();
         if (foreground != 0) {
             Drawable background = AppCompatResources.getDrawable(context, R.drawable.icon_background);
@@ -169,12 +176,12 @@ public class JiveItem extends Item {
             return new LayerDrawable(new Drawable[]{background, icon});
         }
 
-        return AppCompatResources.getDrawable(context, getSlimIcon());
+        return AppCompatResources.getDrawable(context, getSlimIcon(defaultIcon));
     }
 
-    @DrawableRes private int getSlimIcon() {
+    @DrawableRes private int getSlimIcon(@DrawableRes int defaultIcon) {
         @DrawableRes Integer iconResource = slimIcons.get(id);
-        return iconResource == null ? R.drawable.icon_pending_artwork : iconResource;
+        return iconResource == null ? defaultIcon : iconResource;
     }
 
     private static Map<String, Integer> slimIcons = initializeSlimIcons();
