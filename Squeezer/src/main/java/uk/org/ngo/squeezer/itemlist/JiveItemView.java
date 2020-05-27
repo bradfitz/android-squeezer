@@ -219,7 +219,9 @@ public class JiveItemView extends BaseItemView<JiveItem> {
 
         return (item.radio != null);
    }
-
+    public void onGroupSelected(View view, Plugin[] items) {
+    
+    }
     @Override
     public void showContextMenu(ViewHolder viewHolder, JiveItem item) {
         logicDelegate.showContextMenu(viewHolder, item);

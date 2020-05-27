@@ -1,0 +1,5 @@
+<ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/squeezerRemote_power"
+    style="@style/RemoteButton"
+    android:contentDescription="@string/remote_powerDescription"
+    android:src="@drawable/ic_action_power_settings_new" />

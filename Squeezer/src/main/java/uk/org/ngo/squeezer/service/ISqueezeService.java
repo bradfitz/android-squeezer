@@ -104,11 +104,14 @@ public interface ISqueezeService {
     void powerOff();
     String getServerVersion() throws SqueezeService.HandshakeNotCompleteException;
     boolean togglePausePlay();
+    boolean togglePausePlay(Player player);
     boolean play();
     boolean pause();
     boolean stop();
     boolean nextTrack();
+    boolean nextTrack(Player player);
     boolean previousTrack();
+    boolean previousTrack(Player player);
     boolean toggleShuffle();
     boolean toggleRepeat();
     boolean playlistIndex(int index);
@@ -194,6 +197,12 @@ public interface ISqueezeService {
      */
     void action(Action.JsonAction action);
 
+    /**
+     * Find the specified player
+     * @param playerId id of the player to find
+     * @return
+     */
+    Player getPlayer(String playerId) throws PlayerNotFoundException;
     /**
      * Initiate download of songs for the supplied item.
      *

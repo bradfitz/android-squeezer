@@ -72,6 +72,9 @@ import uk.org.ngo.squeezer.util.ThemeManager;
 public abstract class BaseActivity extends AppCompatActivity {
     private static final String CURRENT_DOWNLOAD_ITEM = "CURRENT_DOWNLOAD_ITEM";
 
+
+    private static final String TAG = BaseActivity.class.getName();
+
     @Nullable
     private ISqueezeService mService = null;
 
@@ -125,22 +128,28 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     };
 
+    protected boolean addActionBar(){
+        return true;
+    }
+
     @Override
     @CallSuper
     protected void onCreate(android.os.Bundle savedInstanceState) {
         mTheme.onCreate(this);
         super.onCreate(savedInstanceState);
 
-        // Set the icon as the home button, and display it.
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_action_home);
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        if (addActionBar()) {
+            // Set the icon as the home button, and display it.
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setHomeAsUpIndicator(R.drawable.ic_action_home);
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }
         }
 
         boundService = bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
-        Log.d(getTag(), "did bindService; serviceStub = " + getService());
+        Log.d(TAG, "did bindService; serviceStub = " + getService());
 
         if (savedInstanceState != null)
             currentDownloadItem = savedInstanceState.getParcelable(CURRENT_DOWNLOAD_ITEM);
@@ -266,6 +275,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     @CallSuper
     protected void onServiceConnected(@NonNull ISqueezeService service) {
+        Log.d(TAG, "onServiceConnected");
         supportInvalidateOptionsMenu();
         maybeRegisterOnEventBus(service);
     }
