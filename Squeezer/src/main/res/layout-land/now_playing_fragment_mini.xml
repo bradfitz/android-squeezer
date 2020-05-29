@@ -77,7 +77,7 @@
         android:background="@null"
         android:maxWidth="48dp"
         android:minWidth="48dp"
-        tools:src="?attr/ic_action_av_pause"/>
+        tools:src="@drawable/ic_action_pause"/>
 
     <uk.org.ngo.squeezer.widget.RepeatingImageButton
         android:id="@+id/prev"
