@@ -19,11 +19,7 @@ package uk.org.ngo.squeezer.framework;
 
 import android.os.Bundle;
 import androidx.annotation.MainThread;
-import android.view.View;
 import android.widget.AbsListView;
-import android.widget.AbsListView.RecyclerListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -79,23 +75,15 @@ public abstract class BaseListActivity<T extends Item> extends ItemListActivity 
 
     @Override
     protected AbsListView setupListView(AbsListView listView) {
-        listView.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                getItemAdapter().onItemSelected(view, position);
-            }
-        });
+        listView.setOnItemClickListener((parent, view, position, id) -> getItemAdapter().onItemSelected(view, position));
 
         listView.setOnScrollListener(new ScrollListener());
 
-        listView.setRecyclerListener(new RecyclerListener() {
-            @Override
-            public void onMovedToScrapHeap(View view) {
-                // Release strong reference when a view is recycled
-                final ImageView imageView = view.findViewById(R.id.icon);
-                if (imageView != null) {
-                    imageView.setImageBitmap(null);
-                }
+        listView.setRecyclerListener(view -> {
+            // Release strong reference when a view is recycled
+            final ImageView imageView = view.findViewById(R.id.icon);
+            if (imageView != null) {
+                imageView.setImageBitmap(null);
             }
         });
 

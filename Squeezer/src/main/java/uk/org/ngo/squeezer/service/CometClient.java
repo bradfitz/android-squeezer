@@ -162,26 +162,20 @@ class CometClient extends BaseClient {
         mItemRequestMap = builder.build();
 
         mRequestMap = ImmutableMap.<String, ResponseHandler>builder()
-                .put("playerpref", new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        //noinspection WrongConstant
-                        String p2 = (String) message.getDataAsMap().get("_p2");
-                        mEventBus.post(new PlayerPrefReceived(player, request.cmd[1], p2 != null ? p2 : request.cmd[2]));
-                    }
+                .put("playerpref", (player, request, message) -> {
+                    //noinspection WrongConstant
+                    String p2 = (String) message.getDataAsMap().get("_p2");
+                    mEventBus.post(new PlayerPrefReceived(player, request.cmd[1], p2 != null ? p2 : request.cmd[2]));
                 })
-                .put("mixer", new ResponseHandler() {
-                    @Override
-                    public void onResponse(Player player, Request request, Message message) {
-                        if (request.cmd[1].equals("volume")) {
-                            String volume = (String) message.getDataAsMap().get("_volume");
-                            if (volume != null) {
-                                int newVolume = Integer.valueOf(volume);
-                                player.getPlayerState().setCurrentVolume(newVolume);
-                                mEventBus.post(new PlayerVolume(newVolume, player));
-                            } else {
-                                command(player, new String[]{"mixer", "volume", "?"}, Collections.<String, Object>emptyMap());
-                            }
+                .put("mixer", (player, request, message) -> {
+                    if (request.cmd[1].equals("volume")) {
+                        String volume = (String) message.getDataAsMap().get("_volume");
+                        if (volume != null) {
+                            int newVolume = Integer.parseInt(volume);
+                            player.getPlayerState().setCurrentVolume(newVolume);
+                            mEventBus.post(new PlayerVolume(newVolume, player));
+                        } else {
+                            command(player, new String[]{"mixer", "volume", "?"}, Collections.emptyMap());
                         }
                     }
                 })
@@ -279,37 +273,33 @@ class CometClient extends BaseClient {
                 }
                 mBayeuxClient = new SqueezerBayeuxClient(url, clientTransport);
                 mBayeuxClient.addExtension(new SqueezerBayeuxExtension());
-                mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener(new ClientSessionChannel.MessageListener() {
-                    public void onMessage(ClientSessionChannel channel, Message message) {
-                        if (message.isSuccessful()) {
-                            onConnected(isSqueezeNetwork);
+                mBayeuxClient.getChannel(Channel.META_HANDSHAKE).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
+                    if (message.isSuccessful()) {
+                        onConnected(isSqueezeNetwork);
+                    } else {
+                        Log.w(TAG, channel + ": " + message.getJSON());
+
+                        // The bayeux protocol handle failures internally.
+                        // This current client libraries are however incompatible with LMS as new messages to the
+                        // meta channels are ignored.
+                        // So we disconnect here so we can create a new connection.
+                        Map<String, Object> failure = Util.getRecord(message, "failure");
+                        Message failedMessage = (failure != null) ? (Message) failure.get("message") : null;
+                        if ("forced reconnect".equals(failedMessage.get("error"))) {
+                            disconnect(ConnectionState.RECONNECT);
                         } else {
-                            Log.w(TAG, channel + ": " + message.getJSON());
+                            Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
+                            int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
 
-                            // The bayeux protocol handle failures internally.
-                            // This current client libraries are however incompatible with LMS as new messages to the
-                            // meta channels are ignored.
-                            // So we disconnect here so we can create a new connection.
-                            Map<String, Object> failure = Util.getRecord(message, "failure");
-                            Message failedMessage = (failure != null) ? (Message) failure.get("message") : null;
-                            if ("forced reconnect".equals(failedMessage.get("error"))) {
-                                disconnect(ConnectionState.RECONNECT);
-                            } else {
-                                Object httpCodeValue = (failure != null) ? failure.get("httpCode") : null;
-                                int httpCode = (httpCodeValue instanceof Integer) ? (int) httpCodeValue : -1;
-
-                                disconnect((httpCode == 401) ? ConnectionError.LOGIN_FALIED : ConnectionError.CONNECTION_ERROR);
-                            }
+                            disconnect((httpCode == 401) ? ConnectionError.LOGIN_FALIED : ConnectionError.CONNECTION_ERROR);
                         }
                     }
                 });
-                mBayeuxClient.getChannel(Channel.META_CONNECT).addListener(new ClientSessionChannel.MessageListener() {
-                    public void onMessage(ClientSessionChannel channel, Message message) {
-                        if (!message.isSuccessful() && (getAdviceAction(message.getAdvice()) == null)) {
-                            // Advices are handled internally by the bayeux protocol, so skip these here
-                            Log.w(TAG, channel + ": " + message.getJSON());
-                            disconnect();
-                        }
+                mBayeuxClient.getChannel(Channel.META_CONNECT).addListener((ClientSessionChannel.MessageListener) (channel, message) -> {
+                    if (!message.isSuccessful() && (getAdviceAction(message.getAdvice()) == null)) {
+                        // Advices are handled internally by the bayeux protocol, so skip these here
+                        Log.w(TAG, channel + ": " + message.getJSON());
+                        disconnect();
                     }
                 });
 
@@ -323,44 +313,21 @@ class CometClient extends BaseClient {
 
                 String clientId = mBayeuxClient.getId();
 
-                mBayeuxClient.getChannel(String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
-                    @Override
-                    public void onMessage(ClientSessionChannel channel, Message message) {
-                        Request request = mPendingRequests.get(message.getChannel());
-                        if (request != null) {
-                            request.callback.onResponse(request.player, request, message);
-                            mPendingRequests.remove(message.getChannel());
-                        }
+                mBayeuxClient.getChannel(String.format(CHANNEL_SLIM_REQUEST_RESPONSE_FORMAT, clientId, "*")).subscribe((channel, message) -> {
+                    Request request = mPendingRequests.get(message.getChannel());
+                    if (request != null) {
+                        request.callback.onResponse(request.player, request, message);
+                        mPendingRequests.remove(message.getChannel());
                     }
                 });
 
-                mBayeuxClient.getChannel(String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId)).subscribe(new ClientSessionChannel.MessageListener() {
-                    @Override
-                    public void onMessage(ClientSessionChannel channel, Message message) {
-                        parseServerStatus(message);
-                    }
-                });
+                mBayeuxClient.getChannel(String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId)).subscribe(CometClient.this::parseServerStatus);
 
-                mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
-                    @Override
-                    public void onMessage(ClientSessionChannel channel, Message message) {
-                        parsePlayerStatus(message);
-                    }
-                });
+                mBayeuxClient.getChannel(String.format(CHANNEL_PLAYER_STATUS_FORMAT, clientId, "*")).subscribe(CometClient.this::parsePlayerStatus);
 
-                mBayeuxClient.getChannel(String.format(CHANNEL_DISPLAY_STATUS_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
-                    @Override
-                    public void onMessage(ClientSessionChannel channel, Message message) {
-                        parseDisplayStatus(message);
-                    }
-                });
+                mBayeuxClient.getChannel(String.format(CHANNEL_DISPLAY_STATUS_FORMAT, clientId, "*")).subscribe(CometClient.this::parseDisplayStatus);
 
-                mBayeuxClient.getChannel(String.format(CHANNEL_MENU_STATUS_FORMAT, clientId, "*")).subscribe(new ClientSessionChannel.MessageListener() {
-                    @Override
-                    public void onMessage(ClientSessionChannel channel, Message message) {
-                        parseMenuStatus(message);
-                    }
-                });
+                mBayeuxClient.getChannel(String.format(CHANNEL_MENU_STATUS_FORMAT, clientId, "*")).subscribe(CometClient.this::parseMenuStatus);
 
                 // Request server status
                 publishMessage(serverStatusRequest(), CHANNEL_SLIM_REQUEST, String.format(CHANNEL_SERVER_STATUS_FORMAT, clientId), null);
@@ -389,7 +356,7 @@ class CometClient extends BaseClient {
     }
 
 
-    private void parseServerStatus(Message message) {
+    private void parseServerStatus(ClientSessionChannel channel, Message message) {
         Map<String, Object> data = message.getDataAsMap();
 
         // We can't distinguish between no connected players and players not received
@@ -425,7 +392,7 @@ class CometClient extends BaseClient {
         }
     }
 
-    private void parsePlayerStatus(Message message) {
+    private void parsePlayerStatus(ClientSessionChannel channel, Message message) {
         String[] channelParts = mSlashSplitPattern.split(message.getChannel());
         String playerId = channelParts[channelParts.length - 1];
         Player player = mConnectionState.getPlayer(playerId);
@@ -469,7 +436,7 @@ class CometClient extends BaseClient {
         }
     }
 
-    private void parseDisplayStatus(Message message) {
+    private void parseDisplayStatus(ClientSessionChannel channel, Message message) {
         Map<String, Object> display = Util.getRecord(message.getDataAsMap(), "display");
         if (display != null) {
             String type = Util.getString(display, "type");
@@ -484,7 +451,7 @@ class CometClient extends BaseClient {
         }
     }
 
-    private void parseMenuStatus(Message message) {
+    private void parseMenuStatus(ClientSessionChannel channel, Message message) {
         Object[] data = (Object[]) message.getData();
 
         // each chunk.data[2] contains a table that needs insertion into the menu

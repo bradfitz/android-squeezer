@@ -201,7 +201,7 @@ abstract class BaseClient implements SlimClient {
             this.start = (fullList ? 0 : start);
             this.itemsPerResponse = itemsPerResponse;
             this.callback = callback;
-            this.params = (params == null ? Collections.<String, Object>emptyMap() : params);
+            this.params = (params == null ? Collections.emptyMap() : params);
         }
 
         public BrowseRequest update(int start, int itemsPerResponse) {

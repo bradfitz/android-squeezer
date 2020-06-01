@@ -22,7 +22,6 @@ import androidx.annotation.LayoutRes;
 
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -212,7 +211,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Binds the item's name to {@link ViewHolder#text1}.
      * <p>
-     * OVerride this instead of {@link #getAdapterView(View, ViewGroup, int, Item)} if the
+     * Override this instead of {@link #getAdapterView(View, ViewGroup, int, Item)} if the
      * default layouts are sufficient.
      *
      * @param view The view that contains the {@link ViewHolder}
@@ -222,12 +221,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         final ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
-        viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showContextMenu(viewHolder, item);
-            }
-        });
+        viewHolder.contextMenuButton.setOnClickListener(v -> showContextMenu(viewHolder, item));
     }
 
     /**
