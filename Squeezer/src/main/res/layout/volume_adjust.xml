@@ -22,7 +22,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="32dp"
-    android:background="@drawable/panel_background"
     android:orientation="vertical"
     android:gravity="center_horizontal">
 

@@ -23,4 +23,5 @@
 
     <!-- Volume panel -->
     <dimen name="volume_panel_top_margin">8dp</dimen>
+    <dimen name="volume_panel_border_Width">1dp</dimen>
 </resources>

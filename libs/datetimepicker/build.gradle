@@ -4,10 +4,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-}
-
 android {
     compileSdkVersion rootProject.compileSdkVersion
 
@@ -18,5 +14,6 @@ android {
 }
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     api 'com.nineoldandroids:library:2.4.0'
 }
