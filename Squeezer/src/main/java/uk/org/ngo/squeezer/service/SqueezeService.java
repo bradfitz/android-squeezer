@@ -1201,6 +1201,15 @@ public class SqueezeService extends Service {
         }
 
         @Override
+        public boolean button(Player player, IRButton button) {
+            if (!isConnected()) {
+                return false;
+            }
+            mDelegate.command(player).cmd("button", button.getFunction()).exec();
+            return true;
+        }
+
+        @Override
         public boolean playlistClear() {
             if (!isConnected()) {
                 return false;

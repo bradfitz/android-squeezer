@@ -23,6 +23,7 @@ import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.model.Player;
+import uk.org.ngo.squeezer.service.IRButton;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.PlayerNotFoundException;
 import uk.org.ngo.squeezer.service.SqueezeService;
@@ -42,6 +43,12 @@ public class SqueezerRemoteControl extends AppWidgetProvider {
     private static final String SQUEEZER_REMOTE_PAUSE_PLAY = "squeezeRemotePausePlay";
     private static final String SQUEEZER_REMOTE_NEXT = "squeezeNext";
     private static final String SQUEEZER_REMOTE_PREVIOUS = "squeezePrevious";
+    private static final String SQUEEZER_REMOTE_PRESET_1 = "squeezePreset1";
+    private static final String SQUEEZER_REMOTE_PRESET_2 = "squeezePreset2";
+    private static final String SQUEEZER_REMOTE_PRESET_3 = "squeezePreset3";
+    private static final String SQUEEZER_REMOTE_PRESET_4 = "squeezePreset4";
+    private static final String SQUEEZER_REMOTE_PRESET_5 = "squeezePreset5";
+    private static final String SQUEEZER_REMOTE_PRESET_6 = "squeezePreset6";
     public static final String PLAYER_ID = "playerId";
 
 
@@ -71,6 +78,13 @@ public class SqueezerRemoteControl extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.squeezerRemote_pausePlay, getPendingSelfIntent(context, SQUEEZER_REMOTE_PAUSE_PLAY, playerId));
         views.setOnClickPendingIntent(R.id.squeezerRemote_next, getPendingSelfIntent(context, SQUEEZER_REMOTE_NEXT, playerId));
         views.setOnClickPendingIntent(R.id.squeezerRemote_previous, getPendingSelfIntent(context, SQUEEZER_REMOTE_PREVIOUS, playerId));
+
+        views.setOnClickPendingIntent(R.id.squeezerRemote_preset1, getPendingSelfIntent(context, SQUEEZER_REMOTE_PRESET_1, playerId));
+        views.setOnClickPendingIntent(R.id.squeezerRemote_preset2, getPendingSelfIntent(context, SQUEEZER_REMOTE_PRESET_2, playerId));
+        views.setOnClickPendingIntent(R.id.squeezerRemote_preset3, getPendingSelfIntent(context, SQUEEZER_REMOTE_PRESET_3, playerId));
+        views.setOnClickPendingIntent(R.id.squeezerRemote_preset4, getPendingSelfIntent(context, SQUEEZER_REMOTE_PRESET_4, playerId));
+        views.setOnClickPendingIntent(R.id.squeezerRemote_preset5, getPendingSelfIntent(context, SQUEEZER_REMOTE_PRESET_5, playerId));
+        views.setOnClickPendingIntent(R.id.squeezerRemote_preset6, getPendingSelfIntent(context, SQUEEZER_REMOTE_PRESET_6, playerId));
 
         // Load button images; these are here instead of the XML because there's no way to use vectors for older API versions within XML
         views.setImageViewBitmap(R.id.squeezerRemote_next, Util.vectorToBitmap(context, R.drawable.ic_action_next));
@@ -257,6 +271,42 @@ public class SqueezerRemoteControl extends AppWidgetProvider {
             runOnPlayer(context, playerId, ISqueezeService::nextTrack);
         } else if (SQUEEZER_REMOTE_PREVIOUS.equals(action)) {
             runOnPlayer(context, playerId, ISqueezeService::previousTrack);
+        } else if (SQUEEZER_REMOTE_PRESET_1.equals(action)) {
+            runOnPlayer(context, playerId, new ServicePlayerHandler() {
+                public void run(ISqueezeService s, Player p) {
+                    s.button(p, IRButton.playPreset_1);
+                }
+            });
+        }else if (SQUEEZER_REMOTE_PRESET_2.equals(action)) {
+            runOnPlayer(context, playerId, new ServicePlayerHandler() {
+                public void run(ISqueezeService s, Player p) {
+                    s.button(p, IRButton.playPreset_2);
+                }
+            });
+        }else if (SQUEEZER_REMOTE_PRESET_3.equals(action)) {
+            runOnPlayer(context, playerId, new ServicePlayerHandler() {
+                public void run(ISqueezeService s, Player p) {
+                    s.button(p, IRButton.playPreset_3);
+                }
+            });
+        }else if (SQUEEZER_REMOTE_PRESET_4.equals(action)) {
+            runOnPlayer(context, playerId, new ServicePlayerHandler() {
+                public void run(ISqueezeService s, Player p) {
+                    s.button(p, IRButton.playPreset_4);
+                }
+            });
+        }else if (SQUEEZER_REMOTE_PRESET_5.equals(action)) {
+            runOnPlayer(context, playerId, new ServicePlayerHandler() {
+                public void run(ISqueezeService s, Player p) {
+                    s.button(p, IRButton.playPreset_5);
+                }
+            });
+        }else if (SQUEEZER_REMOTE_PRESET_6.equals(action)) {
+            runOnPlayer(context, playerId, new ServicePlayerHandler() {
+                public void run(ISqueezeService s, Player p) {
+                    s.button(p, IRButton.playPreset_6);
+                }
+            });
         }
     }
 

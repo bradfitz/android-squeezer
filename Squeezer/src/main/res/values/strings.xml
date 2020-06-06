@@ -378,4 +378,10 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="remote_pausePlayDescription">Pause/Play</string>
     <string name="remote_nextDescription">Next song</string>
     <string name="remote_previousDescription">Previous song</string>
+    <string name="remote_preset1Description">Preset 1</string>
+    <string name="remote_preset2Description">Preset 2</string>
+    <string name="remote_preset3Description">Preset 3</string>
+    <string name="remote_preset4Description">Preset 4</string>
+    <string name="remote_preset5Description">Preset 5</string>
+    <string name="remote_preset6Description">Preset 6</string>
 </resources>

@@ -115,6 +115,7 @@ public interface ISqueezeService {
     boolean toggleShuffle();
     boolean toggleRepeat();
     boolean playlistIndex(int index);
+    boolean button(Player player, IRButton button);
     boolean playlistClear();
     boolean playlistSave(String name);
 
