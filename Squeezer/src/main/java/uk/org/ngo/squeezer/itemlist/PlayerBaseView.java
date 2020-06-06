@@ -52,15 +52,4 @@ public abstract class PlayerBaseView<A extends PlayerListBaseActivity> extends B
         return getAdapterView(convertView, parent, viewParams, layoutResource);
     }
 
-    @Override
-    public void onItemSelected(View view, int index, Player item) {
-    }
-
-    public void onGroupSelected(View view, Player[] items) {
-
-    }
-
-    public void onGroupSelected(View view) {
-
-    }
 }

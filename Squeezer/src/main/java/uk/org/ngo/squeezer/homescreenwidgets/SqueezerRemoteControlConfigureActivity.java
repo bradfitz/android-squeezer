@@ -7,13 +7,15 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
 
 import androidx.annotation.LayoutRes;
+
+import java.util.List;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.itemlist.PlayerBaseView;
 import uk.org.ngo.squeezer.itemlist.PlayerListBaseActivity;
+import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 
@@ -101,7 +103,7 @@ public class SqueezerRemoteControlConfigureActivity extends PlayerListBaseActivi
     public void setContentView(@LayoutRes int layoutResID) {
         getDelegate().setContentView(layoutResID);
 
-        setListView(setupListView((AbsListView) findViewById(R.id.item_list)));
+        setListView(setupListView(findViewById(R.id.item_list)));
     }
 
     /*
@@ -115,6 +117,11 @@ public class SqueezerRemoteControlConfigureActivity extends PlayerListBaseActivi
     @Override
     protected boolean needPlayer() {
         return false;
+    }
+
+    @Override
+    protected <T extends Item> void updateAdapter(int count, int start, List<T> items, Class<T> dataType) {
+
     }
 
     private class SqueezerRemoteControlConfigureActivityPlayerBaseView extends PlayerBaseView<SqueezerRemoteControlConfigureActivity> {
@@ -137,10 +144,6 @@ public class SqueezerRemoteControlConfigureActivity extends PlayerListBaseActivi
             } else {
                 viewHolder.text1.setAlpha(0.25f);
             }
-        }
-
-        public void onItemSelected(View view, int index, Player item) {
-            super.onItemSelected(view, index, item);
         }
 
         public void onGroupSelected(View view, Player[] items) {

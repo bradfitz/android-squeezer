@@ -13,18 +13,16 @@ import androidx.annotation.NonNull;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import uk.org.ngo.squeezer.framework.Item;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 public abstract class PlayerListBaseActivity extends ItemListActivity {
@@ -112,11 +110,6 @@ public abstract class PlayerListBaseActivity extends ItemListActivity {
         mResultsExpandableListView.setOnScrollListener(new ScrollListener());
 
         return listView;
-    }
-
-    @Override
-    protected <T extends Item> void updateAdapter(int count, int start, List<T> items, Class<T> dataType) {
-        // Do nothing -- we get the synchronously from the service
     }
 
     public void onEventMainThread(HandshakeComplete event) {

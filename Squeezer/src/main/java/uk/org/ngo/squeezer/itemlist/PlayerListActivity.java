@@ -20,27 +20,15 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import android.view.View;
-import android.widget.AbsListView;
-import android.widget.ExpandableListView;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
-import uk.org.ngo.squeezer.model.Item;
-import uk.org.ngo.squeezer.framework.ItemListActivity;
 import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
+import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayerVolume;
 
 
@@ -143,5 +131,10 @@ public class PlayerListActivity extends PlayerListBaseActivity implements
     @Override
     public void setDefeatDestructiveTTP(@NonNull String option) {
         getService().playerPref(currentPlayer, Player.Pref.DEFEAT_DESTRUCTIVE_TTP, option);
+    }
+
+    @Override
+    protected <T extends Item> void updateAdapter(int count, int start, List<T> items, Class<T> dataType) {
+
     }
 }

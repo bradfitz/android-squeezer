@@ -1,5 +1,4 @@
 <ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/squeezerRemote_pausePlay"
     style="@style/RemoteButton"
-    android:contentDescription="@string/remote_pausePlayDescription"
-    android:src="@drawable/ic_action_play" />
+    android:contentDescription="@string/remote_pausePlayDescription" />

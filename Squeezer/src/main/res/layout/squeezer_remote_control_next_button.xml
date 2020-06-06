@@ -1,5 +1,4 @@
 <ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/squeezerRemote_next"
     style="@style/RemoteButton"
-    android:contentDescription="@string/remote_nextDescription"
-    android:src="@drawable/ic_action_next" />
+    android:contentDescription="@string/remote_nextDescription" />

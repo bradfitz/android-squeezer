@@ -17,9 +17,15 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import android.util.Log;
+import androidx.appcompat.content.res.AppCompatResources;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -321,5 +327,15 @@ public class Util {
                 throw new IOException("failed to delete " + sourceFile);
             }
         }
+    }
+
+    public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource) {
+        Drawable drawable = AppCompatResources.getDrawable(context, vectorResource);
+        Bitmap b = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        drawable.setBounds(0, 0, c.getWidth(), c.getHeight());
+
+        drawable.draw(c);
+        return b;
     }
 }

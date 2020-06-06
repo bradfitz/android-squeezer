@@ -338,6 +338,11 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     }
 
     @Override
+    public void onGroupSelected(View view, T[] items) {
+
+    }
+
+    @Override
     public boolean isSelected(T item) {
         return false;
     }

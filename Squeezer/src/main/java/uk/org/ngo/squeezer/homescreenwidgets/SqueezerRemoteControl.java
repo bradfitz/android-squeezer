@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -70,6 +71,14 @@ public class SqueezerRemoteControl extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.squeezerRemote_pausePlay, getPendingSelfIntent(context, SQUEEZER_REMOTE_PAUSE_PLAY, playerId));
         views.setOnClickPendingIntent(R.id.squeezerRemote_next, getPendingSelfIntent(context, SQUEEZER_REMOTE_NEXT, playerId));
         views.setOnClickPendingIntent(R.id.squeezerRemote_previous, getPendingSelfIntent(context, SQUEEZER_REMOTE_PREVIOUS, playerId));
+
+        // Load button images; these are here instead of the XML because there's no way to use vectors for older API versions within XML
+        views.setImageViewBitmap(R.id.squeezerRemote_next, Util.vectorToBitmap(context, R.drawable.ic_action_next));
+        views.setImageViewBitmap(R.id.squeezerRemote_pausePlay, Util.vectorToBitmap(context, R.drawable.ic_action_play));
+        views.setImageViewBitmap(R.id.squeezerRemote_power, Util.vectorToBitmap(context, R.drawable.ic_action_power_settings_new));
+        views.setImageViewBitmap(R.id.squeezerRemote_previous, Util.vectorToBitmap(context, R.drawable.ic_action_previous));
+
+
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
@@ -192,7 +201,9 @@ public class SqueezerRemoteControl extends AppWidgetProvider {
     }
 
     private void showToastExceptionIfExists(Context context, @Nullable Exception possibleException) {
-        Toast.makeText(context, possibleException.getMessage(), Toast.LENGTH_LONG).show();
+        if (possibleException != null) {
+            Toast.makeText(context, possibleException.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private @Nullable
@@ -207,17 +218,15 @@ public class SqueezerRemoteControl extends AppWidgetProvider {
     }
 
     public void runOnPlayer(final Context context, final String playerId, final ServicePlayerHandler handler) {
-        runOnService(context, new ServiceHandler() {
-            public void run(ISqueezeService service) throws Exception {
-                handler.run(service, service.getPlayer(playerId));
-            }
-        });
+        runOnService(context, service -> handler.run(service, service.getPlayer(playerId)));
     }
 
+    @FunctionalInterface
     private interface ServiceHandler {
         void run(ISqueezeService service) throws Exception;
     }
 
+    @FunctionalInterface
     private interface ServicePlayerHandler {
         void run(ISqueezeService service, Player player) throws Exception;
     }
@@ -231,49 +240,23 @@ public class SqueezerRemoteControl extends AppWidgetProvider {
         Log.d(TAG, "recieved intent with action " + action + " and playerid " + playerId);
 
         if (SQUEEZER_REMOTE_OPEN.equals(action)) {
-            runOnService(context, new ServiceHandler() {
-                @Override
-                public void run(ISqueezeService service) throws Exception {
-                    Log.d(TAG, "setting active player: " + playerId);
-                    service.setActivePlayer(service.getPlayer(playerId));
-                    Handler handler = new Handler();
-                    float animationDelay = Settings.Global.getFloat(context.getContentResolver(),
-                            Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f);
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            HomeActivity.show(context);
-
-                        }
-                    }, (long) (300 * animationDelay));
-                }
+            runOnService(context, service -> {
+                Log.d(TAG, "setting active player: " + playerId);
+                service.setActivePlayer(service.getPlayer(playerId));
+                Handler handler = new Handler();
+                float animationDelay = Settings.Global.getFloat(context.getContentResolver(),
+                        Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f);
+                handler.postDelayed(() -> HomeActivity.show(context), (long) (300 * animationDelay));
             });
 
         } else if (SQUEEZER_REMOTE_POWER.equals(action)) {
-
-            runOnPlayer(context, playerId, new ServicePlayerHandler() {
-                public void run(ISqueezeService s, Player p) {
-                    s.togglePower(p);
-                }
-            });
+            runOnPlayer(context, playerId, ISqueezeService::togglePower);
         } else if (SQUEEZER_REMOTE_PAUSE_PLAY.equals(action)) {
-            runOnPlayer(context, playerId, new ServicePlayerHandler() {
-                public void run(ISqueezeService s, Player p) {
-                    s.togglePausePlay(p);
-                }
-            });
+            runOnPlayer(context, playerId, ISqueezeService::togglePausePlay);
         } else if (SQUEEZER_REMOTE_NEXT.equals(action)) {
-            runOnPlayer(context, playerId, new ServicePlayerHandler() {
-                public void run(ISqueezeService s, Player p) {
-                    s.nextTrack(p);
-                }
-            });
+            runOnPlayer(context, playerId, ISqueezeService::nextTrack);
         } else if (SQUEEZER_REMOTE_PREVIOUS.equals(action)) {
-            runOnPlayer(context, playerId, new ServicePlayerHandler() {
-                public void run(ISqueezeService s, Player p) {
-                    s.previousTrack(p);
-                }
-            });
+            runOnPlayer(context, playerId, ISqueezeService::previousTrack);
         }
     }
 
