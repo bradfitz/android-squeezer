@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 
 import java.util.List;
 
@@ -22,43 +24,17 @@ import uk.org.ngo.squeezer.model.PlayerState;
 /**
  * The configuration screen for the {@link SqueezerRemoteControl SqueezerRemoteControl} AppWidget.
  */
-public class SqueezerRemoteControlConfigureActivity extends PlayerListBaseActivity {
+public class SqueezerRemoteControlPlayerSelectActivity extends PlayerListBaseActivity {
 
-    public static final String UNKNOWN_PLAYER = "UNKNOWN_PLAYER";
+    private static final String TAG = SqueezerRemoteControlPlayerSelectActivity.class.getName();
 
-    private static final String TAG = SqueezerRemoteControlConfigureActivity.class.getName();
+    private static final int GET_BUTTON_ACTIVITY = 1001;
 
-    private static final String PREFS_NAME = "uk.org.ngo.squeezer.homescreenwidgets.SqueezerRemoteControl";
-    private static final String PREF_PREFIX_KEY = "squeezerRemote_";
-    private static final String PREF_SUFFIX_PLAYER_ID = "playerId";
-    private static final String PREF_SUFFIX_PLAYER_NAME = "playerName";
-
-    int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-
-    private String playerId;
+    private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
 
-    public SqueezerRemoteControlConfigureActivity() {
+    public SqueezerRemoteControlPlayerSelectActivity() {
         super();
-    }
-
-    // Read the prefix from the SharedPreferences object for this widget.
-    // If there is no preference saved, get the default from a resource
-    static String loadPlayerId(Context context, int appWidgetId) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        return prefs.getString(PREF_PREFIX_KEY + appWidgetId + PREF_SUFFIX_PLAYER_ID, UNKNOWN_PLAYER);
-    }
-
-    static String loadPlayerName(Context context, int appWidgetId) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        return prefs.getString(PREF_PREFIX_KEY + appWidgetId + PREF_SUFFIX_PLAYER_NAME, UNKNOWN_PLAYER);
-    }
-
-    static void deleteTitlePref(Context context, int appWidgetId) {
-        SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-        prefs.remove(PREF_PREFIX_KEY + appWidgetId + PREF_SUFFIX_PLAYER_ID);
-        prefs.remove(PREF_PREFIX_KEY + appWidgetId + PREF_SUFFIX_PLAYER_NAME);
-        prefs.apply();
     }
 
     @Override
@@ -71,6 +47,11 @@ public class SqueezerRemoteControlConfigureActivity extends PlayerListBaseActivi
         // out of the widget placement if the user presses the back button.
         // Actual result, when successful is below in the onGroupSelected handler
         setResult(RESULT_CANCELED);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.configure_select_player);
+        }
 
         setContentView(R.layout.squeezer_remote_control_configure);
 
@@ -88,7 +69,6 @@ public class SqueezerRemoteControlConfigureActivity extends PlayerListBaseActivi
             return;
         }
 
-        playerId = loadPlayerId(SqueezerRemoteControlConfigureActivity.this, mAppWidgetId);
     }
 
     public PlayerBaseView createPlayerView() {
@@ -124,10 +104,10 @@ public class SqueezerRemoteControlConfigureActivity extends PlayerListBaseActivi
 
     }
 
-    private class SqueezerRemoteControlConfigureActivityPlayerBaseView extends PlayerBaseView<SqueezerRemoteControlConfigureActivity> {
+    private class SqueezerRemoteControlConfigureActivityPlayerBaseView extends PlayerBaseView<SqueezerRemoteControlPlayerSelectActivity> {
 
         public SqueezerRemoteControlConfigureActivityPlayerBaseView() {
-            super(SqueezerRemoteControlConfigureActivity.this, R.layout.list_item_player_simple);
+            super(SqueezerRemoteControlPlayerSelectActivity.this, R.layout.list_item_player_simple);
             setViewParams(VIEW_PARAM_ICON);
         }
 
@@ -147,27 +127,33 @@ public class SqueezerRemoteControlConfigureActivity extends PlayerListBaseActivi
         }
 
         public void onGroupSelected(View view, Player[] items) {
+            final Context context = SqueezerRemoteControlPlayerSelectActivity.this;
 
-            final Context context = SqueezerRemoteControlConfigureActivity.this;
+            Intent intent = new Intent(context, SqueezerRemoteControlButtonSelectActivity.class);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+            intent.putExtra(SqueezerRemoteControl.EXTRA_PLAYER, items[0]);
 
-            // Write the prefix to the SharedPreferences object for this widget
+            startActivityForResult(intent, GET_BUTTON_ACTIVITY);
+        }
+    }
 
-            SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-            Player player = items[0];
-            prefs.putString(PREF_PREFIX_KEY + mAppWidgetId + PREF_SUFFIX_PLAYER_ID, player.getId());
-            prefs.putString(PREF_PREFIX_KEY + mAppWidgetId + PREF_SUFFIX_PLAYER_NAME, player.getName());
-            prefs.apply();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        switch (requestCode) {
+            case GET_BUTTON_ACTIVITY:
+                if (resultCode != RESULT_CANCELED) {
+                    SqueezerRemoteControl.savePrefs(this.getBaseContext(), data);
 
-            // It is the responsibility of the configuration activity to update the app widget
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            SqueezerRemoteControl.updateAppWidget(context, appWidgetManager, mAppWidgetId);
-
-            // Make sure we pass back the original appWidgetId
-            Intent resultValue = new Intent();
-            resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-            setResult(RESULT_OK, resultValue);
-            finish();
+                    Intent resultValue = new Intent();
+                    resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+                    setResult(RESULT_OK, resultValue);
+                    finish();
+                }
+                break;
+            default:
+                Log.w(TAG, "Unknown request code: " + requestCode);
         }
     }
 }

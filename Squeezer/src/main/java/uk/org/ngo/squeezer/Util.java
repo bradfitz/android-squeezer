@@ -26,6 +26,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +46,9 @@ import java.util.regex.Pattern;
 
 public class Util {
 
-    /** {@link java.util.regex.Pattern} that splits strings on colon. */
+    /**
+     * {@link java.util.regex.Pattern} that splits strings on colon.
+     */
     private static final Pattern mColonSplitPattern = Pattern.compile(":");
 
     private Util() {
@@ -115,7 +118,7 @@ public class Util {
     }
 
     public static double getDouble(Object value, double defaultValue) {
-        return (value instanceof Number) ? ((Number)value).doubleValue() : parseDouble((String)value, defaultValue);
+        return (value instanceof Number) ? ((Number) value).doubleValue() : parseDouble((String) value, defaultValue);
     }
 
     public static long getLong(Map<String, Object> record, String fieldName) {
@@ -127,7 +130,7 @@ public class Util {
     }
 
     public static long getLong(Object value, long defaultValue) {
-        return (value instanceof Number) ? ((Number)value).intValue() : parseDecimalInt((String) value, defaultValue);
+        return (value instanceof Number) ? ((Number) value).intValue() : parseDecimalInt((String) value, defaultValue);
     }
 
     public static int getInt(Map<String, Object> record, String fieldName) {
@@ -139,7 +142,7 @@ public class Util {
     }
 
     public static int getInt(Object value, int defaultValue) {
-        return (value instanceof Number) ? ((Number)value).intValue() : (int) parseDecimalInt((String) value, defaultValue);
+        return (value instanceof Number) ? ((Number) value).intValue() : (int) parseDecimalInt((String) value, defaultValue);
     }
 
     public static int getInt(Object value) {
@@ -166,7 +169,7 @@ public class Util {
 
     public static String getString(Object value, String defaultValue) {
         if (value == null) return defaultValue;
-        return (value instanceof String) ? (String)value : value.toString();
+        return (value instanceof String) ? (String) value : value.toString();
     }
 
     public static String[] getStringArray(Map<String, Object> record, String fieldName) {
@@ -183,7 +186,7 @@ public class Util {
         return result;
     }
 
-    public static Map<String, Object > mapify(String[] tokens) {
+    public static Map<String, Object> mapify(String[] tokens) {
         Map<String, Object> tokenMap = new HashMap<>();
         for (String token : tokens) {
             String[] split = mColonSplitPattern.split(token, 2);
@@ -192,8 +195,11 @@ public class Util {
         return tokenMap;
     }
 
-    /** Make sure the icon/image tag is an absolute URL. */
+    /**
+     * Make sure the icon/image tag is an absolute URL.
+     */
     private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
+
     @NonNull
     public static Uri getImageUrl(String urlPrefix, String imageId) {
         if (imageId != null) {
@@ -215,7 +221,9 @@ public class Util {
         return getImageUrl(getString(record, "urlPrefix"), getString(record, fieldName));
     }
 
-    /** Make sure the icon/image tag is an absolute URL. */
+    /**
+     * Make sure the icon/image tag is an absolute URL.
+     */
     @NonNull
     public static Uri getDownloadUrl(String urlPrefix, String trackId) {
         return Uri.parse(urlPrefix + "/music/" + trackId + "/download");
@@ -284,7 +292,7 @@ public class Util {
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
                 : ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
-                        layout, parent, false));
+                layout, parent, false));
         view.setText(label);
         return view;
     }
@@ -330,9 +338,18 @@ public class Util {
     }
 
     public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource) {
+        return vectorToBitmap(context, vectorResource, 255);
+    }
+
+    public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource, int alpha) {
         Drawable drawable = AppCompatResources.getDrawable(context, vectorResource);
+        return drawableToBitmap(drawable, alpha);
+    }
+
+    private static Bitmap drawableToBitmap(Drawable drawable, int alpha) {
         Bitmap b = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
+        drawable.setAlpha(alpha);
         drawable.setBounds(0, 0, c.getWidth(), c.getHeight());
 
         drawable.draw(c);

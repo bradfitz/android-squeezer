@@ -602,7 +602,7 @@ public class SqueezeService extends Service {
     }
 
     private Bitmap vectorToBitmap(@DrawableRes int vectorResource) {
-        return Util.vectorToBitmap(this, vectorResource);
+        return Util.vectorToBitmap(this, vectorResource, 0xEE);
     }
 
     /**

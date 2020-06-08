@@ -47,10 +47,12 @@
                 android:resource="@xml/squeezer_remote_control_info" />
         </receiver>
 
-        <activity android:name=".homescreenwidgets.SqueezerRemoteControlConfigureActivity">
+        <activity android:name=".homescreenwidgets.SqueezerRemoteControlPlayerSelectActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
+        </activity>
+        <activity android:name=".homescreenwidgets.SqueezerRemoteControlButtonSelectActivity">
         </activity>
 
         <!-- Newer Android versions no longer include the Apache HTTP library -->
