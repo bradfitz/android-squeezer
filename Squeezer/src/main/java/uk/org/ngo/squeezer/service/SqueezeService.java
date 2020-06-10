@@ -28,8 +28,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -43,7 +41,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -65,6 +62,7 @@ import uk.org.ngo.squeezer.NowPlayingActivity;
 import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
 import uk.org.ngo.squeezer.model.Action;
@@ -177,10 +175,21 @@ public class SqueezeService extends Service {
      * handshake completes.
      */
     public static class HandshakeNotCompleteException extends IllegalStateException {
-        public HandshakeNotCompleteException() { super(); }
-        public HandshakeNotCompleteException(String message) { super(message); }
-        public HandshakeNotCompleteException(String message, Throwable cause) { super(message, cause); }
-        public HandshakeNotCompleteException(Throwable cause) { super(cause); }
+        public HandshakeNotCompleteException() {
+            super();
+        }
+
+        public HandshakeNotCompleteException(String message) {
+            super(message);
+        }
+
+        public HandshakeNotCompleteException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public HandshakeNotCompleteException(Throwable cause) {
+            super(cause);
+        }
     }
 
     @Override
@@ -447,15 +456,15 @@ public class SqueezeService extends Service {
         ongoingNotification = notificationState;
 
         final NotificationManagerCompat nm = NotificationManagerCompat.from(this);
-        final NotificationData notificationData = new NotificationData(ongoingNotification);
+        final NotificationData notificationData = new NotificationData(notificationState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, ongoingNotification.artistName);
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, ongoingNotification.albumName);
-            metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, ongoingNotification.songName);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, notificationState.artistName);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, notificationState.albumName);
+            metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, notificationState.songName);
             mMediaSession.setMetadata(metaBuilder.build());
 
-            ImageFetcher.getInstance(this).loadImage(ongoingNotification.artworkUrl,
+            ImageFetcher.getInstance(this).loadImage(notificationState.artworkUrl,
                     getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
                     getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
                     new ImageWorker.ImageWorkerCallback() {
@@ -481,11 +490,11 @@ public class SqueezeService extends Service {
 
             nm.notify(PLAYBACKSERVICE_STATUS, notification);
 
-            ImageFetcher.getInstance(this).loadImage(this, ongoingNotification.artworkUrl, notificationData.normalView, R.id.album,
+            ImageFetcher.getInstance(this).loadImage(this, notificationState.artworkUrl, notificationData.normalView, R.id.album,
                     getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_width),
                     getResources().getDimensionPixelSize(R.dimen.album_art_icon_normal_notification_height),
                     nm, PLAYBACKSERVICE_STATUS, notification);
-            ImageFetcher.getInstance(this).loadImage(this, ongoingNotification.artworkUrl, notificationData.expandedView, R.id.album,
+            ImageFetcher.getInstance(this).loadImage(this, notificationState.artworkUrl, notificationData.expandedView, R.id.album,
                     getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_width),
                     getResources().getDimensionPixelSize(R.dimen.album_art_icon_expanded_notification_height),
                     nm, PLAYBACKSERVICE_STATUS, notification);
@@ -593,12 +602,7 @@ public class SqueezeService extends Service {
     }
 
     private Bitmap vectorToBitmap(@DrawableRes int vectorResource) {
-        Drawable drawable = AppCompatResources.getDrawable(this, vectorResource);
-        Bitmap b = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(b);
-        drawable.setBounds(0, 0, c.getWidth(), c.getHeight());
-        drawable.draw(c);
-        return b;
+        return Util.vectorToBitmap(this, vectorResource, 0xEE);
     }
 
     /**
@@ -655,24 +659,19 @@ public class SqueezeService extends Service {
             Log.i(TAG, "startForeground");
             foreGround = true;
 
-            ongoingNotification = notificationState();
-            NotificationData notificationData = new NotificationData(ongoingNotification);
-            Notification notification;
+            NotificationState notificationState = notificationState();
+            NotificationData notificationData = new NotificationData(notificationState);
+            Notification notification = notificationData.builder.build();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 final MediaMetadataCompat.Builder metaBuilder = new MediaMetadataCompat.Builder();
-                metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, ongoingNotification.artistName);
-                metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, ongoingNotification.albumName);
-                metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, ongoingNotification.songName);
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, notificationState.artistName);
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, notificationState.albumName);
+                metaBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, notificationState.songName);
                 mMediaSession.setMetadata(metaBuilder.build());
-                notification = notificationData.builder.build();
             } else {
-                notification = notificationData.builder.build();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    notification.bigContentView = notificationData.expandedView;
-                }
+                notification.bigContentView = notificationData.expandedView;
             }
-
 
             // Start it and have it run forever (until it shuts itself down).
             // This is required so swapping out the activity (and unbinding the
@@ -1069,19 +1068,22 @@ public class SqueezeService extends Service {
 
         @Override
         public boolean togglePausePlay() {
+            return togglePausePlay(getActivePlayer());
+        }
+        @Override
+        public boolean togglePausePlay(Player player) {
             if (!isConnected()) {
                 return false;
             }
 
-            Player activePlayer = getActivePlayer();
 
             // May be null (e.g., connected to a server with no connected
             // players. TODO: Handle this better, since it's not obvious in the
             // UI.
-            if (activePlayer == null)
+            if (player == null)
                 return false;
 
-            PlayerState activePlayerState = activePlayer.getPlayerState();
+            PlayerState activePlayerState = player.getPlayerState();
             @PlayerState.PlayState String playStatus = activePlayerState.getPlayStatus();
 
             // May be null -- race condition when connecting to a server that
@@ -1095,17 +1097,17 @@ public class SqueezeService extends Service {
                 // because then we'd get confused when they came back in to us, not being
                 // able to differentiate ours coming back on the listen channel vs. those
                 // of those idiots at the dinner party messing around.
-                mDelegate.command(activePlayer).cmd("pause", "1").exec();
+                mDelegate.command(player).cmd("pause", "1").exec();
                 return true;
             }
 
             if (playStatus.equals(PlayerState.PLAY_STATE_STOP)) {
-                mDelegate.command(activePlayer).cmd("play", fadeInSecs()).exec();
+                mDelegate.command(player).cmd("play", fadeInSecs()).exec();
                 return true;
             }
 
             if (playStatus.equals(PlayerState.PLAY_STATE_PAUSE)) {
-                mDelegate.command(activePlayer).cmd("pause", "0", fadeInSecs()).exec();
+                mDelegate.command(player).cmd("pause", "0", fadeInSecs()).exec();
                 return true;
             }
 
@@ -1141,19 +1143,28 @@ public class SqueezeService extends Service {
 
         @Override
         public boolean nextTrack() {
+            return nextTrack(getActivePlayer());
+        }
+        @Override
+        public boolean nextTrack(Player player) {
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
-            mDelegate.activePlayerCommand().cmd("button", "jump_fwd").exec();
+            mDelegate.command(player).cmd("button", "jump_fwd").exec();
             return true;
         }
 
         @Override
         public boolean previousTrack() {
+            return previousTrack(getActivePlayer());
+        }
+
+        @Override
+        public boolean previousTrack(Player player) {
             if (!isConnected() || !isPlaying()) {
                 return false;
             }
-            mDelegate.activePlayerCommand().cmd("button", "jump_rew").exec();
+            mDelegate.command(player).cmd("button", "jump_rew").exec();
             return true;
         }
 
@@ -1186,6 +1197,15 @@ public class SqueezeService extends Service {
                 return false;
             }
             mDelegate.activePlayerCommand().cmd("playlist", "index", String.valueOf(index), fadeInSecs()).exec();
+            return true;
+        }
+
+        @Override
+        public boolean button(Player player, IRButton button) {
+            if (!isConnected()) {
+                return false;
+            }
+            mDelegate.command(player).cmd("button", button.getFunction()).exec();
             return true;
         }
 
@@ -1231,6 +1251,16 @@ public class SqueezeService extends Service {
         @Override
         public Collection<Player> getPlayers() {
             return mDelegate.getPlayers().values();
+        }
+
+        @Override
+        public Player getPlayer(String playerId) throws PlayerNotFoundException {
+            for (Player player : getPlayers()) {
+                if (player.getId().equals(playerId)) {
+                    return player;
+                }
+            }
+            throw new PlayerNotFoundException(playerId);
         }
 
         @Override

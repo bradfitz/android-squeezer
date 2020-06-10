@@ -106,6 +106,13 @@ public interface ItemView<T extends Item> {
     boolean onItemSelected(View view, int index, T item);
 
     /**
+     * Implement the action to be taken when an item is selected.
+     *
+     * @param view The view currently showing the item.
+     */
+    void onGroupSelected(View view, T[] items);
+
+    /**
      * Creates the context menu.
      * <p>
      * The default implementation is empty.

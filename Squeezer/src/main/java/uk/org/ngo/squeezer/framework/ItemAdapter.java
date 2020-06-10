@@ -143,7 +143,9 @@ public class ItemAdapter<T extends Item> extends BaseAdapter {
             }
         }
     }
-
+    public void onSelected(View view) {
+        mItemView.onGroupSelected(view, getPage(0));
+    }
     public ItemView<T> getItemView() {
         return mItemView;
     }
