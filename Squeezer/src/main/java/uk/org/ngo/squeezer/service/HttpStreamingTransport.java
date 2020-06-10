@@ -25,6 +25,10 @@ import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -652,10 +656,20 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                             delegate.fail(x, "No content");
                         }
                     } else {
+                        String unprocessed = "";
                         while (!"0".equals(readLine())) {
                             String data = readLine();
-                            if (status == HttpStatus.OK_200) {
-                                delegate.onData(data);
+                            Log.v(TAG, "data = " + data);
+                            unprocessed += data;
+                            Log.v(TAG, "unprocessed = " + unprocessed);
+                            if (isValidJson(unprocessed)) {
+                                Log.v(TAG, "JSON is valid! Sending data to parser.");
+                                if (status == HttpStatus.OK_200) {
+                                    delegate.onData(unprocessed);
+                                }
+                                unprocessed = "";
+                            } else {
+                                Log.v(TAG, "JSON is not valid! Appending to next chunk.");
                             }
                         }
                         readLine();//Read final/empty chunk
@@ -674,6 +688,21 @@ public class HttpStreamingTransport extends HttpClientTransport implements Messa
                     }
                     return;
                 }
+            }
+        }
+
+        private boolean isValidJson(String jsonStr) {
+            try {
+                JSONTokener tokenizer = new JSONTokener(jsonStr);
+                while (tokenizer.more()) {
+                    Object json = tokenizer.nextValue();
+                    if (!(json instanceof JSONObject || json instanceof JSONArray)) {
+                        return false;
+                    }
+                }
+                return true;
+            } catch (JSONException e) {
+                return false;
             }
         }
 
