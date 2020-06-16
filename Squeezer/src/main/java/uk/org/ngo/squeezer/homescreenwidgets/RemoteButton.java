@@ -20,7 +20,7 @@ public enum RemoteButton {
         float animationDelay = Settings.Global.getFloat(context.getContentResolver(),
                 Settings.Global.ANIMATOR_DURATION_SCALE, 1.0f);
         handler.postDelayed(() -> HomeActivity.show(context), (long) (300 * animationDelay));
-    }, R.string.remote_openPlayer, R.drawable.ic_action_home),
+    }, R.string.remote_openPlayer, R.drawable.ic_home),
     POWER(ISqueezeService::togglePower, R.string.remote_powerDescription, R.drawable.ic_action_power_settings_new),
     NEXT(ISqueezeService::nextTrack, R.string.remote_nextDescription, R.drawable.ic_action_next),
     PREVIOUS(ISqueezeService::previousTrack, R.string.remote_previousDescription, R.drawable.ic_action_previous),
