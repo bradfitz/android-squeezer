@@ -267,7 +267,7 @@ public abstract class ItemListActivity extends BaseActivity {
      */
     @MainThread
     public void onEventMainThread(ActivePlayerChanged event) {
-        Log.i(getTag(), "ActivePlayerChanged: " + event.player);
+        Log.i(TAG, "ActivePlayerChanged: " + event.player);
         supportInvalidateOptionsMenu();
         if (needPlayer()) {
             if (event.player == null) {
@@ -322,7 +322,7 @@ public abstract class ItemListActivity extends BaseActivity {
     @CallSuper
     protected <T extends Item> void onItemsReceived(final int count, final int start, final List<T> items, final Class<T> dataType) {
         int size = items.size();
-        Log.d(getTag(), "onItemsReceived(" + count + ", " + start + ", " + size + ")");
+        Log.d(TAG, "onItemsReceived(" + count + ", " + start + ", " + size + ")");
 
         // If this doesn't add any items, then don't register the page as received
         if (start < count && size != 0) {

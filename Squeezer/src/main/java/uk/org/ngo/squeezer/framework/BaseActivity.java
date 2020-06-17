@@ -99,10 +99,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     /** Set this to true to stop displaying icon-based showBrieflies */
     protected boolean ignoreIconMessages = false;
 
-    protected String getTag() {
-        return getClass().getSimpleName();
-    }
-
     /**
      * @return The squeezeservice, or null if not bound
      */
@@ -359,7 +355,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (service == null) {
             return false;
         }
-        Log.v(getTag(), "Adjust volume by: " + delta);
+        Log.v(TAG, "Adjust volume by: " + delta);
         service.adjustVolumeBy(delta);
         return true;
     }

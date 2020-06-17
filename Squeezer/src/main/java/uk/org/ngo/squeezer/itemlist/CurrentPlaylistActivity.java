@@ -54,6 +54,8 @@ import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
  */
 public class CurrentPlaylistActivity extends JiveItemListActivity {
 
+    private static final String TAG = CurrentPlaylistActivity.class.getName();
+
     /**
      * Called when the activity is first created.
      */
@@ -283,7 +285,7 @@ public class CurrentPlaylistActivity extends JiveItemListActivity {
     }
 
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
-        Log.i(getTag(), "set selection(" + start + "): " + currentPlaylistIndex);
+        Log.i(TAG, "set selection(" + start + "): " + currentPlaylistIndex);
         playlistIndexUpdateHandler.post(new Runnable() {
             @Override
             public void run() {

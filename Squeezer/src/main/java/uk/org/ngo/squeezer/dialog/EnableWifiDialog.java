@@ -31,7 +31,7 @@ public class EnableWifiDialog extends DialogFragment {
                         .getApplicationContext().getSystemService(
                         Context.WIFI_SERVICE);
                 if (!wifiManager.isWifiEnabled()) {
-                    Log.v(getTag(), "Enabling Wifi");
+                    Log.v(TAG, "Enabling Wifi");
                     wifiManager.setWifiEnabled(true);
                     Toast.makeText(getActivity(), R.string.wifi_enabled_text, Toast.LENGTH_LONG)
                             .show();
