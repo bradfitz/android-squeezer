@@ -29,9 +29,14 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
@@ -294,15 +299,7 @@ public class JiveItem extends Item {
             moreAction.action.params.put("xmlBrowseInterimCM", 1);
         }
 
-        String trackType = getStringOrEmpty(record, "trackType");
-        if ("local".equals(trackType) && (goAction != null || moreAction != null)) {
-            Action action = (moreAction != null ? moreAction : goAction);
-            String trackId = getStringOrEmpty(action.action.params, "track_id");
-            downloadCommand = new SlimCommand()
-                    .cmd("titles")
-                    .param("tags", SONG_TAGS)
-                    .param("track_id", trackId);
-        }
+        downloadCommand = extractDownloadAction(record);
 
         subItems = extractSubItems((Object[]) record.get("item_loop"));
         showBigArtwork = record.containsKey("showBigArtwork");
@@ -650,5 +647,43 @@ public class JiveItem extends Item {
 
         return null;
     }
+
+    private SlimCommand extractDownloadAction(Map<String, Object> record) {
+        if ("local".equals(getString(record, "trackType")) && (goAction != null || moreAction != null)) {
+            Action action = (moreAction != null ? moreAction : goAction);
+            String trackId = getStringOrEmpty(action.action.params, "track_id");
+            return new SlimCommand()
+                    .cmd("titles")
+                    .param("tags", SONG_TAGS)
+                    .param("track_id", trackId);
+        } else if (playAction != null && Collections.singletonList("playlistcontrol").equals(playAction.action.cmd) && "load".equals(playAction.action.params.get("cmd"))) {
+            if (playAction.action.params.containsKey("folder_id")) {
+                return new SlimCommand()
+                        .cmd("musicfolder")
+                        .param("tags", "cu")
+                        .param("recursive", "cu")
+                        .param("folder_id", playAction.action.params.get("folder_id"));
+            } else if (playAction.action.params.containsKey("playlist_id")) {
+                return new SlimCommand()
+                        .cmd("playlists", "tracks")
+                        .param("tags", SONG_TAGS)
+                        .param("playlist_id", playAction.action.params.get("playlist_id"));
+            } else {
+                return new SlimCommand()
+                        .cmd("titles")
+                        .param("tags", SONG_TAGS)
+                        .params(getTitlesParams(playAction.action));
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get parameters which can be used in a titles command from the supplied action
+     */
+    private Map<String,Object> getTitlesParams(SlimCommand action) {
+        return action.params.entrySet().stream().filter(e -> title_parameters.contains(e.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+    private static final Set<String> title_parameters = new HashSet<>(Arrays.asList("track_id", "album_id", "artist_id", "genre_id", "year"));
 
 }

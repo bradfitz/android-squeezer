@@ -65,6 +65,7 @@ import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.model.SlimCommand;
@@ -155,6 +156,7 @@ class CometClient extends BaseClient {
                 new AlarmsListener(),
                 new AlarmPlaylistsListener(),
                 new SongListener(),
+                new MusicFolderListener(),
                 new JiveItemListener()
         );
         ImmutableMap.Builder<Class<?>, ItemListener<?>> builder = ImmutableMap.builder();
@@ -569,7 +571,25 @@ class CometClient extends BaseClient {
     private class SongListener extends ItemListener<Song> {
         @Override
         public void onResponse(Player player, Request request, Message message) {
+            switch (request.getRequest()) {
+                default:
+                    parseMessage("titles_loop", message);
+                    break;
+                case "playlists tracks":
+                    parseMessage("playlisttracks_loop", message);
+                    break;
+                case "status":
+                    parseMessage("playlist_tracks", "playlist_loop", message);
+                    break;
+            }
             parseMessage("titles_loop", message);
+        }
+    }
+
+    private class MusicFolderListener extends ItemListener<MusicFolderItem> {
+        @Override
+        public void onResponse(Player player, Request request, Message message) {
+            parseMessage("folder_loop", message);
         }
     }
 

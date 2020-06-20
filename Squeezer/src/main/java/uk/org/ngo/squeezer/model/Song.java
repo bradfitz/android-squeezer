@@ -1,5 +1,9 @@
 package uk.org.ngo.squeezer.model;
 
+import android.net.Uri;
+
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.util.Map;
 
@@ -14,7 +18,10 @@ public class Song {
     public String artist;
     public String album;
     public String albumArtist;
-    public String url;
+
+    @NonNull
+    public Uri url;
+
     public String icon;
 
     public Song(Map<String, Object> record) {
@@ -25,7 +32,7 @@ public class Song {
         album = Util.getString(record, "album");
         boolean compilation = (Util.getInt(record, "compilation", 0) == 1);
         albumArtist = (compilation ? "Various" : artist); // TODO maybe use the artist role tag ("A")
-        url = Util.getString(record, "url");
+        url = Uri.parse(Util.getStringOrEmpty(record, "url"));
         icon = Util.getStringOrEmpty("artwork_track_id"); // TODO song logic from 1.5.4 (maybe in usage)
     }
 
@@ -33,6 +40,7 @@ public class Song {
         return new File(downloadPathStructure.get(this), downloadFilenameStructure.get(this)).getPath();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Song{" +

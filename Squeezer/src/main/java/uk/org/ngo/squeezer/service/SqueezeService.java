@@ -63,11 +63,10 @@ import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.download.DownloadDatabase;
 import uk.org.ngo.squeezer.model.Action;
-import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.MusicFolderItem;
 import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
@@ -732,11 +731,6 @@ public class SqueezeService extends Service {
         return !players.isEmpty() ? players.iterator().next() : null;
     }
 
-    /* Start an async fetch of the SqueezeboxServer's songs */
-    private void songs(IServiceItemListCallback<Song> callback, SlimCommand command) throws HandshakeNotCompleteException {
-        mDelegate.requestItems(-1, callback).params(command.params).cmd(command.cmd()).exec();
-    }
-
     /** A download request will be passed to the download manager for each song called back to this */
     private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<Song>() {
         @Override
@@ -757,34 +751,42 @@ public class SqueezeService extends Service {
      * If it is a folder: recursive lookup items in the folder
      * If is is a track: Enqueue a download request to the download manager
      */
-//    private final IServiceItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new IServiceItemListCallback<MusicFolderItem>() {
-//        @Override
-//        public void onItemsReceived(int count, int start, Map<String, String> parameters, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
-//            for (MusicFolderItem item : items) {
-//                squeezeService.downloadItem(item);
-//            }
-//        }
-//
-//        @Override
-//        public Object getClient() {
-//            return this;
-//        }
-//    };
+    private final IServiceItemListCallback<MusicFolderItem> musicFolderDownloadCallback = new IServiceItemListCallback<MusicFolderItem>() {
+        @Override
+        public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
+            for (MusicFolderItem item : items) {
+                if ("track".equals(item.type)) {
+                    downloadSong(item);
+                }
+            }
+        }
+
+        @Override
+        public Object getClient() {
+            return this;
+        }
+    };
 
     private void downloadSong(Song song) {
         Log.i(TAG, "downloadSong(" + song + ")");
         Uri downloadUrl = Util.getDownloadUrl(mDelegate.getUrlPrefix(), song.id);
-        Uri url = Uri.parse(song.url);
-        Uri imageUrl = Util.getImageUrl(mDelegate.getUrlPrefix(), song.url);
+        Uri imageUrl = Util.getImageUrl(mDelegate.getUrlPrefix(), song.icon);
         final Preferences preferences = new Preferences(this);
         if (preferences.isDownloadUseServerPath()) {
-            downloadSong(downloadUrl, song.title, url, imageUrl);
+            downloadSong(downloadUrl, song.title, song.url, imageUrl);
         } else {
-            final String lastPathSegment = url.getLastPathSegment();
+            final String lastPathSegment = song.url.getLastPathSegment();
             final String fileExtension = Files.getFileExtension(lastPathSegment);
             final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
             downloadSong(downloadUrl, song.title, localPath + "." + fileExtension, imageUrl);
         }
+    }
+
+    private void downloadSong(MusicFolderItem item) {
+        Log.i(TAG, "downloadSong(" + item + ")");
+        Uri downloadUrl = Util.getDownloadUrl(mDelegate.getUrlPrefix(), item.id);
+        Uri imageUrl = Util.getImageUrl(mDelegate.getUrlPrefix(), item.coverId);
+        downloadSong(downloadUrl, item.name, item.url, imageUrl);
     }
 
     private void downloadSong(@NonNull Uri url, String title, @NonNull Uri serverUrl, @NonNull Uri albumArtUrl) {
@@ -804,7 +806,6 @@ public class SqueezeService extends Service {
         // Convert VFAT-unfriendly characters to "_".
         localPath =  localPath.replaceAll("[?<>\\\\:*|\"]", "_");
 
-        // If running on Gingerbread or greater use the Download Manager
         DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         DownloadDatabase downloadDatabase = new DownloadDatabase(this);
         String tempFile = UUID.randomUUID().toString();
@@ -1427,28 +1428,9 @@ public class SqueezeService extends Service {
         @Override
         public void downloadItem(JiveItem item) throws HandshakeNotCompleteException {
             Log.i(TAG, "downloadItem(" + item + ")");
-            songs(songDownloadCallback, item.downloadCommand());
-
-//            if (item instanceof Song) {
-//                Song song = (Song) item;
-//                if (!song.isRemote()) {
-//                    downloadSong(song);
-//                }
-//            } else if (item instanceof Playlist) {
-//                playlistSongs(-1, (Playlist) item, songDownloadCallback);
-//            } else if (item instanceof MusicFolderItem) {
-//                MusicFolderItem musicFolderItem = (MusicFolderItem) item;
-//                if ("track".equals(musicFolderItem.getType())) {
-//                    Uri url = musicFolderItem.getUrl();
-//                    if (! url.equals(Uri.EMPTY)) {
-//                        downloadSong(musicFolderItem.getDownloadUrl(), musicFolderItem.getName(), url, Uri.EMPTY);
-//                    }
-//                } else if ("folder".equals(musicFolderItem.getType())) {
-//                    musicFolders(-1, musicFolderItem, musicFolderDownloadCallback);
-//                }
-//            } else if (item != null) {
-//                songs(songDownloadCallback, -1, SongViewDialog.SongsSortOrder.title.name(), null, item);
-//            }
+            SlimCommand command = item.downloadCommand();
+            IServiceItemListCallback<?> callback = ("musicfolder".equals(command.cmd.get(0))) ? musicFolderDownloadCallback : songDownloadCallback;
+            mDelegate.requestItems(-1, callback).params(command.params).cmd(command.cmd()).exec();
         }
     }
 
