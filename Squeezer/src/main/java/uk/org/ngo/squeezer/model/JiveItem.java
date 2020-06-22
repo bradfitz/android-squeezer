@@ -361,6 +361,7 @@ public class JiveItem extends Item {
         }
         radio = (Boolean) source.readValue(getClass().getClassLoader());
         slider = source.readParcelable(getClass().getClassLoader());
+        downloadCommand = source.readParcelable(getClass().getClassLoader());
     }
 
     @Override
@@ -392,6 +393,7 @@ public class JiveItem extends Item {
         }
         dest.writeValue(radio);
         dest.writeParcelable(slider, flags);
+        dest.writeParcelable(downloadCommand, flags);
     }
 
 

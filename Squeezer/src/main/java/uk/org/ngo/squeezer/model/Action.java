@@ -60,10 +60,10 @@ public class Action implements Parcelable {
             if (choiceCount > 0) {
                 choices = new JsonAction[choiceCount];
                 for (int i = 0; i < choiceCount; i++) {
-                    choices[i] = JsonAction.getFromParcel(source);
+                    choices[i] = source.readParcelable(getClass().getClassLoader());
                 }
             } else {
-                action = JsonAction.getFromParcel(source);
+                action = source.readParcelable(getClass().getClassLoader());
             }
         }
     }
@@ -75,10 +75,10 @@ public class Action implements Parcelable {
             dest.writeInt(choices != null ? choices.length : 0);
             if (choices != null) {
                 for (JsonAction action : choices) {
-                    JsonAction.toParcel(dest, action);
+                    dest.writeParcelable(action, flags);
                 }
             } else {
-                JsonAction.toParcel(dest, action);
+                dest.writeParcelable(action, flags);
             }
         }
     }
@@ -136,6 +136,34 @@ public class Action implements Parcelable {
         public ActionWindow window;
         public boolean isContextMenu;
 
+        public JsonAction() {
+        }
+
+        public static final Creator<JsonAction> CREATOR = new Creator<JsonAction>() {
+            @Override
+            public JsonAction[] newArray(int size) {
+                return new JsonAction[size];
+            }
+
+            @Override
+            public JsonAction createFromParcel(Parcel source) {
+                return new JsonAction(source);
+            }
+        };
+
+        protected JsonAction(Parcel in) {
+            super(in);
+            nextWindow = NextWindow.fromString(in.readString());
+            window = ActionWindow.fromString(in.readString());
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeString(nextWindow == null ? null : nextWindow.toString());
+            dest.writeString(window == null ? null : window.isContextMenu ? "1" : "0");
+        }
+
         public Map<String, Object> params(String input) {
             if (input == null) {
                 return params;
@@ -165,29 +193,6 @@ public class Action implements Parcelable {
                     ", params=" + params +
                     ", nextWindow=" + nextWindow +
                     '}';
-        }
-
-        private static JsonAction getFromParcel(Parcel source) {
-            JsonAction action = new JsonAction();
-
-            action.cmd(source.createStringArray());
-            action.params(Util.mapify(source.createStringArray()));
-            action.nextWindow = NextWindow.fromString(source.readString());
-            action.window = ActionWindow.fromString(source.readString());
-
-            return action;
-        }
-
-        private static void toParcel(Parcel dest, JsonAction action) {
-            dest.writeStringArray(action.cmd());
-            String[] tokens = new String[action.params.size()];
-            int i = 0;
-            for (Map.Entry entry : action.params.entrySet()) {
-                tokens[i++] = entry.getKey() + ":" + entry.getValue();
-            }
-            dest.writeStringArray(tokens);
-            dest.writeString(action.nextWindow == null ? null : action.nextWindow.toString());
-            dest.writeString(action.window == null ? null : action.window.isContextMenu ? "1" : "0");
         }
     }
 
