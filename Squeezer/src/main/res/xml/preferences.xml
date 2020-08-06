@@ -59,16 +59,6 @@
         android:key="squeezer.download.category"
         android:title="@string/settings_category_download">
 
-        <PreferenceScreen
-            android:key="squeezer.download.use_sd_card.screen"
-            android:title="@string/settings_download_use_sd_card"
-            >
-        <CheckBoxPreference
-            android:key="squeezer.download.use_sd_card"
-            android:summary="@string/settings_download_use_sd_card_desc"
-            />
-        </PreferenceScreen>
-
         <CheckBoxPreference
             android:key="squeezer.download.use_server_path"
             android:title="@string/settings_download_use_server_path"/>

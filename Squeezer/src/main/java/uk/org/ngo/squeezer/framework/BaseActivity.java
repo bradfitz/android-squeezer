@@ -486,7 +486,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * @see ISqueezeService#downloadItem(JiveItem)
      */
     public void downloadItem(JiveItem item) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+        if (Build.VERSION_CODES.M <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
                 checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             currentDownloadItem = item;
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);

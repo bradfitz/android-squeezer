@@ -33,20 +33,13 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceScreen;
-import android.text.Html;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
-import uk.org.ngo.squeezer.download.DownloadStorage;
 import uk.org.ngo.squeezer.download.DownloadPathStructure;
 import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -142,17 +135,9 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     private void fillDownloadPreferences(Preferences preferences) {
-        final DownloadStorage downloadStorage = new DownloadStorage(this);
-        final PreferenceCategory downloadCategory = (PreferenceCategory) findPreference(Preferences.KEY_DOWNLOAD_CATEGORY);
-        final PreferenceScreen useSdCardScreen = (PreferenceScreen) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD_SCREEN);
-        final CheckBoxPreference useSdCardPreference = (CheckBoxPreference) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD);
         final ListPreference pathStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
         final ListPreference filenameStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
-        if (DownloadStorage.isPublicMediaStorageRemovable() || !downloadStorage.hasRemovableMediaStorage()) {
-            downloadCategory.removePreference(useSdCardScreen);
-        }
 
-        useSdCardPreference.setSummary(Html.fromHtml(getString(R.string.settings_download_use_sd_card_desc)));
         fillEnumPreference(pathStructurePreference, DownloadPathStructure.class, preferences.getDownloadPathStructure());
         fillEnumPreference(filenameStructurePreference, DownloadFilenameStructure.class, preferences.getDownloadFilenameStructure());
 
@@ -160,13 +145,6 @@ public class SettingsActivity extends PreferenceActivity implements
     }
 
     private void updateDownloadPreferences(Preferences preferences) {
-        final PreferenceScreen useSdCardScreen = (PreferenceScreen) findPreference(Preferences.KEY_DOWNLOAD_USE_SD_CARD_SCREEN);
-        if (useSdCardScreen != null) {
-            final boolean useSdCard = preferences.isDownloadUseSdCard();
-            useSdCardScreen.setSummary(useSdCard ? R.string.on : R.string.off);
-            ((BaseAdapter)useSdCardScreen.getRootAdapter()).notifyDataSetChanged();
-        }
-
         final CheckBoxPreference useServerPathPreference = (CheckBoxPreference) findPreference(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH);
         final ListPreference pathStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
         final ListPreference filenameStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
@@ -303,8 +281,7 @@ public class SettingsActivity extends PreferenceActivity implements
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.v(TAG, "Preference changed: " + key);
 
-        if (key.startsWith(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH) ||
-                key.startsWith(Preferences.KEY_DOWNLOAD_USE_SD_CARD)) {
+        if (key.startsWith(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH)) {
             updateDownloadPreferences(new Preferences(this, sharedPreferences));
         }
 
@@ -343,18 +320,14 @@ public class SettingsActivity extends PreferenceActivity implements
                 appList.setAdapter(new IconRowAdapter(this, apps, icons));
 
                 final Context context = dialog.getContext();
-                appList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position,
-                            long id) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse("market://details?id=" + urls[position]));
-                        try {
-                            startActivity(intent);
-                        } catch (ActivityNotFoundException e) {
-                            Toast.makeText(context, R.string.settings_market_not_found,
-                                    Toast.LENGTH_SHORT).show();
-                        }
+                appList.setOnItemClickListener((parent, view, position, id1) -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse("market://details?id=" + urls[position]));
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(context, R.string.settings_market_not_found,
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
         }

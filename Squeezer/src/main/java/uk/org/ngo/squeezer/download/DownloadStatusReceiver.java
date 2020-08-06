@@ -16,10 +16,12 @@
 
 package uk.org.ngo.squeezer.download;
 
-import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -27,8 +29,10 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -65,7 +69,6 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
     }
 
     private void handleDownloadComplete(Context context, long id) {
-        final DownloadStorage downloadStorage = new DownloadStorage(context);
         final DownloadDatabase downloadDatabase = new DownloadDatabase(context);
         final DownloadManager downloadManager = (DownloadManager) context.getSystemService(SqueezeService.DOWNLOAD_SERVICE);
         final DownloadManager.Query query = new DownloadManager.Query().setFilterById(id);
@@ -84,7 +87,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
             int reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
             String title = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_TITLE));
             String url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
-            String local_url = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+            Uri local_url = Uri.parse(cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)));
             Log.i(TAG, "download complete(" + title + "): " + id);
 
             final DownloadDatabase.DownloadEntry downloadEntry = downloadDatabase.popDownloadEntry(downloadId);
@@ -99,16 +102,12 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
                 return;
             }
 
-            File tempFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), downloadEntry.tempName);
             try {
-                File localFile = new File(downloadStorage.getDownloadDir(), downloadEntry.fileName);
-                Util.moveFile(tempFile, localFile);
-                MediaScannerConnection.scanFile(
-                        context.getApplicationContext(),
-                        new String[]{localFile.getAbsolutePath()},
-                        null,
-                        new DownloadOnScanCompletedListener(context, downloadEntry)
-                );
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    addToMediaStorage(context, downloadEntry, local_url);
+                } else {
+                    addToMediaLibrary(context, downloadEntry, local_url);
+                }
             } catch (IOException e) {
                 // TODO remote logging
                 Log.e(TAG, "IOException moving downloaded file", e);
@@ -116,11 +115,62 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
         }
     }
 
-    private String format(int status, int reason, String title, String url, String local_url) {
+    private String format(int status, int reason, String title, String url, Uri local_url) {
         return "{status:" + status + ", reason:" + reason + ", title:'" + title + "', url:'" + url + "', local url:'" + local_url + "'}";
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void addToMediaStorage(Context context, DownloadDatabase.DownloadEntry downloadEntry, Uri local_url) throws IOException {
+        File destinationFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), downloadEntry.fileName);
+        File destFolder = destinationFile.getParentFile();
+
+        if (destFolder != null && !destFolder.exists()) {
+            if (!destFolder.mkdirs()) {
+                throw new IOException("Cant create folder for '" + destinationFile + "'");
+            }
+        }
+        Util.moveFile(context.getContentResolver(), local_url, Uri.fromFile(destinationFile));
+
+        MediaScannerConnection.scanFile(
+                context.getApplicationContext(),
+                new String[]{destinationFile.getAbsolutePath()},
+                null,
+                new DownloadOnScanCompletedListener(context, downloadEntry)
+        );
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void addToMediaLibrary(Context context, DownloadDatabase.DownloadEntry downloadEntry, Uri local_url) throws IOException {
+        ContentResolver resolver = context.getContentResolver();
+        Uri audioCollection = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        Uri uri = null;
+
+        String[] projection = {MediaStore.Audio.AudioColumns._ID};
+        String selection = MediaStore.Audio.AudioColumns.TITLE + "=? and " + MediaStore.Audio.Media.ALBUM + "=? and " + MediaStore.Audio.Media.ARTIST + "=?";
+        String[] selectionArgs = new String[]{downloadEntry.title, downloadEntry.album, downloadEntry.artist};
+        try (Cursor cursor = resolver.query(audioCollection, projection, selection, selectionArgs, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                uri = ContentUris.withAppendedId(audioCollection, cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.AudioColumns._ID)));
+                Log.i(TAG, downloadEntry.title + " found in media library: " + uri);
+            }
+        }
+        if (uri == null) {
+            File file = new File(downloadEntry.fileName);
+            File parent = file.getParentFile();
+            ContentValues songDetails = new ContentValues();
+            songDetails.put(MediaStore.Audio.Media.DISPLAY_NAME, file.getName());
+            if (parent != null) {
+                songDetails.put(MediaStore.Audio.Media.RELATIVE_PATH, new File(Environment.DIRECTORY_MUSIC, parent.getPath()).getPath());
+            }
+            uri = resolver.insert(audioCollection, songDetails);
+            Log.i(TAG, downloadEntry.title + " added to media library: " + uri);
+        }
+        if (uri == null) {
+            throw new IOException("Failed to insert downloaded file: " + downloadEntry.fileName);
+        }
+
+        Util.moveFile(resolver, local_url, uri);
+    }
+
     private static class DownloadOnScanCompletedListener implements MediaScannerConnection.OnScanCompletedListener {
         private final Context context;
         private final DownloadDatabase.DownloadEntry downloadEntry;

@@ -441,8 +441,4 @@ public final class Preferences {
         final String string = sharedPreferences.getString(KEY_DOWNLOAD_FILENAME_STRUCTURE, null);
         return (string == null ? DownloadFilenameStructure.NUMBER_TITLE: DownloadFilenameStructure.valueOf(string));
     }
-
-    public boolean isDownloadUseSdCard() {
-        return sharedPreferences.getBoolean(KEY_DOWNLOAD_USE_SD_CARD, false);
-    }
 }

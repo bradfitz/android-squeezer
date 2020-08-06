@@ -663,7 +663,7 @@ public class JiveItem extends Item {
                 return new SlimCommand()
                         .cmd("musicfolder")
                         .param("tags", "cu")
-                        .param("recursive", "cu")
+                        .param("recursive", "1")
                         .param("folder_id", playAction.action.params.get("folder_id"));
             } else if (playAction.action.params.containsKey("playlist_id")) {
                 return new SlimCommand()
@@ -678,6 +678,13 @@ public class JiveItem extends Item {
             }
         }
         return null;
+    }
+
+    public static SlimCommand downloadCommand(String id) {
+        return new SlimCommand()
+                .cmd("titles")
+                .param("tags", SONG_TAGS)
+                .param("track_id", id);
     }
 
     /**

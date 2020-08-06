@@ -21,7 +21,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,18 +32,19 @@ import java.io.File;
  */
 public class DownloadDatabase {
 
-    private class DOWNLOAD_DATABASE {
+    private static class DOWNLOAD_DATABASE {
         private static final String NAME = "download";
-        private static final int VERSION = 2;
+        private static final int VERSION = 4;
 
-        private class SONG {
+        private static class SONG {
             private static final String TABLE = "download";
 
-            private class COLUMNS {
+            private static class COLUMNS {
                 private static final String DOWNLOAD_ID = "download_id";
-                private static final String TEMP_NAME = "temp_name";
                 private static final String FILE_NAME = "file_name";
-                private static final String ALBUM_ART = "album_art";
+                private static final String TITLE = "title";
+                private static final String ALBUM = "album";
+                private static final String ARTIST = "artist";
             }
         }
     }
@@ -95,9 +95,10 @@ public class DownloadDatabase {
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
             sqLiteDatabase.execSQL("CREATE TABLE " + DOWNLOAD_DATABASE.SONG.TABLE + "(" +
                     DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + " INTEGER, " +
-                    DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME + " TEXT, " +
                     DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME + " TEXT, " +
-                    DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM_ART + " TEXT)");
+                    DOWNLOAD_DATABASE.SONG.COLUMNS.TITLE + " TEXT, " +
+                    DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM + " TEXT, " +
+                    DOWNLOAD_DATABASE.SONG.COLUMNS.ARTIST + " TEXT)");
         }
 
         @Override
@@ -114,16 +115,16 @@ public class DownloadDatabase {
      * Register a download entry, so we can rename the file when it is downloaded.
      *
      * @param downloadId Download manager id
-     * @param tempName Filename where the downloaded file is stored
      * @param fileName Filename to use when the file is downloaded
      * @return False if we could not register the download
      */
-    public boolean registerDownload(long downloadId, @NonNull String tempName, @NonNull String fileName, @NonNull Uri albumArtUrl) {
+    public boolean registerDownload(long downloadId, @NonNull String fileName, @NonNull String title, String album, String artist) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID, downloadId);
-        contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME, tempName);
         contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME, fileName);
-        contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM_ART, albumArtUrl.toString());
+        contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.TITLE, title);
+        contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM, album);
+        contentValues.put(DOWNLOAD_DATABASE.SONG.COLUMNS.ARTIST, artist);
         return (db.insert(DOWNLOAD_DATABASE.SONG.TABLE, null, contentValues) != -1);
     }
 
@@ -138,15 +139,12 @@ public class DownloadDatabase {
     public DownloadEntry popDownloadEntry(long downloadId) {
         DownloadEntry entry = null;
 
-        Cursor cursor = db.rawQuery("select * from " + DOWNLOAD_DATABASE.SONG.TABLE +
-                " where " + DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + "=?",
-                new String[]{String.valueOf(downloadId)});
-        try {
+        try (Cursor cursor = db.rawQuery("select * from " + DOWNLOAD_DATABASE.SONG.TABLE +
+                        " where " + DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + "=?",
+                new String[]{String.valueOf(downloadId)})) {
             if (cursor.moveToNext()) {
                 entry = getDownloadEntry(cursor);
             }
-        } finally {
-            cursor.close();
         }
         if (entry != null) {
             db.delete(DOWNLOAD_DATABASE.SONG.TABLE, DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID + "=?",
@@ -157,22 +155,20 @@ public class DownloadDatabase {
     }
 
     public void iterateDownloadEntries(DownloadHandler callback) {
-        Cursor cursor = db.rawQuery("select * from " + DOWNLOAD_DATABASE.SONG.TABLE, null);
-        try {
+        try (Cursor cursor = db.rawQuery("select * from " + DOWNLOAD_DATABASE.SONG.TABLE, null)) {
             while (cursor.moveToNext()) {
                 callback.handle(getDownloadEntry(cursor));
             }
-        } finally {
-            cursor.close();
         }
     }
 
     private DownloadEntry getDownloadEntry(Cursor cursor) {
         DownloadEntry entry = new DownloadEntry();
         entry.downloadId = cursor.getLong(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.DOWNLOAD_ID));
-        entry.tempName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.TEMP_NAME));
         entry.fileName = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.FILE_NAME));
-        entry.albumArtUrl = Uri.parse(cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM_ART)));
+        entry.title = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.TITLE));
+        entry.album = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.ALBUM));
+        entry.artist = cursor.getString(cursor.getColumnIndex(DOWNLOAD_DATABASE.SONG.COLUMNS.ARTIST));
         return entry;
     }
 
@@ -191,9 +187,10 @@ public class DownloadDatabase {
 
     public static class DownloadEntry {
         public long downloadId;
-        public String tempName;
         public String fileName;
-        public Uri albumArtUrl;
+        public String title;
+        public String album;
+        public String artist;
     }
 
     public interface DownloadHandler {

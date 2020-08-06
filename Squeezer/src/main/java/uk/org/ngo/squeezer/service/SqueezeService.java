@@ -33,7 +33,6 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 
@@ -55,7 +54,6 @@ import com.google.common.io.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import uk.org.ngo.squeezer.NowPlayingActivity;
@@ -735,8 +733,18 @@ public class SqueezeService extends Service {
     private final IServiceItemListCallback<Song> songDownloadCallback = new IServiceItemListCallback<Song>() {
         @Override
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Song> items, Class<Song> dataType) {
+            final Preferences preferences = new Preferences(SqueezeService.this);
             for (Song song : items) {
-                downloadSong(song);
+                Log.i(TAG, "downloadSong(" + song + ")");
+                Uri downloadUrl = Util.getDownloadUrl(mDelegate.getUrlPrefix(), song.id);
+                if (preferences.isDownloadUseServerPath()) {
+                    downloadSong(downloadUrl, song.title, song.album, song.artist, getLocalFile(song.url));
+                } else {
+                    final String lastPathSegment = song.url.getLastPathSegment();
+                    final String fileExtension = Files.getFileExtension(lastPathSegment);
+                    final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
+                    downloadSong(downloadUrl, song.title, song.album, song.artist, localPath + "." + fileExtension);
+                }
             }
         }
 
@@ -756,7 +764,9 @@ public class SqueezeService extends Service {
         public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<MusicFolderItem> items, Class<MusicFolderItem> dataType) {
             for (MusicFolderItem item : items) {
                 if ("track".equals(item.type)) {
-                    downloadSong(item);
+                    Log.i(TAG, "downloadMusicFolderTrack(" + item + ")");
+                    SlimCommand command = JiveItem.downloadCommand(item.id);
+                    mDelegate.requestItems(-1, songDownloadCallback).params(command.params).cmd(command.cmd()).exec();
                 }
             }
         }
@@ -767,33 +777,7 @@ public class SqueezeService extends Service {
         }
     };
 
-    private void downloadSong(Song song) {
-        Log.i(TAG, "downloadSong(" + song + ")");
-        Uri downloadUrl = Util.getDownloadUrl(mDelegate.getUrlPrefix(), song.id);
-        Uri imageUrl = Util.getImageUrl(mDelegate.getUrlPrefix(), song.icon);
-        final Preferences preferences = new Preferences(this);
-        if (preferences.isDownloadUseServerPath()) {
-            downloadSong(downloadUrl, song.title, song.url, imageUrl);
-        } else {
-            final String lastPathSegment = song.url.getLastPathSegment();
-            final String fileExtension = Files.getFileExtension(lastPathSegment);
-            final String localPath = song.getLocalPath(preferences.getDownloadPathStructure(), preferences.getDownloadFilenameStructure());
-            downloadSong(downloadUrl, song.title, localPath + "." + fileExtension, imageUrl);
-        }
-    }
-
-    private void downloadSong(MusicFolderItem item) {
-        Log.i(TAG, "downloadSong(" + item + ")");
-        Uri downloadUrl = Util.getDownloadUrl(mDelegate.getUrlPrefix(), item.id);
-        Uri imageUrl = Util.getImageUrl(mDelegate.getUrlPrefix(), item.coverId);
-        downloadSong(downloadUrl, item.name, item.url, imageUrl);
-    }
-
-    private void downloadSong(@NonNull Uri url, String title, @NonNull Uri serverUrl, @NonNull Uri albumArtUrl) {
-        downloadSong(url, title, getLocalFile(serverUrl), albumArtUrl);
-    }
-
-    private void downloadSong(@NonNull Uri url, String title, String localPath, @NonNull Uri albumArtUrl) {
+    private void downloadSong(@NonNull Uri url, String title, String album, String artist, String localPath) {
         Log.i(TAG, "downloadSong(" + title + "): " + url);
         if (url.equals(Uri.EMPTY)) {
             return;
@@ -808,18 +792,16 @@ public class SqueezeService extends Service {
 
         DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         DownloadDatabase downloadDatabase = new DownloadDatabase(this);
-        String tempFile = UUID.randomUUID().toString();
         String credentials = mDelegate.getUsername() + ":" + mDelegate.getPassword();
         String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
         DownloadManager.Request request = new DownloadManager.Request(url)
                 .setTitle(title)
-                .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_MUSIC, tempFile)
                 .setVisibleInDownloadsUi(false)
                 .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
         long downloadId = downloadManager.enqueue(request);
-
         Log.i(TAG, "download enqueued: " + downloadId);
-        if (!downloadDatabase.registerDownload(downloadId, tempFile, localPath, albumArtUrl)) {
+
+        if (!downloadDatabase.registerDownload(downloadId, localPath, title, album, artist)) {
             // TODO external logging
             Log.w(TAG, "Could not register download entry for: " + downloadId);
             downloadManager.remove(downloadId);

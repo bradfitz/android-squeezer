@@ -147,8 +147,6 @@
     <string name="confirm_cancel_downloads">Annuler les téléchargements en attente?</string>
 
     <string name="settings_category_download">Télécharger</string>
-    <string name="settings_download_use_sd_card">Télécharger de la musique sur carte SD</string>
-    <string name="settings_download_use_sd_card_desc">"<p>Stockez la musique téléchargée sur la carte SD.</p><p><b>Remarque</b> La musique téléchargée sera supprimée lorsque cette application sera désinstallé.</p>"</string>
     <string name="settings_download_use_server_path">Utiliser le chemin du serveur et le nom du fichier</string>
     <string name="settings_download_path_structure">Hiérarchie des dossiers</string>
     <string name="settings_download_filename_structure">Nom de fichier</string>

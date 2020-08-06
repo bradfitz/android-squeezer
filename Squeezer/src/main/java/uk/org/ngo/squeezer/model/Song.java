@@ -22,8 +22,6 @@ public class Song {
     @NonNull
     public Uri url;
 
-    public String icon;
-
     public Song(Map<String, Object> record) {
         id = Util.getString(record, "id");
         title = Util.getString(record, "title");
@@ -33,7 +31,6 @@ public class Song {
         boolean compilation = (Util.getInt(record, "compilation", 0) == 1);
         albumArtist = (compilation ? "Various" : artist); // TODO maybe use the artist role tag ("A")
         url = Uri.parse(Util.getStringOrEmpty(record, "url"));
-        icon = Util.getStringOrEmpty("artwork_track_id"); // TODO song logic from 1.5.4 (maybe in usage)
     }
 
     public String getLocalPath(DownloadPathStructure downloadPathStructure, DownloadFilenameStructure downloadFilenameStructure) {
@@ -51,7 +48,6 @@ public class Song {
                 ", album='" + album + '\'' +
                 ", albumArtist='" + albumArtist + '\'' +
                 ", url='" + url + '\'' +
-                ", icon='" + icon + '\'' +
                 '}';
     }
 }

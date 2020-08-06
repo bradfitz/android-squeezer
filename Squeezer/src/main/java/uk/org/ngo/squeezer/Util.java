@@ -16,6 +16,7 @@
 
 package uk.org.ngo.squeezer;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -26,17 +27,15 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
@@ -304,37 +303,26 @@ public class Util {
         return (pos > 0) ? name.substring(0, pos) : name;
     }
 
-    public static void moveFile(File sourceFile, File destinationFile) throws IOException {
-        File destFolder = destinationFile.getParentFile();
-        if (!destFolder.exists()) {
-            if (!destFolder.mkdirs()) {
-                throw new IOException("Cant create folder for '" + destinationFile + "'");
+    public static void moveFile(ContentResolver resolver, Uri source, Uri destination) throws IOException {
+        try (InputStream inputStream = resolver.openInputStream(source);
+             OutputStream outputStream = resolver.openOutputStream(destination)) {
+            if (inputStream == null) {
+                throw new IOException("moveFile: could not open '" + source + "'");
+            }
+            if (outputStream == null) {
+                throw new IOException("moveFile: could not open '" + destination + "'");
+            }
+            byte[] b = new byte[16384];
+            int bytes = 0;
+            while ((bytes = inputStream.read(b)) > 0) {
+                outputStream.write(b, 0, bytes);
             }
         }
-        if (!sourceFile.renameTo(destinationFile)) {
-            // We could not rename. This may be because source and destination are on different
-            // mount points, so we attempt to copy and delete instead.
-            FileChannel sourceChannel = null;
-            FileChannel destinationChannel = null;
-            try {
-                sourceChannel = new FileInputStream(sourceFile).getChannel();
-                destinationChannel = new FileOutputStream(destinationFile).getChannel();
-                // Transfer the file in chunks to avoid out of memory issues
-                final long blockSize = Math.min(268435456, sourceChannel.size());
-                long position = 0;
-                while (destinationChannel.transferFrom(sourceChannel, position, blockSize) > 0) {
-                    position += blockSize;
-                }
-            } finally {
-                if (sourceChannel != null)
-                    sourceChannel.close();
-                if (destinationChannel != null)
-                    destinationChannel.close();
-            }
-            if (!sourceFile.delete()) {
-                throw new IOException("failed to delete " + sourceFile);
-            }
+        int deleted = resolver.delete(source, null, null);
+        if (deleted != 1) {
+            throw new IOException("moveFile: try to delete '" + source + "' after copy, expected 1 deleted file but was " + deleted);
         }
+
     }
 
     public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource) {
