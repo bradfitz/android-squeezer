@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.service;
 
 import android.annotation.TargetApi;
-import android.app.DownloadManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -45,7 +44,6 @@ import androidx.core.app.NotificationManagerCompat;
 
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.util.Base64;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -789,23 +787,9 @@ public class SqueezeService extends Service {
 
         // Convert VFAT-unfriendly characters to "_".
         localPath =  localPath.replaceAll("[?<>\\\\:*|\"]", "_");
-
-        DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         DownloadDatabase downloadDatabase = new DownloadDatabase(this);
         String credentials = mDelegate.getUsername() + ":" + mDelegate.getPassword();
-        String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-        DownloadManager.Request request = new DownloadManager.Request(url)
-                .setTitle(title)
-                .setVisibleInDownloadsUi(false)
-                .addRequestHeader("Authorization", "Basic " + base64EncodedCredentials);
-        long downloadId = downloadManager.enqueue(request);
-        Log.i(TAG, "download enqueued: " + downloadId);
-
-        if (!downloadDatabase.registerDownload(downloadId, localPath, title, album, artist)) {
-            // TODO external logging
-            Log.w(TAG, "Could not register download entry for: " + downloadId);
-            downloadManager.remove(downloadId);
-        }
+        downloadDatabase.registerDownload(this, credentials, url, localPath, title, album, artist);
     }
 
     /**

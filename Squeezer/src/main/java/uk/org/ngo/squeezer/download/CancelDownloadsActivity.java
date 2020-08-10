@@ -21,7 +21,6 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.util.AsyncTask;
@@ -37,18 +36,10 @@ public class CancelDownloadsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cancel_downloads);
-        findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-        findViewById(R.id.ok_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cancelDownloads();
-                finish();
-            }
+        findViewById(R.id.cancel_button).setOnClickListener(view -> finish());
+        findViewById(R.id.ok_button).setOnClickListener(view -> {
+            cancelDownloads();
+            finish();
         });
     }
 
@@ -68,12 +59,11 @@ public class CancelDownloadsActivity extends Activity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            downloadDatabase.iterateDownloadEntries(new DownloadDatabase.DownloadHandler() {
-                @Override
-                public void handle(DownloadDatabase.DownloadEntry entry) {
+            downloadDatabase.iterateDownloadEntries(entry -> {
+                if (entry.downloadId != -1) {
                     downloadManager.remove(entry.downloadId);
-                    downloadDatabase.remove(entry.downloadId);
                 }
+                downloadDatabase.remove(entry.url);
             });
             return null;
         }

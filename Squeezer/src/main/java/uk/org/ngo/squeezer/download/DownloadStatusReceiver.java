@@ -70,7 +70,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
 
     private void handleDownloadComplete(Context context, long id) {
         final DownloadDatabase downloadDatabase = new DownloadDatabase(context);
-        final DownloadManager downloadManager = (DownloadManager) context.getSystemService(SqueezeService.DOWNLOAD_SERVICE);
+        final DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         final DownloadManager.Query query = new DownloadManager.Query().setFilterById(id);
 
         Log.i(TAG, "download complete: " + id);
@@ -90,7 +90,7 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
             Uri local_url = Uri.parse(cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)));
             Log.i(TAG, "download complete(" + title + "): " + id);
 
-            final DownloadDatabase.DownloadEntry downloadEntry = downloadDatabase.popDownloadEntry(downloadId);
+            final DownloadDatabase.DownloadEntry downloadEntry = downloadDatabase.popDownloadEntry(context, downloadId);
             if (downloadEntry == null) {
                 // TODO remote logging
                 Log.e(TAG, "Download database does not have an entry for " + format(status, reason, title, url, local_url));
