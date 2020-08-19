@@ -79,7 +79,6 @@ import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 import uk.org.ngo.squeezer.util.ImageFetcher;
-import uk.org.ngo.squeezer.util.ImageWorker;
 import uk.org.ngo.squeezer.util.NotificationUtil;
 import uk.org.ngo.squeezer.util.Scrobble;
 
@@ -212,20 +211,26 @@ public class SqueezeService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         try{
             if(intent != null && intent.getAction()!= null ) {
-                if (intent.getAction().equals(ACTION_NEXT_TRACK)) {
-                    squeezeService.nextTrack();
-                } else if (intent.getAction().equals(ACTION_PREV_TRACK)) {
-                    squeezeService.previousTrack();
-                } else if (intent.getAction().equals(ACTION_PLAY)) {
-                    squeezeService.play();
-                } else if (intent.getAction().equals(ACTION_PAUSE)) {
-                    squeezeService.pause();
-                } else if (intent.getAction().equals(ACTION_CLOSE)) {
-                    squeezeService.disconnect();
+                switch (intent.getAction()) {
+                    case ACTION_NEXT_TRACK:
+                        squeezeService.nextTrack();
+                        break;
+                    case ACTION_PREV_TRACK:
+                        squeezeService.previousTrack();
+                        break;
+                    case ACTION_PLAY:
+                        squeezeService.play();
+                        break;
+                    case ACTION_PAUSE:
+                        squeezeService.pause();
+                        break;
+                    case ACTION_CLOSE:
+                        squeezeService.disconnect();
+                        break;
                 }
             }
         } catch(Exception e) {
-
+            Log.w(TAG, "Error executing intent: ", e);
         }
         return START_STICKY;
     }
@@ -361,23 +366,20 @@ public class SqueezeService extends Service {
         // NOTE: this involves a write and can block (sqlite lookup via binder call), so
         // should be done off-thread, so we can process service requests & send our callback
         // as quickly as possible.
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final SharedPreferences preferences = Squeezer.getContext().getSharedPreferences(Preferences.NAME,
-                        Squeezer.MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
+        mExecutor.execute(() -> {
+            final SharedPreferences preferences = Squeezer.getContext().getSharedPreferences(Preferences.NAME,
+                    Squeezer.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
 
-                if (newActivePlayer == null) {
-                    Log.v(TAG, "Clearing " + Preferences.KEY_LAST_PLAYER);
-                    editor.remove(Preferences.KEY_LAST_PLAYER);
-                } else {
-                    Log.v(TAG, "Saving " + Preferences.KEY_LAST_PLAYER + "=" + newActivePlayer.getId());
-                    editor.putString(Preferences.KEY_LAST_PLAYER, newActivePlayer.getId());
-                }
-
-                editor.apply();
+            if (newActivePlayer == null) {
+                Log.v(TAG, "Clearing " + Preferences.KEY_LAST_PLAYER);
+                editor.remove(Preferences.KEY_LAST_PLAYER);
+            } else {
+                Log.v(TAG, "Saving " + Preferences.KEY_LAST_PLAYER + "=" + newActivePlayer.getId());
+                editor.putString(Preferences.KEY_LAST_PLAYER, newActivePlayer.getId());
             }
+
+            editor.apply();
         });
     }
 
@@ -462,26 +464,20 @@ public class SqueezeService extends Service {
             ImageFetcher.getInstance(this).loadImage(notificationState.artworkUrl,
                     getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
                     getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
-                    new ImageWorker.ImageWorkerCallback() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                        public void process(Object data, @Nullable Bitmap bitmap) {
-                            if (bitmap == null) {
-                                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_pending_artwork);
-                            }
-
-                            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
-                            metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
-                            mMediaSession.setMetadata(metaBuilder.build());
-                            notificationData.builder.setLargeIcon(bitmap);
-                            nm.notify(PLAYBACKSERVICE_STATUS, notificationData.builder.build());
+                    (data, bitmap) -> {
+                        if (bitmap == null) {
+                            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_pending_artwork);
                         }
+
+                        metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
+                        metaBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
+                        mMediaSession.setMetadata(metaBuilder.build());
+                        notificationData.builder.setLargeIcon(bitmap);
+                        nm.notify(PLAYBACKSERVICE_STATUS, notificationData.builder.build());
                     });
         } else {
             Notification notification = notificationData.builder.build();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                notification.bigContentView = notificationData.expandedView;
-            }
+            notification.bigContentView = notificationData.expandedView;
 
             nm.notify(PLAYBACKSERVICE_STATUS, notification);
 
