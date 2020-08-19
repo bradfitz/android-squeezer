@@ -47,7 +47,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -67,6 +66,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import uk.org.ngo.squeezer.dialog.AboutDialog;
 import uk.org.ngo.squeezer.dialog.EnableWifiDialog;
@@ -238,18 +238,18 @@ public class NowPlayingFragment extends Fragment {
      * Called before onAttach. Pull out the layout spec to figure out which layout to use later.
      */
     @Override
-    public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
+    public void onInflate(@NonNull Activity activity, @NonNull AttributeSet attrs, Bundle savedInstanceState) {
         super.onInflate(activity, attrs, savedInstanceState);
 
         int layout_height = attrs.getAttributeUnsignedIntValue(
                 "http://schemas.android.com/apk/res/android",
                 "layout_height", 0);
 
-        mFullHeightLayout = (layout_height == ViewGroup.LayoutParams.FILL_PARENT);
+        mFullHeightLayout = (layout_height == ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(@NonNull Activity activity) {
         super.onAttach(activity);
         mActivity = (BaseActivity) activity;
         pluginViewDelegate = new JiveItemViewLogic(mActivity);
@@ -266,8 +266,8 @@ public class NowPlayingFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         View v;
 
         if (mFullHeightLayout) {
@@ -285,14 +285,11 @@ public class NowPlayingFragment extends Fragment {
 
             final BaseItemView.ViewHolder viewHolder = new BaseItemView.ViewHolder();
             viewHolder.setContextMenu(v);
-            viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CurrentPlaylistItem currentSong = getCurrentSong();
-                    // This extra check is if user pressed the button before visibility is set to GONE
-                    if (currentSong != null) {
-                        pluginViewDelegate.showContextMenu(viewHolder, currentSong);
-                    }
+            viewHolder.contextMenuButton.setOnClickListener(view -> {
+                CurrentPlaylistItem currentSong = getCurrentSong();
+                // This extra check is if user pressed the button before visibility is set to GONE
+                if (currentSong != null) {
+                    pluginViewDelegate.showContextMenu(viewHolder, currentSong);
                 }
             });
             btnContextMenu = viewHolder.contextMenuButtonHolder;
@@ -316,37 +313,28 @@ public class NowPlayingFragment extends Fragment {
         // Marquee effect on TextViews only works if they're focused.
         trackText.requestFocus();
 
-        playPauseButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mService == null) {
-                    return;
-                }
-                mService.togglePausePlay();
+        playPauseButton.setOnClickListener(view -> {
+            if (mService == null) {
+                return;
             }
+            mService.togglePausePlay();
         });
 
         if (nextButton != null) {
-            nextButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mService == null) {
-                        return;
-                    }
-                    mService.nextTrack();
+            nextButton.setOnClickListener(view -> {
+                if (mService == null) {
+                    return;
                 }
+                mService.nextTrack();
             });
         }
 
         if (prevButton != null) {
-            prevButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mService == null) {
-                        return;
-                    }
-                    mService.previousTrack();
+            prevButton.setOnClickListener(view -> {
+                if (mService == null) {
+                    return;
                 }
+                mService.previousTrack();
             });
         }
 
@@ -357,39 +345,23 @@ public class NowPlayingFragment extends Fragment {
              * Maybe. because the TextView resources don't support the
              * android:onClick attribute.
              */
-            shuffleButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mService == null) {
-                        return;
-                    }
-                    mService.toggleShuffle();
+            shuffleButton.setOnClickListener(view -> {
+                if (mService == null) {
+                    return;
                 }
+                mService.toggleShuffle();
             });
 
-            repeatButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mService == null) {
-                        return;
-                    }
-                    mService.toggleRepeat();
+            repeatButton.setOnClickListener(view -> {
+                if (mService == null) {
+                    return;
                 }
+                mService.toggleRepeat();
             });
 
-            volumeButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mActivity.showVolumePanel();
-                }
-            });
+            volumeButton.setOnClickListener(view -> mActivity.showVolumePanel());
 
-            playlistButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CurrentPlaylistActivity.show(mActivity);
-                }
-            });
+            playlistButton.setOnClickListener(view -> CurrentPlaylistActivity.show(mActivity));
 
             seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
                 CurrentPlaylistItem seekingSong;
@@ -440,12 +412,7 @@ public class NowPlayingFragment extends Fragment {
                     return true;
                 }
             });
-            v.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    return detector.onTouchEvent(event);
-                }
-            });
+            v.setOnTouchListener((view, event) -> detector.onTouchEvent(event));
         }
 
         return v;
@@ -517,7 +484,7 @@ public class NowPlayingFragment extends Fragment {
         }
 
         // Only include players that are connected to the server.
-        ArrayList<Player> connectedPlayers = new ArrayList<>();
+        List<Player> connectedPlayers = new ArrayList<>();
         for (Player player : players) {
             if (player.getConnected()) {
                 connectedPlayers.add(player);
