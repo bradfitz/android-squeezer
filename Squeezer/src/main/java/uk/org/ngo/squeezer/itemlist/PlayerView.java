@@ -33,7 +33,6 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 public class PlayerView extends PlayerBaseView<PlayerListActivity> {
 
@@ -85,12 +84,7 @@ public class PlayerView extends PlayerBaseView<PlayerListActivity> {
         popup.inflate(R.menu.playercontextmenu);
 
         Menu menu = popup.getMenu();
-        String xMinutes = activity.getString(R.string.X_MINUTES);
-        menu.findItem(R.id.in_15_minutes).setTitle(String.format(xMinutes, "15"));
-        menu.findItem(R.id.in_30_minutes).setTitle(String.format(xMinutes, "30"));
-        menu.findItem(R.id.in_45_minutes).setTitle(String.format(xMinutes, "45"));
-        menu.findItem(R.id.in_60_minutes).setTitle(String.format(xMinutes, "60"));
-        menu.findItem(R.id.in_90_minutes).setTitle(String.format(xMinutes, "90"));
+        PlayerViewLogic.inflatePlayerActions(activity, popup.getMenuInflater(), menu);
 
         PlayerState playerState = item.getPlayerState();
         menu.findItem(R.id.cancel_sleep).setVisible(playerState.getSleepDuration() != 0);
@@ -106,12 +100,7 @@ public class PlayerView extends PlayerBaseView<PlayerListActivity> {
 
         menu.findItem(R.id.defeat_destructive_ttp).setVisible(playerState.prefs.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP));
 
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                return doItemContext(menuItem, item);
-            }
-        });
+        popup.setOnMenuItemClickListener(menuItem -> doItemContext(menuItem, item));
 
         activity.mResultsAdapter.mPlayersChanged = false;
         popup.show();
@@ -130,20 +119,14 @@ public class PlayerView extends PlayerBaseView<PlayerListActivity> {
             return true;
         }
 
+        if (PlayerViewLogic.doPlayerAction(service, menuItem, selectedItem)) {
+            return  true;
+        }
+
         switch (menuItem.getItemId()) {
-            case R.id.sleep:
-                // This is the start of a context menu.
-                // Just return, as we have set the current player.
-                return true;
-            case R.id.cancel_sleep:
-                service.sleep(selectedItem, 0);
-                return true;
             case R.id.rename:
                 new PlayerRenameDialog().show(activity.getSupportFragmentManager(),
                         PlayerRenameDialog.class.getName());
-                return true;
-            case R.id.toggle_power:
-                service.togglePower(selectedItem);
                 return true;
             case R.id.player_sync:
                 new PlayerSyncDialog().show(activity.getSupportFragmentManager(),
@@ -156,35 +139,6 @@ public class PlayerView extends PlayerBaseView<PlayerListActivity> {
                 DefeatDestructiveTouchToPlayDialog.show(activity);
                 return true;
         }
-
-        switch (menuItem.getItemId()) {
-            case R.id.end_of_song: {
-                PlayerState playerState = selectedItem.getPlayerState();
-                if (playerState.isPlaying()) {
-                    SongTimeChanged trackElapsed = selectedItem.getTrackElapsed();
-                    int sleep = trackElapsed.duration - trackElapsed.currentPosition + 1;
-                    if (sleep >= 0)
-                        service.sleep(selectedItem, sleep);
-                }
-                return true;
-            }
-            case R.id.in_15_minutes:
-                service.sleep(selectedItem, 15*60);
-                return true;
-            case R.id.in_30_minutes:
-                service.sleep(selectedItem, 30*60);
-                return true;
-            case R.id.in_45_minutes:
-                service.sleep(selectedItem, 45*60);
-                return true;
-            case R.id.in_60_minutes:
-                service.sleep(selectedItem, 60*60);
-                return true;
-            case R.id.in_90_minutes:
-                service.sleep(selectedItem, 90*60);
-                return true;
-        }
-
 
         return false;
     }

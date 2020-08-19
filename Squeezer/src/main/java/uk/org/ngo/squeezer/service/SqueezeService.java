@@ -929,16 +929,6 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public void powerOn() {
-            mDelegate.activePlayerCommand().cmd("power", "1").exec();
-        }
-
-        @Override
-        public void powerOff() {
-            mDelegate.activePlayerCommand().cmd("power", "0").exec();
-        }
-
-        @Override
         public void togglePower(Player player) {
             mDelegate.command(player).cmd("power").exec();
         }
@@ -992,33 +982,6 @@ public class SqueezeService extends Service {
         @Override
         public void playerPref(Player player, @Player.Pref.Name String playerPref, String value) {
             mDelegate.command(player).cmd("playerpref", playerPref, value).exec();
-        }
-
-        @Override
-        public boolean canPowerOn() {
-            Player activePlayer = getActivePlayer();
-            if (activePlayer == null) {
-                return false;
-            } else {
-                PlayerState playerState = activePlayer.getPlayerState();
-                return canPower() && activePlayer.getConnected() && !playerState.isPoweredOn();
-            }
-        }
-
-        @Override
-        public boolean canPowerOff() {
-            Player activePlayer = getActivePlayer();
-            if (activePlayer == null) {
-                return false;
-            } else {
-                PlayerState playerState = activePlayer.getPlayerState();
-                return canPower() && activePlayer.getConnected() && playerState.isPoweredOn();
-            }
-        }
-
-        private boolean canPower() {
-            Player player = getActivePlayer();
-            return mDelegate.isConnected() && player != null && player.isCanpoweroff();
         }
 
         @Override

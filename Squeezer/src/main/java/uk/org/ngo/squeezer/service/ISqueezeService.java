@@ -91,17 +91,6 @@ public interface ISqueezeService {
     ////////////////////
     // Depends on active player:
 
-    /**
-     * @return true if the active player is connected and can be powered on.
-     */
-    boolean canPowerOn();
-
-    /**
-     * @return true if the active player is connected and can be powered off.
-     */
-    boolean canPowerOff();
-    void powerOn();
-    void powerOff();
     String getServerVersion() throws SqueezeService.HandshakeNotCompleteException;
     boolean togglePausePlay();
     boolean togglePausePlay(Player player);

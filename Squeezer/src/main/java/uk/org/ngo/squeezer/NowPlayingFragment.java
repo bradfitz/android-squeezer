@@ -78,6 +78,7 @@ import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.itemlist.PlayerListActivity;
 import uk.org.ngo.squeezer.itemlist.JiveItemListActivity;
 import uk.org.ngo.squeezer.itemlist.JiveItemViewLogic;
+import uk.org.ngo.squeezer.itemlist.PlayerViewLogic;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -131,11 +132,12 @@ public class NowPlayingFragment extends Fragment {
     private JiveItem globalSearch;
     private MenuItem menu_item_search;
 
-    private MenuItem menu_item_poweron;
-
-    private MenuItem menu_item_poweroff;
-
     private MenuItem menu_item_players;
+
+    private MenuItem menu_item_toggle_power;
+    private MenuItem menu_item_sleep;
+    private MenuItem menu_item_sleep_at_end_of_song;
+    private MenuItem menu_item_cancel_sleep;
 
     private MenuItem menu_item_alarm;
 
@@ -472,34 +474,31 @@ public class NowPlayingFragment extends Fragment {
     }
 
     @UiThread
-    private void updatePowerMenuItems(boolean canPowerOn, boolean canPowerOff) {
-        boolean connected = isConnected();
-
+    private void updatePlayerMenuItems() {
         // The fragment may no longer be attached to the parent activity.  If so, do nothing.
         if (!isAdded()) {
             return;
         }
 
-        if (menu_item_poweron != null) {
-            if (canPowerOn && connected) {
-                Player player = getActivePlayer();
-                String playerName = player != null ? player.getName() : "";
-                menu_item_poweron.setTitle(getString(R.string.menu_item_poweron, playerName));
-                menu_item_poweron.setVisible(true);
+        Player player = getActivePlayer();
+        PlayerState playerState = player != null ? player.getPlayerState() : null;
+        String playerName = player != null ? player.getName() : "";
+
+        if (menu_item_toggle_power != null) {
+            if (playerState != null && player.isCanpoweroff()) {
+                menu_item_toggle_power.setTitle(getString(playerState.isPoweredOn() ? R.string.menu_item_poweroff : R.string.menu_item_poweron, playerName));
+                menu_item_toggle_power.setVisible(true);
             } else {
-                menu_item_poweron.setVisible(false);
+                menu_item_toggle_power.setVisible(false);
             }
         }
 
-        if (menu_item_poweroff != null) {
-            if (canPowerOff && connected) {
-                Player player = getActivePlayer();
-                String playerName = player != null ? player.getName() : "";
-                menu_item_poweroff.setTitle(getString(R.string.menu_item_poweroff, playerName));
-                menu_item_poweroff.setVisible(true);
-            } else {
-                menu_item_poweroff.setVisible(false);
-            }
+        if (menu_item_cancel_sleep != null) {
+            menu_item_cancel_sleep.setVisible(playerState != null && playerState.getSleepDuration() != 0);
+        }
+
+        if (menu_item_sleep_at_end_of_song != null) {
+            menu_item_sleep_at_end_of_song.setVisible(playerState != null && playerState.isPlaying());
         }
     }
 
@@ -657,7 +656,7 @@ public class NowPlayingFragment extends Fragment {
         updatePlayPauseIcon(playerState.getPlayStatus());
         updateShuffleStatus(playerState.getShuffleStatus());
         updateRepeatStatus(playerState.getRepeatStatus());
-        updatePowerMenuItems(canPowerOn(), canPowerOff());
+        updatePlayerMenuItems();
     }
 
     /**
@@ -679,7 +678,7 @@ public class NowPlayingFragment extends Fragment {
         CurrentPlaylistItem song = playerState.getCurrentSong();
         if (song == null) {
             // Create empty song if this is called (via _HandshakeComplete) before status is received
-            song = new CurrentPlaylistItem(new HashMap<String, Object>());
+            song = new CurrentPlaylistItem(new HashMap<>());
         }
 
         // TODO handle button remapping (buttons in status response)
@@ -795,14 +794,6 @@ public class NowPlayingFragment extends Fragment {
         return mService != null && mService.isConnectInProgress();
     }
 
-    private boolean canPowerOn() {
-        return mService != null && mService.canPowerOn();
-    }
-
-    private boolean canPowerOff() {
-        return mService != null && mService.canPowerOff();
-    }
-
     @Override
     public void onPause() {
         Log.d(TAG, "onPause...");
@@ -836,17 +827,22 @@ public class NowPlayingFragment extends Fragment {
      * android.view.MenuInflater)
      */
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         // I confess that I don't understand why using the inflater passed as
         // an argument here doesn't work -- but if you do it crashes without
         // a stracktrace on API 7.
         MenuInflater i = mActivity.getMenuInflater();
         i.inflate(R.menu.now_playing_fragment, menu);
+        PlayerViewLogic.inflatePlayerActions(mActivity, i, menu);
 
         menu_item_search = menu.findItem(R.id.menu_item_search);
         menu_item_disconnect = menu.findItem(R.id.menu_item_disconnect);
-        menu_item_poweron = menu.findItem(R.id.menu_item_poweron);
-        menu_item_poweroff = menu.findItem(R.id.menu_item_poweroff);
+
+        menu_item_toggle_power = menu.findItem(R.id.toggle_power);
+        menu_item_sleep = menu.findItem(R.id.sleep);
+        menu_item_sleep_at_end_of_song = menu.findItem(R.id.end_of_song);
+        menu_item_cancel_sleep = menu.findItem(R.id.cancel_sleep);
+
         menu_item_players = menu.findItem(R.id.menu_item_players);
         menu_item_alarm = menu.findItem(R.id.menu_item_alarm);
     }
@@ -856,7 +852,7 @@ public class NowPlayingFragment extends Fragment {
      * the server, and if so, whether any players are connected.
      */
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
         boolean connected = isConnected();
 
         // These are all set at the same time, so one check is sufficient
@@ -872,6 +868,7 @@ public class NowPlayingFragment extends Fragment {
 
             menu_item_players.setVisible(haveConnectedPlayers);
             menu_item_alarm.setVisible(haveConnectedPlayers);
+            menu_item_sleep.setVisible(haveConnectedPlayers);
         }
 
         // Don't show the item to go to players if in PlayersActivity.
@@ -884,11 +881,15 @@ public class NowPlayingFragment extends Fragment {
             menu_item_alarm.setVisible(false);
         }
 
-        updatePowerMenuItems(canPowerOn(), canPowerOff());
+        updatePlayerMenuItems();
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (PlayerViewLogic.doPlayerAction(mService, item, getActivePlayer())) {
+            return true;
+        }
+
         switch (item.getItemId()) {
             case R.id.menu_item_search:
                 JiveItemListActivity.show(mActivity, globalSearch, globalSearch.goAction);
@@ -898,12 +899,6 @@ public class NowPlayingFragment extends Fragment {
                 return true;
             case R.id.menu_item_disconnect:
                 mService.disconnect();
-                return true;
-            case R.id.menu_item_poweron:
-                mService.powerOn();
-                return true;
-            case R.id.menu_item_poweroff:
-                mService.powerOff();
                 return true;
             case R.id.menu_item_players:
                 PlayerListActivity.show(mActivity);
@@ -1039,7 +1034,7 @@ public class NowPlayingFragment extends Fragment {
             albumArt.setImageResource(R.drawable.icon_album_noart_fullscreen);
             shuffleButton.setImageResource(0);
             repeatButton.setImageResource(0);
-            updatePlayerDropDown(Collections.<Player>emptyList(), null);
+            updatePlayerDropDown(Collections.emptyList(), null);
             artistText.setText(getText(R.string.disconnected_text));
             btnContextMenu.setVisibility(View.GONE);
             currentTime.setText("--:--");
@@ -1117,7 +1112,7 @@ public class NowPlayingFragment extends Fragment {
     @MainThread
     public void onEventMainThread(PowerStatusChanged event) {
         if (event.player.equals(mService.getActivePlayer())) {
-            updatePowerMenuItems(event.canPowerOn, event.canPowerOff);
+            updatePlayerMenuItems();
         }
     }
 
