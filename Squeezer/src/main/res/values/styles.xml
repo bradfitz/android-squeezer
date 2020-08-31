@@ -231,8 +231,8 @@
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">fill_parent</item>
         <item name="android:contentDescription">""@string/app_name</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
         <item name="icon">@drawable/ic_menu_overflow</item>
     </style>
 
@@ -281,8 +281,8 @@
     <style name="DisplayMessage">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
         <item name="android:background">@android:drawable/toast_frame</item>
     </style>
 

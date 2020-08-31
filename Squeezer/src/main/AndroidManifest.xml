@@ -36,7 +36,8 @@
         android:name=".Squeezer"
         android:usesCleartextTraffic="true"
         android:resizeableActivity="true"
-        android:allowBackup="true">
+        android:allowBackup="true"
+        android:supportsRtl="true">
 
         <receiver android:name=".homescreenwidgets.SqueezerRemoteControl">
             <intent-filter>

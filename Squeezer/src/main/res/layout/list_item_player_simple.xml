@@ -43,16 +43,16 @@ for the implementation.
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:minHeight="48dp"
-    android:paddingLeft="16dp"
+    android:paddingStart="16dp"
     android:paddingTop="4dp"
-    android:paddingRight="32dp"
+    android:paddingEnd="32dp"
     android:paddingBottom="4dp">
 
     <uk.org.ngo.squeezer.widget.SquareImageView
         android:id="@+id/icon"
         android:layout_width="@dimen/album_art_icon_width"
         android:layout_height="@dimen/album_art_icon_height"
-        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:contentDescription="@string/app_name"
         android:maxWidth="@dimen/album_art_icon_width"
         android:maxHeight="@dimen/album_art_icon_height"
@@ -64,7 +64,7 @@ for the implementation.
         android:id="@+id/text1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/icon"
+        android:layout_toEndOf="@id/icon"
         android:textAppearance="@style/SqueezerTextAppearance.GridItem.Primary"
         tools:text="Player name" />
 
@@ -73,7 +73,7 @@ for the implementation.
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/text1"
-        android:layout_toRightOf="@+id/icon"
+        android:layout_toEndOf="@+id/icon"
         android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
         tools:text="Sleeping in ..."
         tools:visibility="visible" />

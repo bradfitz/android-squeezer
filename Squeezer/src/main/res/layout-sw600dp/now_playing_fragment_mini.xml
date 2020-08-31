@@ -43,17 +43,17 @@
     <TextView
         android:id="@+id/trackname"
         android:layout_below="@id/progressbar"
-        android:layout_toLeftOf="@id/prev"
-        android:layout_toRightOf="@id/album"
-        android:paddingLeft="4dp"
+        android:layout_toStartOf="@id/prev"
+        android:layout_toEndOf="@id/album"
+        android:paddingStart="4dp"
         style="@style/SqueezerWidget.NowPlayingMini.SongName"/>
 
     <TextView
         android:id="@+id/artistalbumname"
         android:layout_below="@id/trackname"
-        android:layout_toLeftOf="@id/prev"
-        android:layout_toRightOf="@id/album"
-        android:paddingLeft="4dp"
+        android:layout_toStartOf="@id/prev"
+        android:layout_toEndOf="@id/album"
+        android:paddingStart="4dp"
         style="@style/SqueezerWidget.NowPlayingMini.ArtistAlbumName"/>
 
     <uk.org.ngo.squeezer.widget.RepeatingImageButton
@@ -65,7 +65,7 @@
         android:background="@null"
         android:maxWidth="48dp"
         android:minWidth="48dp"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentEnd="true"/>
 
     <ImageButton
         android:id="@+id/pause"
@@ -73,7 +73,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_below="@id/progressbar"
-        android:layout_toLeftOf="@id/next"
+        android:layout_toStartOf="@id/next"
         android:background="@null"
         android:maxWidth="48dp"
         android:minWidth="48dp"
@@ -85,7 +85,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_below="@id/progressbar"
-        android:layout_toLeftOf="@id/pause"
+        android:layout_toStartOf="@id/pause"
         android:background="@null"
         android:maxWidth="48dp"
         android:minWidth="48dp"/>

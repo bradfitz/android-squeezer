@@ -21,8 +21,6 @@
     android:orientation="vertical"
     android:paddingBottom="16dp"
     android:paddingEnd="8dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
     android:paddingStart="8dp"
     android:paddingTop="16dp">
 
@@ -30,8 +28,8 @@
         style="@style/SqueezerTextAppearance.ListItem.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:text="@string/alarm_volume_text" />
 
     <TextView
@@ -39,8 +37,8 @@
         style="@style/SqueezerTextAppearance.ListItem.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         tools:text="Volume hint text" />
 
     <SeekBar
@@ -51,15 +49,15 @@
         android:indeterminate="false"
         android:max="100"
         android:paddingBottom="18dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp" />
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
 
     <TextView
         style="@style/SqueezerTextAppearance.ListItem.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:text="@string/alarm_snooze_duration_text" />
 
     <TextView
@@ -67,8 +65,8 @@
         style="@style/SqueezerTextAppearance.ListItem.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         tools:text="Snooze hint text" />
 
     <SeekBar
@@ -79,15 +77,15 @@
         android:indeterminate="false"
         android:max="30"
         android:paddingBottom="18dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp" />
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
 
     <TextView
         style="@style/SqueezerTextAppearance.ListItem.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:text="@string/alarm_timeout_text" />
 
     <TextView
@@ -95,8 +93,8 @@
         style="@style/SqueezerTextAppearance.ListItem.Secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:text="@string/alarm_timeout_hint_text_zero" />
 
     <SeekBar
@@ -107,8 +105,8 @@
         android:indeterminate="false"
         android:max="90"
         android:paddingBottom="18dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp" />
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -119,9 +117,8 @@
             style="@style/SqueezerTextAppearance.ListItem.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:paddingLeft="16dp"
+            android:paddingStart="16dp"
             android:text="@string/alarm_fade_text" />
 
         <TextView
@@ -129,11 +126,10 @@
             style="@style/SqueezerTextAppearance.ListItem.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/textView7"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:text="@string/alarm_fade_off_text" />
 
         <include
@@ -142,8 +138,6 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:paddingEnd="16dp"
-            android:paddingRight="16dp" />
+            android:layout_marginEnd="16dp" />
     </RelativeLayout>
 </LinearLayout>
