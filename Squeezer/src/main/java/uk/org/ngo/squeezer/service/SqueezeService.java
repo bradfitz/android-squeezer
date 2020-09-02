@@ -1186,7 +1186,7 @@ public class SqueezeService extends Service {
                     return player;
                 }
             }
-            throw new PlayerNotFoundException(playerId);
+            throw new PlayerNotFoundException(SqueezeService.this);
         }
 
         @Override

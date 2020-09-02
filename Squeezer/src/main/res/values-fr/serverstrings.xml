@@ -10,6 +10,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_3'>Demander une confirmation uniquement si la liste de lecture est en cours et a plus d\'un titre</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_2'>Demander une confirmation si la liste de lecture actuelle a plus d\'un titre</string>
   <string name='SETUP_PLAYTRACKALBUM_DESC'>Lorsque vous choisissez un morceau et que vous appuyez sur le bouton PLAY de la télécommande, la platine peut lire uniquement ce morceau ou tous les morceaux de l\'album ou du dossier en commençant par le morceau choisi.</string>
+  <string name='NO_PLAYER_FOUND'>La platine est introuvable.</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_4'>Demander une confirmation uniquement si une radio n\'est pas en cours de diffusion</string>
   <string name='SLEEP_CANCEL'>Annuler la mise en veille</string>
   <string name='ALARM_SHORT_DAY_6'>Sa</string>

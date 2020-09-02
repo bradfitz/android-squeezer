@@ -205,6 +205,7 @@ slimstrings {
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_1',
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_2',
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_3',
-            'SETUP_DEFEAT_DESTRUCTIVE_TTP_4'
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_4',
+            'NO_PLAYER_FOUND'
     ]
 }

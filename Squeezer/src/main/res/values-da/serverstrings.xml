@@ -8,6 +8,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SCREEN_SETTINGS'>Skærm</string>
   <string name='ALARM_ALARM_REPEAT'>Gentag vækning</string>
   <string name='SETUP_PLAYTRACKALBUM_DESC'>Når du vælger et enkelt nummer og trykker på Afspil på fjernbetjeningen, kan du vælge om kun det valgte nummer skal afspilles eller om alle numrene fra det album eller i den mappe skal afspilles (startende med det valgte nummer).</string>
+  <string name='NO_PLAYER_FOUND'>Din afspiller blev ikke fundet.</string>
   <string name='SLEEP_CANCEL'>Annuller slumrefunktion</string>
   <string name='ALARM_SHORT_DAY_6'>Lør</string>
   <string name='SWITCH_TO_EXTENDED_LIST'>Små coverbilleder</string>
