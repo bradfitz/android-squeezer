@@ -5,7 +5,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,13 +15,15 @@ import androidx.annotation.Nullable;
 
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
-import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
+import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
 public class SqueezerHomeScreenWidget extends AppWidgetProvider {
 
     private static final String TAG = SqueezerHomeScreenWidget.class.getName();
 
     public static final String PLAYER_ID = "playerId";
+
+    private final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Returns number of cells needed for given size of the widget.
@@ -36,53 +40,42 @@ public class SqueezerHomeScreenWidget extends AppWidgetProvider {
     }
 
     protected void runOnService(final Context context, final ServiceHandler handler) {
+        boolean bound = context.getApplicationContext().bindService(new Intent(context, SqueezeService.class), new ServiceConnection() {
+            public void onServiceConnected(ComponentName name, IBinder service1) {
+                final ServiceConnection serviceConnection = this;
 
-        IBinder service = peekService(context, new Intent(context, SqueezeService.class));
+                if (name != null && service1 instanceof ISqueezeService) {
+                    Log.i(SqueezerHomeScreenWidget.TAG, "onServiceConnected connected to ISqueezeService");
+                    final ISqueezeService squeezeService = (ISqueezeService) service1;
 
-        if (service != null) {
-            Log.i(SqueezerHomeScreenWidget.TAG, "servicePeek found ISqueezeService");
-            showToastExceptionIfExists(context, runHandlerAndCatchException(handler, (ISqueezeService) service));
-        } else {
-
-            boolean bound = context.getApplicationContext().bindService(new Intent(context, SqueezeService.class), new ServiceConnection() {
-                public void onServiceConnected(ComponentName name, IBinder service1) {
-                    final ServiceConnection serviceConnection = this;
-
-                    if (name != null && service1 instanceof ISqueezeService) {
-                        Log.i(SqueezerHomeScreenWidget.TAG, "onServiceConnected connected to ISqueezeService");
-                        final ISqueezeService squeezeService = (ISqueezeService) service1;
-
-                        // Might already be connected, try first
-                        if (runHandlerAndCatchException(handler, squeezeService) == null) {
-                            // Handler was called successfully; service no longer needed
-                            context.unbindService(serviceConnection);
-                        } else {
-                            Log.i(SqueezerHomeScreenWidget.TAG, "ISqueezeService probably wasn't connected, connecting...");
-                            // Probably wasn't connected. Connect and try again
-                            squeezeService.getEventBus().register(new Object() {
-                                public void onEvent(Object event) {
-                                    if (event instanceof PlayerStateChanged) {
-                                        Log.i(SqueezerHomeScreenWidget.TAG, "Reconnected, trying again");
-                                        showToastExceptionIfExists(context, runHandlerAndCatchException(handler, squeezeService));
-                                        squeezeService.getEventBus().unregister(this);
-                                        // Handler was called successfully; service no longer needed
-                                        context.unbindService(serviceConnection);
-                                    }
-                                }
+                    // Wait for the PlayersChanged event
+                    squeezeService.getEventBus().registerSticky(new Object() {
+                        public void onEvent(PlayersChanged event) {
+                            squeezeService.getEventBus().unregister(this);
+                            Log.i(SqueezerHomeScreenWidget.TAG, "Players ready, perform action");
+                            uiThreadHandler.post(() -> {
+                                showToastExceptionIfExists(context, runHandlerAndCatchException(handler, squeezeService));
+                                // Handler was called successfully; service no longer needed
+                                context.unbindService(serviceConnection);
                             });
-                            squeezeService.startConnect();
                         }
+                    });
+
+                    // Auto connect if necessary
+                    if (!squeezeService.isConnected()) {
+                        Log.i(SqueezerHomeScreenWidget.TAG, "SqueezeService wasn't connected, connecting...");
+                        squeezeService.startConnect();
                     }
                 }
+            }
 
-                public void onServiceDisconnected(ComponentName name) {
+            public void onServiceDisconnected(ComponentName name) {
+                Log.i(SqueezerHomeScreenWidget.TAG, "service disconnected");
+            }
+        }, Context.BIND_AUTO_CREATE);
 
-                }
-            }, Context.BIND_AUTO_CREATE);
-
-            if (!bound)
-                Log.e(SqueezerHomeScreenWidget.TAG, "Squeezer service not bound");
-        }
+        if (!bound)
+            Log.e(SqueezerHomeScreenWidget.TAG, "Squeezer service not bound");
     }
 
     protected void showToastExceptionIfExists(Context context, @Nullable Exception possibleException) {
