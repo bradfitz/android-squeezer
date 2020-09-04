@@ -328,4 +328,10 @@
         <item name="android:padding">0dip</item>
     </style>
 
+    <style name="RemoteSelectButtonIcon">
+        <item name="tint">?colorControlNormal</item>
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+    </style>
+
 </resources>

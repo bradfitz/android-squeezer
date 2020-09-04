@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,9 +23,10 @@ import java.util.function.Consumer;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
+import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.model.Player;
 
-public class SqueezerRemoteControlButtonSelectActivity extends AppCompatActivity {
+public class SqueezerRemoteControlButtonSelectActivity extends BaseActivity {
 
     private static final String TAG = SqueezerRemoteControlButtonSelectActivity.class.getName();
 
@@ -37,6 +37,14 @@ public class SqueezerRemoteControlButtonSelectActivity extends AppCompatActivity
 
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private Player player;
+
+    /*
+    This Activity leverages a base Activity which almost all of squeezer uses, itself adding an
+    actionBar, which we don't want on this activity.
+     */
+    protected boolean addActionBar() {
+        return false;
+    }
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -107,7 +115,7 @@ public class SqueezerRemoteControlButtonSelectActivity extends AppCompatActivity
 
         @Override
         public int getItemViewType(final int position) {
-            return R.layout.list_item;
+            return R.layout.squeezer_remote_control_button_select_item;
         }
     }
 
@@ -118,7 +126,7 @@ public class SqueezerRemoteControlButtonSelectActivity extends AppCompatActivity
 
         public RemoteButtonViewHolder(final View itemView, Consumer<RemoteButton> clickHandler) {
             super(itemView);
-            textView = itemView.findViewById(R.id.text1);
+            textView = itemView.findViewById(R.id.text);
             imageView = itemView.findViewById(R.id.icon);
             this.clickHandler = clickHandler;
         }
@@ -131,11 +139,11 @@ public class SqueezerRemoteControlButtonSelectActivity extends AppCompatActivity
             if (buttonImage != RemoteButton.UNKNOWN_IMAGE) {
                 imageView.setImageBitmap(Util.vectorToBitmap(SqueezerRemoteControlButtonSelectActivity.this.getBaseContext(), buttonImage));
             } else {
-//                final TypedArray a = obtainStyledAttributes(new int[]{R.attr.colorControlNormal});
-//                final int tintColor = a.getColor(0, 0);
-//                a.recycle();
+                final TypedArray a = obtainStyledAttributes(new int[]{R.attr.colorControlNormal});
+                final int tintColor = a.getColor(0, 0);
+                a.recycle();
 
-                TextDrawable drawable = new TextDrawable(Resources.getSystem(), button.getButtonText(), Color.WHITE);
+                TextDrawable drawable = new TextDrawable(Resources.getSystem(), button.getButtonText(), tintColor);
                 imageView.setImageDrawable(drawable);
             }
             textView.setText(description);
