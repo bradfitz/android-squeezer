@@ -180,4 +180,19 @@
     <string name="download_filename_structure_title">Titel</string>
     <string name="download_filename_structure_number_dot_artist_title">Nummer. Kunstner - Titel</string>
 
+    <string name="configure_select_player">Vælg afspiller</string>
+    <string name="configure_select_button">Widget handling</string>
+    <string name="remote_unknownDescription">Ukendt</string>
+    <string name="remote_openPlayer">Åben afspiller i Squeezer</string>
+    <string name="remote_openNowPlaying">Åben Nu Spiller</string>
+    <string name="remote_openCurrentPlaylist">Åben aktiv afspilningsliste</string>
+    <string name="remote_powerDescription">Næste sang</string>
+    <string name="remote_previousDescription">Forrige sang</string>
+    <string name="remote_preset1Description">Forudindstillet 1</string>
+    <string name="remote_preset2Description">Forudindstillet 2</string>
+    <string name="remote_preset3Description">Forudindstillet 3</string>
+    <string name="remote_preset4Description">Forudindstillet 4</string>
+    <string name="remote_preset5Description">Forudindstillet 5</string>
+    <string name="remote_preset6Description">Forudindstillet 6</string>
+
 </resources>

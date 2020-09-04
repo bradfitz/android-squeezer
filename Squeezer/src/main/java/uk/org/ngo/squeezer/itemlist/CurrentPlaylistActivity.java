@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -295,11 +296,17 @@ public class CurrentPlaylistActivity extends JiveItemListActivity {
         });
     }
 
-    public static void show(Activity activity) {
-        final Intent intent = new Intent(activity, CurrentPlaylistActivity.class)
+    public static void show(Context context) {
+        final Intent intent = new Intent(context, CurrentPlaylistActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.putExtra(JiveItem.class.getName(), JiveItem.CURRENT_PLAYLIST);
-        activity.startActivity(intent);
-        activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        context.startActivity(intent);
+        if (context instanceof Activity) {
+            ((Activity) context).overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+        }
     }
 }

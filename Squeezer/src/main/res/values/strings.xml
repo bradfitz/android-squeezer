@@ -371,6 +371,8 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="configure_select_button">Widget action</string>
     <string name="remote_unknownDescription">Unknown</string>
     <string name="remote_openPlayer">Open player in Squeezer</string>
+    <string name="remote_openNowPlaying">Open Now Playing for player</string>
+    <string name="remote_openCurrentPlaylist">Open current playlist for player</string>
     <string name="remote_powerDescription">Power</string>
     <string name="remote_pausePlayDescription">Pause/Play</string>
     <string name="remote_nextDescription">Next song</string>

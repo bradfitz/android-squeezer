@@ -146,7 +146,7 @@ public class SqueezerRemoteControl extends SqueezerHomeScreenWidget {
         Log.d(TAG, "recieved intent with action " + action + " and playerid " + playerId);
 
         if (action.startsWith(ACTION_PREFIX)) {
-            RemoteButton button = uk.org.ngo.squeezer.homescreenwidgets.RemoteButton.valueOf(action.substring(ACTION_PREFIX.length()));
+            RemoteButton button = RemoteButton.valueOf(action.substring(ACTION_PREFIX.length()));
             runOnPlayer(context, playerId, button.getHandler());
         }
     }
