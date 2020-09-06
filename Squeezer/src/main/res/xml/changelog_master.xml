@@ -2,6 +2,20 @@
 
 <changelog>
     <release
+        version="2.2.0"
+        versioncode="84">
+        <change>Download of local music</change>
+
+        <change>Automatic connection on app startup</change>
+
+        <change>Home Screen Widget, contributed by Charlie Hayes</change>
+
+        <change>Material Design</change>
+
+        <change>Support RTL interface</change>
+    </release>
+
+    <release
         version="2.1.0"
         versioncode="82">
         <change>Button for global search in the top bar.</change>

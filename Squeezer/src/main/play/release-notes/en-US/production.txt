@@ -1,9 +1,9 @@
-&bull; Button for global search in the top bar.
+&bull; Download of local music
 
-&bull; Access current playlist and volume control from the Now Playing screen.
+&bull; Automatic connection on app startup
 
-&bull; Radial volume control to enable finer control of the volume.
+&bull; Home Screen Widget, contributed by Charlie Hayes
 
-&bull; Control LMS settings playtrackalbum and defeatDestructiveTouchToPlay. These settings control what happens when you select a playable item.
+&bull; Material Design
 
-&bull; Work around issues in LMS which causes the context menu and defeatDestructiveTouchToPlay to not work properly.
+&bull; Support RTL interface
