@@ -33,8 +33,8 @@
         android:cropToPadding="false"
         android:paddingTop="16dp"
         android:paddingBottom="8dp"
-        android:paddingStart="36dp"
-        android:paddingEnd="36dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:scaleType="fitCenter"
         tools:src="@drawable/icon_album_noart_fullscreen"/>
 
@@ -113,7 +113,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/seekbar"
-        android:layout_above="@id/volume"
+        android:layout_above="@id/bottom_bar"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -139,6 +139,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
