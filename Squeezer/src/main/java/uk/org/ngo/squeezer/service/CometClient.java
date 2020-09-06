@@ -195,6 +195,7 @@ class CometClient extends BaseClient {
             @Override
             public void run() {
                 final Preferences preferences = new Preferences(service);
+                preferences.setManualDisconnect(false);
                 final Preferences.ServerAddress serverAddress = preferences.getServerAddress();
                 final String username = preferences.getUsername(serverAddress);
                 final String password = preferences.getPassword(serverAddress);

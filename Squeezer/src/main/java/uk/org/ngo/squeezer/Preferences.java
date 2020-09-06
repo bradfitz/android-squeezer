@@ -60,6 +60,9 @@ public final class Preferences {
     // Do we automatically try and connect on WiFi availability?
     public static final String KEY_AUTO_CONNECT = "squeezer.autoconnect";
 
+    // Are we disconnected via the options menu?
+    private static final String KEY_MANUAL_DISCONNECT = "squeezer.manual.disconnect";
+
     // Type of notification to show. NOT USED ANYMORE
     private static final String KEY_NOTIFICATION_TYPE = "squeezer.notification_type";
 
@@ -330,6 +333,16 @@ public final class Preferences {
 
     public boolean isAutoConnect() {
         return sharedPreferences.getBoolean(KEY_AUTO_CONNECT, true);
+    }
+
+    public boolean isManualDisconnect() {
+        return sharedPreferences.getBoolean(KEY_MANUAL_DISCONNECT, false);
+    }
+
+    public void setManualDisconnect(boolean manualDisconnect) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Preferences.KEY_MANUAL_DISCONNECT, manualDisconnect);
+        editor.apply();
     }
 
     public boolean controlSqueezePlayer(ServerAddress serverAddress) {

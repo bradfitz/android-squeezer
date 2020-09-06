@@ -179,7 +179,7 @@ public class NowPlayingFragment extends Fragment {
                 if (!isConnected()) {
                     // Requires a serviceStub. Else we'll do this on the service
                     // connection callback.
-                    if (mService != null && !isManualDisconnect()) {
+                    if (mService != null && !isManualDisconnect(context)) {
                         Log.v(TAG, "Initiated connect on WIFI connected");
                         startVisibleConnection();
                     }
@@ -555,8 +555,13 @@ public class NowPlayingFragment extends Fragment {
         maybeRegisterCallbacks(mService);
 
         // Assume they want to connect (unless manually disconnected).
-        if (!isConnected() && !isManualDisconnect()) {
-            startVisibleConnection();
+        if (!isConnected()) {
+            if (isManualDisconnect(mActivity)) {
+                ConnectActivity.show(mActivity);
+
+            } else {
+                startVisibleConnection();
+            }
         }
     }
 
@@ -865,6 +870,7 @@ public class NowPlayingFragment extends Fragment {
                 SettingsActivity.show(mActivity);
                 return true;
             case R.id.menu_item_disconnect:
+                new Preferences(mActivity).setManualDisconnect(true);
                 mService.disconnect();
                 return true;
             case R.id.menu_item_players:
@@ -886,8 +892,8 @@ public class NowPlayingFragment extends Fragment {
      *
      * @return true if they have, false otherwise.
      */
-    private boolean isManualDisconnect() {
-        return getActivity() instanceof ConnectActivity;
+    private boolean isManualDisconnect(Context context) {
+        return new Preferences(context).isManualDisconnect();
     }
 
     public void startVisibleConnection() {
