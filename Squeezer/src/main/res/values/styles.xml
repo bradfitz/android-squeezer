@@ -218,6 +218,12 @@
         <item name="android:textAlignment">textEnd</item>
     </style>
 
+    <!-- Cover art on the Now Playing widget -->
+    <style name="SqueezerWidget.CoverArt">
+        <item name="android:paddingStart">36dp</item>
+        <item name="android:paddingEnd">36dp</item>
+    </style>
+
     <style name="VolumePanel" parent="@android:style/Theme.Panel">
         <item name="android:windowAnimationStyle">@style/VolumeDialogAnimation</item>
     </style>

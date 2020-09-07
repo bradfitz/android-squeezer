@@ -26,6 +26,7 @@
 
     <uk.org.ngo.squeezer.widget.SquareImageView
         android:id="@+id/album"
+        style="@style/SqueezerWidget.CoverArt"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_centerHorizontal="true"
@@ -33,8 +34,6 @@
         android:cropToPadding="false"
         android:paddingTop="16dp"
         android:paddingBottom="8dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
         android:scaleType="fitCenter"
         tools:src="@drawable/icon_album_noart_fullscreen"/>
 
