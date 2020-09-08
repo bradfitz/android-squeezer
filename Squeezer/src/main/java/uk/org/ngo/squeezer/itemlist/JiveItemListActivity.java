@@ -28,8 +28,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
@@ -141,38 +139,26 @@ public class JiveItemListActivity extends BaseListActivity<JiveItem>
             inputButton.setIconResource(inputImage);
             inputTextLayout.setHint(parent.input.title);
             inputText.setText(parent.input.initialText);
-            inputText.setOnKeyListener(new OnKeyListener() {
-                @Override
-                public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if ((event.getAction() == KeyEvent.ACTION_DOWN)
-                            && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                        clearAndReOrderItems(inputText.getText().toString());
-                        return true;
-                    }
-                    return false;
+            inputText.setOnKeyListener((v, keyCode, event) -> {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN)
+                        && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    clearAndReOrderItems(inputText.getText().toString());
+                    return true;
                 }
+                return false;
             });
 
-            inputButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (getService() != null) {
-                        clearAndReOrderItems(inputText.getText().toString());
-                    }
+            inputButton.setOnClickListener(v -> {
+                if (getService() != null) {
+                    clearAndReOrderItems(inputText.getText().toString());
                 }
             });
         }
     }
 
     private void setParentViewHolder() {
-        parentViewHolder = new BaseItemView.ViewHolder();
-        parentViewHolder.setView(this.findViewById(R.id.parent_container));
-        parentViewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pluginViewDelegate.showContextMenu(parentViewHolder, parent);
-            }
-        });
+        parentViewHolder = new BaseItemView.ViewHolder(this.findViewById(R.id.parent_container));
+        parentViewHolder.contextMenuButton.setOnClickListener(v -> pluginViewDelegate.showContextMenu(parentViewHolder, parent));
         parentViewHolder.contextMenuButtonHolder.setTag(parentViewHolder);
     }
 
@@ -347,21 +333,11 @@ public class JiveItemListActivity extends BaseListActivity<JiveItem>
             if (window.windowStyle == Window.WindowStyle.ICON_LIST && parent != null && "playlist".equals(parent.getType())) {
                 window.windowStyle = Window.WindowStyle.PLAY_LIST;
             }
-            runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        applyWindow(window);
-                    }
-                });
+            runOnUiThread(() -> applyWindow(window));
         }
 
         if (this.window.text == null && parent != null) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateHeader(parent);
-                }
-            });
+            runOnUiThread(() -> updateHeader(parent));
         }
 
         // The documentation says "Returned with value 1 if there was a network error accessing
@@ -498,12 +474,7 @@ public class JiveItemListActivity extends BaseListActivity<JiveItem>
      */
     @Override
     public void onDialogDismissed(DialogInterface dialog) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                finish();
-            }
-        });
+        runOnUiThread(this::finish);
     }
 
 

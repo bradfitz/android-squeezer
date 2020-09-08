@@ -19,6 +19,8 @@ package uk.org.ngo.squeezer.framework;
 import android.os.Parcelable.Creator;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -102,9 +104,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * A ViewHolder for the views that make up a complete list item.
      */
-    public static class ViewHolder {
-        public View itemView;
-
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView icon;
 
         public TextView text1;
@@ -119,15 +119,15 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
         public @ViewParam int viewParams;
 
-        public void setView(View view) {
-            itemView = view;
+        public ViewHolder(@NonNull View view) {
+            super(view);
             text1 = view.findViewById(R.id.text1);
             text2 = view.findViewById(R.id.text2);
             icon = view.findViewById(R.id.icon);
             setContextMenu(view);
         }
 
-        public void setContextMenu(View view) {
+        private void setContextMenu(View view) {
             contextMenuButtonHolder = view.findViewById(R.id.context_menu);
             if (contextMenuButtonHolder!= null) {
                 contextMenuButton = contextMenuButtonHolder.findViewById(R.id.context_menu_button);
@@ -295,8 +295,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
         if (viewHolder == null) {
             convertView = getLayoutInflater().inflate(layoutResource, parent, false);
-            viewHolder = createViewHolder();
-            viewHolder.setView(convertView);
+            viewHolder = createViewHolder(convertView);
             setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }
@@ -323,8 +322,8 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         viewHolder.viewParams = viewParams;
     }
 
-    public ViewHolder createViewHolder() {
-        return new ViewHolder();
+    public ViewHolder createViewHolder(View itemView) {
+        return new ViewHolder(itemView);
     }
 
     @Override
