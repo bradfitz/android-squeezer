@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.service;
 
 import java.util.Map;
 
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
@@ -42,6 +41,7 @@ interface SlimClient {
     ConnectionState getConnectionState();
     String getUsername();
     String getPassword();
+    String getUrlPrefix();
 
     /**
      * Execute the supplied command.
@@ -76,7 +76,7 @@ interface SlimClient {
      * @param pageSize Number of items to fetch in each request.
      * @param callback Received items are returned in this.
      */
-    <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback);
+    <T> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback);
 
     /**
      * Notify that the specified client (activity) nno longer wants messages from LMS.

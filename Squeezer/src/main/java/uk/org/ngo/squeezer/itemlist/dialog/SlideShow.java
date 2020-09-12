@@ -34,14 +34,14 @@ import java.util.Map;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.Action;
+import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.framework.BaseActivity;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
-import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.util.ImageFetcher;
 
-public class SlideShow extends DialogFragment implements IServiceItemListCallback<Plugin> {
+public class SlideShow extends DialogFragment implements IServiceItemListCallback<JiveItem> {
     private static final String TAG = SlideShow.class.getSimpleName();
     private static final int DELAY = 10_000;
     private ImageView artwork;
@@ -101,7 +101,7 @@ public class SlideShow extends DialogFragment implements IServiceItemListCallbac
     }
 
     @Override
-    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
         Object[] item_data = (Object[]) parameters.get("loop_loop");
         if (item_data != null && item_data.length > 0) {
             nextImage = 0;

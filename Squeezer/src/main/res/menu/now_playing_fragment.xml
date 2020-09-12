@@ -36,16 +36,6 @@
         android:icon="@drawable/ic_menu_alarm"/>
 
     <item
-        android:id="@+id/menu_item_poweron"
-        android:title="@string/menu_item_poweron"
-        android:icon="@android:drawable/ic_lock_power_off"/>
-
-    <item
-        android:id="@+id/menu_item_poweroff"
-        android:title="@string/menu_item_poweroff"
-        android:icon="@android:drawable/ic_lock_power_off"/>
-
-    <item
         android:id="@+id/menu_item_disconnect"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="@string/menu_item_disconnect"/>

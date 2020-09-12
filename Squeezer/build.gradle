@@ -17,12 +17,17 @@ apply plugin: 'uk.org.ngo.gradle.slimstrings'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.5'
+
     // Android support libraries
     // Note: these libraries require the "Google Repository" and "Android
     //       Support Repository" to be installed via the SDK manager.
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.android.material:material:1.1.0'
 
     // Third party libraries
@@ -67,10 +72,19 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 82
-        versionName "2.1.0"
+        versionCode 84
+        versionName "2.2.0"
 
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+    }
+
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     lintOptions {
@@ -191,6 +205,7 @@ slimstrings {
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_1',
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_2',
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_3',
-            'SETUP_DEFEAT_DESTRUCTIVE_TTP_4'
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_4',
+            'NO_PLAYER_FOUND'
     ]
 }

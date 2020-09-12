@@ -10,6 +10,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_3'>Defeat only if playing and current playlist has more than one track</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_2'>Defeat if current playlist has more than one track</string>
   <string name='SETUP_PLAYTRACKALBUM_DESC'>When you select a single song and press PLAY on the remote, while browsing albums or folders, you can choose to play just that song or all the songs in that album or directory, starting with that song.</string>
+  <string name='NO_PLAYER_FOUND'>Your player was not found.</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_4'>Defeat only if playing and current item is not a radio stream</string>
   <string name='SLEEP_CANCEL'>Cancel sleep</string>
   <string name='ALARM_SHORT_DAY_6'>Sa</string>

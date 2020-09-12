@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.framework.AlertWindow;
+import uk.org.ngo.squeezer.model.AlertWindow;
 
 /** Event sent when a alert window message is received. */
 public class AlertEvent {

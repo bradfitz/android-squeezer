@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
  Copyright (c) 2009 Google Inc.  All Rights Reserved.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +12,12 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
---><resources xmlns:tools="http://schemas.android.com/tools">
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">Squeezer</string>
     <string name="undo">Undo</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
     <string name="disabled">Disabled</string>
     <string name="volume">%s volume</string>
     <string name="menu_item_players">Players</string>
@@ -23,12 +25,13 @@
     <string name="menu_item_about_label">About</string>
     <string name="activity_settings_name">Settings</string>
     <string name="settings_serveraddr_hint">Name or IP address of server</string>
-    <string name="settings_manual_serveraddr">Manually enter address</string>
+    <string name="settings_manual_server_addr">Manually enter address</string>
     <string name="settings_server_prompt">Choose a server</string>
     <string name="settings_server_rescan">Rescan</string>
     <string name="settings_server_scanning_disabled_msg">Server discovery is disabled, because Wi-Fi is not
         connected.
     </string>
+    <string name="settings_local_server">Local server</string>
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_light_dark">Light, dark action bar</string>
@@ -61,6 +64,8 @@
     <string name="menu_item_poweroff">Turn off \"%s\"</string>
     <string name="menu_item_rename">Rename</string>
     <string name="menu_item_playlist">Playlist</string>
+    <string name="menu_item_playlist_clear">Clear playlist</string>
+    <string name="menu_item_playlist_save">Save as playlist</string>
     <string name="menu_item_playlist_show_current_song">Go to current song</string>
     <string name="menu_item_volume">Change volume</string>
     <string name="connecting_text">Connecting</string>
@@ -77,6 +82,8 @@
     <string name="wifi_enabled_text">Wi-Fi is enabled. Please wait for an active Wi-Fi connection.
     </string>
     <string name="notification_playing_text">%s playing</string>
+    <string name="save_playlist_title">Save playlist</string>
+    <string name="save_playlist_hint">Enter name of playlist</string>
     <string name="rename_title">Rename %s</string>
     <string name="sync_title">Synchronize %s to…</string>
     <string name="loading_text">Loading…</string>
@@ -317,6 +324,8 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="PLAY_NOW">Play</string>
     <string name="ADD_TO_END">Add to playlist</string>
     <string name="PLAY_NEXT">Play after the current song</string>
+    <string name="DOWNLOAD">Download</string>
+    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Download cancelled, as we don\'t have permission to save the downloaded files</string>
 
     <!-- Song display options -->
 
@@ -334,9 +343,44 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     </plurals>
 
     <string name="pref_cat_third_party">Third-party integration</string>
+    <string name="confirm_cancel_downloads">Cancel pending downloads?</string>
+
+    <string name="settings_category_download">Download</string>
+    <string name="settings_download_use_server_path">Use server path and filename</string>
+    <string name="settings_download_path_structure">Folder hierarchy</string>
+    <string name="settings_download_filename_structure">File name</string>
+    <string name="download_path_structure_artist_artistalbum">Artist/Artist - Album</string>
+    <string name="download_path_structure_artist_album">Artist/Album</string>
+    <string name="download_path_structure_artistalbum">Artist - Album</string>
+    <string name="download_path_structure_album">Album</string>
+    <string name="download_path_structure_artist">Artist</string>
+    <string name="download_filename_structure_number_title">Number - Title</string>
+    <string name="download_filename_structure_artist_title">Artist - Title</string>
+    <string name="download_filename_structure_artist_number_title">Artist - Number - Title</string>
+    <string name="download_filename_structure_albumartist_number_title">Artist (Album) - Number - Title</string>
+    <string name="download_filename_structure_title">Title</string>
+    <string name="download_filename_structure_number_dot_artist_title">Number. Artist - Title</string>
+    <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">could not be added to the device\'s media database</string>
 
     <string name="about_team" translatable="false">Team</string>
     <string name="about_authors" translatable="false">Kurt Aaholst\nNik Clayton\nBrad Fitzpatrick</string>
     <string name="about_support" translatable="false">Support</string>
     <string name="about_support_text" translatable="false">https://nikclayton.github.io/android-squeezer/</string>
+    <string name="mysqueezebox_com" translatable="false">mysqueezebox.com</string>
+    <string name="configure_select_player">Select player to control</string>
+    <string name="configure_select_button">Widget action</string>
+    <string name="remote_unknownDescription">Unknown</string>
+    <string name="remote_openPlayer">Open player in Squeezer</string>
+    <string name="remote_openNowPlaying">Open Now Playing for player</string>
+    <string name="remote_openCurrentPlaylist">Open current playlist for player</string>
+    <string name="remote_powerDescription">Power</string>
+    <string name="remote_pausePlayDescription">Pause/Play</string>
+    <string name="remote_nextDescription">Next song</string>
+    <string name="remote_previousDescription">Previous song</string>
+    <string name="remote_preset1Description">Preset 1</string>
+    <string name="remote_preset2Description">Preset 2</string>
+    <string name="remote_preset3Description">Preset 3</string>
+    <string name="remote_preset4Description">Preset 4</string>
+    <string name="remote_preset5Description">Preset 5</string>
+    <string name="remote_preset6Description">Preset 6</string>
 </resources>

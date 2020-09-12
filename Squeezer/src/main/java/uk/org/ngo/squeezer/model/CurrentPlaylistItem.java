@@ -21,10 +21,8 @@ import androidx.annotation.NonNull;
 
 import java.util.Map;
 
-import uk.org.ngo.squeezer.framework.Item;
 
-
-public class CurrentPlaylistItem extends Item {
+public class CurrentPlaylistItem extends JiveItem {
 
     @NonNull private final String track;
 

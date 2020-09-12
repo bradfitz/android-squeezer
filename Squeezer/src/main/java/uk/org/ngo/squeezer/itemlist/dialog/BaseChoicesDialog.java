@@ -18,7 +18,6 @@ package uk.org.ngo.squeezer.itemlist.dialog;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.view.View;
 import android.widget.RadioButton;
@@ -27,6 +26,8 @@ import android.widget.TextView;
 
 import androidx.fragment.app.DialogFragment;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import uk.org.ngo.squeezer.R;
 
 public abstract class BaseChoicesDialog extends DialogFragment {
@@ -34,7 +35,7 @@ public abstract class BaseChoicesDialog extends DialogFragment {
     Dialog createDialog(String title, String message, int selectedIndex, String[] choiceStrings) {
         final Activity activity = getActivity();
 
-        @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
+        @SuppressLint({"InflateParams"})
         View content = activity.getLayoutInflater().inflate(R.layout.choices_layout, null);
 
 
@@ -60,7 +61,7 @@ public abstract class BaseChoicesDialog extends DialogFragment {
             }
         });
 
-        return new AlertDialog.Builder(getContext())
+        return new MaterialAlertDialogBuilder(getContext())
                 .setTitle(title)
                 .setView(content)
                 .create();

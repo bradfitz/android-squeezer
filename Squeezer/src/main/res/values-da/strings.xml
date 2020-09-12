@@ -18,6 +18,8 @@
 
 <resources>
     <string name="undo">Fortryd</string>
+    <string name="on">Til</string>
+    <string name="off">Fra</string>
     <string name="disabled">Deaktiveret</string>
     <string name="volume">%s lydstyrke</string>
     <string name="menu_item_players">Afspillere</string>
@@ -25,11 +27,13 @@
     <string name="menu_item_about_label">Om</string>
     <string name="activity_settings_name">Indstillinger</string>
     <string name="settings_serveraddr_hint">Navn eller IP addresse på server</string>
+    <string name="settings_manual_server_addr">Angiv adressen manuelt</string>
     <string name="settings_server_prompt">Vælg en server</string>
     <string name="settings_server_rescan">Opdatér</string>
     <string name="settings_server_scanning_disabled_msg">Server-opdagelse er deaktiveret, fordi Wi-Fi ikke
         er tilsluttet.
     </string>
+    <string name="settings_local_server">Lokal server</string>
     <string name="settings_theme_title">Tema</string>
     <string name="settings_theme_dark">Mørk</string>
     <string name="settings_theme_light_dark">Lys, mørk handlingslinie</string>
@@ -62,6 +66,8 @@
     <string name="menu_item_poweroff">Sluk \"%s\"</string>
     <string name="menu_item_rename">Omdøb</string>
     <string name="menu_item_playlist">Afspilningsliste</string>
+    <string name="menu_item_playlist_clear">Ryd afspilningsliste</string>
+    <string name="menu_item_playlist_save">Gem afspilningsliste</string>
     <string name="menu_item_playlist_show_current_song">Vis den sang der spiller</string>
     <string name="menu_item_volume">Indstil lydstyrke</string>
     <string name="connecting_text">Forbinder</string>
@@ -79,6 +85,8 @@
         Wi-Fi-forbindelse.
     </string>
     <string name="notification_playing_text">%s spiller</string>
+    <string name="save_playlist_title">Gem afspilningsliste</string>
+    <string name="save_playlist_hint">Angiv navn på afspilningsliste</string>
     <string name="rename_title">Omdøb %s</string>
     <string name="sync_title">Synkronisér %s med…</string>
     <string name="loading_text">Henter…</string>
@@ -137,6 +145,8 @@
     <string name="PLAY_NOW">Afspil</string>
     <string name="ADD_TO_END">Tilføj til afspilningsliste</string>
     <string name="PLAY_NEXT">Afspil efter den sang der spilles nu</string>
+    <string name="DOWNLOAD">Hent</string>
+    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Hent afbrudt, da vi ikke har tilladelse til at gemme de valgte filer</string>
 
     <!-- Song display options -->
 
@@ -152,4 +162,39 @@
         <item quantity="one">sekund</item>
         <item quantity="other">sekunder</item>
     </plurals>
+
+
+    <string name="confirm_cancel_downloads">Annullér ventende overførsler?</string>
+
+    <string name="settings_download_path_structure">Mappestruktur</string>
+    <string name="settings_download_filename_structure">Filnavn</string>
+    <string name="download_path_structure_artist_artistalbum">Kunstner/Kunstner - Album</string>
+    <string name="download_path_structure_artist_album">Kunstner/Album</string>
+    <string name="download_path_structure_artistalbum">Kunstner - Album</string>
+    <string name="download_path_structure_album">Album</string>
+    <string name="download_path_structure_artist">Kunstner</string>
+    <string name="download_filename_structure_number_title">Nummer - Titel</string>
+    <string name="download_filename_structure_artist_title">Kunstner - Titel</string>
+    <string name="download_filename_structure_artist_number_title">Kunstner - Nummer - Titel</string>
+    <string name="download_filename_structure_albumartist_number_title">Kunstner (Album) - Nummer - Titel</string>
+    <string name="download_filename_structure_title">Titel</string>
+    <string name="download_filename_structure_number_dot_artist_title">Nummer. Kunstner - Titel</string>
+
+    <string name="configure_select_player">Vælg afspiller</string>
+    <string name="configure_select_button">Widget handling</string>
+    <string name="remote_unknownDescription">Ukendt</string>
+    <string name="remote_openPlayer">Åben afspiller i Squeezer</string>
+    <string name="remote_openNowPlaying">Åben Nu Spiller</string>
+    <string name="remote_openCurrentPlaylist">Åben aktiv afspilningsliste</string>
+    <string name="remote_powerDescription">Tænd/Sluk</string>
+    <string name="remote_pausePlayDescription">Pause/Afspil</string>
+    <string name="remote_nextDescription">Næste sang</string>
+    <string name="remote_previousDescription">Forrige sang</string>
+    <string name="remote_preset1Description">Forudindstillet 1</string>
+    <string name="remote_preset2Description">Forudindstillet 2</string>
+    <string name="remote_preset3Description">Forudindstillet 3</string>
+    <string name="remote_preset4Description">Forudindstillet 4</string>
+    <string name="remote_preset5Description">Forudindstillet 5</string>
+    <string name="remote_preset6Description">Forudindstillet 6</string>
+
 </resources>

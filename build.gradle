@@ -16,19 +16,15 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.1'
+        classpath 'com.android.tools.build:gradle:4.0.0'
     }
 }
 
 ext {
-    compileSdkVersion = 29
+    compileSdkVersion = 30
     minSdkVersion = 19
-    targetSdkVersion = 29
+    targetSdkVersion = 30
 
     assert minSdkVersion <= targetSdkVersion : "minSdkVersion too big"
     assert targetSdkVersion <= compileSdkVersion : "targetSdkVersion too big"
-
-    // All support libraries must use the same version. The major version must be
-    // the same as the compileSdkVersion
-    supportLibraryVersion = "${compileSdkVersion}.0.0"
 }

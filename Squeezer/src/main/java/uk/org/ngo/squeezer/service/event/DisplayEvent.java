@@ -18,7 +18,7 @@ package uk.org.ngo.squeezer.service.event;
 
 import androidx.annotation.NonNull;
 
-import uk.org.ngo.squeezer.framework.DisplayMessage;
+import uk.org.ngo.squeezer.model.DisplayMessage;
 
 /** Event sent when a display status message is received. */
 public class DisplayEvent {

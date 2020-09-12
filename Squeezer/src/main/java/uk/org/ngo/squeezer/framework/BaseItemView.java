@@ -22,10 +22,9 @@ import androidx.annotation.LayoutRes;
 
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
@@ -36,8 +35,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.util.Reflection;
-import uk.org.ngo.squeezer.widget.ListItemImageButton;
 import uk.org.ngo.squeezer.widget.SquareImageView;
 
 /**
@@ -48,7 +47,7 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  * the {@link Item} and can optionally enable additional views.  The layout is defined in {@code
  * res/layout/list_item.xml}. <ul> <li>A {@link SquareImageView} suitable for displaying icons</li>
  * <li>A second, smaller {@link TextView} for additional item information</li> <li>A {@link
- * ListItemImageButton} that shows a disclosure triangle for a context menu</li> </ul> The view can
+ * Button} that shows a disclosure triangle for a context menu</li> </ul> The view can
  * display an item in one of two states.  The primary state is when the data to be inserted in to
  * the view is known, and represented by a complete {@link Item} subclass. The loading state is when
  * the data type is known, but has not been fetched from the server yet.
@@ -113,7 +112,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         public TextView text2;
 
         public View contextMenuButtonHolder;
-        public ImageButton contextMenuButton;
+        public Button contextMenuButton;
         public ProgressBar contextMenuLoading;
         public CheckBox contextMenuCheckbox;
         public RadioButton contextMenuRadio;
@@ -130,10 +129,12 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
 
         public void setContextMenu(View view) {
             contextMenuButtonHolder = view.findViewById(R.id.context_menu);
-            contextMenuButton = contextMenuButtonHolder.findViewById(R.id.context_menu_button);
-            contextMenuLoading = contextMenuButtonHolder.findViewById(R.id.loading_progress);
-            contextMenuCheckbox = contextMenuButtonHolder.findViewById(R.id.checkbox);
-            contextMenuRadio = contextMenuButtonHolder.findViewById(R.id.radio);
+            if (contextMenuButtonHolder!= null) {
+                contextMenuButton = contextMenuButtonHolder.findViewById(R.id.context_menu_button);
+                contextMenuLoading = contextMenuButtonHolder.findViewById(R.id.loading_progress);
+                contextMenuCheckbox = contextMenuButtonHolder.findViewById(R.id.checkbox);
+                contextMenuRadio = contextMenuButtonHolder.findViewById(R.id.radio);
+            }
         }
     }
 
@@ -172,7 +173,12 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             mItemClass = (Class<T>) Reflection.getGenericClass(getClass(), ItemView.class,
                     0);
             if (mItemClass == null) {
-                throw new RuntimeException("Could not read generic argument for: " + getClass());
+                mItemClass = (Class<T>) Reflection.getGenericClass(getClass().getSuperclass(), ItemView.class,
+                    0);
+                if (mItemClass == null) {
+
+                    throw new RuntimeException("Could not read generic argument for: " + getClass());
+                }
             }
         }
         return mItemClass;
@@ -204,7 +210,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * uses a different layout.
      */
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, int position, T item) {
+    public View getAdapterView(View convertView, ViewGroup parent, int position, T item, boolean selected) {
         View view = getAdapterView(convertView, parent, mViewParams);
         bindView(view, item);
         return view;
@@ -213,7 +219,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Binds the item's name to {@link ViewHolder#text1}.
      * <p>
-     * OVerride this instead of {@link #getAdapterView(View, ViewGroup, int, Item)} if the
+     * Override this instead of {@link #getAdapterView(View, ViewGroup, int, Item, boolean)} if the
      * default layouts are sufficient.
      *
      * @param view The view that contains the {@link ViewHolder}
@@ -223,18 +229,16 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
         final ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.text1.setText(item.getName());
-        viewHolder.contextMenuButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showContextMenu(viewHolder, item);
-            }
-        });
+
+        if (viewHolder.contextMenuButton!= null) {
+            viewHolder.contextMenuButton.setOnClickListener(v -> showContextMenu(viewHolder, item));
+        }
     }
 
     /**
      * Returns a view suitable for displaying the "Loading..." text.
      * <p>
-     * Override this method and {@link #getAdapterView(View, ViewGroup, int, Item)} if your
+     * Override this method and {@link #getAdapterView(View, ViewGroup, int, Item, boolean)} if your
      * extension uses a different layout.
      */
     @Override
@@ -311,9 +315,11 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
                 (viewParams & VIEW_PARAM_ICON) != 0 ? View.VISIBLE : View.GONE);
         viewHolder.text2.setVisibility(
                 (viewParams & VIEW_PARAM_TWO_LINE) != 0 ? View.VISIBLE : View.GONE);
-        viewHolder.contextMenuButtonHolder.setVisibility(
-                (viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0 ? View.VISIBLE : View.GONE);
 
+        if (viewHolder.contextMenuButtonHolder != null) {
+            viewHolder.contextMenuButtonHolder.setVisibility(
+                    (viewParams & VIEW_PARAM_CONTEXT_BUTTON) != 0 ? View.VISIBLE : View.GONE);
+        }
         viewHolder.viewParams = viewParams;
     }
 
@@ -324,6 +330,21 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     @Override
     public boolean isSelectable(T item) {
         return (item.getId() != null);
+    }
+
+    @Override
+    public boolean onItemSelected(View view, int index, T item) {
+        return false;
+    }
+
+    @Override
+    public void onGroupSelected(View view, T[] items) {
+
+    }
+
+    @Override
+    public boolean isSelected(T item) {
+        return false;
     }
 
     @Override

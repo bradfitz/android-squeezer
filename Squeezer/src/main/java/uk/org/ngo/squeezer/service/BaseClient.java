@@ -21,7 +21,6 @@ import androidx.annotation.NonNull;
 
 import com.google.common.base.Splitter;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,11 +28,11 @@ import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Squeezer;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
+import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlayStatusChanged;
 import uk.org.ngo.squeezer.service.event.PlayerStateChanged;
@@ -68,12 +67,12 @@ abstract class BaseClient implements SlimClient {
     }
 
     @Override
-    public <T extends Item> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
+    public <T> void requestItems(Player player, String[] cmd, Map<String, Object> params, int start, int pageSize, IServiceItemListCallback<T> callback) {
         final BaseClient.BrowseRequest<T> browseRequest = new BaseClient.BrowseRequest<>(player, cmd, params, start, pageSize, callback);
         internalRequestItems(browseRequest);
     }
 
-    protected abstract <T extends Item> void internalRequestItems(BrowseRequest<T> browseRequest);
+    protected abstract <T> void internalRequestItems(BrowseRequest<T> browseRequest);
 
     @Override
     public String getUsername() {
@@ -85,7 +84,10 @@ abstract class BaseClient implements SlimClient {
         return password.get();
     }
 
-
+    @Override
+    public String getUrlPrefix() {
+        return mUrlPrefix;
+    }
 
     void parseStatus(final Player player, CurrentPlaylistItem currentSong, Map<String, Object> tokenMap) {
         PlayerState playerState = player.getPlayerState();
@@ -135,10 +137,7 @@ abstract class BaseClient implements SlimClient {
 
         // Power status
         if (changedPower) {
-            mEventBus.post(new PowerStatusChanged(
-                    player,
-                    !playerState.isPoweredOn(),
-                    playerState.isPoweredOn()));
+            mEventBus.post(new PowerStatusChanged(player));
         }
 
         // Current song
@@ -185,23 +184,21 @@ abstract class BaseClient implements SlimClient {
         }
     }
 
-    protected static class BrowseRequest<T extends Item> {
+    protected static class BrowseRequest<T> extends SlimCommand {
         private final Player player;
-        private final String[] cmd;
         private final boolean fullList;
         private int start;
         private int itemsPerResponse;
-        private final Map<String, Object> params;
         private final IServiceItemListCallback<T> callback;
 
         BrowseRequest(Player player, String[] cmd, Map<String, Object> params, int start, int itemsPerResponse, IServiceItemListCallback<T> callback) {
             this.player = player;
-            this.cmd = cmd;
+            this.cmd(cmd);
             this.fullList = (start < 0);
             this.start = (fullList ? 0 : start);
             this.itemsPerResponse = itemsPerResponse;
             this.callback = callback;
-            this.params = (params == null ? Collections.<String, Object>emptyMap() : params);
+            if (params != null) this.params(params);
         }
 
         public BrowseRequest update(int start, int itemsPerResponse) {
@@ -214,10 +211,6 @@ abstract class BaseClient implements SlimClient {
             return player;
         }
 
-        public String[] getCmd() {
-            return cmd;
-        }
-
         boolean isFullList() {
             return (fullList);
         }
@@ -228,10 +221,6 @@ abstract class BaseClient implements SlimClient {
 
         int getItemsPerResponse() {
             return itemsPerResponse;
-        }
-
-        public Map<String, Object> getParams() {
-            return params;
         }
 
         public IServiceItemListCallback<T> getCallback() {

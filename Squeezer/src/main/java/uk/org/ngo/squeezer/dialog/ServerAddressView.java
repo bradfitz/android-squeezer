@@ -94,12 +94,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             mUserNameEditText = findViewById(R.id.username);
             mPasswordEditText = findViewById(R.id.password);
 
-            final OnClickListener onNetworkSelected = new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    setSqueezeNetwork(view.getId() == R.id.squeezeNetwork);
-                }
-            };
+            final OnClickListener onNetworkSelected = view -> setSqueezeNetwork(view.getId() == R.id.squeezeNetwork);
             mSqueezeNetworkButton.setOnClickListener(onNetworkSelected);
             mLocalServerButton.setOnClickListener(onNetworkSelected);
 
@@ -126,11 +121,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
                 scanDisabledMessage.setVisibility(GONE);
                 startNetworkScan(context);
                 Button scanButton = findViewById(R.id.scan_button);
-                scanButton.setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        startNetworkScan(context);
-                    }
-                });
+                scanButton.setOnClickListener(v -> startNetworkScan(context));
             } else {
                 mScanResults.setVisibility(GONE);
             }
@@ -204,7 +195,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
             for (Entry<String, String> e : mDiscoveredServers.entrySet()) {
                 mServersAdapter.add(e.getKey());
             }
-            mServersAdapter.add(getContext().getString(R.string.settings_manual_serveraddr));
+            mServersAdapter.add(getContext().getString(R.string.settings_manual_server_addr));
             mServersAdapter.notifyDataSetChanged();
 
             // First look the stored server name in the list of found servers

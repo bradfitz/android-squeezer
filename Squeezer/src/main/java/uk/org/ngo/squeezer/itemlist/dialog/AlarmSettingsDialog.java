@@ -23,11 +23,12 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog.Builder;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.Player;
@@ -88,7 +89,7 @@ public class AlarmSettingsDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        @SuppressLint({"InflateParams"}) // OK, as view is passed to AlertDialog.Builder.setView()
+        @SuppressLint({"InflateParams"})
         final View view = getActivity().getLayoutInflater().inflate(R.layout.alarm_settings_dialog, null);
 
         final TextView alarmVolumeHint = view.findViewById(R.id.alarm_volume_hint);
@@ -159,7 +160,7 @@ public class AlarmSettingsDialog extends DialogFragment {
         alarmTimeout.setProgress(Integer.valueOf(mHostActivity.getPlayerPref(Player.Pref.ALARM_TIMEOUT_SECONDS, "300")) / 60);
         alarmFadeToggle.setChecked("1".equals(mHostActivity.getPlayerPref(Player.Pref.ALARM_FADE_SECONDS, "0")));
 
-        Builder builder = new Builder(getActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         builder.setView(view);
         builder.setTitle(getResources().getString(R.string.alarms_settings_dialog_title, mHostActivity.getPlayer().getName()));
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

@@ -19,18 +19,13 @@ package uk.org.ngo.squeezer.itemlist;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayTrackAlbumDialog;
 import uk.org.ngo.squeezer.itemlist.dialog.PlayerRenameDialog;
@@ -38,24 +33,14 @@ import uk.org.ngo.squeezer.itemlist.dialog.PlayerSyncDialog;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
-import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
-public class PlayerView extends BaseItemView<Player> {
-    private static final Map<String, Integer> modelIcons = initializeModelIcons();
-
-    private final PlayerListActivity activity;
+public class PlayerView extends PlayerBaseView<PlayerListActivity> {
 
     public PlayerView(PlayerListActivity activity) {
-        super(activity);
-        this.activity = activity;
+        super(activity, R.layout.list_item_player);
 
         setViewParams(VIEW_PARAM_ICON | VIEW_PARAM_TWO_LINE | VIEW_PARAM_CONTEXT_BUTTON);
         setLoadingViewParams(VIEW_PARAM_ICON | VIEW_PARAM_TWO_LINE);
-    }
-
-    @Override
-    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
-        return getAdapterView(convertView, parent, viewParams, R.layout.list_item_player);
     }
 
     @Override
@@ -94,21 +79,12 @@ public class PlayerView extends BaseItemView<Player> {
     }
 
     @Override
-    public void onItemSelected(View view, int index, Player item) {
-    }
-
-    @Override
     public void showContextMenu(ViewHolder viewHolder, final Player item) {
         PopupMenu popup = new PopupMenu(getActivity(), viewHolder.contextMenuButtonHolder);
         popup.inflate(R.menu.playercontextmenu);
 
         Menu menu = popup.getMenu();
-        String xMinutes = activity.getString(R.string.X_MINUTES);
-        menu.findItem(R.id.in_15_minutes).setTitle(String.format(xMinutes, "15"));
-        menu.findItem(R.id.in_30_minutes).setTitle(String.format(xMinutes, "30"));
-        menu.findItem(R.id.in_45_minutes).setTitle(String.format(xMinutes, "45"));
-        menu.findItem(R.id.in_60_minutes).setTitle(String.format(xMinutes, "60"));
-        menu.findItem(R.id.in_90_minutes).setTitle(String.format(xMinutes, "90"));
+        PlayerViewLogic.inflatePlayerActions(activity, popup.getMenuInflater(), menu);
 
         PlayerState playerState = item.getPlayerState();
         menu.findItem(R.id.cancel_sleep).setVisible(playerState.getSleepDuration() != 0);
@@ -124,12 +100,7 @@ public class PlayerView extends BaseItemView<Player> {
 
         menu.findItem(R.id.defeat_destructive_ttp).setVisible(playerState.prefs.containsKey(Player.Pref.DEFEAT_DESTRUCTIVE_TTP));
 
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                return doItemContext(menuItem, item);
-            }
-        });
+        popup.setOnMenuItemClickListener(menuItem -> doItemContext(menuItem, item));
 
         activity.mResultsAdapter.mPlayersChanged = false;
         popup.show();
@@ -148,20 +119,14 @@ public class PlayerView extends BaseItemView<Player> {
             return true;
         }
 
+        if (PlayerViewLogic.doPlayerAction(service, menuItem, selectedItem)) {
+            return  true;
+        }
+
         switch (menuItem.getItemId()) {
-            case R.id.sleep:
-                // This is the start of a context menu.
-                // Just return, as we have set the current player.
-                return true;
-            case R.id.cancel_sleep:
-                service.sleep(selectedItem, 0);
-                return true;
             case R.id.rename:
                 new PlayerRenameDialog().show(activity.getSupportFragmentManager(),
                         PlayerRenameDialog.class.getName());
-                return true;
-            case R.id.toggle_power:
-                service.togglePower(selectedItem);
                 return true;
             case R.id.player_sync:
                 new PlayerSyncDialog().show(activity.getSupportFragmentManager(),
@@ -175,58 +140,7 @@ public class PlayerView extends BaseItemView<Player> {
                 return true;
         }
 
-        switch (menuItem.getItemId()) {
-            case R.id.end_of_song: {
-                PlayerState playerState = selectedItem.getPlayerState();
-                if (playerState.isPlaying()) {
-                    SongTimeChanged trackElapsed = selectedItem.getTrackElapsed();
-                    int sleep = trackElapsed.duration - trackElapsed.currentPosition + 1;
-                    if (sleep >= 0)
-                        service.sleep(selectedItem, sleep);
-                }
-                return true;
-            }
-            case R.id.in_15_minutes:
-                service.sleep(selectedItem, 15*60);
-                return true;
-            case R.id.in_30_minutes:
-                service.sleep(selectedItem, 30*60);
-                return true;
-            case R.id.in_45_minutes:
-                service.sleep(selectedItem, 45*60);
-                return true;
-            case R.id.in_60_minutes:
-                service.sleep(selectedItem, 60*60);
-                return true;
-            case R.id.in_90_minutes:
-                service.sleep(selectedItem, 90*60);
-                return true;
-        }
-
-
         return false;
-    }
-
-    private static Map<String, Integer> initializeModelIcons() {
-        Map<String, Integer> modelIcons = new HashMap<>();
-        modelIcons.put("baby", R.drawable.ic_baby);
-        modelIcons.put("boom", R.drawable.ic_boom);
-        modelIcons.put("fab4", R.drawable.ic_fab4);
-        modelIcons.put("receiver", R.drawable.ic_receiver);
-        modelIcons.put("controller", R.drawable.ic_controller);
-        modelIcons.put("sb1n2", R.drawable.ic_sb1n2);
-        modelIcons.put("sb3", R.drawable.ic_sb3);
-        modelIcons.put("slimp3", R.drawable.ic_slimp3);
-        modelIcons.put("softsqueeze", R.drawable.ic_softsqueeze);
-        modelIcons.put("squeezeplay", R.drawable.ic_squeezeplay);
-        modelIcons.put("transporter", R.drawable.ic_transporter);
-        modelIcons.put("squeezeplayer", R.drawable.ic_squeezeplayer);
-        return modelIcons;
-    }
-
-    private static int getModelIcon(String model) {
-        Integer icon = modelIcons.get(model);
-        return (icon != null ? icon : R.drawable.ic_blank);
     }
 
     private class VolumeSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {

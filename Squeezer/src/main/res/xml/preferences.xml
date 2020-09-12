@@ -56,6 +56,24 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="squeezer.download.category"
+        android:title="@string/settings_category_download">
+
+        <CheckBoxPreference
+            android:key="squeezer.download.use_server_path"
+            android:title="@string/settings_download_use_server_path"/>
+
+        <ListPreference
+            android:key="squeezer.download.path_structure"
+            android:title="@string/settings_download_path_structure"/>
+
+        <ListPreference
+            android:key="squeezer.download.filename_structure"
+            android:title="@string/settings_download_filename_structure"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/pref_cat_error_reports">
 
         <CheckBoxPreference android:key="squeezer.analytics.enabled"

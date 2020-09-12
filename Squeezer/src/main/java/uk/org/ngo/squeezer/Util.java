@@ -16,15 +16,26 @@
 
 package uk.org.ngo.squeezer;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import android.util.Log;
+import androidx.appcompat.content.res.AppCompatResources;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
@@ -34,7 +45,9 @@ import java.util.regex.Pattern;
 
 public class Util {
 
-    /** {@link java.util.regex.Pattern} that splits strings on colon. */
+    /**
+     * {@link java.util.regex.Pattern} that splits strings on colon.
+     */
     private static final Pattern mColonSplitPattern = Pattern.compile(":");
 
     private Util() {
@@ -104,7 +117,7 @@ public class Util {
     }
 
     public static double getDouble(Object value, double defaultValue) {
-        return (value instanceof Number) ? ((Number)value).doubleValue() : parseDouble((String)value, defaultValue);
+        return (value instanceof Number) ? ((Number) value).doubleValue() : parseDouble((String) value, defaultValue);
     }
 
     public static long getLong(Map<String, Object> record, String fieldName) {
@@ -116,7 +129,7 @@ public class Util {
     }
 
     public static long getLong(Object value, long defaultValue) {
-        return (value instanceof Number) ? ((Number)value).intValue() : parseDecimalInt((String) value, defaultValue);
+        return (value instanceof Number) ? ((Number) value).intValue() : parseDecimalInt((String) value, defaultValue);
     }
 
     public static int getInt(Map<String, Object> record, String fieldName) {
@@ -128,7 +141,7 @@ public class Util {
     }
 
     public static int getInt(Object value, int defaultValue) {
-        return (value instanceof Number) ? ((Number)value).intValue() : (int) parseDecimalInt((String) value, defaultValue);
+        return (value instanceof Number) ? ((Number) value).intValue() : (int) parseDecimalInt((String) value, defaultValue);
     }
 
     public static int getInt(Object value) {
@@ -155,10 +168,14 @@ public class Util {
 
     public static String getString(Object value, String defaultValue) {
         if (value == null) return defaultValue;
-        return (value instanceof String) ? (String)value : value.toString();
+        return (value instanceof String) ? (String) value : value.toString();
     }
 
-    public static String[] getStringArray(Object[] objects) {
+    public static String[] getStringArray(Map<String, Object> record, String fieldName) {
+        return getStringArray((Object[]) record.get(fieldName));
+    }
+
+    private static String[] getStringArray(Object[] objects) {
         String[] result = new String[objects == null ? 0 : objects.length];
         if (objects != null) {
             for (int i = 0; i < objects.length; i++) {
@@ -168,7 +185,7 @@ public class Util {
         return result;
     }
 
-    public static Map<String, Object > mapify(String[] tokens) {
+    public static Map<String, Object> mapify(String[] tokens) {
         Map<String, Object> tokenMap = new HashMap<>();
         for (String token : tokens) {
             String[] split = mColonSplitPattern.split(token, 2);
@@ -177,10 +194,13 @@ public class Util {
         return tokenMap;
     }
 
-    /** Make sure the icon/image tag is an absolute URL. */
+    /**
+     * Make sure the icon/image tag is an absolute URL.
+     */
     private static final Pattern HEX_PATTERN = Pattern.compile("^\\p{XDigit}+$");
+
     @NonNull
-    private static Uri getImageUrl(String urlPrefix, String imageId) {
+    public static Uri getImageUrl(String urlPrefix, String imageId) {
         if (imageId != null) {
             if (HEX_PATTERN.matcher(imageId).matches()) {
                 // if the iconId is a hex digit, this is a coverid or remote track id(a negative id)
@@ -198,6 +218,14 @@ public class Util {
     @NonNull
     public static Uri getImageUrl(Map<String, Object> record, String fieldName) {
         return getImageUrl(getString(record, "urlPrefix"), getString(record, fieldName));
+    }
+
+    /**
+     * Make sure the icon/image tag is an absolute URL.
+     */
+    @NonNull
+    public static Uri getDownloadUrl(String urlPrefix, String trackId) {
+        return Uri.parse(urlPrefix + "/music/" + trackId + "/download");
     }
 
     private static final StringBuilder sFormatBuilder = new StringBuilder();
@@ -263,8 +291,56 @@ public class Util {
                 && TextView.class.isAssignableFrom(convertView.getClass())
                 ? convertView
                 : ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
-                        layout, parent, false));
+                layout, parent, false));
         view.setText(label);
         return view;
+    }
+
+    @NonNull
+    public static String getBaseName(String fileName) {
+        String name = new File(fileName).getName();
+        int pos = name.lastIndexOf(".");
+        return (pos > 0) ? name.substring(0, pos) : name;
+    }
+
+    public static void moveFile(ContentResolver resolver, Uri source, Uri destination) throws IOException {
+        try (InputStream inputStream = resolver.openInputStream(source);
+             OutputStream outputStream = resolver.openOutputStream(destination)) {
+            if (inputStream == null) {
+                throw new IOException("moveFile: could not open '" + source + "'");
+            }
+            if (outputStream == null) {
+                throw new IOException("moveFile: could not open '" + destination + "'");
+            }
+            byte[] b = new byte[16384];
+            int bytes = 0;
+            while ((bytes = inputStream.read(b)) > 0) {
+                outputStream.write(b, 0, bytes);
+            }
+        }
+        int deleted = resolver.delete(source, null, null);
+        if (deleted != 1) {
+            throw new IOException("moveFile: try to delete '" + source + "' after copy, expected 1 deleted file but was " + deleted);
+        }
+
+    }
+
+    public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource) {
+        return vectorToBitmap(context, vectorResource, 255);
+    }
+
+    public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource, int alpha) {
+        Drawable drawable = AppCompatResources.getDrawable(context, vectorResource);
+        return drawableToBitmap(drawable, alpha);
+    }
+
+    private static Bitmap drawableToBitmap(Drawable drawable, int alpha) {
+        Bitmap b = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        drawable.setAlpha(alpha);
+        drawable.setBounds(0, 0, c.getWidth(), c.getHeight());
+
+        drawable.draw(c);
+        return b;
     }
 }

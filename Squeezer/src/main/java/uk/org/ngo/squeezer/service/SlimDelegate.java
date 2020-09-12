@@ -18,28 +18,21 @@ package uk.org.ngo.squeezer.service;
 
 import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.model.JiveItem;
+import uk.org.ngo.squeezer.model.SlimCommand;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Plugin;
 
 class SlimDelegate {
 
-    /** Shared event bus for status changes. */
-    @NonNull private final EventBus mEventBus;
     @NonNull private final SlimClient mClient;
 
-
     SlimDelegate(@NonNull EventBus eventBus) {
-        mEventBus = eventBus;
         mClient = new CometClient(eventBus);
     }
 
@@ -98,15 +91,19 @@ class SlimDelegate {
         return new PlayerCommand(mClient, mClient.getConnectionState().getActivePlayer());
     }
 
-    <T extends Item> Request requestItems(Player player, int start, IServiceItemListCallback<T> callback) {
+    <T> Request requestItems(Player player, int start, IServiceItemListCallback<T> callback) {
         return new Request<>(mClient, player, start, callback);
     }
 
-    <T extends Item> Request requestItems(Player player, IServiceItemListCallback<T> callback) {
+    <T> Request requestItems(Player player, IServiceItemListCallback<T> callback) {
         return new Request<>(mClient, player, 0, 200, callback);
     }
 
-    <T extends Item> Request requestItems(IServiceItemListCallback<T> callback) {
+    <T> Request requestItems(int start, IServiceItemListCallback<T> callback) {
+        return new Request<>(mClient, start, callback);
+    }
+
+    <T> Request requestItems(IServiceItemListCallback<T> callback) {
         return new Request<>(mClient, 0, 200, callback);
     }
 
@@ -130,7 +127,7 @@ class SlimDelegate {
         mClient.getConnectionState().clearHomeMenu();
     }
 
-    void addToHomeMenu(int count, List<Plugin> items) {
+    void addToHomeMenu(int count, List<JiveItem> items) {
         mClient.getConnectionState().addToHomeMenu(count, items);
     }
 
@@ -142,11 +139,17 @@ class SlimDelegate {
         return mClient.getPassword();
     }
 
-    static class Command {
+    String getUrlPrefix() {
+        return mClient.getUrlPrefix();
+    }
+
+    String[] getMediaDirs() {
+        return mClient.getConnectionState().getMediaDirs();
+    }
+
+    static class Command extends SlimCommand {
         final SlimClient slimClient;
         final protected Player player;
-        final protected List<String> cmd = new ArrayList<>();
-        final protected Map<String, Object> params = new HashMap<>();
 
         private Command(SlimClient slimClient, Player player) {
             this.slimClient = slimClient;
@@ -157,23 +160,32 @@ class SlimDelegate {
             this(slimClient, null);
         }
 
-        Command cmd(String... commandTerms) {
-            cmd.addAll(Arrays.asList(commandTerms));
+        @Override
+        public Command cmd(String... commandTerms) {
+            super.cmd(commandTerms);
             return this;
         }
 
+        @Override
+        public Command cmd(List<String> commandTerms) {
+            super.cmd(commandTerms);
+            return this;
+        }
+
+        @Override
         public Command params(Map<String, Object> params) {
-            this.params.putAll(params);
+            super.params(params);
             return this;
         }
 
-        Command param(String tag, Object value) {
-            params.put(tag, value);
+        @Override
+        public Command param(String tag, Object value) {
+            super.param(tag, value);
             return this;
         }
 
         protected void exec() {
-            slimClient.command(player, cmd.toArray(new String[0]), params);
+            slimClient.command(player, cmd(), params);
         }
     }
 
@@ -189,7 +201,7 @@ class SlimDelegate {
         }
     }
 
-    static class Request<T extends Item> extends Command {
+    static class Request<T> extends Command {
         private final IServiceItemListCallback<T> callback;
         private final int start;
         private final int pageSize;
@@ -203,6 +215,10 @@ class SlimDelegate {
 
         private Request(SlimClient slimClient, Player player, int start, IServiceItemListCallback<T> callback) {
             this(slimClient, player, start, (start == 0 ? 1 : BaseClient.mPageSize), callback);
+        }
+
+        private Request(SlimClient slimClient, int start, IServiceItemListCallback<T> callback) {
+            this(slimClient, null, start, (start == 0 ? 1 : BaseClient.mPageSize), callback);
         }
 
         private Request(SlimClient slimClient, int start, int pageSize, IServiceItemListCallback<T> callback) {

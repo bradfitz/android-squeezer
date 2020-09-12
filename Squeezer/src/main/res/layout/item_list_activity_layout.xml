@@ -58,8 +58,8 @@
         app:drawableLeftCompat="@drawable/ic_squeezeplay"
         android:drawablePadding="16dp"
         android:gravity="center"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:text="@string/no_players_connected"
         android:textAppearance="@style/SqueezerTextAppearance.Medium"
         android:visibility="gone" />
@@ -68,7 +68,7 @@
         android:id="@+id/now_playing_fragment"
         android:name="uk.org.ngo.squeezer.NowPlayingFragment"
         android:layout_width="fill_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         tools:layout="@layout/now_playing_fragment_mini"/>
 
 </LinearLayout>

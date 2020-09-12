@@ -25,24 +25,15 @@ public class PowerStatusChanged {
     /** The player with changed state. */
     @NonNull public final Player player;
 
-    /** Whether the active player supports being powered on by the server. */
-    public final boolean canPowerOn;
-
-    /** Whether the active player supports being turned off by the server. */
-    public final boolean canPowerOff;
-
-    public PowerStatusChanged(@NonNull Player player, boolean canPowerOn, boolean canPowerOff) {
+    public PowerStatusChanged(@NonNull Player player) {
         this.player = player;
-        this.canPowerOn = canPowerOn;
-        this.canPowerOff = canPowerOff;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "PowerStatusChanged{" +
                 "player=" + player +
-                ", canPowerOn=" + canPowerOn +
-                ", canPowerOff=" + canPowerOff +
                 '}';
     }
 }

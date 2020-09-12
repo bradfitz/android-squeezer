@@ -31,12 +31,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import de.greenrobot.event.EventBus;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.model.Player;
-import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.event.ActivePlayerChanged;
 import uk.org.ngo.squeezer.service.event.ConnectionChanged;
 import uk.org.ngo.squeezer.service.event.HandshakeComplete;
 import uk.org.ngo.squeezer.service.event.HomeMenuEvent;
-import uk.org.ngo.squeezer.framework.MenuStatusMessage;
+import uk.org.ngo.squeezer.model.MenuStatusMessage;
 import uk.org.ngo.squeezer.service.event.PlayersChanged;
 
 public class ConnectionState {
@@ -74,9 +74,11 @@ public class ConnectionState {
     private final AtomicReference<Player> mActivePlayer = new AtomicReference<>();
 
     /** Home menu tree as received from slimserver */
-    private List<Plugin> homeMenu = new Vector<>();
+    private List<JiveItem> homeMenu = new Vector<>();
 
     private final AtomicReference<String> serverVersion = new AtomicReference<>();
+
+    private final AtomicReference<String[]> mediaDirs = new AtomicReference<>();
 
     /**
      * Sets a new connection state, and posts a sticky
@@ -140,11 +142,15 @@ public class ConnectionState {
         }
     }
 
+    void setMediaDirs(String[] mediaDirs) {
+        this.mediaDirs.set(mediaDirs);
+    }
+
     void clearHomeMenu() {
         homeMenu.clear();
     }
 
-    void addToHomeMenu(int count, List<Plugin> items) {
+    void addToHomeMenu(int count, List<JiveItem> items) {
         homeMenu.addAll(items);
         if (homeMenu.size() == count) {
             jiveMainNodes();
@@ -154,9 +160,9 @@ public class ConnectionState {
 
     void menuStatusEvent(MenuStatusMessage event) {
         if (event.playerId.equals(getActivePlayer().getId())) {
-            for (Plugin menuItem : event.menuItems) {
-                Plugin item = null;
-                for (Plugin menu : homeMenu) {
+            for (JiveItem menuItem : event.menuItems) {
+                JiveItem item = null;
+                for (JiveItem menu : homeMenu) {
                     if (menuItem.getId().equals(menu.getId())) {
                         item = menu;
                         break;
@@ -174,18 +180,22 @@ public class ConnectionState {
     }
 
     private void jiveMainNodes() {
-        addNode(Plugin.EXTRAS);
-        addNode(Plugin.SETTINGS);
-        addNode(Plugin.ADVANCED_SETTINGS);
+        addNode(JiveItem.EXTRAS);
+        addNode(JiveItem.SETTINGS);
+        addNode(JiveItem.ADVANCED_SETTINGS);
     }
 
-    private void addNode(Plugin plugin) {
-        if (!homeMenu.contains(plugin))
-            homeMenu.add(plugin);
+    private void addNode(JiveItem jiveItem) {
+        if (!homeMenu.contains(jiveItem))
+            homeMenu.add(jiveItem);
     }
 
     String getServerVersion() {
         return serverVersion.get();
+    }
+
+    String[] getMediaDirs() {
+        return mediaDirs.get();
     }
 
     /**

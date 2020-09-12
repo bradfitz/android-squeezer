@@ -20,9 +20,6 @@ import android.os.Parcel;
 
 import java.util.Map;
 
-import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.Item;
-
 
 public class AlarmPlaylist extends Item {
 

@@ -32,7 +32,6 @@ import java.util.Comparator;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.Item;
 import uk.org.ngo.squeezer.service.event.SongTimeChanged;
 
 
@@ -75,6 +74,7 @@ public class Player extends Item implements Comparable {
         public static final String ALARMS_ENABLED = "alarmsEnabled";
         public static final String PLAY_TRACK_ALBUM = "playtrackalbum";
         public static final String DEFEAT_DESTRUCTIVE_TTP = "defeatDestructiveTouchToPlay";
+        public static final String MEDIA_DIRS = "mediadirs";
     }
 
     public Player(Map<String, Object> record) {
@@ -193,10 +193,18 @@ public class Player extends Item implements Comparable {
         }
     };
 
+    @NonNull
     @Override
-    public String toStringOpen() {
-        return super.toStringOpen() + ", model: " + mModel + ", canpoweroff: " + mCanPowerOff
-                + ", ip: " + mIp + ", connected: " + mConnected;
+    public String toString() {
+        return "Player{" +
+                "mName='" + mName + '\'' +
+                ", mIp='" + mIp + '\'' +
+                ", mModel='" + mModel + '\'' +
+                ", mCanPowerOff=" + mCanPowerOff +
+                ", mHashCode=" + mHashCode +
+                ", mPlayerState=" + mPlayerState +
+                ", mConnected=" + mConnected +
+                '}';
     }
 
     public SongTimeChanged getTrackElapsed() {

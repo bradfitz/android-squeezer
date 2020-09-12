@@ -82,7 +82,7 @@ public class AlarmView extends BaseItemView<Alarm> {
     }
 
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, int position, Alarm item) {
+    public View getAdapterView(View convertView, ViewGroup parent, int position, Alarm item, boolean selected) {
         View view = getAdapterView(convertView, parent);
         bindView((AlarmViewHolder) view.getTag(), position, item);
         return view;
@@ -178,8 +178,8 @@ public class AlarmView extends BaseItemView<Alarm> {
                     final Alarm alarm = viewHolder.alarm;
                     if (getActivity().getService() != null &&
                             selectedAlarmPlaylist.getId() != null &&
-                            !selectedAlarmPlaylist.getId().equals(alarm.getUrl())) {
-                        alarm.setUrl(selectedAlarmPlaylist.getId());
+                            !selectedAlarmPlaylist.getId().equals(alarm.getPlayListId())) {
+                        alarm.setPlayListId(selectedAlarmPlaylist.getId());
                         getActivity().getService().alarmSetPlaylist(alarm.getId(), selectedAlarmPlaylist);
                     }
                 }
@@ -221,7 +221,7 @@ public class AlarmView extends BaseItemView<Alarm> {
             viewHolder.playlist.setAdapter(new AlarmPlaylistSpinnerAdapter());
             for (int i = 0; i < mAlarmPlaylists.size(); i++) {
                 AlarmPlaylist alarmPlaylist = mAlarmPlaylists.get(i);
-                if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(item.getUrl())) {
+                if (alarmPlaylist.getId() != null && alarmPlaylist.getId().equals(item.getPlayListId())) {
                     viewHolder.playlist.setSelection(i);
                     break;
                 }
@@ -264,10 +264,6 @@ public class AlarmView extends BaseItemView<Alarm> {
     @Override
     public boolean isSelectable(Alarm item) {
         return false;
-    }
-
-    @Override
-    public void onItemSelected(View view, int index, Alarm item) {
     }
 
     // Require an immutable list so that caller's can't modify it when this method iterates

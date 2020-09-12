@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -55,11 +56,17 @@ public class NowPlayingActivity extends BaseActivity {
         ignoreIconMessages = true;
     }
 
-    public static void show(Activity activity) {
-        final Intent intent = new Intent(activity, NowPlayingActivity.class)
+    public static void show(Context context) {
+        final Intent intent = new Intent(context, NowPlayingActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        activity.startActivity(intent);
-        activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        context.startActivity(intent);
+        if (context instanceof Activity) {
+            ((Activity) context).overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+        }
     }
 
     @Override

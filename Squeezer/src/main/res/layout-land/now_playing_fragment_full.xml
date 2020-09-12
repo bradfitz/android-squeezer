@@ -133,16 +133,16 @@
             style="@style/SqueezerWidget.MediaButton.Repeat"/>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/volume"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_toEndOf="@id/album"
-        android:layout_alignParentBottom="true"
-        style="@style/SqueezerWidget.MediaButton.Volume"/>
-
-
-    <Button
-        android:id="@+id/playlist"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        style="@style/SqueezerWidget.MediaButton.Playlist" />
+        android:layout_alignParentBottom="true">
+        <Button
+            android:id="@+id/volume"
+            style="@style/SqueezerWidget.MediaButton.Volume"/>
+        <Button
+            android:id="@+id/playlist"
+            style="@style/SqueezerWidget.MediaButton.Playlist"/>
+    </LinearLayout>
 </RelativeLayout>

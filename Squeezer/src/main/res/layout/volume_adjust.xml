@@ -22,7 +22,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="32dp"
-    android:background="@drawable/panel_background"
     android:orientation="vertical"
     android:gravity="center_horizontal">
 
@@ -31,7 +30,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/message"
         android:textAppearance="@style/SqueezerTextAppearance.Medium"
-        android:textColor="@android:color/primary_text_dark"
         tools:text="Squeezer volume"/>
 
     <uk.org.ngo.squeezer.widget.Croller
@@ -39,28 +37,28 @@
         android:layout_width="240dp"
         android:layout_height="240dp"
         android:layout_marginTop="8dp"
-        app:back_circle_color="#222222"
-        app:indicator_color="#CCCCCC"
+        app:back_circle_color="?attr/volume_panel_back_circle_color"
+        app:indicator_color="?attr/colorPrimary"
         app:is_continuous="false"
-        app_label=""
+        app:label=""
         app:label_size="0"
-        app:main_circle_color="#000000"
+        app:main_circle_color="?attr/colorSurface"
         app:max="100"
-        app:progress_primary_color="#1CB6DA"
-        app:progress_secondary_color="#FFFFFF"
+        app:progress_primary_color="?attr/colorPrimary"
+        app:progress_secondary_color="?attr/colorOnSurface"
         app:start_offset="45" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="32dp"
-        android:layout_marginRight="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
         android:orientation="horizontal">
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_volume_down_light"/>
+            app:srcCompat="@drawable/ic_volume_down"/>
 
         <TextView
             android:id="@+id/label"
@@ -69,14 +67,13 @@
             android:layout_weight="1"
             android:textAlignment="center"
             android:textAppearance="@style/SqueezerTextAppearance.Small"
-            android:textColor="@android:color/primary_text_dark"
             tools:text="player"
             />
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_volume_up_light"/>
+            app:srcCompat="@drawable/ic_volume_up"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -23,7 +23,7 @@
     android:descendantFocusability="blocksDescendants"
     android:minHeight="48dp"
     android:paddingBottom="4dp"
-    android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+    android:paddingStart="?android:attr/expandableListPreferredItemPaddingLeft"
     android:paddingTop="4dp">
 
     <TextView

@@ -24,6 +24,7 @@ import android.widget.BaseAdapter;
 import java.util.List;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.model.Item;
 
 
 /**
@@ -114,10 +115,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         T item = getItem(position);
         if (item != null) {
-            if (item.radio != null) {
-                item.radio = (position == selectedIndex);
-            }
-            return mItemView.getAdapterView(convertView, parent, position, item);
+            return mItemView.getAdapterView(convertView, parent, position, item, position == selectedIndex);
         }
 
         return mItemView.getAdapterView(convertView, parent,
@@ -140,13 +138,14 @@ public class ItemAdapter<T extends Item> extends BaseAdapter {
         T item = getItem(position);
         if (item != null) {
             selectedIndex = position;
-            mItemView.onItemSelected(view, position, item);
-            if (item.radio != null) {
+            if (mItemView.onItemSelected(view, position, item)) {
                 notifyDataSetChanged();
             }
         }
     }
-
+    public void onSelected(View view) {
+        mItemView.onGroupSelected(view, getPage(0));
+    }
     public ItemView<T> getItemView() {
         return mItemView;
     }
@@ -173,7 +172,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter {
         T[] page = getPage(start);
         int offset = start % pageSize;
         for (T item : items) {
-            if (item.radio != null && item.radio) {
+            if (mItemView.isSelected(item)) {
                 selectedIndex = start + offset;
             }
             if (offset >= pageSize) {
@@ -195,13 +194,6 @@ public class ItemAdapter<T extends Item> extends BaseAdapter {
             getActivity().maybeOrderPage(pageNumber(position) * pageSize);
         }
         return item;
-    }
-
-    public void setItem(int position, T item) {
-        if (item.radio != null && item.radio) {
-            selectedIndex = position;
-        }
-        getPage(position)[position % pageSize] = item;
     }
 
     @Override

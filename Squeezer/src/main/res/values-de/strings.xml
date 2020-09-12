@@ -52,6 +52,8 @@
     <string name="menu_item_poweroff">Ausschalten \"%s\"</string>
     <string name="menu_item_rename">Umbenennen</string>
     <string name="menu_item_playlist">Wiedergabeliste</string>
+    <string name="menu_item_playlist_clear">Löschen</string>
+    <string name="menu_item_playlist_save">Speichern</string>
     <string name="menu_item_playlist_show_current_song">Aktuelles Lied</string>
     <string name="menu_item_volume">Lautstärke</string>
     <string name="connecting_text">Verbinde</string>
@@ -69,6 +71,8 @@
         Verbindungsaufbau.
     </string>
     <string name="notification_playing_text">Spiele %s</string>
+    <string name="save_playlist_title">Wiedergabeliste speichern</string>
+    <string name="save_playlist_hint">Name für die Wiedergabeliste eingeben</string>
     <string name="rename_title">%s umbenennen</string>
     <string name="loading_text">Lade …</string>
     <string name="browse_items_text">%2$d %1$s</string>
@@ -93,6 +97,7 @@
     <string name="PLAY_NOW">Abspielen</string>
     <string name="ADD_TO_END">Zur Wiedergabeliste hinzufügen</string>
     <string name="PLAY_NEXT">Nach dem aktuellen Titel wiedergeben</string>
+    <string name="DOWNLOAD">Herunterladen</string>
 
     <!-- Song display options -->
 

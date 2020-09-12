@@ -16,13 +16,16 @@
 
 package uk.org.ngo.squeezer.framework;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import androidx.annotation.CallSuper;
 import androidx.annotation.DrawableRes;
@@ -36,8 +39,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +50,9 @@ import uk.org.ngo.squeezer.dialog.AlertEventDialog;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
+import uk.org.ngo.squeezer.model.Action;
+import uk.org.ngo.squeezer.model.DisplayMessage;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -66,6 +70,10 @@ import uk.org.ngo.squeezer.util.ThemeManager;
  * @author Kurt Aaholst
  */
 public abstract class BaseActivity extends AppCompatActivity {
+    private static final String CURRENT_DOWNLOAD_ITEM = "CURRENT_DOWNLOAD_ITEM";
+
+
+    private static final String TAG = BaseActivity.class.getName();
 
     @Nullable
     private ISqueezeService mService = null;
@@ -90,10 +98,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /** Set this to true to stop displaying icon-based showBrieflies */
     protected boolean ignoreIconMessages = false;
-
-    protected String getTag() {
-        return getClass().getSimpleName();
-    }
 
     /**
      * @return The squeezeservice, or null if not bound
@@ -120,22 +124,37 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     };
 
+    protected boolean addActionBar(){
+        return true;
+    }
+
     @Override
     @CallSuper
     protected void onCreate(android.os.Bundle savedInstanceState) {
         mTheme.onCreate(this);
         super.onCreate(savedInstanceState);
 
-        // Set the icon as the home button, and display it.
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_action_home);
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        if (addActionBar()) {
+            // Set the icon as the home button, and display it.
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setHomeAsUpIndicator(R.drawable.ic_action_home);
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }
         }
 
         boundService = bindService(new Intent(this, SqueezeService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
-        Log.d(getTag(), "did bindService; serviceStub = " + getService());
+        Log.d(TAG, "did bindService; serviceStub = " + getService());
+
+        if (savedInstanceState != null)
+            currentDownloadItem = savedInstanceState.getParcelable(CURRENT_DOWNLOAD_ITEM);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(CURRENT_DOWNLOAD_ITEM, currentDownloadItem);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -252,6 +271,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     @CallSuper
     protected void onServiceConnected(@NonNull ISqueezeService service) {
+        Log.d(TAG, "onServiceConnected");
         supportInvalidateOptionsMenu();
         maybeRegisterOnEventBus(service);
     }
@@ -335,7 +355,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (service == null) {
             return false;
         }
-        Log.v(getTag(), "Adjust volume by: " + delta);
+        Log.v(TAG, "Adjust volume by: " + delta);
         service.adjustVolumeBy(delta);
         return true;
     }
@@ -426,13 +446,13 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /**
      * Perform the supplied <code>action</code> using parameters in <code>item</code> via
-     * {@link ISqueezeService#action(Item, Action)}
+     * {@link ISqueezeService#action(JiveItem, Action)}
      * <p>
      * Navigate to <code>nextWindow</code> if it exists in <code>action</code>. The
      * <code>alreadyPopped</code> parameter is used to modify nextWindow if any windows has already
      * been popped by the Android system.
      */
-    public void action(Item item, Action action, int alreadyPopped) {
+    public void action(JiveItem item, Action action, int alreadyPopped) {
         if (mService == null) {
             return;
         }
@@ -441,9 +461,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * Same as calling {@link #action(Item, Action, int)} with <code>alreadyPopped</code> = 0
+     * Same as calling {@link #action(JiveItem, Action, int)} with <code>alreadyPopped</code> = 0
      */
-    public void action(Item item, Action action) {
+    public void action(JiveItem item, Action action) {
         action(item, action, 0);
     }
 
@@ -457,6 +477,39 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         mService.action(action);
+    }
+
+    /**
+     * Initiate download of songs for the supplied item.
+     *
+     * @param item Song or item with songs to download
+     * @see ISqueezeService#downloadItem(JiveItem)
+     */
+    public void downloadItem(JiveItem item) {
+        if (Build.VERSION_CODES.M <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            currentDownloadItem = item;
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } else
+            mService.downloadItem(item);
+    }
+
+    private JiveItem currentDownloadItem;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (currentDownloadItem != null) {
+                        mService.downloadItem(currentDownloadItem);
+                        currentDownloadItem = null;
+                    } else
+                        Toast.makeText(this, "Please select download again now that we have permission to save it", Toast.LENGTH_LONG).show();
+                } else
+                    Toast.makeText(this, R.string.DOWNLOAD_REQUIRES_WRITE_PERMISSION, Toast.LENGTH_LONG).show();
+                break;
+        }
     }
 
     /**

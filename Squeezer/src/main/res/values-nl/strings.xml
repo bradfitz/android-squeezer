@@ -51,6 +51,8 @@
     <string name="menu_item_poweroff">Schakel uit \"%s\"</string>
     <string name="menu_item_rename">Hernoem</string>
     <string name="menu_item_playlist">Playlist</string>
+    <string name="menu_item_playlist_clear">Wis huidige playlist</string>
+    <string name="menu_item_playlist_save">Bewaar huidige playlist</string>
     <string name="menu_item_volume">Volume</string>
     <string name="connecting_text">Verbinden</string>
     <string name="connecting_to_text">Verbinden met Logitech Media Server met %s</string>
@@ -62,6 +64,8 @@
     </string>
     <string name="wifi_enabled_text">Wi-Fi staat aan. Wacht op actieve Wi-Fi verbinding.</string>
     <string name="notification_playing_text">%s speelt af</string>
+    <string name="save_playlist_title">Bewaar playlist</string>
+    <string name="save_playlist_hint">Voer naam playlist in</string>
     <string name="rename_title">Hernoem %s</string>
     <string name="loading_text">Laden …</string>
     <string name="browse_items_text">%2$d %1$s</string>
@@ -84,6 +88,7 @@
     <string name="PLAY_NOW">Speel af</string>
     <string name="ADD_TO_END">Voeg toe aan Playlist</string>
     <string name="PLAY_NEXT">Speel af na huidige liedje</string>
+    <string name="DOWNLOAD">Download</string>
     <!--Song display options-->
     <!--Analytics preference strings-->
     <string name="pref_cat_error_reports">Fouten rapporten en statistieken</string>
@@ -96,4 +101,6 @@
         <item quantity="one">seconde</item>
         <item quantity="other">seconden</item>
     </plurals>
+
+    <string name="confirm_cancel_downloads">Downloaden afbreken?</string>
 </resources>

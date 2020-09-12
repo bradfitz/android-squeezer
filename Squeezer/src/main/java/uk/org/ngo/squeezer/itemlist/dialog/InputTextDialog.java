@@ -24,18 +24,18 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import uk.org.ngo.squeezer.framework.BaseActivity;
-import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.model.JiveItem;
 
 public class InputTextDialog extends BaseEditTextDialog {
     private BaseActivity activity;
-    private Item item;
+    private JiveItem item;
     private int alreadyPopped;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         activity = (BaseActivity)getActivity();
-        item = getArguments().getParcelable(Item.class.getName());
+        item = getArguments().getParcelable(JiveItem.class.getName());
         alreadyPopped = getArguments().getInt("alreadyPopped", 0);
 
         Dialog dialog = super.onCreateDialog(savedInstanceState);
@@ -59,11 +59,11 @@ public class InputTextDialog extends BaseEditTextDialog {
      * <p>
      * See http://wiki.slimdevices.com/index.php/SBS_SqueezePlay_interface#.3Cinput_fields.3E
      */
-    public static void show(BaseActivity activity, Item item, int alreadyPopped) {
+    public static void show(BaseActivity activity, JiveItem item, int alreadyPopped) {
         InputTextDialog dialog = new InputTextDialog();
 
         Bundle args = new Bundle();
-        args.putParcelable(Item.class.getName(), item);
+        args.putParcelable(JiveItem.class.getName(), item);
         args.putInt("alreadyPopped", alreadyPopped);
         dialog.setArguments(args);
 

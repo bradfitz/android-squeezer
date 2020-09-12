@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import uk.org.ngo.squeezer.util.Reflection;
-import uk.org.ngo.squeezer.framework.Item;
 
 /**
  * Base class that constructs a list of model objects based on CLI results from
@@ -16,7 +15,7 @@ import uk.org.ngo.squeezer.framework.Item;
  *
  * @param <T> Item subclasses.
  */
-abstract class BaseListHandler<T extends Item> implements ListHandler<T> {
+abstract class BaseListHandler<T> implements ListHandler<T> {
     private static final String TAG = BaseListHandler.class.getSimpleName();
 
     private List<T> items;

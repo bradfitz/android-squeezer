@@ -22,14 +22,13 @@ import androidx.annotation.Nullable;
 import java.util.Collection;
 
 import de.greenrobot.event.EventBus;
-import uk.org.ngo.squeezer.framework.Action;
-import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.itemlist.IServiceItemListCallback;
 import uk.org.ngo.squeezer.model.Alarm;
 import uk.org.ngo.squeezer.model.AlarmPlaylist;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.model.Player;
 import uk.org.ngo.squeezer.model.PlayerState;
-import uk.org.ngo.squeezer.model.Plugin;
 
 public interface ISqueezeService {
     /**
@@ -45,7 +44,7 @@ public interface ISqueezeService {
     boolean isConnectInProgress();
 
     /** Initiate the flow to register the controller with the server */
-    void register(IServiceItemListCallback<Plugin> callback);
+    void register(IServiceItemListCallback<JiveItem> callback);
 
     // For the SettingsActivity to notify the Service that a setting changed.
     void preferenceChanged(String key);
@@ -92,27 +91,22 @@ public interface ISqueezeService {
     ////////////////////
     // Depends on active player:
 
-    /**
-     * @return true if the active player is connected and can be powered on.
-     */
-    boolean canPowerOn();
-
-    /**
-     * @return true if the active player is connected and can be powered off.
-     */
-    boolean canPowerOff();
-    void powerOn();
-    void powerOff();
     String getServerVersion() throws SqueezeService.HandshakeNotCompleteException;
     boolean togglePausePlay();
+    boolean togglePausePlay(Player player);
     boolean play();
     boolean pause();
     boolean stop();
     boolean nextTrack();
+    boolean nextTrack(Player player);
     boolean previousTrack();
+    boolean previousTrack(Player player);
     boolean toggleShuffle();
     boolean toggleRepeat();
     boolean playlistIndex(int index);
+    boolean button(Player player, IRButton button);
+    boolean playlistClear();
+    boolean playlistSave(String name);
 
     boolean setSecondsElapsed(int seconds);
 
@@ -148,7 +142,7 @@ public interface ISqueezeService {
 
 
     // Plugins (Radios/Apps (music services)/Favorites)
-    void pluginItems(int start, String cmd, IServiceItemListCallback<Plugin>  callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, String cmd, IServiceItemListCallback<JiveItem>  callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
      * Start an asynchronous fetch of the squeezeservers generic menu items.
@@ -161,7 +155,7 @@ public interface ISqueezeService {
      * @param callback This will be called as the items arrive.
      * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
      */
-    void pluginItems(int start, Item item, Action action, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(int start, JiveItem item, Action action, IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
      * Start an asynchronous fetch of the squeezeservers generic menu items with no paging nor extra parameters.
@@ -172,7 +166,7 @@ public interface ISqueezeService {
      * @param callback This will be called as the items arrive.
      * @throws SqueezeService.HandshakeNotCompleteException if this is called before handshake is complete
      */
-    void pluginItems(Action action, IServiceItemListCallback<Plugin> callback) throws SqueezeService.HandshakeNotCompleteException;
+    void pluginItems(Action action, IServiceItemListCallback<JiveItem> callback) throws SqueezeService.HandshakeNotCompleteException;
 
     /**
      * Perform the supplied SBS <code>do</code> <code>action</code> using parameters in <code>item</code>.
@@ -182,7 +176,7 @@ public interface ISqueezeService {
      * @param item Current SBS item with the <code>action</code>, and which may contain parameters for the action.
      * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
      */
-    void action(Item item, Action action);
+    void action(JiveItem item, Action action);
 
     /**
      * Perform the supplied SBS <code>do</code> <code>action</code>
@@ -192,5 +186,18 @@ public interface ISqueezeService {
      * @param action <code>do</code> action from SBS. "do" refers to an action to perform that does not return browsable data.
      */
     void action(Action.JsonAction action);
+
+    /**
+     * Find the specified player
+     * @param playerId id of the player to find
+     * @return
+     */
+    Player getPlayer(String playerId) throws PlayerNotFoundException;
+    /**
+     * Initiate download of songs for the supplied item.
+     *
+     * @param item Song or item with songs to download
+     */
+    void downloadItem(JiveItem item) throws SqueezeService.HandshakeNotCompleteException;
 
 }

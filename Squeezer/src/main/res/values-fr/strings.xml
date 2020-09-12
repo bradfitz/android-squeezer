@@ -20,6 +20,8 @@
 
 <resources>
     <string name="undo">Annuler</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
     <string name="disabled">Désactivé</string>
     <string name="volume">%s volume</string>
     <string name="menu_item_players">Platine</string>
@@ -58,6 +60,8 @@
     <string name="menu_item_poweroff">Eteindre \"%s\"</string>
     <string name="menu_item_rename">Renommer</string>
     <string name="menu_item_playlist">Playlist</string>
+    <string name="menu_item_playlist_clear">Effacer la playlist</string>
+    <string name="menu_item_playlist_save">Enregistrer comme playlist</string>
     <string name="menu_item_playlist_show_current_song">Aller au morceau en cours</string>
     <string name="menu_item_volume">Changer le volume</string>
     <string name="connecting_text">Connexion</string>
@@ -69,6 +73,8 @@
     <string name="enable_wifi_text">"Cela activera le Wi-Fi sur votre appareil Android. Quand la connexion Wi-Fi est établie, Squeezer essaiera automatiquement de se connecter à votre SqueezeBox. Activer le Wi-Fi maintenant?"</string>
     <string name="wifi_enabled_text">Wi-Fi est activé. Veuillez attendre une connexion Wi-Fi active.</string>
     <string name="notification_playing_text">%s joue</string>
+    <string name="save_playlist_title">Enregistrer la playlist</string>
+    <string name="save_playlist_hint">Entrez le nom de la playlist</string>
     <string name="rename_title">Renommer %s</string>
     <string name="sync_title">Synchroniser %s sur…</string>
     <string name="loading_text">Chargement…</string>
@@ -124,6 +130,8 @@
     <string name="PLAY_NOW">Jouer</string>
     <string name="ADD_TO_END">Ajouter à la playlist</string>
     <string name="PLAY_NEXT">Jouer après le morceau en cours</string>
+    <string name="DOWNLOAD">Télécharger</string>
+    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Téléchargement annulé car nous n’avons pas l’autorisation de sauvegarder les fichiers téléchargés</string>
 
 
     <string name="pref_cat_error_reports">Rapports d\'erreur et statistiques</string>
@@ -136,5 +144,23 @@
         <item quantity="other">secondes</item>
     </plurals>
 
+    <string name="confirm_cancel_downloads">Annuler les téléchargements en attente?</string>
+
+    <string name="settings_category_download">Télécharger</string>
+    <string name="settings_download_use_server_path">Utiliser le chemin du serveur et le nom du fichier</string>
+    <string name="settings_download_path_structure">Hiérarchie des dossiers</string>
+    <string name="settings_download_filename_structure">Nom de fichier</string>
+    <string name="download_path_structure_artist_artistalbum">Artiste / Artiste - Album</string>
+    <string name="download_path_structure_artist_album">Artiste / Album</string>
+    <string name="download_path_structure_artistalbum">Artiste - Album</string>
+    <string name="download_path_structure_album">Album</string>
+    <string name="download_path_structure_artist">Artiste</string>
+    <string name="download_filename_structure_number_title">Numéro - Titre</string>
+    <string name="download_filename_structure_artist_title">Artiste - Titre</string>
+    <string name="download_filename_structure_artist_number_title">Artiste - Numéro - Titre</string>
+    <string name="download_filename_structure_albumartist_number_title">Artiste (Album) - Numéro - Titre</string>
+    <string name="download_filename_structure_title">Titre</string>
+    <string name="download_filename_structure_number_dot_artist_title">Nombre. Artiste - Titre</string>
+    <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">n\'a pas pu être ajouté à la base de données multimédia de l\'appareil</string>
     <string name="pref_cat_third_party">Intégration tierce</string>
 </resources>

@@ -20,6 +20,8 @@ import android.os.Parcelable.Creator;
 import android.view.View;
 import android.view.ViewGroup;
 
+import uk.org.ngo.squeezer.model.Item;
+
 
 /**
  * Defines view logic for a {@link Item}
@@ -53,7 +55,7 @@ public interface ItemView<T extends Item> {
      *
      * @return the view to display.
      */
-    View getAdapterView(View convertView, ViewGroup parent, int position, T item);
+    View getAdapterView(View convertView, ViewGroup parent, int position, T item, boolean selected);
 
     /**
      * Gets a {@link android.view.View} suitable for displaying the supplied (static) text. See
@@ -87,13 +89,28 @@ public interface ItemView<T extends Item> {
     boolean isSelectable(T item);
 
     /**
+     * Return whether the supplied item is currently selected
+     * @param item Item to check
+     * @return True if the item is selected
+     */
+    boolean isSelected(T item);
+
+    /**
      * Implement the action to be taken when an item is selected.
      *
      * @param view The view currently showing the item.
      * @param index Position in the list of the selected item.
      * @param item The selected item. This may be null if
+     * @return True if {@link android.widget.BaseAdapter#notifyDataSetChanged()} shall be called
      */
-    void onItemSelected(View view, int index, T item);
+    boolean onItemSelected(View view, int index, T item);
+
+    /**
+     * Implement the action to be taken when an item is selected.
+     *
+     * @param view The view currently showing the item.
+     */
+    void onGroupSelected(View view, T[] items);
 
     /**
      * Creates the context menu.

@@ -18,9 +18,13 @@ Features include:
 
 *   Library Views and Remote Music Libraries
 
+*   Download of local music; track, album, artist, genre, year, playlist and music folder
+
 *   Manage players (names, synchronisation groups, sleep, alarms)
 
 *   Internet radio support (browse, staff picks, search).
+
+*   Home Screen Widgets
 
 *   Alarm Clock management
 
@@ -30,6 +34,8 @@ Features include:
 
 *   Connect to mysqueezebox.com
 
-Squeezer is free, and open source.  For more information, to file a feature request,
+*   Control playback from your Android Wear device
+
+Squeezer is free, and open source. For more information, to file a feature request,
 or to contribute, see the
 [project home page](https://nikclayton.github.io/android-squeezer/).

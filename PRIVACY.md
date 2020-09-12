@@ -42,7 +42,7 @@ have the third party's consent to provide the Data to the Owner.
 
 ## Mode and place of processing the Data
 
-###Methods of processing
+### Methods of processing
 
 The Owner takes appropriate security measures to prevent unauthorized
 access, disclosure, modification, or unauthorized destruction of the
@@ -422,7 +422,7 @@ European Union and the European Economic Area.
 
 Small piece of data stored in the User's device.
 
-##Legal information
+## Legal information
 
 This privacy statement has been prepared based on provisions of
 multiple legislations, including Art. 13/14 of Regulation (EU)

@@ -17,6 +17,7 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 import android.os.Handler;
 
@@ -39,7 +41,8 @@ import java.util.Map;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.framework.ItemAdapter;
 import uk.org.ngo.squeezer.framework.ItemView;
-import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.itemlist.dialog.PlaylistSaveDialog;
+import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.event.MusicChanged;
 import uk.org.ngo.squeezer.service.event.PlaylistChanged;
@@ -50,7 +53,9 @@ import static uk.org.ngo.squeezer.framework.BaseItemView.ViewHolder;
 /**
  * Activity that shows the songs in the current playlist.
  */
-public class CurrentPlaylistActivity extends PluginListActivity {
+public class CurrentPlaylistActivity extends JiveItemListActivity {
+
+    private static final String TAG = CurrentPlaylistActivity.class.getName();
 
     /**
      * Called when the activity is first created.
@@ -101,9 +106,9 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     /**
      * A list adapter that highlights the view that's currently playing.
      */
-    private static class HighlightingListAdapter extends ItemAdapter<Plugin> {
+    private static class HighlightingListAdapter extends ItemAdapter<JiveItem> {
 
-        public HighlightingListAdapter(ItemView<Plugin> itemView) {
+        public HighlightingListAdapter(ItemView<JiveItem> itemView) {
             super(itemView);
         }
 
@@ -150,17 +155,17 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     }
 
     @Override
-    protected ItemAdapter<Plugin> createItemListAdapter(
-            ItemView<Plugin> itemView) {
+    protected ItemAdapter<JiveItem> createItemListAdapter(
+            ItemView<JiveItem> itemView) {
         return new HighlightingListAdapter(itemView);
     }
 
     @Override
-    public ItemView<Plugin> createItemView() {
-        return new PluginView(this, window.windowStyle) {
+    public ItemView<JiveItem> createItemView() {
+        return new JiveItemView(this, window.windowStyle) {
 
             @Override
-            public boolean isSelectable(Plugin item) {
+            public boolean isSelectable(JiveItem item) {
                 return true;
             }
 
@@ -168,17 +173,12 @@ public class CurrentPlaylistActivity extends PluginListActivity {
              * Jumps to whichever song the user chose.
              */
             @Override
-            public void onItemSelected(View view, int index, Plugin item) {
-
-                // check first for a hierarchical menu or a input to perform
-                if (item.hasSubItems() || item.hasInput()) {
-                    super.onItemSelected(view, index, item);
-                } else {
-                    ISqueezeService service = getActivity().getService();
-                    if (service != null) {
-                        getActivity().getService().playlistIndex(index);
-                    }
+            public boolean onItemSelected(View view, int index, JiveItem item) {
+                ISqueezeService service = getActivity().getService();
+                if (service != null) {
+                    getActivity().getService().playlistIndex(index);
                 }
+                return false;
             }
         };
     }
@@ -194,7 +194,8 @@ public class CurrentPlaylistActivity extends PluginListActivity {
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        final int[] ids = { R.id.menu_item_playlist_show_current_song };
+        final int[] ids = {R.id.menu_item_playlist_clear, R.id.menu_item_playlist_save,
+                R.id.menu_item_playlist_show_current_song};
 
         final boolean knowCurrentPlaylist = getCurrentPlaylist() != null;
 
@@ -209,6 +210,14 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_item_playlist_clear:
+                if (getService() != null) {
+                    getService().playlistClear();
+                }
+                return true;
+            case R.id.menu_item_playlist_save:
+                PlaylistSaveDialog.addTo(this, getCurrentPlaylist());
+                return true;
             case R.id.menu_item_playlist_show_current_song:
                 selectCurrentSong(getItemAdapter().getSelectedIndex(), 0);
                 return true;
@@ -245,17 +254,21 @@ public class CurrentPlaylistActivity extends PluginListActivity {
     }
 
     @Override
-    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<Plugin> items, Class<Plugin> dataType) {
-        for (Plugin item : items) {
-            // check for a hierarchical menu or a input to perform
-            if (!(item.hasSubItems() || item.hasInput())) {
+    public void onItemsReceived(int count, int start, Map<String, Object> parameters, List<JiveItem> items, Class<JiveItem> dataType) {
+        List<JiveItem> playlistItems = new ArrayList<>();
+        for (JiveItem item : items) {
+            // Skip special items (global actions) as there are handled locally
+            if ((item.hasSubItems() || item.hasInput())) {
+                count--;
+            } else {
+                playlistItems.add(item);
                 if (item.moreAction == null) {
                     item.moreAction = item.goAction;
                     item.goAction = null;
                 }
             }
         }
-        super.onItemsReceived(count, start, parameters, items, dataType);
+        super.onItemsReceived(count, start, parameters, playlistItems, dataType);
 
         ISqueezeService service = getService();
         if (service == null) {
@@ -267,13 +280,13 @@ public class CurrentPlaylistActivity extends PluginListActivity {
         // Do it again once it has loaded because the newly displayed items
         // may push the current song outside the displayed area
         int selectedIndex = getItemAdapter().getSelectedIndex();
-        if (start == 0 || (start <= selectedIndex && selectedIndex < start + items.size())) {
+        if (start == 0 || (start <= selectedIndex && selectedIndex < start + playlistItems.size())) {
             selectCurrentSong(selectedIndex, start);
         }
     }
 
     private void selectCurrentSong(final int currentPlaylistIndex, final int start) {
-        Log.i(getTag(), "set selection(" + start + "): " + currentPlaylistIndex);
+        Log.i(TAG, "set selection(" + start + "): " + currentPlaylistIndex);
         playlistIndexUpdateHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -283,11 +296,17 @@ public class CurrentPlaylistActivity extends PluginListActivity {
         });
     }
 
-    public static void show(Activity activity) {
-        final Intent intent = new Intent(activity, CurrentPlaylistActivity.class)
+    public static void show(Context context) {
+        final Intent intent = new Intent(context, CurrentPlaylistActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.putExtra(Plugin.class.getName(), Plugin.CURRENT_PLAYLIST);
-        activity.startActivity(intent);
-        activity.overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+        intent.putExtra(JiveItem.class.getName(), JiveItem.CURRENT_PLAYLIST);
+
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        context.startActivity(intent);
+        if (context instanceof Activity) {
+            ((Activity) context).overridePendingTransition(R.anim.slide_in_up, android.R.anim.fade_out);
+        }
     }
 }

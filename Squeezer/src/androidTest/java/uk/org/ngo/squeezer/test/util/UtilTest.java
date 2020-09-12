@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import uk.org.ngo.squeezer.Util;
-import uk.org.ngo.squeezer.framework.Item;
+import uk.org.ngo.squeezer.model.Item;
 import uk.org.ngo.squeezer.model.CurrentPlaylistItem;
-import uk.org.ngo.squeezer.model.Plugin;
+import uk.org.ngo.squeezer.model.JiveItem;
 
 public class UtilTest extends TestCase {
 
@@ -32,7 +32,7 @@ public class UtilTest extends TestCase {
         assertNull(atomicString.get());
 
         AtomicReference<Item> atomicItem = new AtomicReference<>();
-        Plugin album = new Plugin(new HashMap<String, Object>());
+        JiveItem album = new JiveItem(new HashMap<String, Object>());
         album.setId("1");
         album.setName("Album");
         CurrentPlaylistItem song = new CurrentPlaylistItem(new HashMap<String, Object>());

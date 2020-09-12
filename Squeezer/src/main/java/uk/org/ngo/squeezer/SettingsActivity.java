@@ -34,13 +34,14 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import uk.org.ngo.squeezer.download.DownloadFilenameStructure;
+import uk.org.ngo.squeezer.download.DownloadPathStructure;
+import uk.org.ngo.squeezer.framework.EnumWithText;
 import uk.org.ngo.squeezer.service.ISqueezeService;
 import uk.org.ngo.squeezer.service.SqueezeService;
 import uk.org.ngo.squeezer.util.Scrobble;
@@ -97,6 +98,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
         fillScrobblePreferences(sharedPreferences);
 
+        fillDownloadPreferences(preferences);
         fillThemeSelectionPreferences();
 
         CheckBoxPreference startSqueezePlayerPref = (CheckBoxPreference) findPreference(
@@ -132,6 +134,26 @@ public class SettingsActivity extends PreferenceActivity implements
         }
     }
 
+    private void fillDownloadPreferences(Preferences preferences) {
+        final ListPreference pathStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
+        final ListPreference filenameStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
+
+        fillEnumPreference(pathStructurePreference, DownloadPathStructure.class, preferences.getDownloadPathStructure());
+        fillEnumPreference(filenameStructurePreference, DownloadFilenameStructure.class, preferences.getDownloadFilenameStructure());
+
+        updateDownloadPreferences(preferences);
+    }
+
+    private void updateDownloadPreferences(Preferences preferences) {
+        final CheckBoxPreference useServerPathPreference = (CheckBoxPreference) findPreference(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH);
+        final ListPreference pathStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_PATH_STRUCTURE);
+        final ListPreference filenameStructurePreference = (ListPreference) findPreference(Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE);
+        final boolean useServerPath = preferences.isDownloadUseServerPath();
+        useServerPathPreference.setChecked(useServerPath);
+        pathStructurePreference.setEnabled(!useServerPath);
+        filenameStructurePreference.setEnabled(!useServerPath);
+    }
+
     private void fillThemeSelectionPreferences() {
         ListPreference onSelectThemePref = (ListPreference) findPreference(Preferences.KEY_ON_THEME_SELECT_ACTION);
         ArrayList<String> entryValues = new ArrayList<>();
@@ -158,6 +180,26 @@ public class SettingsActivity extends PreferenceActivity implements
         updateListPreferenceSummary(onSelectThemePref, onSelectThemePref.getValue());
     }
 
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, Class<E> actionTypes, E defaultValue) {
+        fillEnumPreference(listPreference, actionTypes.getEnumConstants(), defaultValue);
+    }
+
+    private <E extends Enum<E> & EnumWithText> void fillEnumPreference(ListPreference listPreference, E[] actionTypes, E defaultValue) {
+        String[] values = new String[actionTypes.length];
+        String[] entries = new String[actionTypes.length];
+        for (int i = 0; i < actionTypes.length; i++) {
+            values[i] = actionTypes[i].name();
+            entries[i] = actionTypes[i].getText(this);
+        }
+        listPreference.setEntryValues(values);
+        listPreference.setEntries(entries);
+        listPreference.setDefaultValue(defaultValue);
+        if (listPreference.getValue() == null) {
+            listPreference.setValue(defaultValue.name());
+        }
+        listPreference.setOnPreferenceChangeListener(this);
+        updateListPreferenceSummary(listPreference, listPreference.getValue());
+    }
 
     @Override
     public void onResume() {
@@ -209,7 +251,9 @@ public class SettingsActivity extends PreferenceActivity implements
             updateFadeInSecondsSummary(Util.getInt(newValue.toString()));
         }
 
-        if (Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key)) {
+        if (Preferences.KEY_ON_THEME_SELECT_ACTION.equals(key) ||
+                Preferences.KEY_DOWNLOAD_PATH_STRUCTURE.equals(key) ||
+                Preferences.KEY_DOWNLOAD_FILENAME_STRUCTURE.equals(key)) {
             updateListPreferenceSummary((ListPreference) preference, (String) newValue);
         }
 
@@ -236,6 +280,10 @@ public class SettingsActivity extends PreferenceActivity implements
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.v(TAG, "Preference changed: " + key);
+
+        if (key.startsWith(Preferences.KEY_DOWNLOAD_USE_SERVER_PATH)) {
+            updateDownloadPreferences(new Preferences(this, sharedPreferences));
+        }
 
         if (service != null) {
             service.preferenceChanged(key);
@@ -272,18 +320,14 @@ public class SettingsActivity extends PreferenceActivity implements
                 appList.setAdapter(new IconRowAdapter(this, apps, icons));
 
                 final Context context = dialog.getContext();
-                appList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position,
-                            long id) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse("market://details?id=" + urls[position]));
-                        try {
-                            startActivity(intent);
-                        } catch (ActivityNotFoundException e) {
-                            Toast.makeText(context, R.string.settings_market_not_found,
-                                    Toast.LENGTH_SHORT).show();
-                        }
+                appList.setOnItemClickListener((parent, view, position, id1) -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse("market://details?id=" + urls[position]));
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(context, R.string.settings_market_not_found,
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
         }

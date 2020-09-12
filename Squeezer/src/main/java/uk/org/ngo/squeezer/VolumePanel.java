@@ -20,6 +20,7 @@ package uk.org.ngo.squeezer;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
@@ -29,6 +30,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import com.sdsmdg.harjot.crollerTest.Croller;
 import com.sdsmdg.harjot.crollerTest.OnCrollerChangeListener;
@@ -74,6 +77,13 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
         LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mView = inflater.inflate(R.layout.volume_adjust, null);
+        GradientDrawable background = (GradientDrawable) ContextCompat.getDrawable(mActivity, R.drawable.panel_background);
+        background.setColor(activity.getResources().getColor(activity.getAttributeValue(R.attr.colorSurface)));
+        background.setStroke(
+                activity.getResources().getDimensionPixelSize(R.dimen.volume_panel_border_Width),
+                activity.getResources().getColor(activity.getAttributeValue(R.attr.colorPrimary))
+        );
+        mView.setBackground(background);
         mView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -106,6 +116,7 @@ public class VolumePanel extends Handler implements OnCrollerChangeListener {
         window.setGravity(Gravity.TOP);
         WindowManager.LayoutParams lp = window.getAttributes();
         lp.token = null;
+        lp.y = activity.getResources().getDimensionPixelSize(R.dimen.volume_panel_top_margin);
         lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         window.setAttributes(lp);
