@@ -175,12 +175,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             mItemClass = (Class<T>) Reflection.getGenericClass(getClass(), ItemView.class,
                     0);
             if (mItemClass == null) {
-                mItemClass = (Class<T>) Reflection.getGenericClass(getClass().getSuperclass(), ItemView.class,
-                    0);
-                if (mItemClass == null) {
-
-                    throw new RuntimeException("Could not read generic argument for: " + getClass());
-                }
+                throw new RuntimeException("Could not read generic argument for: " + getClass());
             }
         }
         return mItemClass;

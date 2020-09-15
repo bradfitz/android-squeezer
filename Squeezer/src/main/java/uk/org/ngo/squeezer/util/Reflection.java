@@ -160,7 +160,7 @@ public class Reflection {
             Type[] actualTypes = pType.getActualTypeArguments();
             Type[] newActualTypeArguments = new Type[actualTypes.length];
             for (int i = 0; i < actualTypes.length; i++) {
-                newActualTypeArguments[i] = null;
+                newActualTypeArguments[i] = actualTypes[i];
                 for (int j = 0; j < typeParameters.length; j++) {
                     if (actualTypes[i].equals(typeParameters[j])) {
                         newActualTypeArguments[i] = actualTypeArguments[j];
