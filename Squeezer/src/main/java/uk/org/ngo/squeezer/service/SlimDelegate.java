@@ -214,11 +214,11 @@ class SlimDelegate {
         }
 
         private Request(SlimClient slimClient, Player player, int start, IServiceItemListCallback<T> callback) {
-            this(slimClient, player, start, (start == 0 ? 1 : BaseClient.mPageSize), callback);
+            this(slimClient, player, start, BaseClient.mPageSize, callback);
         }
 
         private Request(SlimClient slimClient, int start, IServiceItemListCallback<T> callback) {
-            this(slimClient, null, start, (start == 0 ? 1 : BaseClient.mPageSize), callback);
+            this(slimClient, null, start, BaseClient.mPageSize, callback);
         }
 
         private Request(SlimClient slimClient, int start, int pageSize, IServiceItemListCallback<T> callback) {
