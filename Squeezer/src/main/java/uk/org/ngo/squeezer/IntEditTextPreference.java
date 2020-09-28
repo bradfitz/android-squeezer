@@ -17,8 +17,9 @@
 package uk.org.ngo.squeezer;
 
 import android.content.Context;
-import android.preference.EditTextPreference;
 import android.util.AttributeSet;
+
+import androidx.preference.EditTextPreference;
 
 public class IntEditTextPreference extends EditTextPreference {
 

@@ -41,12 +41,13 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.dialog.AlertEventDialog;
+import uk.org.ngo.squeezer.dialog.DownloadDialog;
 import uk.org.ngo.squeezer.itemlist.HomeActivity;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.VolumePanel;
@@ -390,8 +391,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void onEventMainThread(DisplayEvent displayEvent) {
         boolean showMe = true;
         DisplayMessage display = displayEvent.message;
-        View layout = getLayoutInflater().inflate(R.layout.display_message,
-                (ViewGroup) findViewById(R.id.display_message_container));
+        View layout = getLayoutInflater().inflate(R.layout.display_message, findViewById(R.id.display_message_container));
         ImageView artwork = layout.findViewById(R.id.artwork);
         artwork.setVisibility(View.GONE);
         ImageView icon = layout.findViewById(R.id.icon);
@@ -486,6 +486,30 @@ public abstract class BaseActivity extends AppCompatActivity {
      * @see ISqueezeService#downloadItem(JiveItem)
      */
     public void downloadItem(JiveItem item) {
+        if (new Preferences(this).isDownloadConfirmation()) {
+            DownloadDialog.show(getSupportFragmentManager(), item, new DownloadDialog.DownloadDialogListener() {
+                @Override
+                public void download(boolean persist) {
+                    if (persist) {
+                        new Preferences(BaseActivity.this).setDownloadConfirmation(false);
+                    }
+                    doDownload(item);
+                }
+
+                @Override
+                public void cancel(boolean persist) {
+                    if (persist) {
+                        new Preferences(BaseActivity.this).setDownloadEnabled(false);
+                    }
+
+                }
+            });
+        } else {
+            doDownload(item);
+        }
+    }
+
+    private void doDownload(JiveItem item) {
         if (Build.VERSION_CODES.M <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
                 checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             currentDownloadItem = item;
@@ -497,7 +521,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private JiveItem currentDownloadItem;
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case 1:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

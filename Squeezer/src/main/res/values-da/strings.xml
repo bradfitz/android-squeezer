@@ -147,6 +147,7 @@
     <string name="PLAY_NEXT">Afspil efter den sang der spilles nu</string>
     <string name="DOWNLOAD">Hent</string>
     <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Hent afbrudt, da vi ikke har tilladelse til at gemme de valgte filer</string>
+    <string name="DONT_ASK_AGAIN">Spørg mig ikke igen</string>
 
     <!-- Song display options -->
 
@@ -166,6 +167,9 @@
 
     <string name="confirm_cancel_downloads">Annullér ventende overførsler?</string>
 
+    <string name="settings_category_download">Hentning</string>
+    <string name="settings_download_enabled">Aktivér hentning</string>
+    <string name="settings_download_confirmation">Bekræft før hentning</string>
     <string name="settings_download_path_structure">Mappestruktur</string>
     <string name="settings_download_filename_structure">Filnavn</string>
     <string name="download_path_structure_artist_artistalbum">Kunstner/Kunstner - Album</string>
@@ -179,6 +183,10 @@
     <string name="download_filename_structure_albumartist_number_title">Kunstner (Album) - Nummer - Titel</string>
     <string name="download_filename_structure_title">Titel</string>
     <string name="download_filename_structure_number_dot_artist_title">Nummer. Kunstner - Titel</string>
+
+    <!-- Download dialog -->
+    <string name="download_item">Hent %s</string>
+    <string name="disable_downloads">Deaktivér hentning</string>
 
     <string name="configure_select_player">Vælg afspiller</string>
     <string name="configure_select_button">Widget handling</string>

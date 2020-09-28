@@ -326,6 +326,7 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="PLAY_NEXT">Play after the current song</string>
     <string name="DOWNLOAD">Download</string>
     <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Download cancelled, as we don\'t have permission to save the downloaded files</string>
+    <string name="DONT_ASK_AGAIN">Don\'t ask again</string>
 
     <!-- Song display options -->
 
@@ -346,6 +347,8 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="confirm_cancel_downloads">Cancel pending downloads?</string>
 
     <string name="settings_category_download">Download</string>
+    <string name="settings_download_enabled">Enable downloads</string>
+    <string name="settings_download_confirmation">Ask for confirmation before downloading</string>
     <string name="settings_download_use_server_path">Use server path and filename</string>
     <string name="settings_download_path_structure">Folder hierarchy</string>
     <string name="settings_download_filename_structure">File name</string>
@@ -361,6 +364,10 @@ of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
     <string name="download_filename_structure_title">Title</string>
     <string name="download_filename_structure_number_dot_artist_title">Number. Artist - Title</string>
     <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">could not be added to the device\'s media database</string>
+
+    <!-- Download dialog -->
+    <string name="download_item">Download %s</string>
+    <string name="disable_downloads">Disable downloads</string>
 
     <string name="about_team" translatable="false">Team</string>
     <string name="about_authors" translatable="false">Kurt Aaholst\nNik Clayton\nBrad Fitzpatrick</string>
