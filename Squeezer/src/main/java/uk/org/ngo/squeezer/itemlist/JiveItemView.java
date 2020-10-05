@@ -70,10 +70,8 @@ public class JiveItemView extends BaseItemView<JiveItem> {
 
     @Override
     public View getAdapterView(View convertView, ViewGroup parent, int position, final JiveItem item, boolean selected) {
-        if (selected) {
-            if (item.radio != null) {
-                item.radio = selected;
-            }
+        if (item.radio != null) {
+            item.radio = selected;
         }
         if (item.hasSlider()) {
             return sliderView(parent, item);
