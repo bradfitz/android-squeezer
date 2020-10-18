@@ -683,7 +683,13 @@ public class JiveItem extends Item {
      * Get parameters which can be used in a titles command from the supplied action
      */
     private Map<String,Object> getTitlesParams(SlimCommand action) {
-        return action.params.entrySet().stream().filter(e -> title_parameters.contains(e.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, Object> map = new HashMap<>();
+        for (Map.Entry<String, Object> e : action.params.entrySet()) {
+            if (title_parameters.contains(e.getKey()) && e.getValue() != null) {
+                map.put(e.getKey(), e.getValue());
+            }
+        }
+        return map;
     }
     private static final Set<String> title_parameters = new HashSet<>(Arrays.asList("track_id", "album_id", "artist_id", "genre_id", "year"));
 
