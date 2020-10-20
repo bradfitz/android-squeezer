@@ -67,7 +67,7 @@ public interface ItemView<T extends Item> {
      *
      * @return the view to display.
      */
-    View getAdapterView(View convertView, ViewGroup parent, String text);
+    View getAdapterView(View convertView, ViewGroup parent, int position, String text);
 
     /**
      * @return The generic argument of the implementation

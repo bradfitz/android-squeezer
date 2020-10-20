@@ -39,7 +39,6 @@ import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -106,25 +105,19 @@ public class AlarmView extends BaseItemView<Alarm> {
             viewHolder.time = convertView.findViewById(R.id.time);
             viewHolder.amPm = convertView.findViewById(R.id.am_pm);
             viewHolder.amPm.setVisibility(viewHolder.is24HourFormat ? View.GONE : View.VISIBLE);
-            viewHolder.enabled = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.enabled));
-            viewHolder.enabled.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (getActivity().getService() != null) {
-                        viewHolder.alarm.setEnabled(b);
-                        getActivity().getService().alarmEnable(viewHolder.alarm.getId(), b);
-                    }
+            viewHolder.enabled = new CompoundButtonWrapper(convertView.findViewById(R.id.enabled));
+            viewHolder.enabled.setOncheckedChangeListener((compoundButton, b) -> {
+                if (getActivity().getService() != null) {
+                    viewHolder.alarm.setEnabled(b);
+                    getActivity().getService().alarmEnable(viewHolder.alarm.getId(), b);
                 }
             });
-            viewHolder.repeat = new CompoundButtonWrapper((CompoundButton) convertView.findViewById(R.id.repeat));
-            viewHolder.repeat.setOncheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (getActivity().getService() != null) {
-                        viewHolder.alarm.setRepeat(b);
-                        getActivity().getService().alarmRepeat(viewHolder.alarm.getId(), b);
-                        viewHolder.dowHolder.setVisibility(b ? View.VISIBLE : View.GONE);
-                    }
+            viewHolder.repeat = new CompoundButtonWrapper(convertView.findViewById(R.id.repeat));
+            viewHolder.repeat.setOncheckedChangeListener((compoundButton, b) -> {
+                if (getActivity().getService() != null) {
+                    viewHolder.alarm.setRepeat(b);
+                    getActivity().getService().alarmRepeat(viewHolder.alarm.getId(), b);
+                    viewHolder.dowHolder.setVisibility(b ? View.VISIBLE : View.GONE);
                 }
             });
             viewHolder.repeat.getButton().setText(R.string.ALARM_ALARM_REPEAT);
@@ -134,42 +127,36 @@ public class AlarmView extends BaseItemView<Alarm> {
             for (int day = 0; day < 7; day++) {
                 ViewGroup dowButton = (ViewGroup) viewHolder.dowHolder.getChildAt(day);
                 final int finalDay = day;
-                dowButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (getActivity().getService() != null) {
-                            final Alarm alarm = viewHolder.alarm;
-                            boolean wasChecked = alarm.isDayActive(finalDay);
-                            if (wasChecked) {
-                                alarm.clearDay(finalDay);
-                                getActivity().getService().alarmRemoveDay(alarm.getId(), finalDay);
-                            } else {
-                                alarm.setDay(finalDay);
-                                getActivity().getService().alarmAddDay(alarm.getId(), finalDay);
-                            }
-                            setDowText(viewHolder, finalDay);
+                dowButton.setOnClickListener(v -> {
+                    if (getActivity().getService() != null) {
+                        final Alarm alarm = viewHolder.alarm;
+                        boolean wasChecked = alarm.isDayActive(finalDay);
+                        if (wasChecked) {
+                            alarm.clearDay(finalDay);
+                            getActivity().getService().alarmRemoveDay(alarm.getId(), finalDay);
+                        } else {
+                            alarm.setDay(finalDay);
+                            getActivity().getService().alarmAddDay(alarm.getId(), finalDay);
                         }
+                        setDowText(viewHolder, finalDay);
                     }
                 });
                 viewHolder.dowTexts[day] = (TextView) dowButton.getChildAt(0);
             }
-            viewHolder.delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View view) {
-                    final AnimationSet animationSet = new AnimationSet(true);
-                    animationSet.addAnimation(new ScaleAnimation(1F, 1F, 1F, 0.5F));
-                    animationSet.addAnimation(new AlphaAnimation(1F, 0F));
-                    animationSet.setDuration(ANIMATION_DURATION);
-                    animationSet.setAnimationListener(new AnimationEndListener() {
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            mActivity.getItemAdapter().removeItem(viewHolder.position);
-                            UndoBarController.show(getActivity(), R.string.ALARM_DELETING, new UndoListener(viewHolder.position, viewHolder.alarm));
-                        }
-                    });
+            viewHolder.delete.setOnClickListener(view -> {
+                final AnimationSet animationSet = new AnimationSet(true);
+                animationSet.addAnimation(new ScaleAnimation(1F, 1F, 1F, 0.5F));
+                animationSet.addAnimation(new AlphaAnimation(1F, 0F));
+                animationSet.setDuration(ANIMATION_DURATION);
+                animationSet.setAnimationListener(new AnimationEndListener() {
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        mActivity.getItemAdapter().removeItem(viewHolder.position);
+                        UndoBarController.show(getActivity(), R.string.ALARM_DELETING, new UndoListener(viewHolder.position, viewHolder.alarm));
+                    }
+                });
 
-                    alarmView.startAnimation(animationSet);
-                }
+                alarmView.startAnimation(animationSet);
             });
             viewHolder.playlist.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -208,12 +195,7 @@ public class AlarmView extends BaseItemView<Alarm> {
         viewHolder.position = position;
         viewHolder.alarm = item;
         viewHolder.time.setText(String.format(viewHolder.timeFormat, displayHour, minute));
-        viewHolder.time.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TimePickerFragment.show(getActivity().getSupportFragmentManager(), item, viewHolder.is24HourFormat, getActivity().getThemeId() == R.style.AppTheme);
-            }
-        });
+        viewHolder.time.setOnClickListener(view -> TimePickerFragment.show(getActivity().getSupportFragmentManager(), item, viewHolder.is24HourFormat, getActivity().getThemeId() == R.style.AppTheme));
         viewHolder.amPm.setText(hour < 12 ? viewHolder.am : viewHolder.pm);
         viewHolder.enabled.setChecked(item.isEnabled());
         viewHolder.repeat.setChecked(item.isRepeat());
@@ -354,13 +336,14 @@ public class AlarmView extends BaseItemView<Alarm> {
             return (mAlarmPlaylists.get(position).getId() != null);
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
            return Util.getSpinnerItemView(getActivity(), convertView, parent, getItem(position).getName());
         }
 
         @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
             if (!isEnabled(position)) {
                 FrameLayout view = (FrameLayout) getActivity().getLayoutInflater().inflate(R.layout.alarm_playlist_category_dropdown_item, parent, false);
                 CheckedTextView spinnerItemView = view.findViewById(R.id.text);

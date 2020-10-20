@@ -77,7 +77,7 @@ public class JiveItemView extends BaseItemView<JiveItem> {
             return sliderView(parent, item);
         } else {
             @ViewParam int viewParams = (viewParamIcon() | VIEW_PARAM_TWO_LINE | viewParamContext(item));
-            View view = getAdapterView(convertView, parent, viewParams);
+            View view = getAdapterView(convertView, parent, position, viewParams);
             bindView(view, item);
             return view;
         }
@@ -123,8 +123,8 @@ public class JiveItemView extends BaseItemView<JiveItem> {
     }
 
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
-        return getAdapterView(convertView, parent, viewParams, layoutResource());
+    public View getAdapterView(View convertView, ViewGroup parent, int position, @ViewParam int viewParams) {
+        return getAdapterView(convertView, parent, position, viewParams, layoutResource());
     }
 
     @LayoutRes private int layoutResource() {
@@ -163,10 +163,17 @@ public class JiveItemView extends BaseItemView<JiveItem> {
 
         // If the item has an image, then fetch and display it
         if (item.hasArtwork()) {
-            ImageFetcher.getInstance(getActivity()).loadImage(item.getIcon(), viewHolder.icon,
-                    mIconWidth, mIconHeight);
+            ImageFetcher.getInstance(getActivity()).loadImage(
+                    item.getIcon(),
+                    viewHolder.icon,
+                    mIconWidth,
+                    mIconHeight,
+                    () -> onIcon(viewHolder)
+
+            );
         } else {
             viewHolder.icon.setImageDrawable(item.getIconDrawable(getActivity()));
+            onIcon(viewHolder);
         }
 
         if (item.hasContextMenu()) {
@@ -179,6 +186,9 @@ public class JiveItemView extends BaseItemView<JiveItem> {
                 viewHolder.contextMenuRadio.setChecked(item.radio);
             }
         }
+    }
+
+    protected void onIcon(ViewHolder viewHolder) {
     }
 
     @Override

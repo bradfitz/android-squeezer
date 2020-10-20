@@ -64,7 +64,7 @@ import uk.org.ngo.squeezer.widget.SquareImageView;
  * control how data from the item is inserted in to the view.
  * <p>
  * If you need a completely custom view hierarchy then override {@link #getAdapterView(View,
- * ViewGroup, int)} and {@link #getAdapterView(View, ViewGroup, String)}.
+ * ViewGroup, int, T, boolean)} and {@link #getAdapterView(View, ViewGroup, int, String)}.
  *
  * @param <T> the Item subclass this view represents.
  */
@@ -105,6 +105,8 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * A ViewHolder for the views that make up a complete list item.
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        public int position;
+
         public ImageView icon;
 
         public TextView text1;
@@ -206,12 +208,12 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Returns a view suitable for displaying the data of item in a list. Item may not be null.
      * <p>
-     * Override this method and {@link #getAdapterView(View, ViewGroup, String)} if your subclass
+     * Override this method and {@link #getAdapterView(View, ViewGroup, int, String)} if your subclass
      * uses a different layout.
      */
     @Override
     public View getAdapterView(View convertView, ViewGroup parent, int position, T item, boolean selected) {
-        View view = getAdapterView(convertView, parent, mViewParams);
+        View view = getAdapterView(convertView, parent, position, mViewParams);
         bindView(view, item);
         return view;
     }
@@ -242,8 +244,8 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      * extension uses a different layout.
      */
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, String text) {
-        View view = getAdapterView(convertView, parent, mLoadingViewParams);
+    public View getAdapterView(View convertView, ViewGroup parent, int position, String text) {
+        View view = getAdapterView(convertView, parent, position, mLoadingViewParams);
         bindView(view, text);
         return view;
     }
@@ -251,7 +253,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
     /**
      * Binds the text to {@link ViewHolder#text1}.
      * <p>
-     * Override this instead of {@link #getAdapterView(View, ViewGroup, String)} if the default
+     * Override this instead of {@link #getAdapterView(View, ViewGroup, int, String)} if the default
      * layout is sufficient.
      *
      * @param view The view that contains the {@link ViewHolder}
@@ -273,8 +275,8 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      *
      * @return convertView if it can be reused, or a new view
      */
-    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
-        return getAdapterView(convertView, parent, viewParams, R.layout.list_item);
+    public View getAdapterView(View convertView, ViewGroup parent, int position, @ViewParam int viewParams) {
+        return getAdapterView(convertView, parent, viewParams, position, R.layout.list_item);
     }
 
     /**
@@ -287,7 +289,7 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
      *
      * @return convertView if it can be reused, or a new view
      */
-    protected View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams, @LayoutRes int layoutResource) {
+    protected View getAdapterView(View convertView, ViewGroup parent, int position, @ViewParam int viewParams, @LayoutRes int layoutResource) {
         ViewHolder viewHolder =
                 (convertView != null && convertView.getTag() instanceof ViewHolder)
                         ? (ViewHolder) convertView.getTag()
@@ -299,6 +301,8 @@ public abstract class BaseItemView<T extends Item> implements ItemView<T> {
             setViewParams(viewParams, viewHolder);
             convertView.setTag(viewHolder);
         }
+
+        viewHolder.position = position;
 
         // If the view parameters are different then reset the visibility of child views and hook
         // up any standard behaviours.

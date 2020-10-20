@@ -1127,11 +1127,20 @@ public class SqueezeService extends Service {
         }
 
         @Override
-        public boolean button(Player player, IRButton button) {
+        public boolean playlistRemove(int index) {
             if (!isConnected()) {
                 return false;
             }
-            mDelegate.command(player).cmd("button", button.getFunction()).exec();
+            mDelegate.activePlayerCommand().cmd("playlist" ,"delete", String.valueOf(index)).exec();
+            return true;
+        }
+
+        @Override
+        public boolean playlistMove(int fromIndex, int toIndex) {
+            if (!isConnected()) {
+                return false;
+            }
+            mDelegate.activePlayerCommand().cmd("playlist", "move", String.valueOf(fromIndex), String.valueOf(toIndex)).exec();
             return true;
         }
 
@@ -1150,6 +1159,15 @@ public class SqueezeService extends Service {
                 return false;
             }
             mDelegate.activePlayerCommand().cmd("playlist", "save", name).exec();
+            return true;
+        }
+
+        @Override
+        public boolean button(Player player, IRButton button) {
+            if (!isConnected()) {
+                return false;
+            }
+            mDelegate.command(player).cmd("button", button.getFunction()).exec();
             return true;
         }
 

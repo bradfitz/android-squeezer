@@ -4,4 +4,4 @@
     android:layout_height="match_parent"
     android:layout_width="1dp"
     android:layout_margin="8dp"
-    android:background="@color/transparent_white" />
+    android:background="@color/white" />

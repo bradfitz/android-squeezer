@@ -116,7 +116,7 @@ public class UndoBarController extends LinearLayout {
      * @param message The message will be shown in left side in toast
      * @param listener Callback
      */
-    private static void showUndoBar(final Activity activity, final @StringRes int message,
+    private static void showUndoBar(final Activity activity, final CharSequence message,
                                     final UndoListener listener) {
         UndoBarController undo = UndoBarController.getView(activity);
         if (undo == null) {
@@ -175,9 +175,21 @@ public class UndoBarController extends LinearLayout {
      * @param message The message will be shown in left side in toast
      * @param listener Callback
      */
-    public static void show(final Activity activity, final @StringRes int message,
+    public static void show(final Activity activity, final CharSequence message,
                             final UndoListener listener) {
         showUndoBar(activity, message, listener);
+    }
+
+    /**
+     * Show an undo bar
+     *
+     * @param activity Activity to hold this view
+     * @param message The message will be shown in left side in toast
+     * @param listener Callback
+     */
+    public static void show(final Activity activity, final @StringRes int message,
+                            final UndoListener listener) {
+        showUndoBar(activity, activity.getString(message), listener);
     }
 
     /**

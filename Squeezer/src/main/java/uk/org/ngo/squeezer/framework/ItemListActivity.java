@@ -22,9 +22,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.FrameLayout;
@@ -116,8 +114,7 @@ public abstract class ItemListActivity extends BaseActivity {
 
     @Override
     public void setContentView(int layoutResID) {
-        LinearLayout fullLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.item_list_activity_layout,
-                (ViewGroup) findViewById(R.id.activity_layout));
+        LinearLayout fullLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.item_list_activity_layout, findViewById(R.id.activity_layout));
         subActivityContent = fullLayout.findViewById(R.id.content_frame);
         getLayoutInflater().inflate(layoutResID, subActivityContent, true); // Places the activity layout inside the activity content frame.
         super.setContentView(fullLayout);
@@ -128,7 +125,7 @@ public abstract class ItemListActivity extends BaseActivity {
         emptyView = checkNotNull(findViewById(R.id.empty_view),
                 "activity layout did not return a view containing R.id.empty_view");
 
-        AbsListView listView = checkNotNull((AbsListView) subActivityContent.findViewById(R.id.item_list),
+        AbsListView listView = checkNotNull(subActivityContent.findViewById(R.id.item_list),
                 "getContentView() did not return a view containing R.id.item_list");
         setListView(setupListView(listView));
     }
@@ -336,12 +333,9 @@ public abstract class ItemListActivity extends BaseActivity {
             }
         }
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                showContent();
-                updateAdapter(count, start, items, dataType);
-            }
+        runOnUiThread(() -> {
+            showContent();
+            updateAdapter(count, start, items, dataType);
         });
     }
 
@@ -375,38 +369,17 @@ public abstract class ItemListActivity extends BaseActivity {
      * Tracks scrolling activity.
      * <p>
      * When the list is idle, new pages of data are fetched from the server.
-     * <p>
-     * Use a TouchListener to work around an Android bug where SCROLL_STATE_IDLE messages are not
-     * delivered after SCROLL_STATE_TOUCH_SCROLL messages.
      */
     protected class ScrollListener implements AbsListView.OnScrollListener {
-
-        private TouchListener mTouchListener;
-
-        private boolean mAttachedTouchListener = false;
-
         private int mPrevScrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
-        /**
-         * Sets up the TouchListener.
-         * <p>
-         * Subclasses must call this.
-         */
         public ScrollListener() {
-            mTouchListener = new TouchListener(this);
         }
 
         @Override
         public void onScrollStateChanged(AbsListView listView, int scrollState) {
             if (scrollState == mPrevScrollState) {
                 return;
-            }
-
-            if (!mAttachedTouchListener) {
-                if (mTouchListener != null) {
-                    listView.setOnTouchListener(mTouchListener);
-                }
-                mAttachedTouchListener = true;
             }
 
             switch (scrollState) {
@@ -431,44 +404,5 @@ public abstract class ItemListActivity extends BaseActivity {
                 int totalItemCount) {
         }
 
-        /**
-         * Work around a bug in (at least) API levels 7 and 8.
-         * <p>
-         * The bug manifests itself like so: after completing a TOUCH_SCROLL the system does not
-         * deliver a SCROLL_STATE_IDLE message to any attached listeners.
-         * <p>
-         * In addition, if the user does TOUCH_SCROLL, IDLE, TOUCH_SCROLL you would expect to
-         * receive three messages. You don't -- you get the first TOUCH_SCROLL, no IDLE message, and
-         * then the second touch doesn't generate a second TOUCH_SCROLL message.
-         * <p>
-         * This state clears when the user flings the list.
-         * <p>
-         * The simplest work around for this app is to track the user's finger, and if the previous
-         * state was TOUCH_SCROLL then pretend that they finished with a FLING and an IDLE event was
-         * triggered. This serves to unstick the message pipeline.
-         */
-        protected class TouchListener implements View.OnTouchListener {
-
-            private final OnScrollListener mOnScrollListener;
-
-            TouchListener(OnScrollListener onScrollListener) {
-                mOnScrollListener = onScrollListener;
-            }
-
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                final int action = event.getAction();
-                boolean mFingerUp = action == MotionEvent.ACTION_UP
-                        || action == MotionEvent.ACTION_CANCEL;
-                if (mFingerUp && mPrevScrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                    Log.v(TAG, "Sending special scroll state bump");
-                    mOnScrollListener.onScrollStateChanged((AbsListView) view,
-                            OnScrollListener.SCROLL_STATE_FLING);
-                    mOnScrollListener.onScrollStateChanged((AbsListView) view,
-                            OnScrollListener.SCROLL_STATE_IDLE);
-                }
-                return false;
-            }
-        }
     }
 }

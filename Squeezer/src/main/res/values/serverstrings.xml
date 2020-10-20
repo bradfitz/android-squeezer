@@ -4,6 +4,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='X_MINUTES'>%s minutes</string>
   <string name='SLEEP'>Sleep</string>
   <string name='ALARM'>Alarm Clock</string>
+  <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Removing\n%s\nfrom Playlist…</string>
   <string name='SETTINGS'>Settings</string>
   <string name='SCREEN_SETTINGS'>Screen</string>
   <string name='ALARM_ALARM_REPEAT'>Repeat Alarm</string>
@@ -19,6 +20,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_1'>Always ask before playing your selection</string>
   <string name='ALARM_SHORT_DAY_5'>Fr</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_0'>Do not defeat</string>
+  <string name='CLEAR_PLAYLIST'>Clear Playlist</string>
   <string name='EXTRAS'>Extras</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP'>Defeat destructive Touch-To-Play</string>
   <string name='SWITCH_TO_GALLERY'>Large Artwork</string>

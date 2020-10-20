@@ -21,18 +21,11 @@
         <attr name="borderDrawable" format="reference"/>
     </declare-styleable>
 
-    <declare-styleable name="playlist">
-        <!-- The highlight colour used to show currently playing items
-             in a playlist. -->
-        <attr name="playing_item" format="reference"/>
-    </declare-styleable>
-
     <!-- Alarm -->
     <declare-styleable name="alarm">
         <attr name="alarm_dow_selected" format="reference"/>
         <attr name="alarm_am_pm_color" format="reference"/>
     </declare-styleable>
-    <attr name="transparent_themed" format="reference"/>
     <attr name="alarm_list_background" format="reference"/>
     <attr name="item_background" format="reference"/>
     <attr name="main_button_background" format="reference"/>

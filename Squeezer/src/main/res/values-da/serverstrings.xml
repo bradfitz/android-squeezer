@@ -4,6 +4,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='X_MINUTES'>%s minutter</string>
   <string name='SLEEP'>Slumre</string>
   <string name='ALARM'>Vækkeur</string>
+  <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Fjerner\n%s\nfra afspilningsliste…</string>
   <string name='SETTINGS'>Indstillinger</string>
   <string name='SCREEN_SETTINGS'>Skærm</string>
   <string name='ALARM_ALARM_REPEAT'>Gentag vækning</string>
@@ -14,6 +15,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SWITCH_TO_EXTENDED_LIST'>Små coverbilleder</string>
   <string name='ALARM_SHORT_DAY_4'>Tor</string>
   <string name='ALARM_SHORT_DAY_5'>Fre</string>
+  <string name='CLEAR_PLAYLIST'>Ryd afspilningsliste</string>
   <string name='EXTRAS'>Ekstra</string>
   <string name='SWITCH_TO_GALLERY'>Store albumcovere</string>
   <string name='ADVANCED_SETTINGS'>Avanceret</string>
