@@ -266,7 +266,7 @@ public class ServerAddressView extends LinearLayout implements ScanNetworkTask.S
      */
     private class MyOnItemSelectedListener implements OnItemSelectedListener {
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-            String serverAddress = mDiscoveredServers.get(parent.getItemAtPosition(pos).toString());
+            String serverAddress = mDiscoveredServers.get(mServersAdapter.getItem(pos));
             setSqueezeNetwork(false);
             setServerAddress(serverAddress);
         }
