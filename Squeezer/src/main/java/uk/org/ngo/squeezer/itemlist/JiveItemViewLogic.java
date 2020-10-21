@@ -209,9 +209,12 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
-                contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
-                showContextMenu(contextMenuViewHolder, items);
+                // If #resetContextMenu has been called while we were in the main looper #contextMenuViewHolder will be null, so skip the items
+                if (contextMenuViewHolder != null) {
+                    contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
+                    contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
+                    showContextMenu(contextMenuViewHolder, items);
+                }
             }
         });
     }
