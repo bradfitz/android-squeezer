@@ -17,7 +17,6 @@
 package uk.org.ngo.squeezer.itemlist;
 
 import android.content.ClipData;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -35,6 +34,7 @@ import androidx.core.view.GestureDetectorCompat;
 import androidx.palette.graphics.Palette;
 
 import uk.org.ngo.squeezer.R;
+import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.framework.BaseItemView;
 import uk.org.ngo.squeezer.model.JiveItem;
 import uk.org.ngo.squeezer.service.ISqueezeService;
@@ -122,12 +122,8 @@ class CurrentPlaylistItemView extends JiveItemView {
     public void onIcon(ViewHolder viewHolder) {
         if (viewHolder.position == activity.getItemAdapter().getSelectedIndex() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Drawable icon = viewHolder.icon.getDrawable();
-            if (icon instanceof TransitionDrawable) {
-                icon = ((TransitionDrawable) icon).getDrawable(1);
-            }
-
             Drawable marker = AppCompatResources.getDrawable(activity, R.drawable.ic_action_nowplaying);
-            Palette colorPalette = Palette.from(((BitmapDrawable) icon).getBitmap()).generate();
+            Palette colorPalette = Palette.from(Util.drawableToBitmap(icon)).generate();
             marker.setTint(colorPalette.getDominantSwatch().getBodyTextColor());
 
             LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{icon, marker});
