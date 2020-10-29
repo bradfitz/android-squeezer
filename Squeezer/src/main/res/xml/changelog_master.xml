@@ -3,7 +3,7 @@
 <changelog>
     <release
         version="2.2.0"
-        versioncode="84">
+        versioncode="87">
         <change>Download of local music</change>
 
         <change>Automatic connection on app startup</change>
