@@ -38,6 +38,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
@@ -161,6 +162,16 @@ public class DownloadStatusReceiver extends BroadcastReceiver {
             if (parent != null) {
                 songDetails.put(MediaStore.Audio.Media.RELATIVE_PATH, new File(Environment.DIRECTORY_MUSIC, parent.getPath()).getPath());
             }
+
+            // Attempt to look up mime type
+            String mimeType = resolver.getType(local_url);
+            if (mimeType == null) {
+                mimeType = Files.probeContentType(file.toPath());
+            }
+            if (mimeType != null) {
+                songDetails.put(MediaStore.Audio.Media.MIME_TYPE, mimeType);
+            }
+
             uri = resolver.insert(audioCollection, songDetails);
             Log.i(TAG, downloadEntry.title + " added to media library: " + uri);
         }
