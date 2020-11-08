@@ -24,6 +24,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.Util;
 import uk.org.ngo.squeezer.itemlist.dialog.DefeatDestructiveTouchToPlayDialog;
@@ -44,8 +46,8 @@ public class PlayerView extends PlayerBaseView<PlayerListActivity> {
     }
 
     @Override
-    public ViewHolder createViewHolder() {
-        return new PlayerViewHolder();
+    public ViewHolder createViewHolder(View view) {
+        return new PlayerViewHolder(view);
     }
 
     @Override
@@ -194,5 +196,9 @@ public class PlayerView extends PlayerBaseView<PlayerListActivity> {
     private static class PlayerViewHolder extends ViewHolder {
         SeekBar volumeBar;
         TextView volumeValue;
+
+        public PlayerViewHolder(@NonNull View view) {
+            super(view);
+        }
     }
 }

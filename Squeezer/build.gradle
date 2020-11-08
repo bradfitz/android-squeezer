@@ -3,7 +3,7 @@ buildscript {
         maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'com.github.triplet.gradle:play-publisher:2.3.0'
+        classpath 'com.github.triplet.gradle:play-publisher:3.0.0'
     }
 }
 
@@ -18,17 +18,19 @@ apply plugin: 'uk.org.ngo.gradle.slimstrings'
 dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.palette:palette:1.0.0'
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.10'
 
     // Android support libraries
     // Note: these libraries require the "Google Repository" and "Android
     //       Support Repository" to be installed via the SDK manager.
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.preference:preference:1.1.1'
 
     // Third party libraries
     implementation 'com.google.guava:guava:28.2-android'
@@ -72,8 +74,8 @@ android {
 
         buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
 
-        versionCode 84
-        versionName "2.2.0"
+        versionCode 89
+        versionName "2.2.1"
 
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -206,6 +208,8 @@ slimstrings {
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_2',
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_3',
             'SETUP_DEFEAT_DESTRUCTIVE_TTP_4',
-            'NO_PLAYER_FOUND'
+            'NO_PLAYER_FOUND',
+            'CLEAR_PLAYLIST',
+            'JIVE_POPUP_REMOVING_FROM_PLAYLIST'
     ]
 }

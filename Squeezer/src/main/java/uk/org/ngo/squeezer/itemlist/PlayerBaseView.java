@@ -48,8 +48,8 @@ public abstract class PlayerBaseView<A extends PlayerListBaseActivity> extends B
     }
 
     @Override
-    public View getAdapterView(View convertView, ViewGroup parent, @ViewParam int viewParams) {
-        return getAdapterView(convertView, parent, viewParams, layoutResource);
+    public View getAdapterView(View convertView, ViewGroup parent, int position, @ViewParam int viewParams) {
+        return getAdapterView(convertView, parent, position, viewParams, layoutResource);
     }
 
 }

@@ -20,6 +20,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
@@ -313,7 +314,7 @@ public class Util {
                 throw new IOException("moveFile: could not open '" + destination + "'");
             }
             byte[] b = new byte[16384];
-            int bytes = 0;
+            int bytes;
             while ((bytes = inputStream.read(b)) > 0) {
                 outputStream.write(b, 0, bytes);
             }
@@ -326,21 +327,34 @@ public class Util {
     }
 
     public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource) {
-        return vectorToBitmap(context, vectorResource, 255);
+        return drawableToBitmap(AppCompatResources.getDrawable(context, vectorResource));
     }
 
     public static Bitmap vectorToBitmap(Context context, @DrawableRes int vectorResource, int alpha) {
         Drawable drawable = AppCompatResources.getDrawable(context, vectorResource);
-        return drawableToBitmap(drawable, alpha);
+        drawable.setAlpha(alpha);
+        return drawableToBitmap(drawable);
     }
 
-    private static Bitmap drawableToBitmap(Drawable drawable, int alpha) {
-        Bitmap b = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(b);
-        drawable.setAlpha(alpha);
-        drawable.setBounds(0, 0, c.getWidth(), c.getHeight());
+    public static Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+            if(bitmapDrawable.getBitmap() != null) {
+                return bitmapDrawable.getBitmap();
+            }
+        }
 
-        drawable.draw(c);
-        return b;
+        return drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0
+                ? getBitmap(drawable, 1, 1) // Single color bitmap will be created of 1x1 pixel
+                : getBitmap(drawable, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+
+    }
+
+    private static Bitmap getBitmap(Drawable drawable, int width, int height) {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
     }
 }

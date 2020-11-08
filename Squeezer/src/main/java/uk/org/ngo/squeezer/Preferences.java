@@ -103,8 +103,11 @@ public final class Preferences {
     // Preferred UI theme.
     static final String KEY_ON_THEME_SELECT_ACTION = "squeezer.theme";
 
-    // Download category
-    static final String KEY_DOWNLOAD_CATEGORY = "squeezer.download.category";
+    // Download enabled
+    static final String KEY_DOWNLOAD_ENABLED = "squeezer.download.enabled";
+
+    // Download confirmation
+    static final String KEY_DOWNLOAD_CONFIRMATION = "squeezer.download.confirmation";
 
     // Download folder
     static final String KEY_DOWNLOAD_USE_SERVER_PATH = "squeezer.download.use_server_path";
@@ -439,6 +442,22 @@ public final class Preferences {
             editor.apply();
         }
         return uuid;
+    }
+
+    public boolean isDownloadEnabled() {
+        return sharedPreferences.getBoolean(KEY_DOWNLOAD_ENABLED, true);
+    }
+
+    public void setDownloadEnabled(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_DOWNLOAD_ENABLED, b).apply();
+    }
+
+    public boolean isDownloadConfirmation() {
+        return sharedPreferences.getBoolean(KEY_DOWNLOAD_CONFIRMATION, true);
+    }
+
+    public void setDownloadConfirmation(boolean b) {
+        sharedPreferences.edit().putBoolean(Preferences.KEY_DOWNLOAD_CONFIRMATION, b).apply();
     }
 
     public boolean isDownloadUseServerPath() {

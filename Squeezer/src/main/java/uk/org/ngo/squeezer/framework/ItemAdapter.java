@@ -118,8 +118,7 @@ public class ItemAdapter<T extends Item> extends BaseAdapter {
             return mItemView.getAdapterView(convertView, parent, position, item, position == selectedIndex);
         }
 
-        return mItemView.getAdapterView(convertView, parent,
-                (position == 0 && mEmptyItem ? "" : loadingText));
+        return mItemView.getAdapterView(convertView, parent, position, (position == 0 && mEmptyItem ? "" : loadingText));
     }
 
     public ItemListActivity getActivity() {
@@ -253,9 +252,36 @@ public class ItemAdapter<T extends Item> extends BaseAdapter {
     }
 
     /**
+     * Move the item at the specified position to the new position and notify the change.
+     */
+    public void moveItem(int fromPosition, int toPosition) {
+        T item = getItem(fromPosition);
+        remove(fromPosition);
+        insert(toPosition, item);
+        notifyDataSetChanged();
+    }
+
+    /**
      * Remove the item at the specified position, update the count and notify the change.
      */
     public void removeItem(int position) {
+        remove(position);
+        count--;
+        onCountUpdated();
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Insert an item at the specified position, update the count and notify the change.
+     */
+    public void insertItem(int position, T item) {
+        insert(position, item);
+        count++;
+        onCountUpdated();
+        notifyDataSetChanged();
+    }
+
+    private void remove(int position) {
         T[] page = getPage(position);
         int offset = position % pageSize;
         while (position++ <= count) {
@@ -270,12 +296,9 @@ public class ItemAdapter<T extends Item> extends BaseAdapter {
             }
         }
 
-        count--;
-        onCountUpdated();
-        notifyDataSetChanged();
     }
 
-    public void insertItem(int position, T item) {
+    private void insert(int position, T item) {
         int n = count;
         T[] page = getPage(n);
         int offset = n % pageSize;
@@ -291,10 +314,6 @@ public class ItemAdapter<T extends Item> extends BaseAdapter {
             }
         }
         page[offset] = item;
-
-        count++;
-        onCountUpdated();
-        notifyDataSetChanged();
     }
 
     private T[] arrayInstance(int size) {

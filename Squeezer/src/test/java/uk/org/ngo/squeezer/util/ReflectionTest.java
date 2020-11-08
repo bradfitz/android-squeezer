@@ -113,11 +113,11 @@ public class ReflectionTest extends TestCase {
     }
 
 
-    // Wrong class def, doesn't resolve
     class StrangeExtend<T extends Item> extends A<Item1> {
 
     }
 
+    // Resolves to Item2 for StrangeExtend and Item1 for A
     class Item1ToItem2 extends StrangeExtend<Item2> {
 
     }
@@ -172,6 +172,22 @@ public class ReflectionTest extends TestCase {
     }
 
     class SwapOrder3<T1 extends Item, T2 extends Item> extends AII<T2, T1> {
+
+    }
+
+    class Activity {
+
+    }
+
+    class Activity1 extends Activity {
+
+    }
+
+    class SwitchTypeI<A extends Activity> implements I<Item1> {
+
+    }
+
+    class SwitchTypeAI<A extends Activity> extends AI<Item1> {
 
     }
 
@@ -237,6 +253,13 @@ public class ReflectionTest extends TestCase {
         assertTypesEquals(new Type[]{Item2.class, Item1.class},
                 Reflection.genericTypeResolver(new SwapOrder3<Item1, Item2>() {
                 }.getClass(), AII.class));
+
+        assertTypesEquals(new Type[]{Item1.class},
+                Reflection.genericTypeResolver(new SwitchTypeI<Activity>() {
+                }.getClass(), I.class));
+        assertTypesEquals(new Type[]{Item1.class},
+                Reflection.genericTypeResolver(new SwitchTypeAI<Activity>() {
+                }.getClass(), I.class));
     }
 
     private void assertTypesEquals(Type[] expected, Type[] actual) {
@@ -290,12 +313,17 @@ public class ReflectionTest extends TestCase {
         assertEquals(GroupItem1.class, Reflection.getGenericClass(CIG1.class, CIG.class, 0));
         assertEquals(GroupItem2.class, Reflection.getGenericClass(CIG2.class, CIG.class, 0));
 
-        assertEquals(null, Reflection.getGenericClass(Item1ToItem2.class, A.class, 0));
+        assertEquals(Item1.class, Reflection.getGenericClass(Item1ToItem2.class, A.class, 0));
         assertEquals(Item2.class,
                 Reflection.getGenericClass(Item1ToItem2.class, StrangeExtend.class, 0));
 
         assertEquals(Item1.class, Reflection.getGenericClass(BB.class, AA.class, 0));
         assertEquals(Item2.class, Reflection.getGenericClass(BB.class, AA.class, 1));
+
+        assertEquals(Item1.class, Reflection.getGenericClass(new SwitchTypeI<Activity>() {
+        }.getClass(), I.class, 0));
+        assertEquals(Item1.class, Reflection.getGenericClass(new SwitchTypeAI<Activity>() {
+        }.getClass(), I.class, 0));
     }
 
     public void testResolveGenericCollections() {

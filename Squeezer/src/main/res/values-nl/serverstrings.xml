@@ -4,6 +4,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='X_MINUTES'>%s minuten</string>
   <string name='SLEEP'>Sluimermodus</string>
   <string name='ALARM'>Wekker</string>
+  <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>Bezig met verwijderen van\n%s\nuit playlist…</string>
   <string name='SETTINGS'>Instellingen</string>
   <string name='SCREEN_SETTINGS'>Display</string>
   <string name='ALARM_ALARM_REPEAT'>Weksignaal herhalen</string>
@@ -19,6 +20,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_1'>Altijd vragen om je selectie af te spelen</string>
   <string name='ALARM_SHORT_DAY_5'>vr</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_0'>Niet vragen</string>
+  <string name='CLEAR_PLAYLIST'>Playlist wissen</string>
   <string name='EXTRAS'>Extra\'s</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP'>Bevestigen Touch-To-Play</string>
   <string name='SWITCH_TO_GALLERY'>Grote hoesafbeeldingen</string>

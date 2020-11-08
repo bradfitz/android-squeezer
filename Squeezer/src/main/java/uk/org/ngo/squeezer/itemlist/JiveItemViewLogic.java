@@ -25,6 +25,7 @@ import android.widget.PopupMenu;
 import java.util.List;
 import java.util.Map;
 
+import uk.org.ngo.squeezer.Preferences;
 import uk.org.ngo.squeezer.R;
 import uk.org.ngo.squeezer.model.Action;
 import uk.org.ngo.squeezer.framework.BaseActivity;
@@ -55,7 +56,7 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
      * by calling {@link BaseActivity#action(JiveItem, Action) }.
      * <p>
      * Otherwise we pass the action to a sub <code>activity</code> (window in slim terminology) which
-     * collects the input if required and performs the action. See {@link JiveItemListActivity#show(Activity, Item, Action)}
+     * collects the input if required and performs the action. See {@link JiveItemListActivity#show(Activity, JiveItem, Action)}
      * <p>
      * Finally if the (unsupported) "showBigArtwork" flag is present in an item the <code>do</code>
      * action will return an artwork id or URL, which can be used the fetch an image to display in a
@@ -152,11 +153,12 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
     }
 
     private void showContextMenu(final BaseItemView.ViewHolder viewHolder, final List<JiveItem> items) {
+        Preferences preferences = new Preferences(activity);
         contextPopup = new PopupMenu(activity, viewHolder.contextMenuButtonHolder);
         Menu menu = contextPopup.getMenu();
 
         int index = 0;
-        if (contextMenuItem != null && contextMenuItem.canDownload()) {
+        if (preferences.isDownloadEnabled() && contextMenuItem != null && contextMenuItem.canDownload()) {
             menu.add(Menu.NONE, index++, Menu.NONE, R.string.DOWNLOAD);
         }
         final int offset = index;
@@ -207,9 +209,12 @@ public class JiveItemViewLogic implements IServiceItemListCallback<JiveItem>, Po
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
-                contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
-                showContextMenu(contextMenuViewHolder, items);
+                // If #resetContextMenu has been called while we were in the main looper #contextMenuViewHolder will be null, so skip the items
+                if (contextMenuViewHolder != null) {
+                    contextMenuViewHolder.contextMenuButton.setVisibility(View.VISIBLE);
+                    contextMenuViewHolder.contextMenuLoading.setVisibility(View.GONE);
+                    showContextMenu(contextMenuViewHolder, items);
+                }
             }
         });
     }

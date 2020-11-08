@@ -159,8 +159,9 @@ public abstract class ImageWorker {
      * @param imageView The ImageView to bind the downloaded image to
      * @param width Resize the image to this width (and save it in the memory cache as such)
      * @param height Resize the image to this height (and save it in the memory cache as such)
+     * @param callback Will be called once an image is set on the view.
      */
-    public void loadImage(final Object data, final ImageView imageView, int width, int height) {
+    public void loadImage(final Object data, final ImageView imageView, int width, int height, LoadImageCallback callback) {
         Bitmap bitmap = null;
         String memCacheKey = hashKeyForMemory(String.valueOf(data), width, height);
 
@@ -174,8 +175,11 @@ public abstract class ImageWorker {
                 addDebugSwatch(new Canvas(bitmap), mCacheDebugColorMemory);
             }
             imageView.setImageBitmap(bitmap);
+            if (callback != null) {
+                callback.onDone();
+            }
         } else if (cancelPotentialWork(data, imageView)) {
-            final ImageViewBitmapWorkerTask task = new ImageViewBitmapWorkerTask(imageView);
+            final ImageViewBitmapWorkerTask task = new ImageViewBitmapWorkerTask(imageView, callback);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(mResources, mLoadingBitmap, task);
             imageView.setImageDrawable(asyncDrawable);
@@ -186,6 +190,28 @@ public abstract class ImageWorker {
             task.executeOnExecutor(AsyncTask.DUAL_THREAD_EXECUTOR,
                     new BitmapWorkerTaskParams(width, height, data, memCacheKey));
         }
+    }
+
+    /**
+     * Like {@link #loadImage(Object, ImageView)} but with explicit width and height parameters.
+     *
+     * @param data The URL of the image to download
+     * @param imageView The ImageView to bind the downloaded image to
+     * @param width Resize the image to this width (and save it in the memory cache as such)
+     * @param height Resize the image to this height (and save it in the memory cache as such)
+     */
+    public void loadImage(final Object data, final ImageView imageView, int width, int height) {
+        loadImage(data, imageView, width, height, null);
+    }
+
+    /**
+     * Interface for callbacks passed to {@link #loadImage(Object, ImageView, int, int, LoadImageCallback)}
+     */
+    public interface LoadImageCallback {
+        /**
+         * Called after the bitmap has been set on the view.
+         */
+        void onDone();
     }
 
     /**
@@ -378,7 +404,7 @@ public abstract class ImageWorker {
 
     /**
      * Set the flag that determines whether tasks should exit early. Set to true if any pending
-     * work should be abandoned (e.g., in {@link Activity#onPause}).
+     * work should be abandoned (e.g., in {@link Activity#onPause()} ).
      *
      * @param exitTasksEarly
      */
@@ -665,10 +691,12 @@ public abstract class ImageWorker {
      */
     private class ImageViewBitmapWorkerTask extends BitmapWorkerTask {
         protected final WeakReference<ImageView> imageViewReference;
+        private LoadImageCallback callback;
 
-        public ImageViewBitmapWorkerTask(ImageView imageView) {
+        public ImageViewBitmapWorkerTask(ImageView imageView, LoadImageCallback callback) {
             super();
-            imageViewReference = new WeakReference<ImageView>(imageView);
+            imageViewReference = new WeakReference<>(imageView);
+            this.callback = callback;
         }
 
         /**
@@ -687,6 +715,9 @@ public abstract class ImageWorker {
                     Log.d(TAG, "onPostExecute - setting bitmap");
                 }
                 setImageBitmap(imageView, bitmap);
+                if (callback != null) {
+                    callback.onDone();
+                }
             }
         }
 
@@ -802,7 +833,7 @@ public abstract class ImageWorker {
         public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
             super(res, bitmap);
             bitmapWorkerTaskReference =
-                    new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
+                    new WeakReference<>(bitmapWorkerTask);
         }
 
         public BitmapWorkerTask getBitmapWorkerTask() {

@@ -24,7 +24,7 @@
         android:dialogMessage="@string/settings_fadeinsecs_summary"
         android:persistent="true"/>
 
-    <CheckBoxPreference
+    <SwitchPreferenceCompat
         android:key="squeezer.autoconnect"
         android:title="@string/settings_autoconnect_title"
         android:summary="@string/settings_autoconnect_summary"
@@ -33,14 +33,14 @@
     <PreferenceCategory
         android:title="@string/pref_cat_third_party">
 
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
             android:key="squeezer.scrobble.enabled"
             android:persistent="true"
             android:summaryOff="@string/settings_scrobble_off"
             android:summaryOn="@string/settings_scrobble_on"
             android:title="@string/settings_scrobble_title"/>
 
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
             android:key="squeezer.squeezeplayer.enabled"
             android:persistent="true"
             android:summary="@string/settings_squeezeplayer_summary"
@@ -56,8 +56,15 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="squeezer.download.category"
         android:title="@string/settings_category_download">
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.download.enabled"
+            android:title="@string/settings_download_enabled"/>
+
+        <CheckBoxPreference
+            android:key="squeezer.download.confirmation"
+            android:title="@string/settings_download_confirmation"/>
 
         <CheckBoxPreference
             android:key="squeezer.download.use_server_path"
@@ -76,7 +83,7 @@
     <PreferenceCategory
         android:title="@string/pref_cat_error_reports">
 
-        <CheckBoxPreference android:key="squeezer.analytics.enabled"
+        <SwitchPreferenceCompat android:key="squeezer.analytics.enabled"
             android:title="@string/pref_analytics_enable"
             android:summaryOn="@string/pref_analytics_enable_enabled"
             android:summaryOff="@string/pref_analytics_enable_disabled"

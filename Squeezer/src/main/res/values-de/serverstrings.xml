@@ -4,6 +4,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='X_MINUTES'>%s Minuten</string>
   <string name='SLEEP'>Schlafmodus</string>
   <string name='ALARM'>Wecker</string>
+  <string name='JIVE_POPUP_REMOVING_FROM_PLAYLIST'>\n%s\nwird aus Wiedergabeliste entfernt…</string>
   <string name='SETTINGS'>Einstellungen</string>
   <string name='SCREEN_SETTINGS'>Anzeige</string>
   <string name='ALARM_ALARM_REPEAT'>Wecker wiederholen</string>
@@ -19,6 +20,7 @@ Automatically generated file. DO NOT MODIFY
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_1'>Vor dem Ersetzen der Wiedergabeliste immer nachfragen</string>
   <string name='ALARM_SHORT_DAY_5'>Fr</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP_0'>Destruktives Verhalten nicht unterdrücken</string>
+  <string name='CLEAR_PLAYLIST'>Wiedergabeliste leeren</string>
   <string name='EXTRAS'>Extras</string>
   <string name='SETUP_DEFEAT_DESTRUCTIVE_TTP'>Destruktive "Wiedergabe durch Berühren" unterdrücken </string>
   <string name='SWITCH_TO_GALLERY'>Große Plattenhüllen</string>
