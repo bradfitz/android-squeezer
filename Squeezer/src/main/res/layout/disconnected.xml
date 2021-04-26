@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <uk.org.ngo.squeezer.dialog.ServerAddressView
+                android:id="@+id/server_address_view"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onUserInitiatesConnect"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="@string/menu_item_connect"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <!--
+      Fragment needs to be present to provide menus, but does not need
+      to be visible. Wrap it in a LinearLayout so it can be hidden
+      through the android:visibility attribute.
+      -->
+    <LinearLayout
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <fragment
+            android:id="@+id/now_playing_fragment"
+            android:name="uk.org.ngo.squeezer.NowPlayingFragment"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            tools:layout="@layout/now_playing_fragment_mini"/>
+    </LinearLayout>
+</LinearLayout>

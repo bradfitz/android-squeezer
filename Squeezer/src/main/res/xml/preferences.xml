@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright (C) 2009 Google Inc.  All Rights Reserved.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="first_preferencescreen">
+
+    <uk.org.ngo.squeezer.IntEditTextPreference
+        android:key="squeezer.fadeInSecs"
+        android:title="@string/settings_fadeinsecs_title"
+        android:dialogMessage="@string/settings_fadeinsecs_summary"
+        android:persistent="true"/>
+
+    <SwitchPreferenceCompat
+        android:key="squeezer.autoconnect"
+        android:title="@string/settings_autoconnect_title"
+        android:summary="@string/settings_autoconnect_summary"
+        android:persistent="true"/>
+
+    <PreferenceCategory
+        android:title="@string/pref_cat_third_party">
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.scrobble.enabled"
+            android:persistent="true"
+            android:summaryOff="@string/settings_scrobble_off"
+            android:summaryOn="@string/settings_scrobble_on"
+            android:title="@string/settings_scrobble_title"/>
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.squeezeplayer.enabled"
+            android:persistent="true"
+            android:summary="@string/settings_squeezeplayer_summary"
+            android:title="@string/settings_squeezeplayer_title"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/settings_category_ui">
+
+        <ListPreference
+            android:key="squeezer.theme"
+            android:title="@string/settings_theme_title"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/settings_category_download">
+
+        <SwitchPreferenceCompat
+            android:key="squeezer.download.enabled"
+            android:title="@string/settings_download_enabled"/>
+
+        <CheckBoxPreference
+            android:key="squeezer.download.confirmation"
+            android:title="@string/settings_download_confirmation"/>
+
+        <CheckBoxPreference
+            android:key="squeezer.download.use_server_path"
+            android:title="@string/settings_download_use_server_path"/>
+
+        <ListPreference
+            android:key="squeezer.download.path_structure"
+            android:title="@string/settings_download_path_structure"/>
+
+        <ListPreference
+            android:key="squeezer.download.filename_structure"
+            android:title="@string/settings_download_filename_structure"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_cat_error_reports">
+
+        <SwitchPreferenceCompat android:key="squeezer.analytics.enabled"
+            android:title="@string/pref_analytics_enable"
+            android:summaryOn="@string/pref_analytics_enable_enabled"
+            android:summaryOff="@string/pref_analytics_enable_disabled"
+            android:defaultValue="true"/>
+    </PreferenceCategory>
+</PreferenceScreen>

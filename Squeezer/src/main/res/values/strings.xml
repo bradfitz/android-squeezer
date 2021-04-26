@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+ Copyright (c) 2009 Google Inc.  All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" translatable="false">Squeezer</string>
+    <string name="undo">Undo</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="disabled">Disabled</string>
+    <string name="volume">%s volume</string>
+    <string name="menu_item_players">Players</string>
+    <string name="menu_item_settings_label">Settings</string>
+    <string name="menu_item_about_label">About</string>
+    <string name="activity_settings_name">Settings</string>
+    <string name="settings_serveraddr_hint">Name or IP address of server</string>
+    <string name="settings_manual_server_addr">Manually enter address</string>
+    <string name="settings_server_prompt">Choose a server</string>
+    <string name="settings_server_rescan">Rescan</string>
+    <string name="settings_server_scanning_disabled_msg">Server discovery is disabled, because Wi-Fi is not
+        connected.
+    </string>
+    <string name="settings_local_server">Local server</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_light_dark">Light, dark action bar</string>
+    <string name="settings_username_hint">User name (optional)</string>
+    <string name="settings_password_hint">Password (optional)</string>
+    <string name="settings_server_scan_progress">Scanning for servers…</string>
+    <string name="settings_fadeinsecs_title">Fade in duration</string>
+    <string name="settings_fadeinsecs_summary">Enter the amount of time to take to fade in when
+        unpausing, in seconds. Enter 0 to disable fade in.
+    </string>
+    <string name="settings_autoconnect_title">Auto-connect</string>
+    <string name="settings_autoconnect_summary">Offer to enable Wi-Fi, and on Wi-Fi availability,
+        try to connect
+    </string>
+
+    <string name="settings_scrobble_title">Scrobble to Last.fm</string>
+    <string name="settings_scrobble_on">Song information is sent to Last.fm</string>
+    <string name="settings_scrobble_off">Song information is not sent to Last.fm</string>
+    <string name="settings_scrobble_noapp">No apps that can scrobble are installed</string>
+    <string name="settings_market_not_found">Could not start Google Play, is it installed?</string>
+
+    <string name="settings_squeezeplayer_title">Start SqueezePlayer</string>
+    <string name="settings_squeezeplayer_summary">Check this option to make sure SqueezePlayer is running, when using Squeezer</string>
+
+    <string name="settings_category_ui">Squeezer interface</string>
+
+    <string name="menu_item_disconnect">Disconnect</string>
+    <string name="menu_item_connect">Connect</string>
+    <string name="menu_item_poweron">Turn on \"%s\"</string>
+    <string name="menu_item_poweroff">Turn off \"%s\"</string>
+    <string name="menu_item_rename">Rename</string>
+    <string name="menu_item_playlist">Playlist</string>
+    <string name="menu_item_playlist_clear">Clear playlist</string>
+    <string name="menu_item_playlist_save">Save as playlist</string>
+    <string name="menu_item_playlist_show_current_song">Go to current song</string>
+    <string name="menu_item_volume">Change volume</string>
+    <string name="connecting_text">Connecting</string>
+    <string name="connecting_to_text">Connecting to Logitech Media Server at %s</string>
+    <string name="connection_failed_text">Connection failed.</string>
+    <string name="login_failed_text">Login failed. Make sure the correct user name and password is entered.</string>
+    <string name="invalid_url_text">Please enter a valid address.</string>
+    <string name="disconnected_text">Disconnected.</string>
+    <string name="wifi_disabled_text">Wi-Fi is disabled</string>
+    <string name="enable_wifi_text">This will turn on Wi-Fi on your Android device. When an active
+        Wi-Fi connection is made, Squeezer will automatically try to connect to your SqueezeBox
+        Server. Turn on Wi-Fi now?
+    </string>
+    <string name="wifi_enabled_text">Wi-Fi is enabled. Please wait for an active Wi-Fi connection.
+    </string>
+    <string name="notification_playing_text">%s playing</string>
+    <string name="save_playlist_title">Save playlist</string>
+    <string name="save_playlist_hint">Enter name of playlist</string>
+    <string name="rename_title">Rename %s</string>
+    <string name="sync_title">Synchronize %s to…</string>
+    <string name="loading_text">Loading…</string>
+    <string name="browse_items_text">%2$d %1$s</string>
+
+    <string name="player_group_header">Group: %s</string>
+    <string name="menu_item_player_sync">Synchronize…</string>
+    <string name="menu_item_player_unsync">No synchronization</string>
+
+    <string name="no_players_connected">No players are connected.</string>
+    <string name="player_list_changed">Connected players changed while context menu was open,
+        ignoring request</string>
+
+    <string name="unknown_track">Unknown track</string>
+    <string name="unknown_album">Unknown album</string>
+    <string name="unknown_artist">Unknown artist</string>
+    <string name="unknown_artistalbum">Unknown artist/album</string>
+
+    <!-- Alarm management -->
+    <string name="all_alarms_on_hint">Individual alarms can be enabled</string>
+    <string name="all_alarms_off_hint">All alarms are disabled</string>
+
+    <string name="alarm_music_prompt">Music for alarm</string>
+
+    <string name="alarms_settings_dialog_title">%s alarm settings</string>
+    <string name="alarm_volume_text">Alarm volume</string>
+
+    <string name="alarm_snooze_duration_text">Snooze duration</string>
+    <plurals name="alarm_snooze_hint_text">
+        <item quantity="one">Alarms snooze for %d minute</item>
+        <item quantity="other">Alarms snooze for %d minutes</item>
+    </plurals>
+
+    <string name="alarm_timeout_text">Alarm timeout</string>
+    <string name="alarm_timeout_hint_text_zero">Alarms play indefinitely</string>
+    <plurals name="alarm_timeout_hint_text">
+        <item quantity="one">Alarms stop after %d minute</item>
+        <item quantity="other">Alarms stop after %d minutes</item>
+    </plurals>
+
+    <string name="alarm_fade_text">Fade alarms up</string>
+    <string name="alarm_fade_on_text">Alarms will fade in</string>
+    <string name="alarm_fade_off_text">Alarms will not fade in</string>
+
+    <string name="tips_title">Tips</string>
+    <string name="tip_volume">Use your device\'s hardware volume controls to change the playing
+        volume.\n\nTry it now.
+    </string>
+
+    <!-- Reporting errors that from the server. -->
+    <string name="server_error">%1$s reported an error: \"%2$s\".</string>
+
+    <string name="menu_item_power_off">Turn off</string>
+    <string name="menu_item_power_on">Turn on</string>
+
+    <!-- Dialog buttons -->
+    <string name="dialog_license">License</string>
+
+    <string name="copyright_text">Copyright © 2009 Google Inc. All Rights Reserved\nCopyright
+        © 2011 Kurt Aaholst. All Rights Reserved.
+    </string>
+
+    <string name="license_text" translatable="false" tools:ignore="TypographyOther">&lt;p&gt;Apache License&lt;br /&gt;
+Version 2.0, January 2004&lt;br /&gt;
+http://www.apache.org/licenses/&lt;/p&gt;
+
+&lt;p&gt;TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION&lt;/p&gt;
+
+&lt;p&gt;1. Definitions.&lt;/p&gt;
+
+&lt;p&gt;"License" shall mean the terms and conditions for use, reproduction,
+and distribution as defined by Sections 1 through 9 of this document.&lt;/p&gt;
+
+&lt;p&gt;"Licensor" shall mean the copyright owner or entity authorized by
+the copyright owner that is granting the License.&lt;/p&gt;
+
+&lt;p&gt;"Legal Entity" shall mean the union of the acting entity and all
+other entities that control, are controlled by, or are under common
+control with that entity. For the purposes of this definition,
+"control" means (i) the power, direct or indirect, to cause the
+direction or management of such entity, whether by contract or
+otherwise, or (ii) ownership of fifty percent (50%%) or more of the
+outstanding shares, or (iii) beneficial ownership of such entity.&lt;/p&gt;
+
+&lt;p&gt;"You" (or "Your") shall mean an individual or Legal Entity
+exercising permissions granted by this License.&lt;/p&gt;
+
+&lt;p&gt;"Source" form shall mean the preferred form for making modifications,
+including but not limited to software source code, documentation
+source, and configuration files.&lt;/p&gt;
+
+&lt;p&gt;"Object" form shall mean any form resulting from mechanical
+transformation or translation of a Source form, including but
+not limited to compiled object code, generated documentation,
+and conversions to other media types.&lt;/p&gt;
+
+&lt;p&gt;"Work" shall mean the work of authorship, whether in Source or
+Object form, made available under the License, as indicated by a
+copyright notice that is included in or attached to the work
+(an example is provided in the Appendix below).&lt;/p&gt;
+
+&lt;p&gt;"Derivative Works" shall mean any work, whether in Source or Object
+form, that is based on (or derived from) the Work and for which the
+editorial revisions, annotations, elaborations, or other modifications
+represent, as a whole, an original work of authorship. For the purposes
+of this License, Derivative Works shall not include works that remain
+separable from, or merely link (or bind by name) to the interfaces of,
+the Work and Derivative Works thereof.&lt;/p&gt;
+
+&lt;p&gt;"Contribution" shall mean any work of authorship, including
+the original version of the Work and any modifications or additions
+to that Work or Derivative Works thereof, that is intentionally
+submitted to Licensor for inclusion in the Work by the copyright owner
+or by an individual or Legal Entity authorized to submit on behalf of
+the copyright owner. For the purposes of this definition, "submitted"
+means any form of electronic, verbal, or written communication sent
+to the Licensor or its representatives, including but not limited to
+communication on electronic mailing lists, source code control systems,
+and issue tracking systems that are managed by, or on behalf of, the
+Licensor for the purpose of discussing and improving the Work, but
+excluding communication that is conspicuously marked or otherwise
+designated in writing by the copyright owner as "Not a Contribution."&lt;/p&gt;
+
+&lt;p&gt;"Contributor" shall mean Licensor and any individual or Legal Entity
+on behalf of whom a Contribution has been received by Licensor and
+subsequently incorporated within the Work.&lt;/p&gt;
+
+&lt;p&gt;2. Grant of Copyright License. Subject to the terms and conditions of
+this License, each Contributor hereby grants to You a perpetual,
+worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+copyright license to reproduce, prepare Derivative Works of,
+publicly display, publicly perform, sublicense, and distribute the
+Work and such Derivative Works in Source or Object form.&lt;/p&gt;
+
+&lt;p&gt;3. Grant of Patent License. Subject to the terms and conditions of
+this License, each Contributor hereby grants to You a perpetual,
+worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+(except as stated in this section) patent license to make, have made,
+use, offer to sell, sell, import, and otherwise transfer the Work,
+where such license applies only to those patent claims licensable
+by such Contributor that are necessarily infringed by their
+Contribution(s) alone or by combination of their Contribution(s)
+with the Work to which such Contribution(s) was submitted. If You
+institute patent litigation against any entity (including a
+cross-claim or counterclaim in a lawsuit) alleging that the Work
+or a Contribution incorporated within the Work constitutes direct
+or contributory patent infringement, then any patent licenses
+granted to You under this License for that Work shall terminate
+as of the date such litigation is filed.&lt;/p&gt;
+
+&lt;p&gt;4. Redistribution. You may reproduce and distribute copies of the
+Work or Derivative Works thereof in any medium, with or without
+modifications, and in Source or Object form, provided that You
+meet the following conditions:&lt;/p&gt;
+
+&lt;p&gt;(a) You must give any other recipients of the Work or
+Derivative Works a copy of this License; and&lt;/p&gt;
+
+&lt;p&gt;(b) You must cause any modified files to carry prominent notices
+stating that You changed the files; and&lt;/p&gt;
+
+&lt;p&gt;(c) You must retain, in the Source form of any Derivative Works
+that You distribute, all copyright, patent, trademark, and
+attribution notices from the Source form of the Work,
+excluding those notices that do not pertain to any part of
+the Derivative Works; and&lt;/p&gt;
+
+&lt;p&gt;(d) If the Work includes a "NOTICE" text file as part of its
+distribution, then any Derivative Works that You distribute must
+include a readable copy of the attribution notices contained
+within such NOTICE file, excluding those notices that do not
+pertain to any part of the Derivative Works, in at least one
+of the following places: within a NOTICE text file distributed
+as part of the Derivative Works; within the Source form or
+documentation, if provided along with the Derivative Works; or,
+within a display generated by the Derivative Works, if and
+wherever such third-party notices normally appear. The contents
+of the NOTICE file are for informational purposes only and
+do not modify the License. You may add Your own attribution
+notices within Derivative Works that You distribute, alongside
+or as an addendum to the NOTICE text from the Work, provided
+that such additional attribution notices cannot be construed
+as modifying the License.&lt;/p&gt;
+
+&lt;p&gt;You may add Your own copyright statement to Your modifications and
+may provide additional or different license terms and conditions
+for use, reproduction, or distribution of Your modifications, or
+for any such Derivative Works as a whole, provided Your use,
+reproduction, and distribution of the Work otherwise complies with
+the conditions stated in this License.&lt;/p&gt;
+
+&lt;p&gt;5. Submission of Contributions. Unless You explicitly state otherwise,
+any Contribution intentionally submitted for inclusion in the Work
+by You to the Licensor shall be under the terms and conditions of
+this License, without any additional terms or conditions.
+Notwithstanding the above, nothing herein shall supersede or modify
+the terms of any separate license agreement you may have executed
+with Licensor regarding such Contributions.&lt;/p&gt;
+
+&lt;p&gt;6. Trademarks. This License does not grant permission to use the trade
+names, trademarks, service marks, or product names of the Licensor,
+except as required for reasonable and customary use in describing the
+origin of the Work and reproducing the content of the NOTICE file.&lt;/p&gt;
+
+&lt;p&gt;7. Disclaimer of Warranty. Unless required by applicable law or
+agreed to in writing, Licensor provides the Work (and each
+Contributor provides its Contributions) on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied, including, without limitation, any warranties or conditions
+of title, non-infringement, merchantability, or fitness for a
+PARTICULAR PURPOSE. You are solely responsible for determining the
+appropriateness of using or redistributing the Work and assume any
+risks associated with Your exercise of permissions under this License.&lt;/p&gt;
+
+&lt;p&gt;8. Limitation of Liability. In no event and under no legal theory,
+whether in tort (including negligence), contract, or otherwise,
+unless required by applicable law (such as deliberate and grossly
+negligent acts) or agreed to in writing, shall any Contributor be
+liable to You for damages, including any direct, indirect, special,
+incidental, or consequential damages of any character arising as a
+result of this License or out of the use or inability to use the
+Work (including but not limited to damages for loss of goodwill,
+work stoppage, computer failure or malfunction, or any and all
+other commercial damages or losses), even if such Contributor
+has been advised of the possibility of such damages.&lt;/p&gt;
+
+&lt;p&gt;9. Accepting Warranty or Additional Liability. While redistributing
+the Work or Derivative Works thereof, You may choose to offer,
+and charge a fee for, acceptance of support, warranty, indemnity,
+or other liability obligations and/or rights consistent with this
+License. However, in accepting such obligations, You may act only
+on Your own behalf and on Your sole responsibility, not on behalf
+of any other Contributor, and only if You agree to indemnify,
+defend, and hold each Contributor harmless for any liability
+incurred by, or claims asserted against, such Contributor by reason
+of your accepting any such warranty or additional liability.&lt;/p&gt;</string>
+
+    <string name="PLAY_NOW">Play</string>
+    <string name="ADD_TO_END">Add to playlist</string>
+    <string name="PLAY_NEXT">Play after the current song</string>
+    <string name="DOWNLOAD">Download</string>
+    <string name="DOWNLOAD_REQUIRES_WRITE_PERMISSION">Download cancelled, as we don\'t have permission to save the downloaded files</string>
+    <string name="DONT_ASK_AGAIN">Don\'t ask again</string>
+
+    <!-- Song display options -->
+
+    <!--  Analytics preference strings -->
+    <string name="pref_cat_error_reports">Error reports and statistics</string>
+    <string name="pref_analytics_enable">Send usage statistics</string>
+    <string name="pref_analytics_enable_enabled">Anonymous usage statistics are collected using
+        Google Analytics.
+    </string>
+    <string name="pref_analytics_enable_disabled">No usage statistics are collected.</string>
+
+    <plurals name="seconds">
+        <item quantity="one">second</item>
+        <item quantity="other">seconds</item>
+    </plurals>
+
+    <string name="pref_cat_third_party">Third-party integration</string>
+    <string name="confirm_cancel_downloads">Cancel pending downloads?</string>
+
+    <string name="settings_category_download">Download</string>
+    <string name="settings_download_enabled">Enable downloads</string>
+    <string name="settings_download_confirmation">Ask for confirmation before downloading</string>
+    <string name="settings_download_use_server_path">Use server path and filename</string>
+    <string name="settings_download_path_structure">Folder hierarchy</string>
+    <string name="settings_download_filename_structure">File name</string>
+    <string name="download_path_structure_artist_artistalbum">Artist/Artist - Album</string>
+    <string name="download_path_structure_artist_album">Artist/Album</string>
+    <string name="download_path_structure_artistalbum">Artist - Album</string>
+    <string name="download_path_structure_album">Album</string>
+    <string name="download_path_structure_artist">Artist</string>
+    <string name="download_filename_structure_number_title">Number - Title</string>
+    <string name="download_filename_structure_artist_title">Artist - Title</string>
+    <string name="download_filename_structure_artist_number_title">Artist - Number - Title</string>
+    <string name="download_filename_structure_albumartist_number_title">Artist (Album) - Number - Title</string>
+    <string name="download_filename_structure_title">Title</string>
+    <string name="download_filename_structure_number_dot_artist_title">Number. Artist - Title</string>
+    <string name="NOTIFICATION_DOWNLOAD_MEDIA_SCANNER_ERROR">could not be added to the device\'s media database</string>
+
+    <!-- Download dialog -->
+    <string name="download_item">Download %s</string>
+    <string name="disable_downloads">Disable downloads</string>
+
+    <string name="about_team" translatable="false">Team</string>
+    <string name="about_authors" translatable="false">Kurt Aaholst\nNik Clayton\nBrad Fitzpatrick</string>
+    <string name="about_support" translatable="false">Support</string>
+    <string name="about_support_text" translatable="false">https://nikclayton.github.io/android-squeezer/</string>
+    <string name="mysqueezebox_com" translatable="false">mysqueezebox.com</string>
+    <string name="configure_select_player">Select player to control</string>
+    <string name="configure_select_button">Widget action</string>
+    <string name="remote_unknownDescription">Unknown</string>
+    <string name="remote_openPlayer">Open player in Squeezer</string>
+    <string name="remote_openNowPlaying">Open Now Playing for player</string>
+    <string name="remote_openCurrentPlaylist">Open current playlist for player</string>
+    <string name="remote_powerDescription">Power</string>
+    <string name="remote_pausePlayDescription">Pause/Play</string>
+    <string name="remote_nextDescription">Next song</string>
+    <string name="remote_previousDescription">Previous song</string>
+    <string name="remote_preset1Description">Preset 1</string>
+    <string name="remote_preset2Description">Preset 2</string>
+    <string name="remote_preset3Description">Preset 3</string>
+    <string name="remote_preset4Description">Preset 4</string>
+    <string name="remote_preset5Description">Preset 5</string>
+    <string name="remote_preset6Description">Preset 6</string>
+</resources>

@@ -1,0 +1,30 @@
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+    tasks.withType(Javadoc) {
+        // Disable lint, due to issues in the EventBus code comments.
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'UTF-8')
+    }
+}
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.0'
+    }
+}
+
+ext {
+    compileSdkVersion = 30
+    minSdkVersion = 19
+    targetSdkVersion = 30
+
+    assert minSdkVersion <= targetSdkVersion : "minSdkVersion too big"
+    assert targetSdkVersion <= compileSdkVersion : "targetSdkVersion too big"
+}

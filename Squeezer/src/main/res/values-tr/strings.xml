@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <string name="disabled">Devre Dışı</string>
+  <string name="menu_item_players">Oynatıcılar</string>
+    <string name="menu_item_settings_label">Ayarlar</string>
+  <string name="menu_item_about_label">Hakkında</string>
+  <string name="activity_settings_name">Ayarlar</string>
+  <string name="settings_serveraddr_hint">Sunucu adı veya IP adresi</string>
+  <string name="settings_server_prompt">Bir sunucu seçin</string>
+  <string name="settings_username_hint">Kullanıcı adı (isteğe bağlı)</string>
+  <string name="settings_password_hint">Şifre (isteğe bağlı)</string>
+  <string name="settings_server_scan_progress">Sunucular aranıyor...</string>
+  <string name="settings_autoconnect_title">Otomatik bağlan</string>
+  <string name="settings_scrobble_on">Şarkı bilgisi Last.fm sitesine gönderildi</string>
+  <string name="settings_market_not_found">Google Play başlatılamıyor, yüklü mü?</string>
+  <string name="settings_squeezeplayer_title">SqueezePlayer\'ı başlat</string>
+  <string name="settings_category_ui">Squeezer arayüz</string>
+  <string name="menu_item_disconnect">Bağlantıyı Kes</string>
+  <string name="menu_item_connect">Bağlan</string>
+  <string name="menu_item_poweron">\"%s\" aç</string>
+  <string name="menu_item_poweroff">\"%s\" kapat</string>
+    <string name="menu_item_rename">Yeniden Adlandır</string>
+  <string name="menu_item_playlist">Çalma Listesi</string>
+  <string name="menu_item_playlist_clear">Çalma listesini temizle</string>
+  <string name="menu_item_playlist_save">Çalma listesi olarak kaydet</string>
+    <string name="connecting_text">Bağlanıyor</string>
+    <string name="connection_failed_text">Bağlantı başarız.</string>
+  <string name="login_failed_text">Giriş başarısız. Kullanıcı adı ve şifre girin.</string>
+  <string name="disconnected_text">Bağlantı kesildi.</string>
+  <string name="wifi_disabled_text">Wi-Fi devre dışı</string>
+  <string name="notification_playing_text">%s çalıyor</string>
+  <string name="save_playlist_title">Çalma listesini kaydet</string>
+  <string name="save_playlist_hint">Çalma listesi adı girin</string>
+    <string name="rename_title">%s yeniden adlandır</string>
+    <string name="loading_text">Yükleniyor...</string>
+  <string name="browse_items_text">%2$d %1$s</string>
+    <string name="unknown_track">Bilinmeyen parça</string>
+  <string name="unknown_album">Bilinmeyen albüm</string>
+  <string name="unknown_artist">Bilinmeyen sanatçı</string>
+  <string name="unknown_artistalbum">Bilinmeyen sanatçı/albüm</string>
+    <!--Reporting errors that from the server.-->
+  <string name="server_error">%1$s bir hata bildirdi: \"%2$s\".</string>
+  <string name="menu_item_power_off">Kapat</string>
+  <string name="menu_item_power_on">Aç</string>
+  <!--Dialog buttons-->
+  <string name="dialog_license">Lisans</string>
+    <string name="PLAY_NOW">Oynat</string>
+  <string name="ADD_TO_END">Çalma listesine ekle</string>
+  <string name="DOWNLOAD">İndir</string>
+    <!--Song display options-->
+    <!--Analytics preference strings-->
+  <string name="pref_cat_error_reports">Hata raporları ve istatistikler</string>
+  <string name="pref_analytics_enable">Kullanım istatistiklerini gönder</string>
+    <plurals name="seconds">
+    <item quantity="one">saniye</item>
+    <item quantity="other">saniye</item>
+  </plurals>
+</resources>

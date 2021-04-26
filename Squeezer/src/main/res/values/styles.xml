@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Copyright 2011 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents">
+        <item name="alarm_dow_selected">@android:color/white</item>
+        <item name="alarm_am_pm_color">@android:color/white</item>
+        <item name="alarm_list_background">@color/alarm_list_background</item>
+        <item name="item_background">@drawable/item_background</item>
+        <item name="main_button_background">@drawable/main_button_normal</item>
+        <item name="ic_alarm_settings">@drawable/ic_alarm_settings</item>
+        <item name="ic_delete">@drawable/ic_delete</item>
+
+        <item name="colorPrimary">@color/lightBlueDark</item>
+        <item name="colorPrimaryVariant">@color/lightBlueDarkVariant</item>
+        <item name="colorSecondary">@color/amberDark</item>
+        <item name="colorSecondaryVariant">@color/amberDarkVariant</item>
+        <item name="actionBarStyle">@style/SqueezerActionBar.Dark</item>
+
+        <item name="volume_panel_back_circle_color">@color/volume_panel_back_circle_color</item>
+    </style>
+
+    <style name="AppTheme.Light.DarkActionBar" parent="Theme.MaterialComponents.Light">
+        <item name="alarm_dow_selected">@android:color/black</item>
+        <item name="alarm_am_pm_color">@android:color/black</item>
+        <item name="alarm_list_background">@color/alarm_list_background_light</item>
+        <item name="item_background">@drawable/item_background_light</item>
+        <item name="main_button_background">@drawable/main_button_light</item>
+        <item name="ic_alarm_settings">@drawable/ic_alarm_settings_light</item>
+        <item name="ic_delete">@drawable/ic_delete_light</item>
+
+        <item name="colorPrimary">@color/lightBlueLight</item>
+        <item name="colorPrimaryVariant">@color/lightBlueLightVariant</item>
+        <item name="colorSecondary">@color/amberLight</item>
+        <item name="colorSecondaryVariant">@color/amberLightVariant</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+
+        <item name="volume_panel_back_circle_color">@color/volume_panel_back_circle_color_light</item>
+    </style>
+
+    <style name="SqueezerActionBar.Dark" parent="@style/Widget.MaterialComponents.ActionBar.Primary">
+        <item name="background">@color/actionBarBackgroundDark</item>
+    </style>
+
+    <!-- Text Styles. Apply these to the android:textAppearance attribute of the views. -->
+
+    <!-- Base styles that the rest of the app inherits from. -->
+    <style name="SqueezerTextAppearance.XLarge" parent="@android:style/TextAppearance.Large">
+        <item name="android:textSize">44sp</item>
+    </style>
+    <style name="SqueezerTextAppearance.Large" parent="@android:style/TextAppearance.Large"/>
+    <style name="SqueezerTextAppearance.Medium" parent="@android:style/TextAppearance.Medium"/>
+    <style name="SqueezerTextAppearance.Small" parent="@android:style/TextAppearance.Small"/>
+
+    <!-- List headers -->
+    <style name="SqueezerTextAppearance.ItemList.Header" parent="SqueezerTextAppearance.Medium"/>
+    <style name="SqueezerTextAppearance.ItemList.SubHeader" parent="SqueezerTextAppearance.Small"/>
+
+    <!-- Text in list items -->
+    <style name="SqueezerTextAppearance.ListItem.Primary" parent="SqueezerTextAppearance.Medium"/>
+    <style name="SqueezerTextAppearance.ListItem.Primary.Highlight" parent="SqueezerTextAppearance.ListItem.Primary">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="SqueezerTextAppearance.ListItem.Secondary" parent="SqueezerTextAppearance.Small"/>
+    <style name="SqueezerTextAppearance.ListItem.Secondary.Highlight" parent="SqueezerTextAppearance.ListItem.Secondary">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Text in grid items -->
+    <style name="SqueezerTextAppearance.GridItem.Primary" parent="SqueezerTextAppearance.Medium"/>
+    <style name="SqueezerTextAppearance.GridItem.Secondary" parent="SqueezerTextAppearance.Small"/>
+
+    <!-- Anywhere we want to display information about a song in an activity (and not in a list). -->
+    <style name="SqueezerTextAppearance.SongInfo.Primary" parent="SqueezerTextAppearance.Medium"/>
+    <style name="SqueezerTextAppearance.SongInfo.Secondary" parent="SqueezerTextAppearance.Small"/>
+    <style name="SqueezerTextAppearance.SongInfo.Tertiary" parent="SqueezerTextAppearance.Small"/>
+
+    <!-- Text on the NowPlayingFragment. -->
+    <style name="SqueezerTextAppearance.NowPlaying.Primary" parent="SqueezerTextAppearance.SongInfo.Primary"/>
+    <style name="SqueezerTextAppearance.NowPlaying.Secondary" parent="SqueezerTextAppearance.SongInfo.Secondary"/>
+    <style name="SqueezerTextAppearance.NowPlaying.Tertiary" parent="SqueezerTextAppearance.SongInfo.Tertiary"/>
+
+    <style name="SqueezerTextAppearance.NowPlaying.SongName" parent="SqueezerTextAppearance.NowPlaying.Primary"/>
+    <style name="SqueezerTextAppearance.NowPlaying.AlbumName" parent="SqueezerTextAppearance.NowPlaying.Secondary"/>
+    <style name="SqueezerTextAppearance.NowPlaying.ArtistName" parent="SqueezerTextAppearance.NowPlaying.Secondary"/>
+
+    <!-- Text on the NowPlayingFragment mini player. -->
+    <style name="SqueezerTextAppearance.NowPlayingMini.Primary" parent="SqueezerTextAppearance.SongInfo.Primary"/>
+    <style name="SqueezerTextAppearance.NowPlayingMini.Secondary" parent="SqueezerTextAppearance.SongInfo.Secondary"/>
+
+    <style name="SqueezerTextAppearance.NowPlayingMini.SongName" parent="SqueezerTextAppearance.NowPlayingMini.Primary"/>
+    <style name="SqueezerTextAppearance.NowPlayingMini.ArtistAlbumName" parent="SqueezerTextAppearance.NowPlayingMini.Secondary"/>
+
+    <style name="SqueezerNotificationTitle">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SqueezerNotificationText">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
+    </style>
+
+    <!-- Widget appearance. Apply these using the "style" attribute. -->
+    <style name="SqueezerWidget"/>
+
+    <style name="SqueezerWidget.NowPlaying"/>
+
+    <style name="SqueezerWidget.SingleLine">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="SqueezerWidget.Marquee" parent="SqueezerWidget.SingleLine">
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
+
+    <style name="SqueezerWidget.NowPlaying.SongName" parent="SqueezerWidget.Marquee">
+        <item name="android:hint">@string/unknown_track</item>
+        <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.SongName</item>
+    </style>
+
+    <style name="SqueezerWidget.NowPlaying.AlbumName" parent="SqueezerWidget.SingleLine">
+        <item name="android:hint">@string/unknown_album</item>
+        <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.AlbumName</item>
+    </style>
+
+    <style name="SqueezerWidget.NowPlaying.ArtistName" parent="SqueezerWidget.SingleLine">
+        <item name="android:hint">@string/unknown_artist</item>
+        <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.ArtistName</item>
+    </style>
+
+    <style name="SqueezerWidget.NowPlaying.Timestamp">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:text">0:00</item>
+        <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlaying.Tertiary</item>
+    </style>
+
+    <style name="SqueezerWidget.NowPlayingMini.SongName" parent="SqueezerWidget.Marquee">
+        <item name="android:hint">@string/unknown_track</item>
+        <item name="android:marqueeRepeatLimit">marquee_forever</item>
+        <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlayingMini.SongName</item>
+    </style>
+
+    <style name="SqueezerWidget.NowPlayingMini.ArtistAlbumName" parent="SqueezerWidget.SingleLine">
+        <item name="android:hint">@string/unknown_artistalbum</item>
+        <item name="android:textAppearance">@style/SqueezerTextAppearance.NowPlayingMini.ArtistAlbumName</item>
+    </style>
+
+    <!-- Media controller styles -->
+    <style name="SqueezerWidget.MediaButton">
+        <item name="android:layout_width">0dip</item>
+        <item name="android:layout_height">52dip</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/list_selector_holo_dark</item>
+        <item name="tint">?colorControlNormal</item>
+    </style>
+
+    <style name="SqueezerWidget.MediaButton.Previous">
+        <item name="srcCompat">@drawable/ic_action_previous</item>
+    </style>
+
+    <style name="SqueezerWidget.MediaButton.Next">
+        <item name="srcCompat">@drawable/ic_action_next</item>
+    </style>
+
+    <style name="SqueezerWidget.MediaButton.Play">
+        <item name="srcCompat">@drawable/ic_action_play</item>
+    </style>
+
+    <style name="SqueezerWidget.MediaButton.Shuffle">
+        <item name="srcCompat">@drawable/btn_shuffle</item>
+    </style>
+
+    <style name="SqueezerWidget.MediaButton.Repeat">
+        <item name="srcCompat">@drawable/btn_repeat</item>
+    </style>
+
+    <style name="SqueezerWidget.MediaButton.Volume" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="icon">@drawable/ic_volume_up</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:text">@string/menu_item_volume</item>
+        <item name="android:textAlignment">textStart</item>
+    </style>
+
+    <style name="SqueezerWidget.MediaButton.Playlist" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="icon">@drawable/ic_action_playlist</item>
+        <item name="iconGravity">end</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:text">@string/menu_item_playlist</item>
+        <item name="android:textAlignment">textEnd</item>
+    </style>
+
+    <!-- Cover art on the Now Playing widget -->
+    <style name="SqueezerWidget.CoverArt">
+        <item name="android:paddingStart">36dp</item>
+        <item name="android:paddingEnd">36dp</item>
+    </style>
+
+    <style name="VolumePanel" parent="@android:style/Theme.Panel">
+        <item name="android:windowAnimationStyle">@style/VolumeDialogAnimation</item>
+    </style>
+
+    <style name="VolumeDialogAnimation">
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <!-- Context menu button -->
+    <style name="SqueezerContextMenuButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:contentDescription">""@string/app_name</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="icon">@drawable/ic_menu_overflow</item>
+    </style>
+
+    <!-- UndoBar -->
+    <style name="UndoBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">@drawable/toast_background</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="UndoBarMessage">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">12dp</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="UndoBarButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">12dp</item>
+        <item name="drawableLeftCompat">@drawable/ic_undobar_undo</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:text">@string/undo</item>
+    </style>
+
+    <!-- Toast -->
+    <style name="DisplayMessage">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:background">@drawable/toast_background</item>
+    </style>
+
+    <style name="DisplayMessageArtwork">
+        <item name="android:layout_width">@dimen/album_art_icon_grid_width</item>
+        <item name="android:layout_height">@dimen/album_art_icon_grid_height</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxHeight">@dimen/album_art_icon_grid_height</item>
+        <item name="android:maxWidth">@dimen/album_art_icon_grid_width</item>
+        <item name="android:minHeight">@dimen/album_art_icon_grid_height</item>
+        <item name="android:minWidth">@dimen/album_art_icon_grid_width</item>
+    </style>
+
+    <style name="DisplayMessageIcon">
+        <item name="android:layout_width">@dimen/album_art_icon_width</item>
+        <item name="android:layout_height">@dimen/album_art_icon_height</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxHeight">@dimen/album_art_icon_height</item>
+        <item name="android:maxWidth">@dimen/album_art_icon_width</item>
+        <item name="android:minHeight">@dimen/album_art_icon_height</item>
+        <item name="android:minWidth">@dimen/album_art_icon_width</item>
+    </style>
+
+    <style name="DisplayMessageText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+    </style>
+
+    <style name="RemoteButton"
+        parent="Widget.AppCompat.ButtonBar"
+        >
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginLeft">-4dip</item>
+        <item name="android:layout_marginRight">-4dip</item>
+        <item name="android:padding">0dip</item>
+    </style>
+
+    <style name="RemoteSelectButtonIcon">
+        <item name="tint">?colorControlNormal</item>
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+    </style>
+
+</resources>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ Copyright (c) 2011 Kurt Aaholst <kaaholst@gmail.com>
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/parent_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="32dp"
+        android:paddingTop="8dp"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <uk.org.ngo.squeezer.widget.SquareImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/album_art_large_icon_width"
+            android:layout_height="@dimen/album_art_large_icon_height"
+            android:contentDescription="@string/app_name"
+            android:maxHeight="@dimen/album_art_large_icon_height"
+            android:maxWidth="@dimen/album_art_large_icon_width"
+            android:minHeight="@dimen/album_art_large_icon_height"
+            android:minWidth="@dimen/album_art_large_icon_width"
+            android:layout_marginEnd="8dp"
+            tools:src="@drawable/icon_pending_artwork"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:minHeight="48dp"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/text1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/SqueezerTextAppearance.ListItem.Primary"
+                tools:text="text1"/>
+
+            <TextView
+                android:id="@+id/text2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/SqueezerTextAppearance.ListItem.Secondary"
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:text="text2"/>
+        </LinearLayout>
+
+        <include layout="@layout/context_menu_image_button"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/sub_header_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/sub_header"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:paddingBottom="4dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="4dp"
+            android:textAppearance="@style/SqueezerTextAppearance.ItemList.SubHeader"/>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/input_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="visible"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/plugin_input_til"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/plugin_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/input_button"
+            app:icon="@drawable/keyboard_return"
+            app:iconSize="24dp"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
+    <include layout="@layout/item_list"
+        android:id="@+id/item_list"
+        tools:listitem="@layout/list_item"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"/>
+
+</LinearLayout>

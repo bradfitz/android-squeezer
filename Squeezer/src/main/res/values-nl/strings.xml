@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+ Copyright (c) 2012 Google Inc.  All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<resources>
+    <string name="disabled">Disabled</string>
+    <string name="volume">%s volume</string>
+    <string name="menu_item_players">Spelers</string>
+    <string name="menu_item_settings_label">Instellingen</string>
+    <string name="menu_item_about_label">Over</string>
+    <string name="activity_settings_name">Instellingen</string>
+    <string name="settings_serveraddr_hint">Naam of IP adres van server</string>
+    <string name="settings_server_prompt">Kies een server</string>
+    <string name="settings_server_scanning_disabled_msg">Scannen is uitgeschakeld, omdat Wi-Fi
+        niet is verbonden.
+    </string>
+    <string name="settings_username_hint">Gebruikersnaam (optioneel)</string>
+    <string name="settings_password_hint">Wachtwoord (optioneel)</string>
+    <string name="settings_server_scan_progress">Zoeken naar servers…</string>
+    <string name="settings_fadeinsecs_title">Duur fade in</string>
+    <string name="settings_fadeinsecs_summary">Voer aantal seconden in voor fade in na pauzeren. Voer 0 in om fade in uit te schakelen.</string>
+    <string name="settings_autoconnect_title">Automatisch verbinden.</string>
+    <string name="settings_autoconnect_summary">Bied aan Wi-Fi in te schakelen, en bij Wi-Fi
+        beschikbaarheid, probeer te verbinden.
+    </string>
+    <string name="settings_scrobble_title">Scrobble naar Last.fm</string>
+    <string name="settings_scrobble_on">Informatie van muzieknummer is verzonden naar Last.fm</string>
+    <string name="settings_scrobble_off">Informatie van muzieknummer is niet verzonden naar Last.fm</string>
+    <string name="settings_scrobble_noapp">Er zijn geen apps om te scrobbelen geïnstalleerd</string>
+    <string name="settings_market_not_found">Kon Google Play niet starten. Is het wel geïnstalleerd?</string>
+    <string name="settings_squeezeplayer_title">Start SqueezePlayer</string>
+    <string name="settings_squeezeplayer_summary">Vink deze optie aan om er zeker van te zijn dat SqueezePlayer werkt bij gebruik van Squeezer</string>
+    <string name="settings_category_ui">Squeezer interface</string>
+    <string name="menu_item_disconnect">Verbreek contact</string>
+    <string name="menu_item_connect">Verbind</string>
+    <string name="menu_item_poweron">Aanzetten \"%s\"</string>
+    <string name="menu_item_poweroff">Schakel uit \"%s\"</string>
+    <string name="menu_item_rename">Hernoem</string>
+    <string name="menu_item_playlist">Playlist</string>
+    <string name="menu_item_playlist_clear">Wis huidige playlist</string>
+    <string name="menu_item_playlist_save">Bewaar huidige playlist</string>
+    <string name="menu_item_volume">Volume</string>
+    <string name="connecting_text">Verbinden</string>
+    <string name="connecting_to_text">Verbinden met Logitech Media Server met %s</string>
+    <string name="connection_failed_text">Verbinden mislukt. Bekijk settings.</string>
+    <string name="disconnected_text">Contact verbroken.</string>
+    <string name="wifi_disabled_text">Wi-Fi is uitgeschakeld</string>
+    <string name="enable_wifi_text">Dit zet Wi-Fi aan op uw Android. Gelieve wachten voor een
+        actieve Wi-Fi connectie. Nu Wi-Fi aanzetten?
+    </string>
+    <string name="wifi_enabled_text">Wi-Fi staat aan. Wacht op actieve Wi-Fi verbinding.</string>
+    <string name="notification_playing_text">%s speelt af</string>
+    <string name="save_playlist_title">Bewaar playlist</string>
+    <string name="save_playlist_hint">Voer naam playlist in</string>
+    <string name="rename_title">Hernoem %s</string>
+    <string name="loading_text">Laden …</string>
+    <string name="browse_items_text">%2$d %1$s</string>
+    <string name="unknown_track">Onbekend nummer</string>
+    <string name="unknown_album">Onbekend album</string>
+    <string name="unknown_artist">Onbekende artiest</string>
+    <string name="unknown_artistalbum">Onbekende artiest/album</string>
+    <string name="tips_title">Tips</string>
+    <string name="tip_volume">Gebruik de volume knoppen van uw apparaat om het afspeel volume te
+        veranderen. Probeer het nu uit.
+    </string>
+    <!--Reporting errors that from the server.-->
+    <string name="server_error">%1$s rapporteerde een error: \"%2$s\".</string>
+    <string name="menu_item_power_off">Schakel uit</string>
+    <string name="menu_item_power_on">Schakel aan</string>
+    <!--Dialog buttons-->
+    <string name="dialog_license">Licentie</string>
+    <string name="copyright_text">Copyright © 2009 Google Inc. Alle auteursrechten voorbehouden.\n
+        Copyright © 2011 Kurt Aaholst. Alle auteursrechten voorbehouden.</string>
+    <string name="PLAY_NOW">Speel af</string>
+    <string name="ADD_TO_END">Voeg toe aan Playlist</string>
+    <string name="PLAY_NEXT">Speel af na huidige liedje</string>
+    <string name="DOWNLOAD">Download</string>
+    <!--Song display options-->
+    <!--Analytics preference strings-->
+    <string name="pref_cat_error_reports">Fouten rapporten en statistieken</string>
+    <string name="pref_analytics_enable">Verzend gebruiks-statistieken</string>
+    <string name="pref_analytics_enable_enabled">Anonieme gebruiks-statistieken zijn verzameld met
+        behulp van Google Analytics.
+    </string>
+    <string name="pref_analytics_enable_disabled">Geen gebruiks-statistieken zijn verzameld.</string>
+    <plurals name="seconds">
+        <item quantity="one">seconde</item>
+        <item quantity="other">seconden</item>
+    </plurals>
+
+    <string name="confirm_cancel_downloads">Downloaden afbreken?</string>
+</resources>

@@ -1,0 +1,11 @@
+&bull; Current playlist control; Possibility to undo a clear current playlist. Remove a track by swiping left or right. Touch and hold to move a track
+
+&bull; Download confirmation and option to disable downloads
+
+&bull; Fix an issue with where Android 10 would falsely adds .mp3 to filenames
+
+&bull; Work around an issue with recent spotty versions, where only one search result is displayed
+
+&bull; Switch radio buttons properly
+
+&bull; Bug and stability fixes

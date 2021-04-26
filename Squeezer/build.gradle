@@ -1,0 +1,215 @@
+buildscript {
+    repositories {
+        maven { url 'https://plugins.gradle.org/m2/' }
+    }
+    dependencies {
+        classpath 'com.github.triplet.gradle:play-publisher:3.0.0'
+    }
+}
+
+plugins {
+    id 'com.android.application'
+    id 'com.github.triplet.play' version '2.3.0'
+}
+
+apply plugin: 'uk.org.ngo.gradle.whatsnew'
+apply plugin: 'uk.org.ngo.gradle.slimstrings'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: '*.jar')
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.palette:palette:1.0.0'
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.10'
+
+    // Android support libraries
+    // Note: these libraries require the "Google Repository" and "Android
+    //       Support Repository" to be installed via the SDK manager.
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.preference:preference:1.1.1'
+
+    // Third party libraries
+    implementation 'com.google.guava:guava:28.2-android'
+
+    // findbugs is required for Proguard to work with Guava.
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+    // EventBus, https://github.com/greenrobot/EventBus.
+    implementation 'de.greenrobot:eventbus:2.4.1'
+
+    // Changelogs, see https://github.com/cketti/ckChangeLog.
+    implementation 'de.cketti.library.changelog:ckchangelog:1.2.0'
+
+    // KitKat time picker
+    implementation 'com.nineoldandroids:library:2.4.0'
+    implementation project(':libs:datetimepicker')
+
+    // Radial SeekBar
+    implementation 'com.sdsmdg.harjot:croller:1.0.7'
+
+    // Comet client
+    implementation 'org.cometd.java:cometd-java-client:3.1.11'
+    implementation 'org.slf4j:slf4j-android:1.7.30'
+
+    // JVM tests
+    testImplementation 'junit:junit:4.12'
+}
+
+android {
+    compileSdkVersion rootProject.compileSdkVersion
+
+    def gitHash = "git rev-parse --short HEAD".execute().text.trim()
+    def hasModifiedDeletedOrOtherFiles = !"git ls-files -mdo --exclude-standard".execute().text.trim().isEmpty()
+    def hasStagedFiles = !"git diff-index --no-ext-diff --name-only --cached HEAD".execute().text.trim().isEmpty()
+    def dirtyWorkingCopy = hasModifiedDeletedOrOtherFiles || hasStagedFiles
+    def gitDescription = dirtyWorkingCopy ? "${gitHash}-dirty" : gitHash
+
+    defaultConfig {
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+
+        buildConfigField "String", "GIT_DESCRIPTION", "\"${gitDescription}\""
+
+        versionCode 89
+        versionName "2.2.1"
+
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+    }
+
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        // Downgrade missing translations to non-fatal severity.
+        warning 'MissingTranslation'
+        warning 'ImpliedQuantity'
+        lintConfig file("lint.xml")
+    }
+
+    signingConfigs {
+        if (project.hasProperty("Squeezer.properties")
+                && file(project.property("Squeezer.properties")).exists()) {
+            Properties props = new Properties()
+            props.load(new FileInputStream(file(project.property("Squeezer.properties"))))
+            release {
+                storeFile file("keystore")
+                storePassword props['key.store.password']
+                keyAlias "squeezer"
+                keyPassword props['key.alias.password']
+            }
+        } else {
+            release {
+                storeFile file("squeezer-local-release-key.keystore")
+                storePassword "squeezer"
+                keyAlias "squeezer"
+                keyPassword "squeezer"
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            ext.enableCrashlytics = false
+        }
+
+        release {
+            minifyEnabled true
+            shrinkResources true
+            signingConfig signingConfigs.release
+            // You could use 'proguardFile "proguard.cfg"' here and get the
+            // same effect, but this ensures that any changes to
+            // proguard-android-optimize.txt are automatically included.
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFile "proguard-crashlytics.cfg"
+            proguardFile "proguard-eventbus.cfg"
+            proguardFile "proguard-guava.cfg"
+            proguardFile "proguard-cometd.cfg"
+            proguardFile "proguard-squeezer.cfg"
+        }
+    }
+}
+
+def publishTrack() {
+    switch (android.defaultConfig.versionName) {
+        case ~/.*-beta-\d+/:
+            return 'beta'
+        case ~/\d+\.\d+\.\d+/:
+            return 'production'
+    }
+    throw new IllegalArgumentException("versionName '${android.defaultConfig.versionName}' is not valid")
+}
+
+whatsnew {
+    changelogPath = 'Squeezer/src/main/res/xml/changelog_master.xml'
+    newsPath = 'NEWS'
+    if (publishTrack() == 'beta') {
+        whatsnewPath = 'Squeezer/src/main/play/release-notes/en-US/beta.txt'
+    } else {
+        whatsnewPath = 'Squeezer/src/main/play/release-notes/en-US/production.txt'
+    }
+}
+
+play {
+    serviceAccountCredentials = file('key.json')
+    track = publishTrack()
+}
+
+// To update/add server strings copy relevant strings.txt files from slimserver and squeezeplay
+// to the serverstrings folder and update the 2 tables below; 'files' (if necessary) and 'strings'.
+// run: './gradlew updateSlimStrings'
+slimstrings {
+    files = [
+            'serverstrings/slimserver/strings.txt',
+            'serverstrings/squeezeplay/global_strings.txt'
+    ]
+    strings = [
+            'HOME',
+            'SWITCH_TO_EXTENDED_LIST',
+            'SWITCH_TO_GALLERY',
+            'SLEEP',
+            'SLEEP_CANCEL',
+            'X_MINUTES',
+            'SLEEPING_IN',
+            'SLEEP_AT_END_OF_SONG',
+            'ALARM',
+            'ALARM_ALARM_REPEAT',
+            'ALARM_SHORT_DAY_0',
+            'ALARM_SHORT_DAY_1',
+            'ALARM_SHORT_DAY_2',
+            'ALARM_SHORT_DAY_3',
+            'ALARM_SHORT_DAY_4',
+            'ALARM_SHORT_DAY_5',
+            'ALARM_SHORT_DAY_6',
+            'ALARM_DELETING',
+            'ALARM_ALL_ALARMS',
+            'MORE',
+            'SETTINGS',
+            'SCREEN_SETTINGS',
+            'ADVANCED_SETTINGS',
+            'EXTRAS',
+            'SETUP_PLAYTRACKALBUM',
+            'SETUP_PLAYTRACKALBUM_DESC',
+            'SETUP_PLAYTRACKALBUM_0',
+            'SETUP_PLAYTRACKALBUM_1',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_DESC',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_0',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_1',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_2',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_3',
+            'SETUP_DEFEAT_DESTRUCTIVE_TTP_4',
+            'NO_PLAYER_FOUND',
+            'CLEAR_PLAYLIST',
+            'JIVE_POPUP_REMOVING_FROM_PLAYLIST'
+    ]
+}

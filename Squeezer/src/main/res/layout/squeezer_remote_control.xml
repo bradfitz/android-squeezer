@@ -1,0 +1,45 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="?android:attr/buttonBarStyle"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80000000"
+    android:orientation="vertical">
+
+
+    <Button
+        android:id="@+id/squeezerRemote_playerButton"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="-5dip"
+        android:layout_marginTop="-5dip"
+        android:layout_marginEnd="-5dip"
+        android:ellipsize="end"
+        android:gravity="start|center_vertical"
+        android:minHeight="0pt"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="8dp"
+        android:singleLine="true"
+        android:textAllCaps="false"
+        android:textColor="#80FFFFFF"
+        android:textSize="4pt" />
+
+    <Button
+        android:id="@+id/squeezerRemote_textButton"
+        style="@style/RemoteButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="10pt"
+        android:visibility="gone" />
+
+    <ImageButton
+        android:id="@+id/squeezerRemote_imageButton"
+        style="@style/RemoteButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+</LinearLayout>
